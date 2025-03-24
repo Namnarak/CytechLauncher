@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -43,7 +42,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.getAnimateSpeed
+import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -205,10 +204,10 @@ class MainActivity : BaseComponentActivity() {
             navController = navController,
             startDestination = LAUNCHER_SCREEN_TAG,
             enterTransition = {
-                fadeIn(animationSpec = tween(getAnimateSpeed()))
+                fadeIn(animationSpec = getAnimateTween())
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(getAnimateSpeed()))
+                fadeOut(animationSpec = getAnimateTween())
             }
         ) {
             composable(

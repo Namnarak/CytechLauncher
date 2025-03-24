@@ -1,14 +1,16 @@
 package com.movtery.zalithlauncher.ui.screens
 
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.getAnimateSpeed
+import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
 import com.movtery.zalithlauncher.state.SettingsScreenTagState
@@ -84,48 +85,36 @@ private fun TabMenu(
     settingsNavController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val transition = updateTransition(targetState = isVisible, label = "tabMenuTransition")
-
-    val offsetX by transition.animateDp(
-        transitionSpec = { tween(getAnimateSpeed()) },
-        label = "offsetX"
-    ) { visible ->
-        if (visible) 0.dp else (-60).dp
-    }
-
-    val alpha by transition.animateFloat(
-        transitionSpec = { tween(getAnimateSpeed()) },
-        label = "alpha"
-    ) { visible ->
-        if (visible) 1f else 0f
-    }
-
-    Surface(
-        modifier = modifier
-            .offset(x = offsetX)
-            .alpha(alpha),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.background
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(getAnimateTween()) + slideInHorizontally(getAnimateTween()) { -60 },
+        exit = fadeOut(getAnimateTween()) + slideOutHorizontally(getAnimateTween()) { -60 }
     ) {
-        fun navigate(tag: String) {
-            settingsNavController.navigate(tag) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-
-        val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
-
-        TabLayout(
-            modifier = Modifier.padding(all = 8.dp)
+        Surface(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.background
         ) {
-            TabItem(
-                painter = painterResource(R.drawable.ic_setting_launcher),
-                contentDescription = null,
-                text = stringResource(R.string.settings_tab_launcher),
-                selected = currentSettingsTag == LAUNCHER_SETTINGS_TAG
+            fun navigate(tag: String) {
+                settingsNavController.navigate(tag) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+
+            val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
+
+            TabLayout(
+                modifier = Modifier.padding(all = 8.dp)
             ) {
-                navigate(LAUNCHER_SETTINGS_TAG)
+                TabItem(
+                    painter = painterResource(R.drawable.ic_setting_launcher),
+                    contentDescription = null,
+                    text = stringResource(R.string.settings_tab_launcher),
+                    selected = currentSettingsTag == LAUNCHER_SETTINGS_TAG
+                ) {
+                    navigate(LAUNCHER_SETTINGS_TAG)
+                }
             }
         }
     }
@@ -138,22 +127,6 @@ private fun NavigationUI(
     settingsNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val transition = updateTransition(targetState = isVisible, label = "navigationUITransition")
-
-    val offsetY by transition.animateDp(
-        transitionSpec = { tween(getAnimateSpeed()) },
-        label = "offsetX"
-    ) { visible ->
-        if (visible) 0.dp else (-60).dp
-    }
-
-    val alpha by transition.animateFloat(
-        transitionSpec = { tween(getAnimateSpeed()) },
-        label = "alpha"
-    ) { visible ->
-        if (visible) 1f else 0f
-    }
-
     val screenTagState = LocalSettingsScreenTag.current
 
     LaunchedEffect(settingsNavController) {
@@ -163,17 +136,21 @@ private fun NavigationUI(
         settingsNavController.addOnDestinationChangedListener(listener)
     }
 
-    NavHost(
-        modifier = modifier
-            .offset(y = offsetY)
-            .alpha(alpha = alpha),
-        navController = settingsNavController,
-        startDestination = LAUNCHER_SETTINGS_TAG
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(getAnimateTween()) + slideInVertically(getAnimateTween()) { -60 },
+        exit = fadeOut(getAnimateTween()) + slideOutVertically(getAnimateTween()) { -60 }
     ) {
-        composable(
-            route = LAUNCHER_SETTINGS_TAG
+        NavHost(
+            modifier = modifier,
+            navController = settingsNavController,
+            startDestination = LAUNCHER_SETTINGS_TAG
         ) {
-            LauncherSettingsScreen()
+            composable(
+                route = LAUNCHER_SETTINGS_TAG
+            ) {
+                LauncherSettingsScreen()
+            }
         }
     }
 }
