@@ -1,9 +1,9 @@
 package com.movtery.zalithlauncher.state
 
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
  * 状态：当前设置屏幕的标签
@@ -17,6 +17,6 @@ class SettingsScreenTagState {
     }
 }
 
-val LocalSettingsScreenTag = staticCompositionLocalOf<SettingsScreenTagState> {
+val LocalSettingsScreenTag = compositionLocalOf<SettingsScreenTagState> {
     error("SettingsScreenTagState not provided!")
 }

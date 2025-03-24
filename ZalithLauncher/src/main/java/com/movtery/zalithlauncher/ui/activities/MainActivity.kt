@@ -43,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.getAnimateSpeed
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -204,10 +205,10 @@ class MainActivity : BaseComponentActivity() {
             navController = navController,
             startDestination = LAUNCHER_SCREEN_TAG,
             enterTransition = {
-                fadeIn(animationSpec = tween(1900))
+                fadeIn(animationSpec = tween(getAnimateSpeed()))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(1900))
+                fadeOut(animationSpec = tween(getAnimateSpeed()))
             }
         ) {
             composable(

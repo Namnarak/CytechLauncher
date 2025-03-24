@@ -9,4 +9,8 @@
     <string name="main_control">控制</string>
     <string name="main_install_jar">执行 jar 文件</string>
     <string name="main_send_log">分享日志</string>
+    <!--  设置  -->
+    <string name="settings_tab_launcher">启动器设置</string>
+    <string name="settings_launcher_animate_speed_title">动画倍速</string>
+    <string name="settings_launcher_animate_speed_summary">调整启动器的动画播放时长的倍速</string>
 </resources>

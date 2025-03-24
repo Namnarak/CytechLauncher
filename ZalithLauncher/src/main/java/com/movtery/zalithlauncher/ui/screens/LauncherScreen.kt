@@ -1,14 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.getAnimateSpeed
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.components.IconTextItemLayout
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
@@ -97,14 +93,14 @@ private fun MainMenu(
     val transition = updateTransition(targetState = isVisible, label = "mainMenuTransition")
 
     val offsetY by transition.animateDp(
-        transitionSpec = { tween(1900) },
+        transitionSpec = { tween(getAnimateSpeed()) },
         label = "offsetY"
     ) { visible ->
-        if (visible) 0.dp else (-200).dp
+        if (visible) 0.dp else (-60).dp
     }
 
     val alpha by transition.animateFloat(
-        transitionSpec = { tween(1900) },
+        transitionSpec = { tween(getAnimateSpeed()) },
         label = "alpha"
     ) { visible ->
         if (visible) 1f else 0f
@@ -169,14 +165,14 @@ private fun RightMenu(
     val transition = updateTransition(targetState = isVisible, label = "rightMenuTransition")
 
     val offsetX by transition.animateDp(
-        transitionSpec = { tween(1900) },
+        transitionSpec = { tween(getAnimateSpeed()) },
         label = "offsetX"
     ) { visible ->
-        if (visible) 0.dp else 200.dp
+        if (visible) 0.dp else 60.dp
     }
 
     val alpha by transition.animateFloat(
-        transitionSpec = { tween(1900) },
+        transitionSpec = { tween(getAnimateSpeed()) },
         label = "alpha"
     ) { visible ->
         if (visible) 1f else 0f
