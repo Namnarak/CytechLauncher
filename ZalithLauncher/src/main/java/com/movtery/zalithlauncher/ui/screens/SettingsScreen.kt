@@ -93,7 +93,8 @@ private fun TabMenu(
         Surface(
             modifier = modifier,
             shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.background
+            color = MaterialTheme.colorScheme.inversePrimary,
+            shadowElevation = 4.dp
         ) {
             fun navigate(tag: String) {
                 settingsNavController.navigate(tag) {
@@ -114,6 +115,14 @@ private fun TabMenu(
                     selected = currentSettingsTag == LAUNCHER_SETTINGS_TAG
                 ) {
                     navigate(LAUNCHER_SETTINGS_TAG)
+                }
+                TabItem(
+                    painter = painterResource(R.drawable.ic_setting_launcher),
+                    contentDescription = null,
+                    text = stringResource(R.string.settings_tab_launcher),
+                    selected = false
+                ) {
+
                 }
             }
         }

@@ -1,17 +1,109 @@
 package com.movtery.zalithlauncher.ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import com.movtery.zalithlauncher.R
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+
+private val lightScheme = lightColorScheme(
+    primary = primaryLight,
+    onPrimary = onPrimaryLight,
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+    secondary = secondaryLight,
+    onSecondary = onSecondaryLight,
+    secondaryContainer = secondaryContainerLight,
+    onSecondaryContainer = onSecondaryContainerLight,
+    tertiary = tertiaryLight,
+    onTertiary = onTertiaryLight,
+    tertiaryContainer = tertiaryContainerLight,
+    onTertiaryContainer = onTertiaryContainerLight,
+    error = errorLight,
+    onError = onErrorLight,
+    errorContainer = errorContainerLight,
+    onErrorContainer = onErrorContainerLight,
+    background = backgroundLight,
+    onBackground = onBackgroundLight,
+    surface = surfaceLight,
+    onSurface = onSurfaceLight,
+    surfaceVariant = surfaceVariantLight,
+    onSurfaceVariant = onSurfaceVariantLight,
+    outline = outlineLight,
+    outlineVariant = outlineVariantLight,
+    scrim = scrimLight,
+    inverseSurface = inverseSurfaceLight,
+    inverseOnSurface = inverseOnSurfaceLight,
+    inversePrimary = inversePrimaryLight,
+    surfaceDim = surfaceDimLight,
+    surfaceBright = surfaceBrightLight,
+    surfaceContainerLowest = surfaceContainerLowestLight,
+    surfaceContainerLow = surfaceContainerLowLight,
+    surfaceContainer = surfaceContainerLight,
+    surfaceContainerHigh = surfaceContainerHighLight,
+    surfaceContainerHighest = surfaceContainerHighestLight,
+)
+
+private val darkScheme = darkColorScheme(
+    primary = primaryDark,
+    onPrimary = onPrimaryDark,
+    primaryContainer = primaryContainerDark,
+    onPrimaryContainer = onPrimaryContainerDark,
+    secondary = secondaryDark,
+    onSecondary = onSecondaryDark,
+    secondaryContainer = secondaryContainerDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+    tertiary = tertiaryDark,
+    onTertiary = onTertiaryDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    error = errorDark,
+    onError = onErrorDark,
+    errorContainer = errorContainerDark,
+    onErrorContainer = onErrorContainerDark,
+    background = backgroundDark,
+    onBackground = onBackgroundDark,
+    surface = surfaceDark,
+    onSurface = onSurfaceDark,
+    surfaceVariant = surfaceVariantDark,
+    onSurfaceVariant = onSurfaceVariantDark,
+    outline = outlineDark,
+    outlineVariant = outlineVariantDark,
+    scrim = scrimDark,
+    inverseSurface = inverseSurfaceDark,
+    inverseOnSurface = inverseOnSurfaceDark,
+    inversePrimary = inversePrimaryDark,
+    surfaceDim = surfaceDimDark,
+    surfaceBright = surfaceBrightDark,
+    surfaceContainerLowest = surfaceContainerLowestDark,
+    surfaceContainerLow = surfaceContainerLowDark,
+    surfaceContainer = surfaceContainerDark,
+    surfaceContainerHigh = surfaceContainerHighDark,
+    surfaceContainerHighest = surfaceContainerHighestDark,
+)
+
+@Immutable
+data class ColorFamily(
+    val color: Color,
+    val onColor: Color,
+    val colorContainer: Color,
+    val onColorContainer: Color
+)
+
+val unspecified_scheme = ColorFamily(
+    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
+)
 
 @Composable
 fun ZalithLauncherTheme(
@@ -20,72 +112,27 @@ fun ZalithLauncherTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> darkColorScheme(
-            primary = colorResource(R.color.color_primary),
-            onPrimary = colorResource(R.color.color_on_primary),
-            primaryContainer = colorResource(R.color.color_primary_container),
-            onPrimaryContainer = colorResource(R.color.color_on_primary_container),
-
-            secondary = colorResource(R.color.color_secondary),
-            onSecondary = colorResource(R.color.color_on_secondary),
-            secondaryContainer = colorResource(R.color.color_secondary_container),
-            onSecondaryContainer = colorResource(R.color.color_on_secondary_container),
-
-            tertiary = colorResource(R.color.color_tertiary),
-            onTertiary = colorResource(R.color.color_on_tertiary),
-            tertiaryContainer = colorResource(R.color.color_tertiary_container),
-            onTertiaryContainer = colorResource(R.color.color_on_tertiary_container),
-
-            background = colorResource(R.color.color_background),
-            onBackground = colorResource(R.color.color_on_background),
-
-            surface = colorResource(R.color.color_surface),
-            onSurface = colorResource(R.color.color_on_surface),
-
-            outline = colorResource(R.color.color_outline),
-
-            error = colorResource(R.color.color_error),
-            onError = colorResource(R.color.color_on_error)
-        )
-
-        else -> lightColorScheme(
-            primary = colorResource(R.color.color_primary),
-            onPrimary = colorResource(R.color.color_on_primary),
-            primaryContainer = colorResource(R.color.color_primary_container),
-            onPrimaryContainer = colorResource(R.color.color_on_primary_container),
-
-            secondary = colorResource(R.color.color_secondary),
-            onSecondary = colorResource(R.color.color_on_secondary),
-            secondaryContainer = colorResource(R.color.color_secondary_container),
-            onSecondaryContainer = colorResource(R.color.color_on_secondary_container),
-
-            tertiary = colorResource(R.color.color_tertiary),
-            onTertiary = colorResource(R.color.color_on_tertiary),
-            tertiaryContainer = colorResource(R.color.color_tertiary_container),
-            onTertiaryContainer = colorResource(R.color.color_on_tertiary_container),
-
-            background = colorResource(R.color.color_background),
-            onBackground = colorResource(R.color.color_on_background),
-
-            surface = colorResource(R.color.color_surface),
-            onSurface = colorResource(R.color.color_on_surface),
-
-            outline = colorResource(R.color.color_outline),
-
-            error = colorResource(R.color.color_error),
-            onError = colorResource(R.color.color_on_error)
-        )
+  val colorScheme = when {
+      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+          val context = LocalContext.current
+          if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+      }
+      
+      darkTheme -> darkScheme
+      else -> lightScheme
+  }
+  val view = LocalView.current
+  if (!view.isInEditMode) {
+    SideEffect {
+      val window = (view.context as Activity).window
+      window.statusBarColor = colorScheme.primary.toArgb()
+      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
     }
+  }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+  MaterialTheme(
+    colorScheme = colorScheme,
+    typography = AppTypography,
+    content = content
+  )
 }

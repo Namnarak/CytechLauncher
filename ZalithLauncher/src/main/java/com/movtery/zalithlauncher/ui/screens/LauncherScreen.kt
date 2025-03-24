@@ -136,10 +136,10 @@ private fun MenuActionButton(
         text = text,
         fontSize = 12.sp,
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         iconSize = 24.dp,
-        iconTint = MaterialTheme.colorScheme.onSecondary,
-        textColor = MaterialTheme.colorScheme.onSecondary,
+        iconTint = MaterialTheme.colorScheme.onSecondaryContainer,
+        textColor = MaterialTheme.colorScheme.onSecondaryContainer,
         modifier = modifier.padding(all = 6.dp),
         onClick = onClick
     )
@@ -159,7 +159,8 @@ private fun RightMenu(
         Surface(
             modifier = modifier,
             shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.background
+            color = MaterialTheme.colorScheme.inversePrimary,
+            shadowElevation = 4.dp
         ) {
             Row {
                 ScalingActionButton(

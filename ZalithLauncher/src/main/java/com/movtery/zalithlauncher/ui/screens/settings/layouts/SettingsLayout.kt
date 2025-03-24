@@ -117,7 +117,7 @@ class SettingsLayoutScope {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSecondary
+            color = MaterialTheme.colorScheme.onPrimaryContainer
         )
         summary?.let { text ->
             Spacer(
@@ -126,7 +126,7 @@ class SettingsLayoutScope {
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSecondary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }

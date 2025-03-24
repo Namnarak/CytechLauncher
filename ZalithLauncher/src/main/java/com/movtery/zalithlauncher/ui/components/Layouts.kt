@@ -325,8 +325,6 @@ private fun BaseIconTextLayout(
             .graphicsLayer {
                 scaleX = scale.value
                 scaleY = scale.value
-                clip = true
-                shadowElevation = 0f
             }
             .clip(shape)
             .clickable(

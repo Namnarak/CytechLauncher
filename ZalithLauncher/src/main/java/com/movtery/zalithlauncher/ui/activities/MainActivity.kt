@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,7 +77,7 @@ class MainActivity : BaseComponentActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(40.dp)
-                            .background(color = colorResource(R.color.color_top_bar))
+                            .background(color = MaterialTheme.colorScheme.primaryContainer)
                             .zIndex(10f)
                     )
                     Box(
@@ -90,7 +89,7 @@ class MainActivity : BaseComponentActivity() {
                             navController = navController,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(color = MaterialTheme.colorScheme.secondary)
+                                .background(color = MaterialTheme.colorScheme.background)
                         )
 
                         //叠加的一层阴影效果
@@ -101,7 +100,7 @@ class MainActivity : BaseComponentActivity() {
                                 .align(Alignment.TopStart)
                                 .background(
                                     brush = Brush.verticalGradient(
-                                        colors = listOf(Color.Black.copy(alpha = 0.3f), Color.Transparent)
+                                        colors = listOf(Color.Black.copy(alpha = 0.15f), Color.Transparent)
                                     )
                                 )
                         )
@@ -134,13 +133,13 @@ class MainActivity : BaseComponentActivity() {
                     .clickable {
                         appTitle = StringUtils.shiftString(appTitle, ShiftDirection.RIGHT, 1)
                     },
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
             Icon(
                 painter = painterResource(R.drawable.ic_download),
                 contentDescription = stringResource(R.string.generic_download),
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .constrainAs(download) {
                         centerVerticallyTo(parent)
@@ -165,7 +164,7 @@ class MainActivity : BaseComponentActivity() {
                 } else {
                     stringResource(R.string.generic_setting)
                 },
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .constrainAs(settings) {
                         centerVerticallyTo(parent)

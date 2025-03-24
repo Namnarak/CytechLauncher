@@ -61,9 +61,8 @@ class TabLayoutScope {
         contentDescription: String?,
         text: String,
         selected: Boolean,
-        selectedColor: Color = MaterialTheme.colorScheme.primary,
-        unSelectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
-        selectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
+        selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         shape: Shape = MaterialTheme.shapes.medium,
         color: Color = Color.Transparent,
         width: Dp = 120.dp,
@@ -78,7 +77,6 @@ class TabLayoutScope {
         )
 
         val surfaceColor: Color by animateColorAsState(if (selected) selectedColor else color)
-        val contentColor: Color by animateColorAsState(if (selected) selectedContentColor else unSelectedContentColor)
 
         Surface(
             shape = shape,
