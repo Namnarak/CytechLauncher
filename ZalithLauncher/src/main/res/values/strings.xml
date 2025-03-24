@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="generic_setting">设置</string>
+    <string name="generic_main_menu">主菜单</string>
+    <string name="generic_download">下载</string>
+    <!--  主菜单  -->
+    <string name="main_launch_game">启动游戏</string>
+    <string name="main_about">关于</string>
+    <string name="main_control">控制</string>
+    <string name="main_install_jar">执行 jar 文件</string>
+    <string name="main_send_log">分享日志</string>
+</resources>
