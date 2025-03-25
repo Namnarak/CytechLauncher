@@ -2,7 +2,9 @@ package com.movtery.zalithlauncher.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -10,10 +12,13 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 
 private val rosewoodEmberLight = lightColorScheme(
@@ -397,6 +402,55 @@ private val verdantFieldDark = darkColorScheme(
 )
 
 @Composable
+private fun animateColorScheme(target: ColorScheme): ColorScheme {
+    @Composable
+    fun getColorAsState(targetValue: Color): State<Color> = animateColorAsState(
+        targetValue = targetValue,
+        label = "ThemeTransition",
+        animationSpec = getAnimateTween()
+    )
+
+    return ColorScheme(
+        primary = getColorAsState(targetValue = target.primary).value,
+        onPrimary = getColorAsState(targetValue = target.onPrimary).value,
+        primaryContainer = getColorAsState(targetValue = target.primaryContainer).value,
+        onPrimaryContainer = getColorAsState(targetValue = target.onPrimaryContainer).value,
+        inversePrimary = getColorAsState(targetValue = target.inversePrimary).value,
+        secondary = getColorAsState(targetValue = target.secondary).value,
+        onSecondary = getColorAsState(targetValue = target.onSecondary).value,
+        secondaryContainer = getColorAsState(targetValue = target.secondaryContainer).value,
+        onSecondaryContainer = getColorAsState(targetValue = target.onSecondaryContainer).value,
+        tertiary = getColorAsState(targetValue = target.tertiary).value,
+        onTertiary = getColorAsState(targetValue = target.onTertiary).value,
+        tertiaryContainer = getColorAsState(targetValue = target.tertiaryContainer).value,
+        onTertiaryContainer = getColorAsState(targetValue = target.onTertiaryContainer).value,
+        background = getColorAsState(targetValue = target.background).value,
+        onBackground = getColorAsState(targetValue = target.onBackground).value,
+        surface = getColorAsState(targetValue = target.surface).value,
+        onSurface = getColorAsState(targetValue = target.onSurface).value,
+        surfaceVariant = getColorAsState(targetValue = target.surfaceVariant).value,
+        onSurfaceVariant = getColorAsState(targetValue = target.onSurfaceVariant).value,
+        surfaceTint = getColorAsState(targetValue = target.surfaceTint).value,
+        inverseSurface = getColorAsState(targetValue = target.inverseSurface).value,
+        inverseOnSurface = getColorAsState(targetValue = target.inverseOnSurface).value,
+        error = getColorAsState(targetValue = target.error).value,
+        onError = getColorAsState(targetValue = target.onError).value,
+        errorContainer = getColorAsState(targetValue = target.errorContainer).value,
+        onErrorContainer = getColorAsState(targetValue = target.onErrorContainer).value,
+        outline = getColorAsState(targetValue = target.outline).value,
+        outlineVariant = getColorAsState(targetValue = target.outlineVariant).value,
+        scrim = getColorAsState(targetValue = target.scrim).value,
+        surfaceBright = getColorAsState(targetValue = target.surfaceBright).value,
+        surfaceContainer = getColorAsState(targetValue = target.surfaceContainer).value,
+        surfaceContainerHigh = getColorAsState(targetValue = target.surfaceContainerHigh).value,
+        surfaceContainerHighest = getColorAsState(targetValue = target.surfaceContainerHighest).value,
+        surfaceContainerLow = getColorAsState(targetValue = target.surfaceContainerLow).value,
+        surfaceContainerLowest = getColorAsState(targetValue = target.surfaceContainerLowest).value,
+        surfaceDim = getColorAsState(targetValue = target.surfaceDim).value,
+    )
+}
+
+@Composable
 fun ZalithLauncherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
@@ -428,17 +482,20 @@ fun ZalithLauncherTheme(
             else -> rosewoodEmberLight
         }
     }
+
+    val animateColorScheme = animateColorScheme(colorScheme)
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = animateColorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = animateColorScheme,
         typography = AppTypography,
         content = content
     )

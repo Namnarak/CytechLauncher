@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -178,19 +179,25 @@ class MainActivity : BaseComponentActivity() {
                     }
                 }
             ) {
-                Icon(
-                    painter = if (currentTag == SETTINGS_SCREEN_TAG) {
-                        painterResource(R.drawable.ic_menu_home)
-                    } else {
-                        painterResource(R.drawable.ic_setting)
-                    },
-                    contentDescription = if (currentTag == SETTINGS_SCREEN_TAG) {
-                        stringResource(R.string.generic_main_menu)
-                    } else {
-                        stringResource(R.string.generic_setting)
-                    },
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                Crossfade(
+                    targetState = currentTag == SETTINGS_SCREEN_TAG,
+                    label = "SettingsIconCrossfade",
+                    animationSpec = getAnimateTween()
+                ) { isSettings ->
+                    Icon(
+                        painter = if (isSettings) {
+                            painterResource(R.drawable.ic_menu_home)
+                        } else {
+                            painterResource(R.drawable.ic_setting)
+                        },
+                        contentDescription = if (isSettings) {
+                            stringResource(R.string.generic_main_menu)
+                        } else {
+                            stringResource(R.string.generic_setting)
+                        },
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
             }
         }
     }

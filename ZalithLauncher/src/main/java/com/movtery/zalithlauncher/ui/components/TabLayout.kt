@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.movtery.zalithlauncher.setting.getAnimateTween
 
 @Composable
 fun TabLayout(
@@ -76,7 +77,10 @@ class TabLayoutScope {
             label = "TabItem"
         )
 
-        val surfaceColor: Color by animateColorAsState(if (selected) selectedColor else color)
+        val surfaceColor: Color by animateColorAsState(
+            targetValue = if (selected) selectedColor else color,
+            animationSpec = getAnimateTween()
+        )
 
         Surface(
             shape = shape,
