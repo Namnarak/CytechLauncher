@@ -3,6 +3,13 @@
     <string name="generic_setting">设置</string>
     <string name="generic_main_menu">主菜单</string>
     <string name="generic_download">下载</string>
+    <!--  主题  -->
+    <string name="theme_color_dynamic">动态 (Android 12+)</string>
+    <string name="theme_color_rosewood_ember">红木余烬</string>
+    <string name="theme_color_velvet_rose">绒玫</string>
+    <string name="theme_color_mistwave">雾澜</string>
+    <string name="theme_color_glacier">冰川</string>
+    <string name="theme_color_verdant_field">原野暮光</string>
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_about">关于</string>
@@ -11,6 +18,8 @@
     <string name="main_send_log">分享日志</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
+    <string name="settings_launcher_color_theme_title">颜色主题</string>
+    <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_animate_speed_title">动画倍速</string>
     <string name="settings_launcher_animate_speed_summary">调整启动器的动画播放时长的倍速</string>
 </resources>

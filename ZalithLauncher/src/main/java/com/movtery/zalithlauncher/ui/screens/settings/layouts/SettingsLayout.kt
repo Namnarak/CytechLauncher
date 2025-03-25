@@ -1,7 +1,10 @@
 package com.movtery.zalithlauncher.ui.screens.settings.layouts
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
+import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
+import kotlin.enums.EnumEntries
 
 @DslMarker
 annotation class SettingsLayoutDsl
@@ -78,7 +84,7 @@ class SettingsLayoutScope {
         valueRange: ClosedFloatingPointRange<Float>,
         steps: Int = 0,
         suffix: String? = null,
-        onValueChange: (Int) -> Unit = {},
+        onValueChange: (Int) -> Unit = {}
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
 
@@ -106,6 +112,54 @@ class SettingsLayoutScope {
                 steps = steps,
                 suffix = suffix
             )
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    fun <E: Enum<E>> EnumSettingsLayout(
+        modifier: Modifier = Modifier,
+        unit: StringSettingUnit,
+        entries: EnumEntries<E>,
+        title: String,
+        summary: String? = null,
+        getRadioText: @Composable (E) -> String,
+        onValueChange: (E) -> Unit = {}
+    ) {
+        var value by rememberSaveable { mutableStateOf(unit.getValue()) }
+
+        Column(
+            modifier = modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TitleAndSummary(title, summary)
+            }
+
+            FlowRow(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                entries.forEach { enum ->
+                    Row {
+                        val radioText = getRadioText(enum)
+                        RadioButton(
+                            selected = value == enum.name,
+                            onClick = {
+                                value = enum.name
+                                unit.put(value).save()
+                                onValueChange(enum)
+                            }
+                        )
+                        Text(
+                            text = radioText,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+            }
         }
     }
 

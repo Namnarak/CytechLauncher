@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +42,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.getAnimateTween
+import com.movtery.zalithlauncher.state.ColorThemeState
+import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -58,7 +59,12 @@ class MainActivity : BaseComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainUI()
+            val colorThemeState = remember { ColorThemeState() }
+            CompositionLocalProvider(
+                LocalColorThemeState provides colorThemeState
+            ) {
+                MainUI()
+            }
         }
     }
 

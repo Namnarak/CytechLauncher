@@ -11,7 +11,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.screens.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 
 const val LAUNCHER_SETTINGS_TAG = "LauncherSettingsScreen"
 
@@ -25,7 +27,28 @@ fun LauncherSettingsScreen(
             .verticalScroll(state = rememberScrollState())
             .padding(all = 12.dp)
     ) {
+        val currentColorThemeState = LocalColorThemeState.current
+
         SettingsBackground {
+            EnumSettingsLayout(
+                unit = AllSettings.launcherColorTheme,
+                title = stringResource(R.string.settings_launcher_color_theme_title),
+                summary = stringResource(R.string.settings_launcher_color_theme_summary),
+                entries = ColorThemeType.entries,
+                getRadioText = { enum ->
+                    when (enum) {
+                        ColorThemeType.DYNAMIC -> stringResource(R.string.theme_color_dynamic)
+                        ColorThemeType.ROSEWOOD_EMBER -> stringResource(R.string.theme_color_rosewood_ember)
+                        ColorThemeType.VELVET_ROSE -> stringResource(R.string.theme_color_velvet_rose)
+                        ColorThemeType.MISTWAVE -> stringResource(R.string.theme_color_mistwave)
+                        ColorThemeType.GLACIER -> stringResource(R.string.theme_color_glacier)
+                        ColorThemeType.VERDANTFIELD -> stringResource(R.string.theme_color_verdant_field)
+                    }
+                }
+            ) { type ->
+                currentColorThemeState.updateValue(type)
+            }
+
             SliderSettingsLayout(
                 unit = AllSettings.launcherAnimateSpeed,
                 title = stringResource(R.string.settings_launcher_animate_speed_title),
