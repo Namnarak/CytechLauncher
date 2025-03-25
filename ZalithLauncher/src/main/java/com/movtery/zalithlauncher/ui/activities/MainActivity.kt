@@ -180,10 +180,11 @@ class MainActivity : BaseComponentActivity() {
                 }
             ) {
                 Crossfade(
-                    targetState = currentTag == SETTINGS_SCREEN_TAG,
+                    targetState = currentTag,
                     label = "SettingsIconCrossfade",
                     animationSpec = getAnimateTween()
-                ) { isSettings ->
+                ) { tag ->
+                    val isSettings = tag == SETTINGS_SCREEN_TAG
                     Icon(
                         painter = if (isSettings) {
                             painterResource(R.drawable.ic_menu_home)
