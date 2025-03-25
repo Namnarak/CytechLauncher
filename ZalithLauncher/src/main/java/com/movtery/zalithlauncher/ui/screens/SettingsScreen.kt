@@ -96,14 +96,15 @@ private fun TabMenu(
             color = MaterialTheme.colorScheme.inversePrimary,
             shadowElevation = 4.dp
         ) {
+            val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
+
             fun navigate(tag: String) {
+                if (currentSettingsTag == tag) return //防止反复加载
                 settingsNavController.navigate(tag) {
                     popUpTo(0) { inclusive = true }
                     launchSingleTop = true
                 }
             }
-
-            val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
 
             TabLayout(
                 modifier = Modifier.padding(all = 8.dp)
