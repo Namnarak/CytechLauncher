@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -136,51 +137,55 @@ class MainActivity : BaseComponentActivity() {
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
-            Icon(
-                painter = painterResource(R.drawable.ic_download),
-                contentDescription = stringResource(R.string.generic_download),
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            IconButton(
                 modifier = Modifier
                     .constrainAs(download) {
                         centerVerticallyTo(parent)
                         end.linkTo(settings.start)
                     }
-                    .width(46.dp)
                     .fillMaxHeight()
-                    .padding(end = 12.dp)
-                    .clickable {
+                    .padding(end = 4.dp),
+                onClick = {
 
-                    }
-            )
+                }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_download),
+                    contentDescription = stringResource(R.string.generic_download),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
 
-            Icon(
-                painter = if (currentTag == SETTINGS_SCREEN_TAG) {
-                    painterResource(R.drawable.ic_menu_home)
-                } else {
-                    painterResource(R.drawable.ic_setting)
-                },
-                contentDescription = if (currentTag == SETTINGS_SCREEN_TAG) {
-                    stringResource(R.string.generic_main_menu)
-                } else {
-                    stringResource(R.string.generic_setting)
-                },
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            IconButton(
                 modifier = Modifier
                     .constrainAs(settings) {
                         centerVerticallyTo(parent)
                         end.linkTo(parent.end)
                     }
-                    .width(46.dp)
                     .fillMaxHeight()
-                    .padding(end = 12.dp)
-                    .clickable {
-                        if (currentTag == SETTINGS_SCREEN_TAG) {
-                            navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
-                        } else {
-                            navController.navigate(SETTINGS_SCREEN_TAG)
-                        }
+                    .padding(end = 12.dp),
+                onClick = {
+                    if (currentTag == SETTINGS_SCREEN_TAG) {
+                        navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
+                    } else {
+                        navController.navigate(SETTINGS_SCREEN_TAG)
                     }
-            )
+                }
+            ) {
+                Icon(
+                    painter = if (currentTag == SETTINGS_SCREEN_TAG) {
+                        painterResource(R.drawable.ic_menu_home)
+                    } else {
+                        painterResource(R.drawable.ic_setting)
+                    },
+                    contentDescription = if (currentTag == SETTINGS_SCREEN_TAG) {
+                        stringResource(R.string.generic_main_menu)
+                    } else {
+                        stringResource(R.string.generic_setting)
+                    },
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
         }
     }
 
