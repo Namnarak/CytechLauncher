@@ -1,8 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -18,11 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -34,6 +27,7 @@ import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextItemLayout
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 
@@ -43,45 +37,41 @@ const val LAUNCHER_SCREEN_TAG: String = "LauncherScreen"
 fun LauncherScreen(
     navController: NavController
 ) {
-    val currentTag = LocalMainScreenTag.current.currentTag
-    var isVisible by rememberSaveable { mutableStateOf(false) }
-
-    isVisible = currentTag == LAUNCHER_SCREEN_TAG
-
-    Row(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Box(
-            modifier = Modifier
-                .weight(7f)
-                .fillMaxHeight()
+    BaseScreen(
+        screenTag = LAUNCHER_SCREEN_TAG,
+        tagProvider = LocalMainScreenTag
+    ) { isVisible ->
+        Row(
+            modifier = Modifier.fillMaxSize()
         ) {
-            MainMenu(
-                isVisible = isVisible,
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(all = 6.dp),
-                navController = navController
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .weight(3f)
-                .fillMaxHeight()
-        ) {
-            RightMenu(
-                isVisible = isVisible,
-                modifier = Modifier
+                    .weight(7f)
                     .fillMaxHeight()
-                    .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
-                navController = navController
-            )
-        }
-    }
+            ) {
+                MainMenu(
+                    isVisible = isVisible,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(all = 6.dp),
+                    navController = navController
+                )
+            }
 
-    LaunchedEffect(Unit) {
-        isVisible = true
+            Box(
+                modifier = Modifier
+                    .weight(3f)
+                    .fillMaxHeight()
+            ) {
+                RightMenu(
+                    isVisible = isVisible,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
+                    navController = navController
+                )
+            }
+        }
     }
 }
 
@@ -93,8 +83,8 @@ private fun MainMenu(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(getAnimateTween()) + slideInVertically(getAnimateTween()) { -60 },
-        exit = fadeOut(getAnimateTween()) + slideOutVertically(getAnimateTween()) { -60 }
+        enter = slideInVertically(getAnimateTween()) { -40 },
+        exit = slideOutVertically(getAnimateTween()) { -40 }
     ) {
         Column(
             modifier = modifier
@@ -153,8 +143,8 @@ private fun RightMenu(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(getAnimateTween()) + slideInHorizontally(getAnimateTween()) { 60 },
-        exit = fadeOut(getAnimateTween()) + slideOutHorizontally(getAnimateTween()) { 60 }
+        enter = slideInHorizontally(getAnimateTween()) { 40 },
+        exit = slideOutHorizontally(getAnimateTween()) { 40 }
     ) {
         Surface(
             modifier = modifier,

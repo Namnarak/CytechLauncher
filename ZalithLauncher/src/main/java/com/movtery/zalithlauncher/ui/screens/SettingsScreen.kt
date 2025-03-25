@@ -1,8 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -17,11 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +30,7 @@ import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
 import com.movtery.zalithlauncher.state.SettingsScreenTagState
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.TabLayout
 import com.movtery.zalithlauncher.ui.screens.settings.LAUNCHER_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.settings.LauncherSettingsScreen
@@ -46,34 +41,34 @@ const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 fun SettingsScreen(
     mainNavController: NavController
 ) {
-    val currentTag = LocalMainScreenTag.current.currentTag
-    var isVisible by rememberSaveable { mutableStateOf(false) }
+    BaseScreen(
+        screenTag = SETTINGS_SCREEN_TAG,
+        tagProvider = LocalMainScreenTag
+    ) { isVisible ->
+        val settingsNavController = rememberNavController()
 
-    isVisible = currentTag == SETTINGS_SCREEN_TAG
-
-    val settingsNavController = rememberNavController()
-
-    val settingsScreenTagState = remember { SettingsScreenTagState() }
-    CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
-        Row(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            TabMenu(
-                isVisible = isVisible,
-                settingsNavController = settingsNavController,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-            )
-
-            Box(
-                modifier = Modifier.weight(1f)
+        val settingsScreenTagState = remember { SettingsScreenTagState() }
+        CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
+            Row(
+                modifier = Modifier.fillMaxSize()
             ) {
-                NavigationUI(
+                TabMenu(
                     isVisible = isVisible,
-                    mainNavController = mainNavController,
-                    settingsNavController = settingsNavController
+                    settingsNavController = settingsNavController,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
                 )
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    NavigationUI(
+                        isVisible = isVisible,
+                        mainNavController = mainNavController,
+                        settingsNavController = settingsNavController
+                    )
+                }
             }
         }
     }
@@ -87,8 +82,8 @@ private fun TabMenu(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(getAnimateTween()) + slideInHorizontally(getAnimateTween()) { -60 },
-        exit = fadeOut(getAnimateTween()) + slideOutHorizontally(getAnimateTween()) { -60 }
+        enter = slideInHorizontally(getAnimateTween()) { -40 },
+        exit = slideOutHorizontally(getAnimateTween()) { -40 }
     ) {
         Surface(
             modifier = modifier,
@@ -148,8 +143,8 @@ private fun NavigationUI(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(getAnimateTween()) + slideInVertically(getAnimateTween()) { -60 },
-        exit = fadeOut(getAnimateTween()) + slideOutVertically(getAnimateTween()) { -60 }
+        enter = slideInVertically(getAnimateTween()) { -40 },
+        exit = slideOutVertically(getAnimateTween()) { -40 }
     ) {
         NavHost(
             modifier = modifier,
