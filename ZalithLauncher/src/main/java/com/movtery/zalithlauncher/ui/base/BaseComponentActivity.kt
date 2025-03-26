@@ -7,14 +7,31 @@ import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.movtery.zalithlauncher.context.Contexts
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
+import kotlinx.coroutines.launch
 
 open class BaseComponentActivity : ComponentActivity() {
+    val fullScreenViewModel: LauncherFullScreenViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFullscreen()
 
         Contexts.refresh(this)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                fullScreenViewModel.refreshEvent.collect {
+                    ignoreNotch()
+                }
+            }
+        }
     }
 
     override fun onPostResume() {
@@ -23,7 +40,7 @@ open class BaseComponentActivity : ComponentActivity() {
         ignoreNotch()
     }
 
-    protected fun shouldIgnoreNotch() = true
+    protected fun shouldIgnoreNotch() = AllSettings.launcherFullScreen.getValue()
 
     private fun setFullscreen() {
         val decorView = window.decorView

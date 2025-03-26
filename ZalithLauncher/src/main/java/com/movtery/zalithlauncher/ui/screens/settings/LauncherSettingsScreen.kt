@@ -7,11 +7,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.LocalColorThemeState
+import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 
@@ -21,6 +23,8 @@ const val LAUNCHER_SETTINGS_TAG = "LauncherSettingsScreen"
 fun LauncherSettingsScreen(
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -47,6 +51,15 @@ fun LauncherSettingsScreen(
                 }
             ) { type ->
                 currentColorThemeState.updateValue(type)
+            }
+
+            SwitchSettingsLayout(
+                unit = AllSettings.launcherFullScreen,
+                title = stringResource(R.string.settings_launcher_full_screen_title),
+                summary = stringResource(R.string.settings_launcher_full_screen_summary)
+            ) {
+                val activity = context as? BaseComponentActivity
+                activity?.fullScreenViewModel?.triggerRefresh()
             }
 
             SliderSettingsLayout(

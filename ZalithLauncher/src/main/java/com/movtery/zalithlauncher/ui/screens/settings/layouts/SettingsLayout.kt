@@ -45,10 +45,16 @@ class SettingsLayoutScope {
     ) {
         var checked by rememberSaveable { mutableStateOf(unit.getValue()) }
 
+        fun change(value: Boolean) {
+            checked = value
+            unit.put(checked).save()
+            onCheckedChange(checked)
+        }
+
         Row(
             modifier = modifier
                 .clickable {
-                    checked = !checked
+                    change(!checked)
                 }
                 .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
         ) {
@@ -67,9 +73,7 @@ class SettingsLayoutScope {
                 modifier = Modifier.align(alignment = Alignment.CenterVertically),
                 checked = checked,
                 onCheckedChange = { value ->
-                    checked = value
-                    unit.put(checked).save()
-                    onCheckedChange(checked)
+                    change(value)
                 }
             )
         }
