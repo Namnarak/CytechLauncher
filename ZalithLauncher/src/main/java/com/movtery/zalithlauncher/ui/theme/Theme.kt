@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.LocalColorThemeState
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 private val rosewoodEmberLight = lightColorScheme(
     primary = primaryLight.rosewoodEmber,

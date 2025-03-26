@@ -25,8 +25,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.getAnimateTween
-import com.movtery.zalithlauncher.setting.getAnimateTweenBounce
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
 import com.movtery.zalithlauncher.state.SettingsScreenTagState
@@ -34,6 +32,8 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.TabLayout
 import com.movtery.zalithlauncher.ui.screens.settings.LAUNCHER_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.settings.LauncherSettingsScreen
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 
 const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 

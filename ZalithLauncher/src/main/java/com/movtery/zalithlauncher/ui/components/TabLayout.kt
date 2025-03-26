@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.movtery.zalithlauncher.setting.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 @Composable
 fun TabLayout(

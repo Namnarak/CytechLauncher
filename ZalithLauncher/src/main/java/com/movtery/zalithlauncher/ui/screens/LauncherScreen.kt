@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.getAnimateTween
-import com.movtery.zalithlauncher.setting.getAnimateTweenBounce
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextItemLayout
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 
 const val LAUNCHER_SCREEN_TAG: String = "LauncherScreen"
 

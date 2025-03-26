@@ -42,7 +42,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.setting.getAnimateTween
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
@@ -53,6 +52,7 @@ import com.movtery.zalithlauncher.ui.screens.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.SettingsScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
 

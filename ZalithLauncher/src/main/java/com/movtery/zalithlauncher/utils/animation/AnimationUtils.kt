@@ -1,8 +1,9 @@
-package com.movtery.zalithlauncher.setting
+package com.movtery.zalithlauncher.utils.animation
 
 import android.view.animation.BounceInterpolator
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
+import com.movtery.zalithlauncher.setting.AllSettings
 
 /**
  * 获取动画的持续时长
