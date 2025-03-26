@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.setting
 
+import android.view.animation.BounceInterpolator
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 
@@ -13,6 +14,13 @@ fun getAnimateSpeed(): Int = calculateAnimationTime(
 )
 
 fun <E> getAnimateTween(): FiniteAnimationSpec<E> = tween(getAnimateSpeed())
+
+fun <E> getAnimateTweenBounce(): FiniteAnimationSpec<E> = tween(
+    durationMillis = getAnimateSpeed(),
+    easing = { fraction ->
+        BounceInterpolator().getInterpolation(fraction)
+    }
+)
 
 /**
  * 计算根据倍速调整后的时间（毫秒）
