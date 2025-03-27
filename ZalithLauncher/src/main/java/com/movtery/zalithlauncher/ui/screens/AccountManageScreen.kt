@@ -49,7 +49,6 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -222,6 +221,7 @@ fun AccountsLayout(
     )
 
     val accounts by AccountsManager.accountsFlow.collectAsState()
+    val currentAccount by AccountsManager.currentAccountFlow.collectAsState()
 
     Surface(
         modifier = modifier.offset {
@@ -234,7 +234,6 @@ fun AccountsLayout(
         shape = MaterialTheme.shapes.extraLarge,
         shadowElevation = 4.dp
     ) {
-        var currentAccount by rememberSaveable { mutableStateOf(AllSettings.currentAccount.getValue()) }
         var deleteAccount by rememberSaveable { mutableStateOf<Account?>(null) }
 
         //删除账号前弹出Dialog提醒
@@ -269,8 +268,7 @@ fun AccountsLayout(
                     currentAccount = currentAccount,
                     account = account,
                     onSelected = { uniqueUUID ->
-                        AllSettings.currentAccount.put(uniqueUUID).save()
-                        currentAccount = uniqueUUID
+                        AccountsManager.setCurrentAccount(uniqueUUID)
                     },
                     onRefreshClick = {},
                     onDeleteClick = { deleteAccount = account }
@@ -283,14 +281,14 @@ fun AccountsLayout(
 @Composable
 fun AccountItem(
     modifier: Modifier = Modifier,
-    currentAccount: String,
+    currentAccount: Account?,
     account: Account,
     contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
-    val selected = currentAccount == account.uniqueUUID
+    val selected = currentAccount?.uniqueUUID == account.uniqueUUID
 
     Surface(
         modifier = modifier,

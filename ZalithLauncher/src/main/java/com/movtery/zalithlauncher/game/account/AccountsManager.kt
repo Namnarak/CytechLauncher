@@ -18,6 +18,9 @@ object AccountsManager {
     private val _accountsFlow = MutableStateFlow<List<Account>>(emptyList())
     val accountsFlow: StateFlow<List<Account>> = _accountsFlow
 
+    private val _currentAccountFlow = MutableStateFlow<Account?>(null)
+    val currentAccountFlow: StateFlow<Account?> = _currentAccountFlow
+
     /**
      * 刷新当前已登录的账号，已登录的账号保存在 `PathManager.DIR_ACCOUNT` 目录中
      */
@@ -25,29 +28,32 @@ object AccountsManager {
         synchronized(accountsLock) {
             _accounts.clear()
 
-            PathManager.DIR_ACCOUNT
-                .takeIf { it.exists() && it.isDirectory }
-                ?.listFiles()
-                ?.forEach { file ->
-                    if (file.isFile) {
-                        val account = runCatching {
-                            parseAccount(file)
-                        }.getOrElse { e ->
-                            Log.e("AccountsManager", "Failed to load account", e)
-                            null
-                        } ?: return@forEach
+            val accountFiles = PathManager.DIR_ACCOUNT.takeIf { it.exists() && it.isDirectory }?.listFiles { it -> it.isFile } ?: emptyArray()
+            val loadedAccounts = mutableListOf<Account>()
 
-                        if (!_accounts.contains(account)) {
-                            _accounts.add(account)
-                        }
+            accountFiles.forEach { file ->
+                runCatching {
+                    parseAccount(file)
+                }.onSuccess { account ->
+                    if (!loadedAccounts.contains(account)) {
+                        loadedAccounts.add(account)
                     }
+                }.onFailure { e ->
+                    Log.e("AccountsManager", "Failed to load account from ${file.name}", e)
                 }
+            }
 
-            if (_accounts.isNotEmpty()) {
-                val currentAccount = AllSettings.currentAccount.getValue()
-                if (currentAccount.isEmpty() || !isAccountExists(currentAccount)) {
-                    AllSettings.currentAccount.put(_accounts[0].uniqueUUID).save()
-                }
+            _accounts.addAll(loadedAccounts)
+
+            var isCurrentAccountRefreshed = false
+
+            if (_accounts.isNotEmpty() && !isAccountExists(AllSettings.currentAccount.getValue())) {
+                setCurrentAccount(_accounts[0])
+                isCurrentAccountRefreshed = true
+            }
+
+            if (!isCurrentAccountRefreshed) {
+                refreshCurrentAccountState()
             }
 
             _accounts.sortWith { o1, o2 -> o1.username.compareTo(o2.username) }
@@ -61,16 +67,9 @@ object AccountsManager {
      * 获取当前已登录的账号
      */
     fun getCurrentAccount(): Account? {
-        return getCurrentAccount(_accounts)
-    }
-
-    /**
-     * 获取当前已登录的账号
-     */
-    fun getCurrentAccount(accountList: List<Account>): Account? {
         return synchronized(accountsLock) {
             loadFromUniqueUUID(AllSettings.currentAccount.getValue())
-                ?: accountList.firstOrNull()
+                ?: _accounts.firstOrNull()
         }
     }
 
@@ -79,6 +78,19 @@ object AccountsManager {
      */
     fun setCurrentAccount(account: Account) {
         AllSettings.currentAccount.put(account.uniqueUUID).save()
+        refreshCurrentAccountState()
+    }
+
+    /**
+     * 设置并保存当前账号
+     */
+    fun setCurrentAccount(uniqueUUID: String) {
+        AllSettings.currentAccount.put(uniqueUUID).save()
+        refreshCurrentAccountState()
+    }
+
+    private fun refreshCurrentAccountState() {
+        _currentAccountFlow.value = getCurrentAccount()
     }
 
     /**

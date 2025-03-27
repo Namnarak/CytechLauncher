@@ -263,13 +263,13 @@ private fun RightMenu(
         shadowElevation = 4.dp
     ) {
         Box {
-            val accounts by AccountsManager.accountsFlow.collectAsState()
+            val account by AccountsManager.currentAccountFlow.collectAsState()
 
             AccountAvatar(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = (-32).dp),
-                account = AccountsManager.getCurrentAccount(accounts)
+                account = account
             ) {
                 navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
             }
