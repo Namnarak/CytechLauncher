@@ -7,7 +7,20 @@ abstract class ProgressAwareTask<V> : Task<V>() {
         this.progressReporter = reporter
     }
 
-    protected fun updateProgress(percentage: Int) {
-        progressReporter.updateProgress(percentage)
+    /**
+     * 更新当前任务进度
+     * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+     */
+    protected fun updateProgress(percentage: Float) {
+        updateProgress(percentage, "")
+    }
+
+    /**
+     * 更新当前任务进度
+     * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+     * @param message 任务的描述信息
+     */
+    protected fun updateProgress(percentage: Float, message: String) {
+        progressReporter.updateProgress(percentage, message)
     }
 }

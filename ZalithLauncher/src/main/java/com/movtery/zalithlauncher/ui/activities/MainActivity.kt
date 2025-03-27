@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
@@ -11,6 +10,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,13 +20,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,11 +54,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
+import com.movtery.zalithlauncher.task.TaskSystem
+import com.movtery.zalithlauncher.task.TrackableTask
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.AccountManageScreen
@@ -64,16 +72,8 @@ import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.viewmodel.TaskViewModel
-import com.movtery.zalithlauncher.viewmodel.TaskViewModelFactory
 
 class MainActivity : BaseComponentActivity() {
-    private val taskSystem by lazy { (application as ZLApplication).taskSystem }
-
-    val taskViewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(taskSystem)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -117,6 +117,13 @@ class MainActivity : BaseComponentActivity() {
                                 .background(color = MaterialTheme.colorScheme.background)
                         )
 
+                        TaskMenu(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .align(Alignment.CenterStart)
+                                .padding(all = 12.dp)
+                        )
+
                         //叠加的一层阴影效果
                         Box(
                             modifier = Modifier
@@ -125,7 +132,10 @@ class MainActivity : BaseComponentActivity() {
                                 .align(Alignment.TopStart)
                                 .background(
                                     brush = Brush.verticalGradient(
-                                        colors = listOf(Color.Black.copy(alpha = 0.15f), Color.Transparent)
+                                        colors = listOf(
+                                            Color.Black.copy(alpha = 0.15f),
+                                            Color.Transparent
+                                        )
                                     )
                                 )
                         )
@@ -296,6 +306,104 @@ class MainActivity : BaseComponentActivity() {
                 route = ACCOUNT_MANAGE_SCREEN_TAG
             ) {
                 AccountManageScreen()
+            }
+        }
+    }
+
+    @Composable
+    fun TaskMenu(
+        modifier: Modifier = Modifier
+    ) {
+        val tasks by TaskSystem.tasksFlow.collectAsState()
+
+        val surfaceX by animateDpAsState(
+            targetValue = if (tasks.isEmpty()) (-260).dp else 0.dp,
+            animationSpec = getAnimateTween()
+        )
+
+        Surface(
+            modifier = modifier
+                .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
+                .width(240.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.primaryContainer,
+            shadowElevation = 4.dp
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(all = 12.dp)
+            ) {
+                val size = tasks.size
+                items(size) { index ->
+                    val taskStatus by tasks[index].statusFlow.collectAsState()
+                    TaskItem(
+                        taskStatus = taskStatus,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (index == size - 1) 0.dp else 12.dp)
+                    ) {
+                        //取消任务
+                        TaskSystem.cancelTask(tasks[index].id)
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun TaskItem(
+        taskStatus: TrackableTask.TaskStatus,
+        modifier: Modifier = Modifier,
+        onCancelClick: () -> Unit = {}
+    ) {
+        Surface(
+            modifier = modifier,
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.inversePrimary,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        ) {
+            Row(
+                modifier = Modifier.padding(all = 8.dp)
+            ) {
+                IconButton(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically),
+                    onClick = onCancelClick
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.ic_close),
+                        contentDescription = stringResource(R.string.generic_cancel)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = taskStatus.message
+                    )
+                    if (taskStatus.progress < 0) { //负数则代表不确定
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            LinearProgressIndicator(
+                                progress = { taskStatus.progress },
+                                modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "${(taskStatus.progress * 100).toInt()}%",
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                    }
+                }
             }
         }
     }

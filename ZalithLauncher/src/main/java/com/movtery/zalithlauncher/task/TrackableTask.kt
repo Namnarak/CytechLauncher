@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.task
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.coroutines.cancellation.CancellationException
 
 class TrackableTask<V>(
@@ -8,17 +10,26 @@ class TrackableTask<V>(
 ) : TaskExecutionPhaseListener {
     
     //状态跟踪
-    private var currentProgress = 0
-    private var currentStatus = TaskStatus.Status.PENDING
+    private var currentProgress: Float = 0f
+    private var currentMessage: String = ""
+    private val _statusFlow = MutableStateFlow(TaskStatus(id, "", 0f, TaskStatus.Status.PENDING))
+    val statusFlow: StateFlow<TaskStatus> = _statusFlow
+
     private val stateListeners = mutableListOf<(TaskStatus) -> Unit>()
 
     fun interface ProgressReporter {
-        fun updateProgress(percentage: Int)
+        /**
+         * 更新进度
+         * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+         * @param message 任务的描述信息
+         */
+        fun updateProgress(percentage: Float, message: String)
     }
 
     data class TaskStatus(
         val taskId: String,
-        val progress: Int,
+        val message: String,
+        val progress: Float,
         val status: Status,
         val result: Any? = null,
         val error: Throwable? = null
@@ -40,15 +51,16 @@ class TrackableTask<V>(
 
     /**
      * 更新当前任务进度
+     * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+     * @param message 任务的描述信息
      */
-    fun updateProgress(percentage: Int) {
-        if (currentProgress != percentage) {
-            notifyState(TaskStatus(
-                taskId = id,
-                progress = percentage,
-                status = TaskStatus.Status.RUNNING
-            ))
-        }
+    fun updateProgress(percentage: Float, message: String) {
+        notifyState(TaskStatus(
+            taskId = id,
+            message = message,
+            progress = percentage,
+            status = TaskStatus.Status.RUNNING
+        ))
     }
 
     /**
@@ -84,6 +96,7 @@ class TrackableTask<V>(
         rawTask.cancel()
         notifyState(TaskStatus(
             taskId = id,
+            message = currentMessage,
             progress = currentProgress,
             status = TaskStatus.Status.FAILED,
             error = CancellationException("Task was cancelled")
@@ -91,15 +104,17 @@ class TrackableTask<V>(
     }
 
     private fun notifyState(status: TaskStatus) {
+        _statusFlow.value = status
         currentProgress = status.progress
-        currentStatus = status.status
+        currentMessage = status.message
         stateListeners.forEach { it(status) }
     }
 
     private fun handleBeforeStart() {
         notifyState(TaskStatus(
             taskId = id,
-            progress = 0,
+            message = currentMessage,
+            progress = 0f,
             status = TaskStatus.Status.RUNNING
         ))
     }
@@ -107,7 +122,8 @@ class TrackableTask<V>(
     private fun handleTaskEnded(result: V?) {
         notifyState(TaskStatus(
             taskId = id,
-            progress = 100,
+            message = currentMessage,
+            progress = 1f,
             status = TaskStatus.Status.COMPLETED,
             result = result
         ))
@@ -116,6 +132,7 @@ class TrackableTask<V>(
     private fun handleThrowable(e: Throwable) {
         notifyState(TaskStatus(
             taskId = id,
+            message = currentMessage,
             progress = currentProgress,
             status = TaskStatus.Status.FAILED,
             error = e
@@ -123,9 +140,10 @@ class TrackableTask<V>(
     }
 
     private fun handleFinally() {
-        if (!currentStatus.isTerminal) {
+        if (!_statusFlow.value.status.isTerminal) {
             notifyState(TaskStatus(
                 taskId = id,
+                message = currentMessage,
                 progress = currentProgress,
                 status = TaskStatus.Status.COMPLETED
             ))
