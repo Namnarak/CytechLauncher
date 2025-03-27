@@ -285,6 +285,7 @@ fun AccountItem(
     modifier: Modifier = Modifier,
     currentAccount: String,
     account: Account,
+    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -294,6 +295,7 @@ fun AccountItem(
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.inversePrimary,
+        contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
         shadowElevation = 4.dp
     ) {
