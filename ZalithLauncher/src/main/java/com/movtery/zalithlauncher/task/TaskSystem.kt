@@ -15,7 +15,7 @@ object TaskSystem {
     private val _tasksFlow = MutableStateFlow<List<TrackableTask<*>>>(emptyList())
     val tasksFlow: StateFlow<List<TrackableTask<*>>> = _tasksFlow
 
-    fun <V> packageTask(
+    private fun <V> packageTask(
         task: Task<V>,
         trackingId: String = UUID.randomUUID().toString()
     ): TrackableTask<V> {
@@ -30,7 +30,10 @@ object TaskSystem {
                         tasks.remove(trackingId)
                     }
 
-                    _tasksFlow.value = tasks.values.toList()
+                    _tasksFlow.value = tasks.values.let {
+                        if (it.isEmpty()) emptyList()
+                        else it.toList()
+                    }
                 }
             }
         }
@@ -39,6 +42,8 @@ object TaskSystem {
             task.bindProgressReporter { percentage, message ->
                 trackableTask.updateProgress(percentage, message)
             }
+        } else {
+            trackableTask.updateProgress(-1f, task.message)
         }
 
         return trackableTask

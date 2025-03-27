@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.activities
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -240,8 +241,7 @@ class MainActivity : BaseComponentActivity() {
                     .constrainAs(tasksButton) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
+                        end.linkTo(download.start, margin = 4.dp)
                     }
                     .offset { IntOffset(x = 0, y = taskButtonY.roundToPx()) }
                     .size(40.dp),
@@ -259,10 +259,9 @@ class MainActivity : BaseComponentActivity() {
                 modifier = Modifier
                     .constrainAs(download) {
                         centerVerticallyTo(parent)
-                        end.linkTo(settings.start)
+                        end.linkTo(settings.start, margin = 4.dp)
                     }
-                    .fillMaxHeight()
-                    .padding(end = 4.dp),
+                    .fillMaxHeight(),
                 onClick = {
 
                 }
@@ -278,10 +277,9 @@ class MainActivity : BaseComponentActivity() {
                 modifier = Modifier
                     .constrainAs(settings) {
                         centerVerticallyTo(parent)
-                        end.linkTo(parent.end)
+                        end.linkTo(parent.end, margin = 12.dp)
                     }
-                    .fillMaxHeight()
-                    .padding(end = 12.dp),
+                    .fillMaxHeight(),
                 onClick = {
                     if (currentTag == LAUNCHER_SCREEN_TAG) {
                         navController.navigateTo(SETTINGS_SCREEN_TAG)
@@ -423,7 +421,8 @@ class MainActivity : BaseComponentActivity() {
             modifier = modifier,
             shape = MaterialTheme.shapes.large,
             color = MaterialTheme.colorScheme.inversePrimary,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            shadowElevation = 4.dp
         ) {
             Row(
                 modifier = Modifier.padding(all = 8.dp)
@@ -444,11 +443,14 @@ class MainActivity : BaseComponentActivity() {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
+                        .animateContentSize(animationSpec = getAnimateTween())
                 ) {
-                    Text(
-                        text = taskStatus.message
-                    )
+                    if (taskStatus.message.isNotEmpty()) {
+                        Text(text = taskStatus.message)
+                    }
                     if (taskStatus.progress < 0) { //负数则代表不确定
                         LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth()

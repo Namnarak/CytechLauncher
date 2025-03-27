@@ -10,9 +10,9 @@ class TrackableTask<V>(
 ) : TaskExecutionPhaseListener {
     
     //状态跟踪
-    private var currentProgress: Float = 0f
+    private var currentProgress: Float = -1f
     private var currentMessage: String = ""
-    private val _statusFlow = MutableStateFlow(TaskStatus(id, "", 0f, TaskStatus.Status.PENDING))
+    private val _statusFlow = MutableStateFlow(TaskStatus(id, "", -1f, TaskStatus.Status.PENDING))
     val statusFlow: StateFlow<TaskStatus> = _statusFlow
 
     private val stateListeners = mutableListOf<(TaskStatus) -> Unit>()
@@ -114,7 +114,7 @@ class TrackableTask<V>(
         notifyState(TaskStatus(
             taskId = id,
             message = currentMessage,
-            progress = 0f,
+            progress = currentProgress,
             status = TaskStatus.Status.RUNNING
         ))
     }

@@ -10,7 +10,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
-abstract class Task<V>: TaskExecutionPhaseListener {
+abstract class Task<V>(
+    val message: String = "",
+): TaskExecutionPhaseListener {
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var throwableFromTask: Throwable? = null
     private var beforeStart: Pair<suspend () -> Unit, CoroutineDispatcher>? = null
@@ -205,16 +207,23 @@ abstract class Task<V>: TaskExecutionPhaseListener {
         const val SUGGEST = "NOT_REQUIRED_TO_EXECUTE"
 
         @CheckResult(SUGGEST)
-        @JvmStatic
         fun <V> runTask(task: suspend () -> V): Task<V> {
-            return SimpleTask(task)
+            return SimpleTask(task = task)
         }
 
         @CheckResult(SUGGEST)
-        @JvmStatic
-        //新增此函数，用于协程任务的创建
+        fun <V> runTask(message: String, task: suspend () -> V): Task<V> {
+            return SimpleTask(message = message, task = task)
+        }
+
+        @CheckResult(SUGGEST)
         fun <V> runTask(scope: CoroutineScope, task: suspend () -> V): Task<V> {
-            return SimpleTask(task).setScope(scope)
+            return SimpleTask(task = task).setScope(scope)
+        }
+
+        @CheckResult(SUGGEST)
+        fun <V> runTask(message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+            return SimpleTask(message = message, task = task).setScope(scope)
         }
     }
 }
