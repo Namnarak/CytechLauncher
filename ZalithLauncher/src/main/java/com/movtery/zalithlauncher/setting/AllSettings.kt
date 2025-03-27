@@ -32,6 +32,14 @@ class AllSettings {
         val launcherAnimateSpeed = IntSettingUnit("launcherAnimateSpeed", 5)
 
         //Other
+        /**
+         * 当前选择的账号
+         */
         val currentAccount = StringSettingUnit("currentAccount", "")
+
+        /**
+         * 启动器任务菜单是否展开
+         */
+        val launcherTaskMenuExpanded = BooleanSettingUnit("launcherTaskMenuExpanded", true)
     }
 }

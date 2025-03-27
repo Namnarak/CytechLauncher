@@ -54,6 +54,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
@@ -97,14 +98,28 @@ class MainActivity : BaseComponentActivity() {
                 Column(
                     modifier = Modifier.fillMaxHeight()
                 ) {
+                    val tasks by TaskSystem.tasksFlow.collectAsState()
+
+                    var isTaskMenuExpanded by remember { mutableStateOf(AllSettings.launcherTaskMenuExpanded.getValue()) }
+
+                    fun changeTasksExpandedState() {
+                        isTaskMenuExpanded = !isTaskMenuExpanded
+                        AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
+                    }
+
                     TopBar(
+                        tasks = tasks,
+                        isTasksExpanded = isTaskMenuExpanded,
                         navController = navController,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(40.dp)
                             .background(color = MaterialTheme.colorScheme.primaryContainer)
                             .zIndex(10f)
-                    )
+                    ) {
+                        changeTasksExpandedState()
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -118,11 +133,15 @@ class MainActivity : BaseComponentActivity() {
                         )
 
                         TaskMenu(
+                            tasks = tasks,
+                            isExpanded = isTaskMenuExpanded,
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .align(Alignment.CenterStart)
                                 .padding(all = 12.dp)
-                        )
+                        ) {
+                            changeTasksExpandedState()
+                        }
 
                         //叠加的一层阴影效果
                         Box(
@@ -147,8 +166,11 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TopBar(
+        tasks: List<TrackableTask<*>>,
+        isTasksExpanded: Boolean,
         navController: NavHostController,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        changeExpandedState: () -> Unit = {}
     ) {
         var appTitle by rememberSaveable { mutableStateOf("ZalithLauncher") }
         val currentTag = LocalMainScreenTag.current.currentTag
@@ -158,7 +180,7 @@ class MainActivity : BaseComponentActivity() {
         ConstraintLayout (
             modifier = modifier
         ) {
-            val (backButton, title, download, settings) = createRefs()
+            val (backButton, title, tasksButton, download, settings) = createRefs()
 
             val backButtonX by animateDpAsState(
                 targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
@@ -208,6 +230,31 @@ class MainActivity : BaseComponentActivity() {
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
+            val taskButtonY by animateDpAsState(
+                targetValue = if (isTasksExpanded || tasks.isEmpty()) (-50).dp else 0.dp,
+                animationSpec = getAnimateTween()
+            )
+
+            IconButton(
+                modifier = Modifier
+                    .constrainAs(tasksButton) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .offset { IntOffset(x = 0, y = taskButtonY.roundToPx()) }
+                    .size(40.dp),
+                onClick = changeExpandedState
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    painter = painterResource(R.drawable.ic_task),
+                    contentDescription = stringResource(R.string.main_task_menu),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
             IconButton(
                 modifier = Modifier
                     .constrainAs(download) {
@@ -223,7 +270,7 @@ class MainActivity : BaseComponentActivity() {
                 Icon(
                     painter = painterResource(R.drawable.ic_download),
                     contentDescription = stringResource(R.string.generic_download),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
@@ -312,12 +359,13 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TaskMenu(
-        modifier: Modifier = Modifier
+        tasks: List<TrackableTask<*>>,
+        isExpanded: Boolean,
+        modifier: Modifier = Modifier,
+        changeExpandedState: () -> Unit = {}
     ) {
-        val tasks by TaskSystem.tasksFlow.collectAsState()
-
         val surfaceX by animateDpAsState(
-            targetValue = if (tasks.isEmpty()) (-260).dp else 0.dp,
+            targetValue = if (isExpanded && tasks.isNotEmpty()) 0.dp else (-260).dp,
             animationSpec = getAnimateTween()
         )
 
@@ -329,21 +377,36 @@ class MainActivity : BaseComponentActivity() {
             color = MaterialTheme.colorScheme.primaryContainer,
             shadowElevation = 4.dp
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(all = 12.dp)
-            ) {
-                val size = tasks.size
-                items(size) { index ->
-                    val taskStatus by tasks[index].statusFlow.collectAsState()
-                    TaskItem(
-                        taskStatus = taskStatus,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = if (index == size - 1) 0.dp else 12.dp)
-                    ) {
-                        //取消任务
-                        TaskSystem.cancelTask(tasks[index].id)
+            Row {
+                Spacer(modifier = Modifier.width(12.dp))
+
+                IconButton(
+                    modifier = Modifier.size(24.dp).align(Alignment.CenterVertically),
+                    onClick = changeExpandedState
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.ic_rounded_triangle),
+                        contentDescription = stringResource(R.string.main_task_menu)
+                    )
+                }
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxHeight().weight(1f),
+                    contentPadding = PaddingValues(all = 12.dp)
+                ) {
+                    val size = tasks.size
+                    items(size) { index ->
+                        val taskStatus by tasks[index].statusFlow.collectAsState()
+                        TaskItem(
+                            taskStatus = taskStatus,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = if (index == size - 1) 0.dp else 12.dp)
+                        ) {
+                            //取消任务
+                            TaskSystem.cancelTask(tasks[index].id)
+                        }
                     }
                 }
             }

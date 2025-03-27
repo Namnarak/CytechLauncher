@@ -22,6 +22,7 @@
     <string name="main_control">控制</string>
     <string name="main_install_jar">执行 jar 文件</string>
     <string name="main_send_log">分享日志</string>
+    <string name="main_task_menu">任务菜单</string>
     <!--  账号  -->
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>
