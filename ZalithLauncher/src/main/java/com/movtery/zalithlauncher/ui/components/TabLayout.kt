@@ -64,7 +64,7 @@ class TabLayoutScope {
         selected: Boolean,
         selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
         contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-        shape: Shape = MaterialTheme.shapes.medium,
+        shape: Shape = MaterialTheme.shapes.extraLarge,
         color: Color = Color.Transparent,
         width: Dp = 120.dp,
         onClick: (() -> Unit)? = null

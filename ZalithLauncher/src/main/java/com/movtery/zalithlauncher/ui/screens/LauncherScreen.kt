@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,9 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.screens.elements.AccountAvatar
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 
@@ -57,34 +61,41 @@ fun LauncherScreen(
         screenTag = LAUNCHER_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
     ) { isVisible ->
-        Row(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(7f)
-                    .fillMaxHeight()
+        Box {
+            Row(
+                modifier = Modifier.fillMaxSize()
             ) {
-                MainMenu(
-                    isVisible = isVisible,
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(all = 12.dp),
-                    navController = navController
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxHeight()
-            ) {
-                RightMenu(
-                    isVisible = isVisible,
-                    modifier = Modifier
+                        .weight(7f)
                         .fillMaxHeight()
-                        .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
-                    navController = navController
+                ) {
+                    MainMenu(
+                        isVisible = isVisible,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(all = 12.dp),
+                        navController = navController
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(3f)
+                        .fillMaxHeight()
+                ) {
+                    RightMenu(
+                        isVisible = isVisible,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
+                        navController = navController
+                    )
+                }
+            }
+            if (!isVisible) { //禁止触摸
+                Box(
+                    modifier = Modifier.fillMaxSize().alpha(0f).clickable {  }
                 )
             }
         }
@@ -104,6 +115,7 @@ private fun MainMenu(
 
     BoxWithConstraints(
         modifier = modifier
+            .fillMaxSize()
             .offset {
                 IntOffset(
                     x = 0,
@@ -124,7 +136,7 @@ private fun MainMenu(
             animationSpec = getAnimateTween()
         )
         val surfaceAlpha by animateFloatAsState(
-            targetValue = if (isExpanded) 1f else 0.5f,
+            targetValue = if (isExpanded) 1f else 0.6f,
             animationSpec = getAnimateTween()
         )
 
@@ -133,7 +145,8 @@ private fun MainMenu(
                 .width(surfaceWidth)
                 .height(surfaceHeight)
                 .alpha(surfaceAlpha)
-                .align(Alignment.BottomCenter),
+                .align(Alignment.BottomCenter)
+                .padding(all = 4.dp),
             color = MaterialTheme.colorScheme.primaryContainer,
             shape = MaterialTheme.shapes.extraLarge,
             shadowElevation = 4.dp
@@ -172,7 +185,7 @@ private fun MainMenu(
                 }
 
                 val rotation by animateFloatAsState(
-                    targetValue = if (isExpanded) 180f else 0f,
+                    targetValue = if (isExpanded) 90f else -90f,
                     animationSpec = getAnimateTween()
                 )
 
@@ -187,7 +200,7 @@ private fun MainMenu(
                 ) {
                     Icon(
                         modifier = Modifier.padding(all = 16.dp),
-                        painter = painterResource(R.drawable.ic_arrow),
+                        painter = painterResource(R.drawable.ic_rounded_triangle),
                         contentDescription = null
                     )
                 }
@@ -249,14 +262,24 @@ private fun RightMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
-        Row {
+        Box {
+            val accounts by AccountsManager.accountsFlow.collectAsState()
+
+            AccountAvatar(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .offset(y = (-32).dp),
+                account = AccountsManager.getCurrentAccount(accounts)
+            ) {
+                navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
+            }
             ScalingActionButton(
-                onClick = {},
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.Bottom)
+                    .align(Alignment.BottomCenter)
                     .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                onClick = {},
             ) {
                 Text(text = stringResource(R.string.main_launch_game))
             }

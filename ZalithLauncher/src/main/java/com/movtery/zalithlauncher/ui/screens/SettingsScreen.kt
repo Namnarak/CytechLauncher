@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -45,30 +47,37 @@ fun SettingsScreen(
         screenTag = SETTINGS_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
     ) { isVisible ->
-        val settingsNavController = rememberNavController()
+        Box {
+            val settingsNavController = rememberNavController()
 
-        val settingsScreenTagState = remember { SettingsScreenTagState() }
-        CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
-            Row(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                TabMenu(
-                    isVisible = isVisible,
-                    settingsNavController = settingsNavController,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-                )
-
-                Box(
-                    modifier = Modifier.weight(1f)
+            val settingsScreenTagState = remember { SettingsScreenTagState() }
+            CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
+                Row(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    NavigationUI(
+                    TabMenu(
                         isVisible = isVisible,
-                        mainNavController = mainNavController,
-                        settingsNavController = settingsNavController
+                        settingsNavController = settingsNavController,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
                     )
+
+                    Box(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        NavigationUI(
+                            isVisible = isVisible,
+                            mainNavController = mainNavController,
+                            settingsNavController = settingsNavController
+                        )
+                    }
                 }
+            }
+            if (!isVisible) { //禁止触摸
+                Box(
+                    modifier = Modifier.fillMaxSize().alpha(0f).clickable {  }
+                )
             }
         }
     }
@@ -92,19 +101,11 @@ private fun TabMenu(
                 y = 0
             )
         },
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
         val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
-
-        fun navigate(tag: String) {
-            if (currentSettingsTag == tag) return //防止反复加载
-            settingsNavController.navigate(tag) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
 
         TabLayout(
             modifier = Modifier.padding(all = 8.dp)
@@ -115,7 +116,7 @@ private fun TabMenu(
                 text = stringResource(R.string.settings_tab_launcher),
                 selected = currentSettingsTag == LAUNCHER_SETTINGS_TAG
             ) {
-                navigate(LAUNCHER_SETTINGS_TAG)
+                settingsNavController.navigateOnce(LAUNCHER_SETTINGS_TAG)
             }
             TabItem(
                 painter = painterResource(R.drawable.ic_setting_launcher),

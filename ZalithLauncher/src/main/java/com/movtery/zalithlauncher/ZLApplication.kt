@@ -4,14 +4,20 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Process
 import android.util.Log
 import com.movtery.zalithlauncher.context.Contexts
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.task.TaskSystemAdapter
 import java.io.PrintStream
 import java.text.DateFormat
 import java.util.Date
 
 class ZLApplication : Application() {
+    val taskSystem by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        TaskSystemAdapter()
+    }
+
     override fun onCreate() {
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
             runCatching {
@@ -28,6 +34,8 @@ class ZLApplication : Application() {
                 Log.e("Application", "An exception occurred while saving the crash report: ", t)
                 Log.e("Application", "Crash stack trace: ", throwable)
             }
+
+            Process.killProcess(Process.myPid())
         }
 
         super.onCreate()

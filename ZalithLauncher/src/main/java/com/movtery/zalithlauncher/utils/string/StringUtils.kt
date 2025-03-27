@@ -1,7 +1,9 @@
 package com.movtery.zalithlauncher.utils.string
 
+import android.util.Base64
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.nio.charset.StandardCharsets
 
 class StringUtils {
     companion object {
@@ -29,6 +31,11 @@ class StringUtils {
                 throwable.printStackTrace(it)
             }
             return stringWriter.toString()
+        }
+
+        fun decodeBase64(rawValue: String): String {
+            val decodedBytes = Base64.decode(rawValue, Base64.DEFAULT)
+            return String(decodedBytes, StandardCharsets.UTF_8)
         }
     }
 }

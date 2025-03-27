@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.movtery.zalithlauncher.context.Contexts
+import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
 import kotlinx.coroutines.launch
@@ -38,6 +39,11 @@ open class BaseComponentActivity : ComponentActivity() {
         super.onPostResume()
         setFullscreen()
         ignoreNotch()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AccountsManager.reloadAccounts()
     }
 
     protected fun shouldIgnoreNotch() = AllSettings.launcherFullScreen.getValue()

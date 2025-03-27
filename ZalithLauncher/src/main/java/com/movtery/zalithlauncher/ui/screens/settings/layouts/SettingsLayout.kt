@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.settings.layouts
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import kotlin.enums.EnumEntries
 
 @DslMarker
@@ -142,8 +144,10 @@ class SettingsLayoutScope {
             }
 
             FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(animationSpec = getAnimateTween()),
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth(),
             ) {
                 entries.forEach { enum ->
                     Row {
@@ -151,6 +155,7 @@ class SettingsLayoutScope {
                         RadioButton(
                             selected = value == enum.name,
                             onClick = {
+                                if (value == enum.name) return@RadioButton
                                 value = enum.name
                                 unit.put(value).save()
                                 onValueChange(enum)

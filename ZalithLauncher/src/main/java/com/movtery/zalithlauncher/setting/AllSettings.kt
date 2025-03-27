@@ -30,5 +30,8 @@ class AllSettings {
          * 动画倍速
          */
         val launcherAnimateSpeed = IntSettingUnit("launcherAnimateSpeed", 5)
+
+        //Other
+        val currentAccount = StringSettingUnit("currentAccount", "")
     }
 }

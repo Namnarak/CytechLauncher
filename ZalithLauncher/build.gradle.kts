@@ -40,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -58,4 +59,5 @@ dependencies {
     //Utils
     implementation(libs.gson)
     implementation(libs.commons.io)
+    implementation(libs.okhttp)
 }

@@ -2,7 +2,9 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -13,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -42,30 +47,37 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
+import com.movtery.zalithlauncher.ui.screens.ACCOUNT_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.AccountManageScreen
 import com.movtery.zalithlauncher.ui.screens.LAUNCHER_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.SettingsScreen
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.viewmodel.TaskViewModel
+import com.movtery.zalithlauncher.viewmodel.TaskViewModelFactory
 
 class MainActivity : BaseComponentActivity() {
+    private val taskSystem by lazy { (application as ZLApplication).taskSystem }
+
+    val taskViewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(taskSystem)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val colorThemeState = remember { ColorThemeState() }
-            CompositionLocalProvider(
-                LocalColorThemeState provides colorThemeState
-            ) {
-                MainUI()
-            }
+            MainUI()
         }
     }
 
@@ -74,8 +86,13 @@ class MainActivity : BaseComponentActivity() {
     fun MainUI() {
         val navController = rememberNavController()
 
+        val colorThemeState = remember { ColorThemeState() }
         val mainScreenTagState = remember { MainScreenTagState() }
-        CompositionLocalProvider(LocalMainScreenTag provides mainScreenTagState) {
+
+        CompositionLocalProvider(
+            LocalColorThemeState provides colorThemeState,
+            LocalMainScreenTag provides mainScreenTagState
+        ) {
             ZalithLauncherTheme {
                 Column(
                     modifier = Modifier.fillMaxHeight()
@@ -126,18 +143,55 @@ class MainActivity : BaseComponentActivity() {
         var appTitle by rememberSaveable { mutableStateOf("ZalithLauncher") }
         val currentTag = LocalMainScreenTag.current.currentTag
 
+        val inLauncherScreen = currentTag == null || currentTag == LAUNCHER_SCREEN_TAG
+
         ConstraintLayout (
             modifier = modifier
         ) {
-            val (title, download, settings) = createRefs()
+            val (backButton, title, download, settings) = createRefs()
+
+            val backButtonX by animateDpAsState(
+                targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
+                animationSpec = getAnimateTween()
+            )
+
+            IconButton(
+                modifier = Modifier
+                    .offset { IntOffset(x = backButtonX.roundToPx(), y = 0) }
+                    .constrainAs(backButton) {
+                        start.linkTo(parent.start, margin = 12.dp)
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                    }
+                    .fillMaxHeight(),
+                onClick = {
+                    if (!inLauncherScreen) {
+                        //不在主屏幕时才允许返回
+                        navController.popBackStack()
+                    }
+                }
+            ) {
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    painter = painterResource(R.drawable.ic_arrow),
+                    contentDescription = stringResource(R.string.generic_back),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+
+            val appTitleX by animateDpAsState(
+                targetValue = if (inLauncherScreen) 0.dp else 48.dp,
+                animationSpec = getAnimateTween()
+            )
 
             Text(
                 text = appTitle,
                 modifier = Modifier
+                    .offset { IntOffset(x = appTitleX.roundToPx(), y = 0) }
                     .constrainAs(title) {
                         centerVerticallyTo(parent)
+                        start.linkTo(parent.start, margin = 18.dp)
                     }
-                    .padding(start = 12.dp)
                     .clickable {
                         appTitle = StringUtils.shiftString(appTitle, ShiftDirection.RIGHT, 1)
                     },
@@ -172,10 +226,10 @@ class MainActivity : BaseComponentActivity() {
                     .fillMaxHeight()
                     .padding(end = 12.dp),
                 onClick = {
-                    if (currentTag == SETTINGS_SCREEN_TAG) {
-                        navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
+                    if (currentTag == LAUNCHER_SCREEN_TAG) {
+                        navController.navigateTo(SETTINGS_SCREEN_TAG)
                     } else {
-                        navController.navigate(SETTINGS_SCREEN_TAG)
+                        navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
                     }
                 }
             ) {
@@ -184,17 +238,17 @@ class MainActivity : BaseComponentActivity() {
                     label = "SettingsIconCrossfade",
                     animationSpec = getAnimateTween()
                 ) { tag ->
-                    val isSettings = tag == SETTINGS_SCREEN_TAG
+                    val isLauncherScreen = tag == LAUNCHER_SCREEN_TAG
                     Icon(
-                        painter = if (isSettings) {
-                            painterResource(R.drawable.ic_menu_home)
-                        } else {
+                        painter = if (isLauncherScreen) {
                             painterResource(R.drawable.ic_setting)
-                        },
-                        contentDescription = if (isSettings) {
-                            stringResource(R.string.generic_main_menu)
                         } else {
+                            painterResource(R.drawable.ic_menu_home)
+                        },
+                        contentDescription = if (isLauncherScreen) {
                             stringResource(R.string.generic_setting)
+                        } else {
+                            stringResource(R.string.generic_main_menu)
                         },
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
@@ -237,6 +291,11 @@ class MainActivity : BaseComponentActivity() {
                 route = SETTINGS_SCREEN_TAG
             ) {
                 SettingsScreen(navController)
+            }
+            composable(
+                route = ACCOUNT_MANAGE_SCREEN_TAG
+            ) {
+                AccountManageScreen()
             }
         }
     }

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_unknown">未知</string>
+    <string name="generic_cancel">取消</string>
+    <string name="generic_confirm">确认</string>
+    <string name="generic_back">返回</string>
+    <string name="generic_refresh">刷新</string>
+    <string name="generic_delete">删除</string>
     <string name="generic_setting">设置</string>
     <string name="generic_main_menu">主菜单</string>
     <string name="generic_download">下载</string>
@@ -16,12 +22,26 @@
     <string name="main_control">控制</string>
     <string name="main_install_jar">执行 jar 文件</string>
     <string name="main_send_log">分享日志</string>
+    <!--  账号  -->
+    <string name="account_type_microsoft">微软账号</string>
+    <string name="account_type_local">离线账号</string>
+    <string name="account_add_new_server">添加认证服务器</string>
+    <string name="account_add_new_account">添加账号</string>
+    <string name="account_label_username">填写用户名</string>
+    <string name="account_supporting_username_invalid_title">该用户名无效</string>
+    <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
+    <string name="account_supporting_username_invalid_short">该用户名过短</string>
+    <string name="account_supporting_username_invalid_long">该用户名过长</string>
+    <string name="account_supporting_username_invalid_illegal_characters">该用户名包含非法字符</string>
+    <string name="account_supporting_username_invalid_empty">未填写用户名</string>
+    <string name="account_delete_title">删除账号</string>
+    <string name="account_delete_message">你确定要将账号 %s 从启动器内删除吗？</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>
-    <string name="settings_launcher_full_screen_summary">使启动器的页面全屏化，忽略刘海屏、挖孔屏等的安全区</string>
+    <string name="settings_launcher_full_screen_summary">使启动器的页面全屏化，忽略刘海屏、挖孔屏等屏幕的安全区</string>
     <string name="settings_launcher_animate_speed_title">动画倍速</string>
     <string name="settings_launcher_animate_speed_summary">调整启动器的动画播放时长的倍速</string>
 </resources>
