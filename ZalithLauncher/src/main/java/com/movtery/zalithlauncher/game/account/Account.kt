@@ -23,10 +23,6 @@ class Account {
 
     fun save() {
         val accountFile = File(PathManager.DIR_ACCOUNT, uniqueUUID)
-        if (accountFile.exists()) {
-            FileUtils.deleteQuietly(accountFile)
-        }
-        accountFile.createNewFile()
         accountFile.writeText(GSON.toJson(this))
     }
 

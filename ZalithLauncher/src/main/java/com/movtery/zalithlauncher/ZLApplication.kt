@@ -15,6 +15,8 @@ import java.util.Date
 class ZLApplication : Application() {
     override fun onCreate() {
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+            Log.e("Application", "An exception occurred: \n${Log.getStackTraceString(throwable)}")
+
             runCatching {
                 PrintStream(PathManager.FILE_CRASH_REPORT).use { stream ->
                     stream.append("================ ZalithLauncher Crash Report ================\n")

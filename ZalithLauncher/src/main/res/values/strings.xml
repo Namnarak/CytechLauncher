@@ -9,6 +9,7 @@
     <string name="generic_setting">设置</string>
     <string name="generic_main_menu">主菜单</string>
     <string name="generic_download">下载</string>
+    <string name="generic_done">完成</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_rosewood_ember">红木余烬</string>
@@ -29,6 +30,7 @@
     <string name="account_add_new_server">添加认证服务器</string>
     <string name="account_add_new_account">添加账号</string>
     <string name="account_label_username">填写用户名</string>
+    <string name="account_label_server_url">填写认证服务器地址</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
     <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
     <string name="account_supporting_username_invalid_short">该用户名过短</string>
@@ -37,6 +39,11 @@
     <string name="account_supporting_username_invalid_empty">未填写用户名</string>
     <string name="account_delete_title">删除账号</string>
     <string name="account_delete_message">你确定要将账号 %s 从启动器内删除吗？</string>
+    <string name="account_other_login_baseurl_not_set">未设置基础 URL</string>
+    <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
+    <string name="account_other_login_getting_server_info">获取服务器信息中</string>
+    <string name="account_other_login_saving_server">保存服务器中</string>
+    <string name="account_other_login_adding_failure">添加认证服务器时遇到问题！</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>

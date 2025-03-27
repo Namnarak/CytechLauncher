@@ -3,7 +3,6 @@ package com.movtery.zalithlauncher.ui.screens
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,11 +25,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,23 +42,45 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
+import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
+import com.movtery.zalithlauncher.game.account.otherserver.Servers
+import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.task.ProgressAwareTask
+import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.elements.PlayerFace
+import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.string.StringUtils
+import org.json.JSONObject
+import java.io.File
 import java.util.regex.Pattern
 
 const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
 private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
+
+private var otherServerConfig: Servers? = null
+private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
+
+/**
+ * 添加认证服务器时的状态
+ */
+sealed interface ServerOperation {
+    data object None : ServerOperation
+    data class Add(val serverUrl: String) : ServerOperation
+    data class OnThrowable(val throwable: Throwable) : ServerOperation
+}
 
 /**
  * 离线账号登陆
@@ -75,6 +96,55 @@ private fun localLogin(userName: String) {
         AccountsManager.reloadAccounts()
     }.onFailure { e ->
         Log.e("LocalLogin", "Failed to save local account: $userName", e)
+    }
+}
+
+@Composable
+private fun AddOtherServer(
+    serverUrl: String,
+    onThrowable: (Throwable) -> Unit = {}
+) {
+    val context = LocalContext.current
+
+    TaskSystem.submitTask(object : ProgressAwareTask<Unit>() {
+        override suspend fun performMainTask() {
+            updateProgress(0f, context.getString(R.string.account_other_login_getting_full_url))
+            val fullServerUrl = tryGetFullServerUrl(serverUrl)
+            if (isCanceled()) return
+            updateProgress(0.3f, context.getString(R.string.account_other_login_getting_server_info))
+            OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
+                val server = Servers.Server()
+                JSONObject(data).optJSONObject("meta")?.let { meta ->
+                    server.serverName = meta.optString("serverName")
+                    server.baseUrl = fullServerUrl
+                    server.register = meta.optJSONObject("links")?.optString("register") ?: ""
+                    checkServerConfig()
+                    otherServerConfig?.server?.apply addServer@{
+                        forEach {
+                            //确保服务器不重复
+                            if (it.baseUrl == server.baseUrl) return@addServer
+                        }
+                        add(server)
+                    }
+                    updateProgress(0.6f, context.getString(R.string.account_other_login_saving_server))
+                    otherServerConfigFile.writeText(
+                        GSON.toJson(otherServerConfig, Servers::class.java)
+                    )
+                    updateProgress(1f, context.getString(R.string.generic_done))
+                }
+            }
+        }
+    }.onThrowable {
+        onThrowable(it)
+        Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(it)}")
+    })
+}
+
+private fun checkServerConfig() {
+    otherServerConfig ?: run {
+        val servers = Servers()
+        servers.server = ArrayList()
+        otherServerConfig = servers
     }
 }
 
@@ -129,20 +199,40 @@ fun ServerTypeTab(
 
     if (localLoginDialog) {
         var showAlert by rememberSaveable { mutableStateOf(false) }
-        var userName by rememberSaveable { mutableStateOf<String?>(null) }
 
-        LocalLoginDialog(
-            onDismissRequest = {
-                localLoginDialog = false
-            },
-            onConfirm = { username, userNameInvalid ->
-                userName = username
-                if (userNameInvalid) {
-                    showAlert = true
-                    return@LocalLoginDialog
+        var username by rememberSaveable { mutableStateOf("") }
+        var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
+
+        SimpleEditDialog(
+            title = stringResource(R.string.account_type_local),
+            value = username,
+            onValueChange = { username = it.trim() },
+            label = { Text(text = stringResource(R.string.account_label_username)) },
+            isError = isUserNameInvalid,
+            supportingText = {
+                val errorText = when {
+                    username.isEmpty() -> stringResource(R.string.account_supporting_username_invalid_empty)
+                    username.length <= 2 -> stringResource(R.string.account_supporting_username_invalid_short)
+                    username.length > 16 -> stringResource(R.string.account_supporting_username_invalid_long)
+                    localNamePattern.matcher(username).find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
+                    else -> ""
+                }.also {
+                    isUserNameInvalid = it.isNotEmpty()
                 }
-                localLogin(userName = username)
-                localLoginDialog = false
+                if (isUserNameInvalid) {
+                    Text(text = errorText)
+                }
+            },
+            onDismissRequest = { localLoginDialog = false },
+            onConfirm = {
+                if (username.isNotEmpty()) {
+                    if (isUserNameInvalid) {
+                        showAlert = true
+                        return@SimpleEditDialog
+                    }
+                    localLogin(userName = username)
+                    localLoginDialog = false
+                }
             }
         )
 
@@ -153,13 +243,53 @@ fun ServerTypeTab(
                 onConfirm = {
                     showAlert = false
                     localLoginDialog = false
-                    localLogin(userName = userName!!)
+                    localLogin(userName = username)
                 },
                 onDismiss = {
                     showAlert = false
                 }
             )
         }
+    }
+
+    var yggdrasilServerDialog by rememberSaveable { mutableStateOf(false) }
+    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
+
+    when (val operation = serverOperation) {
+        is ServerOperation.Add -> {
+            AddOtherServer(
+                serverUrl = operation.serverUrl,
+                onThrowable = { serverOperation = ServerOperation.OnThrowable(it) }
+            )
+            serverOperation = ServerOperation.None
+        }
+        is ServerOperation.OnThrowable -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.account_other_login_adding_failure),
+                text = StringUtils.throwableToString(operation.throwable)
+            ) {
+                serverOperation = ServerOperation.None
+            }
+        }
+        is ServerOperation.None -> {}
+    }
+
+    if (yggdrasilServerDialog) {
+        var serverUrl by rememberSaveable { mutableStateOf("") }
+
+        SimpleEditDialog(
+            title = stringResource(R.string.account_add_new_server),
+            value = serverUrl,
+            onValueChange = { serverUrl = it.trim() },
+            label = { Text(text = stringResource(R.string.account_label_server_url)) },
+            onDismissRequest = { yggdrasilServerDialog = false },
+            onConfirm = {
+                if (it.isNotEmpty()) {
+                    yggdrasilServerDialog = false
+                    serverOperation = ServerOperation.Add(serverUrl)
+                }
+            }
+        )
     }
 
     Surface(
@@ -200,7 +330,9 @@ fun ServerTypeTab(
                 modifier = Modifier
                     .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
                     .fillMaxWidth(),
-                onClick = {}
+                onClick = {
+                    yggdrasilServerDialog = true
+                }
             ) {
                 Text(
                     text = stringResource(R.string.account_add_new_server)
@@ -351,78 +483,6 @@ fun AccountItem(
                         painter = painterResource(R.drawable.ic_delete),
                         contentDescription = stringResource(R.string.generic_delete)
                     )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun LocalLoginDialog(
-    onDismissRequest: () -> Unit,
-    onConfirm: (userName: String, userNameInvalid: Boolean) -> Unit
-) {
-    var username by rememberSaveable { mutableStateOf("") }
-    var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
-
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-        ) {
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = stringResource(R.string.account_type_local),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                TextField(
-                    value = username,
-                    onValueChange = { newValue ->
-                        username = newValue.trim()
-                    },
-                    isError = isUserNameInvalid,
-                    supportingText = {
-                        val errorText = when {
-                            username.isEmpty() -> stringResource(R.string.account_supporting_username_invalid_empty)
-                            username.length <= 2 -> stringResource(R.string.account_supporting_username_invalid_short)
-                            username.length > 16 -> stringResource(R.string.account_supporting_username_invalid_long)
-                            localNamePattern.matcher(username).find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
-                            else -> ""
-                        }.also {
-                            isUserNameInvalid = it.isNotEmpty()
-                        }
-                        if (isUserNameInvalid) {
-                            Text(text = errorText)
-                        }
-                    },
-                    label = {
-                        Text(text = stringResource(R.string.account_label_username))
-                    }
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest
-                    ) {
-                        Text(text = stringResource(R.string.generic_cancel))
-                    }
-                    Spacer(
-                        modifier = Modifier.width(16.dp)
-                    )
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            if (username.isNotEmpty()) {
-                                onConfirm(username, isUserNameInvalid)
-                            }
-                        }
-                    ) {
-                        Text(text = stringResource(R.string.generic_confirm))
-                    }
                 }
             }
         }

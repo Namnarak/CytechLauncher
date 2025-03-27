@@ -37,5 +37,16 @@ class StringUtils {
             val decodedBytes = Base64.decode(rawValue, Base64.DEFAULT)
             return String(decodedBytes, StandardCharsets.UTF_8)
         }
+
+        fun decodeUnicode(input: String): String {
+            val regex = """\\u([0-9a-fA-F]{4})""".toRegex()
+            var result = input
+            regex.findAll(input).forEach { match ->
+                val unicode = match.groupValues[1]
+                val char = Character.toChars(unicode.toInt(16))[0]
+                result = result.replace(match.value, char.toString())
+            }
+            return result
+        }
     }
 }

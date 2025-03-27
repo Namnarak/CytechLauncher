@@ -15,9 +15,10 @@ object TaskSystem {
     private val _tasksFlow = MutableStateFlow<List<TrackableTask<*>>>(emptyList())
     val tasksFlow: StateFlow<List<TrackableTask<*>>> = _tasksFlow
 
-    fun <V> packageTask(task: Task<V>): TrackableTask<V> {
-        val trackingId = UUID.randomUUID().toString()
-
+    fun <V> packageTask(
+        task: Task<V>,
+        trackingId: String = UUID.randomUUID().toString()
+    ): TrackableTask<V> {
         val trackableTask = TrackableTask(
             id = trackingId,
             rawTask = task
@@ -50,12 +51,28 @@ object TaskSystem {
         )
     }
 
+    fun submitTask(
+        task: Task<*>,
+        trackingId: String
+    ) {
+        submitTask(
+            //打包并提交运行任务
+            packageTask(task, trackingId)
+        )
+    }
+
     fun <V> submitTask(trackableTask: TrackableTask<V>) {
         tasks[trackableTask.id] = trackableTask
 
         _tasksFlow.value = tasks.values.toList()
         trackableTask.execute()
     }
+
+    /**
+     * 是否包含特定id的任务
+     */
+    fun containsTask(trackingId: String): Boolean =
+        tasks.containsKey(trackingId)
 
     fun cancelTask(id: String) {
         scope.launch {
