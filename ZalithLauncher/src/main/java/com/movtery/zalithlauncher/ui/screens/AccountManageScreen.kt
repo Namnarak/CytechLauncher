@@ -132,21 +132,6 @@ fun ServerTypeTab(
         var showAlert by rememberSaveable { mutableStateOf(false) }
         var userName by rememberSaveable { mutableStateOf<String?>(null) }
 
-        if (showAlert) {
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_supporting_username_invalid_title),
-                text = stringResource(R.string.account_supporting_username_invalid_local_message),
-                onConfirm = {
-                    showAlert = false
-                    localLoginDialog = false
-                    localLogin(userName = userName!!)
-                },
-                onDismiss = {
-                    showAlert = false
-                }
-            )
-        }
-
         LocalLoginDialog(
             onDismissRequest = {
                 localLoginDialog = false
@@ -161,6 +146,21 @@ fun ServerTypeTab(
                 localLoginDialog = false
             }
         )
+
+        if (showAlert) {
+            SimpleAlertDialog(
+                title = stringResource(R.string.account_supporting_username_invalid_title),
+                text = stringResource(R.string.account_supporting_username_invalid_local_message),
+                onConfirm = {
+                    showAlert = false
+                    localLoginDialog = false
+                    localLogin(userName = userName!!)
+                },
+                onDismiss = {
+                    showAlert = false
+                }
+            )
+        }
     }
 
     Surface(
