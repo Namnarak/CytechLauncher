@@ -27,6 +27,13 @@ public class Servers {
         this.info = info;
     }
 
+    public Servers copy() {
+        Servers servers = new Servers();
+        servers.info = this.info;
+        servers.server = this.server;
+        return servers;
+    }
+
     public static class Server {
         @SerializedName("baseUrl")
         private String baseUrl;

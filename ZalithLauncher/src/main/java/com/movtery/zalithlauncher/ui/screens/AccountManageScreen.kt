@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.Servers
+import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
@@ -62,6 +63,8 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.json.JSONObject
 import java.io.File
 import java.util.regex.Pattern
@@ -70,7 +73,7 @@ const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
 private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 
-private var otherServerConfig: Servers? = null
+private val otherServerConfig = MutableStateFlow(Servers())
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
 
 /**
@@ -99,6 +102,11 @@ private fun localLogin(userName: String) {
     }
 }
 
+private fun refreshOtherServer() {
+    val config = otherServerConfigFile.readText()
+    otherServerConfig.value = GSON.fromJson(config, Servers::class.java)
+}
+
 @Composable
 private fun AddOtherServer(
     serverUrl: String,
@@ -113,22 +121,22 @@ private fun AddOtherServer(
             if (isCanceled()) return
             updateProgress(0.3f, context.getString(R.string.account_other_login_getting_server_info))
             OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
-                val server = Servers.Server()
+                val server = Server()
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
                     server.serverName = meta.optString("serverName")
                     server.baseUrl = fullServerUrl
                     server.register = meta.optJSONObject("links")?.optString("register") ?: ""
-                    checkServerConfig()
-                    otherServerConfig?.server?.apply addServer@{
-                        forEach {
-                            //确保服务器不重复
-                            if (it.baseUrl == server.baseUrl) return@addServer
-                        }
-                        add(server)
+                    if (otherServerConfig.value.server.any { it.baseUrl == server.baseUrl }) {
+                        //确保服务器不重复
+                        return
+                    }
+                    otherServerConfig.update { currentConfig ->
+                        currentConfig.server.add(server)
+                        currentConfig.copy()
                     }
                     updateProgress(0.6f, context.getString(R.string.account_other_login_saving_server))
                     otherServerConfigFile.writeText(
-                        GSON.toJson(otherServerConfig, Servers::class.java)
+                        GSON.toJson(otherServerConfig.value, Servers::class.java)
                     )
                     updateProgress(1f, context.getString(R.string.generic_done))
                 }
@@ -138,14 +146,6 @@ private fun AddOtherServer(
         onThrowable(it)
         Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(it)}")
     })
-}
-
-private fun checkServerConfig() {
-    otherServerConfig ?: run {
-        val servers = Servers()
-        servers.server = ArrayList()
-        otherServerConfig = servers
-    }
 }
 
 @Composable
@@ -292,6 +292,37 @@ fun ServerTypeTab(
         )
     }
 
+    runCatching {
+        refreshOtherServer()
+    }.onFailure {
+        Log.e("ServerTypeTab", "Failed to refresh other server", it)
+    }
+
+    var deleteServer by remember { mutableStateOf<Int?>(null) }
+    deleteServer?.let { index ->
+        SimpleAlertDialog(
+            title = stringResource(R.string.account_other_login_delete_server_title),
+            text = stringResource(
+                R.string.account_other_login_delete_server_message,
+                otherServerConfig.value.server[index].serverName
+            ),
+            onDismiss = { deleteServer = null },
+            onConfirm = {
+                otherServerConfig.update { currentConfig ->
+                    currentConfig.server.removeAt(index)
+                    val configString = GSON.toJson(currentConfig, Servers::class.java)
+                    runCatching {
+                        otherServerConfigFile.writeText(configString)
+                    }.onFailure {
+                        Log.e("ServerTypeTab", "Failed to save other server config", it)
+                    }
+                    currentConfig.copy()
+                }
+                deleteServer = null
+            }
+        )
+    }
+
     Surface(
         modifier = modifier
             .offset {
@@ -323,6 +354,13 @@ fun ServerTypeTab(
                     serverName = stringResource(R.string.account_type_local)
                 ) {
                     localLoginDialog = true
+                }
+                val servers by otherServerConfig.collectAsState()
+                servers.server.forEachIndexed { index, server ->
+                    ServerItem(
+                        server = server,
+                        onDeleteClick = { deleteServer = index }
+                    )
                 }
             }
 
@@ -511,8 +549,10 @@ fun LoginItem(
             modifier = Modifier.width(8.dp)
         )
         Text(
+            modifier = Modifier.align(Alignment.CenterVertically),
             text = serverName,
-            color = contentColor
+            color = contentColor,
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -520,7 +560,7 @@ fun LoginItem(
 @Composable
 fun ServerItem(
     modifier: Modifier = Modifier,
-    serverName: String,
+    server: Servers.Server,
     contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -534,8 +574,9 @@ fun ServerItem(
             modifier = Modifier
                 .weight(1f)
                 .align(Alignment.CenterVertically),
-            text = serverName,
-            color = contentColor
+            text = server.serverName,
+            color = contentColor,
+            style = MaterialTheme.typography.labelLarge
         )
         Spacer(
             modifier = Modifier.width(8.dp)
@@ -546,7 +587,7 @@ fun ServerItem(
             Icon(
                 modifier = Modifier.size(24.dp),
                 painter = painterResource(R.drawable.ic_delete),
-                contentDescription = serverName,
+                contentDescription = stringResource(R.string.generic_delete),
                 tint = contentColor
             )
         }

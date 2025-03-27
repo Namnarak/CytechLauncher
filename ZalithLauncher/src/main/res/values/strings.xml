@@ -44,6 +44,8 @@
     <string name="account_other_login_getting_server_info">获取服务器信息中</string>
     <string name="account_other_login_saving_server">保存服务器中</string>
     <string name="account_other_login_adding_failure">添加认证服务器时遇到问题！</string>
+    <string name="account_other_login_delete_server_title">删除认证服务器</string>
+    <string name="account_other_login_delete_server_message">你确定要删除认证服务器 %s 吗？</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
