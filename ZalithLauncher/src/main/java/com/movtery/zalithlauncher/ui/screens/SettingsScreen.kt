@@ -118,14 +118,6 @@ private fun TabMenu(
             ) {
                 settingsNavController.navigateOnce(LAUNCHER_SETTINGS_TAG)
             }
-            TabItem(
-                painter = painterResource(R.drawable.ic_setting_launcher),
-                contentDescription = null,
-                text = stringResource(R.string.settings_tab_launcher),
-                selected = false
-            ) {
-
-            }
         }
     }
 }
