@@ -119,7 +119,7 @@ private fun AddOtherServer(
             updateProgress(0f, context.getString(R.string.account_other_login_getting_full_url))
             val fullServerUrl = tryGetFullServerUrl(serverUrl)
             if (isCanceled()) return
-            updateProgress(0.3f, context.getString(R.string.account_other_login_getting_server_info))
+            updateProgress(0.5f, context.getString(R.string.account_other_login_getting_server_info))
             OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
                 val server = Server()
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
@@ -134,7 +134,7 @@ private fun AddOtherServer(
                         currentConfig.server.add(server)
                         currentConfig.copy()
                     }
-                    updateProgress(0.6f, context.getString(R.string.account_other_login_saving_server))
+                    updateProgress(0.8f, context.getString(R.string.account_other_login_saving_server))
                     otherServerConfigFile.writeText(
                         GSON.toJson(otherServerConfig.value, Servers::class.java)
                     )
@@ -560,7 +560,7 @@ fun LoginItem(
 @Composable
 fun ServerItem(
     modifier: Modifier = Modifier,
-    server: Servers.Server,
+    server: Server,
     contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
