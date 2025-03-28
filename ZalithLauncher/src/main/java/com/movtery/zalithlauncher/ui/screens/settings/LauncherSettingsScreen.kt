@@ -42,11 +42,14 @@ fun LauncherSettingsScreen(
                 getRadioText = { enum ->
                     when (enum) {
                         ColorThemeType.DYNAMIC -> stringResource(R.string.theme_color_dynamic)
-                        ColorThemeType.ROSEWOOD_EMBER -> stringResource(R.string.theme_color_rosewood_ember)
+                        ColorThemeType.EMBERMIRE -> stringResource(R.string.theme_color_embermire)
                         ColorThemeType.VELVET_ROSE -> stringResource(R.string.theme_color_velvet_rose)
                         ColorThemeType.MISTWAVE -> stringResource(R.string.theme_color_mistwave)
                         ColorThemeType.GLACIER -> stringResource(R.string.theme_color_glacier)
                         ColorThemeType.VERDANTFIELD -> stringResource(R.string.theme_color_verdant_field)
+                        ColorThemeType.VERDELUME -> stringResource(R.string.theme_color_verdelume)
+                        ColorThemeType.VERDANT_DAWN -> stringResource(R.string.theme_color_verdant_dawn)
+                        ColorThemeType.CELESTINE_VEIL -> stringResource(R.string.theme_color_celestine_veil)
                     }
                 }
             ) { type ->

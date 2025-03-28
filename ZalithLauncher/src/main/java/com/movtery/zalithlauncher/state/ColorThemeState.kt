@@ -27,12 +27,7 @@ val LocalColorThemeState = staticCompositionLocalOf<ColorThemeState> {
     error("ColorThemeState not provided!")
 }
 
-private fun getCurrentColorType(): ColorThemeType = when (AllSettings.launcherColorTheme.getValue()) {
-    "DYNAMIC" -> ColorThemeType.DYNAMIC
-    "ROSEWOOD_EMBER" -> ColorThemeType.ROSEWOOD_EMBER
-    "VELVET_ROSE" -> ColorThemeType.VELVET_ROSE
-    "MISTWAVE" -> ColorThemeType.MISTWAVE
-    "GLACIER" -> ColorThemeType.GLACIER
-    "VERDANTFIELD" -> ColorThemeType.VERDANTFIELD
-    else -> ColorThemeType.ROSEWOOD_EMBER
-}
+private fun getCurrentColorType(): ColorThemeType =
+    ColorThemeType.entries.find {
+        it.name == AllSettings.launcherColorTheme.getValue()
+    } ?: ColorThemeType.EMBERMIRE

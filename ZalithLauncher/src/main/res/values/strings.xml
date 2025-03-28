@@ -13,11 +13,14 @@
     <string name="generic_open_link">在浏览器访问</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
-    <string name="theme_color_rosewood_ember">红木余烬</string>
+    <string name="theme_color_embermire">釉烬</string>
     <string name="theme_color_velvet_rose">绒玫</string>
     <string name="theme_color_mistwave">雾澜</string>
     <string name="theme_color_glacier">冰川</string>
     <string name="theme_color_verdant_field">原野暮光</string>
+    <string name="theme_color_verdelume">幽翠澜光</string>
+    <string name="theme_color_verdant_dawn">静林之晨</string>
+    <string name="theme_color_celestine_veil">霁岚</string>
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_about">关于</string>
