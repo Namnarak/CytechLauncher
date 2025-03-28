@@ -7,22 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,13 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -46,8 +37,9 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.getAccountTypeName
+import com.movtery.zalithlauncher.game.account.otherserver.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
+import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.Servers
 import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
@@ -58,10 +50,15 @@ import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
-import com.movtery.zalithlauncher.ui.screens.elements.PlayerFace
+import com.movtery.zalithlauncher.ui.components.SimpleListDialog
+import com.movtery.zalithlauncher.ui.screens.elements.AccountItem
+import com.movtery.zalithlauncher.ui.screens.elements.LoginItem
+import com.movtery.zalithlauncher.ui.screens.elements.OtherServerLoginDialog
+import com.movtery.zalithlauncher.ui.screens.elements.ServerItem
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -86,6 +83,20 @@ sealed interface ServerOperation {
 }
 
 /**
+ * 认证服务器登陆时的状态
+ */
+sealed interface OtherLoginOperation {
+    data object None : OtherLoginOperation
+    data class OnLogin(val server: Server) : OtherLoginOperation
+    data class OnSuccess(val account: Account) : OtherLoginOperation
+    data class OnFailed(val error: String) : OtherLoginOperation
+    data class SelectRole(
+        val profiles: List<AuthResult.AvailableProfiles>,
+        val selected: (AuthResult.AvailableProfiles) -> Unit
+    ) : OtherLoginOperation
+}
+
+/**
  * 离线账号登陆
  */
 private fun localLogin(userName: String) {
@@ -93,12 +104,16 @@ private fun localLogin(userName: String) {
         this.username = userName
         this.accountType = AccountType.LOCAL.tag
     }
+    saveAccount(account)
+}
+
+private fun saveAccount(account: Account) {
     runCatching {
         account.save()
-        Log.i("LocalLogin", "Saved local account: $userName")
+        Log.i("SaveAccount", "Saved local account: ${account.username}")
         AccountsManager.reloadAccounts()
     }.onFailure { e ->
-        Log.e("LocalLogin", "Failed to save local account: $userName", e)
+        Log.e("SaveAccount", "Failed to save local account: ${account.username}", e)
     }
 }
 
@@ -323,6 +338,51 @@ fun ServerTypeTab(
         )
     }
 
+    val context = LocalContext.current
+    var otherLoginOperation by remember { mutableStateOf<OtherLoginOperation>(OtherLoginOperation.None) }
+    when (val operation = otherLoginOperation) {
+        is OtherLoginOperation.OnLogin -> {
+            OtherServerLoginDialog(
+                server = operation.server,
+                onRegisterClick = { url ->
+                    NetWorkUtils.openLink(context, url)
+                    otherLoginOperation = OtherLoginOperation.None
+                },
+                onDismissRequest = { otherLoginOperation = OtherLoginOperation.None },
+                onConfirm = { email, password ->
+                    otherLoginOperation = OtherLoginOperation.None
+                    OtherLoginHelper(operation.server, email, password, object : OtherLoginHelper.OnLoginListener {
+                        override fun onSuccess(account: Account) {
+                            otherLoginOperation = OtherLoginOperation.OnSuccess(account)
+                        }
+                        override fun onFailed(error: String) {
+                            otherLoginOperation = OtherLoginOperation.OnFailed(error)
+                        }
+                    }).createNewAccount(context) { availableProfiles, selectedFunction ->
+                        otherLoginOperation = OtherLoginOperation.SelectRole(availableProfiles, selectedFunction)
+                    }
+                }
+            )
+        }
+        is OtherLoginOperation.OnSuccess -> { saveAccount(operation.account) }
+        is OtherLoginOperation.OnFailed -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.account_logging_in_failed),
+                text = operation.error
+            ) { otherLoginOperation = OtherLoginOperation.None }
+        }
+        is OtherLoginOperation.SelectRole -> {
+            SimpleListDialog(
+                title = stringResource(R.string.account_other_login_select_role),
+                itemsProvider = { operation.profiles },
+                itemTextProvider = { it.name },
+                onItemSelected = { operation.selected(it) },
+                onDismissRequest = { otherLoginOperation = OtherLoginOperation.None }
+            )
+        }
+        is OtherLoginOperation.None -> {}
+    }
+
     Surface(
         modifier = modifier
             .offset {
@@ -330,7 +390,8 @@ fun ServerTypeTab(
                     x = xOffset.roundToPx(),
                     y = 0
                 )
-            }.fillMaxHeight()
+            }
+            .fillMaxHeight()
         ,
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.inversePrimary,
@@ -359,6 +420,7 @@ fun ServerTypeTab(
                 servers.server.forEachIndexed { index, server ->
                     ServerItem(
                         server = server,
+                        onClick = { otherLoginOperation = OtherLoginOperation.OnLogin(server) },
                         onDeleteClick = { deleteServer = index }
                     )
                 }
@@ -444,152 +506,6 @@ fun AccountsLayout(
                     onDeleteClick = { deleteAccount = account }
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun AccountItem(
-    modifier: Modifier = Modifier,
-    currentAccount: Account?,
-    account: Account,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    onSelected: (uniqueUUID: String) -> Unit = {},
-    onRefreshClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {}
-) {
-    val selected = currentAccount?.uniqueUUID == account.uniqueUUID
-
-    Surface(
-        modifier = modifier,
-        color = MaterialTheme.colorScheme.inversePrimary,
-        contentColor = contentColor,
-        shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    if (selected) return@clickable
-                    onSelected(account.uniqueUUID)
-                }
-                .clip(shape = MaterialTheme.shapes.large)
-                .padding(all = 8.dp)
-        ) {
-            RadioButton(
-                selected = selected,
-                onClick = {
-                    if (selected) return@RadioButton
-                    onSelected(account.uniqueUUID)
-                }
-            )
-            PlayerFace(
-                modifier = Modifier.align(Alignment.CenterVertically),
-                account = account,
-                avatarSize = 46
-            )
-            Spacer(modifier = Modifier.width(18.dp))
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .weight(1f)
-            ) {
-                val context = LocalContext.current
-                Text(text = account.username)
-                Text(
-                    text = getAccountTypeName(context, account),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-            Row {
-                IconButton(
-                    onClick = onRefreshClick,
-                    enabled = account.accountType != AccountType.LOCAL.tag
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.ic_refresh),
-                        contentDescription = stringResource(R.string.generic_refresh)
-                    )
-                }
-                IconButton(
-                    onClick = onDeleteClick
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.ic_delete),
-                        contentDescription = stringResource(R.string.generic_delete)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun LoginItem(
-    modifier: Modifier = Modifier,
-    serverName: String,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    onClick: () -> Unit = {}
-) {
-    Row(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)
-    ) {
-        Icon(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(R.drawable.ic_add),
-            contentDescription = serverName,
-            tint = contentColor
-        )
-        Spacer(
-            modifier = Modifier.width(8.dp)
-        )
-        Text(
-            modifier = Modifier.align(Alignment.CenterVertically),
-            text = serverName,
-            color = contentColor,
-            style = MaterialTheme.typography.labelLarge
-        )
-    }
-}
-
-@Composable
-fun ServerItem(
-    modifier: Modifier = Modifier,
-    server: Server,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    onClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {}
-) {
-    Row(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .padding(start = 4.dp)
-    ) {
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically),
-            text = server.serverName,
-            color = contentColor,
-            style = MaterialTheme.typography.labelLarge
-        )
-        Spacer(
-            modifier = Modifier.width(8.dp)
-        )
-        IconButton(
-            onClick = onDeleteClick
-        ) {
-            Icon(
-                modifier = Modifier.size(24.dp),
-                painter = painterResource(R.drawable.ic_delete),
-                contentDescription = stringResource(R.string.generic_delete),
-                tint = contentColor
-            )
         }
     }
 }

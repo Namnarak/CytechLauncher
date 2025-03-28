@@ -130,7 +130,7 @@ object AccountsManager {
     /**
      * 通过账号的唯一标识符读取账号
      */
-    private fun loadFromUniqueUUID(uniqueUUID: String): Account? {
+    fun loadFromUniqueUUID(uniqueUUID: String): Account? {
         if (!isAccountExists(uniqueUUID)) return null
         return try {
             parseAccount(File(PathManager.DIR_ACCOUNT, uniqueUUID).readText())
@@ -144,9 +144,15 @@ object AccountsManager {
     }
 
     /**
+     * 通过账号的profileId读取账号
+     */
+    fun loadFromProfileID(profileId: String): Account? =
+        _accounts.find { it.profileId == profileId }
+
+    /**
      * 账号是否存在
      */
-    private fun isAccountExists(uniqueUUID: String): Boolean {
+    fun isAccountExists(uniqueUUID: String): Boolean {
         return uniqueUUID.isNotEmpty() && File(PathManager.DIR_ACCOUNT, uniqueUUID).exists()
     }
 }

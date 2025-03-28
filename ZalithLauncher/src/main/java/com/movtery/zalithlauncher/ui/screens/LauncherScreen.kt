@@ -45,11 +45,17 @@ import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.task.ProgressAwareTask
+import com.movtery.zalithlauncher.task.Task
+import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.elements.AccountAvatar
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 
 const val LAUNCHER_SCREEN_TAG: String = "LauncherScreen"
 
@@ -95,7 +101,10 @@ fun LauncherScreen(
             }
             if (!isVisible) { //禁止触摸
                 Box(
-                    modifier = Modifier.fillMaxSize().alpha(0f).clickable {  }
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(0f)
+                        .clickable { }
                 )
             }
         }
@@ -166,12 +175,32 @@ private fun MainMenu(
                         painter = painterResource(R.drawable.ic_about),
                         text = stringResource(R.string.main_about),
                         modifier = Modifier.fillMaxWidth()
-                    ) {}
+                    ) {
+                        TaskSystem.submitTask(Task.runTask {
+                            withContext(Dispatchers.IO) {
+                                repeat(100) { index ->
+                                    ensureActive()
+                                    Thread.sleep(100)
+                                }
+                            }
+                            "TEST RESULT"
+                        })
+                    }
                     MenuActionButton(
                         painter = painterResource(R.drawable.ic_controls),
                         text = stringResource(R.string.main_control),
                         modifier = Modifier.fillMaxWidth()
-                    ) {}
+                    ) {
+                        TaskSystem.submitTask(Task.runTask("TEST Task") {
+                            withContext(Dispatchers.IO) {
+                                repeat(100) { index ->
+                                    ensureActive()
+                                    Thread.sleep(100)
+                                }
+                            }
+                            "TEST RESULT"
+                        })
+                    }
                     MenuActionButton(
                         painter = painterResource(R.drawable.ic_java),
                         text = stringResource(R.string.main_install_jar),
@@ -279,7 +308,20 @@ private fun RightMenu(
                     .align(Alignment.BottomCenter)
                     .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                onClick = {},
+                onClick = {
+                    TaskSystem.submitTask(object : ProgressAwareTask<String>() {
+                        override suspend fun performMainTask() {
+                            withContext(Dispatchers.IO) {
+                                repeat(100) { index ->
+                                    ensureActive()
+                                    updateProgress(index / 100f, "进度：$index")
+                                    Thread.sleep(100)
+                                }
+                            }
+                            setResult("TEST RESULT")
+                        }
+                    })
+                },
             ) {
                 Text(text = stringResource(R.string.main_launch_game))
             }

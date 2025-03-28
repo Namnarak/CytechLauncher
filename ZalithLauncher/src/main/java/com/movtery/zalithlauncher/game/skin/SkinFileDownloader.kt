@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.gson.JsonObject
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.network.DownloadUtils
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import okhttp3.Request
 import java.io.File
@@ -18,7 +18,7 @@ class SkinFileDownloader {
      */
     @Throws(Exception::class)
     fun yggdrasil(url: String, skinFile: File, uuid: String) {
-        val profileJson = DownloadUtils.fetchStringFromUrl("${url.removeSuffix("/")}/session/minecraft/profile/$uuid")
+        val profileJson = NetWorkUtils.fetchStringFromUrl("${url.removeSuffix("/")}/session/minecraft/profile/$uuid")
         val profileObject = GSON.fromJson(profileJson, JsonObject::class.java)
         val properties = profileObject.get("properties").asJsonArray
         val rawValue = properties.get(0).asJsonObject.get("value").asString

@@ -1,11 +1,16 @@
 package com.movtery.zalithlauncher.utils.network
 
+import android.content.Context
+import android.content.Intent
+import androidx.core.net.toUri
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.UrlManager
 import okhttp3.Call
 import java.io.File
 import java.io.IOException
 
-class DownloadUtils {
+class NetWorkUtils {
     companion object {
         /**
          * 同步下载文件到本地
@@ -62,6 +67,40 @@ class DownloadUtils {
             val request = UrlManager.createRequestBuilder(url).build()
 
             return call(client.newCall(request))
+        }
+
+        /**
+         * 展示一个提示弹窗，告知用户接下来将要在浏览器内访问的链接，用户可以选择不进行访问
+         * @param link 要访问的链接
+         */
+        fun openLink(context: Context, link: String) {
+            openLink(context, link, null)
+        }
+
+        /**
+         * 展示一个提示弹窗，告知用户接下来将要在浏览器内访问的链接，用户可以选择不进行访问
+         * @param link 要访问的链接
+         * @param dataType 设置 intent 的数据以及显式 MIME 数据类型
+         */
+        fun openLink(context: Context, link: String, dataType: String?) {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.generic_open_link)
+                .setMessage(link)
+                .setPositiveButton(R.string.generic_confirm) { _, _ ->
+                    val uri = link.toUri()
+                    val browserIntent: Intent
+                    if (dataType != null) {
+                        browserIntent = Intent(Intent.ACTION_VIEW)
+                        browserIntent.setDataAndType(uri, dataType)
+                    } else {
+                        browserIntent = Intent(Intent.ACTION_VIEW, uri)
+                    }
+                    context.startActivity(browserIntent)
+                }
+                .setNegativeButton(R.string.generic_cancel) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
     }
 }
