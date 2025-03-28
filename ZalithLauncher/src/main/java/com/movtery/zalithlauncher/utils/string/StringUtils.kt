@@ -33,6 +33,10 @@ class StringUtils {
             return stringWriter.toString()
         }
 
+        fun Throwable.getMessageOrToString(): String {
+            return message ?: throwableToString(this)
+        }
+
         fun decodeBase64(rawValue: String): String {
             val decodedBytes = Base64.decode(rawValue, Base64.DEFAULT)
             return String(decodedBytes, StandardCharsets.UTF_8)

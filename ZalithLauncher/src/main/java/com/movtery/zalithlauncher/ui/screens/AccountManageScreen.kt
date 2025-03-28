@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import org.json.JSONObject
@@ -75,6 +76,8 @@ private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.js
  */
 sealed interface ServerOperation {
     data object None : ServerOperation
+    data object AddNew : ServerOperation
+    data class Delete(val serverName: String, val serverIndex: Int) : ServerOperation
     data class Add(val serverUrl: String) : ServerOperation
     data class OnThrowable(val throwable: Throwable) : ServerOperation
 }
@@ -264,10 +267,30 @@ fun ServerTypeTab(
         }
     }
 
-    var yggdrasilServerDialog by rememberSaveable { mutableStateOf(false) }
-    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
+    runCatching {
+        refreshOtherServer()
+    }.onFailure {
+        Log.e("ServerTypeTab", "Failed to refresh other server", it)
+    }
 
+    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
     when (val operation = serverOperation) {
+        is ServerOperation.AddNew -> {
+            var serverUrl by rememberSaveable { mutableStateOf("") }
+            SimpleEditDialog(
+                title = stringResource(R.string.account_add_new_server),
+                value = serverUrl,
+                onValueChange = { serverUrl = it.trim() },
+                label = { Text(text = stringResource(R.string.account_label_server_url)) },
+                onDismissRequest = { serverOperation = ServerOperation.None },
+                onConfirm = {
+                    if (it.isNotEmpty()) {
+                        serverOperation = ServerOperation.None
+                        serverOperation = ServerOperation.Add(serverUrl)
+                    }
+                }
+            )
+        }
         is ServerOperation.Add -> {
             AddOtherServer(
                 serverUrl = operation.serverUrl,
@@ -275,64 +298,35 @@ fun ServerTypeTab(
             )
             serverOperation = ServerOperation.None
         }
+        is ServerOperation.Delete -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.account_other_login_delete_server_title),
+                text = stringResource(R.string.account_other_login_delete_server_message, operation.serverName),
+                onDismiss = { serverOperation = ServerOperation.None },
+                onConfirm = {
+                    otherServerConfig.update { currentConfig ->
+                        currentConfig.server.removeAt(operation.serverIndex)
+                        val configString = GSON.toJson(currentConfig, Servers::class.java)
+                        runCatching {
+                            otherServerConfigFile.writeText(configString)
+                        }.onFailure {
+                            Log.e("ServerTypeTab", "Failed to save other server config", it)
+                        }
+                        currentConfig.copy()
+                    }
+                    serverOperation = ServerOperation.None
+                }
+            )
+        }
         is ServerOperation.OnThrowable -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.account_other_login_adding_failure),
-                text = StringUtils.throwableToString(operation.throwable)
+                text = operation.throwable.getMessageOrToString()
             ) {
                 serverOperation = ServerOperation.None
             }
         }
         is ServerOperation.None -> {}
-    }
-
-    if (yggdrasilServerDialog) {
-        var serverUrl by rememberSaveable { mutableStateOf("") }
-
-        SimpleEditDialog(
-            title = stringResource(R.string.account_add_new_server),
-            value = serverUrl,
-            onValueChange = { serverUrl = it.trim() },
-            label = { Text(text = stringResource(R.string.account_label_server_url)) },
-            onDismissRequest = { yggdrasilServerDialog = false },
-            onConfirm = {
-                if (it.isNotEmpty()) {
-                    yggdrasilServerDialog = false
-                    serverOperation = ServerOperation.Add(serverUrl)
-                }
-            }
-        )
-    }
-
-    runCatching {
-        refreshOtherServer()
-    }.onFailure {
-        Log.e("ServerTypeTab", "Failed to refresh other server", it)
-    }
-
-    var deleteServer by remember { mutableStateOf<Int?>(null) }
-    deleteServer?.let { index ->
-        SimpleAlertDialog(
-            title = stringResource(R.string.account_other_login_delete_server_title),
-            text = stringResource(
-                R.string.account_other_login_delete_server_message,
-                otherServerConfig.value.server[index].serverName
-            ),
-            onDismiss = { deleteServer = null },
-            onConfirm = {
-                otherServerConfig.update { currentConfig ->
-                    currentConfig.server.removeAt(index)
-                    val configString = GSON.toJson(currentConfig, Servers::class.java)
-                    runCatching {
-                        otherServerConfigFile.writeText(configString)
-                    }.onFailure {
-                        Log.e("ServerTypeTab", "Failed to save other server config", it)
-                    }
-                    currentConfig.copy()
-                }
-                deleteServer = null
-            }
-        )
     }
 
     val context = LocalContext.current
@@ -418,7 +412,7 @@ fun ServerTypeTab(
                     ServerItem(
                         server = server,
                         onClick = { otherLoginOperation = OtherLoginOperation.OnLogin(server) },
-                        onDeleteClick = { deleteServer = index }
+                        onDeleteClick = { serverOperation = ServerOperation.Delete(server.serverName, index) }
                     )
                 }
             }
@@ -427,9 +421,7 @@ fun ServerTypeTab(
                 modifier = Modifier
                     .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
                     .fillMaxWidth(),
-                onClick = {
-                    yggdrasilServerDialog = true
-                }
+                onClick = { serverOperation = ServerOperation.AddNew }
             ) {
                 Text(
                     text = stringResource(R.string.account_add_new_server)
