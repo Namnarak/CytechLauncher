@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.account
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.path.PathManager
@@ -60,6 +61,23 @@ object AccountsManager {
             _accountsFlow.value = _accounts.toList()
 
             Log.i("AccountsManager", "Loaded ${_accounts.size} accounts")
+        }
+    }
+
+    /**
+     * 执行登陆操作
+     */
+    fun performLogin(
+        context: Context,
+        account: Account,
+        onSuccess: (Account) -> Unit = {},
+        onFailed: (error: String) -> Unit = {}
+    ) {
+        when {
+            isNoLoginRequired(account) -> {}
+            isOtherLoginAccount(account) -> {
+                otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed)
+            }
         }
     }
 

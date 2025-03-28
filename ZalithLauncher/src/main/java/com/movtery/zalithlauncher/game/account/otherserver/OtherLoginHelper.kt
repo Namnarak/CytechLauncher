@@ -14,14 +14,27 @@ import java.util.Objects
  * 帮助登录外置账号（创建新的外置账号、仅登录当前外置账号）
  */
 class OtherLoginHelper(
-    private val server: Server,
+    private val baseUrl: String,
+    private val serverName: String,
     private val email: String,
     private val password: String,
     private val listener: OnLoginListener
 ) {
-    private fun login(context: Context, loginListener: LoginAccountListener) {
-        val task = Task.runTask(context.getString(R.string.account_logging_in, server.serverName)) {
-            OtherLoginApi.setBaseUrl(server.baseUrl)
+    constructor(
+        server: Server,
+        email: String,
+        password: String,
+        listener: OnLoginListener
+    ): this(server.baseUrl, server.serverName, email, password, listener)
+
+    private fun login(
+        context: Context,
+        loginListener: LoginAccountListener,
+        taskId: String? = null,
+        loggingString: String = serverName
+    ) {
+        val task = Task.runTask(context.getString(R.string.account_logging_in, loggingString)) {
+            OtherLoginApi.setBaseUrl(baseUrl)
             OtherLoginApi.login(context, email, password,
                 object : OtherLoginApi.Listener {
                     override fun onSuccess(authResult: AuthResult) {
@@ -42,7 +55,7 @@ class OtherLoginHelper(
             listener.onFailed(e.message ?: message)
         }
 
-        TaskSystem.submitTask(task)
+        TaskSystem.submitTask(task, taskId)
     }
 
     /**
@@ -59,10 +72,10 @@ class OtherLoginHelper(
         account.apply {
             this.accessToken = authResult.accessToken
             this.clientToken = authResult.clientToken
-            this.otherBaseUrl = server.baseUrl
+            this.otherBaseUrl = baseUrl
             this.otherAccount = email
             this.otherPassword = password
-            this.accountType = server.serverName
+            this.accountType = serverName
             this.username = userName
             this.profileId = profileId
         }
@@ -126,12 +139,12 @@ class OtherLoginHelper(
                 }
                 roleNotFound()
             }
-        })
+        }, taskId = account.uniqueUUID, loggingString = account.username)
     }
 
     private fun refresh(context: Context, account: Account) {
         val task = Task.runTask(context.getString(R.string.account_other_login_select_role_logging, account.username)) {
-            OtherLoginApi.setBaseUrl(server.baseUrl)
+            OtherLoginApi.setBaseUrl(baseUrl)
             OtherLoginApi.refresh(context, account, true, object : OtherLoginApi.Listener {
                 override fun onSuccess(authResult: AuthResult) {
                     account.accessToken = authResult.accessToken

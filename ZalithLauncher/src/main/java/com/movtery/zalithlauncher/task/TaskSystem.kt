@@ -17,8 +17,10 @@ object TaskSystem {
 
     private fun <V> packageTask(
         task: Task<V>,
-        trackingId: String = UUID.randomUUID().toString()
+        taskId: String? = null
     ): TrackableTask<V> {
+        val trackingId = taskId ?: UUID.randomUUID().toString()
+
         val trackableTask = TrackableTask(
             id = trackingId,
             rawTask = task
@@ -58,7 +60,7 @@ object TaskSystem {
 
     fun submitTask(
         task: Task<*>,
-        trackingId: String
+        trackingId: String?
     ) {
         submitTask(
             //打包并提交运行任务

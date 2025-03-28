@@ -2,6 +2,8 @@ package com.movtery.zalithlauncher.utils.network
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
@@ -12,6 +14,21 @@ import java.io.IOException
 
 class NetWorkUtils {
     companion object {
+
+        /**
+         * @return 当前网络是否可用
+         */
+        fun isNetworkAvailable(context: Context): Boolean {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetwork
+            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+            return activeNetwork != null && (
+                    capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false ||
+                            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false ||
+                            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ?: false
+                    )
+        }
+
         /**
          * 同步下载文件到本地
          * @param url 要下载的文件URL

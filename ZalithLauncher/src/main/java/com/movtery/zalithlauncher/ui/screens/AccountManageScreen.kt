@@ -80,6 +80,16 @@ sealed interface ServerOperation {
 }
 
 /**
+ * 账号操作的状态
+ */
+sealed interface AccountOperation {
+    data object None : AccountOperation
+    data class Delete(val account: Account) : AccountOperation
+    data class Refresh(val account: Account) : AccountOperation
+    data class OnFailed(val error: String) : AccountOperation
+}
+
+/**
  * 认证服务器登陆时的状态
  */
 sealed interface OtherLoginOperation {
@@ -453,22 +463,39 @@ fun AccountsLayout(
         shape = MaterialTheme.shapes.extraLarge,
         shadowElevation = 4.dp
     ) {
-        var deleteAccount by rememberSaveable { mutableStateOf<Account?>(null) }
-
-        //删除账号前弹出Dialog提醒
-        if (deleteAccount != null) {
-            val account = deleteAccount!!
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_delete_title),
-                text = stringResource(R.string.account_delete_message, account.username),
-                onConfirm = {
-                    AccountsManager.deleteAccount(account)
-                    deleteAccount = null
-                },
-                onDismiss = {
-                    deleteAccount = null
+        val context = LocalContext.current
+        var accountOperation by remember { mutableStateOf<AccountOperation>(AccountOperation.None) }
+        when (val operation = accountOperation) {
+            is AccountOperation.Delete -> {
+                //删除账号前弹出Dialog提醒
+                SimpleAlertDialog(
+                    title = stringResource(R.string.account_delete_title),
+                    text = stringResource(R.string.account_delete_message, operation.account.username),
+                    onConfirm = {
+                        AccountsManager.deleteAccount(operation.account)
+                        accountOperation = AccountOperation.None
+                    },
+                    onDismiss = { accountOperation = AccountOperation.None }
+                )
+            }
+            is AccountOperation.Refresh -> {
+                if (NetWorkUtils.isNetworkAvailable(context)) {
+                    AccountsManager.performLogin(
+                        context = context,
+                        account = operation.account,
+                        onSuccess = { saveAccount(it) },
+                        onFailed = { accountOperation = AccountOperation.OnFailed(it) }
+                    )
                 }
-            )
+                accountOperation = AccountOperation.None
+            }
+            is AccountOperation.OnFailed -> {
+                SimpleAlertDialog(
+                    title = stringResource(R.string.account_logging_in_failed),
+                    text = operation.error
+                ) { accountOperation = AccountOperation.None }
+            }
+            is AccountOperation.None -> {}
         }
 
         LazyColumn(
@@ -489,8 +516,8 @@ fun AccountsLayout(
                     onSelected = { uniqueUUID ->
                         AccountsManager.setCurrentAccount(uniqueUUID)
                     },
-                    onRefreshClick = {},
-                    onDeleteClick = { deleteAccount = account }
+                    onRefreshClick = { accountOperation = AccountOperation.Refresh(account) },
+                    onDeleteClick = { accountOperation = AccountOperation.Delete(account) }
                 )
             }
         }

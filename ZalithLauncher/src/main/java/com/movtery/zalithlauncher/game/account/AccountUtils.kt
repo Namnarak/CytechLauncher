@@ -3,6 +3,8 @@ package com.movtery.zalithlauncher.game.account
 import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
+import com.movtery.zalithlauncher.task.TaskSystem
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -18,6 +20,31 @@ fun isMicrosoftAccount(account: Account): Boolean {
 
 fun isNoLoginRequired(account: Account?): Boolean {
     return account == null || account.accountType == AccountType.LOCAL.tag
+}
+
+fun otherLogin(
+    context: Context,
+    account: Account,
+    onSuccess: (Account) -> Unit = {},
+    onFailed: (error: String) -> Unit = {}
+) {
+    if (TaskSystem.containsTask(account.uniqueUUID)) return
+
+    OtherLoginHelper(
+        baseUrl = account.otherBaseUrl!!,
+        serverName = account.accountType!!,
+        email = account.otherAccount!!,
+        password = account.otherPassword!!,
+        object : OtherLoginHelper.OnLoginListener {
+            override fun onSuccess(account: Account) {
+                onSuccess(account)
+            }
+
+            override fun onFailed(error: String) {
+                onFailed(error)
+            }
+        }
+    ).justLogin(context, account)
 }
 
 /**
