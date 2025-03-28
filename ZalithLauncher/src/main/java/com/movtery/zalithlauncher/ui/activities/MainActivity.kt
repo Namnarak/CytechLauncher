@@ -142,7 +142,7 @@ class MainActivity : BaseComponentActivity() {
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .align(Alignment.CenterStart)
-                                .padding(all = 12.dp)
+                                .padding(all = 8.dp)
                         ) {
                             changeTasksExpandedState()
                         }
@@ -383,6 +383,7 @@ class MainActivity : BaseComponentActivity() {
             modifier = modifier
                 .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
                 .alpha(surfaceAlpha)
+                .padding(all = 4.dp)
                 .width(240.dp),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.primaryContainer,
