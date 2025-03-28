@@ -5,6 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -367,14 +369,20 @@ class MainActivity : BaseComponentActivity() {
         modifier: Modifier = Modifier,
         changeExpandedState: () -> Unit = {}
     ) {
+        val show = isExpanded && tasks.isNotEmpty()
         val surfaceX by animateDpAsState(
-            targetValue = if (isExpanded && tasks.isNotEmpty()) 0.dp else (-260).dp,
+            targetValue = if (show) 0.dp else (-260).dp,
+            animationSpec = getAnimateTween()
+        )
+        val surfaceAlpha by animateFloatAsState(
+            targetValue = if (show) 1f else 0f,
             animationSpec = getAnimateTween()
         )
 
         Surface(
             modifier = modifier
                 .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
+                .alpha(surfaceAlpha)
                 .width(240.dp),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.primaryContainer,
