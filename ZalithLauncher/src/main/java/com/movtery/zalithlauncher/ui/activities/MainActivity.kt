@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -181,7 +182,7 @@ class MainActivity : BaseComponentActivity() {
         ConstraintLayout (
             modifier = modifier
         ) {
-            val (backButton, title, tasksButton, download, settings) = createRefs()
+            val (backButton, title, tasksLayout, download, settings) = createRefs()
 
             val backButtonX by animateDpAsState(
                 targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
@@ -231,24 +232,28 @@ class MainActivity : BaseComponentActivity() {
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
 
-            val taskButtonY by animateDpAsState(
+            val taskLayoutY by animateDpAsState(
                 targetValue = if (isTasksExpanded || tasks.isEmpty()) (-50).dp else 0.dp,
                 animationSpec = getAnimateTween()
             )
 
-            IconButton(
+            Row(
                 modifier = Modifier
-                    .constrainAs(tasksButton) {
+                    .constrainAs(tasksLayout) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                        end.linkTo(download.start, margin = 4.dp)
+                        end.linkTo(download.start, margin = 8.dp)
                     }
-                    .offset { IntOffset(x = 0, y = taskButtonY.roundToPx()) }
-                    .size(40.dp),
-                onClick = changeExpandedState
+                    .offset { IntOffset(x = 0, y = taskLayoutY.roundToPx()) }
+                    .clip(shape = MaterialTheme.shapes.large)
+                    .clickable { changeExpandedState() }
+                    .padding(all = 8.dp)
+                    .width(120.dp)
             ) {
+                LinearProgressIndicator(modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
+                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(22.dp),
                     painter = painterResource(R.drawable.ic_task),
                     contentDescription = stringResource(R.string.main_task_menu),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
@@ -379,7 +384,9 @@ class MainActivity : BaseComponentActivity() {
                 Spacer(modifier = Modifier.width(12.dp))
 
                 IconButton(
-                    modifier = Modifier.size(24.dp).align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically),
                     onClick = changeExpandedState
                 ) {
                     Icon(
@@ -390,7 +397,9 @@ class MainActivity : BaseComponentActivity() {
                 }
 
                 LazyColumn(
-                    modifier = Modifier.fillMaxHeight().weight(1f),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
                     contentPadding = PaddingValues(all = 12.dp)
                 ) {
                     val size = tasks.size
@@ -449,7 +458,10 @@ class MainActivity : BaseComponentActivity() {
                         .animateContentSize(animationSpec = getAnimateTween())
                 ) {
                     if (taskStatus.message.isNotEmpty()) {
-                        Text(text = taskStatus.message)
+                        Text(
+                            text = taskStatus.message,
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     }
                     if (taskStatus.progress < 0) { //负数则代表不确定
                         LinearProgressIndicator(
@@ -459,12 +471,15 @@ class MainActivity : BaseComponentActivity() {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             LinearProgressIndicator(
                                 progress = { taskStatus.progress },
-                                modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .align(Alignment.CenterVertically)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "${(taskStatus.progress * 100).toInt()}%",
-                                modifier = Modifier.align(Alignment.CenterVertically)
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                style = MaterialTheme.typography.labelMedium
                             )
                         }
                     }
