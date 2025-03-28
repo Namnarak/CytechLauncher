@@ -47,7 +47,8 @@ fun LauncherSettingsScreen(
                         ColorThemeType.MISTWAVE -> stringResource(R.string.theme_color_mistwave)
                         ColorThemeType.GLACIER -> stringResource(R.string.theme_color_glacier)
                         ColorThemeType.VERDANTFIELD -> stringResource(R.string.theme_color_verdant_field)
-                        ColorThemeType.VERDELUME -> stringResource(R.string.theme_color_verdelume)
+                        ColorThemeType.ASHVEIL -> stringResource(R.string.theme_color_ashveil)
+                        ColorThemeType.URBAN_ASH -> stringResource(R.string.theme_color_urban_ash)
                         ColorThemeType.VERDANT_DAWN -> stringResource(R.string.theme_color_verdant_dawn)
                         ColorThemeType.CELESTINE_VEIL -> stringResource(R.string.theme_color_celestine_veil)
                     }
