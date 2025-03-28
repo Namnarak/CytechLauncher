@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -61,44 +60,34 @@ fun LauncherScreen(
         screenTag = LAUNCHER_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
     ) { isVisible ->
-        Box {
-            Row(
-                modifier = Modifier.fillMaxSize()
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(7f)
+                    .fillMaxHeight()
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(7f)
-                        .fillMaxHeight()
-                ) {
-                    MainMenu(
-                        isVisible = isVisible,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(all = 12.dp),
-                        navController = navController
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(3f)
-                        .fillMaxHeight()
-                ) {
-                    RightMenu(
-                        isVisible = isVisible,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
-                        navController = navController
-                    )
-                }
-            }
-            if (!isVisible) { //禁止触摸
-                Box(
+                MainMenu(
+                    isVisible = isVisible,
                     modifier = Modifier
                         .fillMaxSize()
-                        .alpha(0f)
-                        .clickable { }
+                        .padding(all = 12.dp),
+                    navController = navController
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(3f)
+                    .fillMaxHeight()
+            ) {
+                RightMenu(
+                    isVisible = isVisible,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
+                    navController = navController
                 )
             }
         }

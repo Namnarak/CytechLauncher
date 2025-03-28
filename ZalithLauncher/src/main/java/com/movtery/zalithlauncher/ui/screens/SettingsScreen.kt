@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -47,37 +45,30 @@ fun SettingsScreen(
         screenTag = SETTINGS_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
     ) { isVisible ->
-        Box {
-            val settingsNavController = rememberNavController()
+        val settingsNavController = rememberNavController()
 
-            val settingsScreenTagState = remember { SettingsScreenTagState() }
-            CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
-                Row(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    TabMenu(
-                        isVisible = isVisible,
-                        settingsNavController = settingsNavController,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-                    )
-
-                    Box(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        NavigationUI(
-                            isVisible = isVisible,
-                            mainNavController = mainNavController,
-                            settingsNavController = settingsNavController
-                        )
-                    }
-                }
-            }
-            if (!isVisible) { //禁止触摸
-                Box(
-                    modifier = Modifier.fillMaxSize().alpha(0f).clickable {  }
+        val settingsScreenTagState = remember { SettingsScreenTagState() }
+        CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
+            Row(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                TabMenu(
+                    isVisible = isVisible,
+                    settingsNavController = settingsNavController,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
                 )
+
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    NavigationUI(
+                        isVisible = isVisible,
+                        mainNavController = mainNavController,
+                        settingsNavController = settingsNavController
+                    )
+                }
             }
         }
     }
