@@ -50,11 +50,57 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
+import com.movtery.zalithlauncher.game.account.microsoft.response.DeviceCodeResponse
+import com.movtery.zalithlauncher.game.account.otherserver.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
 import com.movtery.zalithlauncher.path.PathManager
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+
+/**
+ * 微软登录的操作状态
+ */
+sealed interface MicrosoftLoginOperation {
+    data object None : MicrosoftLoginOperation
+    data object RunTask: MicrosoftLoginOperation
+    data class OnVerifyDeviceCode(val deviceCode: DeviceCodeResponse) : MicrosoftLoginOperation
+}
+
+/**
+ * 添加认证服务器时的状态
+ */
+sealed interface ServerOperation {
+    data object None : ServerOperation
+    data object AddNew : ServerOperation
+    data class Delete(val serverName: String, val serverIndex: Int) : ServerOperation
+    data class Add(val serverUrl: String) : ServerOperation
+    data class OnThrowable(val throwable: Throwable) : ServerOperation
+}
+
+/**
+ * 账号操作的状态
+ */
+sealed interface AccountOperation {
+    data object None : AccountOperation
+    data class Delete(val account: Account) : AccountOperation
+    data class Refresh(val account: Account) : AccountOperation
+    data class OnFailed(val error: String) : AccountOperation
+}
+
+/**
+ * 认证服务器登陆时的状态
+ */
+sealed interface OtherLoginOperation {
+    data object None : OtherLoginOperation
+    data class OnLogin(val server: Server) : OtherLoginOperation
+    data class OnSuccess(val account: Account) : OtherLoginOperation
+    data class OnFailed(val error: String) : OtherLoginOperation
+    data class SelectRole(
+        val profiles: List<AuthResult.AvailableProfiles>,
+        val selected: (AuthResult.AvailableProfiles) -> Unit
+    ) : OtherLoginOperation
+}
 
 @Composable
 fun AccountAvatar(

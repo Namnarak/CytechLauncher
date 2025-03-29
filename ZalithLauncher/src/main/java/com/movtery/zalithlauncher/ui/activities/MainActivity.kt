@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -59,19 +58,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.state.BackToLauncherScreenState
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.LocalWebUrlState
 import com.movtery.zalithlauncher.state.MainScreenTagState
+import com.movtery.zalithlauncher.state.ShowThrowableState
+import com.movtery.zalithlauncher.state.WebUrlState
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.task.TrackableTask
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.AccountManageScreen
 import com.movtery.zalithlauncher.ui.screens.LAUNCHER_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.SettingsScreen
+import com.movtery.zalithlauncher.ui.screens.WEB_VIEW_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -82,87 +88,104 @@ class MainActivity : BaseComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainUI()
+            val navController = rememberNavController()
+
+            val back by BackToLauncherScreenState.backState.collectAsState()
+            if (back) { //回到主界面
+                navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
+                BackToLauncherScreenState.reset()
+            }
+
+            val colorThemeState = remember { ColorThemeState() }
+            val mainScreenTagState = remember { MainScreenTagState() }
+            val webUrlState = remember { WebUrlState() }
+
+            CompositionLocalProvider(
+                LocalColorThemeState provides colorThemeState,
+                LocalMainScreenTag provides mainScreenTagState,
+                LocalWebUrlState provides webUrlState
+            ) {
+                MainUI(navController)
+
+                val throwableState by ShowThrowableState.throwableFlow.collectAsState()
+                throwableState?.let { tm ->
+                    SimpleAlertDialog(
+                        title = tm.title,
+                        text = tm.message,
+                    ) { ShowThrowableState.update(null) }
+                }
+            }
         }
     }
 
-    @Preview
     @Composable
-    fun MainUI() {
-        val navController = rememberNavController()
+    fun MainUI(
+        navController: NavHostController
+    ) {
+        ZalithLauncherTheme {
+            Column(
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                val tasks by TaskSystem.tasksFlow.collectAsState()
 
-        val colorThemeState = remember { ColorThemeState() }
-        val mainScreenTagState = remember { MainScreenTagState() }
+                var isTaskMenuExpanded by remember { mutableStateOf(AllSettings.launcherTaskMenuExpanded.getValue()) }
 
-        CompositionLocalProvider(
-            LocalColorThemeState provides colorThemeState,
-            LocalMainScreenTag provides mainScreenTagState
-        ) {
-            ZalithLauncherTheme {
-                Column(
-                    modifier = Modifier.fillMaxHeight()
+                fun changeTasksExpandedState() {
+                    isTaskMenuExpanded = !isTaskMenuExpanded
+                    AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
+                }
+
+                TopBar(
+                    tasks = tasks,
+                    isTasksExpanded = isTaskMenuExpanded,
+                    navController = navController,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .background(color = MaterialTheme.colorScheme.primaryContainer)
+                        .zIndex(10f)
                 ) {
-                    val tasks by TaskSystem.tasksFlow.collectAsState()
+                    changeTasksExpandedState()
+                }
 
-                    var isTaskMenuExpanded by remember { mutableStateOf(AllSettings.launcherTaskMenuExpanded.getValue()) }
-
-                    fun changeTasksExpandedState() {
-                        isTaskMenuExpanded = !isTaskMenuExpanded
-                        AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
-                    }
-
-                    TopBar(
-                        tasks = tasks,
-                        isTasksExpanded = isTaskMenuExpanded,
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    NavigationUI(
                         navController = navController,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .background(color = MaterialTheme.colorScheme.primaryContainer)
-                            .zIndex(10f)
+                            .fillMaxSize()
+                            .background(color = MaterialTheme.colorScheme.background)
+                    )
+
+                    TaskMenu(
+                        tasks = tasks,
+                        isExpanded = isTaskMenuExpanded,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .align(Alignment.CenterStart)
+                            .padding(all = 8.dp)
                     ) {
                         changeTasksExpandedState()
                     }
 
+                    //叠加的一层阴影效果
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        NavigationUI(
-                            navController = navController,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(color = MaterialTheme.colorScheme.background)
-                        )
-
-                        TaskMenu(
-                            tasks = tasks,
-                            isExpanded = isTaskMenuExpanded,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .align(Alignment.CenterStart)
-                                .padding(all = 8.dp)
-                        ) {
-                            changeTasksExpandedState()
-                        }
-
-                        //叠加的一层阴影效果
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(4.dp)
-                                .align(Alignment.TopStart)
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color.Black.copy(alpha = 0.15f),
-                                            Color.Transparent
-                                        )
+                            .height(4.dp)
+                            .align(Alignment.TopStart)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.15f),
+                                        Color.Transparent
                                     )
                                 )
-                        )
-                    }
+                            )
+                    )
                 }
             }
         }
@@ -177,7 +200,7 @@ class MainActivity : BaseComponentActivity() {
         changeExpandedState: () -> Unit = {}
     ) {
         var appTitle by rememberSaveable { mutableStateOf("ZalithLauncher") }
-        val currentTag = LocalMainScreenTag.current.currentTag
+        val currentTag = LocalMainScreenTag.current.currentString
 
         val inLauncherScreen = currentTag == null || currentTag == LAUNCHER_SCREEN_TAG
 
@@ -328,7 +351,7 @@ class MainActivity : BaseComponentActivity() {
 
         LaunchedEffect(navController) {
             val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-                screenTagState.updateTag(destination.route)
+                screenTagState.update(destination.route)
             }
             navController.addOnDestinationChangedListener(listener)
         }
@@ -357,7 +380,12 @@ class MainActivity : BaseComponentActivity() {
             composable(
                 route = ACCOUNT_MANAGE_SCREEN_TAG
             ) {
-                AccountManageScreen()
+                AccountManageScreen(navController)
+            }
+            composable(
+                route = WEB_VIEW_SCREEN_TAG
+            ) {
+                WebViewScreen()
             }
         }
     }

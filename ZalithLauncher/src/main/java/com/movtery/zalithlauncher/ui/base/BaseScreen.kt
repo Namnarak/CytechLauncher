@@ -12,17 +12,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.movtery.zalithlauncher.state.AbstractScreenTagState
+import com.movtery.zalithlauncher.state.AbstractStringState
 
 @Composable
 fun BaseScreen(
     screenTag: String,
-    tagProvider: ProvidableCompositionLocal<AbstractScreenTagState>,
+    tagProvider: ProvidableCompositionLocal<AbstractStringState>,
     content: @Composable (isVisible: Boolean) -> Unit
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
-    val currentTag = tagProvider.current.currentTag
+    val currentTag = tagProvider.current.currentString
 
     var isLaunched by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {

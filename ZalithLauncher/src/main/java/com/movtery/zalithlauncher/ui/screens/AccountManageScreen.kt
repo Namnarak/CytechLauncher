@@ -30,18 +30,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
-import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.otherserver.AuthResult
+import com.movtery.zalithlauncher.game.account.localLogin
+import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.Servers
 import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
+import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.LocalWebUrlState
+import com.movtery.zalithlauncher.state.ShowThrowableState
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -49,9 +53,13 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.screens.elements.AccountItem
+import com.movtery.zalithlauncher.ui.screens.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.elements.LoginItem
+import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.ui.screens.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.elements.OtherServerLoginDialog
 import com.movtery.zalithlauncher.ui.screens.elements.ServerItem
+import com.movtery.zalithlauncher.ui.screens.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -70,62 +78,6 @@ private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 
 private val otherServerConfig = MutableStateFlow(Servers())
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
-
-/**
- * 添加认证服务器时的状态
- */
-sealed interface ServerOperation {
-    data object None : ServerOperation
-    data object AddNew : ServerOperation
-    data class Delete(val serverName: String, val serverIndex: Int) : ServerOperation
-    data class Add(val serverUrl: String) : ServerOperation
-    data class OnThrowable(val throwable: Throwable) : ServerOperation
-}
-
-/**
- * 账号操作的状态
- */
-sealed interface AccountOperation {
-    data object None : AccountOperation
-    data class Delete(val account: Account) : AccountOperation
-    data class Refresh(val account: Account) : AccountOperation
-    data class OnFailed(val error: String) : AccountOperation
-}
-
-/**
- * 认证服务器登陆时的状态
- */
-sealed interface OtherLoginOperation {
-    data object None : OtherLoginOperation
-    data class OnLogin(val server: Server) : OtherLoginOperation
-    data class OnSuccess(val account: Account) : OtherLoginOperation
-    data class OnFailed(val error: String) : OtherLoginOperation
-    data class SelectRole(
-        val profiles: List<AuthResult.AvailableProfiles>,
-        val selected: (AuthResult.AvailableProfiles) -> Unit
-    ) : OtherLoginOperation
-}
-
-/**
- * 离线账号登陆
- */
-private fun localLogin(userName: String) {
-    val account = Account().apply {
-        this.username = userName
-        this.accountType = AccountType.LOCAL.tag
-    }
-    saveAccount(account)
-}
-
-private fun saveAccount(account: Account) {
-    runCatching {
-        account.save()
-        Log.i("SaveAccount", "Saved local account: ${account.username}")
-        AccountsManager.reloadAccounts()
-    }.onFailure { e ->
-        Log.e("SaveAccount", "Failed to save local account: ${account.username}", e)
-    }
-}
 
 private fun refreshOtherServer() {
     val config = otherServerConfigFile.readText()
@@ -174,7 +126,9 @@ private fun AddOtherServer(
 }
 
 @Composable
-fun AccountManageScreen() {
+fun AccountManageScreen(
+    navController: NavHostController
+) {
     BaseScreen(
         screenTag = ACCOUNT_MANAGE_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
@@ -184,6 +138,7 @@ fun AccountManageScreen() {
         ) {
             ServerTypeTab(
                 isVisible = isVisible,
+                navController = navController,
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(all = 12.dp)
@@ -203,6 +158,7 @@ fun AccountManageScreen() {
 @Composable
 fun ServerTypeTab(
     isVisible: Boolean,
+    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val xOffset by animateDpAsState(
@@ -319,12 +275,13 @@ fun ServerTypeTab(
             )
         }
         is ServerOperation.OnThrowable -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_other_login_adding_failure),
-                text = operation.throwable.getMessageOrToString()
-            ) {
-                serverOperation = ServerOperation.None
-            }
+            ShowThrowableState.update(
+                ShowThrowableState.ThrowableMessage(
+                    title = stringResource(R.string.account_other_login_adding_failure),
+                    message = operation.throwable.getMessageOrToString()
+                )
+            )
+            serverOperation = ServerOperation.None
         }
         is ServerOperation.None -> {}
     }
@@ -357,10 +314,13 @@ fun ServerTypeTab(
         }
         is OtherLoginOperation.OnSuccess -> { saveAccount(operation.account) }
         is OtherLoginOperation.OnFailed -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.account_logging_in_failed),
-                text = operation.error
-            ) { otherLoginOperation = OtherLoginOperation.None }
+            ShowThrowableState.update(
+                ShowThrowableState.ThrowableMessage(
+                    title = stringResource(R.string.account_logging_in_failed),
+                    message = operation.error
+                )
+            )
+            otherLoginOperation = OtherLoginOperation.None
         }
         is OtherLoginOperation.SelectRole -> {
             SimpleListDialog(
@@ -372,6 +332,18 @@ fun ServerTypeTab(
             )
         }
         is OtherLoginOperation.None -> {}
+    }
+
+    var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
+    when (val operation = microsoftLoginOperation) {
+        is MicrosoftLoginOperation.None -> {}
+        is MicrosoftLoginOperation.RunTask -> {
+            microsoftLogin(context) { microsoftLoginOperation = it }
+        }
+        is MicrosoftLoginOperation.OnVerifyDeviceCode -> {
+            LocalWebUrlState.current.update(operation.deviceCode.verificationUrl)
+            navController.navigateTo(WEB_VIEW_SCREEN_TAG)
+        }
     }
 
     Surface(
@@ -399,7 +371,7 @@ fun ServerTypeTab(
                     modifier = Modifier.fillMaxWidth(),
                     serverName = stringResource(R.string.account_type_microsoft)
                 ) {
-
+                    microsoftLoginOperation = MicrosoftLoginOperation.RunTask
                 }
                 LoginItem(
                     modifier = Modifier.fillMaxWidth(),

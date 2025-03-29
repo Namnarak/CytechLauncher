@@ -96,7 +96,7 @@ private fun TabMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
-        val currentSettingsTag = LocalSettingsScreenTag.current.currentTag
+        val currentSettingsTag = LocalSettingsScreenTag.current.currentString
 
         TabLayout(
             modifier = Modifier.padding(all = 8.dp)
@@ -124,7 +124,7 @@ private fun NavigationUI(
 
     LaunchedEffect(settingsNavController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            screenTagState.updateTag(destination.route)
+            screenTagState.update(destination.route)
         }
         settingsNavController.addOnDestinationChangedListener(listener)
     }

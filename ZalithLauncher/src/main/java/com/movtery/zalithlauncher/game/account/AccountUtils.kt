@@ -2,9 +2,21 @@ package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
+import com.movtery.zalithlauncher.game.account.microsoft.AuthType
+import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
+import com.movtery.zalithlauncher.state.BackToLauncherScreenState
+import com.movtery.zalithlauncher.state.ShowThrowableState
+import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
+import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.utils.copyText
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -20,6 +32,58 @@ fun isMicrosoftAccount(account: Account): Boolean {
 
 fun isNoLoginRequired(account: Account?): Boolean {
     return account == null || account.accountType == AccountType.LOCAL.tag
+}
+
+fun microsoftLogin(
+    context: Context,
+    updateOperation: (MicrosoftLoginOperation) -> Unit
+) {
+    TaskSystem.submitTask(object : ProgressAwareTask<Account>() {
+        override suspend fun performMainTask() {
+            val account = withContext(Dispatchers.IO) {
+                updateProgress(-1f, context.getString(R.string.account_microsoft_fetch_device_code))
+                val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse()
+                copyText(null, deviceCode.userCode, context)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.account_microsoft_coped_device_code, deviceCode.userCode),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                updateOperation(MicrosoftLoginOperation.OnVerifyDeviceCode(deviceCode))
+                updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
+                val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode)
+                BackToLauncherScreenState.back()
+                updateProgress(10f, context.getString(R.string.account_microsoft_get_token))
+                MicrosoftAuthenticator.authAsync(AuthType.Access, tokenResponse.refreshToken, tokenResponse.accessToken) { asyncStatus ->
+                    when (asyncStatus) {
+                        AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
+                        AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
+                        AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
+                        AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
+                        AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
+                        AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
+                    }
+                }
+            }
+            setResult(account)
+        }
+    }.ended { account ->
+        account?.let { acc ->
+            acc.downloadSkin()
+            saveAccount(acc)
+        }
+    }.onThrowable { e ->
+        ShowThrowableState.update(
+            ShowThrowableState.ThrowableMessage(
+                title = context.getString(R.string.account_logging_in_failed),
+                message = e.getMessageOrToString()
+            )
+        )
+    }.finallyTask {
+        updateOperation(MicrosoftLoginOperation.None)
+    })
 }
 
 fun otherLogin(
@@ -45,6 +109,27 @@ fun otherLogin(
             }
         }
     ).justLogin(context, account)
+}
+
+/**
+ * 离线账号登陆
+ */
+fun localLogin(userName: String) {
+    val account = Account().apply {
+        this.username = userName
+        this.accountType = AccountType.LOCAL.tag
+    }
+    saveAccount(account)
+}
+
+fun saveAccount(account: Account) {
+    runCatching {
+        account.save()
+        Log.i("SaveAccount", "Saved local account: ${account.username}")
+        AccountsManager.reloadAccounts()
+    }.onFailure { e ->
+        Log.e("SaveAccount", "Failed to save local account: ${account.username}", e)
+    }
 }
 
 /**

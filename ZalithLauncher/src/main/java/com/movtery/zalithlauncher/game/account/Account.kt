@@ -13,7 +13,7 @@ class Account {
     var clientToken: String = "0" // clientID: refresh and invalidate
     var profileId: String = "00000000-0000-0000-0000-000000000000" // profile UUID, for obtaining skin
     var username: String = "Steve"
-    var msaRefreshToken: String = "0"
+    var refreshToken: String = "0"
     var xuid: String? = null
     var otherBaseUrl: String? = null
     var otherAccount: String? = null
