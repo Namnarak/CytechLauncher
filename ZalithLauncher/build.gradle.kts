@@ -3,32 +3,39 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlinx-serialization")
+    id("stringfog")
 }
+apply(plugin = "stringfog")
 
-val packageName = "com.movtery.zalithlauncher"
+val zalithPackageName = "com.movtery.zalithlauncher"
 val launcherAPPName = project.findProperty("launcher_app_name") as? String ?: error("The \"launcher_app_name\" property is not set in gradle.properties.")
 val launcherName = project.findProperty("launcher_name") as? String ?: error("The \"launcher_name\" property is not set in gradle.properties.")
 val generatedZalithDir = file("$buildDir/generated/source/zalith/java")
 
-fun getOAuthClientID(): String {
-    val key = System.getenv("OAUTH_CLIENT_ID")
-    return key ?: run {
-        val clientIDFile = File(rootDir, ".oauth_client_id.txt")
-        if (clientIDFile.canRead() && clientIDFile.isFile) {
-            clientIDFile.readText()
-        } else {
-            logger.warn("BUILD: OAuth Client ID not set; related features may throw exceptions.")
-            ""
-        }
+fun getKeyFromLocal(envKey: String, fileName: String? = null): String {
+    val key = System.getenv(envKey)
+    return key ?: fileName?.let {
+        val file = File(rootDir, fileName)
+        if (file.canRead() && file.isFile) file.readText() else null
+    } ?: run {
+        logger.warn("BUILD: envKey not set; related features may throw exceptions.")
+        ""
     }
 }
 
+configure<com.github.megatronking.stringfog.plugin.StringFogExtension> {
+    implementation = "com.github.megatronking.stringfog.xor.StringFogImpl"
+    fogPackages = arrayOf("$zalithPackageName.info")
+    kg = com.github.megatronking.stringfog.plugin.kg.RandomKeyGenerator()
+    mode = com.github.megatronking.stringfog.plugin.StringFogMode.bytes
+}
+
 android {
-    namespace = packageName
+    namespace = zalithPackageName
     compileSdk = 35
 
     defaultConfig {
-        applicationId = packageName
+        applicationId = zalithPackageName
         applicationIdSuffix = ".v2"
         minSdk = 26
         targetSdk = 35
@@ -40,10 +47,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
 
@@ -62,12 +65,18 @@ android {
     }
 }
 
-fun generateJavaClass(sourceOutputDir: File, packageName: String, className: String, constantMap: Map<String, String>) {
+fun generateJavaClass(
+    sourceOutputDir: File,
+    packageName: String,
+    className: String,
+    importList: List<String> = emptyList(),
+    constantList: List<String>
+) {
     val outputDir = File(sourceOutputDir, packageName.replace(".", "/"))
     outputDir.mkdirs()
     val javaFile = File(outputDir, "$className.java")
-    val constants = constantMap.entries.joinToString("\n") { (key, value) ->
-        "\tpublic static final String $key = \"$value\";"
+    val imports = importList.takeIf { it.isNotEmpty() }?.joinToString("\n") { import ->
+        "import $import;"
     }
     javaFile.writeText(
         """
@@ -75,9 +84,9 @@ fun generateJavaClass(sourceOutputDir: File, packageName: String, className: Str
         | * Automatically generated file. DO NOT MODIFY
         | */
         |package $packageName;
-        |
+        |${imports?.let { "\n$imports\n" }}
         |public class $className {
-        |$constants
+        |${constantList.joinToString("\n") { "\t$it" }}
         |}
         """.trimMargin()
     )
@@ -86,10 +95,14 @@ fun generateJavaClass(sourceOutputDir: File, packageName: String, className: Str
 
 tasks.register("generateInfoDistributor") {
     doLast {
-        val constantMap = mapOf(
-            "OAUTH_CLIENT_ID" to getOAuthClientID()
+        fun String.toStatement(type: String = "String", variable: String) = "public static final $type $variable = $this;"
+
+        val importList = listOf("com.movtery.zalithlauncher.utils.CryptoManager")
+        val constantList = listOf(
+            "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt")}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
+            "\"${getKeyFromLocal("CRYPTO_KEY", ".crypto_key.txt")}\"".toStatement(variable = "CRYPTO_KEY")
         )
-        generateJavaClass(generatedZalithDir, "com.movtery.zalithlauncher.info", "InfoDistributor", constantMap)
+        generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", importList, constantList)
     }
 }
 
@@ -118,4 +131,6 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    //Safe
+    implementation(libs.stringfog.xor)
 }

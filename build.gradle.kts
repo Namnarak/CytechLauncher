@@ -5,3 +5,13 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     kotlin("plugin.serialization") version libs.versions.kotlin apply false
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath(libs.stringfog.gradle.plugin)
+        classpath(libs.stringfog.xor)
+    }
+}

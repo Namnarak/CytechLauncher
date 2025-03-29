@@ -50,8 +50,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
-import com.movtery.zalithlauncher.game.account.otherserver.AuthResult
-import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
+import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.path.PathManager
 import java.io.File
 import java.io.IOException

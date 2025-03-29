@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.account.microsoft.response
+package com.movtery.zalithlauncher.game.account.microsoft.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

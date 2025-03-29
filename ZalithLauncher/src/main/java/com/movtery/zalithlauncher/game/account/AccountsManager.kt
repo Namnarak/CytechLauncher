@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -144,8 +145,9 @@ object AccountsManager {
      * 通过账号信息字符串读取账号
      */
     @Throws(JsonSyntaxException::class)
-    fun parseAccount(account: String): Account {
-        return GSON.fromJson(account, Account::class.java)
+    fun parseAccount(encryptedData: String): Account {
+        val plainJson = CryptoManager.decrypt(encryptedData)
+        return GSON.fromJson(plainJson, Account::class.java)
     }
 
     /**
@@ -154,7 +156,7 @@ object AccountsManager {
     fun loadFromUniqueUUID(uniqueUUID: String): Account? {
         if (!isAccountExists(uniqueUUID)) return null
         return try {
-            parseAccount(File(PathManager.DIR_ACCOUNT, uniqueUUID).readText())
+            parseAccount(File(PathManager.DIR_ACCOUNT, uniqueUUID))
         } catch (e: IOException) {
             Log.e("AccountsManager", "Caught an exception while loading the profile", e)
             null

@@ -9,4 +9,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+.crypto_key.txt
 .oauth_client_id.txt

@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.account.otherserver;
+package com.movtery.zalithlauncher.game.account.otherserver.models;
 
 import com.google.gson.annotations.SerializedName;
 

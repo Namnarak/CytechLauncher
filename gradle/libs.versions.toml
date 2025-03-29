@@ -16,6 +16,8 @@ composeBom = "2025.03.01"
 material = "1.12.0"
 navigationCompose = "2.8.9"
 okhttp = "4.12.0"
+stringfog-gradlePlugin = "5.2.0"
+stringfog-xor = "5.0.0"
 
 [libraries]
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
@@ -37,6 +39,8 @@ ktor-http = { module = "io.ktor:ktor-http", version.ref = "ktorHttp" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+stringfog-gradle-plugin = { module = "com.github.megatronking.stringfog:gradle-plugin", version.ref = "stringfog-gradlePlugin" }
+stringfog-xor = { module = "com.github.megatronking.stringfog:xor", version.ref = "stringfog-xor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

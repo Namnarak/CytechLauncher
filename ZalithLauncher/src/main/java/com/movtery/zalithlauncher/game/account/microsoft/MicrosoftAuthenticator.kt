@@ -3,9 +3,14 @@ package com.movtery.zalithlauncher.game.account.microsoft
 import android.util.Log
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
-import com.movtery.zalithlauncher.game.account.microsoft.response.DeviceCodeResponse
-import com.movtery.zalithlauncher.game.account.microsoft.response.MinecraftAuthResponse
-import com.movtery.zalithlauncher.game.account.microsoft.response.TokenResponse
+import com.movtery.zalithlauncher.game.account.microsoft.models.DeviceCodeResponse
+import com.movtery.zalithlauncher.game.account.microsoft.models.MinecraftAuthResponse
+import com.movtery.zalithlauncher.game.account.microsoft.models.TokenResponse
+import com.movtery.zalithlauncher.game.account.microsoft.models.XBLProperties
+import com.movtery.zalithlauncher.game.account.microsoft.models.XBLRequest
+import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSAuthResult
+import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSProperties
+import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSRequest
 import com.movtery.zalithlauncher.info.InfoDistributor
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

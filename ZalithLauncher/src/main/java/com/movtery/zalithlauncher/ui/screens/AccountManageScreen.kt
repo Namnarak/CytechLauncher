@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,8 +39,8 @@ import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
-import com.movtery.zalithlauncher.game.account.otherserver.Servers
-import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
@@ -76,11 +77,11 @@ const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
 private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 
-private val otherServerConfig = MutableStateFlow(Servers())
+private val otherServerConfig = MutableStateFlow(Servers().apply { server = ArrayList() })
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
 
 private fun refreshOtherServer() {
-    val config = otherServerConfigFile.readText()
+    val config: String = otherServerConfigFile.takeIf { it.exists() }?.readText() ?: return
     otherServerConfig.value = GSON.fromJson(config, Servers::class.java)
 }
 
@@ -219,10 +220,12 @@ fun ServerTypeTab(
         }
     }
 
-    runCatching {
-        refreshOtherServer()
-    }.onFailure {
-        Log.e("ServerTypeTab", "Failed to refresh other server", it)
+    LaunchedEffect(true) {
+        runCatching {
+            refreshOtherServer()
+        }.onFailure {
+            Log.e("ServerTypeTab", "Failed to refresh other server", it)
+        }
     }
 
     var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }

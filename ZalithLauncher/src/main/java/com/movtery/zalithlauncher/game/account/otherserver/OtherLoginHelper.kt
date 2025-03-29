@@ -5,7 +5,8 @@ import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
+import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.task.Task
 import com.movtery.zalithlauncher.task.TaskSystem
 import java.util.Objects

@@ -5,6 +5,9 @@ import android.util.Log
 import com.google.gson.Gson
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
+import com.movtery.zalithlauncher.game.account.otherserver.models.AuthRequest
+import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
+import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.path.UrlManager.Companion.createRequestBuilder
 import com.movtery.zalithlauncher.utils.string.StringUtils
@@ -38,7 +41,8 @@ object OtherLoginApi {
             this.name = "Minecraft"
             this.version = 1.0
         }
-        val authRequest = AuthRequest().apply {
+        val authRequest = AuthRequest()
+            .apply {
             this.username = userName
             this.password = password
             this.agent = agent
@@ -55,7 +59,8 @@ object OtherLoginApi {
             listener.onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
             return
         }
-        val refresh = Refresh().apply {
+        val refresh = Refresh()
+            .apply {
             this.clientToken = account.clientToken
             this.accessToken = account.accessToken
         }
