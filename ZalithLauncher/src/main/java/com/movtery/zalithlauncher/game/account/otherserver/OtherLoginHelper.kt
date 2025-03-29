@@ -33,7 +33,7 @@ class OtherLoginHelper(
         taskId: String? = null,
         loggingString: String = serverName
     ) {
-        val task = Task.runTask(context.getString(R.string.account_logging_in, loggingString)) {
+        val task = Task.runTask(id = taskId, context.getString(R.string.account_logging_in, loggingString)) {
             OtherLoginApi.setBaseUrl(baseUrl)
             OtherLoginApi.login(context, email, password,
                 object : OtherLoginApi.Listener {
@@ -55,7 +55,7 @@ class OtherLoginHelper(
             listener.onFailed(e.message ?: message)
         }
 
-        TaskSystem.submitTask(task, taskId)
+        TaskSystem.submitTask(task)
     }
 
     /**

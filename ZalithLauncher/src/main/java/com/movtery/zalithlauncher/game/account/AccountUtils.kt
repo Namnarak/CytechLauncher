@@ -7,6 +7,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
+import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
+import com.movtery.zalithlauncher.game.account.microsoft.TimeoutException
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.state.BackToLauncherScreenState
 import com.movtery.zalithlauncher.state.ShowThrowableState
@@ -16,12 +18,14 @@ import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
 import java.util.Objects
+import kotlin.coroutines.CoroutineContext
 
 fun isOtherLoginAccount(account: Account): Boolean {
     return !Objects.isNull(account.otherBaseUrl) && account.otherBaseUrl != "0"
@@ -46,33 +50,32 @@ fun microsoftLogin(
     context: Context,
     updateOperation: (MicrosoftLoginOperation) -> Unit
 ) {
-    TaskSystem.submitTask(object : ProgressAwareTask<Account>() {
-        override suspend fun performMainTask() {
-            val account = withContext(Dispatchers.IO) {
-                updateProgress(-1f, context.getString(R.string.account_microsoft_fetch_device_code))
-                val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse()
-                copyText(null, deviceCode.userCode, context)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.account_microsoft_coped_device_code, deviceCode.userCode),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                WebUrlState.access(deviceCode.verificationUrl)
-                updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
-                val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode)
-                BackToLauncherScreenState.back()
-                updateProgress(10f, context.getString(R.string.account_microsoft_get_token))
-                MicrosoftAuthenticator.authAsync(AuthType.Access, tokenResponse.refreshToken, tokenResponse.accessToken) { asyncStatus ->
-                    when (asyncStatus) {
-                        AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
-                        AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
-                        AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
-                        AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
-                        AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
-                        AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
-                    }
+    TaskSystem.submitTask(object : ProgressAwareTask<Account>(MICROSOFT_LOGGING_TASK) {
+        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
+            updateProgress(-1f, context.getString(R.string.account_microsoft_fetch_device_code))
+            val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse(coroutineContext)
+            copyText(null, deviceCode.userCode, context)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.account_microsoft_coped_device_code, deviceCode.userCode),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            WebUrlState.access(deviceCode.verificationUrl)
+            updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
+            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { isCanceled() }
+            BackToLauncherScreenState.back()
+            val account = MicrosoftAuthenticator.authAsync(
+                AuthType.Access, tokenResponse.refreshToken, tokenResponse.accessToken, context = coroutineContext
+            ) { asyncStatus ->
+                when (asyncStatus) {
+                    AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
+                    AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
+                    AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
+                    AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
+                    AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
+                    AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
                 }
             }
             setResult(account)
@@ -83,15 +86,25 @@ fun microsoftLogin(
             saveAccount(acc)
         }
     }.onThrowable { e ->
-        ShowThrowableState.update(
-            ShowThrowableState.ThrowableMessage(
-                title = context.getString(R.string.account_logging_in_failed),
-                message = e.getMessageOrToString()
+        when (e) {
+            is TimeoutException -> context.getString(R.string.account_logging_time_out)
+            is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+            is CancellationException -> {
+
+                null
+            }
+            else -> e.getMessageOrToString()
+        }?.let { message ->
+            ShowThrowableState.update(
+                ShowThrowableState.ThrowableMessage(
+                    title = context.getString(R.string.account_logging_in_failed),
+                    message = message
+                )
             )
-        )
+        }
     }.finallyTask {
         updateOperation(MicrosoftLoginOperation.None)
-    }, MICROSOFT_LOGGING_TASK)
+    })
 }
 
 fun otherLogin(

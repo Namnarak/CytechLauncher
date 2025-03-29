@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.update
 import org.json.JSONObject
 import java.io.File
 import java.util.regex.Pattern
+import kotlin.coroutines.CoroutineContext
 
 const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
@@ -91,8 +92,8 @@ private fun AddOtherServer(
     val context = LocalContext.current
 
     TaskSystem.submitTask(object : ProgressAwareTask<Unit>() {
-        override suspend fun performMainTask() {
-            updateProgress(0f, context.getString(R.string.account_other_login_getting_full_url))
+        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
+            updateProgress(-1f, context.getString(R.string.account_other_login_getting_full_url))
             val fullServerUrl = tryGetFullServerUrl(serverUrl)
             if (isCanceled()) return
             updateProgress(0.5f, context.getString(R.string.account_other_login_getting_server_info))
@@ -334,6 +335,7 @@ fun ServerTypeTab(
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.RunTask -> {
             microsoftLogin(context) { microsoftLoginOperation = it }
+            microsoftLoginOperation = MicrosoftLoginOperation.None
         }
     }
 

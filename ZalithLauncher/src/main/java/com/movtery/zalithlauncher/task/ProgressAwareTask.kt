@@ -1,6 +1,10 @@
 package com.movtery.zalithlauncher.task
 
-abstract class ProgressAwareTask<V> : Task<V>() {
+import java.util.UUID
+
+abstract class ProgressAwareTask<V>(
+    id: String? = null
+) : Task<V>(id = id ?: UUID.randomUUID().toString()) {
     private lateinit var progressReporter: TrackableTask.ProgressReporter
 
     fun bindProgressReporter(reporter: TrackableTask.ProgressReporter) {

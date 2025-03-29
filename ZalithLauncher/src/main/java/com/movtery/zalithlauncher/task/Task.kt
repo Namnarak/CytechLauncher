@@ -8,9 +8,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 abstract class Task<V>(
+    val id: String,
     val message: String = "",
 ): TaskExecutionPhaseListener {
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
@@ -21,9 +23,7 @@ abstract class Task<V>(
     private var onTaskThrowable: Pair<OnTaskThrowableListener, CoroutineDispatcher>? = null
     private var result: V? = null
 
-    private var isCanceled: Boolean = false
-
-    protected abstract suspend fun performMainTask()
+    protected abstract suspend fun performMainTask(coroutineContext: CoroutineContext)
 
     @CheckResult(SUGGEST)
     open fun setScope(scope: CoroutineScope): Task<V> {
@@ -165,15 +165,13 @@ abstract class Task<V>(
         checkThrowable()
         scope.launch {
             try {
-                ensureActive()
-                performMainTask()
+                coroutineContext.ensureActive()
+                performMainTask(coroutineContext)
                 onEnded()
-            } catch (e: CancellationException) {
-                isCanceled = true
             } catch (t: Throwable) {
                 setThrowable(t)
             } finally {
-                if (!isCanceled) {
+                if (!isCanceled()) {
                     checkThrowable()
                     onFinally()
                 }
@@ -182,14 +180,13 @@ abstract class Task<V>(
     }
 
     override fun cancel() {
-        scope.cancel()
-        isCanceled = true
+        scope.cancel(CancellationException("cancelled"))
     }
 
     /**
      * 任务是否已经取消
      */
-    fun isCanceled() = isCanceled
+    fun isCanceled() = !TaskSystem.containsTask(id)
 
     override fun onEnded() {
         this.ended?.let { runEndedListener(it) }
@@ -207,23 +204,23 @@ abstract class Task<V>(
         const val SUGGEST = "NOT_REQUIRED_TO_EXECUTE"
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(task: suspend () -> V): Task<V> {
-            return SimpleTask(task = task)
+        fun <V> runTask(id: String?, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, task = task)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(message: String, task: suspend () -> V): Task<V> {
-            return SimpleTask(message = message, task = task)
+        fun <V> runTask(id: String?, message: String, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, message = message, task = task)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(scope: CoroutineScope, task: suspend () -> V): Task<V> {
-            return SimpleTask(task = task).setScope(scope)
+        fun <V> runTask(id: String?, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, task = task).setScope(scope)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
-            return SimpleTask(message = message, task = task).setScope(scope)
+        fun <V> runTask(id: String?, message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, message = message, task = task).setScope(scope)
         }
     }
 }

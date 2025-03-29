@@ -23,6 +23,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -94,14 +95,17 @@ object MicrosoftAuthenticator {
      * 从 Microsoft 身份验证终端节点获取设备代码响应
      * 设备代码用于在单独的设备或浏览器上授权用户
      */
-    suspend fun fetchDeviceCodeResponse(): DeviceCodeResponse = withRetry {
-        submitForm(
-            url = "$MICROSOFT_AUTH_URL/$TENANT/oauth2/v2.0/devicecode",
-            parameters = Parameters.build {
-                append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
-                append("scope", SCOPES.joinToString(" "))
-            }
-        )
+    suspend fun fetchDeviceCodeResponse(context: CoroutineContext): DeviceCodeResponse = coroutineScope {
+        withRetry {
+            submitForm(
+                url = "$MICROSOFT_AUTH_URL/$TENANT/oauth2/v2.0/devicecode",
+                parameters = Parameters.build {
+                    append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
+                    append("scope", SCOPES.joinToString(" "))
+                },
+                context = context
+            )
+        }
     }
 
     /**
@@ -109,13 +113,16 @@ object MicrosoftAuthenticator {
      * 此函数会定期轮询 Microsoft 令牌端点，直到获取访问令牌或超时
      */
     suspend fun getTokenResponse(
-        codeResponse: DeviceCodeResponse
+        codeResponse: DeviceCodeResponse,
+        context: CoroutineContext,
+        checkCancelled: () -> Boolean
     ): TokenResponse = coroutineScope {
         var pollingInterval = codeResponse.interval * 1000L
         val expireTime = System.currentTimeMillis() + codeResponse.expiresIn * 1000L
 
         while (System.currentTimeMillis() < expireTime) {
-            ensureActive()
+            context.ensureActive()
+            if (checkCancelled()) throw CancellationException("Authentication cancelled")
 
             try {
                 val response: JsonObject = submitForm(
@@ -125,7 +132,8 @@ object MicrosoftAuthenticator {
                         append("device_code", codeResponse.deviceCode)
                         append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
                         append("tenant", TENANT)
-                    }
+                    },
+                    context = context
                 )
 
                 if (response["token_type"]?.jsonPrimitive?.content == "Bearer") {
@@ -136,20 +144,37 @@ object MicrosoftAuthenticator {
                     )
                 }
             } catch (e: ClientRequestException) {
-                val errorBody = Json.parseToJsonElement(e.response.bodyAsText()).jsonObject
-                val error = errorBody["error"]?.jsonPrimitive?.content
-
-                when (error) {
-                    "authorization_pending" -> { /* 正常情况，继续轮询 */ }
-                    "slow_down" -> { //延长轮询间隔
-                        pollingInterval += 1000L
-                    }
-                    else -> throw e
-                }
+                handleClientRequestException(e, pollingInterval)
+                pollingInterval = adjustPollingInterval(e, pollingInterval)
+            } catch (e: CancellationException) {
+                Log.d("Auth", "Authentication cancelled")
+                throw e
             }
-            delay(pollingInterval)
+            delay(pollingInterval).also {
+                context.ensureActive()
+                if (checkCancelled()) throw CancellationException("Authentication cancelled")
+            }
         }
         throw TimeoutException("Authentication timed out!")
+    }
+
+    private suspend fun handleClientRequestException(e: ClientRequestException, interval: Long) {
+        val errorBody = Json.parseToJsonElement(e.response.bodyAsText()).jsonObject
+        when (errorBody["error"]?.jsonPrimitive?.content) {
+            "authorization_pending" -> Unit /* 正常情况，继续轮询 */
+            "slow_down" -> Log.d("Auth", "Slowing down polling to ${interval + 1000}ms")
+            else -> throw e
+        }
+    }
+
+    private suspend fun adjustPollingInterval(e: ClientRequestException, currentInterval: Long): Long {
+        return if (e.isSlowDownError()) currentInterval + 1000L else currentInterval
+    }
+
+    private suspend fun ClientRequestException.isSlowDownError(): Boolean {
+        val error = Json.parseToJsonElement(response.bodyAsText())
+            .jsonObject["error"]?.jsonPrimitive?.content
+        return error == "slow_down"
     }
 
     /**
@@ -166,22 +191,27 @@ object MicrosoftAuthenticator {
         authType: AuthType,
         refreshToken: String,
         accessToken: String = "NULL",
-        statusUpdate: (AsyncStatus) -> Unit
+        context: CoroutineContext,
+        statusUpdate: (AsyncStatus) -> Unit,
     ): Account = coroutineScope {
         val (finalAccessToken, newRefreshToken) = when (authType) {
-            AuthType.Refresh -> refreshAccessToken(refreshToken, statusUpdate)
+            AuthType.Refresh -> refreshAccessToken(refreshToken, statusUpdate, context)
             else -> Pair(accessToken, refreshToken)
         }
 
         val xblToken = authenticateXBL(finalAccessToken, statusUpdate)
-        val xstsToken = authenticateXSTS(xblToken.first, xblToken.second, statusUpdate)
-        val minecraftToken = authenticateMinecraft(xstsToken, statusUpdate)
+        val xstsToken = authenticateXSTS(xblToken.first, xblToken.second, statusUpdate, context)
+        val minecraftToken = authenticateMinecraft(xstsToken, statusUpdate, context)
         verifyGameOwnership(minecraftToken, statusUpdate)
 
         return@coroutineScope createAccount(minecraftToken, newRefreshToken, xblToken.second, statusUpdate)
     }
 
-    private suspend fun refreshAccessToken(refreshToken: String, update: (AsyncStatus) -> Unit): Pair<String, String> {
+    private suspend fun refreshAccessToken(
+        refreshToken: String,
+        update: (AsyncStatus) -> Unit,
+        context: CoroutineContext
+    ): Pair<String, String> {
         update(AsyncStatus.GETTING_ACCESS_TOKEN)
 
         return withRetry {
@@ -191,7 +221,8 @@ object MicrosoftAuthenticator {
                     append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
                     append("refresh_token", refreshToken)
                     append("grant_type", "refresh_token")
-                }
+                },
+                context = context
             )
             Pair(
                 response["access_token"].text(),
@@ -229,7 +260,12 @@ object MicrosoftAuthenticator {
         }
     }
 
-    private suspend fun authenticateXSTS(xblToken: String, uhs: String, update: (AsyncStatus) -> Unit): XSTSAuthResult {
+    private suspend fun authenticateXSTS(
+        xblToken: String,
+        uhs: String,
+        update: (AsyncStatus) -> Unit,
+        context: CoroutineContext
+    ): XSTSAuthResult {
         update(AsyncStatus.GETTING_XSTS_TOKEN)
 
         return withRetry {
@@ -242,7 +278,8 @@ object MicrosoftAuthenticator {
                     ),
                     relyingParty = "rp://api.minecraftservices.com/",
                     tokenType = "JWT"
-                )
+                ),
+                context
             )
             XSTSAuthResult(token = response["Token"].text(), uhs = uhs)
         }
@@ -250,14 +287,16 @@ object MicrosoftAuthenticator {
 
     private suspend fun authenticateMinecraft(
         xstsResult: XSTSAuthResult,
-        update: (AsyncStatus) -> Unit
+        update: (AsyncStatus) -> Unit,
+        context: CoroutineContext
     ): String {
         update(AsyncStatus.AUTHENTICATE_MINECRAFT)
 
         return withRetry {
             val authResponse = httpPostJson<MinecraftAuthResponse>(
                 "$MINECRAFT_SERVICES_URL/authentication/login_with_xbox",
-                mapOf("identityToken" to "XBL3.0 x=${xstsResult.uhs};${xstsResult.token}")
+                mapOf("identityToken" to "XBL3.0 x=${xstsResult.uhs};${xstsResult.token}"),
+                context
             )
             authResponse.accessToken
         }
