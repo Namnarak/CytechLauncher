@@ -362,7 +362,7 @@ fun ServerTypeTab(
             ) {
                 LoginItem(
                     modifier = Modifier.fillMaxWidth(),
-                    serverName = stringResource(R.string.account_type_microsoft)
+                    serverName = stringResource(R.string.account_type_microsoft),
                 ) {
                     if (!isMicrosoftLogging()) {
                         microsoftLoginOperation = MicrosoftLoginOperation.RunTask
@@ -442,17 +442,23 @@ fun AccountsLayout(
                     AccountsManager.performLogin(
                         context = context,
                         account = operation.account,
-                        onSuccess = { saveAccount(it) },
+                        onSuccess = {
+                            it.downloadSkin()
+                            saveAccount(it)
+                        },
                         onFailed = { accountOperation = AccountOperation.OnFailed(it) }
                     )
                 }
                 accountOperation = AccountOperation.None
             }
             is AccountOperation.OnFailed -> {
-                SimpleAlertDialog(
-                    title = stringResource(R.string.account_logging_in_failed),
-                    text = operation.error
-                ) { accountOperation = AccountOperation.None }
+                ShowThrowableState.update(
+                    ShowThrowableState.ThrowableMessage(
+                        title = stringResource(R.string.account_logging_in_failed),
+                        message = operation.error
+                    )
+                )
+                accountOperation = AccountOperation.None
             }
             is AccountOperation.None -> {}
         }

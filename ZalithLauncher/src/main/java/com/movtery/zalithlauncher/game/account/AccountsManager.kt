@@ -78,6 +78,9 @@ object AccountsManager {
             isOtherLoginAccount(account) -> {
                 otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed)
             }
+            isMicrosoftAccount(account) -> {
+                microsoftRefresh(context = context, account = account, onSuccess = onSuccess)
+            }
         }
     }
 

@@ -66,18 +66,14 @@ fun microsoftLogin(
             updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { isCanceled() }
             BackToLauncherScreenState.back()
-            val account = MicrosoftAuthenticator.authAsync(
-                AuthType.Access, tokenResponse.refreshToken, tokenResponse.accessToken, context = coroutineContext
-            ) { asyncStatus ->
-                when (asyncStatus) {
-                    AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
-                    AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
-                    AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
-                    AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
-                    AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
-                    AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
-                }
-            }
+            val account = authAsync(
+                context,
+                AuthType.Access,
+                tokenResponse.refreshToken,
+                tokenResponse.accessToken,
+                coroutineContext = coroutineContext,
+                updateProgress = ::updateProgress
+            )
             setResult(account)
         }
     }.ended { account ->
@@ -104,6 +100,73 @@ fun microsoftLogin(
         }
     }.finallyTask {
         updateOperation(MicrosoftLoginOperation.None)
+    })
+}
+
+private suspend fun authAsync(
+    context: Context,
+    authType: AuthType,
+    refreshToken: String,
+    accessToken: String = "NULL",
+    coroutineContext: CoroutineContext,
+    updateProgress: (Float, String) -> Unit
+): Account {
+    return MicrosoftAuthenticator.authAsync(authType, refreshToken, accessToken, coroutineContext) { asyncStatus ->
+        when (asyncStatus) {
+            AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
+            AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
+            AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
+            AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
+            AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
+            AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
+        }
+    }
+}
+
+fun microsoftRefresh(
+    context: Context,
+    account: Account,
+    onSuccess: (Account) -> Unit
+) {
+    if (TaskSystem.containsTask(account.profileId)) return
+    TaskSystem.submitTask(object : ProgressAwareTask<Account>(account.profileId) {
+        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
+            authAsync(
+                context,
+                AuthType.Refresh,
+                account.refreshToken,
+                account.accessToken,
+                coroutineContext = coroutineContext,
+                updateProgress = ::updateProgress
+            )
+            setResult(account)
+        }
+    }.ended { account1 ->
+        account1?.let { acc ->
+            account.apply {
+                this.accessToken = acc.accessToken
+                this.clientToken = acc.clientToken
+                this.profileId = acc.profileId
+                this.username = acc.username
+                this.refreshToken = acc.refreshToken
+                this.xuid = acc.xuid
+            }
+            onSuccess(account)
+        }
+    }.onThrowable { e ->
+        when (e) {
+            is TimeoutException -> context.getString(R.string.account_logging_time_out)
+            is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+            is CancellationException -> null
+            else -> e.getMessageOrToString()
+        }?.let { message ->
+            ShowThrowableState.update(
+                ShowThrowableState.ThrowableMessage(
+                    title = context.getString(R.string.account_logging_in_failed),
+                    message = message
+                )
+            )
+        }
     })
 }
 
@@ -146,10 +209,10 @@ fun localLogin(userName: String) {
 fun saveAccount(account: Account) {
     runCatching {
         account.save()
-        Log.i("SaveAccount", "Saved local account: ${account.username}")
+        Log.i("SaveAccount", "Saved account: ${account.username}")
         AccountsManager.reloadAccounts()
     }.onFailure { e ->
-        Log.e("SaveAccount", "Failed to save local account: ${account.username}", e)
+        Log.e("SaveAccount", "Failed to save account: ${account.username}", e)
     }
 }
 
