@@ -1,12 +1,20 @@
 package com.movtery.zalithlauncher.state
 
-import androidx.compose.runtime.compositionLocalOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
- * 状态：当前WebView想要访问的Url
+ * 状态：想要在启动器内置浏览器访问的网页地址
  */
-class WebUrlState: AbstractStringState()
+object WebUrlState {
+    private val _url = MutableStateFlow<String?>(null)
+    val url: StateFlow<String?> = _url
 
-val LocalWebUrlState = compositionLocalOf<AbstractStringState> {
-    error("WebUrlState not provided!")
+    fun access(url: String) {
+        _url.value = url
+    }
+
+    fun clear() {
+        _url.value = null
+    }
 }

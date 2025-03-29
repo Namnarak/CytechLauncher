@@ -50,7 +50,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
-import com.movtery.zalithlauncher.game.account.microsoft.response.DeviceCodeResponse
 import com.movtery.zalithlauncher.game.account.otherserver.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.Servers.Server
 import com.movtery.zalithlauncher.path.PathManager
@@ -64,7 +63,6 @@ import java.nio.file.Files
 sealed interface MicrosoftLoginOperation {
     data object None : MicrosoftLoginOperation
     data object RunTask: MicrosoftLoginOperation
-    data class OnVerifyDeviceCode(val deviceCode: DeviceCodeResponse) : MicrosoftLoginOperation
 }
 
 /**

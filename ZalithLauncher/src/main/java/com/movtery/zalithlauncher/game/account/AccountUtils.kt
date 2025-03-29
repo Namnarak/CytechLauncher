@@ -10,6 +10,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.state.BackToLauncherScreenState
 import com.movtery.zalithlauncher.state.ShowThrowableState
+import com.movtery.zalithlauncher.state.WebUrlState
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
@@ -34,6 +35,13 @@ fun isNoLoginRequired(account: Account?): Boolean {
     return account == null || account.accountType == AccountType.LOCAL.tag
 }
 
+private const val MICROSOFT_LOGGING_TASK = "microsoft_logging_task"
+
+/**
+ * 检查当前微软账号登陆是否正在进行中
+ */
+fun isMicrosoftLogging() = TaskSystem.containsTask(MICROSOFT_LOGGING_TASK)
+
 fun microsoftLogin(
     context: Context,
     updateOperation: (MicrosoftLoginOperation) -> Unit
@@ -51,7 +59,7 @@ fun microsoftLogin(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                updateOperation(MicrosoftLoginOperation.OnVerifyDeviceCode(deviceCode))
+                WebUrlState.access(deviceCode.verificationUrl)
                 updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
                 val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode)
                 BackToLauncherScreenState.back()
@@ -83,7 +91,7 @@ fun microsoftLogin(
         )
     }.finallyTask {
         updateOperation(MicrosoftLoginOperation.None)
-    })
+    }, MICROSOFT_LOGGING_TASK)
 }
 
 fun otherLogin(

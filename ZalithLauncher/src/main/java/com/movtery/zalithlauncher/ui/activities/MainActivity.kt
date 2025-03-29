@@ -53,16 +53,17 @@ import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.BackToLauncherScreenState
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
-import com.movtery.zalithlauncher.state.LocalWebUrlState
 import com.movtery.zalithlauncher.state.MainScreenTagState
 import com.movtery.zalithlauncher.state.ShowThrowableState
 import com.movtery.zalithlauncher.state.WebUrlState
@@ -96,14 +97,18 @@ class MainActivity : BaseComponentActivity() {
                 BackToLauncherScreenState.reset()
             }
 
+            val webUrl by WebUrlState.url.collectAsState()
+            if (!webUrl.isNullOrEmpty()) {
+                navController.navigateTo("webview?url=${webUrl}")
+                WebUrlState.clear()
+            }
+
             val colorThemeState = remember { ColorThemeState() }
             val mainScreenTagState = remember { MainScreenTagState() }
-            val webUrlState = remember { WebUrlState() }
 
             CompositionLocalProvider(
                 LocalColorThemeState provides colorThemeState,
-                LocalMainScreenTag provides mainScreenTagState,
-                LocalWebUrlState provides webUrlState
+                LocalMainScreenTag provides mainScreenTagState
             ) {
                 MainUI(navController)
 
@@ -380,12 +385,14 @@ class MainActivity : BaseComponentActivity() {
             composable(
                 route = ACCOUNT_MANAGE_SCREEN_TAG
             ) {
-                AccountManageScreen(navController)
+                AccountManageScreen()
             }
             composable(
-                route = WEB_VIEW_SCREEN_TAG
-            ) {
-                WebViewScreen()
+                route = WEB_VIEW_SCREEN_TAG,
+                arguments = listOf(navArgument("url") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val url = backStackEntry.arguments?.getString("url") ?: ""
+                WebViewScreen(url)
             }
         }
     }

@@ -30,10 +30,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
@@ -44,7 +44,6 @@ import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
-import com.movtery.zalithlauncher.state.LocalWebUrlState
 import com.movtery.zalithlauncher.state.ShowThrowableState
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
@@ -126,9 +125,7 @@ private fun AddOtherServer(
 }
 
 @Composable
-fun AccountManageScreen(
-    navController: NavHostController
-) {
+fun AccountManageScreen() {
     BaseScreen(
         screenTag = ACCOUNT_MANAGE_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
@@ -138,7 +135,6 @@ fun AccountManageScreen(
         ) {
             ServerTypeTab(
                 isVisible = isVisible,
-                navController = navController,
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(all = 12.dp)
@@ -158,7 +154,6 @@ fun AccountManageScreen(
 @Composable
 fun ServerTypeTab(
     isVisible: Boolean,
-    navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
     val xOffset by animateDpAsState(
@@ -335,14 +330,10 @@ fun ServerTypeTab(
     }
 
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
-    when (val operation = microsoftLoginOperation) {
+    when (microsoftLoginOperation) {
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.RunTask -> {
             microsoftLogin(context) { microsoftLoginOperation = it }
-        }
-        is MicrosoftLoginOperation.OnVerifyDeviceCode -> {
-            LocalWebUrlState.current.update(operation.deviceCode.verificationUrl)
-            navController.navigateTo(WEB_VIEW_SCREEN_TAG)
         }
     }
 
@@ -371,7 +362,9 @@ fun ServerTypeTab(
                     modifier = Modifier.fillMaxWidth(),
                     serverName = stringResource(R.string.account_type_microsoft)
                 ) {
-                    microsoftLoginOperation = MicrosoftLoginOperation.RunTask
+                    if (!isMicrosoftLogging()) {
+                        microsoftLoginOperation = MicrosoftLoginOperation.RunTask
+                    }
                 }
                 LoginItem(
                     modifier = Modifier.fillMaxWidth(),

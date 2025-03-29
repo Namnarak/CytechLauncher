@@ -23,59 +23,67 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
-import com.movtery.zalithlauncher.state.LocalWebUrlState
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import org.apache.commons.io.FileUtils
 
-const val WEB_VIEW_SCREEN_TAG = "WebViewScreen"
+const val WEB_VIEW_SCREEN_TAG = "webview?url={url}"
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewScreen() {
+fun WebViewScreen(url: String) {
     BaseScreen(
         screenTag = WEB_VIEW_SCREEN_TAG,
         tagProvider = LocalMainScreenTag
     ) { isVisible ->
+
         val context = LocalContext.current
-        val webView = remember {
-            WebView(context).apply {
-                webViewClient = WebViewClient()
-                settings.javaScriptEnabled = true
-            }
-        }
-
-        val url = LocalWebUrlState.current.currentString
-        url ?: throw IllegalStateException("Url is null")
-
         var isWebLoading by rememberSaveable { mutableStateOf(true) }
 
+        val webViewHolder = remember {
+            mutableStateOf<WebView?>(null)
+        }
+
         Box(modifier = Modifier.fillMaxSize()) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { webView }
-            ) {
-                it.loadUrl(url)
-                it.webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        super.onPageFinished(view, url)
-                        isWebLoading = false
-                    }
+            if (isVisible) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = {
+                        WebView(context).apply {
+                            webViewClient = object : WebViewClient() {
+                                override fun onPageFinished(view: WebView?, url: String?) {
+                                    super.onPageFinished(view, url)
+                                    isWebLoading = false
+                                }
 
-                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                        super.onPageStarted(view, url, favicon)
-                        isWebLoading = true
-                    }
-                }
-                it.settings.apply {
-                    javaScriptEnabled = true
-                    cacheMode = WebSettings.LOAD_NO_CACHE
-                }
+                                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                                    super.onPageStarted(view, url, favicon)
+                                    isWebLoading = true
+                                }
+                            }
 
-                if (!isVisible) {
-                    val webCache = context.getDir("webview", 0)
-                    FileUtils.deleteQuietly(webCache)
-                    CookieManager.getInstance().removeAllCookies(null)
+                            settings.javaScriptEnabled = true
+                            settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                            loadUrl(url)
+                            webViewHolder.value = this
+                        }
+                    },
+                    update = {
+                        //不在此处重复加载 url
+                    }
+                )
+            } else {
+                webViewHolder.value?.apply {
+                    stopLoading()
+                    loadUrl("about:blank")
+                    clearHistory()
+                    removeAllViews()
+                    destroy()
                 }
+                webViewHolder.value = null
+
+                val webCache = context.getDir("webview", 0)
+                FileUtils.deleteQuietly(webCache)
+                CookieManager.getInstance().removeAllCookies(null)
             }
 
             if (isWebLoading) {
