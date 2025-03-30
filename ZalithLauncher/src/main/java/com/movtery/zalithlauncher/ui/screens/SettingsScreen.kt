@@ -48,6 +48,11 @@ fun SettingsScreen(
         val settingsNavController = rememberNavController()
 
         val settingsScreenTagState = remember { SettingsScreenTagState() }
+
+        if (!isVisible) {
+            settingsScreenTagState.update(null)
+        }
+
         CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
             Row(
                 modifier = Modifier.fillMaxSize()
@@ -64,7 +69,6 @@ fun SettingsScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     NavigationUI(
-                        isVisible = isVisible,
                         mainNavController = mainNavController,
                         settingsNavController = settingsNavController
                     )
@@ -115,7 +119,6 @@ private fun TabMenu(
 
 @Composable
 private fun NavigationUI(
-    isVisible: Boolean,
     mainNavController: NavController,
     settingsNavController: NavHostController,
     modifier: Modifier = Modifier
@@ -129,18 +132,8 @@ private fun NavigationUI(
         settingsNavController.addOnDestinationChangedListener(listener)
     }
 
-    val yOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
-    )
-
     NavHost(
-        modifier = modifier.offset {
-            IntOffset(
-                x = 0,
-                y = yOffset.roundToPx()
-            )
-        },
+        modifier = modifier,
         navController = settingsNavController,
         startDestination = LAUNCHER_SETTINGS_TAG
     ) {

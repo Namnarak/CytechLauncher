@@ -4,6 +4,7 @@ import android.os.Build
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 
 class AllSettings {
     companion object {
@@ -14,11 +15,8 @@ class AllSettings {
          */
         val launcherColorTheme = StringSettingUnit(
             "launcherColorTheme",
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                "DYNAMIC"
-            } else {
-                "ROSEWOOD_EMBER"
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) "DYNAMIC"
+            else ColorThemeType.EMBERMIRE.name
         )
 
         /**
