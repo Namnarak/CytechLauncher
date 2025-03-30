@@ -41,7 +41,6 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.io.IOException
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -355,34 +354,7 @@ object MicrosoftAuthenticator {
         initialDelay: Long = 1000,
         maxDelay: Long = 10_000,
         block: suspend () -> T
-    ): T {
-        var currentDelay = initialDelay
-        var retryCount = 0
-        var lastError: Throwable? = null
-
-        while (retryCount < maxRetries) {
-            try {
-                return block()
-            } catch (e: Exception) {
-                Log.d("MicrosoftAuthenticator", "Attempt ${retryCount + 1} failed: ${e.message}")
-                lastError = e
-                if (canRetry(e)) {
-                    delay(currentDelay)
-                    currentDelay = (currentDelay * 2).coerceAtMost(maxDelay)
-                    retryCount++
-                } else {
-                    throw e //不可重试
-                }
-            }
-        }
-        throw lastError ?: Exception("Failed after $maxRetries retries")
-    }
-
-    private fun canRetry(e: Exception): Boolean {
-        return when (e) {
-            is ClientRequestException -> e.response.status.value in 500..599 //5xx错误可重试
-            is IOException -> true //网络错误
-            else -> false
-        }
-    }
+    ): T = com.movtery.zalithlauncher.utils.network.withRetry(
+        "MicrosoftAuthenticator", maxRetries, initialDelay, maxDelay, block
+    )
 }

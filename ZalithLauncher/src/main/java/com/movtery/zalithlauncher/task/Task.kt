@@ -204,22 +204,22 @@ abstract class Task<V>(
         const val SUGGEST = "NOT_REQUIRED_TO_EXECUTE"
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String?, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, task = task)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String?, message: String, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, message: String, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, message = message, task = task)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String?, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, scope: CoroutineScope, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, task = task).setScope(scope)
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String?, message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, message = message, task = task).setScope(scope)
         }
     }

@@ -15,6 +15,7 @@ class PathManager {
 
         lateinit var FILE_CRASH_REPORT: File
         lateinit var FILE_SETTINGS: File
+        lateinit var FILE_MINECRAFT_VERSIONS: File
 
         fun refreshPaths(context: Context) {
             DIR_FILES_PRIVATE = context.filesDir
@@ -27,6 +28,7 @@ class PathManager {
 
             FILE_CRASH_REPORT = File(DIR_FILES_EXTERNAL, "crash_report.log")
             FILE_SETTINGS = File(DIR_FILES_PRIVATE, "settings.json")
+            FILE_MINECRAFT_VERSIONS = File(DIR_GAME, "minecraft_versions.json")
 
             createDirs()
         }
