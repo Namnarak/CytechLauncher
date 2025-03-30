@@ -34,8 +34,8 @@ class Account {
      */
     fun downloadSkin() {
         when {
-            accountType == AccountType.MICROSOFT.tag -> updateSkin("https://sessionserver.mojang.com")
-            otherBaseUrl != null -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
+            isMicrosoftAccount(this) -> updateSkin("https://sessionserver.mojang.com")
+            isOtherLoginAccount(this) -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
             else -> {}
         }
     }
