@@ -84,10 +84,13 @@ import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
 
 class MainActivity : BaseComponentActivity() {
+    lateinit var navController: NavHostController
+        private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
+            navController = rememberNavController()
 
             val back by ObjectStates.backToLauncherScreenState.collectAsState()
             if (back) { //回到主界面
@@ -97,7 +100,7 @@ class MainActivity : BaseComponentActivity() {
 
             val webUrl by ObjectStates.url.collectAsState()
             if (!webUrl.isNullOrEmpty()) {
-                navController.navigateTo("webview?url=${webUrl}")
+                navController.navigateTo("$WEB_VIEW_SCREEN_TAG$webUrl")
                 ObjectStates.clearUrl()
             }
 
@@ -108,7 +111,7 @@ class MainActivity : BaseComponentActivity() {
                 LocalColorThemeState provides colorThemeState,
                 LocalMainScreenTag provides mainScreenTagState
             ) {
-                MainUI(navController)
+                MainUI()
 
                 val throwableState by ObjectStates.throwableFlow.collectAsState()
                 throwableState?.let { tm ->
@@ -122,9 +125,7 @@ class MainActivity : BaseComponentActivity() {
     }
 
     @Composable
-    fun MainUI(
-        navController: NavHostController
-    ) {
+    fun MainUI() {
         ZalithLauncherTheme {
             Column(
                 modifier = Modifier.fillMaxHeight()
@@ -141,7 +142,6 @@ class MainActivity : BaseComponentActivity() {
                 TopBar(
                     tasks = tasks,
                     isTasksExpanded = isTaskMenuExpanded,
-                    navController = navController,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
@@ -157,7 +157,6 @@ class MainActivity : BaseComponentActivity() {
                         .weight(1f)
                 ) {
                     NavigationUI(
-                        navController = navController,
                         modifier = Modifier
                             .fillMaxSize()
                             .background(color = MaterialTheme.colorScheme.background)
@@ -198,7 +197,6 @@ class MainActivity : BaseComponentActivity() {
     fun TopBar(
         tasks: List<TrackableTask<*>>,
         isTasksExpanded: Boolean,
-        navController: NavHostController,
         modifier: Modifier = Modifier,
         changeExpandedState: () -> Unit = {}
     ) {
@@ -347,7 +345,6 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun NavigationUI(
-        navController: NavHostController,
         modifier: Modifier = Modifier
     ) {
         val screenTagState = LocalMainScreenTag.current
@@ -386,7 +383,7 @@ class MainActivity : BaseComponentActivity() {
                 AccountManageScreen()
             }
             composable(
-                route = WEB_VIEW_SCREEN_TAG,
+                route = "$WEB_VIEW_SCREEN_TAG{url}",
                 arguments = listOf(navArgument("url") { type = NavType.StringType })
             ) { backStackEntry ->
                 val url = backStackEntry.arguments?.getString("url") ?: ""

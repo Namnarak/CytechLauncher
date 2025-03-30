@@ -26,14 +26,15 @@ import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import org.apache.commons.io.FileUtils
 
-const val WEB_VIEW_SCREEN_TAG = "webview?url={url}"
+const val WEB_VIEW_SCREEN_TAG = "WebViewScreen?url="
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebViewScreen(url: String) {
     BaseScreen(
         screenTag = WEB_VIEW_SCREEN_TAG,
-        tagProvider = LocalMainScreenTag
+        tagProvider = LocalMainScreenTag,
+        tagStartWith = true
     ) { isVisible ->
 
         val context = LocalContext.current

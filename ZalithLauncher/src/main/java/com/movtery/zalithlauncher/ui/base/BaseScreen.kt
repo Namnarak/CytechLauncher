@@ -18,7 +18,8 @@ import com.movtery.zalithlauncher.state.AbstractStringState
 fun BaseScreen(
     screenTag: String,
     tagProvider: ProvidableCompositionLocal<AbstractStringState>,
-    content: @Composable (isVisible: Boolean) -> Unit
+    tagStartWith: Boolean = false,
+    content: @Composable (isVisible: Boolean) -> Unit,
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -30,7 +31,9 @@ fun BaseScreen(
     }
     //且只有在布局完成了之后，才会尝试变更TAG
     //否则isVisible变更后，组件始终会获取到同一个值，导致首次加载时动画效果不生效
-    if (isLaunched) isVisible = currentTag == screenTag
+    if (isLaunched) isVisible =
+        if (tagStartWith) currentTag?.startsWith(screenTag) == true
+        else currentTag == screenTag
 
     Box {
         content(isVisible)

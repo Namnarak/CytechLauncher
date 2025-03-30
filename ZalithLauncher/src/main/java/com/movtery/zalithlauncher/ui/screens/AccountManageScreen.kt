@@ -48,6 +48,7 @@ import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
+import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
@@ -334,10 +335,17 @@ fun ServerTypeTab(
     }
 
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
+    val mainActivity = context as? MainActivity
     when (microsoftLoginOperation) {
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.RunTask -> {
-            microsoftLogin(context) { microsoftLoginOperation = it }
+            microsoftLogin(
+                context = context,
+                updateOperation = { microsoftLoginOperation = it },
+                checkWebScreenClosed = {
+                    mainActivity?.navController?.currentDestination?.route?.startsWith(WEB_VIEW_SCREEN_TAG) == false
+                }
+            )
             microsoftLoginOperation = MicrosoftLoginOperation.None
         }
     }

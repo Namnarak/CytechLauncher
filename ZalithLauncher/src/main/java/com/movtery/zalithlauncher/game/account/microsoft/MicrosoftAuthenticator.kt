@@ -125,9 +125,15 @@ object MicrosoftAuthenticator {
         var pollingInterval = codeResponse.interval * 1000L
         val expireTime = System.currentTimeMillis() + codeResponse.expiresIn * 1000L
 
+        var cancelled = 0
+        fun checkIsReallyCancelled(): Boolean {
+            if (checkCancelled()) cancelled++
+            return cancelled > 1
+        }
+
         while (System.currentTimeMillis() < expireTime) {
             context.ensureActive()
-            if (checkCancelled()) throw CancellationException("Authentication cancelled")
+            if (checkIsReallyCancelled()) throw CancellationException("Authentication cancelled")
 
             try {
                 val response: JsonObject = submitForm(
@@ -157,7 +163,7 @@ object MicrosoftAuthenticator {
             }
             delay(pollingInterval).also {
                 context.ensureActive()
-                if (checkCancelled()) throw CancellationException("Authentication cancelled")
+                if (checkIsReallyCancelled()) throw CancellationException("Authentication cancelled")
             }
         }
         throw TimeoutException("Authentication timed out!")

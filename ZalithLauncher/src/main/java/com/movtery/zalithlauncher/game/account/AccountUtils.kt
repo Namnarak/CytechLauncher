@@ -46,7 +46,8 @@ fun isMicrosoftLogging() = TaskSystem.containsTask(MICROSOFT_LOGGING_TASK)
 
 fun microsoftLogin(
     context: Context,
-    updateOperation: (MicrosoftLoginOperation) -> Unit
+    updateOperation: (MicrosoftLoginOperation) -> Unit,
+    checkWebScreenClosed: () -> Boolean
 ) {
     TaskSystem.submitTask(object : ProgressAwareTask<Account>(MICROSOFT_LOGGING_TASK) {
         override suspend fun performMainTask(coroutineContext: CoroutineContext) {
@@ -62,7 +63,7 @@ fun microsoftLogin(
             }
             ObjectStates.accessUrl(deviceCode.verificationUrl)
             updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
-            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { isCanceled() }
+            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { checkWebScreenClosed() || isCanceled() }
             ObjectStates.backToLauncherScreen()
             val account = authAsync(
                 context,
