@@ -60,13 +60,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.BackToLauncherScreenState
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
-import com.movtery.zalithlauncher.state.ShowThrowableState
-import com.movtery.zalithlauncher.state.WebUrlState
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.task.TrackableTask
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -91,16 +89,16 @@ class MainActivity : BaseComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            val back by BackToLauncherScreenState.backState.collectAsState()
+            val back by ObjectStates.backToLauncherScreenState.collectAsState()
             if (back) { //回到主界面
                 navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
-                BackToLauncherScreenState.reset()
+                ObjectStates.resetBackToLauncherScreen()
             }
 
-            val webUrl by WebUrlState.url.collectAsState()
+            val webUrl by ObjectStates.url.collectAsState()
             if (!webUrl.isNullOrEmpty()) {
                 navController.navigateTo("webview?url=${webUrl}")
-                WebUrlState.clear()
+                ObjectStates.clearUrl()
             }
 
             val colorThemeState = remember { ColorThemeState() }
@@ -112,12 +110,12 @@ class MainActivity : BaseComponentActivity() {
             ) {
                 MainUI(navController)
 
-                val throwableState by ShowThrowableState.throwableFlow.collectAsState()
+                val throwableState by ObjectStates.throwableFlow.collectAsState()
                 throwableState?.let { tm ->
                     SimpleAlertDialog(
                         title = tm.title,
                         text = tm.message,
-                    ) { ShowThrowableState.update(null) }
+                    ) { ObjectStates.updateThrowable(null) }
                 }
             }
         }

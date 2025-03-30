@@ -10,9 +10,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoft.TimeoutException
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
-import com.movtery.zalithlauncher.state.BackToLauncherScreenState
-import com.movtery.zalithlauncher.state.ShowThrowableState
-import com.movtery.zalithlauncher.state.WebUrlState
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
@@ -62,10 +60,10 @@ fun microsoftLogin(
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            WebUrlState.access(deviceCode.verificationUrl)
+            ObjectStates.accessUrl(deviceCode.verificationUrl)
             updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { isCanceled() }
-            BackToLauncherScreenState.back()
+            ObjectStates.backToLauncherScreen()
             val account = authAsync(
                 context,
                 AuthType.Access,
@@ -91,8 +89,8 @@ fun microsoftLogin(
             }
             else -> e.getMessageOrToString()
         }?.let { message ->
-            ShowThrowableState.update(
-                ShowThrowableState.ThrowableMessage(
+            ObjectStates.updateThrowable(
+                ObjectStates.ThrowableMessage(
                     title = context.getString(R.string.account_logging_in_failed),
                     message = message
                 )
@@ -160,8 +158,8 @@ fun microsoftRefresh(
             is CancellationException -> null
             else -> e.getMessageOrToString()
         }?.let { message ->
-            ShowThrowableState.update(
-                ShowThrowableState.ThrowableMessage(
+            ObjectStates.updateThrowable(
+                ObjectStates.ThrowableMessage(
                     title = context.getString(R.string.account_logging_in_failed),
                     message = message
                 )

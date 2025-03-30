@@ -45,7 +45,7 @@ import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
-import com.movtery.zalithlauncher.state.ShowThrowableState
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -274,8 +274,8 @@ fun ServerTypeTab(
             )
         }
         is ServerOperation.OnThrowable -> {
-            ShowThrowableState.update(
-                ShowThrowableState.ThrowableMessage(
+            ObjectStates.updateThrowable(
+                ObjectStates.ThrowableMessage(
                     title = stringResource(R.string.account_other_login_adding_failure),
                     message = operation.throwable.getMessageOrToString()
                 )
@@ -313,8 +313,8 @@ fun ServerTypeTab(
         }
         is OtherLoginOperation.OnSuccess -> { saveAccount(operation.account) }
         is OtherLoginOperation.OnFailed -> {
-            ShowThrowableState.update(
-                ShowThrowableState.ThrowableMessage(
+            ObjectStates.updateThrowable(
+                ObjectStates.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
                     message = operation.error
                 )
@@ -455,8 +455,8 @@ fun AccountsLayout(
                 accountOperation = AccountOperation.None
             }
             is AccountOperation.OnFailed -> {
-                ShowThrowableState.update(
-                    ShowThrowableState.ThrowableMessage(
+                ObjectStates.updateThrowable(
+                    ObjectStates.ThrowableMessage(
                         title = stringResource(R.string.account_logging_in_failed),
                         message = operation.error
                     )
