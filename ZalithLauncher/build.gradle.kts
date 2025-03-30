@@ -18,7 +18,7 @@ fun getKeyFromLocal(envKey: String, fileName: String? = null): String {
         val file = File(rootDir, fileName)
         if (file.canRead() && file.isFile) file.readText() else null
     } ?: run {
-        logger.warn("BUILD: envKey not set; related features may throw exceptions.")
+        logger.warn("BUILD: $envKey not set; related features may throw exceptions.")
         ""
     }
 }
@@ -34,6 +34,15 @@ android {
     namespace = zalithPackageName
     compileSdk = 35
 
+    signingConfigs {
+        create("releaseBuild") {
+            storeFile = file("zalith_launcher.jks")
+            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt")
+            keyAlias = "movtery_zalith"
+            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
+        }
+    }
+
     defaultConfig {
         applicationId = zalithPackageName
         applicationIdSuffix = ".v2"
@@ -47,6 +56,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("releaseBuild")
         }
     }
 
