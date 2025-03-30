@@ -11,24 +11,31 @@ class TrackableTask<V>(
     
     //状态跟踪
     private var currentProgress: Float = -1f
-    private var currentMessage: String = ""
-    private val _statusFlow = MutableStateFlow(TaskStatus(id, "", -1f, TaskStatus.Status.PENDING))
+    private var currentMessage: Pair<Int, Any> = Pair(-1, Unit)
+    private val _statusFlow = MutableStateFlow(TaskStatus(id, Pair(-1, Unit), -1f, TaskStatus.Status.PENDING))
     val statusFlow: StateFlow<TaskStatus> = _statusFlow
 
     private val stateListeners = mutableListOf<(TaskStatus) -> Unit>()
 
-    fun interface ProgressReporter {
+    interface ProgressReporter {
         /**
          * 更新进度
          * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
          * @param message 任务的描述信息
          */
-        fun updateProgress(percentage: Float, message: String)
+        fun updateProgress(percentage: Float, message: Int)
+
+        /**
+         * 更新进度
+         * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+         * @param message 任务的描述信息
+         */
+        fun updateProgress(percentage: Float, message: Pair<Int, Any>)
     }
 
     data class TaskStatus(
         val taskId: String,
-        val message: String,
+        val message: Pair<Int, Any>,
         val progress: Float,
         val status: Status,
         val result: Any? = null,
@@ -54,7 +61,21 @@ class TrackableTask<V>(
      * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
      * @param message 任务的描述信息
      */
-    fun updateProgress(percentage: Float, message: String) {
+    fun updateProgress(percentage: Float, message: Int) {
+        notifyState(TaskStatus(
+            taskId = id,
+            message = Pair(message, Unit),
+            progress = percentage,
+            status = TaskStatus.Status.RUNNING
+        ))
+    }
+
+    /**
+     * 更新当前任务进度
+     * @param percentage 进度数值，范围：0f ~ 1f，若为负数，则代表不确定
+     * @param message 任务的描述信息
+     */
+    fun updateProgress(percentage: Float, message: Pair<Int, Any>) {
         notifyState(TaskStatus(
             taskId = id,
             message = message,

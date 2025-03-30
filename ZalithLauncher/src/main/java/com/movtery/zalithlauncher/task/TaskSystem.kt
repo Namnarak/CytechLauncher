@@ -35,9 +35,15 @@ object TaskSystem {
         }
 
         if (task is ProgressAwareTask) {
-            task.bindProgressReporter { percentage, message ->
-                trackableTask.updateProgress(percentage, message)
-            }
+            task.bindProgressReporter(object : TrackableTask.ProgressReporter {
+                override fun updateProgress(percentage: Float, message: Int) {
+                    trackableTask.updateProgress(percentage, message)
+                }
+
+                override fun updateProgress(percentage: Float, message: Pair<Int, Any>) {
+                    trackableTask.updateProgress(percentage, message)
+                }
+            })
         } else {
             trackableTask.updateProgress(-1f, task.message)
         }

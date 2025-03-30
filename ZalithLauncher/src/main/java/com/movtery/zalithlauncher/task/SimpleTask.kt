@@ -5,7 +5,7 @@ import kotlin.coroutines.CoroutineContext
 
 class SimpleTask<V>(
     id: String? = null,
-    message: String = "",
+    message: Pair<Int, Any> = Pair(-1, Unit),
     private val task: suspend () -> V
 ) : Task<V>(
     id = id ?: UUID.randomUUID().toString(),

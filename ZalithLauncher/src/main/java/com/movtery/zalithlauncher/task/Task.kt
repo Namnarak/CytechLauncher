@@ -13,7 +13,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 abstract class Task<V>(
     val id: String,
-    val message: String = "",
+    val message: Pair<Int, Any> = Pair(-1, Unit),
 ): TaskExecutionPhaseListener {
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var throwableFromTask: Throwable? = null
@@ -209,7 +209,12 @@ abstract class Task<V>(
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String? = null, message: String, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, message: Int, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, message = Pair(message, Unit), task = task)
+        }
+
+        @CheckResult(SUGGEST)
+        fun <V> runTask(id: String? = null, message: Pair<Int, Any>, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, message = message, task = task)
         }
 
@@ -219,7 +224,12 @@ abstract class Task<V>(
         }
 
         @CheckResult(SUGGEST)
-        fun <V> runTask(id: String? = null, message: String, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+        fun <V> runTask(id: String? = null, message: Int, scope: CoroutineScope, task: suspend () -> V): Task<V> {
+            return SimpleTask(id = id, message = Pair(message, Unit), task = task).setScope(scope)
+        }
+
+        @CheckResult(SUGGEST)
+        fun <V> runTask(id: String? = null, message: Pair<Int, Any>, scope: CoroutineScope, task: suspend () -> V): Task<V> {
             return SimpleTask(id = id, message = message, task = task).setScope(scope)
         }
     }

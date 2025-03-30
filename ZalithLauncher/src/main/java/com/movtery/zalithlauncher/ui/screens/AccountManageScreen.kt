@@ -34,20 +34,16 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.addOtherServer
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
-import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.game.account.saveAccount
-import com.movtery.zalithlauncher.game.account.tryGetFullServerUrl
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.task.ProgressAwareTask
-import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -65,14 +61,11 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import org.json.JSONObject
 import java.io.File
 import java.util.regex.Pattern
-import kotlin.coroutines.CoroutineContext
 
 const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
@@ -84,47 +77,6 @@ private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.js
 private fun refreshOtherServer() {
     val config: String = otherServerConfigFile.takeIf { it.exists() }?.readText() ?: return
     otherServerConfig.value = GSON.fromJson(config, Servers::class.java)
-}
-
-@Composable
-private fun AddOtherServer(
-    serverUrl: String,
-    onThrowable: (Throwable) -> Unit = {}
-) {
-    val context = LocalContext.current
-
-    TaskSystem.submitTask(object : ProgressAwareTask<Unit>() {
-        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
-            updateProgress(-1f, context.getString(R.string.account_other_login_getting_full_url))
-            val fullServerUrl = tryGetFullServerUrl(serverUrl)
-            if (isCanceled()) return
-            updateProgress(0.5f, context.getString(R.string.account_other_login_getting_server_info))
-            OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
-                val server = Server()
-                JSONObject(data).optJSONObject("meta")?.let { meta ->
-                    server.serverName = meta.optString("serverName")
-                    server.baseUrl = fullServerUrl
-                    server.register = meta.optJSONObject("links")?.optString("register") ?: ""
-                    if (otherServerConfig.value.server.any { it.baseUrl == server.baseUrl }) {
-                        //确保服务器不重复
-                        return
-                    }
-                    otherServerConfig.update { currentConfig ->
-                        currentConfig.server.add(server)
-                        currentConfig.copy()
-                    }
-                    updateProgress(0.8f, context.getString(R.string.account_other_login_saving_server))
-                    otherServerConfigFile.writeText(
-                        GSON.toJson(otherServerConfig.value, Servers::class.java)
-                    )
-                    updateProgress(1f, context.getString(R.string.generic_done))
-                }
-            }
-        }
-    }.onThrowable {
-        onThrowable(it)
-        Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(it)}")
-    })
 }
 
 @Composable
@@ -248,8 +200,10 @@ fun ServerTypeTab(
             )
         }
         is ServerOperation.Add -> {
-            AddOtherServer(
+            addOtherServer(
                 serverUrl = operation.serverUrl,
+                serverConfig = { otherServerConfig },
+                serverConfigFile = otherServerConfigFile,
                 onThrowable = { serverOperation = ServerOperation.OnThrowable(it) }
             )
             serverOperation = ServerOperation.None

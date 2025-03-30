@@ -34,7 +34,7 @@ class OtherLoginHelper(
         taskId: String? = null,
         loggingString: String = serverName
     ) {
-        val task = Task.runTask(id = taskId, message = context.getString(R.string.account_logging_in, loggingString)) {
+        val task = Task.runTask(id = taskId, message = Pair(R.string.account_logging_in, loggingString)) {
             OtherLoginApi.setBaseUrl(baseUrl)
             OtherLoginApi.login(context, email, password,
                 object : OtherLoginApi.Listener {
@@ -144,7 +144,7 @@ class OtherLoginHelper(
     }
 
     private fun refresh(context: Context, account: Account) {
-        val task = Task.runTask(message = context.getString(R.string.account_other_login_select_role_logging, account.username)) {
+        val task = Task.runTask(message = Pair(R.string.account_other_login_select_role_logging, account.username)) {
             OtherLoginApi.setBaseUrl(baseUrl)
             OtherLoginApi.refresh(context, account, true, object : OtherLoginApi.Listener {
                 override fun onSuccess(authResult: AuthResult) {

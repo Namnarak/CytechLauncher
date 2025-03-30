@@ -9,16 +9,25 @@ import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoft.TimeoutException
+import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.task.ProgressAwareTask
 import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
+import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -51,7 +60,7 @@ fun microsoftLogin(
 ) {
     TaskSystem.submitTask(object : ProgressAwareTask<Account>(MICROSOFT_LOGGING_TASK) {
         override suspend fun performMainTask(coroutineContext: CoroutineContext) {
-            updateProgress(-1f, context.getString(R.string.account_microsoft_fetch_device_code))
+            updateProgress(-1f, R.string.account_microsoft_fetch_device_code)
             val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse(coroutineContext)
             copyText(null, deviceCode.userCode, context)
             withContext(Dispatchers.Main) {
@@ -62,11 +71,10 @@ fun microsoftLogin(
                 ).show()
             }
             ObjectStates.accessUrl(deviceCode.verificationUrl)
-            updateProgress(-1f, context.getString(R.string.account_microsoft_get_token))
+            updateProgress(-1f, R.string.account_microsoft_get_token)
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { checkWebScreenClosed() || isCanceled() }
             ObjectStates.backToLauncherScreen()
             val account = authAsync(
-                context,
                 AuthType.Access,
                 tokenResponse.refreshToken,
                 tokenResponse.accessToken,
@@ -103,21 +111,20 @@ fun microsoftLogin(
 }
 
 private suspend fun authAsync(
-    context: Context,
     authType: AuthType,
     refreshToken: String,
     accessToken: String = "NULL",
     coroutineContext: CoroutineContext,
-    updateProgress: (Float, String) -> Unit
+    updateProgress: (Float, Int) -> Unit
 ): Account {
     return MicrosoftAuthenticator.authAsync(authType, refreshToken, accessToken, coroutineContext) { asyncStatus ->
         when (asyncStatus) {
-            AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, context.getString(R.string.account_microsoft_getting_access_token))
-            AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, context.getString(R.string.account_microsoft_getting_xbl_token))
-            AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, context.getString(R.string.account_microsoft_getting_xsts_token))
-            AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, context.getString(R.string.account_microsoft_authenticate_minecraft))
-            AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, context.getString(R.string.account_microsoft_verify_game_ownership))
-            AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, context.getString(R.string.account_microsoft_getting_player_profile))
+            AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, R.string.account_microsoft_getting_access_token)
+            AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, R.string.account_microsoft_getting_xbl_token)
+            AsyncStatus.GETTING_XSTS_TOKEN ->       updateProgress(0.55f, R.string.account_microsoft_getting_xsts_token)
+            AsyncStatus.AUTHENTICATE_MINECRAFT ->   updateProgress(0.7f, R.string.account_microsoft_authenticate_minecraft)
+            AsyncStatus.VERIFY_GAME_OWNERSHIP ->    updateProgress(0.85f, R.string.account_microsoft_verify_game_ownership)
+            AsyncStatus.GETTING_PLAYER_PROFILE ->   updateProgress(1f, R.string.account_microsoft_getting_player_profile)
         }
     }
 }
@@ -131,7 +138,6 @@ fun microsoftRefresh(
     TaskSystem.submitTask(object : ProgressAwareTask<Account>(account.profileId) {
         override suspend fun performMainTask(coroutineContext: CoroutineContext) {
             authAsync(
-                context,
                 AuthType.Refresh,
                 account.refreshToken,
                 account.accessToken,
@@ -203,6 +209,46 @@ fun localLogin(userName: String) {
         this.accountType = AccountType.LOCAL.tag
     }
     saveAccount(account)
+}
+
+fun addOtherServer(
+    serverUrl: String,
+    serverConfig: () -> MutableStateFlow<Servers>,
+    serverConfigFile: File,
+    onThrowable: (Throwable) -> Unit = {}
+) {
+    TaskSystem.submitTask(object : ProgressAwareTask<Unit>() {
+        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
+            updateProgress(-1f, R.string.account_other_login_getting_full_url)
+            val fullServerUrl = tryGetFullServerUrl(serverUrl)
+            if (isCanceled()) return
+            updateProgress(0.5f, R.string.account_other_login_getting_server_info)
+            OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
+                val server = Server()
+                JSONObject(data).optJSONObject("meta")?.let { meta ->
+                    server.serverName = meta.optString("serverName")
+                    server.baseUrl = fullServerUrl
+                    server.register = meta.optJSONObject("links")?.optString("register") ?: ""
+                    if (serverConfig().value.server.any { it.baseUrl == server.baseUrl }) {
+                        //确保服务器不重复
+                        return
+                    }
+                    serverConfig().update { currentConfig ->
+                        currentConfig.server.add(server)
+                        currentConfig.copy()
+                    }
+                    updateProgress(0.8f, R.string.account_other_login_saving_server)
+                    serverConfigFile.writeText(
+                        GSON.toJson(serverConfig().value, Servers::class.java)
+                    )
+                    updateProgress(1f, R.string.generic_done)
+                }
+            }
+        }
+    }.onThrowable {
+        onThrowable(it)
+        Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(it)}")
+    })
 }
 
 fun saveAccount(account: Account) {

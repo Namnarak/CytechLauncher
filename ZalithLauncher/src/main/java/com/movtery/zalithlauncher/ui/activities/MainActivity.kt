@@ -496,9 +496,13 @@ class MainActivity : BaseComponentActivity() {
                         .align(Alignment.CenterVertically)
                         .animateContentSize(animationSpec = getAnimateTween())
                 ) {
-                    if (taskStatus.message.isNotEmpty()) {
+                    if (taskStatus.message.first != -1) {
                         Text(
-                            text = taskStatus.message,
+                            text = if (taskStatus.message.second != Unit) {
+                                stringResource(taskStatus.message.first, taskStatus.message.second)
+                            } else {
+                                stringResource(taskStatus.message.first)
+                            },
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
