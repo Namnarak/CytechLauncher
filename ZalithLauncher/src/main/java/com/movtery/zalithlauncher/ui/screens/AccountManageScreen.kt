@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.coroutine.TaskMessage
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
@@ -255,7 +254,7 @@ fun ServerTypeTab(
                     otherLoginOperation = OtherLoginOperation.None
                     OtherLoginHelper(operation.server, email, password,
                         onSuccess = { account, task ->
-                            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+                            task.updateMessage(R.string.account_logging_in_saving)
                             account.downloadSkin()
                             saveAccount(account)
                         },
@@ -409,7 +408,7 @@ fun AccountsLayout(
                         context = context,
                         account = operation.account,
                         onSuccess = { account, task ->
-                            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+                            task.updateMessage(R.string.account_logging_in_saving)
                             account.downloadSkin()
                             saveAccount(account)
                         },

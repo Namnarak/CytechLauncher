@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.game.version.download
 
 import android.util.Log
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
-import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.compareSHA1
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -12,28 +11,29 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
+private const val LOG_TAG = "Minecraft.DownloaderUtils"
+
 private suspend fun downloadStringAndSave(
-    downloadTag: String,
     url: String,
     targetFile: File
 ): String =
     withContext(Dispatchers.IO) {
-        val string = withRetry(downloadTag, maxRetries = 1) {
+        val string = withRetry(LOG_TAG, maxRetries = 1) {
             NetWorkUtils.fetchStringFromUrl(url)
         }
         if (string.isBlank()) {
-            Log.e(downloadTag, "Downloaded string is empty, aborting.")
+            Log.e(LOG_TAG, "Downloaded string is empty, aborting.")
             throw IllegalStateException("Downloaded string is empty.")
         }
         targetFile.writeText(string)
         string
     }
 
-private fun <T> String.parseTo(logTag: String, classOfT: Class<T>): T {
+private fun <T> String.parseTo(classOfT: Class<T>): T {
     return runCatching {
         GSON.fromJson(this, classOfT)
     }.getOrElse { e ->
-        Log.e(logTag, "Failed to parse JSON", e)
+        Log.e(LOG_TAG, "Failed to parse JSON", e)
         throw e
     }
 }
@@ -43,29 +43,28 @@ suspend fun <T> downloadAndParseJson(
     url: String,
     expectedSHA: String?,
     verifyIntegrity: Boolean,
-    classOfT: Class<T>,
-    logTag: String
+    classOfT: Class<T>
 ): T {
     suspend fun downloadAndParse(): T {
-        val json = downloadStringAndSave(logTag, url, targetFile)
-        return json.parseTo(logTag, classOfT)
+        val json = downloadStringAndSave(url, targetFile)
+        return json.parseTo(classOfT)
     }
 
     if (!verifyIntegrity && targetFile.exists()) {
         //不验证完整性，直接解析并返回
-        return targetFile.readText().parseTo(logTag, classOfT)
+        return targetFile.readText().parseTo(classOfT)
     }
 
     if (targetFile.exists()) {
         return if (compareSHA1(targetFile, expectedSHA)) { //通过对比SHA1来验证文件数据完整性
             runCatching {
-                targetFile.readText().parseTo(logTag, classOfT)
+                targetFile.readText().parseTo(classOfT)
             }.getOrElse {
-                Log.w(logTag, "Failed to parse existing JSON, re-downloading...")
+                Log.w(LOG_TAG, "Failed to parse existing JSON, re-downloading...")
                 downloadAndParse()
             }
         } else {
-            Log.w(logTag, "SHA1 mismatch detected, re-downloading JSON.")
+            Log.w(LOG_TAG, "SHA1 mismatch detected, re-downloading JSON.")
             FileUtils.deleteQuietly(targetFile)
             downloadAndParse()
         }

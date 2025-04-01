@@ -7,6 +7,8 @@ import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.network.withRetry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 
 object MinecraftVersions {
@@ -48,12 +50,14 @@ object MinecraftVersions {
      * 从官方版本仓库获取版本信息
      */
     private suspend fun downloadVersionManifest(): VersionManifest {
-        return withRetry("MinecraftVersions", maxRetries = 1) {
-            Log.d("MinecraftVersions", "Downloading version manifest")
-            val rawJson = NetWorkUtils.fetchStringFromUrl(UrlManager.URL_MINECRAFT_VERSION_REPOS)
-            val versionManifest = GSON.fromJson(rawJson, VersionManifest::class.java)
-            PathManager.FILE_MINECRAFT_VERSIONS.writeText(rawJson)
-            versionManifest
+        return withContext(Dispatchers.IO) {
+            withRetry("MinecraftVersions", maxRetries = 1) {
+                Log.d("MinecraftVersions", "Downloading version manifest")
+                val rawJson = NetWorkUtils.fetchStringFromUrl(UrlManager.URL_MINECRAFT_VERSION_REPOS)
+                val versionManifest = GSON.fromJson(rawJson, VersionManifest::class.java)
+                PathManager.FILE_MINECRAFT_VERSIONS.writeText(rawJson)
+                versionManifest
+            }
         }
     }
 }

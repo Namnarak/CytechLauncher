@@ -4,12 +4,11 @@ import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.coroutine.TaskMessage
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
+import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import kotlinx.coroutines.Dispatchers
 import java.util.Objects
 
@@ -61,7 +60,7 @@ class OtherLoginHelper(
                 Log.e("OtherLogin", message, e)
                 onFailed(e.message ?: message)
             }
-        ).apply { updateMessage(TaskMessage(R.string.account_logging_in, loggingString)) }
+        ).apply { updateMessage(R.string.account_logging_in, loggingString) }
 
         TaskSystem.submitTask(task)
     }
@@ -163,7 +162,7 @@ class OtherLoginHelper(
                 Log.e("Other Login", message, e)
                 onFailed(e.message ?: message)
             }
-        ).apply { updateMessage(TaskMessage(R.string.account_other_login_select_role_logging, account.username)) }
+        ).apply { updateMessage(R.string.account_other_login_select_role_logging, account.username) }
 
         TaskSystem.submitTask(task)
     }

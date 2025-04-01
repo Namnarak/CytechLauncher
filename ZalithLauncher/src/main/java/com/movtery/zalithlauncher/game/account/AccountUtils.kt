@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.coroutine.TaskMessage
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
@@ -85,7 +84,7 @@ fun microsoftLogin(
                 coroutineContext = coroutineContext,
                 updateProgress = task::updateProgress
             )
-            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+            task.updateMessage(R.string.account_logging_in_saving)
             account.downloadSkin()
             saveAccount(account)
         },

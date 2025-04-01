@@ -60,7 +60,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.coroutine.TaskStatus
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
@@ -444,9 +443,10 @@ class MainActivity : BaseComponentActivity() {
                 ) {
                     val size = tasks.size
                     items(size) { index ->
-                        val taskStatus by tasks[index].taskStatus.collectAsState()
                         TaskItem(
-                            taskStatus = taskStatus,
+                            taskProgress = tasks[index].currentProgress,
+                            taskMessageRes = tasks[index].currentMessageRes,
+                            taskMessageArgs = tasks[index].currentMessageArgs,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = if (index == size - 1) 0.dp else 12.dp)
@@ -462,7 +462,9 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TaskItem(
-        taskStatus: TaskStatus,
+        taskProgress: Float,
+        taskMessageRes: Int?,
+        taskMessageArgs: Array<out Any>?,
         modifier: Modifier = Modifier,
         onCancelClick: () -> Unit = {}
     ) {
@@ -497,31 +499,31 @@ class MainActivity : BaseComponentActivity() {
                         .align(Alignment.CenterVertically)
                         .animateContentSize(animationSpec = getAnimateTween())
                 ) {
-                    taskStatus.message?.let { message ->
+                    taskMessageRes?.let { messageRes ->
                         Text(
-                            text = if (message.args != null) {
-                                stringResource(message.resId, message.args)
+                            text = if (taskMessageArgs != null) {
+                                stringResource(messageRes, *taskMessageArgs)
                             } else {
-                                stringResource(message.resId)
+                                stringResource(messageRes)
                             },
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
-                    if (taskStatus.progress < 0) { //负数则代表不确定
+                    if (taskProgress < 0) { //负数则代表不确定
                         LinearProgressIndicator(
                             modifier = Modifier.fillMaxWidth()
                         )
                     } else {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             LinearProgressIndicator(
-                                progress = { taskStatus.progress },
+                                progress = { taskProgress },
                                 modifier = Modifier
                                     .weight(1f)
                                     .align(Alignment.CenterVertically)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "${(taskStatus.progress * 100).toInt()}%",
+                                text = "${(taskProgress * 100).toInt()}%",
                                 modifier = Modifier.align(Alignment.CenterVertically),
                                 style = MaterialTheme.typography.labelMedium
                             )

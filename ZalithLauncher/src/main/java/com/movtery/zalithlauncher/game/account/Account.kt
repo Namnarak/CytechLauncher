@@ -42,7 +42,7 @@ class Account {
         }
     }
 
-    private fun updateSkin(url: String) {
+    private suspend fun updateSkin(url: String) {
         val skinFile = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
         if (skinFile.exists()) FileUtils.deleteQuietly(skinFile) //清除一次皮肤文件
 

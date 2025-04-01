@@ -8,19 +8,39 @@ import com.movtery.zalithlauncher.game.versioninfo.models.AssetIndexJson
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest.Version
 import com.movtery.zalithlauncher.utils.compareSHA1
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
-    private val minecraftPath: File,
+    minecraftPath: File,
     private val version: String,
     private val verifyIntegrity: Boolean,
-    private val onCompletion: () -> Unit
+    private val onCompletion: () -> Unit = {},
+    private val maxDownloadThreads: Int = 64
 ) {
     companion object {
         private const val MINECRAFT_RES: String = "https://resources.download.minecraft.net/"
+        private const val LOG_TAG = "MinecraftDownloader"
+
+        private val sThreadLocalDownloadBuffer: ThreadLocal<ByteArray> = ThreadLocal()
+
+        private fun getLocalBuffer() = lazy<ByteArray> {
+            var tlb = sThreadLocalDownloadBuffer.get()
+            if (tlb != null) return@lazy tlb
+            tlb = ByteArray(32768)
+            sThreadLocalDownloadBuffer.set(tlb)
+            return@lazy tlb
+        }
     }
     //Dir
     private val assetsTarget = File("$minecraftPath/assets".replace("/", File.separator)).createPath()
@@ -37,7 +57,11 @@ class MinecraftDownloader(
     private var downloadedFileCount: AtomicLong = AtomicLong(0)
     private var totalFileCount: AtomicLong = AtomicLong(0)
 
+    //进度刷新频率限制
+    private var lastProgressUpdate: Long = 0L
+
     private var allDownloadTasks = mutableListOf<DownloadTask>()
+    private var downloadFailedTasks = mutableListOf<DownloadTask>()
 
     private fun File.createPath(): File = this.apply { if (!(exists() && isDirectory)) mkdirs() }
 
@@ -62,7 +86,16 @@ class MinecraftDownloader(
                 scheduleAssetDownloads(assetsIndex)
                 scheduleLibraryDownloads(gameManifest)
 
-                //TODO 下载
+                if (allDownloadTasks.isNotEmpty()) {
+                    //使用线程池进行下载
+                    downloadAll(task, allDownloadTasks, R.string.minecraft_download_downloading)
+                    if (downloadFailedTasks.isNotEmpty()) {
+                        downloadedFileCount.set(0)
+                        totalFileCount.set(downloadFailedTasks.size.toLong())
+                        downloadAll(task, downloadFailedTasks.toList(), R.string.minecraft_download_downloading_retry)
+                    }
+                    if (downloadFailedTasks.isNotEmpty()) throw DownloadFailedException()
+                }
 
                 onCompletion()
             },
@@ -70,6 +103,44 @@ class MinecraftDownloader(
                 it.printStackTrace()
             }
         )
+    }
+
+    private suspend fun downloadAll(
+        task: Task, tasks: List<DownloadTask>, taskMessageRes: Int
+    ) = coroutineScope {
+        downloadFailedTasks.clear()
+
+        val executor = ThreadPoolExecutor(
+            4,
+            maxDownloadThreads,
+            500L,
+            TimeUnit.MILLISECONDS,
+            ArrayBlockingQueue(tasks.size)
+        )
+
+        tasks.forEach { downloadTask ->
+            withContext(Dispatchers.IO) {
+                executor.execute(downloadTask)
+            }
+        }
+        executor.shutdown()
+
+        try {
+            while (!executor.awaitTermination(33, TimeUnit.MILLISECONDS)) {
+                ensureActive()
+                if (System.currentTimeMillis() - lastProgressUpdate > 100) {
+                    val current = downloadedFileCount.get()
+                    val total = totalFileCount.get()
+                    val progress = (current.toFloat() / total.toFloat()).coerceIn(0f, 1f)
+                    task.updateProgress(progress, taskMessageRes, current, total)
+                    lastProgressUpdate = System.currentTimeMillis()
+                }
+            }
+        } catch (_: CancellationException) {
+            executor.shutdownNow()
+        } catch (_: InterruptedException) {
+            executor.shutdownNow()
+        }
     }
 
     /**
@@ -81,8 +152,7 @@ class MinecraftDownloader(
             url = version.url,
             expectedSHA = version.sha1,
             verifyIntegrity = verifyIntegrity,
-            classOfT = GameManifest::class.java,
-            logTag = "MinecraftDownloader.createVersionJson"
+            classOfT = GameManifest::class.java
         )
     }
 
@@ -96,15 +166,14 @@ class MinecraftDownloader(
             url = gameManifest.assetIndex.url,
             expectedSHA = gameManifest.assetIndex.sha1,
             verifyIntegrity = verifyIntegrity,
-            classOfT = AssetIndexJson::class.java,
-            logTag = "MinecraftDownloader.createAssetIndex"
+            classOfT = AssetIndexJson::class.java
         )
     }
 
     /** 计划客户端jar下载 */
     private fun scheduleClientJarDownload(gameManifest: GameManifest) {
         val client = gameManifest.downloads.client
-        verifyScheduleDownload("MinecraftDownloader.scheduleClientJarDownload", client.url, client.sha1, versionJarTarget)
+        verifyScheduleDownload(client.url, client.sha1, versionJarTarget)
     }
 
     /** 计划assets资产下载 */
@@ -117,7 +186,7 @@ class MinecraftDownloader(
             } else {
                 File(targetPath, "objects/${hashedPath}".replace("/", File.separator))
             }
-            verifyScheduleDownload("MinecraftDownloader.scheduleAssetDownloads", "${MINECRAFT_RES}$hashedPath", objectInfo.hash, targetFile)
+            verifyScheduleDownload("${MINECRAFT_RES}$hashedPath", objectInfo.hash, targetFile)
         }
     }
 
@@ -138,7 +207,7 @@ class MinecraftDownloader(
                     else library.url.replace("http://", "https://")
                 }.let { "${it}$artifactPath" }
 
-                verifyScheduleDownload("MinecraftDownloader.scheduleLibraryDownloads", fullUrl, sha1, File(librariesTarget, artifactPath))
+                verifyScheduleDownload(fullUrl, sha1, File(librariesTarget, artifactPath))
             }
         }
     }
@@ -146,24 +215,36 @@ class MinecraftDownloader(
     /**
      * 验证完整性并提交计划下载
      */
-    private fun verifyScheduleDownload(logTag: String, url: String, sha1: String, targetFile: File) {
+    private fun verifyScheduleDownload(url: String, sha1: String, targetFile: File) {
         /** 计划下载 */
         fun scheduleDownload(url: String, targetFile: File) {
             totalFileCount.incrementAndGet()
             allDownloadTasks.add(DownloadTask(url, targetFile))
         }
 
-        if (!verifyIntegrity || !targetFile.exists()) {
-            scheduleDownload(url, targetFile)
-        } else if (!compareSHA1(targetFile, sha1)) { //通过检查sha1，验证目标完整性
-            Log.w(logTag, "SHA-1 mismatch for ${targetFile.absolutePath}, schedule re-downloading...")
-            FileUtils.deleteQuietly(targetFile)
-            scheduleDownload(url, targetFile)
+        if (targetFile.exists()) {
+            if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
+                return
+            } else {
+                //删除损坏文件
+                FileUtils.deleteQuietly(targetFile)
+            }
+        }
+        scheduleDownload(url, targetFile)
+    }
+
+    inner class DownloadTask(
+        private val url: String,
+        private val targetPath: File,
+    ) : Runnable {
+        override fun run() {
+            try {
+                NetWorkUtils.downloadFile(url, targetPath, bufferSize = getLocalBuffer().value, )
+                downloadedFileCount.incrementAndGet()
+            } catch (e: Exception) {
+                Log.e(LOG_TAG, "Download failed: ${targetPath.absolutePath}, url: $url", e)
+                downloadFailedTasks.add(this)
+            }
         }
     }
 }
-
-data class DownloadTask(
-    val url: String,
-    val targetPath: File
-)

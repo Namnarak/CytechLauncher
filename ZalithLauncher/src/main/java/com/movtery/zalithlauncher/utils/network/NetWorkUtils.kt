@@ -8,9 +8,17 @@ import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.UrlManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Call
+import org.apache.commons.io.FileUtils
+import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.URL
 
 class NetWorkUtils {
     companion object {
@@ -33,52 +41,36 @@ class NetWorkUtils {
          * 同步下载文件到本地
          * @param url 要下载的文件URL
          * @param outputFile 要保存的目标文件
-         * @param size 目标文件的大小，若未填写将从目标URL中获取
-         * @param downloadedBytesCallback 已下载的大小回调
-         * @param progressCallback 下载进度回调，范围在 0f ~ 1f
-         * @throws IllegalArgumentException 当URL无效时
-         * @throws IOException 当网络请求失败或文件操作失败时
+         * @param bufferSize 缓冲区大小
          */
-        @Throws(IOException::class, IllegalArgumentException::class)
         fun downloadFile(
             url: String,
             outputFile: File,
-            size: Long? = null,
-            downloadedBytesCallback: ((downloadedBytes: Long) -> Unit)? = null,
-            progressCallback: ((progress: Float) -> Unit)? = null
+            bufferSize: ByteArray = ByteArray(65536),
         ) {
-            call(url) { call ->
-                call.execute().use { response ->
-                    if (!response.isSuccessful) {
-                        throw IOException("HTTP ${response.code} - ${response.message}")
-                    }
+            outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
 
-                    val body = response.body ?: throw IOException("Response body is empty")
+            val conn = URL(url).openConnection() as HttpURLConnection
+            conn.apply {
+                readTimeout = UrlManager.TIME_OUT.first
+                connectTimeout = UrlManager.TIME_OUT.first
+                useCaches = true
+            }
 
-                    outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
-
-                    val totalBytes = size ?: body.contentLength()
-                    var downloadedBytes = 0L
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-
-                    body.byteStream().use { inputStream ->
-                        outputFile.outputStream().use { outputStream ->
-                            while (true) {
-                                val read = inputStream.read(buffer)
-                                if (read == -1) break
-                                outputStream.write(buffer, 0, read)
-                                downloadedBytes += read
-
-                                downloadedBytesCallback?.invoke(downloadedBytes)
-
-                                if (totalBytes > 0 && progressCallback != null) {
-                                    val progress = downloadedBytes.toFloat() / totalBytes
-                                    progressCallback(progress.coerceIn(0f, 1f))
-                                }
-                            }
+            try {
+                conn.inputStream.use { inputStream ->
+                    BufferedOutputStream(FileOutputStream(outputFile)).use { fos ->
+                        var bytesRead: Int
+                        while (inputStream.read(bufferSize).also { bytesRead = it } != -1) {
+                            fos.write(bufferSize, 0, bytesRead)
                         }
                     }
                 }
+            } catch (e: SocketTimeoutException) {
+                FileUtils.deleteQuietly(outputFile)
+                throw IOException("Download timed out: $url", e)
+            } finally {
+                conn.disconnect()
             }
         }
 
@@ -90,8 +82,8 @@ class NetWorkUtils {
          * @throws IOException 当网络请求失败或响应解析失败时
          */
         @Throws(IOException::class, IllegalArgumentException::class)
-        fun fetchStringFromUrl(url: String): String {
-            return call(url) { call ->
+        suspend fun fetchStringFromUrl(url: String): String = withContext(Dispatchers.IO) {
+            call(url) { call ->
                 call.execute().use { response ->
                     if (!response.isSuccessful) {
                         throw IOException("HTTP ${response.code} - ${response.message}")

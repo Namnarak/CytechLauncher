@@ -17,7 +17,7 @@ class SkinFileDownloader {
      * 尝试下载yggdrasil皮肤
      */
     @Throws(Exception::class)
-    fun yggdrasil(url: String, skinFile: File, uuid: String) {
+    suspend fun yggdrasil(url: String, skinFile: File, uuid: String) {
         val profileJson = NetWorkUtils.fetchStringFromUrl("${url.removeSuffix("/")}/session/minecraft/profile/$uuid")
         val profileObject = GSON.fromJson(profileJson, JsonObject::class.java)
         val properties = profileObject.get("properties").asJsonArray
