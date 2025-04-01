@@ -21,20 +21,23 @@ class OtherLoginHelper(
     private val serverName: String,
     private val email: String,
     private val password: String,
-    private val listener: OnLoginListener
+    private val onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
+    private val onFailed: (error: String) -> Unit = {}
 ) {
     constructor(
         server: Server,
         email: String,
         password: String,
-        listener: OnLoginListener
-    ): this(server.baseUrl, server.serverName, email, password, listener)
+        onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
+        onFailed: (error: String) -> Unit = {}
+    ): this(server.baseUrl, server.serverName, email, password, onSuccess, onFailed)
 
     private fun login(
         context: Context,
-        loginListener: LoginAccountListener,
         taskId: String? = null,
-        loggingString: String = serverName
+        loggingString: String = serverName,
+        onlyOneRole: suspend (AuthResult, Task) -> Unit = { _, _ -> },
+        hasMultipleRoles: suspend (AuthResult, Task) -> Unit = { _, _ -> }
     ) {
         val task = Task.runTask(
             id = taskId,
@@ -43,24 +46,20 @@ class OtherLoginHelper(
                 OtherLoginApi.setBaseUrl(baseUrl)
                 OtherLoginApi.login(
                     context, email, password,
-                    object : OtherLoginApi.Listener {
-                        override fun onSuccess(authResult: AuthResult) {
-                            if (!Objects.isNull(authResult.selectedProfile)) {
-                                loginListener.onlyOneRole(authResult, task.id)
-                            } else {
-                                loginListener.hasMultipleRoles(authResult, task.id)
-                            }
+                    onSuccess = { authResult ->
+                        if (!Objects.isNull(authResult.selectedProfile)) {
+                            onlyOneRole(authResult, task)
+                        } else {
+                            hasMultipleRoles(authResult, task)
                         }
-
-                        override fun onFailed(error: String) {
-                            listener.onFailed(error)
-                        }
-                    })
+                    },
+                    onFailed = onFailed
+                )
             },
             onError = { e ->
                 val message = "An exception was encountered while performing the login task."
                 Log.e("OtherLogin", message, e)
-                listener.onFailed(e.message ?: message)
+                onFailed(e.message ?: message)
             }
         ).apply { updateMessage(TaskMessage(R.string.account_logging_in, loggingString)) }
 
@@ -93,15 +92,15 @@ class OtherLoginHelper(
         context: Context,
         selectRole: (List<AuthResult.AvailableProfiles>, (AuthResult.AvailableProfiles) -> Unit) -> Unit
     ) {
-        login(context, object : LoginAccountListener {
-            override fun onlyOneRole(authResult: AuthResult, taskId: String) {
+        login(
+            context,
+            onlyOneRole = { authResult, task ->
                 val profileId = authResult.selectedProfile.id
                 val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
                 updateAccountInfo(account, authResult, authResult.selectedProfile.name, profileId)
-                listener.onSuccess(account, taskId)
-            }
-
-            override fun hasMultipleRoles(authResult: AuthResult, taskId: String) {
+                onSuccess(account, task)
+            },
+            hasMultipleRoles = { authResult, _ ->
                 selectRole(authResult.availableProfiles) { selectedProfile ->
                     val profileId = selectedProfile.id
                     val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
@@ -109,7 +108,7 @@ class OtherLoginHelper(
                     refresh(context, account)
                 }
             }
-        })
+        )
     }
 
     /**
@@ -118,68 +117,54 @@ class OtherLoginHelper(
      */
     fun justLogin(context: Context, account: Account) {
         fun roleNotFound() { //未找到匹配的ID
-            listener.onFailed(context.getString(R.string.account_other_login_role_not_found))
+            onFailed(context.getString(R.string.account_other_login_role_not_found))
         }
 
-        login(context, object : LoginAccountListener {
-            override fun onlyOneRole(authResult: AuthResult, taskId: String) {
+        login(
+            context,
+            onlyOneRole = { authResult, task ->
                 if (authResult.selectedProfile.id != account.profileId) {
                     roleNotFound()
-                    return
+                    return@login
                 }
                 updateAccountInfo(account, authResult, authResult.selectedProfile.name, authResult.selectedProfile.id)
-                listener.onSuccess(account, taskId)
-            }
-
-            override fun hasMultipleRoles(authResult: AuthResult, taskId: String) {
+                onSuccess(account, task)
+            },
+            hasMultipleRoles = { authResult, task ->
                 authResult.availableProfiles.forEach { profile ->
                     if (profile.id == account.profileId) {
                         //匹配当前账号的ID时，那么这个角色就是这个账号
                         updateAccountInfo(account, authResult, profile.name, profile.id)
-                        listener.onSuccess(account, taskId)
-                        return
+                        onSuccess(account, task)
+                        return@login
                     }
                 }
                 roleNotFound()
-            }
-        }, taskId = account.uniqueUUID, loggingString = account.username)
+            },
+            taskId = account.uniqueUUID,
+            loggingString = account.username
+        )
     }
 
     private fun refresh(context: Context, account: Account) {
         val task = Task.runTask(
             task = { task ->
                 OtherLoginApi.setBaseUrl(baseUrl)
-                OtherLoginApi.refresh(context, account, true, object : OtherLoginApi.Listener {
-                    override fun onSuccess(authResult: AuthResult) {
+                OtherLoginApi.refresh(context, account, true,
+                    onSuccess = { authResult ->
                         account.accessToken = authResult.accessToken
-                        listener.onSuccess(account, task.id)
-                    }
-
-                    override fun onFailed(error: String) {
-                        listener.onFailed(error)
-                    }
-                })
+                        onSuccess(account, task)
+                    },
+                    onFailed = onFailed
+                )
             },
             onError = { e ->
                 val message = "An exception was encountered while performing the refresh task."
                 Log.e("Other Login", message, e)
-                listener.onFailed(e.message ?: message)
+                onFailed(e.message ?: message)
             }
         ).apply { updateMessage(TaskMessage(R.string.account_other_login_select_role_logging, account.username)) }
 
         TaskSystem.submitTask(task)
-    }
-
-    interface OnLoginListener {
-        fun onSuccess(account: Account, taskId: String)
-        fun onFailed(error: String)
-    }
-
-    /**
-     * 账号拥有的角色数量不同时，所做出的登陆决策
-     */
-    private interface LoginAccountListener {
-        fun onlyOneRole(authResult: AuthResult, taskId: String)
-        fun hasMultipleRoles(authResult: AuthResult, taskId: String)
     }
 }

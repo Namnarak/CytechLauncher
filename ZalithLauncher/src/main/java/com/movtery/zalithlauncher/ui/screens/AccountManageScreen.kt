@@ -32,7 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.account.Account
+import com.movtery.zalithlauncher.coroutine.TaskMessage
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
@@ -40,7 +40,7 @@ import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
-import com.movtery.zalithlauncher.game.account.saveAccountUpdateSkin
+import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.ObjectStates
@@ -253,20 +253,21 @@ fun ServerTypeTab(
                 onDismissRequest = { otherLoginOperation = OtherLoginOperation.None },
                 onConfirm = { email, password ->
                     otherLoginOperation = OtherLoginOperation.None
-                    OtherLoginHelper(operation.server, email, password, object : OtherLoginHelper.OnLoginListener {
-                        override fun onSuccess(account: Account, taskId: String) {
-                            otherLoginOperation = OtherLoginOperation.OnSuccess(account, taskId)
-                        }
-                        override fun onFailed(error: String) {
+                    OtherLoginHelper(operation.server, email, password,
+                        onSuccess = { account, task ->
+                            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+                            account.downloadSkin()
+                            saveAccount(account)
+                        },
+                        onFailed = { error ->
                             otherLoginOperation = OtherLoginOperation.OnFailed(error)
                         }
-                    }).createNewAccount(context) { availableProfiles, selectedFunction ->
+                    ).createNewAccount(context) { availableProfiles, selectedFunction ->
                         otherLoginOperation = OtherLoginOperation.SelectRole(availableProfiles, selectedFunction)
                     }
                 }
             )
         }
-        is OtherLoginOperation.OnSuccess -> { saveAccountUpdateSkin(operation.account, operation.taskId) }
         is OtherLoginOperation.OnFailed -> {
             ObjectStates.updateThrowable(
                 ObjectStates.ThrowableMessage(
@@ -407,7 +408,11 @@ fun AccountsLayout(
                     AccountsManager.performLogin(
                         context = context,
                         account = operation.account,
-                        onSuccess = { account, taskId -> saveAccountUpdateSkin(account, taskId) },
+                        onSuccess = { account, task ->
+                            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+                            account.downloadSkin()
+                            saveAccount(account)
+                        },
                         onFailed = { accountOperation = AccountOperation.OnFailed(it) }
                     )
                 }

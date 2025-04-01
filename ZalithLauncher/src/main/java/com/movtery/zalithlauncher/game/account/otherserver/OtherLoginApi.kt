@@ -11,6 +11,8 @@ import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.path.UrlManager.Companion.createRequestBuilder
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -32,9 +34,12 @@ object OtherLoginApi {
     }
 
     @Throws(IOException::class)
-    fun login(context: Context, userName: String?, password: String?, listener: Listener) {
+    suspend fun login(context: Context, userName: String?, password: String?,
+              onSuccess: suspend (AuthResult) -> Unit = {},
+              onFailed: suspend (error: String) -> Unit = {}
+    ) {
         if (Objects.isNull(baseUrl)) {
-            listener.onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
+            onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
             return
         }
         val agent = AuthRequest.Agent().apply {
@@ -50,13 +55,16 @@ object OtherLoginApi {
             this.clientToken = UUID.randomUUID().toString().lowercase()
         }
         val data = Gson().toJson(authRequest)
-        callLogin(data, "/authserver/authenticate", listener)
+        callLogin(data, "/authserver/authenticate", onSuccess, onFailed)
     }
 
     @Throws(IOException::class)
-    fun refresh(context: Context, account: Account, select: Boolean, listener: Listener) {
+    suspend fun refresh(context: Context, account: Account, select: Boolean,
+                onSuccess: suspend (AuthResult) -> Unit = {},
+                onFailed: suspend (error: String) -> Unit = {}
+    ) {
         if (Objects.isNull(baseUrl)) {
-            listener.onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
+            onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
             return
         }
         val refresh = Refresh()
@@ -72,10 +80,14 @@ object OtherLoginApi {
             refresh.selectedProfile = selectedProfile
         }
         val data = Gson().toJson(refresh)
-        callLogin(data, "/authserver/refresh", listener)
+        callLogin(data, "/authserver/refresh", onSuccess, onFailed)
     }
 
-    private fun callLogin(data: String, url: String, listener: Listener) {
+    private suspend fun callLogin(
+        data: String, url: String,
+        onSuccess: suspend (AuthResult) -> Unit = {},
+        onFailed: suspend (error: String) -> Unit = {}
+    ) = withContext(Dispatchers.IO) {
         val body = data.toRequestBody("application/json".toMediaTypeOrNull())
         val call = client.newCall(createRequestBuilder(baseUrl + url, body).build())
 
@@ -83,7 +95,7 @@ object OtherLoginApi {
             val res = response.body?.string()
             if (response.code == 200) {
                 val result = Gson().fromJson(res, AuthResult::class.java)
-                listener.onSuccess(result)
+                onSuccess(result)
             } else {
                 var errorMessage: String = res ?: "null"
                 runCatching parseMessage@{
@@ -102,7 +114,7 @@ object OtherLoginApi {
                     if (errorMessage.contains("\\u"))
                         errorMessage = StringUtils.decodeUnicode(errorMessage.replace("\\\\u", "\\u"))
                 }.onFailure { e -> Log.e("Other Login", "Failed to parse error message.", e) }
-                listener.onFailed("(${response.code}) $errorMessage")
+                onFailed("(${response.code}) $errorMessage")
             }
         }
     }
@@ -112,10 +124,5 @@ object OtherLoginApi {
             val res = response.body?.string()
             if (response.code == 200) res else null
         }
-    }
-
-    interface Listener {
-        fun onSuccess(authResult: AuthResult)
-        fun onFailed(error: String)
     }
 }

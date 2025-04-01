@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.account
 import android.content.Context
 import android.util.Log
 import com.google.gson.JsonSyntaxException
+import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.CryptoManager
@@ -71,7 +72,7 @@ object AccountsManager {
     fun performLogin(
         context: Context,
         account: Account,
-        onSuccess: (Account, taskId: String) -> Unit = { _, _ -> },
+        onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
         onFailed: (error: String) -> Unit = {}
     ) {
         when {

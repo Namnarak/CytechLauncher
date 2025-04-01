@@ -85,7 +85,9 @@ fun microsoftLogin(
                 coroutineContext = coroutineContext,
                 updateProgress = task::updateProgress
             )
-            saveAccountUpdateSkin(account, task.id)
+            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+            account.downloadSkin()
+            saveAccount(account)
         },
         onError = { e ->
             when (e) {
@@ -132,7 +134,7 @@ private suspend fun authAsync(
 fun microsoftRefresh(
     context: Context,
     account: Account,
-    onSuccess: (Account, taskId: String) -> Unit
+    onSuccess: suspend (Account, Task) -> Unit
 ) {
     if (TaskSystem.containsTask(account.profileId)) return
 
@@ -155,7 +157,7 @@ fun microsoftRefresh(
                 this.refreshToken = newAcc.refreshToken
                 this.xuid = newAcc.xuid
             }
-            onSuccess(account, task.id)
+            onSuccess(account, task)
         },
         onError = { e ->
             when (e) {
@@ -180,7 +182,7 @@ fun microsoftRefresh(
 fun otherLogin(
     context: Context,
     account: Account,
-    onSuccess: (Account, taskId: String) -> Unit = { _, _ -> },
+    onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
     onFailed: (error: String) -> Unit = {}
 ) {
     if (TaskSystem.containsTask(account.uniqueUUID)) return
@@ -190,15 +192,8 @@ fun otherLogin(
         serverName = account.accountType!!,
         email = account.otherAccount!!,
         password = account.otherPassword!!,
-        object : OtherLoginHelper.OnLoginListener {
-            override fun onSuccess(account: Account, taskId: String) {
-                onSuccess(account, taskId)
-            }
-
-            override fun onFailed(error: String) {
-                onFailed(error)
-            }
-        }
+        onSuccess = onSuccess,
+        onFailed = onFailed
     ).justLogin(context, account)
 }
 
@@ -256,19 +251,7 @@ fun addOtherServer(
     TaskSystem.submitTask(task)
 }
 
-fun saveAccountUpdateSkin(account: Account, taskId: String) {
-    TaskSystem.submitTask(Task.runTask(
-        id = taskId,
-        dispatcher = Dispatchers.IO,
-        task = { task ->
-            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
-            account.downloadSkin()
-            saveAccount(account)
-        }
-    ))
-}
-
-private fun saveAccount(account: Account) {
+fun saveAccount(account: Account) {
     runCatching {
         account.save()
         Log.i("SaveAccount", "Saved account: ${account.username}")
