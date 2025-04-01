@@ -33,11 +33,20 @@ class NetWorkUtils {
          * 同步下载文件到本地
          * @param url 要下载的文件URL
          * @param outputFile 要保存的目标文件
+         * @param size 目标文件的大小，若未填写将从目标URL中获取
+         * @param downloadedBytesCallback 已下载的大小回调
+         * @param progressCallback 下载进度回调，范围在 0f ~ 1f
          * @throws IllegalArgumentException 当URL无效时
          * @throws IOException 当网络请求失败或文件操作失败时
          */
         @Throws(IOException::class, IllegalArgumentException::class)
-        fun downloadFile(url: String, outputFile: File) {
+        fun downloadFile(
+            url: String,
+            outputFile: File,
+            size: Long? = null,
+            downloadedBytesCallback: ((downloadedBytes: Long) -> Unit)? = null,
+            progressCallback: ((progress: Float) -> Unit)? = null
+        ) {
             call(url) { call ->
                 call.execute().use { response ->
                     if (!response.isSuccessful) {
@@ -48,9 +57,25 @@ class NetWorkUtils {
 
                     outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
 
+                    val totalBytes = size ?: body.contentLength()
+                    var downloadedBytes = 0L
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+
                     body.byteStream().use { inputStream ->
                         outputFile.outputStream().use { outputStream ->
-                            inputStream.copyTo(outputStream)
+                            while (true) {
+                                val read = inputStream.read(buffer)
+                                if (read == -1) break
+                                outputStream.write(buffer, 0, read)
+                                downloadedBytes += read
+
+                                downloadedBytesCallback?.invoke(downloadedBytes)
+
+                                if (totalBytes > 0 && progressCallback != null) {
+                                    val progress = downloadedBytes.toFloat() / totalBytes
+                                    progressCallback(progress.coerceIn(0f, 1f))
+                                }
+                            }
                         }
                     }
                 }

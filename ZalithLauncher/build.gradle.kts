@@ -137,6 +137,7 @@ dependencies {
     //Utils
     implementation(libs.gson)
     implementation(libs.commons.io)
+    implementation(libs.commons.codec)
     implementation(libs.okhttp)
     implementation(libs.ktor.http)
     implementation(libs.ktor.client.core)

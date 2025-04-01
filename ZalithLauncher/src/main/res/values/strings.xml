@@ -73,6 +73,10 @@
     <string name="account_other_login_select_role">选择角色进行登录</string>
     <string name="account_other_login_select_role_logging">登陆角色 %s 中</string>
     <string name="account_other_login_role_not_found">未找到与当前账号相匹配的角色，请在你使用的服务器上检查这个角色是否存在！</string>
+    <!--  游戏  -->
+    <string name="minecraft_getting_version_list">获取完整游戏列表</string>
+    <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>
+    <string name="minecraft_download_task_analysis">统计下载任务</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
