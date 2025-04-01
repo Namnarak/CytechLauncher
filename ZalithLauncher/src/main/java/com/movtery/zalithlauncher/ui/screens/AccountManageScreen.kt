@@ -40,7 +40,7 @@ import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
-import com.movtery.zalithlauncher.game.account.saveAccount
+import com.movtery.zalithlauncher.game.account.saveAccountUpdateSkin
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.ObjectStates
@@ -254,8 +254,8 @@ fun ServerTypeTab(
                 onConfirm = { email, password ->
                     otherLoginOperation = OtherLoginOperation.None
                     OtherLoginHelper(operation.server, email, password, object : OtherLoginHelper.OnLoginListener {
-                        override fun onSuccess(account: Account) {
-                            otherLoginOperation = OtherLoginOperation.OnSuccess(account)
+                        override fun onSuccess(account: Account, taskId: String) {
+                            otherLoginOperation = OtherLoginOperation.OnSuccess(account, taskId)
                         }
                         override fun onFailed(error: String) {
                             otherLoginOperation = OtherLoginOperation.OnFailed(error)
@@ -266,7 +266,7 @@ fun ServerTypeTab(
                 }
             )
         }
-        is OtherLoginOperation.OnSuccess -> { saveAccount(operation.account) }
+        is OtherLoginOperation.OnSuccess -> { saveAccountUpdateSkin(operation.account, operation.taskId) }
         is OtherLoginOperation.OnFailed -> {
             ObjectStates.updateThrowable(
                 ObjectStates.ThrowableMessage(
@@ -407,10 +407,7 @@ fun AccountsLayout(
                     AccountsManager.performLogin(
                         context = context,
                         account = operation.account,
-                        onSuccess = {
-                            it.downloadSkin()
-                            saveAccount(it)
-                        },
+                        onSuccess = { account, taskId -> saveAccountUpdateSkin(account, taskId) },
                         onFailed = { accountOperation = AccountOperation.OnFailed(it) }
                     )
                 }

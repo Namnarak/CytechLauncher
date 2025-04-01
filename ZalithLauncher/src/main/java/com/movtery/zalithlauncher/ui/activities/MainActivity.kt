@@ -59,14 +59,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskStatus
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.MainScreenTagState
-import com.movtery.zalithlauncher.task.TaskSystem
-import com.movtery.zalithlauncher.task.TrackableTask
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.ACCOUNT_MANAGE_SCREEN_TAG
@@ -140,7 +141,7 @@ class MainActivity : BaseComponentActivity() {
                 }
 
                 TopBar(
-                    tasks = tasks,
+                    taskRunning = tasks.isEmpty(),
                     isTasksExpanded = isTaskMenuExpanded,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -195,7 +196,7 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TopBar(
-        tasks: List<TrackableTask<*>>,
+        taskRunning: Boolean,
         isTasksExpanded: Boolean,
         modifier: Modifier = Modifier,
         changeExpandedState: () -> Unit = {}
@@ -259,7 +260,7 @@ class MainActivity : BaseComponentActivity() {
             )
 
             val taskLayoutY by animateDpAsState(
-                targetValue = if (isTasksExpanded || tasks.isEmpty()) (-50).dp else 0.dp,
+                targetValue = if (isTasksExpanded || taskRunning) (-50).dp else 0.dp,
                 animationSpec = getAnimateTween()
             )
 
@@ -394,7 +395,7 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TaskMenu(
-        tasks: List<TrackableTask<*>>,
+        tasks: List<Task>,
         isExpanded: Boolean,
         modifier: Modifier = Modifier,
         changeExpandedState: () -> Unit = {}
@@ -443,7 +444,7 @@ class MainActivity : BaseComponentActivity() {
                 ) {
                     val size = tasks.size
                     items(size) { index ->
-                        val taskStatus by tasks[index].statusFlow.collectAsState()
+                        val taskStatus by tasks[index].taskStatus.collectAsState()
                         TaskItem(
                             taskStatus = taskStatus,
                             modifier = Modifier
@@ -461,7 +462,7 @@ class MainActivity : BaseComponentActivity() {
 
     @Composable
     fun TaskItem(
-        taskStatus: TrackableTask.TaskStatus,
+        taskStatus: TaskStatus,
         modifier: Modifier = Modifier,
         onCancelClick: () -> Unit = {}
     ) {
@@ -496,12 +497,12 @@ class MainActivity : BaseComponentActivity() {
                         .align(Alignment.CenterVertically)
                         .animateContentSize(animationSpec = getAnimateTween())
                 ) {
-                    if (taskStatus.message.first != -1) {
+                    taskStatus.message?.let { message ->
                         Text(
-                            text = if (taskStatus.message.second != Unit) {
-                                stringResource(taskStatus.message.first, taskStatus.message.second)
+                            text = if (message.args != null) {
+                                stringResource(message.resId, message.args)
                             } else {
-                                stringResource(taskStatus.message.first)
+                                stringResource(message.resId)
                             },
                             style = MaterialTheme.typography.labelMedium
                         )

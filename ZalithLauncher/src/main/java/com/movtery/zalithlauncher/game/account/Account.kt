@@ -5,6 +5,8 @@ import com.movtery.zalithlauncher.game.skin.SkinFileDownloader
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.UUID
@@ -32,10 +34,10 @@ class Account {
     /**
      * 下载并更新账号的皮肤文件
      */
-    fun downloadSkin() {
+    suspend fun downloadSkin() = withContext(Dispatchers.IO) {
         when {
-            isMicrosoftAccount(this) -> updateSkin("https://sessionserver.mojang.com")
-            isOtherLoginAccount(this) -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
+            isMicrosoftAccount(this@Account) -> updateSkin("https://sessionserver.mojang.com")
+            isOtherLoginAccount(this@Account) -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
             else -> {}
         }
     }

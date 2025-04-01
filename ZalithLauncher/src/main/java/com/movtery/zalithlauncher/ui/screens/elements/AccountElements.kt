@@ -92,7 +92,7 @@ sealed interface AccountOperation {
 sealed interface OtherLoginOperation {
     data object None : OtherLoginOperation
     data class OnLogin(val server: Server) : OtherLoginOperation
-    data class OnSuccess(val account: Account) : OtherLoginOperation
+    data class OnSuccess(val account: Account, val taskId: String) : OtherLoginOperation
     data class OnFailed(val error: String) : OtherLoginOperation
     data class SelectRole(
         val profiles: List<AuthResult.AvailableProfiles>,

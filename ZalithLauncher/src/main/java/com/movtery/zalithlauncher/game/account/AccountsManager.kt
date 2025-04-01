@@ -71,7 +71,7 @@ object AccountsManager {
     fun performLogin(
         context: Context,
         account: Account,
-        onSuccess: (Account) -> Unit = {},
+        onSuccess: (Account, taskId: String) -> Unit = { _, _ -> },
         onFailed: (error: String) -> Unit = {}
     ) {
         when {

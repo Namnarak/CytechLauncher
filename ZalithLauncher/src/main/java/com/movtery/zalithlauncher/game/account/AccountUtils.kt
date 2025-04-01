@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskMessage
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
@@ -14,8 +17,6 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.task.ProgressAwareTask
-import com.movtery.zalithlauncher.task.TaskSystem
 import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
@@ -23,6 +24,7 @@ import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
@@ -58,9 +60,11 @@ fun microsoftLogin(
     updateOperation: (MicrosoftLoginOperation) -> Unit,
     checkWebScreenClosed: () -> Boolean
 ) {
-    TaskSystem.submitTask(object : ProgressAwareTask<Account>(MICROSOFT_LOGGING_TASK) {
-        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
-            updateProgress(-1f, R.string.account_microsoft_fetch_device_code)
+    val task = Task.runTask(
+        id = MICROSOFT_LOGGING_TASK,
+        dispatcher = Dispatchers.IO,
+        task = { task ->
+            task.updateProgress(-1f, R.string.account_microsoft_fetch_device_code)
             val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse(coroutineContext)
             copyText(null, deviceCode.userCode, context)
             withContext(Dispatchers.Main) {
@@ -71,43 +75,39 @@ fun microsoftLogin(
                 ).show()
             }
             ObjectStates.accessUrl(deviceCode.verificationUrl)
-            updateProgress(-1f, R.string.account_microsoft_get_token)
-            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { checkWebScreenClosed() || isCanceled() }
+            task.updateProgress(-1f, R.string.account_microsoft_get_token)
+            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { checkWebScreenClosed() }
             ObjectStates.backToLauncherScreen()
             val account = authAsync(
                 AuthType.Access,
                 tokenResponse.refreshToken,
                 tokenResponse.accessToken,
                 coroutineContext = coroutineContext,
-                updateProgress = ::updateProgress
+                updateProgress = task::updateProgress
             )
-            setResult(account)
-        }
-    }.ended { account ->
-        account?.let { acc ->
-            acc.downloadSkin()
-            saveAccount(acc)
-        }
-    }.onThrowable { e ->
-        when (e) {
-            is TimeoutException -> context.getString(R.string.account_logging_time_out)
-            is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
-            is CancellationException -> {
-
-                null
-            }
-            else -> e.getMessageOrToString()
-        }?.let { message ->
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
-                    title = context.getString(R.string.account_logging_in_failed),
-                    message = message
+            saveAccountUpdateSkin(account, task.id)
+        },
+        onError = { e ->
+            when (e) {
+                is TimeoutException -> context.getString(R.string.account_logging_time_out)
+                is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+                is CancellationException -> { null }
+                else -> e.getMessageOrToString()
+            }?.let { message ->
+                ObjectStates.updateThrowable(
+                    ObjectStates.ThrowableMessage(
+                        title = context.getString(R.string.account_logging_in_failed),
+                        message = message
+                    )
                 )
-            )
+            }
+        },
+        onFinally = {
+            updateOperation(MicrosoftLoginOperation.None)
         }
-    }.finallyTask {
-        updateOperation(MicrosoftLoginOperation.None)
-    })
+    )
+
+    TaskSystem.submitTask(task)
 }
 
 private suspend fun authAsync(
@@ -132,53 +132,55 @@ private suspend fun authAsync(
 fun microsoftRefresh(
     context: Context,
     account: Account,
-    onSuccess: (Account) -> Unit
+    onSuccess: (Account, taskId: String) -> Unit
 ) {
     if (TaskSystem.containsTask(account.profileId)) return
-    TaskSystem.submitTask(object : ProgressAwareTask<Account>(account.profileId) {
-        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
-            authAsync(
+
+    val task = Task.runTask(
+        id = account.profileId,
+        dispatcher = Dispatchers.IO,
+        task = { task ->
+            val newAcc = authAsync(
                 AuthType.Refresh,
                 account.refreshToken,
                 account.accessToken,
                 coroutineContext = coroutineContext,
-                updateProgress = ::updateProgress
+                updateProgress = task::updateProgress
             )
-            setResult(account)
-        }
-    }.ended { account1 ->
-        account1?.let { acc ->
             account.apply {
-                this.accessToken = acc.accessToken
-                this.clientToken = acc.clientToken
-                this.profileId = acc.profileId
-                this.username = acc.username
-                this.refreshToken = acc.refreshToken
-                this.xuid = acc.xuid
+                this.accessToken = newAcc.accessToken
+                this.clientToken = newAcc.clientToken
+                this.profileId = newAcc.profileId
+                this.username = newAcc.username
+                this.refreshToken = newAcc.refreshToken
+                this.xuid = newAcc.xuid
             }
-            onSuccess(account)
-        }
-    }.onThrowable { e ->
-        when (e) {
-            is TimeoutException -> context.getString(R.string.account_logging_time_out)
-            is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
-            is CancellationException -> null
-            else -> e.getMessageOrToString()
-        }?.let { message ->
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
-                    title = context.getString(R.string.account_logging_in_failed),
-                    message = message
+            onSuccess(account, task.id)
+        },
+        onError = { e ->
+            when (e) {
+                is TimeoutException -> context.getString(R.string.account_logging_time_out)
+                is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+                is CancellationException -> null
+                else -> e.getMessageOrToString()
+            }?.let { message ->
+                ObjectStates.updateThrowable(
+                    ObjectStates.ThrowableMessage(
+                        title = context.getString(R.string.account_logging_in_failed),
+                        message = message
+                    )
                 )
-            )
+            }
         }
-    })
+    )
+
+    TaskSystem.submitTask(task)
 }
 
 fun otherLogin(
     context: Context,
     account: Account,
-    onSuccess: (Account) -> Unit = {},
+    onSuccess: (Account, taskId: String) -> Unit = { _, _ -> },
     onFailed: (error: String) -> Unit = {}
 ) {
     if (TaskSystem.containsTask(account.uniqueUUID)) return
@@ -189,8 +191,8 @@ fun otherLogin(
         email = account.otherAccount!!,
         password = account.otherPassword!!,
         object : OtherLoginHelper.OnLoginListener {
-            override fun onSuccess(account: Account) {
-                onSuccess(account)
+            override fun onSuccess(account: Account, taskId: String) {
+                onSuccess(account, taskId)
             }
 
             override fun onFailed(error: String) {
@@ -217,12 +219,12 @@ fun addOtherServer(
     serverConfigFile: File,
     onThrowable: (Throwable) -> Unit = {}
 ) {
-    TaskSystem.submitTask(object : ProgressAwareTask<Unit>() {
-        override suspend fun performMainTask(coroutineContext: CoroutineContext) {
-            updateProgress(-1f, R.string.account_other_login_getting_full_url)
+    val task = Task.runTask(
+        task = { task ->
+            task.updateProgress(-1f, R.string.account_other_login_getting_full_url)
             val fullServerUrl = tryGetFullServerUrl(serverUrl)
-            if (isCanceled()) return
-            updateProgress(0.5f, R.string.account_other_login_getting_server_info)
+            ensureActive()
+            task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
                 val server = Server()
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
@@ -231,34 +233,50 @@ fun addOtherServer(
                     server.register = meta.optJSONObject("links")?.optString("register") ?: ""
                     if (serverConfig().value.server.any { it.baseUrl == server.baseUrl }) {
                         //确保服务器不重复
-                        return
+                        return@runTask
                     }
                     serverConfig().update { currentConfig ->
                         currentConfig.server.add(server)
                         currentConfig.copy()
                     }
-                    updateProgress(0.8f, R.string.account_other_login_saving_server)
+                    task.updateProgress(0.8f, R.string.account_other_login_saving_server)
                     serverConfigFile.writeText(
                         GSON.toJson(serverConfig().value, Servers::class.java)
                     )
-                    updateProgress(1f, R.string.generic_done)
+                    task.updateProgress(1f, R.string.generic_done)
                 }
             }
+        },
+        onError = { e ->
+            onThrowable(e)
+            Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(e)}")
         }
-    }.onThrowable {
-        onThrowable(it)
-        Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(it)}")
-    })
+    )
+
+    TaskSystem.submitTask(task)
 }
 
-fun saveAccount(account: Account) {
+fun saveAccountUpdateSkin(account: Account, taskId: String) {
+    TaskSystem.submitTask(Task.runTask(
+        id = taskId,
+        dispatcher = Dispatchers.IO,
+        task = { task ->
+            task.updateMessage(TaskMessage(R.string.account_logging_in_saving))
+            account.downloadSkin()
+            saveAccount(account)
+        }
+    ))
+}
+
+private fun saveAccount(account: Account) {
     runCatching {
         account.save()
         Log.i("SaveAccount", "Saved account: ${account.username}")
-        AccountsManager.reloadAccounts()
     }.onFailure { e ->
         Log.e("SaveAccount", "Failed to save account: ${account.username}", e)
     }
+
+    AccountsManager.reloadAccounts()
 }
 
 /**
