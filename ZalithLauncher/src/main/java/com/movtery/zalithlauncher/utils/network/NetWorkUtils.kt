@@ -42,11 +42,13 @@ class NetWorkUtils {
          * @param url 要下载的文件URL
          * @param outputFile 要保存的目标文件
          * @param bufferSize 缓冲区大小
+         * @param sizeCallback 正在下载的大小回调
          */
         fun downloadFile(
             url: String,
             outputFile: File,
             bufferSize: ByteArray = ByteArray(65536),
+            sizeCallback: (Int) -> Unit = {}
         ) {
             outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
 
@@ -63,6 +65,7 @@ class NetWorkUtils {
                         var bytesRead: Int
                         while (inputStream.read(bufferSize).also { bytesRead = it } != -1) {
                             fos.write(bufferSize, 0, bytesRead)
+                            sizeCallback(bytesRead)
                         }
                     }
                 }

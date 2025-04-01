@@ -77,8 +77,8 @@
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
     <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>
     <string name="minecraft_download_task_analysis">统计下载任务</string>
-    <string name="minecraft_download_downloading">下载游戏文件中 (%d/%d)</string>
-    <string name="minecraft_download_downloading_retry">重试下载游戏文件中 (%d/%d)</string>
+    <string name="minecraft_download_downloading">下载游戏文件中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_downloading_retry">重试下载游戏文件中 \n(%d/%d, %s/%s)</string>
     <!--  设置  -->
     <string name="settings_tab_launcher">启动器设置</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>

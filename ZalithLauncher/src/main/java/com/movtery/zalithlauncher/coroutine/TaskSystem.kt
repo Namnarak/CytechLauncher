@@ -20,6 +20,7 @@ object TaskSystem {
      * 提交并立即运行任务
      */
     fun submitTask(task: Task) {
+        if (containsTask(task)) return
         addTask(task)
 
         allJobs[task.id] = scope.launch(task.dispatcher) {

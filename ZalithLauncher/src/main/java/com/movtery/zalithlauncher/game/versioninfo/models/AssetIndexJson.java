@@ -30,12 +30,12 @@ public class AssetIndexJson {
         @SerializedName("hash")
         private String hash;
         @SerializedName("size")
-        private int size;
+        private long size;
 
         public String getHash() {
             return hash;
         }
-        public int getSize() {
+        public long getSize() {
             return size;
         }
     }
