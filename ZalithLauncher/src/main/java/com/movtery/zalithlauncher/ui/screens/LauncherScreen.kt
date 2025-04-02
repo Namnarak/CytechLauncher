@@ -4,19 +4,18 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -34,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -105,93 +105,102 @@ private fun MainMenu(
         animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
     )
 
-    BoxWithConstraints(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxSize()
-            .offset {
-                IntOffset(
-                    x = 0,
-                    y = yOffset.roundToPx()
-                )
+            .graphicsLayer {
+                translationY = yOffset.roundToPx().toFloat()
             }
     ) {
-        val surfaceContentSize = 240.dp
-        val expandIconSize = 48.dp
-
-        var isExpanded by rememberSaveable { mutableStateOf(false) }
-        val surfaceWidth by animateDpAsState(
-            targetValue = if (isExpanded) this.maxWidth - expandIconSize else expandIconSize,
-            animationSpec = getAnimateTween()
-        )
-        val surfaceHeight by animateDpAsState(
-            targetValue = if (isExpanded) surfaceContentSize else expandIconSize,
-            animationSpec = getAnimateTween()
-        )
-        val surfaceAlpha by animateFloatAsState(
-            targetValue = if (isExpanded) 1f else 0.6f,
-            animationSpec = getAnimateTween()
-        )
-
-        Surface(
-            modifier = Modifier
-                .width(surfaceWidth)
-                .height(surfaceHeight)
-                .alpha(surfaceAlpha)
-                .align(Alignment.BottomCenter)
-                .padding(all = 4.dp),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
-        ) {
-            Column(
-                modifier = Modifier.height(surfaceContentSize)
-            ) {
-                val scrollState = rememberScrollState()
-                Column(
+        Box(modifier = modifier) {
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
+            Row {
+                val rowXOffset by animateDpAsState(
+                    targetValue = if (isExpanded) 0.dp else 240.dp,
+                    animationSpec = getAnimateTween()
+                )
+                val surfaceAlpha by animateFloatAsState(
+                    targetValue = if (isExpanded) 1f else 0f,
+                    animationSpec = getAnimateTween()
+                )
+                Spacer(modifier = Modifier.weight(0.3f))
+                Surface(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(state = scrollState)
-                        .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
-                        .weight(1f)
+                        .offset {
+                            IntOffset(
+                                x = rowXOffset.roundToPx(),
+                                y = 0
+                            )
+                        }
+                        .weight(0.7f)
+                        .fillMaxHeight()
+                        .alpha(surfaceAlpha)
+                        .align(Alignment.CenterVertically),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    shadowElevation = 4.dp
                 ) {
-                    MenuActionButton(
-                        painter = painterResource(R.drawable.ic_about),
-                        text = stringResource(R.string.main_about),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {}
-                    MenuActionButton(
-                        painter = painterResource(R.drawable.ic_controls),
-                        text = stringResource(R.string.main_control),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {}
-                    MenuActionButton(
-                        painter = painterResource(R.drawable.ic_java),
-                        text = stringResource(R.string.main_install_jar),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {}
-                    MenuActionButton(
-                        painter = painterResource(R.drawable.ic_share),
-                        text = stringResource(R.string.main_send_log),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {}
+                    Column(modifier = Modifier.fillMaxHeight()) {
+                        val scrollState = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(state = scrollState)
+                                .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
+                                .weight(1f)
+                        ) {
+                            MenuActionButton(
+                                enabled = isExpanded,
+                                painter = painterResource(R.drawable.ic_about),
+                                text = stringResource(R.string.main_about),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {}
+                            MenuActionButton(
+                                enabled = isExpanded,
+                                painter = painterResource(R.drawable.ic_controls),
+                                text = stringResource(R.string.main_control),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {}
+                            MenuActionButton(
+                                enabled = isExpanded,
+                                painter = painterResource(R.drawable.ic_java),
+                                text = stringResource(R.string.main_install_jar),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {}
+                            MenuActionButton(
+                                enabled = isExpanded,
+                                painter = painterResource(R.drawable.ic_share),
+                                text = stringResource(R.string.main_send_log),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {}
+                        }
+                    }
                 }
+            }
 
+            Surface(
+                modifier = Modifier.size(34.dp)
+                    .align(Alignment.CenterEnd),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shadowElevation = 4.dp
+            ) {
                 val rotation by animateFloatAsState(
-                    targetValue = if (isExpanded) 90f else -90f,
+                    targetValue = if (isExpanded) -180f else 0f,
                     animationSpec = getAnimateTween()
                 )
 
                 IconButton(
                     modifier = Modifier
-                        .size(expandIconSize)
-                        .align(Alignment.CenterHorizontally)
+                        .size(34.dp)
                         .rotate(rotation),
                     onClick = {
                         isExpanded = !isExpanded
                     }
                 ) {
                     Icon(
-                        modifier = Modifier.padding(all = 16.dp),
+                        modifier = Modifier.padding(all = 8.dp)
+                            .offset(x = (-1).dp),
                         painter = painterResource(R.drawable.ic_rounded_triangle),
                         contentDescription = null
                     )
@@ -203,6 +212,7 @@ private fun MainMenu(
 
 @Composable
 private fun MenuActionButton(
+    enabled: Boolean,
     painter: Painter,
     text: String,
     modifier: Modifier = Modifier,
@@ -210,7 +220,9 @@ private fun MenuActionButton(
 ) {
     ScalingActionButton(
         modifier = modifier,
-        onClick = onClick,
+        onClick = {
+            if (enabled) onClick()
+        },
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
         Row(
