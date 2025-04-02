@@ -20,6 +20,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.InterruptedIOException
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -29,6 +30,7 @@ class MinecraftDownloader(
     private val context: Context,
     minecraftPath: File,
     private val version: String,
+    customName: String = version,
     private val verifyIntegrity: Boolean,
     private val onCompletion: () -> Unit = {},
     private val maxDownloadThreads: Int = 64
@@ -53,10 +55,10 @@ class MinecraftDownloader(
     private val versionsTarget = File("$minecraftPath/versions".replace("/", File.separator)).createPath()
     private val librariesTarget = File("$minecraftPath/libraries".replace("/", File.separator)).createPath()
     private val assetIndexTarget = File(assetsTarget, "indexes").createPath()
-    private val gameVersionsTarget = File(versionsTarget, version).createPath()
+    private val gameVersionsTarget = File(versionsTarget, customName).createPath()
     //File
-    private val versionJsonTarget = File(gameVersionsTarget, "$version.json".replace("/", File.separator))
-    private val versionJarTarget = File(gameVersionsTarget, "$version.jar".replace("/", File.separator))
+    private val versionJsonTarget = File(gameVersionsTarget, "$customName.json".replace("/", File.separator))
+    private val versionJarTarget = File(gameVersionsTarget, "$customName.jar".replace("/", File.separator))
 
     //已下载文件计数器
     private var downloadedFileSize: AtomicLong = AtomicLong(0)
@@ -108,9 +110,10 @@ class MinecraftDownloader(
                 onCompletion()
             },
             onError = { e ->
-                var message = e.getMessageOrToString()
-                if (e is DownloadFailedException) {
-                    message = "${context.getString(R.string.minecraft_download_failed_retried)}\n$message"
+                val message = when(e) {
+                    is InterruptedException, is InterruptedIOException, is CancellationException -> return@runTask
+                    is DownloadFailedException -> "${context.getString(R.string.minecraft_download_failed_retried)}\n${e.getMessageOrToString()}"
+                    else -> e.getMessageOrToString()
                 }
                 ObjectStates.updateThrowable(
                     ObjectStates.ThrowableMessage(
@@ -142,23 +145,27 @@ class MinecraftDownloader(
         }
         executor.shutdown()
 
-        try {
+        runCatching {
             while (!executor.awaitTermination(33, TimeUnit.MILLISECONDS)) {
                 ensureActive()
                 if (System.currentTimeMillis() - lastProgressUpdate > 100) {
-                    val current = downloadedFileCount.get()
-                    val total = totalFileCount.get()
-                    val progress = (current.toFloat() / total.toFloat()).coerceIn(0f, 1f)
                     val currentFileSize = downloadedFileSize.get()
                     val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
-                    task.updateProgress(progress, taskMessageRes, current, total, formatFileSize(currentFileSize), formatFileSize(totalFileSize))
+                    task.updateProgress(
+                        (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
+                        taskMessageRes,
+                        downloadedFileCount.get(), totalFileCount.get(), //文件个数
+                        formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
+                    )
                     lastProgressUpdate = System.currentTimeMillis()
                 }
             }
-        } catch (_: CancellationException) {
+        }.onFailure { e ->
             executor.shutdownNow()
-        } catch (_: InterruptedException) {
-            executor.shutdownNow()
+            when(e) {
+                is CancellationException, is InterruptedException, is InterruptedIOException -> return@onFailure
+                else -> throw e
+            }
         }
     }
 
@@ -247,7 +254,6 @@ class MinecraftDownloader(
             if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
                 return
             } else {
-                //删除损坏文件
                 FileUtils.deleteQuietly(targetFile)
             }
         }

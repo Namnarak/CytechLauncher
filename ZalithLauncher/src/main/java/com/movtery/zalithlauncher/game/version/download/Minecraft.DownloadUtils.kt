@@ -50,23 +50,16 @@ suspend fun <T> downloadAndParseJson(
         return json.parseTo(classOfT)
     }
 
-    if (!verifyIntegrity && targetFile.exists()) {
-        //不验证完整性，直接解析并返回
-        return targetFile.readText().parseTo(classOfT)
-    }
-
     if (targetFile.exists()) {
-        return if (compareSHA1(targetFile, expectedSHA)) { //通过对比SHA1来验证文件数据完整性
-            runCatching {
+        if (!verifyIntegrity || compareSHA1(targetFile, expectedSHA)) {
+            return runCatching {
                 targetFile.readText().parseTo(classOfT)
             }.getOrElse {
                 Log.w(LOG_TAG, "Failed to parse existing JSON, re-downloading...")
                 downloadAndParse()
             }
         } else {
-            Log.w(LOG_TAG, "SHA1 mismatch detected, re-downloading JSON.")
             FileUtils.deleteQuietly(targetFile)
-            downloadAndParse()
         }
     }
 
