@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens
+package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
@@ -30,8 +30,9 @@ import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
 import com.movtery.zalithlauncher.state.SettingsScreenTagState
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.TabLayout
-import com.movtery.zalithlauncher.ui.screens.settings.LAUNCHER_SETTINGS_TAG
-import com.movtery.zalithlauncher.ui.screens.settings.LauncherSettingsScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreen
+import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 

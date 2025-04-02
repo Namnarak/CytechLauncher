@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens
+package com.movtery.zalithlauncher.ui.screens.content
 
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
@@ -42,20 +42,19 @@ import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
-import com.movtery.zalithlauncher.ui.screens.elements.AccountItem
-import com.movtery.zalithlauncher.ui.screens.elements.AccountOperation
-import com.movtery.zalithlauncher.ui.screens.elements.LoginItem
-import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
-import com.movtery.zalithlauncher.ui.screens.elements.OtherLoginOperation
-import com.movtery.zalithlauncher.ui.screens.elements.OtherServerLoginDialog
-import com.movtery.zalithlauncher.ui.screens.elements.ServerItem
-import com.movtery.zalithlauncher.ui.screens.elements.ServerOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
+import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.LoginItem
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
+import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -289,7 +288,7 @@ fun ServerTypeTab(
     }
 
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
-    val mainActivity = context as? MainActivity
+    val screenTag = LocalMainScreenTag.current.currentString
     when (microsoftLoginOperation) {
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.RunTask -> {
@@ -297,7 +296,7 @@ fun ServerTypeTab(
                 context = context,
                 updateOperation = { microsoftLoginOperation = it },
                 checkWebScreenClosed = {
-                    mainActivity?.navController?.currentDestination?.route?.startsWith(WEB_VIEW_SCREEN_TAG) == false
+                    screenTag?.startsWith(WEB_VIEW_SCREEN_TAG) == false
                 }
             )
             microsoftLoginOperation = MicrosoftLoginOperation.None

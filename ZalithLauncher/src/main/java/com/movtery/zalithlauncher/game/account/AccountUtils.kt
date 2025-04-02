@@ -16,7 +16,7 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.ui.screens.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils

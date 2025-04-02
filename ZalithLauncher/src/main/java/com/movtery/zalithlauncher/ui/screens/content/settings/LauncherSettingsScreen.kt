@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.settings
+package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.screens.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce

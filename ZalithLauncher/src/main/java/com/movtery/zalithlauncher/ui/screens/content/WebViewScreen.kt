@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens
+package com.movtery.zalithlauncher.ui.screens.content
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap

@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.settings.layouts
+package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column

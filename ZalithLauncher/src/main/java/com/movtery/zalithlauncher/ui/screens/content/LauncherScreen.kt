@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens
+package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -46,7 +46,8 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.state.LocalMainScreenTag
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.ui.screens.elements.AccountAvatar
+import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 

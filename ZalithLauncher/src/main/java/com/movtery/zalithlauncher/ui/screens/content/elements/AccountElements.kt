@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.elements
+package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import android.content.Context
 import android.graphics.Bitmap
