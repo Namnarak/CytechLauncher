@@ -40,7 +40,7 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
@@ -81,7 +81,7 @@ private fun refreshOtherServer() {
 fun AccountManageScreen() {
     BaseScreen(
         screenTag = ACCOUNT_MANAGE_SCREEN_TAG,
-        tagProvider = LocalMainScreenTag
+        currentTag = MutableStates.mainScreenTag
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -288,16 +288,12 @@ fun ServerTypeTab(
     }
 
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
-    val screenTag = LocalMainScreenTag.current.currentString
     when (microsoftLoginOperation) {
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.RunTask -> {
             microsoftLogin(
                 context = context,
-                updateOperation = { microsoftLoginOperation = it },
-                checkWebScreenClosed = {
-                    screenTag?.startsWith(WEB_VIEW_SCREEN_TAG) == false
-                }
+                updateOperation = { microsoftLoginOperation = it }
             )
             microsoftLoginOperation = MicrosoftLoginOperation.None
         }

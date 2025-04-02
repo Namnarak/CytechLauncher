@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
@@ -59,7 +59,7 @@ fun LauncherScreen(
 ) {
     BaseScreen(
         screenTag = LAUNCHER_SCREEN_TAG,
-        tagProvider = LocalMainScreenTag
+        currentTag = MutableStates.mainScreenTag
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()

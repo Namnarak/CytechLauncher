@@ -59,7 +59,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
@@ -181,7 +181,7 @@ fun TopBar(
     changeExpandedState: () -> Unit = {}
 ) {
     var appTitle by rememberSaveable { mutableStateOf("ZalithLauncher") }
-    val currentTag = LocalMainScreenTag.current.currentString
+    val currentTag = MutableStates.mainScreenTag
 
     val inLauncherScreen = currentTag == null || currentTag == LAUNCHER_SCREEN_TAG
 
@@ -328,11 +328,9 @@ fun NavigationUI(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val screenTagState = LocalMainScreenTag.current
-
     LaunchedEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            screenTagState.update(destination.route)
+            MutableStates.mainScreenTag = destination.route
         }
         navController.addOnDestinationChangedListener(listener)
     }

@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,9 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.state.LocalMainScreenTag
-import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
-import com.movtery.zalithlauncher.state.SettingsScreenTagState
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.TabLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
@@ -44,36 +40,32 @@ fun SettingsScreen(
 ) {
     BaseScreen(
         screenTag = SETTINGS_SCREEN_TAG,
-        tagProvider = LocalMainScreenTag
+        currentTag = MutableStates.mainScreenTag
     ) { isVisible ->
         val settingsNavController = rememberNavController()
 
-        val settingsScreenTagState = remember { SettingsScreenTagState() }
-
         if (!isVisible) {
-            settingsScreenTagState.update(null)
+            MutableStates.settingsScreenTag = null
         }
 
-        CompositionLocalProvider(LocalSettingsScreenTag provides settingsScreenTagState) {
-            Row(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                TabMenu(
-                    isVisible = isVisible,
-                    settingsNavController = settingsNavController,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-                )
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            TabMenu(
+                isVisible = isVisible,
+                settingsNavController = settingsNavController,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
+            )
 
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    NavigationUI(
-                        mainNavController = mainNavController,
-                        settingsNavController = settingsNavController
-                    )
-                }
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
+                NavigationUI(
+                    mainNavController = mainNavController,
+                    settingsNavController = settingsNavController
+                )
             }
         }
     }
@@ -101,8 +93,6 @@ private fun TabMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
-        val currentSettingsTag = LocalSettingsScreenTag.current.currentString
-
         TabLayout(
             modifier = Modifier.padding(all = 8.dp)
         ) {
@@ -110,7 +100,7 @@ private fun TabMenu(
                 painter = painterResource(R.drawable.ic_setting_launcher),
                 contentDescription = null,
                 text = stringResource(R.string.settings_tab_launcher),
-                selected = currentSettingsTag == LAUNCHER_SETTINGS_TAG
+                selected = MutableStates.settingsScreenTag == LAUNCHER_SETTINGS_TAG
             ) {
                 settingsNavController.navigateOnce(LAUNCHER_SETTINGS_TAG)
             }
@@ -124,11 +114,9 @@ private fun NavigationUI(
     settingsNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    val screenTagState = LocalSettingsScreenTag.current
-
     LaunchedEffect(settingsNavController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            screenTagState.update(destination.route)
+            MutableStates.settingsScreenTag = destination.route
         }
         settingsNavController.addOnDestinationChangedListener(listener)
     }

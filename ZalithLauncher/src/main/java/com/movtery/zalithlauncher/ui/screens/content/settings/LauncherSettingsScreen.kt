@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.LocalColorThemeState
-import com.movtery.zalithlauncher.state.LocalSettingsScreenTag
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
@@ -33,7 +33,7 @@ fun LauncherSettingsScreen() {
 
     BaseScreen(
         screenTag = LAUNCHER_SETTINGS_TAG,
-        tagProvider = LocalSettingsScreenTag
+        currentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier

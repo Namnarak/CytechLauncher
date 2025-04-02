@@ -15,7 +15,9 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
+import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
@@ -56,8 +58,7 @@ fun isMicrosoftLogging() = TaskSystem.containsTask(MICROSOFT_LOGGING_TASK)
 
 fun microsoftLogin(
     context: Context,
-    updateOperation: (MicrosoftLoginOperation) -> Unit,
-    checkWebScreenClosed: () -> Boolean
+    updateOperation: (MicrosoftLoginOperation) -> Unit
 ) {
     val task = Task.runTask(
         id = MICROSOFT_LOGGING_TASK,
@@ -75,7 +76,9 @@ fun microsoftLogin(
             }
             ObjectStates.accessUrl(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token)
-            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) { checkWebScreenClosed() }
+            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) {
+                MutableStates.mainScreenTag?.startsWith(WEB_VIEW_SCREEN_TAG) == false
+            }
             ObjectStates.backToLauncherScreen()
             val account = authAsync(
                 AuthType.Access,

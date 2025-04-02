@@ -5,25 +5,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import com.movtery.zalithlauncher.state.AbstractStringState
 
 @Composable
 fun BaseScreen(
     screenTag: String,
-    tagProvider: ProvidableCompositionLocal<AbstractStringState>,
+    currentTag: String?,
     tagStartWith: Boolean = false,
     content: @Composable (isVisible: Boolean) -> Unit,
 ) {
     var isVisible by remember { mutableStateOf(false) }
-
-    val currentTag = tagProvider.current.currentString
 
     var isLaunched by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = true) {

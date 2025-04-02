@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.movtery.zalithlauncher.state.LocalMainScreenTag
+import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import org.apache.commons.io.FileUtils
 
@@ -33,7 +33,7 @@ const val WEB_VIEW_SCREEN_TAG = "WebViewScreen?url="
 fun WebViewScreen(url: String) {
     BaseScreen(
         screenTag = WEB_VIEW_SCREEN_TAG,
-        tagProvider = LocalMainScreenTag,
+        currentTag = MutableStates.mainScreenTag,
         tagStartWith = true
     ) { isVisible ->
 
