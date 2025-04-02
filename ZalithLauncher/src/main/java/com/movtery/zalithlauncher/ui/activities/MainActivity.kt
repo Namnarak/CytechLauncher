@@ -90,20 +90,6 @@ class MainActivity : BaseComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            navController = rememberNavController()
-
-            val back by ObjectStates.backToLauncherScreenState.collectAsState()
-            if (back) { //回到主界面
-                navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
-                ObjectStates.resetBackToLauncherScreen()
-            }
-
-            val webUrl by ObjectStates.url.collectAsState()
-            if (!webUrl.isNullOrEmpty()) {
-                navController.navigateTo("$WEB_VIEW_SCREEN_TAG$webUrl")
-                ObjectStates.clearUrl()
-            }
-
             val colorThemeState = remember { ColorThemeState() }
             val mainScreenTagState = remember { MainScreenTagState() }
 
@@ -111,84 +97,102 @@ class MainActivity : BaseComponentActivity() {
                 LocalColorThemeState provides colorThemeState,
                 LocalMainScreenTag provides mainScreenTagState
             ) {
-                MainUI()
+                ZalithLauncherTheme {
+                    navController = rememberNavController()
 
-                val throwableState by ObjectStates.throwableFlow.collectAsState()
-                throwableState?.let { tm ->
-                    SimpleAlertDialog(
-                        title = tm.title,
-                        text = tm.message,
-                    ) { ObjectStates.updateThrowable(null) }
+                    ProgressStates()
+                    MainUI()
                 }
             }
         }
     }
 
     @Composable
+    private fun ProgressStates() {
+        val back by ObjectStates.backToLauncherScreenState.collectAsState()
+        if (back) { //回到主界面
+            navController.popBackStack(LAUNCHER_SCREEN_TAG, inclusive = false)
+            ObjectStates.resetBackToLauncherScreen()
+        }
+
+        val webUrl by ObjectStates.url.collectAsState()
+        if (!webUrl.isNullOrEmpty()) {
+            navController.navigateTo("$WEB_VIEW_SCREEN_TAG$webUrl")
+            ObjectStates.clearUrl()
+        }
+
+        val throwableState by ObjectStates.throwableFlow.collectAsState()
+        throwableState?.let { tm ->
+            SimpleAlertDialog(
+                title = tm.title,
+                text = tm.message,
+            ) { ObjectStates.updateThrowable(null) }
+        }
+    }
+
+    @Composable
     fun MainUI() {
-        ZalithLauncherTheme {
-            Column(
-                modifier = Modifier.fillMaxHeight()
+        Column(
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            val tasks by TaskSystem.tasksFlow.collectAsState()
+
+            var isTaskMenuExpanded by remember { mutableStateOf(AllSettings.launcherTaskMenuExpanded.getValue()) }
+
+            fun changeTasksExpandedState() {
+                isTaskMenuExpanded = !isTaskMenuExpanded
+                AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
+            }
+
+            TopBar(
+                taskRunning = tasks.isEmpty(),
+                isTasksExpanded = isTaskMenuExpanded,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .background(color = MaterialTheme.colorScheme.primaryContainer)
+                    .zIndex(10f)
             ) {
-                val tasks by TaskSystem.tasksFlow.collectAsState()
+                changeTasksExpandedState()
+            }
 
-                var isTaskMenuExpanded by remember { mutableStateOf(AllSettings.launcherTaskMenuExpanded.getValue()) }
-
-                fun changeTasksExpandedState() {
-                    isTaskMenuExpanded = !isTaskMenuExpanded
-                    AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
-                }
-
-                TopBar(
-                    taskRunning = tasks.isEmpty(),
-                    isTasksExpanded = isTaskMenuExpanded,
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                NavigationUI(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .background(color = MaterialTheme.colorScheme.primaryContainer)
-                        .zIndex(10f)
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.background)
+                )
+
+                TaskMenu(
+                    tasks = tasks,
+                    isExpanded = isTaskMenuExpanded,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .align(Alignment.CenterStart)
+                        .padding(all = 8.dp)
                 ) {
                     changeTasksExpandedState()
                 }
 
+                //叠加的一层阴影效果
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    NavigationUI(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color = MaterialTheme.colorScheme.background)
-                    )
-
-                    TaskMenu(
-                        tasks = tasks,
-                        isExpanded = isTaskMenuExpanded,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .align(Alignment.CenterStart)
-                            .padding(all = 8.dp)
-                    ) {
-                        changeTasksExpandedState()
-                    }
-
-                    //叠加的一层阴影效果
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(4.dp)
-                            .align(Alignment.TopStart)
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Black.copy(alpha = 0.15f),
-                                        Color.Transparent
-                                    )
+                        .height(4.dp)
+                        .align(Alignment.TopStart)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Black.copy(alpha = 0.15f),
+                                    Color.Transparent
                                 )
                             )
-                    )
-                }
+                        )
+                )
             }
         }
     }
