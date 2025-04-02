@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.version.download
 
+import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
@@ -7,9 +8,11 @@ import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.AssetIndexJson
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest.Version
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.utils.compareSHA1
 import com.movtery.zalithlauncher.utils.formatFileSize
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -23,6 +26,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
+    private val context: Context,
     minecraftPath: File,
     private val version: String,
     private val verifyIntegrity: Boolean,
@@ -103,8 +107,17 @@ class MinecraftDownloader(
 
                 onCompletion()
             },
-            onError = {
-                it.printStackTrace()
+            onError = { e ->
+                var message = e.getMessageOrToString()
+                if (e is DownloadFailedException) {
+                    message = "${context.getString(R.string.minecraft_download_failed_retried)}\n$message"
+                }
+                ObjectStates.updateThrowable(
+                    ObjectStates.ThrowableMessage(
+                        title = context.getString(R.string.minecraft_download_failed),
+                        message = message
+                    )
+                )
             }
         )
     }
