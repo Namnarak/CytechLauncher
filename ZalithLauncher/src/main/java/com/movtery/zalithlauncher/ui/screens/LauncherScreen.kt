@@ -100,7 +100,7 @@ private fun MainMenu(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
-    val yOffset by animateDpAsState(
+    val xOffset by animateDpAsState(
         targetValue = if (isVisible) 0.dp else 40.dp,
         animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
     )
@@ -109,7 +109,7 @@ private fun MainMenu(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {
-                translationY = yOffset.roundToPx().toFloat()
+                translationX = xOffset.roundToPx().toFloat()
             }
     ) {
         Box(modifier = modifier) {
