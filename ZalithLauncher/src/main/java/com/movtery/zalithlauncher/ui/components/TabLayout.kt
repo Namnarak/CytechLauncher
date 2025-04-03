@@ -59,12 +59,17 @@ class TabLayoutScope {
         selected: Boolean,
         selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
         contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+        unSelectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
         shape: Shape = MaterialTheme.shapes.extraLarge,
         color: Color = Color.Transparent,
         onClick: () -> Unit = {}
     ) {
         val backgroundColor: Color by animateColorAsState(
             targetValue = if (selected) selectedColor else color,
+            animationSpec = getAnimateTween()
+        )
+        val contentColor1: Color by animateColorAsState(
+            targetValue = if (selected) contentColor else unSelectedContentColor,
             animationSpec = getAnimateTween()
         )
 
@@ -84,13 +89,13 @@ class TabLayoutScope {
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.CenterVertically),
-                    tint = contentColor
+                    tint = contentColor1
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
                     text = text,
                     modifier = Modifier.align(Alignment.CenterVertically),
-                    color = contentColor,
+                    color = contentColor1,
                     softWrap = true,
                     fontSize = 12.sp
                 )

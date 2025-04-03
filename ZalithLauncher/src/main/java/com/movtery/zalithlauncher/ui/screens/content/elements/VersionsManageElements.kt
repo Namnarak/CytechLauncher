@@ -55,6 +55,7 @@ fun GamePathItemLayout(
     modifier: Modifier = Modifier,
     contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    unSelectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     color: Color = Color.Transparent,
     onClick: () -> Unit = {},
     onRename: () -> Unit = {},
@@ -65,6 +66,10 @@ fun GamePathItemLayout(
 
     val backgroundColor: Color by animateColorAsState(
         targetValue = if (selected) selectedColor else color,
+        animationSpec = getAnimateTween()
+    )
+    val contentColor1: Color by animateColorAsState(
+        targetValue = if (selected) contentColor else unSelectedContentColor,
         animationSpec = getAnimateTween()
     )
 
@@ -84,7 +89,7 @@ fun GamePathItemLayout(
                 modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                 overflow = TextOverflow.Clip,
                 text = if (notDefault) item.title else stringResource(R.string.versions_manage_game_path_default),
-                color = contentColor,
+                color = contentColor1,
                 style = MaterialTheme.typography.labelMedium,
                 maxLines = 1
             )
@@ -92,7 +97,7 @@ fun GamePathItemLayout(
                 modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                 overflow = TextOverflow.Clip,
                 text = item.path,
-                color = contentColor,
+                color = contentColor1,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1
             )
@@ -110,7 +115,7 @@ fun GamePathItemLayout(
                     modifier = Modifier.size(18.dp),
                     painter = painterResource(R.drawable.ic_more),
                     contentDescription = stringResource(R.string.generic_more),
-                    tint = contentColor
+                    tint = contentColor1
                 )
             }
         }
