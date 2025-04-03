@@ -11,6 +11,7 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import java.io.File
 import java.util.UUID
 
@@ -21,7 +22,7 @@ object GamePathManager {
     private val pathConfig = File(PathManager.DIR_GAME, "game_path_config.json")
     private val defaultGamePath = File(PathManager.DIR_FILES_EXTERNAL, ".minecraft").absolutePath
 
-    private val _gamePathData = MutableStateFlow<MutableList<GamePathItem>>(mutableListOf())
+    private val _gamePathData = MutableStateFlow<List<GamePathItem>>(listOf())
     val gamePathData: StateFlow<List<GamePathItem>> = _gamePathData
 
     /**
@@ -30,7 +31,7 @@ object GamePathManager {
     var currentPath by mutableStateOf<String>(defaultGamePath)
 
     fun reloadPath() {
-        _gamePathData.value.clear()
+        _gamePathData.update { emptyList() }
 
         val newValue = mutableListOf<GamePathItem>()
         //添加默认游戏目录
@@ -46,7 +47,7 @@ object GamePathManager {
             }
         }
 
-        _gamePathData.value.addAll(newValue)
+        _gamePathData.update { it + newValue }
 
         if (!checkPermissions()) {
             currentPath = defaultGamePath
@@ -70,9 +71,14 @@ object GamePathManager {
      * @throws IllegalArgumentException 未找到匹配项
      */
     fun modifyTitle(id: String, modifiedTitle: String) {
-        _gamePathData.value.find { it.id == id }?.let {
-            it.title = modifiedTitle
-        } ?: throw IllegalArgumentException("No match found!")
+        _gamePathData.update { currentList ->
+            currentList.toMutableList().apply {
+                val index = indexOfFirst { it.id == id }.takeIf { it > 0 }
+                    ?: throw IllegalArgumentException("Item with ID $id not found, unable to rename.")
+                val item = get(index)
+                set(index, GamePathItem(id, modifiedTitle, item.path))
+            }
+        }
         saveConfig()
     }
 
@@ -82,13 +88,9 @@ object GamePathManager {
      */
     fun addNewPath(title: String, path: String) {
         if (containsPath(path)) throw IllegalArgumentException("The path conflicts with an existing item!")
-        _gamePathData.value.add(
-            GamePathItem(
-                id = generateUUID(),
-                title = title,
-                path = path
-            )
-        )
+        _gamePathData.update { currentList ->
+            currentList + GamePathItem(id = generateUUID(), title = title, path = path)
+        }
         saveConfig()
     }
 
@@ -97,7 +99,11 @@ object GamePathManager {
      */
     fun removePath(id: String) {
         if (!containsId(id)) return
-        _gamePathData.value.removeIf { it.id == id }
+        val item = _gamePathData.value.find { it.id == id } ?: return
+        _gamePathData.update { currentList ->
+            currentList - item
+        }
+        refreshCurrentPath()
         saveConfig()
     }
 
@@ -117,7 +123,7 @@ object GamePathManager {
         val id = AllSettings.currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
             currentPath = item.path
-        }
+        } ?: saveCurrentPath("default")
     }
 
     private fun generateUUID(): String {

@@ -64,6 +64,8 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
+import com.movtery.zalithlauncher.ui.screens.content.FILE_SELECTOR_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LAUNCHER_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
@@ -373,7 +375,21 @@ fun NavigationUI(
         composable(
             route = VERSIONS_MANAGE_SCREEN_TAG
         ) {
-            VersionsManageScreen()
+            VersionsManageScreen(navController)
+        }
+        composable(
+            route = "${FILE_SELECTOR_SCREEN_TAG}startPath={startPath}&saveTag={saveTag}&selectFile={selectFile}"
+        ) { backStackEntry ->
+            val startPath = backStackEntry.arguments?.getString("startPath") ?: throw IllegalArgumentException("The start path is not set!")
+            val saveTag = backStackEntry.arguments?.getString("saveTag") ?: ""
+            val selectFile = backStackEntry.arguments?.getString("selectFile")?.toBoolean() ?: true
+            FileSelectorScreen(
+                startPath = startPath,
+                selectFile = selectFile,
+                saveTag = saveTag
+            ) {
+                navController.popBackStack()
+            }
         }
     }
 }

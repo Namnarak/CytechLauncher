@@ -25,6 +25,29 @@ class StringUtils {
             }
         }
 
+        fun compareChar(s1: String, s2: String): Int {
+            val regex = "\\d+".toRegex()
+
+            val parts1 = regex.findAll(s1).map { it.value }.toList()
+            val parts2 = regex.findAll(s2).map { it.value }.toList()
+
+            val minSize = minOf(parts1.size, parts2.size)
+
+            for (i in 0 until minSize) {
+                val num1 = parts1[i].toIntOrNull()
+                val num2 = parts2[i].toIntOrNull()
+
+                if (num1 != null && num2 != null) {
+                    if (num1 != num2) return num1.compareTo(num2)
+                } else {
+                    val strCompare = parts1[i].compareTo(parts2[i], ignoreCase = true)
+                    if (strCompare != 0) return strCompare
+                }
+            }
+
+            return s1.compareTo(s2, ignoreCase = true)
+        }
+
         fun throwableToString(throwable: Throwable): String {
             val stringWriter = StringWriter()
             PrintWriter(stringWriter).use {

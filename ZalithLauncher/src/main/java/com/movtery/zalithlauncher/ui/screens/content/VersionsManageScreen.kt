@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
+import android.os.Environment
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.state.MutableStates
@@ -27,6 +31,7 @@ import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
+import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -34,7 +39,9 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 const val VERSIONS_MANAGE_SCREEN_TAG = "VersionsManageScreen"
 
 @Composable
-fun VersionsManageScreen() {
+fun VersionsManageScreen(
+    navController: NavController
+) {
     BaseScreen(
         screenTag = VERSIONS_MANAGE_SCREEN_TAG,
         currentTag = MutableStates.mainScreenTag
@@ -42,6 +49,7 @@ fun VersionsManageScreen() {
         Row {
             GamePathLayout(
                 isVisible = isVisible,
+                navController = navController,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
@@ -60,13 +68,26 @@ fun VersionsManageScreen() {
 }
 
 @Composable
-fun GamePathLayout(
+private fun GamePathLayout(
     isVisible: Boolean,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by animateDpAsState(
         targetValue = if (isVisible) 0.dp else (-40).dp,
         animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    )
+
+    var gamePathOperation by remember { mutableStateOf<GamePathOperation>(GamePathOperation.None) }
+    MutableStates.filePathSelector?.let {
+        if (it.saveTag == VERSIONS_MANAGE_SCREEN_TAG) {
+            gamePathOperation = GamePathOperation.AddNewPath(it.path)
+            MutableStates.filePathSelector = null
+        }
+    }
+    GamePathOperation(
+        gamePathOperation = gamePathOperation,
+        changeState = { gamePathOperation = it }
     )
 
     Surface(
@@ -83,33 +104,51 @@ fun GamePathLayout(
     ) {
         Column {
             val gamePaths by GamePathManager.gamePathData.collectAsState()
+            val currentPath = GamePathManager.currentPath
+            val context = LocalContext.current
 
             LazyColumn(
                 modifier = Modifier
                     .padding(all = 12.dp)
-                    .clip(shape = MaterialTheme.shapes.large)
                     .fillMaxWidth()
                     .weight(1f)
             ) {
                 items(gamePaths.size) { index ->
+                    val pathItem = gamePaths[index]
                     GamePathItemLayout(
-                        item = gamePaths[index],
+                        item = pathItem,
+                        selected = currentPath == pathItem.path,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {},
-                        onDelete = {},
-                        onRename = {}
+                        onClick = {
+                            (context as? MainActivity)?.let { activity ->
+                                StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                                    GamePathManager.saveCurrentPath(pathItem.id)
+                                })
+                            }
+                        },
+                        onDelete = {
+                            gamePathOperation = GamePathOperation.DeletePath(pathItem)
+                        },
+                        onRename = {
+                            gamePathOperation = GamePathOperation.RenamePath(pathItem)
+                        }
                     )
                 }
             }
 
-            val context = LocalContext.current
             ScalingActionButton(
                 modifier = Modifier
                     .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
                     .fillMaxWidth(),
                 onClick = {
                     (context as? MainActivity)?.let { activity ->
-                        StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {})
+                        StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                            navController.navigateToFileSelector(
+                                startPath = Environment.getExternalStorageDirectory().absolutePath,
+                                selectFile = false,
+                                saveTag = VERSIONS_MANAGE_SCREEN_TAG
+                            )
+                        })
                     }
                 }
             ) {
@@ -120,7 +159,7 @@ fun GamePathLayout(
 }
 
 @Composable
-fun VersionsLayout(
+private fun VersionsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {

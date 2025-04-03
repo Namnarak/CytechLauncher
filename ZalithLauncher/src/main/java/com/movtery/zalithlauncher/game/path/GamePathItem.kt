@@ -11,7 +11,7 @@ data class GamePathItem(
     /**
      * 游戏目录的标题
      */
-    var title: String,
+    val title: String,
     /**
      * 目标路径
      */

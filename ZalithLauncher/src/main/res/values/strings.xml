@@ -14,6 +14,7 @@
     <string name="generic_download">下载</string>
     <string name="generic_done">完成</string>
     <string name="generic_open_link">在浏览器访问</string>
+    <string name="generic_cannot_empty">内容不能为空！</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_embermire">釉烬</string>
@@ -76,9 +77,19 @@
     <string name="account_other_login_select_role">选择角色进行登录</string>
     <string name="account_other_login_select_role_logging">登陆角色 %s 中</string>
     <string name="account_other_login_role_not_found">未找到与当前账号相匹配的角色，请在你使用的服务器上检查这个角色是否存在！</string>
+    <!--  文件管理  -->
+    <string name="files_back_to_parent">返回上一级</string>
+    <string name="files_select_dir">选择此目录</string>
+    <string name="files_current_path">当前路径：%s</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>
+    <string name="versions_manage_game_path_edit_title">为该游戏目录命名</string>
+    <string name="versions_manage_game_path_delete_title">删除游戏目录</string>
+    <string name="versions_manage_game_path_delete_message">你确定要删除这个游戏目录吗？该操作并不会删除对应目录内的文件，仅仅只是将其与启动器解除绑定</string>
+    <string name="versions_manage_game_path_exists_title">游戏目录已存在</string>
+    <string name="versions_manage_game_path_exists_message">当前选择的游戏目录与现有的目录冲突，你不能同时管理两个游戏目录！</string>
+    <string name="versions_manage_game_path_error_title">操作游戏目录时遇到问题</string>
     <!--  游戏  -->
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
     <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>

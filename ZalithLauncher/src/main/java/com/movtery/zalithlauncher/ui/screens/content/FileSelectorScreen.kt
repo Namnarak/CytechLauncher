@@ -1,0 +1,262 @@
+package com.movtery.zalithlauncher.ui.screens.content
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.state.FilePathSelectorData
+import com.movtery.zalithlauncher.state.MutableStates
+import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
+import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.sortWithFileName
+import java.io.File
+
+const val FILE_SELECTOR_SCREEN_TAG = "FileSelectorScreen?"
+
+fun NavController.navigateToFileSelector(
+    startPath: String,
+    selectFile: Boolean,
+    saveTag: String
+) {
+    navigateTo("${FILE_SELECTOR_SCREEN_TAG}startPath=$startPath&saveTag=$saveTag&selectFile=$selectFile")
+}
+
+@Composable
+fun FileSelectorScreen(
+    startPath: String,
+    selectFile: Boolean,
+    saveTag: String,
+    back: () -> Unit
+) {
+    val startPath1 = File(startPath)
+    var currentPath by rememberSaveable { mutableStateOf(startPath1) }
+
+    BaseScreen(
+        screenTag = FILE_SELECTOR_SCREEN_TAG,
+        currentTag = MutableStates.mainScreenTag,
+        tagStartWith = true
+    ) { isVisible ->
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            TopPathLayout(
+                isVisible = isVisible,
+                currentPath = currentPath.absolutePath,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 12.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                LeftActionMenu(
+                    isVisible = isVisible,
+                    backEnabled = currentPath.absolutePath != startPath1.absolutePath,
+                    backToParent = {
+                        currentPath = currentPath.parentFile!!
+                    },
+                    selectDir = {
+                        MutableStates.filePathSelector = FilePathSelectorData(saveTag, currentPath.absolutePath)
+                        back()
+                    },
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(2.5f)
+                )
+
+                FilesLayout(
+                    isVisible = isVisible,
+                    currentPath = currentPath,
+                    updatePath = { currentPath = it },
+                    selectFile = selectFile,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(7.5f)
+                        .padding(start = 12.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopPathLayout(
+    isVisible: Boolean,
+    currentPath: String,
+    modifier: Modifier = Modifier
+) {
+    val surfaceYOffset by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else (-40).dp,
+        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    )
+
+    Surface(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = surfaceYOffset.roundToPx()
+                )
+            },
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.files_current_path, currentPath),
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun LeftActionMenu(
+    isVisible: Boolean,
+    backEnabled: Boolean,
+    backToParent: () -> Unit,
+    selectDir: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val surfaceXOffset by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else (-40).dp,
+        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    )
+
+    Surface(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = surfaceXOffset.roundToPx(),
+                    y = 0
+                )
+            },
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.inversePrimary,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(all = 8.dp),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            ScalingActionButton(
+                enabled = backEnabled,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = backToParent
+            ) {
+                Text(text = stringResource(R.string.files_back_to_parent))
+            }
+            ScalingActionButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = selectDir
+            ) {
+                Text(text = stringResource(R.string.files_select_dir))
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilesLayout(
+    isVisible: Boolean,
+    currentPath: File,
+    updatePath: (File) -> Unit,
+    selectFile: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val surfaceXOffset by animateDpAsState(
+        targetValue = if (isVisible) 0.dp else 40.dp,
+        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    )
+
+    Surface(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = surfaceXOffset.roundToPx(),
+                    y = 0
+                )
+            },
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 4.dp
+    ) {
+        currentPath.listFiles()?.toList()?.filter {
+            //如果为非选择文件模式，则仅展示文件夹目录
+            if (!selectFile) it.isDirectory else true
+        }?.sortedWith { o1, o2 ->
+            sortWithFileName(o1, o2)
+        }?.let { files ->
+            println(files.joinToString("\n"))
+            LazyColumn(
+                contentPadding = PaddingValues(all = 12.dp)
+            ) {
+                items(files.size) { index ->
+                    val file = files[index]
+                    val scale = remember { Animatable(initialValue = 0.95f) }
+                    LaunchedEffect(Unit) {
+                        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+                    }
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp)
+                            .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+                        color = MaterialTheme.colorScheme.inversePrimary,
+                        shape = MaterialTheme.shapes.large,
+                        shadowElevation = 4.dp
+                    ) {
+                        BaseFileItem(
+                            file = file,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier
+                                .clickable {
+                                    if (!selectFile && file.isDirectory) {
+                                        updatePath(file)
+                                    }
+                                }
+                                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

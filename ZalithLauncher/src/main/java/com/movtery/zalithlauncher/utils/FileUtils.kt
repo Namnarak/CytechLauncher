@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.utils
 
 import android.annotation.SuppressLint
 import android.util.Log
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.compareChar
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
@@ -33,4 +34,15 @@ fun formatFileSize(bytes: Long): String {
         unitIndex++
     }
     return String.format("%.2f %s", value, units[unitIndex])
+}
+
+fun sortWithFileName(o1: File, o2: File): Int {
+    val isDir1 = o1.isDirectory
+    val isDir2 = o2.isDirectory
+
+    //目录排在前面，文件排在后面
+    if (isDir1 && !isDir2) return -1
+    if (!isDir1 && isDir2) return 1
+
+    return compareChar(o1.name, o2.name)
 }

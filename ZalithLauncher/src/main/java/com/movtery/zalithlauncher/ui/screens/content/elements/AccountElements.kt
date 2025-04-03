@@ -262,6 +262,7 @@ fun LoginItem(
 ) {
     Row(
         modifier = modifier
+            .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
             .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)
     ) {
@@ -293,6 +294,7 @@ fun ServerItem(
 ) {
     Row(
         modifier = modifier
+            .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
             .padding(start = 4.dp)
     ) {

@@ -316,7 +316,6 @@ fun ServerTypeTab(
             Column(
                 modifier = Modifier
                     .padding(all = 12.dp)
-                    .clip(shape = MaterialTheme.shapes.large)
                     .verticalScroll(state = rememberScrollState())
                     .weight(1f)
             ) {
