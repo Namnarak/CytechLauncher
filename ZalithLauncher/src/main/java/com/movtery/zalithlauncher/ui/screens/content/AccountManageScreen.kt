@@ -307,15 +307,15 @@ fun ServerTypeTab(
                     y = 0
                 )
             }
-            .fillMaxHeight()
-        ,
+            .fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
         Column {
             Column(
-                modifier = modifier
+                modifier = Modifier
+                    .padding(all = 12.dp)
                     .clip(shape = MaterialTheme.shapes.large)
                     .verticalScroll(state = rememberScrollState())
                     .weight(1f)
