@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -35,10 +37,11 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
+import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
-import com.movtery.zalithlauncher.utils.sortWithFileName
+import com.movtery.zalithlauncher.utils.file.sortWithFileName
 import java.io.File
 
 const val FILE_SELECTOR_SCREEN_TAG = "FileSelectorScreen?"
@@ -77,6 +80,18 @@ fun FileSelectorScreen(
                     .padding(all = 12.dp)
             )
 
+            var createDir by remember { mutableStateOf(false) }
+            if (createDir) {
+                CreateNewDirDialog(
+                    onDismissRequest = { createDir = false },
+                    createDir = {
+                        val newDir = File(currentPath, it)
+                        if (newDir.mkdir()) currentPath = newDir
+                        createDir = false
+                    }
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
@@ -89,6 +104,7 @@ fun FileSelectorScreen(
                     backToParent = {
                         currentPath = currentPath.parentFile!!
                     },
+                    createDir = { createDir = true },
                     selectDir = {
                         MutableStates.filePathSelector = FilePathSelectorData(saveTag, currentPath.absolutePath)
                         back()
@@ -153,6 +169,7 @@ private fun LeftActionMenu(
     backEnabled: Boolean,
     backToParent: () -> Unit,
     selectDir: () -> Unit,
+    createDir: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by animateDpAsState(
@@ -182,6 +199,12 @@ private fun LeftActionMenu(
                 onClick = backToParent
             ) {
                 Text(text = stringResource(R.string.files_back_to_parent))
+            }
+            ScalingActionButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = createDir
+            ) {
+                Text(text = stringResource(R.string.files_create_dir))
             }
             ScalingActionButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -218,43 +241,59 @@ private fun FilesLayout(
         color = MaterialTheme.colorScheme.primaryContainer,
         shadowElevation = 4.dp
     ) {
-        currentPath.listFiles()?.toList()?.filter {
-            //如果为非选择文件模式，则仅展示文件夹目录
-            if (!selectFile) it.isDirectory else true
-        }?.sortedWith { o1, o2 ->
-            sortWithFileName(o1, o2)
-        }?.let { files ->
-            println(files.joinToString("\n"))
-            LazyColumn(
-                contentPadding = PaddingValues(all = 12.dp)
-            ) {
-                items(files.size) { index ->
-                    val file = files[index]
-                    val scale = remember { Animatable(initialValue = 0.95f) }
-                    LaunchedEffect(Unit) {
-                        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-                    }
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp)
-                            .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-                        color = MaterialTheme.colorScheme.inversePrimary,
-                        shape = MaterialTheme.shapes.large,
-                        shadowElevation = 4.dp
-                    ) {
-                        BaseFileItem(
-                            file = file,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        Box(modifier = Modifier.fillMaxSize()) {
+            currentPath.listFiles()?.toList()?.filter {
+                //如果为非选择文件模式，则仅展示文件夹目录
+                if (!selectFile) it.isDirectory else true
+            }?.sortedWith { o1, o2 ->
+                sortWithFileName(o1, o2)
+            }?.takeIf {
+                it.isNotEmpty()
+            }?.let { files ->
+                LazyColumn(
+                    contentPadding = PaddingValues(all = 12.dp)
+                ) {
+                    items(files.size) { index ->
+                        val file = files[index]
+                        val scale = remember { Animatable(initialValue = 0.95f) }
+                        LaunchedEffect(Unit) {
+                            scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+                        }
+                        Surface(
                             modifier = Modifier
-                                .clickable {
-                                    if (!selectFile && file.isDirectory) {
-                                        updatePath(file)
+                                .fillMaxWidth()
+                                .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp)
+                                .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+                            color = MaterialTheme.colorScheme.inversePrimary,
+                            shape = MaterialTheme.shapes.large,
+                            shadowElevation = 4.dp
+                        ) {
+                            BaseFileItem(
+                                file = file,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier
+                                    .clickable {
+                                        if (!selectFile && file.isDirectory) {
+                                            updatePath(file)
+                                        }
                                     }
-                                }
-                                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
-                        )
+                                    .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                            )
+                        }
                     }
+                }
+            } ?: run {
+                Surface(
+                    modifier = Modifier.align(Alignment.Center),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.inversePrimary,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shadowElevation = 4.dp
+                ) {
+                    Text(
+                        modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp),
+                        text = stringResource(R.string.files_no_selectable_content)
+                    )
                 }
             }
         }

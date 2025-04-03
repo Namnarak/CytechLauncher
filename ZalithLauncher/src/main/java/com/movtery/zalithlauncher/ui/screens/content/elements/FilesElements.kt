@@ -9,14 +9,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
+import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
+import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.formatDate
-import com.movtery.zalithlauncher.utils.formatFileSize
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.Date
@@ -62,5 +70,53 @@ fun BaseFileItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CreateNewDirDialog(
+    onDismissRequest: () -> Unit = {},
+    createDir: (name: String) -> Unit = {}
+) {
+    var value by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val isError = value.isEmpty() || isFilenameInvalid(value) { message ->
+        errorMessage = message
+    }
+
+    SimpleEditDialog(
+        title = stringResource(R.string.files_create_dir),
+        value = value,
+        onValueChange = { value = it.trim() },
+        isError = isError,
+        supportingText = {
+            when {
+                value.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
+                isError -> Text(text = errorMessage)
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        onConfirm = { if (!isError) createDir(value) }
+    )
+}
+
+@Composable
+fun isFilenameInvalid(
+    str: String,
+    onError: (message: String) -> Unit
+): Boolean {
+    return try {
+        checkFilenameValidity(str)
+        false
+    } catch (e: InvalidFilenameException) {
+        onError(
+            when {
+                e.containsIllegalCharacters() -> stringResource(R.string.generic_input_invalid_character, e.illegalCharacters)
+                e.isInvalidLength -> stringResource(R.string.file_invalid_length, e.invalidLength, 255)
+                else -> ""
+            }
+        )
+        true
     }
 }

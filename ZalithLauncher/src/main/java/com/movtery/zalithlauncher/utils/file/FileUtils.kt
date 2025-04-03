@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.utils
+package com.movtery.zalithlauncher.utils.file
 
 import android.annotation.SuppressLint
 import android.util.Log
@@ -45,4 +45,24 @@ fun sortWithFileName(o1: File, o2: File): Int {
     if (!isDir1 && isDir2) return 1
 
     return compareChar(o1.name, o2.name)
+}
+
+const val INVALID_CHARACTERS_REGEX = "[\\\\/:*?\"<>|\\t\\n]"
+
+@Throws(InvalidFilenameException::class)
+fun checkFilenameValidity(str: String) {
+    val illegalCharsRegex = INVALID_CHARACTERS_REGEX.toRegex()
+
+    val illegalChars = illegalCharsRegex.findAll(str)
+        .map { it.value }
+        .distinct()
+        .joinToString("")
+
+    if (illegalChars.isNotEmpty()) {
+        throw InvalidFilenameException("The filename contains illegal characters", illegalChars)
+    }
+
+    if (str.length > 255) {
+        throw InvalidFilenameException("Invalid filename length", str.length)
+    }
 }

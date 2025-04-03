@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.game.version.download
 import android.util.Log
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.compareSHA1
+import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers

@@ -15,6 +15,7 @@
     <string name="generic_done">完成</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
+    <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_embermire">釉烬</string>
@@ -79,8 +80,11 @@
     <string name="account_other_login_role_not_found">未找到与当前账号相匹配的角色，请在你使用的服务器上检查这个角色是否存在！</string>
     <!--  文件管理  -->
     <string name="files_back_to_parent">返回上一级</string>
+    <string name="files_create_dir">创建目录</string>
     <string name="files_select_dir">选择此目录</string>
     <string name="files_current_path">当前路径：%s</string>
+    <string name="files_no_selectable_content">该目录没有可选内容</string>
+    <string name="file_invalid_length">名称过长！(当前长度：%d，最大长度：%d)</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>
