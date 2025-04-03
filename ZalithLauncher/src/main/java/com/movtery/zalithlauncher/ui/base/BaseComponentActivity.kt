@@ -13,7 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.movtery.zalithlauncher.context.Contexts
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
 import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
 import kotlinx.coroutines.launch
 
@@ -25,6 +27,10 @@ open class BaseComponentActivity : ComponentActivity() {
         setFullscreen()
 
         Contexts.refresh(this)
+        checkStoragePermissions()
+
+        //刷新游戏目录
+        GamePathManager.reloadPath()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -43,6 +49,7 @@ open class BaseComponentActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        checkStoragePermissions()
         AccountsManager.reloadAccounts()
     }
 
@@ -85,5 +92,10 @@ open class BaseComponentActivity : ComponentActivity() {
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
             )
         }
+    }
+
+    private fun checkStoragePermissions() {
+        //检查所有文件管理权限
+        checkPermissionsForInit(this)
     }
 }

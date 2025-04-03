@@ -68,6 +68,8 @@ import com.movtery.zalithlauncher.ui.screens.content.LAUNCHER_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
+import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
@@ -367,6 +369,11 @@ fun NavigationUI(
         ) { backStackEntry ->
             val url = backStackEntry.arguments?.getString("url") ?: ""
             WebViewScreen(url)
+        }
+        composable(
+            route = VERSIONS_MANAGE_SCREEN_TAG
+        ) {
+            VersionsManageScreen()
         }
     }
 }

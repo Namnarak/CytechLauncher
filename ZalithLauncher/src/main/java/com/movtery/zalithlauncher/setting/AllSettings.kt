@@ -36,6 +36,11 @@ class AllSettings {
         val currentAccount = StringSettingUnit("currentAccount", "")
 
         /**
+         * 当前选择的游戏目录id
+         */
+        val currentGamePathId = StringSettingUnit("currentGamePathId", "default")
+
+        /**
          * 启动器任务菜单是否展开
          */
         val launcherTaskMenuExpanded = BooleanSettingUnit("launcherTaskMenuExpanded", true)

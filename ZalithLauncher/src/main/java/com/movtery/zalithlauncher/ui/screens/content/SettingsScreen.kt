@@ -56,11 +56,12 @@ fun SettingsScreen(
                 settingsNavController = settingsNavController,
                 modifier = Modifier
                     .fillMaxHeight()
+                    .weight(2.5f)
                     .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
             )
 
             Box(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(7.5f)
             ) {
                 NavigationUI(
                     mainNavController = mainNavController,

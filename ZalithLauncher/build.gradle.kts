@@ -110,7 +110,8 @@ tasks.register("generateInfoDistributor") {
         val importList = listOf("com.movtery.zalithlauncher.utils.CryptoManager")
         val constantList = listOf(
             "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt")}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
-            "\"${getKeyFromLocal("CRYPTO_KEY", ".crypto_key.txt")}\"".toStatement(variable = "CRYPTO_KEY")
+            "\"${getKeyFromLocal("CRYPTO_KEY", ".crypto_key.txt")}\"".toStatement(variable = "CRYPTO_KEY"),
+            "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME")
         )
         generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", importList, constantList)
     }

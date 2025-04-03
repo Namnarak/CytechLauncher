@@ -10,6 +10,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -66,7 +66,6 @@ class TabLayoutScope {
         contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         shape: Shape = MaterialTheme.shapes.extraLarge,
         color: Color = Color.Transparent,
-        width: Dp = 120.dp,
         onClick: (() -> Unit)? = null
     ) {
         val interactionSource = remember { MutableInteractionSource() }
@@ -100,7 +99,7 @@ class TabLayoutScope {
                 ) {
                     onClick?.invoke()
                 }
-                .width(width)
+                .fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
