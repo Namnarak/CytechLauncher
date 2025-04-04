@@ -1,21 +1,28 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,18 +31,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
+import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathItem
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -46,6 +56,13 @@ sealed interface GamePathOperation {
     data class AddNewPath(val path: String): GamePathOperation
     data class RenamePath(val item: GamePathItem): GamePathOperation
     data class DeletePath(val item: GamePathItem): GamePathOperation
+}
+
+sealed interface VersionsOperation {
+    data object None: VersionsOperation
+    data class Rename(val version: Version): VersionsOperation
+    data class Copy(val version: Version): VersionsOperation
+    data class Delete(val version: Version): VersionsOperation
 }
 
 @Composable
@@ -62,7 +79,6 @@ fun GamePathItemLayout(
     onDelete: () -> Unit = {}
 ) {
     val notDefault = item.id != GamePathManager.DEFAULT_ID
-    var isPopupVisible by remember { mutableStateOf(false) }
 
     val backgroundColor: Color by animateColorAsState(
         targetValue = if (selected) selectedColor else color,
@@ -106,9 +122,11 @@ fun GamePathItemLayout(
         Row(
             modifier = Modifier.align(Alignment.CenterVertically)
         ) {
+            var menuExpanded by remember { mutableStateOf(false) }
+
             IconButton(
                 onClick = {
-                    isPopupVisible = !isPopupVisible
+                    menuExpanded = !menuExpanded
                 }
             ) {
                 Icon(
@@ -118,50 +136,43 @@ fun GamePathItemLayout(
                     tint = contentColor1
                 )
             }
-        }
 
-        if (isPopupVisible) {
-            Popup(
-                onDismissRequest = {
-                    isPopupVisible = false
-                },
-                properties = PopupProperties(
-                    focusable = true,
-                    dismissOnBackPress = true,
-                    dismissOnClickOutside = true
-                )
+            DropdownMenu(
+                expanded = menuExpanded,
+                shape = MaterialTheme.shapes.large,
+                shadowElevation = 4.dp,
+                onDismissRequest = { menuExpanded = false }
             ) {
-                Surface(
-                    modifier = Modifier.width(240.dp),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shadowElevation = 4.dp
-                ) {
-                    Column(
-                        modifier = Modifier.padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
-                    ) {
-                        ScalingActionButton(
-                            enabled = notDefault,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                onRename()
-                                isPopupVisible = false
-                            }
-                        ) {
-                            Text(text = stringResource(R.string.generic_rename))
-                        }
-                        ScalingActionButton(
-                            enabled = notDefault,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                onDelete()
-                                isPopupVisible = false
-                            }
-                        ) {
-                            Text(text = stringResource(R.string.generic_delete))
-                        }
+                DropdownMenuItem(
+                    enabled = notDefault,
+                    text = { Text(text = stringResource(R.string.generic_rename)) },
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(R.drawable.ic_edit),
+                            contentDescription = stringResource(R.string.generic_rename)
+                        )
+                    },
+                    onClick = {
+                        onRename()
+                        menuExpanded = false
                     }
-                }
+                )
+                DropdownMenuItem(
+                    enabled = notDefault,
+                    text = { Text(text = stringResource(R.string.generic_delete)) },
+                    leadingIcon = {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(R.drawable.ic_delete),
+                            contentDescription = stringResource(R.string.generic_delete)
+                        )
+                    },
+                    onClick = {
+                        onDelete()
+                        menuExpanded = false
+                    }
+                )
             }
         }
     }
@@ -237,7 +248,7 @@ private fun NameEditPathDialog(
     SimpleEditDialog(
         title = stringResource(R.string.versions_manage_game_path_add_new),
         value = value,
-        onValueChange = { value = it.trim() },
+        onValueChange = { value = it },
         label = { Text(text = stringResource(R.string.versions_manage_game_path_edit_title)) },
         isError = value.isEmpty(),
         supportingText = {
@@ -245,9 +256,332 @@ private fun NameEditPathDialog(
         },
         onDismissRequest = onDismissRequest,
         onConfirm = {
-            if (value.isNotEmpty()) {
-                onConfirm(value)
+            if (value.isNotEmpty() || value.isNotBlank()) {
+                onConfirm(value.trim())
             }
         }
     )
+}
+
+@Composable
+fun VersionsOperation(
+    versionsOperation: VersionsOperation,
+    updateVersionsOperation: (VersionsOperation) -> Unit
+) {
+    when(versionsOperation) {
+        is VersionsOperation.None -> {}
+        is VersionsOperation.Rename -> {
+            RenameVersionDialog(
+                version = versionsOperation.version,
+                onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
+                onConfirm = {
+                    VersionsManager.renameVersion(versionsOperation.version, it)
+                    updateVersionsOperation(VersionsOperation.None)
+                }
+            )
+        }
+        is VersionsOperation.Copy -> {
+            CopyVersionDialog(
+                version = versionsOperation.version,
+                onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
+                onConfirm = { name, copyAll ->
+                    VersionsManager.copyVersion(versionsOperation.version, name, copyAll)
+                    updateVersionsOperation(VersionsOperation.None)
+                }
+            )
+        }
+        is VersionsOperation.Delete -> {
+            DeleteVersionDialog(
+                version = versionsOperation.version,
+                onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
+                onConfirm = {
+                    VersionsManager.deleteVersion(versionsOperation.version)
+                    updateVersionsOperation(VersionsOperation.None)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun RenameVersionDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (value: String) -> Unit = {}
+) {
+    var name by remember { mutableStateOf(version.getVersionName()) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
+        errorMessage = message
+    } || VersionsManager.validateVersionName(name, version.getVersionInfo()) { message ->
+        errorMessage = message
+    }
+
+    SimpleEditDialog(
+        title = stringResource(R.string.versions_manage_rename_version),
+        value = name,
+        onValueChange = { name = it },
+        isError = isError,
+        supportingText = {
+            when {
+                name.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
+                isError -> Text(text = errorMessage)
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        onConfirm = {
+            if (!isError) {
+                onConfirm(name)
+            }
+        }
+    )
+}
+
+@Composable
+fun CopyVersionDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (value: String, copyAll: Boolean) -> Unit = { _, _ -> }
+) {
+    var copyAll by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("") }
+
+    var errorMessage by remember { mutableStateOf("") }
+
+    val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
+        errorMessage = message
+    } || VersionsManager.validateVersionName(name, version.getVersionInfo()) { message ->
+        errorMessage = message
+    }
+
+    SimpleCheckEditDialog(
+        title = stringResource(R.string.versions_manage_copy_version),
+        text = stringResource(R.string.versions_manage_copy_version_tip),
+        checkBoxText = stringResource(R.string.versions_manage_copy_version_all),
+        checked = copyAll,
+        value = name,
+        onCheckedChange = { copyAll = it },
+        onValueChange = { name = it },
+        isError = isError,
+        supportingText = {
+            when {
+                name.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
+                isError -> Text(text = errorMessage)
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        onConfirm = {
+            if (!isError) {
+                onConfirm(name, copyAll)
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteVersionDialog(
+    version: Version,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: () -> Unit = {}
+) {
+    SimpleAlertDialog(
+        title = stringResource(R.string.versions_manage_delete_version),
+        text = stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
+        onDismiss = onDismissRequest,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+fun VersionItemLayout(
+    version: Version,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    onSelected: () -> Unit = {},
+    onRenameClick: () -> Unit = {},
+    onCopyClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
+) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+    Surface(
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        color = MaterialTheme.colorScheme.inversePrimary,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 4.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (selected) return@clickable
+                    onSelected()
+                }
+                .clip(shape = MaterialTheme.shapes.large)
+                .padding(all = 8.dp)
+        ) {
+            RadioButton(
+                selected = selected,
+                onClick = {
+                    if (selected) return@RadioButton
+                    onSelected()
+                }
+            )
+            VersionIconImage(
+                version = version,
+                modifier = Modifier.size(34.dp).align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .weight(1f)
+            ) {
+                //版本名称
+                Text(
+                    text = version.getVersionName(),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                //版本详细信息
+                version.getVersionInfo()?.let { versionInfo ->
+                    Row {
+                        Text(
+                            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                            overflow = TextOverflow.Clip,
+                            text = versionInfo.minecraftVersion,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1
+                        )
+                        versionInfo.loaderInfo?.let { loaderInfo ->
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = loaderInfo.name,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = loaderInfo.version,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                }
+            }
+            Row {
+                var menuExpanded by remember { mutableStateOf(false) }
+
+                IconButton(onClick = { menuExpanded = !menuExpanded }) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.ic_more),
+                        contentDescription = stringResource(R.string.generic_more)
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    shape = MaterialTheme.shapes.large,
+                    shadowElevation = 4.dp,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.generic_rename)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(R.drawable.ic_edit),
+                                contentDescription = stringResource(R.string.generic_rename)
+                            )
+                        },
+                        onClick = {
+                            onRenameClick()
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.generic_copy)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(R.drawable.ic_copy),
+                                contentDescription = stringResource(R.string.generic_copy)
+                            )
+                        },
+                        onClick = {
+                            onCopyClick()
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(text = stringResource(R.string.generic_delete)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                painter = painterResource(R.drawable.ic_delete),
+                                contentDescription = stringResource(R.string.generic_delete)
+                            )
+                        },
+                        onClick = {
+                            onDeleteClick()
+                            menuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VersionIconImage(
+    version: Version?,
+    modifier: Modifier = Modifier,
+) {
+    val (model, fallbackRes) = remember(version) {
+        when {
+            version == null -> null to R.drawable.ic_minecraft
+            else -> {
+                val iconFile = VersionsManager.getVersionIconFile(version)
+                if (iconFile.exists()) {
+                    iconFile to null
+                } else {
+                    null to getLoaderIconRes(version)
+                }
+            }
+        }
+    }
+
+    if (model != null) {
+        AsyncImage(
+            model = model,
+            modifier = modifier,
+            contentScale = ContentScale.Inside,
+            contentDescription = null
+        )
+    } else {
+        Image(
+            painter = painterResource(id = fallbackRes ?: R.drawable.ic_minecraft),
+            modifier = modifier,
+            contentScale = ContentScale.Inside,
+            contentDescription = null
+        )
+    }
+}
+
+private fun getLoaderIconRes(version: Version): Int {
+    val loaderName = version.getVersionInfo()?.loaderInfo?.name?.lowercase() ?: ""
+    return when {
+        "fabric" in loaderName -> R.drawable.ic_fabric
+        "forge" in loaderName -> R.drawable.ic_anvil
+        "quilt" in loaderName -> R.drawable.ic_quilt
+        "neoforge" in loaderName -> R.drawable.ic_neoforge
+        "optifine" in loaderName -> R.drawable.ic_optifine
+        "liteloader" in loaderName -> R.drawable.ic_chicken_old
+        else -> R.drawable.ic_minecraft
+    }
 }

@@ -2,6 +2,8 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,21 +36,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
+import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -267,26 +277,100 @@ private fun RightMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
-        Box {
+        ConstraintLayout {
+            val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
+
             val account by AccountsManager.currentAccountFlow.collectAsState()
 
             AccountAvatar(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset(y = (-32).dp),
+                    .constrainAs(accountAvatar) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(launchButton.top, margin = 32.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
                 account = account
             ) {
                 navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
             }
+            VersionManagerLayout(
+                modifier = Modifier
+                    .height(56.dp)
+                    .padding(8.dp)
+                    .constrainAs(versionManagerLayout) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(launchButton.top)
+                    }
+            ) {
+                navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
+            }
             ScalingActionButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                    .constrainAs(launchButton) {
+                        bottom.linkTo(parent.bottom, margin = 8.dp)
+                    }
+                    .padding(start = 12.dp, end = 12.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                 onClick = {},
             ) {
                 Text(text = stringResource(R.string.main_launch_game))
+            }
+        }
+    }
+}
+
+@Composable
+private fun VersionManagerLayout(
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    onClick: () -> Unit = {}
+) {
+    Box(
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.large)
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
+        ) {
+            if (VersionsManager.isRefreshing) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp).align(Alignment.Center))
+                }
+            } else {
+                val version = VersionsManager.currentVersion
+                VersionIconImage(
+                    version = version,
+                    modifier = Modifier.size(28.dp).align(Alignment.CenterVertically)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(
+                    modifier = Modifier.weight(1f)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    val title = version?.getVersionName() ?: stringResource(R.string.versions_manage_no_versions)
+                    Text(
+                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                        overflow = TextOverflow.Clip,
+                        text = title,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = textColor,
+                        maxLines = 1
+                    )
+                    version?.getVersionInfo()?.getInfoString()?.let { infoText ->
+                        Text(
+                            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                            overflow = TextOverflow.Clip,
+                            text = infoText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = textColor,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
         }
     }

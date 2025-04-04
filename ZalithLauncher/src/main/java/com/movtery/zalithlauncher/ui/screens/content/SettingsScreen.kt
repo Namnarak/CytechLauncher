@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.TabLayout
+import com.movtery.zalithlauncher.ui.screens.content.settings.GAME_SETTINGS_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.GameSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
@@ -98,6 +101,15 @@ private fun TabMenu(
             modifier = Modifier.padding(all = 8.dp)
         ) {
             TabItem(
+                painter = painterResource(R.drawable.ic_setting_game),
+                contentDescription = null,
+                iconPadding = PaddingValues(all = 2.dp),
+                text = stringResource(R.string.settings_tab_game),
+                selected = MutableStates.settingsScreenTag == GAME_SETTINGS_TAG
+            ) {
+                settingsNavController.navigateOnce(GAME_SETTINGS_TAG)
+            }
+            TabItem(
                 painter = painterResource(R.drawable.ic_setting_launcher),
                 contentDescription = null,
                 text = stringResource(R.string.settings_tab_launcher),
@@ -125,8 +137,13 @@ private fun NavigationUI(
     NavHost(
         modifier = modifier,
         navController = settingsNavController,
-        startDestination = LAUNCHER_SETTINGS_TAG
+        startDestination = GAME_SETTINGS_TAG
     ) {
+        composable(
+            route = GAME_SETTINGS_TAG
+        ) {
+            GameSettingsScreen()
+        }
         composable(
             route = LAUNCHER_SETTINGS_TAG
         ) {

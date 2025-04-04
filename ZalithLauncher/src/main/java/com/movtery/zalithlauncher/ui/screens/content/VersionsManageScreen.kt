@@ -1,24 +1,33 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.os.Environment
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -26,12 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
+import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -120,13 +132,15 @@ private fun GamePathLayout(
                         selected = currentPath == pathItem.path,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            if (pathItem.id == GamePathManager.DEFAULT_ID) {
-                                GamePathManager.saveDefaultPath()
-                            } else {
-                                (context as? MainActivity)?.let { activity ->
-                                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                                        GamePathManager.saveCurrentPath(pathItem.id)
-                                    })
+                            if (!VersionsManager.isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
+                                if (pathItem.id == GamePathManager.DEFAULT_ID) {
+                                    GamePathManager.saveDefaultPath()
+                                } else {
+                                    (context as? MainActivity)?.let { activity ->
+                                        StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                                            GamePathManager.saveCurrentPath(pathItem.id)
+                                        })
+                                    }
                                 }
                             }
                         },
@@ -181,9 +195,69 @@ private fun VersionsLayout(
                 )
             },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.primaryContainer,
         shadowElevation = 4.dp
     ) {
+        if (VersionsManager.isRefreshing) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+        } else {
+            val versions by VersionsManager.versions.collectAsState()
 
+            if (versions.isNotEmpty()) {
+                VersionsManager.currentVersion?.let { currentVersion ->
+                    var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
+                    VersionsOperation(versionsOperation) { versionsOperation = it }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(shape = MaterialTheme.shapes.extraLarge),
+                        contentPadding = PaddingValues(all = 12.dp)
+                    ) {
+                        items(versions.size) { index ->
+                            val version = versions[index]
+                            VersionItemLayout(
+                                version = version,
+                                selected = version == currentVersion,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
+                                onSelected = {
+                                    if (version != currentVersion) {
+                                        VersionsManager.saveCurrentVersion(version.getVersionName())
+                                    }
+                                },
+                                onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
+                                onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
+                                onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) }
+                            )
+                        }
+                    }
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val scale = remember { Animatable(initialValue = 0.95f) }
+                    LaunchedEffect(Unit) {
+                        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+                    }
+                    Surface(
+                        modifier = Modifier.align(Alignment.Center).graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.inversePrimary,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shadowElevation = 4.dp
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp),
+                            text = stringResource(R.string.versions_manage_no_versions)
+                        )
+                    }
+                }
+            }
+        }
     }
 }

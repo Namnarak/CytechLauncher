@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings.Companion.currentGamePathId
 import com.movtery.zalithlauncher.utils.CryptoManager
@@ -140,6 +141,7 @@ object GamePathManager {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
             currentPath = item.path
+            VersionsManager.refresh()
         } ?: saveCurrentPath(DEFAULT_ID)
     }
 

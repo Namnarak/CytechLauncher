@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,7 @@ class TabLayoutScope {
         modifier: Modifier = Modifier,
         painter: Painter,
         contentDescription: String?,
+        iconPadding: PaddingValues = PaddingValues(),
         text: String,
         selected: Boolean,
         selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
@@ -68,7 +70,7 @@ class TabLayoutScope {
             targetValue = if (selected) selectedColor else color,
             animationSpec = getAnimateTween()
         )
-        val contentColor1: Color by animateColorAsState(
+        val animatedContentColor: Color by animateColorAsState(
             targetValue = if (selected) contentColor else unSelectedContentColor,
             animationSpec = getAnimateTween()
         )
@@ -88,14 +90,15 @@ class TabLayoutScope {
                     contentDescription = contentDescription,
                     modifier = Modifier
                         .size(24.dp)
-                        .align(Alignment.CenterVertically),
-                    tint = contentColor1
+                        .align(Alignment.CenterVertically)
+                        .padding(iconPadding),
+                    tint = animatedContentColor
                 )
                 Spacer(Modifier.width(12.dp))
                 Text(
                     text = text,
                     modifier = Modifier.align(Alignment.CenterVertically),
-                    color = contentColor1,
+                    color = animatedContentColor,
                     softWrap = true,
                     fontSize = 12.sp
                 )

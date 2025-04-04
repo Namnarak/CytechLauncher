@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -118,7 +119,7 @@ fun SimpleEditDialog(
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
     onDismissRequest: () -> Unit = {},
-    onConfirm: (value: String) -> Unit = {},
+    onConfirm: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(shape = MaterialTheme.shapes.extraLarge) {
@@ -149,9 +150,72 @@ fun SimpleEditDialog(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            onConfirm(value)
-                        }
+                        onClick = onConfirm
+                    ) {
+                        Text(text = stringResource(R.string.generic_confirm))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleCheckEditDialog(
+    title: String,
+    text: String,
+    value: String,
+    checked: Boolean,
+    checkBoxText: String? = null,
+    onValueChange: (newValue: String) -> Unit,
+    onCheckedChange: (newValue: Boolean) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: () -> Unit = {},
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(shape = MaterialTheme.shapes.extraLarge) {
+            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = label,
+                    isError = isError,
+                    supportingText = supportingText
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    checkBoxText?.let{ Text(text = it, style = MaterialTheme.typography.labelMedium) }
+                    Checkbox(
+                        checked = checked,
+                        onCheckedChange = onCheckedChange
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = onDismissRequest
+                    ) {
+                        Text(text = stringResource(R.string.generic_cancel))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = onConfirm
                     ) {
                         Text(text = stringResource(R.string.generic_confirm))
                     }

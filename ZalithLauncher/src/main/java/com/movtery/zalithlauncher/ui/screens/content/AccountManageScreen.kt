@@ -273,7 +273,7 @@ private fun ServerTypeOperation(
                 label = { Text(text = stringResource(R.string.account_label_server_url)) },
                 onDismissRequest = { updateServerOperation(ServerOperation.None) },
                 onConfirm = {
-                    if (it.isNotEmpty()) {
+                    if (serverUrl.isNotEmpty()) {
                         updateServerOperation(ServerOperation.Add(serverUrl))
                     }
                 }
@@ -422,9 +422,8 @@ private fun AccountsLayout(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .padding(start = 12.dp, end = 12.dp),
-            contentPadding = PaddingValues(vertical = 12.dp)
+                .clip(shape = MaterialTheme.shapes.extraLarge),
+            contentPadding = PaddingValues(all = 12.dp)
         ) {
             items(accounts.size) { index ->
                 val account = accounts[index]

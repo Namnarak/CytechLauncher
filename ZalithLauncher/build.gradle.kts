@@ -111,7 +111,8 @@ tasks.register("generateInfoDistributor") {
         val constantList = listOf(
             "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt")}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
             "\"${getKeyFromLocal("CRYPTO_KEY", ".crypto_key.txt")}\"".toStatement(variable = "CRYPTO_KEY"),
-            "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME")
+            "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME"),
+            "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER")
         )
         generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", importList, constantList)
     }
@@ -135,6 +136,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.coil.compose)
     //Utils
     implementation(libs.gson)
     implementation(libs.commons.io)

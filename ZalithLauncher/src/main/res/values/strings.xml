@@ -8,11 +8,14 @@
     <string name="generic_refresh">刷新</string>
     <string name="generic_delete">删除</string>
     <string name="generic_rename">重命名</string>
+    <string name="generic_copy">复制</string>
     <string name="generic_more">更多</string>
     <string name="generic_setting">设置</string>
     <string name="generic_main_menu">主菜单</string>
     <string name="generic_download">下载</string>
     <string name="generic_done">完成</string>
+    <string name="generic_open">开启</string>
+    <string name="generic_close">关闭</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
@@ -95,6 +98,16 @@
     <string name="versions_manage_game_path_exists_title">游戏目录已存在</string>
     <string name="versions_manage_game_path_exists_message">当前选择的游戏目录与现有的目录冲突，你不能同时管理两个游戏目录！</string>
     <string name="versions_manage_game_path_error_title">操作游戏目录时遇到问题</string>
+    <string name="versions_manage_isolation_type_follow_global">跟随全局</string>
+    <string name="versions_manage_no_versions">没有安装版本</string>
+    <string name="versions_manage_install_exists">此名称的版本已经存在！</string>
+    <string name="versions_manage_install_cannot_use_mc_name">已选择附加内容，需要确保原版核心的独立性，请勿使用原版名称！</string>
+    <string name="versions_manage_rename_version">重命名版本</string>
+    <string name="versions_manage_copy_version">复制版本</string>
+    <string name="versions_manage_copy_version_tip">将当前版本复制为一个新的版本，且默认开启版本隔离，若开启下方的“复制所有文件”，那么将同时复制当前版本产生的所有文件（资源包、存档、游戏设置等）。</string>
+    <string name="versions_manage_copy_version_all">复制所有文件</string>
+    <string name="versions_manage_delete_version">删除版本</string>
+    <string name="versions_manage_delete_version_tip">删除版本时会一并删除\"./versions/%s\"目录内的所有文件，包括游戏存档、资源包、模组等重要资源，尽管未开启版本隔离，所以请一定要做好备份后再进行此操作！</string>
     <!--  游戏  -->
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
     <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>
@@ -104,7 +117,10 @@
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
     <!--  设置  -->
+    <string name="settings_tab_game">游戏设置</string>
     <string name="settings_tab_launcher">启动器设置</string>
+    <string name="settings_game_version_isolation_title">全局版本隔离</string>
+    <string name="settings_game_version_isolation_summary">默认隔离所有的版本，版本之间的数据互不干扰</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>

@@ -9,6 +9,12 @@ import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 
 class AllSettings {
     companion object {
+        //Game
+        /**
+         * 版本隔离
+         */
+        val versionIsolation = BooleanSettingUnit("versionIsolation", true)
+
         //Launcher
         /**
          * 颜色主题色

@@ -4,6 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.game.path.getAssetsHome
+import com.movtery.zalithlauncher.game.path.getLibrariesHome
+import com.movtery.zalithlauncher.game.path.getResourcesHome
+import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.AssetIndexJson
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
@@ -28,7 +32,6 @@ import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
     private val context: Context,
-    minecraftPath: File,
     private val version: String,
     customName: String = version,
     private val verifyIntegrity: Boolean,
@@ -50,10 +53,10 @@ class MinecraftDownloader(
         }
     }
     //Dir
-    private val assetsTarget = File("$minecraftPath/assets".replace("/", File.separator)).createPath()
-    private val resourcesTarget = File("$minecraftPath/resources".replace("/", File.separator)).createPath()
-    private val versionsTarget = File("$minecraftPath/versions".replace("/", File.separator)).createPath()
-    private val librariesTarget = File("$minecraftPath/libraries".replace("/", File.separator)).createPath()
+    private val assetsTarget = File(getAssetsHome()).createPath()
+    private val resourcesTarget = File(getResourcesHome()).createPath()
+    private val versionsTarget = File(getVersionsHome()).createPath()
+    private val librariesTarget = File(getLibrariesHome()).createPath()
     private val assetIndexTarget = File(assetsTarget, "indexes").createPath()
     private val gameVersionsTarget = File(versionsTarget, customName).createPath()
     //File

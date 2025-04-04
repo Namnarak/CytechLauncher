@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
@@ -55,6 +56,7 @@ class SettingsLayoutScope {
 
         Row(
             modifier = modifier
+                .clip(shape = MaterialTheme.shapes.extraLarge)
                 .clickable {
                     change(!checked)
                 }

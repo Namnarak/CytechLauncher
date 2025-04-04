@@ -283,8 +283,12 @@ private fun FilesLayout(
                     }
                 }
             } ?: run {
+                val scale = remember { Animatable(initialValue = 0.95f) }
+                LaunchedEffect(Unit) {
+                    scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+                }
                 Surface(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.Center).graphicsLayer(scaleY = scale.value, scaleX = scale.value),
                     shape = MaterialTheme.shapes.extraLarge,
                     color = MaterialTheme.colorScheme.inversePrimary,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
