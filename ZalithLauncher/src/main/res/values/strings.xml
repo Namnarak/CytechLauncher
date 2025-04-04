@@ -108,6 +108,7 @@
     <string name="versions_manage_copy_version_all">复制所有文件</string>
     <string name="versions_manage_delete_version">删除版本</string>
     <string name="versions_manage_delete_version_tip">删除版本时会一并删除\"./versions/%s\"目录内的所有文件，包括游戏存档、资源包、模组等重要资源，尽管未开启版本隔离，所以请一定要做好备份后再进行此操作！</string>
+    <string name="versions_manage_task_error">操作版本时出现问题</string>
     <!--  游戏  -->
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
     <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>

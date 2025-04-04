@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
@@ -47,7 +48,9 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 
 sealed interface GamePathOperation {
@@ -63,6 +66,7 @@ sealed interface VersionsOperation {
     data class Rename(val version: Version): VersionsOperation
     data class Copy(val version: Version): VersionsOperation
     data class Delete(val version: Version): VersionsOperation
+    data class RunTask(val title: Int, val task: suspend () -> Unit): VersionsOperation
 }
 
 @Composable
@@ -275,8 +279,12 @@ fun VersionsOperation(
                 version = versionsOperation.version,
                 onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
                 onConfirm = {
-                    VersionsManager.renameVersion(versionsOperation.version, it)
-                    updateVersionsOperation(VersionsOperation.None)
+                    updateVersionsOperation(
+                        VersionsOperation.RunTask(
+                            title = R.string.versions_manage_rename_version,
+                            task = { VersionsManager.renameVersion(versionsOperation.version, it) }
+                        )
+                    )
                 }
             )
         }
@@ -285,8 +293,12 @@ fun VersionsOperation(
                 version = versionsOperation.version,
                 onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
                 onConfirm = { name, copyAll ->
-                    VersionsManager.copyVersion(versionsOperation.version, name, copyAll)
-                    updateVersionsOperation(VersionsOperation.None)
+                    updateVersionsOperation(
+                        VersionsOperation.RunTask(
+                            title = R.string.versions_manage_copy_version,
+                            task = { VersionsManager.copyVersion(versionsOperation.version, name, copyAll) }
+                        )
+                    )
                 }
             )
         }
@@ -295,8 +307,29 @@ fun VersionsOperation(
                 version = versionsOperation.version,
                 onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
                 onConfirm = {
-                    VersionsManager.deleteVersion(versionsOperation.version)
-                    updateVersionsOperation(VersionsOperation.None)
+                    updateVersionsOperation(
+                        VersionsOperation.RunTask(
+                            title = R.string.versions_manage_delete_version,
+                            task = { VersionsManager.deleteVersion(versionsOperation.version) }
+                        )
+                    )
+                }
+            )
+        }
+        is VersionsOperation.RunTask -> {
+            val errorMessage = stringResource(R.string.versions_manage_task_error)
+            SimpleTaskDialog(
+                title = stringResource(versionsOperation.title),
+                task = versionsOperation.task,
+                onDismiss = { updateVersionsOperation(VersionsOperation.None) },
+                onError = { e ->
+                    Log.e("VersionsOperation.RunTask", "Failed to run task. ${StringUtils.throwableToString(e)}")
+                    ObjectStates.updateThrowable(
+                        ObjectStates.ThrowableMessage(
+                            title = errorMessage,
+                            message = e.getMessageOrToString()
+                        )
+                    )
                 }
             )
         }
