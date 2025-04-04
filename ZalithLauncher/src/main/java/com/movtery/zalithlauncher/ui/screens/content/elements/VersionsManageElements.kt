@@ -61,7 +61,7 @@ fun GamePathItemLayout(
     onRename: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
-    val notDefault = item.id != "default"
+    val notDefault = item.id != GamePathManager.DEFAULT_ID
     var isPopupVisible by remember { mutableStateOf(false) }
 
     val backgroundColor: Color by animateColorAsState(

@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.setting
 
 import android.os.Build
+import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -38,7 +39,7 @@ class AllSettings {
         /**
          * 当前选择的游戏目录id
          */
-        val currentGamePathId = StringSettingUnit("currentGamePathId", "default")
+        val currentGamePathId = StringSettingUnit("currentGamePathId", GamePathManager.DEFAULT_ID)
 
         /**
          * 启动器任务菜单是否展开

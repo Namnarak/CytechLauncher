@@ -120,10 +120,14 @@ private fun GamePathLayout(
                         selected = currentPath == pathItem.path,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            (context as? MainActivity)?.let { activity ->
-                                StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                                    GamePathManager.saveCurrentPath(pathItem.id)
-                                })
+                            if (pathItem.id == GamePathManager.DEFAULT_ID) {
+                                GamePathManager.saveDefaultPath()
+                            } else {
+                                (context as? MainActivity)?.let { activity ->
+                                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                                        GamePathManager.saveCurrentPath(pathItem.id)
+                                    })
+                                }
                             }
                         },
                         onDelete = {
