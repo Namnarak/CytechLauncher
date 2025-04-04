@@ -50,6 +50,7 @@
     <string name="account_label_password">填写密码</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
     <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
+    <string name="account_supporting_username_invalid_still_use">仍旧使用</string>
     <string name="account_supporting_username_invalid_short">该用户名过短</string>
     <string name="account_supporting_username_invalid_long">该用户名过长</string>
     <string name="account_supporting_username_invalid_illegal_characters">该用户名包含非法字符</string>

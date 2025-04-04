@@ -250,6 +250,7 @@ private fun ServerTypeOperation(
             SimpleAlertDialog(
                 title = stringResource(R.string.account_supporting_username_invalid_title),
                 text = stringResource(R.string.account_supporting_username_invalid_local_message),
+                confirmText = stringResource(R.string.account_supporting_username_invalid_still_use),
                 onConfirm = {
                     showAlert = false
                     updateLocalLoginDialog(false)

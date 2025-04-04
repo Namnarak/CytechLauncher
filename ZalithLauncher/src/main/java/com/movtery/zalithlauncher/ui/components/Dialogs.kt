@@ -43,6 +43,8 @@ import com.movtery.zalithlauncher.R
 fun SimpleAlertDialog(
     title: String,
     text: String,
+    confirmText: String = stringResource(R.string.generic_confirm),
+    dismissText: String = stringResource(R.string.generic_cancel),
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -61,12 +63,12 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text(text = stringResource(R.string.generic_confirm))
+                Text(text = confirmText)
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text(text = stringResource(R.string.generic_cancel))
+                Text(text = dismissText)
             }
         }
     )
@@ -83,6 +85,7 @@ fun SimpleAlertDialog(
 fun SimpleAlertDialog(
     title: String,
     text: String,
+    confirmText: String = stringResource(R.string.generic_confirm),
     onDismiss: () -> Unit
 ) {
     AlertDialog(
@@ -100,7 +103,7 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text(text = stringResource(R.string.generic_confirm))
+                Text(text = confirmText)
             }
         }
     )
@@ -118,7 +121,7 @@ fun SimpleEditDialog(
     onConfirm: (value: String) -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = MaterialTheme.shapes.extraLarge,) {
+        Surface(shape = MaterialTheme.shapes.extraLarge) {
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = title,
