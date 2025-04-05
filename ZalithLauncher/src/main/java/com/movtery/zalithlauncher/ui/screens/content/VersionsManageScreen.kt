@@ -130,7 +130,6 @@ private fun GamePathLayout(
                     GamePathItemLayout(
                         item = pathItem,
                         selected = currentPath == pathItem.path,
-                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             if (!VersionsManager.isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
                                 if (pathItem.id == GamePathManager.DEFAULT_ID) {

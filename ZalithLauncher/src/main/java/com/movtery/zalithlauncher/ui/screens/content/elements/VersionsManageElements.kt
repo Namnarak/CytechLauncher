@@ -1,10 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import android.util.Log
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,6 +17,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -74,70 +73,45 @@ fun GamePathItemLayout(
     item: GamePathItem,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    selectedColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    unSelectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    color: Color = Color.Transparent,
     onClick: () -> Unit = {},
     onRename: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
     val notDefault = item.id != GamePathManager.DEFAULT_ID
 
-    val backgroundColor: Color by animateColorAsState(
-        targetValue = if (selected) selectedColor else color,
-        animationSpec = getAnimateTween()
-    )
-    val contentColor1: Color by animateColorAsState(
-        targetValue = if (selected) contentColor else unSelectedContentColor,
-        animationSpec = getAnimateTween()
-    )
-
-    Row(
-        modifier = modifier
-            .clip(shape = MaterialTheme.shapes.large)
-            .clickable(onClick = onClick)
-            .background(color = backgroundColor)
-    ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(start = 12.dp, top = 4.dp, bottom = 4.dp)
-                .weight(1f)
-        ) {
-            Text(
-                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                overflow = TextOverflow.Clip,
-                text = if (notDefault) item.title else stringResource(R.string.versions_manage_game_path_default),
-                color = contentColor1,
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1
-            )
-            Text(
-                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                overflow = TextOverflow.Clip,
-                text = item.path,
-                color = contentColor1,
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 1
-            )
-        }
-
-        Row(
-            modifier = Modifier.align(Alignment.CenterVertically)
-        ) {
+    NavigationDrawerItem(
+        modifier = modifier,
+        label = {
+            Column(
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            ) {
+                Text(
+                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                    overflow = TextOverflow.Clip,
+                    text = if (notDefault) item.title else stringResource(R.string.versions_manage_game_path_default),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+                Text(
+                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                    overflow = TextOverflow.Clip,
+                    text = item.path,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1
+                )
+            }
+        },
+        badge = {
             var menuExpanded by remember { mutableStateOf(false) }
 
             IconButton(
-                onClick = {
-                    menuExpanded = !menuExpanded
-                }
+                modifier = Modifier.size(24.dp),
+                onClick = { menuExpanded = !menuExpanded }
             ) {
                 Icon(
                     modifier = Modifier.size(18.dp),
                     painter = painterResource(R.drawable.ic_more),
                     contentDescription = stringResource(R.string.generic_more),
-                    tint = contentColor1
                 )
             }
 
@@ -178,8 +152,10 @@ fun GamePathItemLayout(
                     }
                 )
             }
-        }
-    }
+        },
+        selected = selected,
+        onClick = onClick
+    )
 }
 
 @Composable

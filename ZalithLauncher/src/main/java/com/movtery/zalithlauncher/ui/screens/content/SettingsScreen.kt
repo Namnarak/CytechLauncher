@@ -8,8 +8,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.TabLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.GAME_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.GameSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
@@ -97,29 +101,48 @@ private fun TabMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
-        TabLayout(
-            modifier = Modifier.padding(all = 8.dp)
+        val settingItems = listOf(
+            SettingsItem(GAME_SETTINGS_TAG, R.drawable.ic_setting_game, R.string.settings_tab_game, PaddingValues(all = 2.dp)),
+            SettingsItem(LAUNCHER_SETTINGS_TAG, R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(all = 12.dp)
         ) {
-            TabItem(
-                painter = painterResource(R.drawable.ic_setting_game),
-                contentDescription = null,
-                iconPadding = PaddingValues(all = 2.dp),
-                text = stringResource(R.string.settings_tab_game),
-                selected = MutableStates.settingsScreenTag == GAME_SETTINGS_TAG
-            ) {
-                settingsNavController.navigateOnce(GAME_SETTINGS_TAG)
-            }
-            TabItem(
-                painter = painterResource(R.drawable.ic_setting_launcher),
-                contentDescription = null,
-                text = stringResource(R.string.settings_tab_launcher),
-                selected = MutableStates.settingsScreenTag == LAUNCHER_SETTINGS_TAG
-            ) {
-                settingsNavController.navigateOnce(LAUNCHER_SETTINGS_TAG)
+            items(settingItems.size) { index ->
+                val item = settingItems[index]
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(item.iconRes),
+                            contentDescription = stringResource(item.textRes),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .padding(item.iconPadding)
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = stringResource(item.textRes),
+                            softWrap = true,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    },
+                    selected = MutableStates.settingsScreenTag == item.screenTag,
+                    onClick = {
+                        settingsNavController.navigateOnce(item.screenTag)
+                    }
+                )
             }
         }
     }
 }
+
+private data class SettingsItem(
+    val screenTag: String,
+    val iconRes: Int,
+    val textRes: Int,
+    val iconPadding: PaddingValues = PaddingValues()
+)
 
 @Composable
 private fun NavigationUI(
