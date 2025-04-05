@@ -34,7 +34,7 @@ data class CurrentGameInfo(
     }
 
     companion object {
-        private fun getInfoFile() = File(getGameHome(), "CurrentInfo.cfg")
+        private fun getInfoFile() = File(getGameHome(), "zalith-game.cfg")
 
         /**
          * 刷新并返回最新的游戏信息（自动处理旧配置迁移）
