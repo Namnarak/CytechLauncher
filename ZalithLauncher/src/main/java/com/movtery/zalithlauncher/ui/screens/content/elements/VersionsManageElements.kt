@@ -51,6 +51,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.Dispatchers
 
 sealed interface GamePathOperation {
     data object None: GamePathOperation
@@ -64,7 +65,8 @@ sealed interface VersionsOperation {
     data object None: VersionsOperation
     data class Rename(val version: Version): VersionsOperation
     data class Copy(val version: Version): VersionsOperation
-    data class Delete(val version: Version): VersionsOperation
+    data class Delete(val version: Version, val text: String? = null): VersionsOperation
+    data class InvalidDelete(val version: Version): VersionsOperation
     data class RunTask(val title: Int, val task: suspend () -> Unit): VersionsOperation
 }
 
@@ -278,15 +280,25 @@ fun VersionsOperation(
                 }
             )
         }
+        is VersionsOperation.InvalidDelete -> {
+            updateVersionsOperation(
+                VersionsOperation.Delete(
+                    versionsOperation.version,
+                    stringResource(R.string.versions_manage_delete_version_tip_invalid)
+                )
+            )
+        }
         is VersionsOperation.Delete -> {
+            val version = versionsOperation.version
             DeleteVersionDialog(
-                version = versionsOperation.version,
+                version = version,
+                text = versionsOperation.text ?: stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
                 onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
                 onConfirm = {
                     updateVersionsOperation(
                         VersionsOperation.RunTask(
                             title = R.string.versions_manage_delete_version,
-                            task = { VersionsManager.deleteVersion(versionsOperation.version) }
+                            task = { VersionsManager.deleteVersion(version) }
                         )
                     )
                 }
@@ -297,6 +309,7 @@ fun VersionsOperation(
             SimpleTaskDialog(
                 title = stringResource(versionsOperation.title),
                 task = versionsOperation.task,
+                context = Dispatchers.IO,
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
                     Log.e("VersionsOperation.RunTask", "Failed to run task. ${StringUtils.throwableToString(e)}")
@@ -391,12 +404,13 @@ fun CopyVersionDialog(
 @Composable
 fun DeleteVersionDialog(
     version: Version,
+    text: String,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {}
 ) {
     SimpleAlertDialog(
         title = stringResource(R.string.versions_manage_delete_version),
-        text = stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
+        text = text,
         onDismiss = onDismissRequest,
         onConfirm = onConfirm
     )
@@ -457,8 +471,23 @@ fun VersionItemLayout(
                     style = MaterialTheme.typography.labelMedium,
                 )
                 //版本详细信息
-                version.getVersionInfo()?.let { versionInfo ->
-                    Row {
+                Row {
+                    if (!version.isValid()) {
+                        Text(
+                            text = stringResource(R.string.versions_manage_invalid),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                    if (version.getVersionConfig().isIsolation()) {
+                        Text(
+                            text = stringResource(R.string.versions_manage_isolation_enabled),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                    version.getVersionInfo()?.let { versionInfo ->
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                             overflow = TextOverflow.Clip,
@@ -584,13 +613,13 @@ fun VersionIconImage(
 
 private fun getLoaderIconRes(version: Version): Int {
     val loaderName = version.getVersionInfo()?.loaderInfo?.name?.lowercase() ?: ""
-    return when {
-        "fabric" in loaderName -> R.drawable.ic_fabric
-        "forge" in loaderName -> R.drawable.ic_anvil
-        "quilt" in loaderName -> R.drawable.ic_quilt
-        "neoforge" in loaderName -> R.drawable.ic_neoforge
-        "optifine" in loaderName -> R.drawable.ic_optifine
-        "liteloader" in loaderName -> R.drawable.ic_chicken_old
+    return when(loaderName) {
+        "fabric" -> R.drawable.ic_fabric
+        "forge" -> R.drawable.ic_anvil
+        "quilt" -> R.drawable.ic_quilt
+        "neoforge" -> R.drawable.ic_neoforge
+        "optifine" -> R.drawable.ic_optifine
+        "liteloader" -> R.drawable.ic_chicken_old
         else -> R.drawable.ic_minecraft
     }
 }

@@ -224,8 +224,13 @@ private fun VersionsLayout(
                                     .fillMaxWidth()
                                     .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
                                 onSelected = {
-                                    if (version != currentVersion) {
-                                        VersionsManager.saveCurrentVersion(version.getVersionName())
+                                    if (version.isValid()) {
+                                        if (version != currentVersion) {
+                                            VersionsManager.saveCurrentVersion(version.getVersionName())
+                                        }
+                                    } else {
+                                        //不允许选择无效版本
+                                        versionsOperation = VersionsOperation.InvalidDelete(version)
                                     }
                                 },
                                 onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
