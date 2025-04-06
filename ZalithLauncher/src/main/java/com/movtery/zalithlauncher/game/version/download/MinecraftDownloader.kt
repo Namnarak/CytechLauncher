@@ -202,7 +202,7 @@ class MinecraftDownloader(
     /** 计划客户端jar下载 */
     private fun scheduleClientJarDownload(gameManifest: GameManifest) {
         val client = gameManifest.downloads.client
-        verifyScheduleDownload(client.url, client.sha1, versionJarTarget, client.size)
+        scheduleDownload(client.url, client.sha1, versionJarTarget, client.size)
     }
 
     /** 计划assets资产下载 */
@@ -215,7 +215,7 @@ class MinecraftDownloader(
             } else {
                 File(targetPath, "objects/${hashedPath}".replace("/", File.separator))
             }
-            verifyScheduleDownload("${MINECRAFT_RES}$hashedPath", objectInfo.hash, targetFile, objectInfo.size)
+            scheduleDownload("${MINECRAFT_RES}$hashedPath", objectInfo.hash, targetFile, objectInfo.size)
         }
     }
 
@@ -237,46 +237,65 @@ class MinecraftDownloader(
                     else library.url.replace("http://", "https://")
                 }.let { "${it}$artifactPath" }
 
-                verifyScheduleDownload(fullUrl, sha1, File(librariesTarget, artifactPath), size)
+                scheduleDownload(fullUrl, sha1, File(librariesTarget, artifactPath), size)
             }
         }
     }
 
     /**
-     * 验证完整性并提交计划下载
+     * 提交计划下载
      */
-    private fun verifyScheduleDownload(url: String, sha1: String, targetFile: File, size: Long) {
-        /** 计划下载 */
-        fun scheduleDownload(url: String, targetFile: File, size: Long) {
-            totalFileCount.incrementAndGet()
-            totalFileSize.addAndGet(size)
-            allDownloadTasks.add(DownloadTask(url, targetFile))
-        }
-
-        if (targetFile.exists()) {
-            if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
-                return
-            } else {
-                FileUtils.deleteQuietly(targetFile)
-            }
-        }
-        scheduleDownload(url, targetFile, size)
+    private fun scheduleDownload(url: String, sha1: String, targetFile: File, size: Long) {
+        totalFileCount.incrementAndGet()
+        totalFileSize.addAndGet(size)
+        allDownloadTasks.add(DownloadTask(url, targetFile, sha1))
     }
 
     inner class DownloadTask(
         private val url: String,
-        private val targetPath: File,
+        private val targetFile: File,
+        private val sha1: String?
     ) : Runnable {
         override fun run() {
-            try {
-                NetWorkUtils.downloadFile(url, targetPath, bufferSize = getLocalBuffer().value) { size ->
-                    downloadedFileSize.addAndGet(size.toLong())
+            //若目标文件存在，验证通过或关闭完整性验证时，跳过此次下载
+            if (verifySha1()) {
+                downloadedSize(FileUtils.sizeOf(targetFile))
+                downloadedFile()
+                return
+            }
+
+            runCatching {
+                NetWorkUtils.downloadFile(url, targetFile, bufferSize = getLocalBuffer().value) { size ->
+                    downloadedSize(size.toLong())
                 }
-                downloadedFileCount.incrementAndGet()
-            } catch (e: Exception) {
-                Log.e(LOG_TAG, "Download failed: ${targetPath.absolutePath}, url: $url", e)
+                downloadedFile()
+            }.onFailure { e ->
+                Log.e(LOG_TAG, "Download failed: ${targetFile.absolutePath}, url: $url", e)
                 downloadFailedTasks.add(this)
             }
+        }
+
+        private fun downloadedSize(size: Long) {
+            downloadedFileSize.addAndGet(size)
+        }
+
+        private fun downloadedFile() {
+            downloadedFileCount.incrementAndGet()
+        }
+
+        /**
+         * 若目标文件存在，验证完整性
+         * @return 是否跳过此次下载
+         */
+        private fun verifySha1(): Boolean {
+            if (targetFile.exists()) {
+                if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
+                    return true
+                } else {
+                    FileUtils.deleteQuietly(targetFile)
+                }
+            }
+            return false
         }
     }
 }
