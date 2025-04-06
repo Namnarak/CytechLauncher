@@ -78,39 +78,10 @@ class Task private constructor(
     companion object {
         fun runTask(
             id: String? = null,
-            task: suspend CoroutineScope.(Task) -> Unit
-        ): Task =
-            Task(id = id ?: getRandomID(), task = task)
-
-        fun runTask(
-            id: String? = null,
-            dispatcher: CoroutineDispatcher = Dispatchers.Default,
-            task: suspend CoroutineScope.(Task) -> Unit
-        ): Task =
-            Task(id = id ?: getRandomID(), dispatcher = dispatcher, task = task)
-
-        fun runTask(
-            id: String? = null,
             dispatcher: CoroutineDispatcher = Dispatchers.Default,
             task: suspend CoroutineScope.(Task) -> Unit,
-            onError: (Throwable) -> Unit
-        ): Task =
-            Task(id = id ?: getRandomID(), dispatcher = dispatcher, task = task, onError = onError)
-
-        fun runTask(
-            id: String? = null,
-            dispatcher: CoroutineDispatcher = Dispatchers.Default,
-            task: suspend CoroutineScope.(Task) -> Unit,
-            onFinally: () -> Unit
-        ): Task =
-            Task(id = id ?: getRandomID(), dispatcher = dispatcher, task = task, onFinally = onFinally)
-
-        fun runTask(
-            id: String? = null,
-            dispatcher: CoroutineDispatcher = Dispatchers.Default,
-            task: suspend CoroutineScope.(Task) -> Unit,
-            onError: (Throwable) -> Unit,
-            onFinally: () -> Unit
+            onError: (Throwable) -> Unit = {},
+            onFinally: () -> Unit = {}
         ): Task =
             Task(id = id ?: getRandomID(), dispatcher = dispatcher, task = task, onError = onError, onFinally = onFinally)
 

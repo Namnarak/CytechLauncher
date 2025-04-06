@@ -21,15 +21,17 @@ class OtherLoginHelper(
     private val email: String,
     private val password: String,
     private val onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
-    private val onFailed: (error: String) -> Unit = {}
+    private val onFailed: (error: String) -> Unit = {},
+    private val onFinally: () -> Unit = {}
 ) {
     constructor(
         server: Server,
         email: String,
         password: String,
         onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
-        onFailed: (error: String) -> Unit = {}
-    ): this(server.baseUrl, server.serverName, email, password, onSuccess, onFailed)
+        onFailed: (error: String) -> Unit = {},
+        onFinally: () -> Unit = {}
+    ): this(server.baseUrl, server.serverName, email, password, onSuccess, onFailed, onFinally)
 
     private fun login(
         context: Context,
@@ -37,8 +39,8 @@ class OtherLoginHelper(
         loggingString: String = serverName,
         onlyOneRole: suspend (AuthResult, Task) -> Unit = { _, _ -> },
         hasMultipleRoles: suspend (AuthResult, Task) -> Unit = { _, _ -> }
-    ) {
-        val task = Task.runTask(
+    ) : Task {
+        return Task.runTask(
             id = taskId,
             dispatcher = Dispatchers.IO,
             task = { task ->
@@ -59,10 +61,9 @@ class OtherLoginHelper(
                 val message = "An exception was encountered while performing the login task."
                 Log.e("OtherLogin", message, e)
                 onFailed(e.message ?: message)
-            }
+            },
+            onFinally = onFinally
         ).apply { updateMessage(R.string.account_logging_in, loggingString) }
-
-        TaskSystem.submitTask(task)
     }
 
     private fun updateAccountInfo(
@@ -91,7 +92,7 @@ class OtherLoginHelper(
         context: Context,
         selectRole: (List<AuthResult.AvailableProfiles>, (AuthResult.AvailableProfiles) -> Unit) -> Unit
     ) {
-        login(
+        val task = login(
             context,
             onlyOneRole = { authResult, task ->
                 val profileId = authResult.selectedProfile.id
@@ -108,18 +109,20 @@ class OtherLoginHelper(
                 }
             }
         )
+        TaskSystem.submitTask(task)
     }
 
     /**
      * 仅仅只是登录外置账号（使用账号密码登录）
      * JUST DO IT!!!
+     * @return 登陆的任务对象
      */
-    fun justLogin(context: Context, account: Account) {
+    fun justLogin(context: Context, account: Account): Task {
         fun roleNotFound() { //未找到匹配的ID
             onFailed(context.getString(R.string.account_other_login_role_not_found))
         }
 
-        login(
+        return login(
             context,
             onlyOneRole = { authResult, task ->
                 if (authResult.selectedProfile.id != account.profileId) {

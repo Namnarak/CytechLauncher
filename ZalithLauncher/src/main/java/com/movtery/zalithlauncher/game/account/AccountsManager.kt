@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.CryptoManager
@@ -75,16 +76,30 @@ object AccountsManager {
         onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
         onFailed: (error: String) -> Unit = {}
     ) {
+        val task = performLoginTask(context, account, onSuccess, onFailed)
+        task?.let { TaskSystem.submitTask(it) }
+    }
+
+    /**
+     * 获取登陆操作的任务对象
+     */
+    fun performLoginTask(
+        context: Context,
+        account: Account,
+        onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
+        onFailed: (error: String) -> Unit = {},
+        onFinally: () -> Unit = {}
+    ): Task? =
         when {
-            isNoLoginRequired(account) -> {}
+            isNoLoginRequired(account) -> null
             isOtherLoginAccount(account) -> {
-                otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed)
+                otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
             isMicrosoftAccount(account) -> {
-                microsoftRefresh(context = context, account = account, onSuccess = onSuccess)
+                microsoftRefresh(context = context, account = account, onSuccess = onSuccess, onFinally = onFinally)
             }
+            else -> null
         }
-    }
 
     /**
      * 获取当前已登录的账号

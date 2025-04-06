@@ -15,6 +15,7 @@ object TaskSystem {
     val tasksFlow: StateFlow<List<Task>> = _tasksFlow
 
     private val allJobs = ConcurrentHashMap<String, Job>()
+    private val allListeners = ConcurrentHashMap<String, () -> Unit>()
 
     /**
      * 提交并立即运行任务
@@ -32,11 +33,42 @@ object TaskSystem {
                 task.onFinally()
             }
         }.also { job ->
-            job.invokeOnCompletion {
-                removeTask(task)
-                allJobs.remove(task.id)
-            }
+            job.invokeOnCompletion { onTaskEnded(task) }
         }
+    }
+
+    /**
+     * 提交并立即运行任务
+     * 若任务已存在，则忽略，但任务监听器会被覆盖
+     * @param onEnded 任务结束时的监听器
+     */
+    fun submitTask(task: Task, onEnded: () -> Unit) {
+        putTaskEndedListener(taskId = task.id, onEnded = onEnded)
+        submitTask(task)
+    }
+
+    /**
+     * 添加任务结束的监听器，监听器会在任务的一切流程结束时被调用
+     * 任务监听器执行时发生的异常将会被忽略
+     * @param taskId 指定监听器应用到的哪个任务上
+     */
+    fun putTaskEndedListener(taskId: String, onEnded: () -> Unit) {
+        allListeners[taskId] = onEnded
+    }
+
+    /**
+     * 移除任务流程结束的监听器
+     */
+    fun removeTaskEndedListener(taskId: String) =
+        allListeners.remove(taskId)
+
+    private fun onTaskEnded(task: Task) {
+        removeTask(task)
+        runCatching {
+            allListeners[task.id]?.invoke()
+        }
+        allJobs.remove(task.id)
+        removeTaskEndedListener(task.id)
     }
 
     /**
@@ -44,7 +76,7 @@ object TaskSystem {
      */
     fun cancelTask(task: Task) {
         allJobs[task.id]?.cancel()
-        removeTask(task)
+        onTaskEnded(task)
     }
 
     /**
@@ -52,7 +84,7 @@ object TaskSystem {
      */
     fun cancelTask(id: String) {
         allJobs[id]?.cancel()
-        _tasksFlow.value.find { it.id == id }?.let { removeTask(it) }
+        _tasksFlow.value.find { it.id == id }?.let { onTaskEnded(it) }
     }
 
     /**

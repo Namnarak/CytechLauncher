@@ -136,11 +136,12 @@ private suspend fun authAsync(
 fun microsoftRefresh(
     context: Context,
     account: Account,
-    onSuccess: suspend (Account, Task) -> Unit
-) {
-    if (TaskSystem.containsTask(account.profileId)) return
+    onSuccess: suspend (Account, Task) -> Unit,
+    onFinally: () -> Unit = {}
+): Task? {
+    if (TaskSystem.containsTask(account.profileId)) return null
 
-    val task = Task.runTask(
+    return Task.runTask(
         id = account.profileId,
         dispatcher = Dispatchers.IO,
         task = { task ->
@@ -175,27 +176,28 @@ fun microsoftRefresh(
                     )
                 )
             }
-        }
+        },
+        onFinally = onFinally
     )
-
-    TaskSystem.submitTask(task)
 }
 
 fun otherLogin(
     context: Context,
     account: Account,
     onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
-    onFailed: (error: String) -> Unit = {}
-) {
-    if (TaskSystem.containsTask(account.uniqueUUID)) return
+    onFailed: (error: String) -> Unit = {},
+    onFinally: () -> Unit = {}
+): Task? {
+    if (TaskSystem.containsTask(account.uniqueUUID)) return null
 
-    OtherLoginHelper(
+    return OtherLoginHelper(
         baseUrl = account.otherBaseUrl!!,
         serverName = account.accountType!!,
         email = account.otherAccount!!,
         password = account.otherPassword!!,
         onSuccess = onSuccess,
-        onFailed = onFailed
+        onFailed = onFailed,
+        onFinally = onFinally
     ).justLogin(context, account)
 }
 
