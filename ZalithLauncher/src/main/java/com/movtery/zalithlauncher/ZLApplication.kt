@@ -8,6 +8,7 @@ import android.os.Process
 import android.util.Log
 import com.movtery.zalithlauncher.context.Contexts
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
 import java.io.PrintStream
 import java.text.DateFormat
 import java.util.Date
@@ -32,6 +33,7 @@ class ZLApplication : Application() {
                 Log.e("Application", "Crash stack trace: ", throwable)
             }
 
+            showLauncherCrash(this@ZLApplication, throwable)
             Process.killProcess(Process.myPid())
         }
 

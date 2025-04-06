@@ -35,6 +35,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.movtery.zalithlauncher.ui.activities.ErrorActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
+            android:screenOrientation="sensorLandscape" />
     </application>
 
 </manifest>

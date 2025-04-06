@@ -30,6 +30,11 @@
     <string name="theme_color_urban_ash">钛影</string>
     <string name="theme_color_verdant_dawn">静林之晨</string>
     <string name="theme_color_celestine_veil">霁岚</string>
+    <!--  崩溃  -->
+    <string name="crash_launcher_title">%s 遇到了严重的问题崩溃了</string>
+    <string name="crash_launcher_message">以下错误信息将帮助开发者改进程序</string>
+    <string name="crash_restart">重启应用</string>
+    <string name="crash_exit">退出应用</string>
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_about">关于</string>

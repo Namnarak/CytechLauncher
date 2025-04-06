@@ -40,8 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -61,6 +59,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
+import com.movtery.zalithlauncher.ui.components.DownShadow
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
@@ -158,26 +157,18 @@ fun MainScreen() {
             }
 
             //叠加的一层阴影效果
-            Box(
+            DownShadow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
-                    .align(Alignment.TopStart)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.15f),
-                                Color.Transparent
-                            )
-                        )
-                    )
+                    .align(Alignment.TopStart),
+                height = 4.dp
             )
         }
     }
 }
 
 @Composable
-fun TopBar(
+private fun TopBar(
     navController: NavHostController,
     taskRunning: Boolean,
     isTasksExpanded: Boolean,
@@ -328,7 +319,7 @@ fun TopBar(
 }
 
 @Composable
-fun NavigationUI(
+private fun NavigationUI(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -395,7 +386,7 @@ fun NavigationUI(
 }
 
 @Composable
-fun TaskMenu(
+private fun TaskMenu(
     tasks: List<Task>,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
