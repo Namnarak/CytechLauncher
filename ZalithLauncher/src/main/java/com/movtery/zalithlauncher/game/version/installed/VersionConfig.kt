@@ -7,6 +7,7 @@ import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager.getZalithVersionPath
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getStringNotNull
@@ -67,12 +68,13 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     fun saveWithThrowable() {
         Log.i("Save Version Config", "Trying to save: $this")
         val zalithVersionPath = getZalithVersionPath(versionPath)
-        val configFile = File(zalithVersionPath, "VersionConfig.json")
+        val configFile = File(zalithVersionPath, "version.config")
         if (!zalithVersionPath.exists()) zalithVersionPath.mkdirs()
 
         FileWriter(configFile, false).use {
             val json = GSON.toJson(this)
-            it.write(json)
+            val text = CryptoManager.encrypt(json)
+            it.write(text)
         }
         Log.i("Save Version Config", "Saved: $this")
     }
@@ -167,14 +169,14 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         }
 
         fun parseConfig(versionPath: File): VersionConfig {
-            //兼容旧版本的版本隔离文件（识别并保存为新版本后，旧的版本隔离文件将被删除）
-            val configFile = File(getZalithVersionPath(versionPath), "VersionConfig.json")
+            val configFile = File(getZalithVersionPath(versionPath), "version.config")
 
             return runCatching getConfig@{
                 when {
                     configFile.exists() -> {
                         //读取此文件的内容，并解析为VersionConfig
-                        val config = GSON.fromJson(configFile.readText(), VersionConfig::class.java)
+                        val configText = CryptoManager.decrypt(configFile.readText())
+                        val config = GSON.fromJson(configText, VersionConfig::class.java)
                         config.setVersionPath(versionPath)
                         config
                     }
