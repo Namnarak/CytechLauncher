@@ -9,6 +9,12 @@ import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 
 class AllSettings {
     companion object {
+        //Renderer
+        /**
+         * 全局渲染器
+         */
+        val renderer = StringSettingUnit("renderer", "")
+
         //Game
         /**
          * 版本隔离

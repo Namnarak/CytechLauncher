@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -20,12 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -56,6 +61,7 @@ class SettingsLayoutScope {
 
         Row(
             modifier = modifier
+                .fillMaxWidth()
                 .clip(shape = MaterialTheme.shapes.extraLarge)
                 .clickable {
                     change(!checked)
@@ -97,14 +103,11 @@ class SettingsLayoutScope {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
 
         Column(
-            modifier = modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TitleAndSummary(title, summary)
-            }
-
+            TitleAndSummary(title, summary)
             SimpleTextSlider(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toFloat(),
@@ -137,14 +140,11 @@ class SettingsLayoutScope {
         var value by rememberSaveable { mutableStateOf(unit.getValue()) }
 
         Column(
-            modifier = modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TitleAndSummary(title, summary)
-            }
-
+            TitleAndSummary(title, summary)
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,6 +169,65 @@ class SettingsLayoutScope {
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun <E> ListSettingsLayout(
+        modifier: Modifier = Modifier,
+        unit: StringSettingUnit,
+        items: List<E>,
+        title: String,
+        summary: String? = null,
+        getItemText: (E) -> String,
+        getItemId: (E) -> String,
+        onValueChange: (E) -> Unit = {}
+    ) {
+        require(items.isNotEmpty()) { "Items list cannot be empty" }
+
+        val currentId = unit.getValue()
+        val defaultValue = unit.defaultValue
+        val initialItem = remember(items, currentId, defaultValue) {
+            items.firstOrNull { getItemId(it) == currentId }
+                ?: items.firstOrNull { getItemId(it) == defaultValue }
+                ?: items.first()
+        }
+        var selectedItem by remember { mutableStateOf(initialItem) }
+        var expanded by remember { mutableStateOf(false) }
+
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clickable { expanded = !expanded }
+                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+        ) {
+            TitleAndSummary(title, summary)
+            Spacer(modifier = Modifier.height(height = 4.dp))
+            Text(
+                text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                shape = MaterialTheme.shapes.extraLarge
+            ) {
+                items.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(getItemText(item)) },
+                        onClick = {
+                            expanded = false
+                            if (getItemId(selectedItem) != getItemId(item)) {
+                                selectedItem = item
+                                unit.put(getItemId(item)).save()
+                                onValueChange(item)
+                            }
+                        }
+                    )
                 }
             }
         }

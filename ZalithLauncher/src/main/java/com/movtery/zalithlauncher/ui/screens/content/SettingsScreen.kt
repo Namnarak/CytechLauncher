@@ -35,6 +35,8 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.GAME_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.GameSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.RENDERER_SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -102,6 +104,7 @@ private fun TabMenu(
         shadowElevation = 4.dp
     ) {
         val settingItems = listOf(
+            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, R.drawable.ic_setting_renderer, R.string.settings_tab_renderer, PaddingValues(all = 1.dp)),
             SettingsItem(GAME_SETTINGS_TAG, R.drawable.ic_setting_game, R.string.settings_tab_game, PaddingValues(all = 2.dp)),
             SettingsItem(LAUNCHER_SETTINGS_TAG, R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
         )
@@ -160,8 +163,13 @@ private fun NavigationUI(
     NavHost(
         modifier = modifier,
         navController = settingsNavController,
-        startDestination = GAME_SETTINGS_TAG
+        startDestination = RENDERER_SETTINGS_SCREEN_TAG
     ) {
+        composable(
+            route = RENDERER_SETTINGS_SCREEN_TAG
+        ) {
+            RendererSettingsScreen()
+        }
         composable(
             route = GAME_SETTINGS_TAG
         ) {

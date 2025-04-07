@@ -126,8 +126,12 @@
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
     <!--  设置  -->
+    <string name="settings_element_selected">当前选择项：%s</string>
+    <string name="settings_tab_renderer">渲染设置</string>
     <string name="settings_tab_game">游戏设置</string>
     <string name="settings_tab_launcher">启动器设置</string>
+    <string name="settings_renderer_global_renderer_title">全局渲染器</string>
+    <string name="settings_renderer_global_renderer_summary">全局默认的渲染器，通过动态库转换层，确保游戏能在移动端运行</string>
     <string name="settings_game_version_isolation_title">全局版本隔离</string>
     <string name="settings_game_version_isolation_summary">默认隔离所有的版本，版本之间的数据互不干扰</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>

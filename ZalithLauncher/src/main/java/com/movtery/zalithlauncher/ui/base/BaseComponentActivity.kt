@@ -4,7 +4,7 @@ import android.os.Bundle
 import com.movtery.zalithlauncher.context.Contexts
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
-import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
 
 open class BaseComponentActivity : FullScreenComponentActivity() {
@@ -15,6 +15,8 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
         Contexts.refresh(this)
         checkStoragePermissions()
 
+        //加载渲染器
+        Renderers.init()
         //刷新游戏目录
         GamePathManager.reloadPath()
     }
