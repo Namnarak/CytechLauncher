@@ -29,7 +29,7 @@ private suspend fun downloadStringAndSave(
         string
     }
 
-private fun <T> String.parseTo(classOfT: Class<T>): T {
+fun <T> String.parseTo(classOfT: Class<T>): T {
     return runCatching {
         GSON.fromJson(this, classOfT)
     }.getOrElse { e ->

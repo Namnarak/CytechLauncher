@@ -24,6 +24,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.IOException
 import java.io.InterruptedIOException
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicLong
 class MinecraftDownloader(
     private val context: Context,
     private val version: String,
-    customName: String = version,
+    private val customName: String = version,
     private val verifyIntegrity: Boolean,
     private val onCompletion: () -> Unit = {},
     private val maxDownloadThreads: Int = 64
@@ -58,10 +59,11 @@ class MinecraftDownloader(
     private val versionsTarget = File(getVersionsHome()).createPath()
     private val librariesTarget = File(getLibrariesHome()).createPath()
     private val assetIndexTarget = File(assetsTarget, "indexes").createPath()
-    private val gameVersionsTarget = File(versionsTarget, customName).createPath()
     //File
-    private val versionJsonTarget = File(gameVersionsTarget, "$customName.json".replace("/", File.separator))
-    private val versionJarTarget = File(gameVersionsTarget, "$customName.jar".replace("/", File.separator))
+    private val versionJarSource: File = getVersionJarPath(version)
+    private val versionJarTarget: File = getVersionJarPath(customName)
+    private val versionLog4jXMLSource: File = getLog4jXMLPath(version)
+    private val versionLog4jXMLTarget: File = getLog4jXMLPath(customName)
 
     //已下载文件计数器
     private var downloadedFileSize: AtomicLong = AtomicLong(0)
@@ -76,28 +78,21 @@ class MinecraftDownloader(
     private var downloadFailedTasks = mutableListOf<DownloadTask>()
 
     private fun File.createPath(): File = this.apply { if (!(exists() && isDirectory)) mkdirs() }
+    private fun File.createParent(): File = this.apply { parentFile!!.createPath() }
 
     fun getDownloadTask(): Task {
         return Task.runTask(
             id = LOG_TAG,
             dispatcher = Dispatchers.Default,
             task = { task ->
-                if (!versionsTarget.exists()) versionsTarget.mkdirs()
-                if (!gameVersionsTarget.exists()) gameVersionsTarget.mkdirs()
-
                 task.updateProgress(-1f, R.string.minecraft_getting_version_list)
-
-                val versionManifest = MinecraftVersions.getVersionManifest()
-                val selectedVersion = versionManifest.versions.find { it.id == version } ?: throw IllegalArgumentException("Version not found")
+                val selectedVersion = findVersion(customName)
 
                 task.updateProgress(-1f, R.string.minecraft_download_progress_version_json)
-                val gameManifest = createVersionJson(selectedVersion)
-                val assetsIndex = createAssetIndex(gameManifest)
+                val gameManifest = selectedVersion?.let { createVersionJson(it) }
 
                 task.updateProgress(-1f, R.string.minecraft_download_task_analysis)
-                scheduleClientJarDownload(gameManifest)
-                scheduleAssetDownloads(assetsIndex)
-                scheduleLibraryDownloads(gameManifest)
+                progressDownloadTasks(gameManifest, customName)
 
                 if (allDownloadTasks.isNotEmpty()) {
                     //使用线程池进行下载
@@ -113,6 +108,7 @@ class MinecraftDownloader(
                 onCompletion()
             },
             onError = { e ->
+                Log.e("MinecraftDownloader", "Failed to download Minecraft!", e)
                 val message = when(e) {
                     is InterruptedException, is InterruptedIOException, is CancellationException -> return@runTask
                     is DownloadFailedException -> "${context.getString(R.string.minecraft_download_failed_retried)}\n${e.getMessageOrToString()}"
@@ -163,6 +159,8 @@ class MinecraftDownloader(
                     lastProgressUpdate = System.currentTimeMillis()
                 }
             }
+            ensureFileCopy(versionJarSource, versionJarTarget)
+            ensureFileCopy(versionLog4jXMLSource, versionLog4jXMLTarget)
         }.onFailure { e ->
             executor.shutdownNow()
             when(e) {
@@ -172,12 +170,48 @@ class MinecraftDownloader(
         }
     }
 
+    private suspend fun findVersion(version: String): Version? {
+        val versionManifest = MinecraftVersions.getVersionManifest()
+        return versionManifest.versions.find { it.id == version }
+    }
+
+    private suspend fun progressDownloadTasks(gameManifest: GameManifest?, version: String) {
+        val gameManifest1 = gameManifest ?: run {
+            val jsonFile = getVersionJsonPath(version).takeIf { it.canRead() }
+                ?: throw IOException("Unable to read Version JSON for version $version")
+            val jsonText = jsonFile.readText()
+            jsonText.parseTo(GameManifest::class.java)
+        }
+        val assetsIndex = createAssetIndex(gameManifest1)
+
+        scheduleClientJarDownload(gameManifest1, version)
+        scheduleAssetDownloads(assetsIndex)
+        scheduleLibraryDownloads(gameManifest1)
+        scheduleLog4jXMLDownload(gameManifest1, version)
+
+        if (this.version != version) {
+            findVersion(this.version)?.let {
+                val gameManifest2 = createVersionJson(it)
+                progressDownloadTasks(gameManifest2, this.version)
+            }
+        }
+    }
+
+    private fun getVersionJsonPath(version: String) =
+        File(versionsTarget, "$version/$version.json".replace("/", File.separator)).createParent()
+
+    private fun getVersionJarPath(version: String) =
+        File(versionsTarget, "$version/$version.jar".replace("/", File.separator)).createParent()
+
+    private fun getLog4jXMLPath(version: String) =
+        File(versionsTarget, "$version/log4j2.xml".replace("/", File.separator)).createParent()
+
     /**
      * 创建版本 Json
      */
     private suspend fun createVersionJson(version: Version): GameManifest {
         return downloadAndParseJson(
-            targetFile = versionJsonTarget,
+            targetFile = getVersionJsonPath(version.id),
             url = version.url,
             expectedSHA = version.sha1,
             verifyIntegrity = verifyIntegrity,
@@ -188,26 +222,38 @@ class MinecraftDownloader(
     /**
      * 创建 assets 索引 Json
      */
-    private suspend fun createAssetIndex(gameManifest: GameManifest): AssetIndexJson {
+    private suspend fun createAssetIndex(gameManifest: GameManifest): AssetIndexJson? {
         val indexFile = File(assetIndexTarget, "${gameManifest.assets}.json")
-        return downloadAndParseJson(
-            targetFile = indexFile,
-            url = gameManifest.assetIndex.url,
-            expectedSHA = gameManifest.assetIndex.sha1,
-            verifyIntegrity = verifyIntegrity,
-            classOfT = AssetIndexJson::class.java
-        )
+        return gameManifest.assetIndex?.let { assetIndex ->
+            downloadAndParseJson(
+                targetFile = indexFile,
+                url = assetIndex.url,
+                expectedSHA = assetIndex.sha1,
+                verifyIntegrity = verifyIntegrity,
+                classOfT = AssetIndexJson::class.java
+            )
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun ensureFileCopy(source: File, target: File) {
+        if (source == target) return
+        if (target.exists()) return
+        Log.i("MinecraftDownloader", "Copying ${source.getName()} to ${target.absolutePath}")
+        FileUtils.copyFile(source, target, false)
     }
 
     /** 计划客户端jar下载 */
-    private fun scheduleClientJarDownload(gameManifest: GameManifest) {
-        val client = gameManifest.downloads.client
-        scheduleDownload(client.url, client.sha1, versionJarTarget, client.size)
+    private fun scheduleClientJarDownload(gameManifest: GameManifest, version: String) {
+        val clientFile = getVersionJarPath(version)
+        gameManifest.downloads?.client?.let { client ->
+            scheduleDownload(client.url, client.sha1, clientFile, client.size)
+        }
     }
 
     /** 计划assets资产下载 */
-    private fun scheduleAssetDownloads(assetIndex: AssetIndexJson) {
-        assetIndex.objects?.forEach { (path, objectInfo) ->
+    private fun scheduleAssetDownloads(assetIndex: AssetIndexJson?) {
+        assetIndex?.objects?.forEach { (path, objectInfo) ->
             val hashedPath = "${objectInfo.hash.substring(0, 2)}/${objectInfo.hash}"
             val targetPath = if (assetIndex.isMapToResources) resourcesTarget else assetsTarget
             val targetFile = if (assetIndex.isVirtual || assetIndex.isMapToResources) {
@@ -227,25 +273,33 @@ class MinecraftDownloader(
                 if (library.name.startsWith("org.lwjgl")) return@forEach
 
                 val artifactPath: String = artifactToPath(library) ?: return@forEach
-                val (sha1, url, size) = if (library.downloads != null && library.downloads.artifact != null) {
-                    val artifact = library.downloads.artifact
-                    Triple(artifact.sha1, artifact.url, artifact.size)
-                } else return@forEach
+                val (sha1, url, size) = library.downloads?.let { downloads ->
+                    downloads.artifact?.let { artifact ->
+                        Triple(artifact.sha1, artifact.url, artifact.size)
+                    } ?: return@forEach
+                } ?: run {
+                    val u1 = library.url?.replace("http://", "https://") ?: "https://libraries.minecraft.net/"
+                    val url = u1.let { "${it}$artifactPath" }
+                    Triple(library.sha1, url, library.size)
+                }
 
-                val fullUrl = url ?: run {
-                    if (library.url == null) "https://libraries.minecraft.net/"
-                    else library.url.replace("http://", "https://")
-                }.let { "${it}$artifactPath" }
-
-                scheduleDownload(fullUrl, sha1, File(librariesTarget, artifactPath), size)
+                scheduleDownload(url, sha1, File(librariesTarget, artifactPath), size)
             }
+        }
+    }
+
+    /** 计划日志格式化配置下载 */
+    private fun scheduleLog4jXMLDownload(gameManifest: GameManifest, version: String) {
+        val versionLoggingTarget = getLog4jXMLPath(version)
+        gameManifest.logging?.client?.file?.let { loggingConfig ->
+            scheduleDownload(loggingConfig.url, loggingConfig.sha1, versionLoggingTarget, loggingConfig.size)
         }
     }
 
     /**
      * 提交计划下载
      */
-    private fun scheduleDownload(url: String, sha1: String, targetFile: File, size: Long) {
+    private fun scheduleDownload(url: String, sha1: String?, targetFile: File, size: Long) {
         totalFileCount.incrementAndGet()
         totalFileSize.addAndGet(size)
         allDownloadTasks.add(DownloadTask(url, targetFile, sha1))
@@ -288,6 +342,7 @@ class MinecraftDownloader(
          * @return 是否跳过此次下载
          */
         private fun verifySha1(): Boolean {
+            sha1 ?: return false
             if (targetFile.exists()) {
                 if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
                     return true

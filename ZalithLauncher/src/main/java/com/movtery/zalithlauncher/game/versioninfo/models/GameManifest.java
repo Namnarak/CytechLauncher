@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.game.versioninfo.models;
 
 import com.google.gson.annotations.SerializedName;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 public class GameManifest {
@@ -12,6 +15,7 @@ public class GameManifest {
     private String id;
     private JavaVersion javaVersion;
     private List<Library> libraries;
+    private Logging logging;
 
     public Arguments getArguments() {
         return arguments;
@@ -36,6 +40,9 @@ public class GameManifest {
     }
     public List<Library> getLibraries() {
         return libraries;
+    }
+    public Logging getLogging() {
+        return logging;
     }
 
     public static class Arguments {
@@ -177,6 +184,8 @@ public class GameManifest {
         private String name;
         private List<Rule> rules;
         private String url;
+        @Nullable private String sha1;
+        private long size;
 
         public DownloadsX getDownloads() {
             return downloads;
@@ -198,6 +207,13 @@ public class GameManifest {
         }
         public void setUrl(String url) {
             this.url = url;
+        }
+        @Nullable
+        public String getSha1() {
+            return sha1;
+        }
+        public long getSize() {
+            return size;
         }
     }
 
@@ -307,6 +323,50 @@ public class GameManifest {
         }
         public Boolean getQuickPlayRealms() {
             return isQuickPlayRealms;
+        }
+    }
+
+    public static class Logging {
+        private LoggingClient client;
+
+        public LoggingClient getClient() {
+            return client;
+        }
+    }
+
+    public static class LoggingClient {
+        private String argument;
+        private LoggingFile file;
+        private String type;
+
+        public String getArgument() {
+            return argument;
+        }
+        public LoggingFile getFile() {
+            return file;
+        }
+        public String getType() {
+            return type;
+        }
+    }
+
+    public static class LoggingFile {
+        private String id;
+        private String sha1;
+        private long size;
+        private String url;
+
+        public String getId() {
+            return id;
+        }
+        public String getSha1() {
+            return sha1;
+        }
+        public long getSize() {
+            return size;
+        }
+        public String getUrl() {
+            return url;
         }
     }
 }
