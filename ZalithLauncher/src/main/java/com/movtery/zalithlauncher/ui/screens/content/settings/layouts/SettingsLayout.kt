@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -197,37 +200,51 @@ class SettingsLayoutScope {
         var selectedItem by remember { mutableStateOf(initialItem) }
         var expanded by remember { mutableStateOf(false) }
 
-        Column(
+        Row(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(shape = MaterialTheme.shapes.extraLarge)
-                .clickable { expanded = !expanded }
+                .clickable { expanded = true }
                 .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
         ) {
-            TitleAndSummary(title, summary)
-            Spacer(modifier = Modifier.height(height = 4.dp))
-            Text(
-                text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                items.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(getItemText(item)) },
-                        onClick = {
-                            expanded = false
-                            if (getItemId(selectedItem) != getItemId(item)) {
-                                selectedItem = item
-                                unit.put(getItemId(item)).save()
-                                onValueChange(item)
-                            }
-                        }
+            Column(modifier = Modifier.weight(1f)) {
+                TitleAndSummary(title, summary)
+                Spacer(modifier = Modifier.height(height = 4.dp))
+                Text(
+                    text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Row {
+                IconButton(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    onClick = { expanded = true }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_setting),
+                        contentDescription = stringResource(R.string.generic_setting),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    shape = MaterialTheme.shapes.extraLarge
+                ) {
+                    items.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(getItemText(item)) },
+                            onClick = {
+                                expanded = false
+                                if (getItemId(selectedItem) != getItemId(item)) {
+                                    selectedItem = item
+                                    unit.put(getItemId(item)).save()
+                                    onValueChange(item)
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
