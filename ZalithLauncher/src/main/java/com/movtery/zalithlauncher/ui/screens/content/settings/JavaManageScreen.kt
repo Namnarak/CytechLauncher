@@ -1,24 +1,63 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ZLApplication
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.multirt.Runtime
+import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.state.MutableStates
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.device.Architecture
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.Dispatchers
 
 const val JAVA_MANAGE_SCREEN_TAG = "JavaManageScreen"
+
+sealed interface RuntimeOperation {
+    data object None: RuntimeOperation
+    data class PreDelete(val runtime: Runtime): RuntimeOperation
+    data class Delete(val runtime: Runtime): RuntimeOperation
+}
 
 @Composable
 fun JavaManageScreen() {
@@ -26,27 +65,191 @@ fun JavaManageScreen() {
         screenTag = JAVA_MANAGE_SCREEN_TAG,
         currentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
-        ) {
-            val yOffset by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
-            )
+        val yOffset by animateDpAsState(
+            targetValue = if (isVisible) 0.dp else (-40).dp,
+            animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+        )
 
-            SettingsBackground(
+        var runtimes by remember { mutableStateOf(getRuntimes()) }
+        var runtimeOperation by remember { mutableStateOf<RuntimeOperation>(RuntimeOperation.None) }
+        RuntimeOperation(
+            runtimeOperation = runtimeOperation,
+            updateOperation = { runtimeOperation = it },
+            callRefresh = { runtimes = getRuntimes() }
+        )
+
+        SettingsBackground(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(all = 12.dp)
+                .offset {
+                    IntOffset(
+                        x = 0,
+                        y = yOffset.roundToPx()
+                    )
+                }
+        ) {
+            Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
+                IconTextButton(
+                    onClick = { runtimes = getRuntimes() },
+                    painter = painterResource(R.drawable.ic_refresh),
+                    contentDescription = stringResource(R.string.generic_refresh),
+                    text = stringResource(R.string.generic_refresh),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconTextButton(
+                    onClick = {},
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = stringResource(R.string.generic_import),
+                    text = stringResource(R.string.generic_import),
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth())
+
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp)
+            ) {
+                items(runtimes.size) { index ->
+                    JavaRuntimeItem(
+                        runtime = runtimes[index],
+                        modifier = Modifier
+                            .padding(bottom = if (index == runtimes.size - 1) 0.dp else 12.dp),
+                        onDeleteClick = {
+                            runtimeOperation = RuntimeOperation.PreDelete(runtimes[index])
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun getRuntimes(): List<Runtime> = RuntimesManager.getRuntimes()
+
+@Composable
+private fun RuntimeOperation(
+    runtimeOperation: RuntimeOperation,
+    updateOperation: (RuntimeOperation) -> Unit,
+    callRefresh: () -> Unit
+) {
+    when(runtimeOperation) {
+        is RuntimeOperation.None -> {}
+        is RuntimeOperation.PreDelete -> {
+            val runtime = runtimeOperation.runtime
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_warning),
+                text = stringResource(R.string.multirt_runtime_delete_message, runtime.name),
+                onConfirm = { updateOperation(RuntimeOperation.Delete(runtime)) },
+                onDismiss = { updateOperation(RuntimeOperation.None) }
+            )
+        }
+        is RuntimeOperation.Delete -> {
+            val failedMessage = stringResource(R.string.multirt_runtime_delete_failed)
+            val runtime = runtimeOperation.runtime
+            TaskSystem.submitTask(
+                Task.runTask(
+                    id = runtime.name,
+                    dispatcher = Dispatchers.IO,
+                    task = { task ->
+                        task.updateMessage(R.string.multirt_runtime_deleting, runtime.name)
+                        RuntimesManager.removeRuntime(runtime.name)
+                    },
+                    onError = {
+                        ObjectStates.updateThrowable(
+                            ObjectStates.ThrowableMessage(
+                                title = failedMessage,
+                                message = it.getMessageOrToString()
+                            )
+                        )
+                    },
+                    onFinally = callRefresh
+                )
+            )
+            updateOperation(RuntimeOperation.None)
+        }
+    }
+}
+
+@Composable
+private fun JavaRuntimeItem(
+    runtime: Runtime,
+    modifier: Modifier = Modifier,
+    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    onClick: () -> Unit = {},
+    onDeleteClick: () -> Unit
+) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+    Surface(
+        modifier = modifier
+            .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
+            .clickable(onClick = onClick),
+        color = MaterialTheme.colorScheme.inversePrimary,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 4.dp
+    ) {
+        Row {
+            Column(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset.roundToPx()
+                    .weight(1f)
+                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+            ) {
+                Text(
+                    text = runtime.name,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                //环境标签
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (runtime.isProvidedByLauncher) {
+                        Text(
+                            text = stringResource(R.string.multirt_runtime_provided_by_launcher),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                    Text(
+                        text =  runtime.versionString?.let {
+                            stringResource(R.string.multirt_runtime_version_name, it)
+                        } ?: stringResource(R.string.multirt_runtime_corrupt),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (runtime.versionString != null) contentColor else MaterialTheme.colorScheme.error
+                    )
+                    runtime.javaVersion.takeIf { it != 0 }?.let { javaVersion ->
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.multirt_runtime_version_code, javaVersion),
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
+                    runtime.arch?.let { arch ->
+                        val compatible = ZLApplication.DEVICE_ARCHITECTURE == Architecture.archAsInt(arch)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = arch.takeIf {
+                                compatible
+                            }?.let {
+                                stringResource(R.string.multirt_runtime_version_arch, it)
+                            } ?: stringResource(R.string.multirt_runtime_incompatible_arch, arch),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (compatible) contentColor else MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+            IconButton(
+                enabled = !runtime.isProvidedByLauncher, //内置环境无法删除
+                onClick = onDeleteClick
             ) {
-
+                Icon(
+                    modifier = Modifier.padding(all = 8.dp),
+                    painter = painterResource(R.drawable.ic_delete),
+                    contentDescription = stringResource(R.string.generic_delete)
+                )
             }
         }
     }

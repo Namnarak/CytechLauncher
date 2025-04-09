@@ -17,6 +17,7 @@
     <string name="generic_done">完成</string>
     <string name="generic_open">开启</string>
     <string name="generic_close">关闭</string>
+    <string name="generic_import">导入</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
@@ -101,6 +102,16 @@
     <string name="files_current_path">当前路径：%s</string>
     <string name="files_no_selectable_content">该目录没有可选内容</string>
     <string name="file_invalid_length">名称过长！(当前长度：%d，最大长度：%d)</string>
+    <!--  Jre  -->
+    <string name="multirt_runtime_corrupt">Java 运行环境损坏</string>
+    <string name="multirt_runtime_incompatible_arch">不兼容的架构：%s</string>
+    <string name="multirt_runtime_delete_message">你确定要删除 Java 环境 %s 吗？此操作不可逆！</string>
+    <string name="multirt_runtime_deleting">删除 Java 环境：%s</string>
+    <string name="multirt_runtime_delete_failed">删除 Java 环境失败！</string>
+    <string name="multirt_runtime_provided_by_launcher">内置</string>
+    <string name="multirt_runtime_version_name">版本：%s</string>
+    <string name="multirt_runtime_version_code">版本号：%s</string>
+    <string name="multirt_runtime_version_arch">架构：%s</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>
