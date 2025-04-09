@@ -126,6 +126,7 @@ fun SimpleEditDialog(
     label: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
+    maxLines: Int = 3,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
@@ -142,7 +143,8 @@ fun SimpleEditDialog(
                     onValueChange = { onValueChange(it) },
                     label = label,
                     isError = isError,
-                    supportingText = supportingText
+                    supportingText = supportingText,
+                    maxLines = maxLines
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Row(
