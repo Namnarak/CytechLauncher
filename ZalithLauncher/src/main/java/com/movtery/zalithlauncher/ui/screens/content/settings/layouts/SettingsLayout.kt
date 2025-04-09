@@ -1,19 +1,20 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -69,7 +71,7 @@ class SettingsLayoutScope {
                 .clickable {
                     change(!checked)
                 }
-                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
         ) {
             Column(
                 modifier = Modifier
@@ -108,7 +110,7 @@ class SettingsLayoutScope {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
         ) {
             TitleAndSummary(title, summary)
             SimpleTextSlider(
@@ -145,7 +147,7 @@ class SettingsLayoutScope {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
         ) {
             TitleAndSummary(title, summary)
             FlowRow(
@@ -200,43 +202,51 @@ class SettingsLayoutScope {
         var selectedItem by remember { mutableStateOf(initialItem) }
         var expanded by remember { mutableStateOf(false) }
 
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .clickable { expanded = true }
-                .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                TitleAndSummary(title, summary)
-                Spacer(modifier = Modifier.height(height = 4.dp))
-                Text(
-                    text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-            Row {
-                IconButton(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    onClick = { expanded = true }
+        Row(modifier = modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape = MaterialTheme.shapes.extraLarge)
+                        .clickable { expanded = !expanded }
+                        .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_setting),
-                        contentDescription = stringResource(R.string.generic_setting),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    Column(modifier = Modifier.weight(1f)) {
+                        TitleAndSummary(title, summary)
+                        Spacer(modifier = Modifier.height(height = 4.dp))
+                        Text(
+                            text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    val rotation by animateFloatAsState(
+                        targetValue = if (expanded) 90f else -90f,
+                        animationSpec = getAnimateTween()
                     )
+                    IconButton(
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .size(34.dp)
+                            .rotate(rotation),
+                        onClick = { expanded = !expanded }
+                    ) {
+                        Icon(
+                            modifier = Modifier.padding(all = 8.dp),
+                            painter = painterResource(R.drawable.ic_rounded_triangle),
+                            contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    shape = MaterialTheme.shapes.extraLarge
-                ) {
-                    items.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(getItemText(item)) },
+                if (expanded) {
+                    repeat(items.size) { index ->
+                        val item = items[index]
+                        ListItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            selected = getItemId(selectedItem) == getItemId(item),
+                            itemName = getItemText(item),
                             onClick = {
-                                expanded = false
                                 if (getItemId(selectedItem) != getItemId(item)) {
                                     selectedItem = item
                                     unit.put(getItemId(item)).save()
@@ -247,6 +257,26 @@ class SettingsLayoutScope {
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun ListItem(
+        selected: Boolean,
+        itemName: String,
+        modifier: Modifier = Modifier,
+        onClick: () -> Unit = {}
+    ) {
+        Row(modifier = modifier.clickable(onClick = onClick)) {
+            RadioButton(
+                selected = selected,
+                onClick = onClick
+            )
+            Text(
+                text = itemName,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
         }
     }
 

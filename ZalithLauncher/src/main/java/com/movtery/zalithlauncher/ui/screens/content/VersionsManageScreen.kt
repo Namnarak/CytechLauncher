@@ -155,7 +155,7 @@ private fun GamePathLayout(
 
             ScalingActionButton(
                 modifier = Modifier
-                    .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                     .fillMaxWidth(),
                 onClick = {
                     (context as? MainActivity)?.let { activity ->
@@ -256,7 +256,7 @@ private fun VersionsLayout(
                         shadowElevation = 4.dp
                     ) {
                         Text(
-                            modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp),
+                            modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
                             text = stringResource(R.string.versions_manage_no_versions)
                         )
                     }

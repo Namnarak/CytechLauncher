@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -157,7 +158,7 @@ private fun MainMenu(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(state = scrollState)
-                                .padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
+                                .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
                                 .weight(1f)
                         ) {
                             MenuActionButton(
@@ -334,7 +335,7 @@ private fun VersionManagerLayout(
             .clickable(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(start = 8.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
+            modifier = Modifier.fillMaxSize().padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
         ) {
             if (VersionsManager.isRefreshing) {
                 Box(modifier = Modifier.fillMaxSize()) {

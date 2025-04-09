@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -271,7 +272,7 @@ fun LoginItem(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
-            .padding(start = 4.dp, top = 12.dp, bottom = 12.dp, end = 4.dp)
+            .padding(PaddingValues(horizontal = 4.dp, vertical = 12.dp))
     ) {
         Icon(
             modifier = Modifier.size(24.dp),

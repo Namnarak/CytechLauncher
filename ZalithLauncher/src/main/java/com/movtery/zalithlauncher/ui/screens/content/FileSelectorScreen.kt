@@ -153,7 +153,7 @@ private fun TopPathLayout(
         shadowElevation = 4.dp
     ) {
         Row(
-            modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+            modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
         ) {
             Text(
                 text = stringResource(R.string.files_current_path, currentPath),
@@ -277,7 +277,7 @@ private fun FilesLayout(
                                             updatePath(file)
                                         }
                                     }
-                                    .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
+                                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                             )
                         }
                     }
@@ -295,7 +295,7 @@ private fun FilesLayout(
                     shadowElevation = 4.dp
                 ) {
                     Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
                         text = stringResource(R.string.files_no_selectable_content)
                     )
                 }
