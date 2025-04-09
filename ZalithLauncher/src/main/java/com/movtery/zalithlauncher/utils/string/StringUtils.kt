@@ -92,5 +92,17 @@ class StringUtils {
             }
             return 0
         }
+
+        /**
+         * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/84aca2e/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L1032-L1039)
+         */
+        fun String.extractUntilCharacter(whatFor: String, terminator: Char): String? {
+            var whatForStart = indexOf(whatFor)
+            if (whatForStart == -1) return null
+            whatForStart += whatFor.length
+            val terminatorIndex = indexOf(terminator, whatForStart)
+            if (terminatorIndex == -1) return null
+            return substring(whatForStart, terminatorIndex)
+        }
     }
 }

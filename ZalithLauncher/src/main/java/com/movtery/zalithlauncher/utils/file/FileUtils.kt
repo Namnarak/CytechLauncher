@@ -5,8 +5,12 @@ import android.util.Log
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.compareChar
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.nio.charset.StandardCharsets
 
 fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = true): Boolean {
     val computedSHA = runCatching {
@@ -64,5 +68,41 @@ fun checkFilenameValidity(str: String) {
 
     if (str.length > 255) {
         throw InvalidFilenameException("Invalid filename length", str.length)
+    }
+}
+
+/**
+ * Same as ensureDirectorySilently(), but throws an IOException telling why the check failed.
+ * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/e492223/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/FileUtils.java#L61-L71)
+ * @throws IOException when the checks fail
+ */
+@Throws(IOException::class)
+fun File.ensureDirectory(): File {
+    if (isFile) throw IOException("Target directory is a file")
+    if (exists()) {
+        if (!canWrite()) throw IOException("Target directory is not writable")
+    } else {
+        if (!mkdirs()) throw IOException("Unable to create target directory")
+    }
+    return this
+}
+
+/**
+ * Same as ensureParentDirectorySilently(), but throws an IOException telling why the check failed.
+ * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/e492223/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/FileUtils.java#L73-L82)
+ * @throws IOException when the checks fail
+ */
+@Throws(IOException::class)
+fun File.ensureParentDirectory(): File {
+    val parentDir: File = parentFile ?: throw IOException("targetFile does not have a parent")
+    parentDir.ensureDirectory()
+    return this
+}
+
+fun File.child(vararg paths: String) = File(this, paths.joinToString(File.separator))
+
+fun InputStream.readString(): String {
+    return use {
+        IOUtils.toString(this, StandardCharsets.UTF_8)
     }
 }

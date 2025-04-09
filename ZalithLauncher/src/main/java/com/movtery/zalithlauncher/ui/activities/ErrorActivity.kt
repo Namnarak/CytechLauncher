@@ -8,6 +8,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
+import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_CAN_RESTART
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_THROWABLE
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.ErrorScreen
@@ -17,6 +18,7 @@ class ErrorActivity : BaseComponentActivity() {
 
     companion object {
         const val BUNDLE_THROWABLE = "BUNDLE_THROWABLE"
+        const val BUNDLE_CAN_RESTART = "BUNDLE_CAN_RESTART"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +28,7 @@ class ErrorActivity : BaseComponentActivity() {
             finish()
             return
         }
+        val canRestart: Boolean = intent.extras?.getBoolean(BUNDLE_CAN_RESTART, true) ?: true
 
         setContent {
             val colorThemeState = remember { ColorThemeState() }
@@ -36,6 +39,7 @@ class ErrorActivity : BaseComponentActivity() {
                 ZalithLauncherTheme {
                     ErrorScreen(
                         throwable = throwable,
+                        canRestart = canRestart,
                         onRestartClick = {
                             startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
                         },
@@ -50,11 +54,12 @@ class ErrorActivity : BaseComponentActivity() {
 /**
  * 启动软件崩溃信息页面
  */
-fun showLauncherCrash(context: Context, throwable: Throwable) {
+fun showLauncherCrash(context: Context, throwable: Throwable, canRestart: Boolean = true) {
     val intent = Intent(context, ErrorActivity::class.java).apply {
         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         putExtra(BUNDLE_THROWABLE, throwable)
+        putExtra(BUNDLE_CAN_RESTART, canRestart)
     }
     context.startActivity(intent)
 }

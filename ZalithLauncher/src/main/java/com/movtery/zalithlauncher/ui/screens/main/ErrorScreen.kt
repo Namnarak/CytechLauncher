@@ -30,6 +30,7 @@ import com.movtery.zalithlauncher.utils.string.StringUtils
 @Composable
 fun ErrorScreen(
     throwable: Throwable,
+    canRestart: Boolean = true,
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
@@ -50,6 +51,7 @@ fun ErrorScreen(
         ) {
             ErrorContent(
                 throwable = throwable,
+                canRestart = canRestart,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background),
@@ -90,6 +92,7 @@ private fun TopBar(
 @Composable
 private fun ErrorContent(
     throwable: Throwable,
+    canRestart: Boolean,
     modifier: Modifier = Modifier,
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
@@ -133,13 +136,15 @@ private fun ErrorContent(
                 modifier = Modifier.padding(all = 12.dp).fillMaxSize(),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                ScalingActionButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onRestartClick
-                ) {
-                    Text(text = stringResource(R.string.crash_restart))
+                if (canRestart) {
+                    ScalingActionButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onRestartClick
+                    ) {
+                        Text(text = stringResource(R.string.crash_restart))
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
                 ScalingActionButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onExitClick

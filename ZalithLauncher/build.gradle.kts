@@ -1,3 +1,6 @@
+import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+import com.android.build.gradle.tasks.MergeSourceSetFolders
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -61,6 +64,67 @@ android {
     }
 
     sourceSets["main"].java.srcDirs(generatedZalithDir)
+
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                if (output is com.android.build.api.variant.impl.VariantOutputImpl) {
+                    val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+                    afterEvaluate {
+                        val task = tasks.named("merge${variantName}Assets").get() as MergeSourceSetFolders
+                        task.doLast {
+                            val arch = System.getProperty("arch", "all")
+                            val assetsDir = task.outputDir.get().asFile
+                            val jreList = listOf("jre-8", "jre-17", "jre-21")
+                            println("arch:$arch")
+                            jreList.forEach { jreVersion ->
+                                val runtimeDir = File("$assetsDir/runtimes/$jreVersion")
+                                println("runtimeDir:${runtimeDir.absolutePath}")
+                                runtimeDir.listFiles()?.forEach {
+                                    if (arch != "all" && it.name != "version" && !it.name.contains("universal") && it.name != "bin-${arch}.tar.xz") {
+                                        println("delete:${it} : ${it.delete()}")
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    (output.getFilter(ABI)?.identifier ?: "all").let { abi ->
+                        val baseName = "$launcherName-${if (variant.buildType == "release") defaultConfig.versionName else "Debug-${defaultConfig.versionName}"}"
+                        output.outputFileName = if (abi == "all") "$baseName.apk" else "$baseName-$abi.apk"
+                    }
+                }
+            }
+        }
+    }
+
+    splits {
+        val arch = System.getProperty("arch", "all").takeIf { it != "all" } ?: return@splits
+        abi {
+            isEnable = true
+            reset()
+            when (arch) {
+                "arm" -> include("armeabi-v7a")
+                "arm64" -> include("arm64-v8a")
+                "x86" -> include("x86")
+                "x86_64" -> include("x86_64")
+            }
+        }
+    }
+
+    ndkVersion = "25.2.9519653"
+
+    externalNativeBuild {
+        ndkBuild {
+            path = file("src/main/jni/Android.mk")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -141,6 +205,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.commons.io)
     implementation(libs.commons.codec)
+    implementation(libs.commons.compress)
+    implementation(libs.xz)
     implementation(libs.okhttp)
     implementation(libs.ktor.http)
     implementation(libs.ktor.client.core)

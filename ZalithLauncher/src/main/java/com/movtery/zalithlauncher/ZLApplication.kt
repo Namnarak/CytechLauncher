@@ -2,20 +2,31 @@ package com.movtery.zalithlauncher
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
 import android.util.Log
 import com.movtery.zalithlauncher.context.Contexts
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
+import com.movtery.zalithlauncher.utils.device.Architecture
 import java.io.PrintStream
 import java.text.DateFormat
 import java.util.Date
+import kotlin.properties.Delegates
 
 class ZLApplication : Application() {
+    companion object {
+        var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
+    }
+
     override fun onCreate() {
-        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+        Thread.setDefaultUncaughtExceptionHandler { _, th ->
+            val throwable = if (th is SplashException) th.cause!!
+            else th
+
             Log.e("Application", "An exception occurred: \n${Log.getStackTraceString(throwable)}")
 
             runCatching {
@@ -33,12 +44,29 @@ class ZLApplication : Application() {
                 Log.e("Application", "Crash stack trace: ", throwable)
             }
 
-            showLauncherCrash(this@ZLApplication, throwable)
+            showLauncherCrash(this@ZLApplication, throwable, th !is SplashException)
             Process.killProcess(Process.myPid())
         }
 
         super.onCreate()
-        PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
+        runCatching {
+            PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
+            DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
+            //Force x86 lib directory for Asus x86 based zenfones
+            if (Architecture.isx86Device() && Architecture.is32BitsDevice) {
+                val originalJNIDirectory = applicationInfo.nativeLibraryDir
+                applicationInfo.nativeLibraryDir = originalJNIDirectory.substring(
+                    0,
+                    originalJNIDirectory.lastIndexOf("/")
+                ) + "/x86"
+            }
+        }.onFailure {
+            val intent = Intent(this, ErrorActivity::class.java).apply {
+                putExtra(ErrorActivity.BUNDLE_THROWABLE, it)
+                setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+        }
     }
 
     override fun attachBaseContext(base: Context) {

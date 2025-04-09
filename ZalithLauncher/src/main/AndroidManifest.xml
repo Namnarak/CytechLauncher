@@ -24,7 +24,7 @@
         tools:targetApi="31"
         tools:ignore="DiscouragedApi">
         <activity
-            android:name="com.movtery.zalithlauncher.ui.activities.MainActivity"
+            android:name="com.movtery.zalithlauncher.ui.activities.SplashActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
@@ -35,6 +35,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.movtery.zalithlauncher.ui.activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
+            android:screenOrientation="sensorLandscape" />
         <activity android:name="com.movtery.zalithlauncher.ui.activities.ErrorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
             android:screenOrientation="sensorLandscape" />
