@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.multirt
 import android.system.Os
 import android.util.Log
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
@@ -81,7 +82,7 @@ object RuntimesManager {
                     } else {
                         versionParts.first().toIntOrNull() ?: 0
                     }
-                    Runtime(name, javaVersion, osArch, majorVersion, false)
+                    Runtime(name, javaVersion, osArch, majorVersion, Jre.entries.any { it.jreName == name })
                 } else {
                     Runtime(name)
                 }

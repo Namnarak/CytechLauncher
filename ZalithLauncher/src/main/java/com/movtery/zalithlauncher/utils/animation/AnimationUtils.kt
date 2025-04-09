@@ -14,10 +14,18 @@ fun getAnimateSpeed(): Int = calculateAnimationTime(
     0.1f
 )
 
-fun <E> getAnimateTween(): FiniteAnimationSpec<E> = tween(getAnimateSpeed())
-
-fun <E> getAnimateTweenBounce(): FiniteAnimationSpec<E> = tween(
+fun <E> getAnimateTween(
+    delayMillis: Int = 0
+): FiniteAnimationSpec<E> = tween(
     durationMillis = getAnimateSpeed(),
+    delayMillis = delayMillis
+)
+
+fun <E> getAnimateTweenBounce(
+    delayMillis: Int = 0
+): FiniteAnimationSpec<E> = tween(
+    durationMillis = getAnimateSpeed(),
+    delayMillis = delayMillis,
     easing = { fraction ->
         BounceInterpolator().getInterpolation(fraction)
     }

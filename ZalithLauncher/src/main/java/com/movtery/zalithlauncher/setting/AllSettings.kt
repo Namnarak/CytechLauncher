@@ -21,6 +21,11 @@ class AllSettings {
          */
         val versionIsolation = BooleanSettingUnit("versionIsolation", true)
 
+        /**
+         * 启动器的Java环境
+         */
+        val javaRuntime = StringSettingUnit("javaRuntime", "")
+
         //Launcher
         /**
          * 颜色主题色
