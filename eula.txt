@@ -1,0 +1,34 @@
+Zalith Launcher End User License Agreement (EULA)
+Last Updated: April 10, 2025
+
+Please read this agreement carefully before using the software.
+Developer: ZalithLauncher
+
+1. User Obligations
+1) Device must run Android 8.0 or higher.
+2) Users shall bear all network service fees and related costs.
+3) Users assume full responsibility for all consequences arising from software usage.
+4) This software does not actively collect personal information. Any future privacy data collection will be explicitly stated in updated agreements with user consent.
+
+2. Naming Conventions (Derivative Versions)
+1) Modified versions are prohibited from using:
+    - The full name "Zalith Launcher"
+    - The abbreviation "ZL"
+2) Derivative versions must prominently display "Unofficial Modified Version".
+3) Use of visual elements resembling original icons/trademarks is strictly prohibited.
+
+3. Disclaimer
+1) Users assume all risks associated with software usage.
+2) No guarantee is provided for meeting all user requirements.
+3) No responsibility is taken for content from third-party services.
+4) No liability for issues arising from third-party service usage.
+5) Test versions (Alpha/Beta/Preview) may contain unstable or incomplete features.
+
+4. Intellectual Property
+1) Software is licensed under GPL v3.
+    Source Code Repository: https://github.com/ZalithLauncher/ZalithLauncher-New
+2) Trademark rights belong to ZalithLauncher.
+3) Third-party components remain property of original developers.
+4) Derivative versions must comply with GPL v3 and retain original project's license information and attribution.
+
+Continued use constitutes acceptance of these terms. We reserve the right to modify this agreement at any time, with updates effective immediately upon publication. If you disagree with any terms, discontinue use immediately.

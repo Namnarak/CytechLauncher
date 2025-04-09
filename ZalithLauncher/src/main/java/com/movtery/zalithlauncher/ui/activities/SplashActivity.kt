@@ -38,16 +38,23 @@ import com.movtery.zalithlauncher.SplashException
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
+import com.movtery.zalithlauncher.context.Contexts.Companion.readAssetFile
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.components.DownShadow
+import com.movtery.zalithlauncher.ui.screens.main.EULA_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.main.EulaScreen
 import com.movtery.zalithlauncher.ui.screens.main.UNPACK_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.main.UnpackScreen
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.getSystemLanguage
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -56,11 +63,20 @@ import kotlinx.coroutines.launch
 class SplashActivity : BaseComponentActivity() {
     private val unpackItems: MutableList<InstallableItem> = ArrayList()
     private var finishedTaskCount by mutableIntStateOf(0)
+    private var eulaDate: String = AllSettings.splashEulaDate.getValue()
+    private var eulaText: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        eulaText = getEulaText()
+
+        initUnpackItems()
+        checkAllTask()
+
         setContent {
             val colorThemeState = remember { ColorThemeState() }
+
+            if (eulaText == null && checkTasks()) return@setContent
 
             CompositionLocalProvider(
                 LocalColorThemeState provides colorThemeState
@@ -95,18 +111,31 @@ class SplashActivity : BaseComponentActivity() {
                             )
                         }
                     }
-
-                    if (unpackItems.size != 0 && finishedTaskCount == unpackItems.size) {
-                        Log.i("SplashActivity", "All content that needs to be extracted is already the latest version!")
-                        swapToMain()
-                    }
                 }
             }
         }
+    }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            initUnpackItems()
-            checkAllTask()
+    private fun getEulaText(): String? {
+        val language = getSystemLanguage()
+        val fileName = when(language) {
+            "zh_cn" -> "eula_zh-cn.txt"
+            else -> "eula.txt"
+        }
+        val eulaText: String = runCatching {
+            readAssetFile(fileName)
+        }.onFailure {
+            Log.e("SplashActivity", "Failed to read $fileName", it)
+        }.getOrNull() ?: return null
+
+        val newDate = eulaText.getLine(2)?.also {
+            Log.i("SplashActivity", "The content of the date line of the existing EULA has been read: $it")
+        } ?: return null
+        if (eulaDate != newDate) {
+            eulaDate = newDate
+            return eulaText
+        } else {
+            return null
         }
     }
 
@@ -153,7 +182,18 @@ class SplashActivity : BaseComponentActivity() {
                     }
                 }
             jobs.joinAll()
+        }.invokeOnCompletion {
+            checkTasks()
         }
+    }
+
+    private fun checkTasks(): Boolean {
+        val toMain = finishedTaskCount >= unpackItems.size
+        if (toMain) {
+            Log.i("SplashActivity", "All content that needs to be extracted is already the latest version!")
+            swapToMain()
+        }
+        return toMain
     }
 
     private fun swapToMain() {
@@ -191,10 +231,12 @@ class SplashActivity : BaseComponentActivity() {
             navController.addOnDestinationChangedListener(listener)
         }
 
+        val startDestination = if (eulaText != null) EULA_SCREEN_TAG else UNPACK_SCREEN_TAG
+
         NavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = UNPACK_SCREEN_TAG,
+            startDestination = startDestination,
             enterTransition = {
                 fadeIn(animationSpec = getAnimateTween())
             },
@@ -202,6 +244,15 @@ class SplashActivity : BaseComponentActivity() {
                 fadeOut(animationSpec = getAnimateTween())
             }
         ) {
+            composable(
+                route = EULA_SCREEN_TAG
+            ) {
+                EulaScreen(eulaText!!) {
+                    navController.navigateTo(UNPACK_SCREEN_TAG)
+                    AllSettings.splashEulaDate.put(eulaDate).save()
+                    checkTasks()
+                }
+            }
             composable(
                 route = UNPACK_SCREEN_TAG
             ) {

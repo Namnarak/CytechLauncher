@@ -29,3 +29,8 @@ fun copyText(label: String?, text: String?, context: Context) {
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     clipboardManager.setPrimaryClip(ClipData.newPlainText(label, text))
 }
+
+fun getSystemLanguage(): String {
+    val locale = Locale.getDefault()
+    return locale.language + "_" + locale.country.lowercase(Locale.getDefault())
+}

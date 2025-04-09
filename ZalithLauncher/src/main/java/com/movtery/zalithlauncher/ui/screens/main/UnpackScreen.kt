@@ -135,7 +135,7 @@ private fun ActionMenu(
                 .fillMaxWidth()
                 .padding(PaddingValues(horizontal = 12.dp))
                 .constrainAs(button) {
-                    bottom.linkTo(parent.bottom, margin = 12.dp)
+                    bottom.linkTo(parent.bottom, margin = 8.dp)
                 },
             onClick = {
                 installing = true

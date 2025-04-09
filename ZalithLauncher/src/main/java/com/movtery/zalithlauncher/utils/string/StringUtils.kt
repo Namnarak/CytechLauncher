@@ -104,5 +104,13 @@ class StringUtils {
             if (terminatorIndex == -1) return null
             return substring(whatForStart, terminatorIndex)
         }
+
+        /**
+         * 获取字符串指定行的内容
+         */
+        fun String.getLine(line: Int): String? {
+            val lines = this.trimIndent().split("\n")
+            return if (line in 1..lines.size) lines[line - 1] else null
+        }
     }
 }
