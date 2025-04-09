@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -31,8 +33,16 @@ import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.ABOUT_INFO_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.AboutInfoScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.CONTROL_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.CONTROL_SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.ControlManageScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.ControlSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.GAME_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.GameSettingsScreen
+import com.movtery.zalithlauncher.ui.screens.content.settings.JAVA_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.JavaManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.LAUNCHER_SETTINGS_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.RENDERER_SETTINGS_SCREEN_TAG
@@ -104,15 +114,22 @@ private fun TabMenu(
         shadowElevation = 4.dp
     ) {
         val settingItems = listOf(
-            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, R.drawable.ic_setting_renderer, R.string.settings_tab_renderer, PaddingValues(all = 1.dp)),
+            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, R.drawable.ic_setting_renderer, R.string.settings_tab_renderer),
             SettingsItem(GAME_SETTINGS_TAG, R.drawable.ic_setting_game, R.string.settings_tab_game, PaddingValues(all = 2.dp)),
-            SettingsItem(LAUNCHER_SETTINGS_TAG, R.drawable.ic_setting_launcher, R.string.settings_tab_launcher)
+            SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, R.drawable.ic_controls, R.string.settings_tab_control),
+            SettingsItem(LAUNCHER_SETTINGS_TAG, R.drawable.ic_setting_launcher, R.string.settings_tab_launcher),
+            SettingsItem(JAVA_MANAGE_SCREEN_TAG, R.drawable.ic_java, R.string.settings_tab_java_manage, division = true),
+            SettingsItem(CONTROL_MANAGE_SCREEN_TAG, R.drawable.ic_controls, R.string.settings_tab_control_manage),
+            SettingsItem(ABOUT_INFO_SCREEN_TAG, R.drawable.ic_about, R.string.settings_tab_info_about, division = true)
         )
         LazyColumn(
             contentPadding = PaddingValues(all = 12.dp)
         ) {
             items(settingItems.size) { index ->
                 val item = settingItems[index]
+                if (item.division) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth())
+                }
                 NavigationDrawerItem(
                     icon = {
                         Icon(
@@ -144,7 +161,8 @@ private data class SettingsItem(
     val screenTag: String,
     val iconRes: Int,
     val textRes: Int,
-    val iconPadding: PaddingValues = PaddingValues()
+    val iconPadding: PaddingValues = PaddingValues(),
+    val division: Boolean = false
 )
 
 @Composable
@@ -176,9 +194,29 @@ private fun NavigationUI(
             GameSettingsScreen()
         }
         composable(
+            route = CONTROL_SETTINGS_SCREEN_TAG
+        ) {
+            ControlSettingsScreen()
+        }
+        composable(
             route = LAUNCHER_SETTINGS_TAG
         ) {
             LauncherSettingsScreen()
+        }
+        composable(
+            route = JAVA_MANAGE_SCREEN_TAG
+        ) {
+            JavaManageScreen()
+        }
+        composable(
+            route = CONTROL_MANAGE_SCREEN_TAG
+        ) {
+            ControlManageScreen()
+        }
+        composable(
+            route = ABOUT_INFO_SCREEN_TAG
+        ) {
+            AboutInfoScreen()
         }
     }
 }
