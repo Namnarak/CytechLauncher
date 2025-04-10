@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.RocketLaunch
+import androidx.compose.material.icons.outlined.VideoSettings
+import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -113,15 +119,35 @@ private fun TabMenu(
         color = MaterialTheme.colorScheme.inversePrimary,
         shadowElevation = 4.dp
     ) {
+        @Composable
+        fun SettingsIcon(iconRes: Int, textRes: Int, iconPadding: PaddingValues = PaddingValues()) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = stringResource(textRes),
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(iconPadding)
+            )
+        }
+        @Composable
+        fun SettingsIcon(image: ImageVector, textRes: Int) {
+            Icon(
+                imageVector = image,
+                contentDescription = stringResource(textRes),
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
         val settingItems = listOf(
-            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, R.drawable.ic_setting_renderer, R.string.settings_tab_renderer),
-            SettingsItem(GAME_SETTINGS_TAG, R.drawable.ic_setting_game, R.string.settings_tab_game, PaddingValues(all = 2.dp)),
-            SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, R.drawable.ic_controls, R.string.settings_tab_control),
-            SettingsItem(LAUNCHER_SETTINGS_TAG, R.drawable.ic_setting_launcher, R.string.settings_tab_launcher),
-            SettingsItem(JAVA_MANAGE_SCREEN_TAG, R.drawable.ic_java, R.string.settings_tab_java_manage, division = true),
-            SettingsItem(CONTROL_MANAGE_SCREEN_TAG, R.drawable.ic_controls, R.string.settings_tab_control_manage),
-            SettingsItem(ABOUT_INFO_SCREEN_TAG, R.drawable.ic_about, R.string.settings_tab_info_about, division = true)
+            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
+            SettingsItem(GAME_SETTINGS_TAG, { SettingsIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
+            SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
+            SettingsItem(LAUNCHER_SETTINGS_TAG, { SettingsIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
+            SettingsItem(JAVA_MANAGE_SCREEN_TAG, { SettingsIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
+            SettingsItem(CONTROL_MANAGE_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
+            SettingsItem(ABOUT_INFO_SCREEN_TAG, { SettingsIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
         )
+
         LazyColumn(
             contentPadding = PaddingValues(all = 12.dp)
         ) {
@@ -137,13 +163,7 @@ private fun TabMenu(
                 }
                 NavigationDrawerItem(
                     icon = {
-                        Icon(
-                            painter = painterResource(item.iconRes),
-                            contentDescription = stringResource(item.textRes),
-                            modifier = Modifier
-                                .size(24.dp)
-                                .padding(item.iconPadding)
-                        )
+                        item.icon()
                     },
                     label = {
                         Text(
@@ -164,9 +184,8 @@ private fun TabMenu(
 
 private data class SettingsItem(
     val screenTag: String,
-    val iconRes: Int,
+    val icon: @Composable () -> Unit,
     val textRes: Int,
-    val iconPadding: PaddingValues = PaddingValues(),
     val division: Boolean = false
 )
 

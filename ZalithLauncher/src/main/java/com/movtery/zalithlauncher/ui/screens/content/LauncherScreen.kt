@@ -28,9 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -39,6 +37,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -85,6 +84,8 @@ private fun RightMenu(
         targetValue = if (isVisible) 0.dp else 40.dp,
         animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
     )
+
+    val context = LocalContext.current
 
     Surface(
         modifier = modifier.offset {
@@ -134,7 +135,7 @@ private fun RightMenu(
                     }
                     .padding(PaddingValues(horizontal = 12.dp)),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                onClick = {},
+                onClick = { LaunchGame.launchGame(context) },
             ) {
                 Text(text = stringResource(R.string.main_launch_game))
             }

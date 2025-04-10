@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -221,7 +222,7 @@ class SettingsLayoutScope {
                         )
                     }
                     val rotation by animateFloatAsState(
-                        targetValue = if (expanded) 90f else -90f,
+                        targetValue = if (expanded) -180f else 0f,
                         animationSpec = getAnimateTween()
                     )
                     IconButton(
@@ -232,8 +233,7 @@ class SettingsLayoutScope {
                         onClick = { expanded = !expanded }
                     ) {
                         Icon(
-                            modifier = Modifier.padding(all = 8.dp),
-                            painter = painterResource(R.drawable.ic_rounded_triangle),
+                            imageVector = Icons.Rounded.ArrowDropDown,
                             contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )

@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FileCopy
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -110,8 +115,8 @@ fun GamePathItemLayout(
                 onClick = { menuExpanded = !menuExpanded }
             ) {
                 Icon(
-                    modifier = Modifier.size(18.dp),
-                    painter = painterResource(R.drawable.ic_more),
+                    modifier = Modifier.size(20.dp),
+                    imageVector = Icons.Default.MoreHoriz,
                     contentDescription = stringResource(R.string.generic_more),
                 )
             }
@@ -128,7 +133,7 @@ fun GamePathItemLayout(
                     leadingIcon = {
                         Icon(
                             modifier = Modifier.size(20.dp),
-                            painter = painterResource(R.drawable.ic_edit),
+                            imageVector = Icons.Filled.Edit,
                             contentDescription = stringResource(R.string.generic_rename)
                         )
                     },
@@ -143,7 +148,7 @@ fun GamePathItemLayout(
                     leadingIcon = {
                         Icon(
                             modifier = Modifier.size(20.dp),
-                            painter = painterResource(R.drawable.ic_delete),
+                            imageVector = Icons.Filled.Delete,
                             contentDescription = stringResource(R.string.generic_delete)
                         )
                     },
@@ -518,7 +523,7 @@ fun VersionItemLayout(
                 IconButton(onClick = { menuExpanded = !menuExpanded }) {
                     Icon(
                         modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.ic_more),
+                        imageVector = Icons.Default.MoreHoriz,
                         contentDescription = stringResource(R.string.generic_more)
                     )
                 }
@@ -534,7 +539,7 @@ fun VersionItemLayout(
                         leadingIcon = {
                             Icon(
                                 modifier = Modifier.size(20.dp),
-                                painter = painterResource(R.drawable.ic_edit),
+                                imageVector = Icons.Filled.Edit,
                                 contentDescription = stringResource(R.string.generic_rename)
                             )
                         },
@@ -548,7 +553,7 @@ fun VersionItemLayout(
                         leadingIcon = {
                             Icon(
                                 modifier = Modifier.size(20.dp),
-                                painter = painterResource(R.drawable.ic_copy),
+                                imageVector = Icons.Filled.FileCopy,
                                 contentDescription = stringResource(R.string.generic_copy)
                             )
                         },
@@ -562,7 +567,7 @@ fun VersionItemLayout(
                         leadingIcon = {
                             Icon(
                                 modifier = Modifier.size(20.dp),
-                                painter = painterResource(R.drawable.ic_delete),
+                                imageVector = Icons.Filled.Delete,
                                 contentDescription = stringResource(R.string.generic_delete)
                             )
                         },

@@ -20,6 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,7 +48,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -134,7 +137,7 @@ fun AccountAvatar(
                     modifier = Modifier
                         .size(40.dp)
                         .align(Alignment.CenterHorizontally),
-                    painter = painterResource(R.drawable.ic_add),
+                    imageVector = Icons.Default.Add,
                     contentDescription = null,
                     tint = contentColor
                 )
@@ -243,7 +246,7 @@ fun AccountItem(
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.ic_refresh),
+                        imageVector = Icons.Filled.Refresh,
                         contentDescription = stringResource(R.string.generic_refresh)
                     )
                 }
@@ -252,7 +255,7 @@ fun AccountItem(
                 ) {
                     Icon(
                         modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.ic_delete),
+                        imageVector = Icons.Filled.Delete,
                         contentDescription = stringResource(R.string.generic_delete)
                     )
                 }
@@ -276,7 +279,7 @@ fun LoginItem(
     ) {
         Icon(
             modifier = Modifier.size(24.dp),
-            painter = painterResource(R.drawable.ic_add),
+            imageVector = Icons.Default.Add,
             contentDescription = serverName,
             tint = contentColor
         )
@@ -322,7 +325,7 @@ fun ServerItem(
         ) {
             Icon(
                 modifier = Modifier.size(24.dp),
-                painter = painterResource(R.drawable.ic_delete),
+                imageVector = Icons.Filled.Delete,
                 contentDescription = stringResource(R.string.generic_delete),
                 tint = contentColor
             )

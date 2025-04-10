@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -81,19 +82,65 @@ fun IconTextButton(
     text: String,
     style: TextStyle = MaterialTheme.typography.labelMedium
 ) {
+    BaseIconTextButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = shape,
+        icon = { modifier1 ->
+            Icon(
+                modifier = modifier1.size(iconSize),
+                painter = painter,
+                contentDescription = contentDescription
+            )
+        },
+        text = text,
+        style = style
+    )
+}
+
+@Composable
+fun IconTextButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.large,
+    iconSize: Dp = 24.dp,
+    imageVector: ImageVector,
+    contentDescription: String?,
+    text: String,
+    style: TextStyle = MaterialTheme.typography.labelMedium
+) {
+    BaseIconTextButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = shape,
+        icon = { modifier1 ->
+            Icon(
+                modifier = modifier1.size(iconSize),
+                imageVector = imageVector,
+                contentDescription = contentDescription
+            )
+        },
+        text = text,
+        style = style
+    )
+}
+
+@Composable
+private fun BaseIconTextButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.large,
+    icon: @Composable (Modifier) -> Unit,
+    text: String,
+    style: TextStyle = MaterialTheme.typography.labelMedium
+) {
     Row(
         modifier = modifier
             .clip(shape = shape)
             .clickable(onClick = onClick)
             .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
     ) {
-        Icon(
-            modifier = Modifier
-                .size(iconSize)
-                .align(Alignment.CenterVertically),
-            painter = painter,
-            contentDescription = contentDescription
-        )
+        icon(Modifier.align(Alignment.CenterVertically))
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             modifier = Modifier

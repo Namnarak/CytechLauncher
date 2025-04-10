@@ -22,6 +22,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
+import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Task
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -40,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -207,8 +214,8 @@ private fun TopBar(
             }
         ) {
             Icon(
-                modifier = Modifier.size(18.dp),
-                painter = painterResource(R.drawable.ic_arrow),
+                modifier = Modifier.size(24.dp),
+                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
                 contentDescription = stringResource(R.string.generic_back),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )
@@ -255,7 +262,7 @@ private fun TopBar(
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 modifier = Modifier.size(22.dp),
-                painter = painterResource(R.drawable.ic_task),
+                imageVector = Icons.Filled.Task,
                 contentDescription = stringResource(R.string.main_task_menu),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -273,7 +280,7 @@ private fun TopBar(
             }
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_download),
+                imageVector = Icons.Filled.Download,
                 contentDescription = stringResource(R.string.generic_download),
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -301,10 +308,10 @@ private fun TopBar(
             ) { tag ->
                 val isLauncherScreen = tag == LAUNCHER_SCREEN_TAG
                 Icon(
-                    painter = if (isLauncherScreen) {
-                        painterResource(R.drawable.ic_setting)
+                    imageVector = if (isLauncherScreen) {
+                        Icons.Filled.Settings
                     } else {
-                        painterResource(R.drawable.ic_menu_home)
+                        Icons.Filled.Home
                     },
                     contentDescription = if (isLauncherScreen) {
                         stringResource(R.string.generic_setting)
@@ -422,8 +429,7 @@ private fun TaskMenu(
                 onClick = changeExpandedState
             ) {
                 Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.ic_rounded_triangle),
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
                     contentDescription = stringResource(R.string.main_task_menu)
                 )
             }
@@ -478,8 +484,8 @@ fun TaskItem(
                 onClick = onCancelClick
             ) {
                 Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.ic_close),
+                    modifier = Modifier.size(20.dp),
+                    imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.generic_cancel)
                 )
             }

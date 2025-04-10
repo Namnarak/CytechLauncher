@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -224,14 +226,14 @@ private fun VersionsLayout(
                             Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
                                 IconTextButton(
                                     onClick = onRefresh,
-                                    painter = painterResource(R.drawable.ic_refresh),
+                                    imageVector = Icons.Filled.Refresh,
                                     contentDescription = stringResource(R.string.generic_refresh),
                                     text = stringResource(R.string.generic_refresh),
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IconTextButton(
                                     onClick = onInstall,
-                                    painter = painterResource(R.drawable.ic_download),
+                                    imageVector = Icons.Filled.Download,
                                     contentDescription = stringResource(R.string.versions_manage_install_new),
                                     text = stringResource(R.string.versions_manage_install_new),
                                 )
