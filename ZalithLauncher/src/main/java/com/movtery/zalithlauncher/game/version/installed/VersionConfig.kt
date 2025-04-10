@@ -7,7 +7,6 @@ import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager.getZalithVersionPath
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getStringNotNull
@@ -73,8 +72,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
         FileWriter(configFile, false).use {
             val json = GSON.toJson(this)
-            val text = CryptoManager.encrypt(json)
-            it.write(text)
+            it.write(json)
         }
         Log.i("Save Version Config", "Saved: $this")
     }
@@ -175,8 +173,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
                 when {
                     configFile.exists() -> {
                         //读取此文件的内容，并解析为VersionConfig
-                        val configText = CryptoManager.decrypt(configFile.readText())
-                        val config = GSON.fromJson(configText, VersionConfig::class.java)
+                        val config = GSON.fromJson(configFile.readText(), VersionConfig::class.java)
                         config.setVersionPath(versionPath)
                         config
                     }

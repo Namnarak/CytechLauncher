@@ -3,7 +3,6 @@ package com.movtery.zalithlauncher.game.version.installed
 import android.util.Log
 import com.google.gson.annotations.SerializedName
 import com.movtery.zalithlauncher.game.path.getGameHome
-import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -26,8 +25,7 @@ data class CurrentGameInfo(
     fun saveCurrentInfo() {
         val infoFile = getInfoFile()
         runCatching {
-            val text = CryptoManager.encrypt(GSON.toJson(this))
-            FileUtils.writeByteArrayToFile(infoFile, text.toByteArray(Charsets.UTF_8))
+            FileUtils.writeByteArrayToFile(infoFile, GSON.toJson(this).toByteArray(Charsets.UTF_8))
         }.onFailure { e ->
             Log.e("CurrentGameInfo", "Save failed: ${infoFile.absolutePath}", e)
         }
@@ -54,8 +52,7 @@ data class CurrentGameInfo(
         }
 
         private fun loadFromJsonFile(infoFile: File): CurrentGameInfo {
-            val text = CryptoManager.decrypt(infoFile.readText())
-            return GSON.fromJson(text, CurrentGameInfo::class.java).also { info ->
+            return GSON.fromJson(infoFile.readText(), CurrentGameInfo::class.java).also { info ->
                 checkNotNull(info) { "Deserialization returned null" }
             }
         }
