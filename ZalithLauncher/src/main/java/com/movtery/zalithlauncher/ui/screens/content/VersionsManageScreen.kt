@@ -237,7 +237,12 @@ private fun VersionsLayout(
                                 )
                             }
                         }
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth())
+                        HorizontalDivider(
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
 
                         LazyColumn(
                             modifier = Modifier.weight(1f),

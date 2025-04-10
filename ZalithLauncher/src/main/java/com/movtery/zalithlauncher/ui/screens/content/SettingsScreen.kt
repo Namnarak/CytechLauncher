@@ -128,7 +128,12 @@ private fun TabMenu(
             items(settingItems.size) { index ->
                 val item = settingItems[index]
                 if (item.division) {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth())
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
                 }
                 NavigationDrawerItem(
                     icon = {

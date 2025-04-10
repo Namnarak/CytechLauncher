@@ -122,7 +122,12 @@ fun JavaManageScreen() {
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth())
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
