@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,9 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -39,6 +42,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
@@ -73,7 +77,13 @@ fun VersionsManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
-                    .padding(all = 12.dp)
+                    .padding(all = 12.dp),
+                onRefresh = {
+                    if (!VersionsManager.isRefreshing) {
+                        VersionsManager.refresh()
+                    }
+                },
+                onInstall = {}
             )
         }
     }
@@ -178,7 +188,9 @@ private fun GamePathLayout(
 @Composable
 private fun VersionsLayout(
     isVisible: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRefresh: () -> Unit,
+    onInstall: () -> Unit
 ) {
     val surfaceYOffset by animateDpAsState(
         targetValue = if (isVisible) 0.dp else (-40).dp,
@@ -209,34 +221,53 @@ private fun VersionsLayout(
                     var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
                     VersionsOperation(versionsOperation) { versionsOperation = it }
 
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(shape = MaterialTheme.shapes.extraLarge),
-                        contentPadding = PaddingValues(all = 12.dp)
-                    ) {
-                        items(versions.size) { index ->
-                            val version = versions[index]
-                            VersionItemLayout(
-                                version = version,
-                                selected = version == currentVersion,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
-                                onSelected = {
-                                    if (version.isValid()) {
-                                        if (version != currentVersion) {
-                                            VersionsManager.saveCurrentVersion(version.getVersionName())
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Column(modifier = Modifier.fillMaxWidth().padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))) {
+                            Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
+                                IconTextButton(
+                                    onClick = onRefresh,
+                                    painter = painterResource(R.drawable.ic_refresh),
+                                    contentDescription = stringResource(R.string.generic_refresh),
+                                    text = stringResource(R.string.generic_refresh),
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconTextButton(
+                                    onClick = onInstall,
+                                    painter = painterResource(R.drawable.ic_download),
+                                    contentDescription = stringResource(R.string.versions_manage_install_new),
+                                    text = stringResource(R.string.versions_manage_install_new),
+                                )
+                            }
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth())
+
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(all = 12.dp)
+                        ) {
+                            items(versions.size) { index ->
+                                val version = versions[index]
+                                VersionItemLayout(
+                                    version = version,
+                                    selected = version == currentVersion,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
+                                    onSelected = {
+                                        if (version.isValid()) {
+                                            if (version != currentVersion) {
+                                                VersionsManager.saveCurrentVersion(version.getVersionName())
+                                            }
+                                        } else {
+                                            //不允许选择无效版本
+                                            versionsOperation = VersionsOperation.InvalidDelete(version)
                                         }
-                                    } else {
-                                        //不允许选择无效版本
-                                        versionsOperation = VersionsOperation.InvalidDelete(version)
-                                    }
-                                },
-                                onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
-                                onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
-                                onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) }
-                            )
+                                    },
+                                    onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
+                                    onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
+                                    onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) }
+                                )
+                            }
                         }
                     }
                 }
