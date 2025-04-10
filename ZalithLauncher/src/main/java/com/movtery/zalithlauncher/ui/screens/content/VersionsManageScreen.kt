@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.os.Environment
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +41,7 @@ import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
@@ -275,22 +273,10 @@ private fun VersionsLayout(
                 Box(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val scale = remember { Animatable(initialValue = 0.95f) }
-                    LaunchedEffect(Unit) {
-                        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-                    }
-                    Surface(
-                        modifier = Modifier.align(Alignment.Center).graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.inversePrimary,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        shadowElevation = 4.dp
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
-                            text = stringResource(R.string.versions_manage_no_versions)
-                        )
-                    }
+                    ScalingLabel(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.versions_manage_no_versions)
+                    )
                 }
             }
         }

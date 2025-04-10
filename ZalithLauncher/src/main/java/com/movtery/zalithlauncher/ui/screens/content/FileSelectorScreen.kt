@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.state.FilePathSelectorData
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
@@ -283,22 +284,10 @@ private fun FilesLayout(
                     }
                 }
             } ?: run {
-                val scale = remember { Animatable(initialValue = 0.95f) }
-                LaunchedEffect(Unit) {
-                    scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-                }
-                Surface(
-                    modifier = Modifier.align(Alignment.Center).graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.inversePrimary,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    shadowElevation = 4.dp
-                ) {
-                    Text(
-                        modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
-                        text = stringResource(R.string.files_no_selectable_content)
-                    )
-                }
+                ScalingLabel(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.files_no_selectable_content)
+                )
             }
         }
     }

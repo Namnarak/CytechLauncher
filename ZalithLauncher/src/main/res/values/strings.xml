@@ -51,6 +51,7 @@
     <string name="main_launch_game">启动游戏</string>
     <string name="main_task_menu">任务菜单</string>
     <!--  账号  -->
+    <string name="account_no_account">未找到可用账号</string>
     <string name="account_logging_in">%s 登陆中</string>
     <string name="account_logging_in_failed">登陆失败</string>
     <string name="account_logging_in_saving">获取玩家皮肤、保存账号信息</string>

@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -44,6 +46,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
@@ -419,25 +422,36 @@ private fun AccountsLayout(
             updateAccountOperation = { accountOperation = it }
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(shape = MaterialTheme.shapes.extraLarge),
-            contentPadding = PaddingValues(all = 12.dp)
-        ) {
-            items(accounts.size) { index ->
-                val account = accounts[index]
-                AccountItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = if (index != accounts.size - 1) 12.dp else 0.dp),
-                    currentAccount = currentAccount,
-                    account = account,
-                    onSelected = { uniqueUUID ->
-                        AccountsManager.setCurrentAccount(uniqueUUID)
-                    },
-                    onRefreshClick = { accountOperation = AccountOperation.Refresh(account) },
-                    onDeleteClick = { accountOperation = AccountOperation.Delete(account) }
+        if (accounts.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape = MaterialTheme.shapes.extraLarge),
+                contentPadding = PaddingValues(all = 12.dp)
+            ) {
+                items(accounts.size) { index ->
+                    val account = accounts[index]
+                    AccountItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (index != accounts.size - 1) 12.dp else 0.dp),
+                        currentAccount = currentAccount,
+                        account = account,
+                        onSelected = { uniqueUUID ->
+                            AccountsManager.setCurrentAccount(uniqueUUID)
+                        },
+                        onRefreshClick = { accountOperation = AccountOperation.Refresh(account) },
+                        onDeleteClick = { accountOperation = AccountOperation.Delete(account) }
+                    )
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                ScalingLabel(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.account_no_account)
                 )
             }
         }
