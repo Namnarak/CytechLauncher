@@ -36,7 +36,7 @@ object RuntimesManager {
     private const val OS_ARCH_STR: String = "OS_ARCH=\""
     private const val TAG = "RuntimeManager"
 
-    fun getRuntimes(): List<Runtime> {
+    fun getRuntimes(forceLoad: Boolean = false): List<Runtime> {
         if (!RUNTIME_FOLDER.exists()) {
             Log.w(TAG, "Runtime directory not found: ${RUNTIME_FOLDER.absolutePath}")
             return emptyList()
@@ -44,7 +44,7 @@ object RuntimesManager {
 
         return RUNTIME_FOLDER.listFiles()
             ?.filter { it.isDirectory }
-            ?.mapNotNull { loadRuntime(it.name) }
+            ?.mapNotNull { loadRuntime(it.name, forceLoad = forceLoad) }
             ?.sortedWith { o1, o2 ->
                 -StringUtils.compareClassVersions(o1.versionString ?: o1.name, o2.versionString ?: o2.name)
             }
@@ -64,8 +64,8 @@ object RuntimesManager {
         return loadRuntime(name)
     }
 
-    fun loadRuntime(name: String): Runtime {
-        return cache[name] ?: run {
+    fun loadRuntime(name: String, forceLoad: Boolean = false): Runtime {
+        return cache[name]?.takeIf { !forceLoad } ?: run {
             val runtimeDir = File(RUNTIME_FOLDER, name)
             val releaseFile = File(runtimeDir, "release")
 

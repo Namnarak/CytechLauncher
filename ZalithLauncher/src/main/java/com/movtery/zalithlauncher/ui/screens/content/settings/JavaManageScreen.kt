@@ -64,7 +64,7 @@ sealed interface RuntimeOperation {
     data object None: RuntimeOperation
     data class PreDelete(val runtime: Runtime): RuntimeOperation
     data class Delete(val runtime: Runtime): RuntimeOperation
-    data class ProgressUri(val uri: Uri): RuntimeOperation
+    data class ProgressUri(val uris: List<Uri>): RuntimeOperation
 }
 
 @Composable
@@ -83,14 +83,14 @@ fun JavaManageScreen() {
         RuntimeOperation(
             runtimeOperation = runtimeOperation,
             updateOperation = { runtimeOperation = it },
-            callRefresh = { runtimes = getRuntimes() }
+            callRefresh = { runtimes = getRuntimes(true) }
         )
 
         val filePicker = rememberLauncherForActivityResult(
-            contract = ExtensionFilteredDocumentPicker("xz")
+            contract = ExtensionFilteredDocumentPicker(extension = "xz", allowMultiple = true)
         ) { uris ->
-            uris.takeIf { it.isNotEmpty() }?.get(0)?.let { uri ->
-                runtimeOperation = RuntimeOperation.ProgressUri(uri)
+            uris.takeIf { it.isNotEmpty() }?.let {
+                runtimeOperation = RuntimeOperation.ProgressUri(it)
             }
         }
 
@@ -107,7 +107,7 @@ fun JavaManageScreen() {
         ) {
             Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
                 IconTextButton(
-                    onClick = { runtimes = getRuntimes() },
+                    onClick = { runtimes = getRuntimes(true) },
                     painter = painterResource(R.drawable.ic_refresh),
                     contentDescription = stringResource(R.string.generic_refresh),
                     text = stringResource(R.string.generic_refresh),
@@ -147,7 +147,8 @@ fun JavaManageScreen() {
     }
 }
 
-private fun getRuntimes(): List<Runtime> = RuntimesManager.getRuntimes()
+private fun getRuntimes(forceLoad: Boolean = false): List<Runtime> =
+    RuntimesManager.getRuntimes(forceLoad = forceLoad)
 
 @Composable
 private fun RuntimeOperation(
@@ -192,11 +193,13 @@ private fun RuntimeOperation(
         }
         is RuntimeOperation.ProgressUri -> {
             val context = LocalContext.current
-            progressRuntimeUri(
-                context = context,
-                uri = runtimeOperation.uri,
-                onFinally = callRefresh
-            )
+            runtimeOperation.uris.forEach { uri ->
+                progressRuntimeUri(
+                    context = context,
+                    uri = uri,
+                    onFinally = callRefresh
+                )
+            }
             updateOperation(RuntimeOperation.None)
         }
     }
