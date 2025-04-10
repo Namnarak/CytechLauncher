@@ -62,6 +62,17 @@ object GamePathManager {
         }
     }
 
+    private fun String.createNoMediaFile() {
+        val noMediaFile = File(this, ".nomedia")
+        if (!noMediaFile.exists()) {
+            runCatching {
+                noMediaFile.createNewFile()
+            }.onFailure { e ->
+                Log.e("GamePathManager", "Failed to create .nomedia file in $this", e)
+            }
+        }
+    }
+
     /**
      * 查找是否存在指定id的项
      */
@@ -141,6 +152,7 @@ object GamePathManager {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
             currentPath = item.path
+            currentPath.createNoMediaFile()
             VersionsManager.refresh()
         } ?: saveCurrentPath(DEFAULT_ID)
     }
