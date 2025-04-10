@@ -20,6 +20,7 @@ import kotlin.properties.Delegates
 
 class ZLApplication : Application() {
     companion object {
+        @JvmStatic
         var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
     }
 

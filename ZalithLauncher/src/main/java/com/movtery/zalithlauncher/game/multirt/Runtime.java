@@ -2,6 +2,9 @@ package com.movtery.zalithlauncher.game.multirt;
 
 import androidx.annotation.Nullable;
 
+import com.movtery.zalithlauncher.ZLApplication;
+import com.movtery.zalithlauncher.utils.device.Architecture;
+
 import java.util.Objects;
 
 public class Runtime {
@@ -21,6 +24,10 @@ public class Runtime {
         this.arch = arch;
         this.javaVersion = javaVersion;
         this.isProvidedByLauncher = isProvidedByLauncher;
+    }
+
+    public boolean isCompatible() {
+        return versionString != null && ZLApplication.getDEVICE_ARCHITECTURE() == Architecture.INSTANCE.archAsInt(arch);
     }
 
     @Override

@@ -75,7 +75,7 @@ fun GameSettingsScreen() {
             ) {
                 ListSettingsLayout(
                     unit = AllSettings.javaRuntime,
-                    items = RuntimesManager.getRuntimes(),
+                    items = RuntimesManager.getRuntimes().filter { it.isCompatible },
                     title = stringResource(R.string.settings_game_java_runtime_title),
                     summary = stringResource(R.string.settings_game_java_runtime_summary),
                     getItemText = { it.name },
