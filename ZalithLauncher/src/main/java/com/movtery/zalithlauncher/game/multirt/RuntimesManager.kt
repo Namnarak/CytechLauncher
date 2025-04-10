@@ -12,6 +12,7 @@ import com.movtery.zalithlauncher.utils.math.findNearestPositive
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.extractUntilCharacter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
@@ -102,15 +103,10 @@ object RuntimesManager {
         updateProgress: (Int, Array<Any>) -> Unit = { _, _ -> }
     ) = withContext(Dispatchers.IO) {
         val dest = RUNTIME_FOLDER.child(name)
-        try {
-            if (dest.exists()) FileUtils.deleteDirectory(dest)
-            uncompressTarXZ(inputStream, dest, updateProgress)
-            unpack200(nativeLibDir, dest.absolutePath)
-            loadRuntime(name)
-        } catch (e: Exception) {
-            Log.e(TAG, "Runtime installation failed", e)
-            throw e
-        }
+        if (dest.exists()) FileUtils.deleteDirectory(dest)
+        uncompressTarXZ(inputStream, dest, updateProgress)
+        unpack200(nativeLibDir, dest.absolutePath)
+        loadRuntime(name)
     }
 
     @Throws(IOException::class)
@@ -195,7 +191,8 @@ object RuntimesManager {
             val processBuilder = ProcessBuilder().directory(workDir)
 
             files.forEach { jarFile ->
-                try {
+                ensureActive()
+                runCatching {
                     val destPath = jarFile.absolutePath.replace(".pack", "")
                     processBuilder.command(
                         "./libunpack200.so",
@@ -205,10 +202,10 @@ object RuntimesManager {
                     ).start().apply {
                         waitFor()
                     }
-                } catch (e: InterruptedException) {
-                    Log.e(TAG, "Failed to unpack the runtime!", e)
-                } catch (e: IOException) {
-                    Log.e(TAG, "Failed to unpack the runtime!", e)
+                }.onFailure { e ->
+                    if (e is IOException) {
+                        Log.e(TAG, "Failed to unpack the runtime!", e)
+                    } else throw e
                 }
             }
         }
@@ -248,6 +245,7 @@ object RuntimesManager {
 
         TarArchiveInputStream(XZCompressorInputStream(inputStream)).use { tarIn ->
             generateSequence { tarIn.nextEntry }.forEach { tarEntry ->
+                ensureActive()
                 val tarEntryName = tarEntry.name
                 updateProgress(R.string.generic_unpacking, arrayOf(tarEntryName))
 

@@ -1,5 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
@@ -29,16 +32,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
+import com.movtery.zalithlauncher.context.getFileName
+import com.movtery.zalithlauncher.contract.ExtensionFilteredDocumentPicker
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -48,6 +55,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBa
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
 import com.movtery.zalithlauncher.utils.device.Architecture
+import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
 
@@ -57,6 +65,7 @@ sealed interface RuntimeOperation {
     data object None: RuntimeOperation
     data class PreDelete(val runtime: Runtime): RuntimeOperation
     data class Delete(val runtime: Runtime): RuntimeOperation
+    data class ProgressUri(val uri: Uri): RuntimeOperation
 }
 
 @Composable
@@ -78,6 +87,14 @@ fun JavaManageScreen() {
             callRefresh = { runtimes = getRuntimes() }
         )
 
+        val filePicker = rememberLauncherForActivityResult(
+            contract = ExtensionFilteredDocumentPicker("xz")
+        ) { uris ->
+            uris.takeIf { it.isNotEmpty() }?.get(0)?.let { uri ->
+                runtimeOperation = RuntimeOperation.ProgressUri(uri)
+            }
+        }
+
         SettingsBackground(
             modifier = Modifier
                 .fillMaxHeight()
@@ -98,7 +115,7 @@ fun JavaManageScreen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconTextButton(
-                    onClick = {},
+                    onClick = { filePicker.launch("") },
                     painter = painterResource(R.drawable.ic_add),
                     contentDescription = stringResource(R.string.generic_import),
                     text = stringResource(R.string.generic_import),
@@ -169,7 +186,60 @@ private fun RuntimeOperation(
             )
             updateOperation(RuntimeOperation.None)
         }
+        is RuntimeOperation.ProgressUri -> {
+            val context = LocalContext.current
+            progressRuntimeUri(
+                context = context,
+                uri = runtimeOperation.uri,
+                onFinally = callRefresh
+            )
+            updateOperation(RuntimeOperation.None)
+        }
     }
+}
+
+private fun progressRuntimeUri(
+    context: Context,
+    uri: Uri,
+    onFinally: () -> Unit
+) {
+    fun showError(message: String) {
+        ObjectStates.updateThrowable(
+            ObjectStates.ThrowableMessage(
+                title = context.getString(R.string.multirt_runtime_import_failed),
+                message = message
+            )
+        )
+    }
+
+    val name = context.getFileName(uri) ?: run {
+        showError(context.getString(R.string.multirt_runtime_import_failed_file_name))
+        return
+    }
+    TaskSystem.submitTask(
+        Task.runTask(
+            id = name,
+            dispatcher = Dispatchers.IO,
+            task = { task ->
+                val inputStream = context.contentResolver.openInputStream(uri) ?: run {
+                    showError(context.getString(R.string.multirt_runtime_import_failed_input_stream))
+                    return@runTask
+                }
+                RuntimesManager.installRuntime(
+                    nativeLibDir = PathManager.DIR_NATIVE_LIB,
+                    inputStream = inputStream,
+                    name = name,
+                    updateProgress = { textRes, textArg ->
+                        task.updateMessage(textRes, *textArg)
+                    }
+                )
+            },
+            onError = {
+                showError(StringUtils.throwableToString(it))
+            },
+            onFinally = onFinally
+        )
+    )
 }
 
 @Composable

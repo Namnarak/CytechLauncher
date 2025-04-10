@@ -7,7 +7,8 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
 import android.util.Log
-import com.movtery.zalithlauncher.context.Contexts
+import com.movtery.zalithlauncher.context.getContextWrapper
+import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
@@ -70,11 +71,11 @@ class ZLApplication : Application() {
     }
 
     override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(Contexts.getWrapper(base))
+        super.attachBaseContext(getContextWrapper(base))
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        Contexts.refresh(this)
+        refreshContext(this)
     }
 }

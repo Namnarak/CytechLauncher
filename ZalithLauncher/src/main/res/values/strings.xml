@@ -108,6 +108,9 @@
     <string name="multirt_runtime_delete_message">你确定要删除 Java 环境 %s 吗？此操作不可逆！</string>
     <string name="multirt_runtime_deleting">删除 Java 环境：%s</string>
     <string name="multirt_runtime_delete_failed">删除 Java 环境失败！</string>
+    <string name="multirt_runtime_import_failed">导入 Java 环境失败！</string>
+    <string name="multirt_runtime_import_failed_file_name">无法获取到目标文件的文件名</string>
+    <string name="multirt_runtime_import_failed_input_stream">无法创建目标文件输入流</string>
     <string name="multirt_runtime_provided_by_launcher">内置</string>
     <string name="multirt_runtime_version_name">版本：%s</string>
     <string name="multirt_runtime_version_code">版本号：%s</string>

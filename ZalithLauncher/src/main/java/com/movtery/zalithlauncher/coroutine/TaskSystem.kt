@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.coroutine
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,6 +29,7 @@ object TaskSystem {
             try {
                 task.task(this@launch, task)
             } catch (th: Throwable) {
+                if (th is CancellationException) return@launch
                 task.onError(th)
             } finally {
                 task.onFinally()

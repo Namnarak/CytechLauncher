@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.ui.base
 
 import android.os.Bundle
-import com.movtery.zalithlauncher.context.Contexts
+import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
@@ -12,7 +12,7 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Contexts.refresh(this)
+        refreshContext(this)
         checkStoragePermissions()
 
         //加载渲染器

@@ -38,7 +38,7 @@ import com.movtery.zalithlauncher.SplashException
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
-import com.movtery.zalithlauncher.context.Contexts.Companion.readAssetFile
+import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ColorThemeState
