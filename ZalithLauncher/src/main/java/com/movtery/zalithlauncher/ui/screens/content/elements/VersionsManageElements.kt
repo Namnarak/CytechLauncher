@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -439,15 +438,15 @@ fun VersionItemLayout(
         color = MaterialTheme.colorScheme.inversePrimary,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp
+        shadowElevation = 4.dp,
+        onClick = {
+            if (selected) return@Surface
+            onSelected()
+        }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    if (selected) return@clickable
-                    onSelected()
-                }
                 .clip(shape = MaterialTheme.shapes.large)
                 .padding(all = 8.dp)
         ) {

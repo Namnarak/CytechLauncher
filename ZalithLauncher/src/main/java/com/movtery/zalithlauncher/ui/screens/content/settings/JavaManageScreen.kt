@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -260,13 +259,12 @@ private fun JavaRuntimeItem(
         scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
     }
     Surface(
-        modifier = modifier
-            .graphicsLayer(scaleY = scale.value, scaleX = scale.value)
-            .clickable(onClick = onClick),
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = MaterialTheme.colorScheme.inversePrimary,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp
+        shadowElevation = 4.dp,
+        onClick = onClick
     ) {
         Row {
             Column(

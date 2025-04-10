@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -267,18 +266,17 @@ private fun FilesLayout(
                                 .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
                             color = MaterialTheme.colorScheme.inversePrimary,
                             shape = MaterialTheme.shapes.large,
-                            shadowElevation = 4.dp
+                            shadowElevation = 4.dp,
+                            onClick = {
+                                if (!selectFile && file.isDirectory) {
+                                    updatePath(file)
+                                }
+                            }
                         ) {
                             BaseFileItem(
                                 file = file,
                                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier
-                                    .clickable {
-                                        if (!selectFile && file.isDirectory) {
-                                            updatePath(file)
-                                        }
-                                    }
-                                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                                modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
                             )
                         }
                     }

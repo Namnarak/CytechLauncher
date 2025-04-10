@@ -199,15 +199,15 @@ fun AccountItem(
         color = MaterialTheme.colorScheme.inversePrimary,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp
+        shadowElevation = 4.dp,
+        onClick = {
+            if (selected) return@Surface
+            onSelected(account.uniqueUUID)
+        }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    if (selected) return@clickable
-                    onSelected(account.uniqueUUID)
-                }
                 .clip(shape = MaterialTheme.shapes.large)
                 .padding(all = 8.dp)
         ) {
