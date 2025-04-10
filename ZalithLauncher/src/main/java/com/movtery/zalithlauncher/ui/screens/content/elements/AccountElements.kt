@@ -341,7 +341,10 @@ fun OtherServerLoginDialog(
     var password by rememberSaveable { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = MaterialTheme.shapes.extraLarge) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 4.dp
+        ) {
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = server.serverName,

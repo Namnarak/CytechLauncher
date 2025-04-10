@@ -132,7 +132,10 @@ fun SimpleEditDialog(
     onConfirm: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = MaterialTheme.shapes.extraLarge) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 4.dp
+        ) {
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = title,
@@ -190,7 +193,10 @@ fun SimpleCheckEditDialog(
     onConfirm: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = MaterialTheme.shapes.extraLarge) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 4.dp
+        ) {
             Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = title,
@@ -260,7 +266,10 @@ fun <T> SimpleListDialog(
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = MaterialTheme.shapes.extraLarge) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 4.dp
+        ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp)
@@ -323,7 +332,10 @@ fun SimpleTaskDialog(
 
     if (inProgress) {
         Dialog(onDismissRequest = {}) {
-            Surface(shape = MaterialTheme.shapes.extraLarge) {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 4.dp
+            ) {
                 Column(
                     modifier = Modifier
                         .padding(16.dp)
