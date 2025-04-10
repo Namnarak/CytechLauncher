@@ -19,6 +19,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils
@@ -239,9 +240,9 @@ fun addOtherServer(
                         currentConfig.copy()
                     }
                     task.updateProgress(0.8f, R.string.account_other_login_saving_server)
-                    serverConfigFile.writeText(
-                        GSON.toJson(serverConfig().value, Servers::class.java)
-                    )
+                    val configString = GSON.toJson(serverConfig().value, Servers::class.java)
+                    val text = CryptoManager.encrypt(configString)
+                    serverConfigFile.writeText(text)
                     task.updateProgress(1f, R.string.generic_done)
                 }
             }

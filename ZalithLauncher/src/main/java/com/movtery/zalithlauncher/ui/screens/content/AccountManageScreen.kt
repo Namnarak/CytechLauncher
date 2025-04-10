@@ -58,6 +58,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperatio
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
+import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
@@ -76,7 +77,8 @@ private val otherServerConfig = MutableStateFlow(Servers().apply { server = Arra
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
 
 private fun refreshOtherServer() {
-    val config: String = otherServerConfigFile.takeIf { it.exists() }?.readText() ?: return
+    val text: String = otherServerConfigFile.takeIf { it.exists() }?.readText() ?: return
+    val config = CryptoManager.decrypt(text)
     otherServerConfig.value = GSON.fromJson(config, Servers::class.java)
 }
 
@@ -303,8 +305,9 @@ private fun ServerTypeOperation(
                     otherServerConfig.update { currentConfig ->
                         currentConfig.server.removeAt(serverOperation.serverIndex)
                         val configString = GSON.toJson(currentConfig, Servers::class.java)
+                        val text = CryptoManager.encrypt(configString)
                         runCatching {
-                            otherServerConfigFile.writeText(configString)
+                            otherServerConfigFile.writeText(text)
                         }.onFailure {
                             Log.e("ServerTypeTab", "Failed to save other server config", it)
                         }
