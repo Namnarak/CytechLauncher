@@ -238,6 +238,7 @@ private fun ServerTypeOperation(
                     Text(text = errorText)
                 }
             },
+            singleLine = true,
             onDismissRequest = { updateLocalLoginDialog(false) },
             onConfirm = {
                 if (username.isNotEmpty()) {
@@ -276,6 +277,7 @@ private fun ServerTypeOperation(
                 value = serverUrl,
                 onValueChange = { serverUrl = it.trim() },
                 label = { Text(text = stringResource(R.string.account_label_server_url)) },
+                singleLine = true,
                 onDismissRequest = { updateServerOperation(ServerOperation.None) },
                 onConfirm = {
                     if (serverUrl.isNotEmpty()) {

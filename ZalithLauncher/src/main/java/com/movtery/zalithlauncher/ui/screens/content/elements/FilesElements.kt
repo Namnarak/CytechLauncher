@@ -88,7 +88,7 @@ fun CreateNewDirDialog(
     SimpleEditDialog(
         title = stringResource(R.string.files_create_dir),
         value = value,
-        onValueChange = { value = it.trim() },
+        onValueChange = { value = it },
         isError = isError,
         supportingText = {
             when {
@@ -96,6 +96,7 @@ fun CreateNewDirDialog(
                 isError -> Text(text = errorMessage)
             }
         },
+        singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = { if (!isError) createDir(value) }
     )

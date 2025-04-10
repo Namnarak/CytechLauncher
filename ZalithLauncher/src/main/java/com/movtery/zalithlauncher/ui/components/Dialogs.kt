@@ -126,6 +126,7 @@ fun SimpleEditDialog(
     label: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = false,
     maxLines: Int = 3,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
@@ -144,6 +145,7 @@ fun SimpleEditDialog(
                     label = label,
                     isError = isError,
                     supportingText = supportingText,
+                    singleLine = singleLine,
                     maxLines = maxLines
                 )
                 Spacer(modifier = Modifier.size(16.dp))
@@ -182,6 +184,8 @@ fun SimpleCheckEditDialog(
     label: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = false,
+    maxLines: Int = 3,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
@@ -202,7 +206,9 @@ fun SimpleCheckEditDialog(
                     onValueChange = onValueChange,
                     label = label,
                     isError = isError,
-                    supportingText = supportingText
+                    supportingText = supportingText,
+                    singleLine = singleLine,
+                    maxLines = maxLines
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     checkBoxText?.let{ Text(text = it, style = MaterialTheme.typography.labelMedium) }

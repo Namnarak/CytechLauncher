@@ -357,7 +357,8 @@ fun OtherServerLoginDialog(
                         if (email.isEmpty()) {
                             Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
                         }
-                    }
+                    },
+                    singleLine = true
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 TextField(
@@ -373,7 +374,8 @@ fun OtherServerLoginDialog(
                         if (password.isEmpty()) {
                             Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
                         }
-                    }
+                    },
+                    singleLine = true
                 )
                 if (!server.register.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.size(4.dp))

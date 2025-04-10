@@ -236,6 +236,7 @@ private fun NameEditPathDialog(
         supportingText = {
             if (value.isEmpty()) Text(text = stringResource(R.string.generic_cannot_empty))
         },
+        singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = {
             if (value.isNotEmpty() || value.isNotBlank()) {
@@ -351,6 +352,7 @@ fun RenameVersionDialog(
                 isError -> Text(text = errorMessage)
             }
         },
+        singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = {
             if (!isError) {
@@ -392,6 +394,7 @@ fun CopyVersionDialog(
                 isError -> Text(text = errorMessage)
             }
         },
+        singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = {
             if (!isError) {
