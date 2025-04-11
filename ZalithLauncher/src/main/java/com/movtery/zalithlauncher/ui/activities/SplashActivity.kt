@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,10 +98,16 @@ class SplashActivity : BaseComponentActivity() {
                                 .fillMaxWidth()
                                 .weight(1f)
                         ) {
+                            val backgroundColor = if (isSystemInDarkTheme()) {
+                                MaterialTheme.colorScheme.surfaceContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            }
+
                             NavigationUI(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(color = MaterialTheme.colorScheme.background)
+                                    .background(color = backgroundColor)
                             )
 
                             DownShadow(

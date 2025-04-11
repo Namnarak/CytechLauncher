@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,12 +50,17 @@ fun ErrorScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
+            val backgroundColor = if (isSystemInDarkTheme()) {
+                MaterialTheme.colorScheme.surfaceContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
             ErrorContent(
                 throwable = throwable,
                 canRestart = canRestart,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background),
+                    .background(color = backgroundColor),
                 onRestartClick = onRestartClick,
                 onExitClick = onExitClick
             )
