@@ -4,31 +4,33 @@ Last Updated: April 11, 2025
 Please read this agreement carefully before using the software.
 Developer: MovTery
 
-1. User Obligations
-1) Device must run Android 8.0 or higher.
-2) Users shall bear all network service fees and related costs.
-3) Users assume full responsibility for all consequences arising from software usage.
-4) This software does not actively collect personal information. Any future privacy data collection will be explicitly stated in updated agreements with user consent.
+I. User Obligations
+1) Your device must meet Android 8.0 or higher requirements.
+2) You shall bear all network service fees and related expenses incurred during use.
+3) You are solely responsible for all consequences arising from your use of the Software.
+4) This Software does not actively collect your personal information. Should future versions involve the collection of private data, this will be explicitly stated in an updated agreement, and your consent will be sought.
 
-2. Naming Conventions (Derivative Versions)
-1) Modified versions are prohibited from using:
-    - The full name "Zalith Launcher"
-    - The abbreviation "ZL"
-2) Derivative versions must prominently display "Unofficial Modified Version".
-3) Use of visual elements resembling original icons/trademarks is strictly prohibited.
+II. Naming Guidelines (Derivative Versions)
+1) Modified versions must not use the following names:
+    - The full name "Zalith Launcher."
+    - The abbreviation "ZL."
+2) Derivative versions must prominently display "Non-Official Modified Version" in a visible location.
+3) Use of visual elements (icons/trademarks) resembling those of this Software is strictly prohibited.
 
-3. Disclaimer
-1) Users assume all risks associated with software usage.
-2) No guarantee is provided for meeting all user requirements.
-3) No responsibility is taken for content from third-party services.
-4) No liability for issues arising from third-party service usage.
-5) Test versions (Alpha/Beta/Preview) may contain unstable or incomplete features.
+III. Disclaimer
+1) You assume all risks associated with the use of this Software.
+2) The Software is not guaranteed to meet all user requirements.
+3) We are not responsible for the content of third-party services.
+4) We assume no liability for issues arising from the use of third-party services.
+5) If you use test versions (including Alpha/Beta/Preview versions), you acknowledge that such versions may be unstable or lack certain features.
 
-4. Intellectual Property
-1) Software is licensed under GPL v3.
+IV. Intellectual Property
+1) This Software is protected under the GPL v3 License.
     Source Code Repository: https://github.com/ZalithLauncher/ZalithLauncher-New
-2) Trademark rights are owned by the ZalithLauncher organization.
-3) Third-party components remain property of original developers.
-4) Derivative versions must comply with GPL v3 and retain original project's license information and attribution.
+2) Trademark rights belong to the ZalithLauncher organization.
+3) Third-party components retain copyright ownership by their original developers.
+4) Derivative versions must comply with the GPL v3 License and retain the original project's licensing information and attribution notices in appropriate locations.
 
-Continued use constitutes acceptance of these terms. We reserve the right to modify this agreement at any time, with updates effective immediately upon publication. If you disagree with any terms, discontinue use immediately.
+By using this Software, you agree to the terms above.
+If you disagree with any part of this agreement, discontinue use immediately.
+We reserve the right to update this agreement at any time. Updated terms will be posted on this page and take effect immediately upon publication.
