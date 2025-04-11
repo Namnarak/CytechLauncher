@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.state
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.movtery.zalithlauncher.utils.animation.getAnimateType
 
 object MutableStates {
     /**
@@ -24,6 +25,11 @@ object MutableStates {
      * 状态：文件、目录路径选择器
      */
     var filePathSelector by mutableStateOf<FilePathSelectorData?>(null)
+
+    /**
+     * 状态：启动器页面切换动画类型
+     */
+    var launcherAnimateType by mutableStateOf(getAnimateType())
 }
 
 /**

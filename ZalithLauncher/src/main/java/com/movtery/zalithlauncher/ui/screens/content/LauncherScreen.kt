@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -45,8 +44,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val LAUNCHER_SCREEN_TAG: String = "LauncherScreen"
 
@@ -80,9 +78,9 @@ private fun RightMenu(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
-    val xOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else 40.dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val xOffset by swapAnimateDpAsState(
+        targetValue = 40.dp,
+        swapIn = isVisible
     )
 
     val context = LocalContext.current

@@ -6,6 +6,7 @@ import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
 class AllSettings {
     companion object {
@@ -46,6 +47,11 @@ class AllSettings {
          * 动画倍速
          */
         val launcherAnimateSpeed = IntSettingUnit("launcherAnimateSpeed", 5)
+
+        /**
+         * 启动器页面切换动画类型
+         */
+        val launcherSwapAnimateType = StringSettingUnit("launcherSwapAnimateType", TransitionAnimationType.BOUNCE.name)
 
         //Other
         /**

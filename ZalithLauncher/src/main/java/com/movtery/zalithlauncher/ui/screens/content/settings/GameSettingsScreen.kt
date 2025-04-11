@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +20,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val GAME_SETTINGS_TAG = "GameSettingsScreen"
 
@@ -38,9 +36,9 @@ fun GameSettingsScreen() {
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp)
         ) {
-            val yOffset1 by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+            val yOffset1 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible
             )
 
             SettingsBackground(
@@ -59,10 +57,10 @@ fun GameSettingsScreen() {
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
-            val yOffset2 by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce(delayMillis = 50)
-                else getAnimateTween(delayMillis = 50)
+            val yOffset2 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 50
             )
             SettingsBackground(
                 modifier = Modifier

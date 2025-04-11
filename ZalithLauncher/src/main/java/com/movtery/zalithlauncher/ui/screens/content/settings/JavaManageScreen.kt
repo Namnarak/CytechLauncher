@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -55,7 +54,7 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -76,9 +75,9 @@ fun JavaManageScreen() {
         screenTag = JAVA_MANAGE_SCREEN_TAG,
         currentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
-        val yOffset by animateDpAsState(
-            targetValue = if (isVisible) 0.dp else (-40).dp,
-            animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+        val yOffset by swapAnimateDpAsState(
+            targetValue = (-40).dp,
+            swapIn = isVisible
         )
 
         var runtimes by remember { mutableStateOf(getRuntimes()) }

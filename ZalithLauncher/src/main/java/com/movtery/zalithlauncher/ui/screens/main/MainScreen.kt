@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -82,7 +84,9 @@ import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateType
 import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
 
@@ -348,10 +352,18 @@ private fun NavigationUI(
         navController = navController,
         startDestination = LAUNCHER_SCREEN_TAG,
         enterTransition = {
-            fadeIn(animationSpec = getAnimateTween())
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeIn(animationSpec = getAnimateTween())
+            } else {
+                EnterTransition.None
+            }
         },
         exitTransition = {
-            fadeOut(animationSpec = getAnimateTween())
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeOut(animationSpec = getAnimateTween())
+            } else {
+                ExitTransition.None
+            }
         }
     ) {
         composable(

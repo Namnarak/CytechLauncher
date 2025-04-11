@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,8 +32,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 
 const val ABOUT_INFO_SCREEN_TAG = "AboutInfoScreen"
@@ -84,9 +82,9 @@ fun AboutInfoScreen() {
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp)
         ) {
-            val yOffset by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+            val yOffset by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible
             )
 
             //额外依赖库板块

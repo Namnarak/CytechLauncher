@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.splash
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,8 +23,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val EULA_SCREEN_TAG = "EulaScreen"
 
@@ -65,9 +63,9 @@ private fun EulaTextLayout(
     eulaText: String,
     modifier: Modifier = Modifier
 ) {
-    val yOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val yOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     Surface(
@@ -102,9 +100,9 @@ private fun ActionLayout(
     modifier: Modifier = Modifier,
     onContinue: () -> Unit = {}
 ) {
-    val xOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else 40.dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val xOffset by swapAnimateDpAsState(
+        targetValue = 40.dp,
+        swapIn = isVisible
     )
 
     Surface(

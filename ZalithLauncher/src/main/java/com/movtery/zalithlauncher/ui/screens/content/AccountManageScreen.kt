@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.util.Log
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,8 +59,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,9 +112,9 @@ private fun ServerTypeTab(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val xOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val xOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     LaunchedEffect(true) {
@@ -402,9 +400,9 @@ private fun AccountsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val yOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val yOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     val accounts by AccountsManager.accountsFlow.collectAsState()

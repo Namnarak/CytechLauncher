@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.splash
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,7 +35,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val UNPACK_SCREEN_TAG = "UnpackScreen"
 
@@ -50,13 +49,13 @@ fun UnpackScreen(
         currentTag = MutableStates.splashScreenTag
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
-            val xOffset by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else 40.dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+            val xOffset by swapAnimateDpAsState(
+                targetValue = 40.dp,
+                swapIn = isVisible
             )
-            val yOffset by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+            val yOffset by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible
             )
 
             Surface(

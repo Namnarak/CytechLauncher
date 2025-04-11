@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.os.Environment
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,8 +48,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val VERSIONS_MANAGE_SCREEN_TAG = "VersionsManageScreen"
 
@@ -95,9 +93,9 @@ private fun GamePathLayout(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val surfaceXOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val surfaceXOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     var gamePathOperation by remember { mutableStateOf<GamePathOperation>(GamePathOperation.None) }
@@ -192,9 +190,9 @@ private fun VersionsLayout(
     onRefresh: () -> Unit,
     onInstall: () -> Unit
 ) {
-    val surfaceYOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val surfaceYOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     Surface(

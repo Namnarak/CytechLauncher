@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -54,8 +57,10 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsSc
 import com.movtery.zalithlauncher.ui.screens.content.settings.RENDERER_SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.getAnimateType
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 
@@ -103,9 +108,9 @@ private fun TabMenu(
     settingsNavController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val xOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val xOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     Surface(
@@ -205,7 +210,21 @@ private fun NavigationUI(
     NavHost(
         modifier = modifier,
         navController = settingsNavController,
-        startDestination = RENDERER_SETTINGS_SCREEN_TAG
+        startDestination = RENDERER_SETTINGS_SCREEN_TAG,
+        enterTransition = {
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeIn(animationSpec = getAnimateTween())
+            } else {
+                EnterTransition.None
+            }
+        },
+        exitTransition = {
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeOut(animationSpec = getAnimateTween())
+            } else {
+                ExitTransition.None
+            }
+        }
     ) {
         composable(
             route = RENDERER_SETTINGS_SCREEN_TAG

@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +39,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.sortWithFileName
 import java.io.File
 
@@ -135,9 +134,9 @@ private fun TopPathLayout(
     currentPath: String,
     modifier: Modifier = Modifier
 ) {
-    val surfaceYOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val surfaceYOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     Surface(
@@ -172,9 +171,9 @@ private fun LeftActionMenu(
     createDir: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val surfaceXOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else (-40).dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val surfaceXOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
     )
 
     Surface(
@@ -224,9 +223,9 @@ private fun FilesLayout(
     selectFile: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val surfaceXOffset by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else 40.dp,
-        animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+    val surfaceXOffset by swapAnimateDpAsState(
+        targetValue = 40.dp,
+        swapIn = isVisible
     )
 
     Surface(

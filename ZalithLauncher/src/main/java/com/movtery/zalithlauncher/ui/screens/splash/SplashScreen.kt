@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.splash
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -30,7 +32,9 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.components.DownShadow
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.animation.getAnimateType
 
 @Composable
 fun SplashScreen(
@@ -124,10 +128,18 @@ private fun NavigationUI(
         navController = navController,
         startDestination = startDestination,
         enterTransition = {
-            fadeIn(animationSpec = getAnimateTween())
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeIn(animationSpec = getAnimateTween())
+            } else {
+                EnterTransition.None
+            }
         },
         exitTransition = {
-            fadeOut(animationSpec = getAnimateTween())
+            if (getAnimateType() != TransitionAnimationType.CLOSE) {
+                fadeOut(animationSpec = getAnimateTween())
+            } else {
+                ExitTransition.None
+            }
         }
     ) {
         composable(

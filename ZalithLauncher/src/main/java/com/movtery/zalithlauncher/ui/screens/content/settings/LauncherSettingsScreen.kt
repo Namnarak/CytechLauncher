@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -22,8 +21,8 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.getAnimateTweenBounce
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
+import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 const val LAUNCHER_SETTINGS_TAG = "LauncherSettingsScreen"
 
@@ -43,9 +42,9 @@ fun LauncherSettingsScreen() {
         ) {
             val currentColorThemeState = LocalColorThemeState.current
 
-            val yOffset by animateDpAsState(
-                targetValue = if (isVisible) 0.dp else (-40).dp,
-                animationSpec = if (isVisible) getAnimateTweenBounce() else getAnimateTween()
+            val yOffset by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible
             )
 
             SettingsBackground(
@@ -97,6 +96,23 @@ fun LauncherSettingsScreen() {
                     steps = 10,
                     suffix = "x"
                 )
+
+                EnumSettingsLayout(
+                    unit = AllSettings.launcherSwapAnimateType,
+                    title = stringResource(R.string.settings_launcher_swap_animate_type_title),
+                    summary = stringResource(R.string.settings_launcher_swap_animate_type_summary),
+                    entries = TransitionAnimationType.entries,
+                    getRadioText = { enum ->
+                        when (enum) {
+                            TransitionAnimationType.CLOSE -> stringResource(R.string.generic_close)
+                            TransitionAnimationType.BOUNCE -> stringResource(R.string.animate_type_bounce)
+                            TransitionAnimationType.JELLY_BOUNCE -> stringResource(R.string.animate_type_jelly_bounce)
+                            TransitionAnimationType.SLICE_IN -> stringResource(R.string.animate_type_slice_in)
+                        }
+                    }
+                ) { type ->
+                    MutableStates.launcherAnimateType = type
+                }
             }
         }
     }
