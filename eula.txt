@@ -1,8 +1,8 @@
 Zalith Launcher End User License Agreement (EULA)
-Last Updated: April 10, 2025
+Last Updated: April 11, 2025
 
 Please read this agreement carefully before using the software.
-Developer: ZalithLauncher
+Developer: MovTery
 
 1. User Obligations
 1) Device must run Android 8.0 or higher.
@@ -27,7 +27,7 @@ Developer: ZalithLauncher
 4. Intellectual Property
 1) Software is licensed under GPL v3.
     Source Code Repository: https://github.com/ZalithLauncher/ZalithLauncher-New
-2) Trademark rights belong to ZalithLauncher.
+2) Trademark rights are owned by the ZalithLauncher organization.
 3) Third-party components remain property of original developers.
 4) Derivative versions must comply with GPL v3 and retain original project's license information and attribution.
 
