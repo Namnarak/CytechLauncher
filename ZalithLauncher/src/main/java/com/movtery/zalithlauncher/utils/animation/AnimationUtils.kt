@@ -66,12 +66,16 @@ fun <E> getSwapAnimateTween(
     swapIn: Boolean,
     delayMillis: Int = 0
 ): FiniteAnimationSpec<E> {
-    val type = getAnimateType()
-    return when (type) {
-        TransitionAnimationType.CLOSE -> snap()
-        TransitionAnimationType.BOUNCE -> if (swapIn) getAnimateTweenBounce(delayMillis) else getAnimateTween(delayMillis)
-        TransitionAnimationType.JELLY_BOUNCE -> if (swapIn) getAnimateTweenJellyBounce(delayMillis) else getAnimateTween(delayMillis)
-        else -> getAnimateTween(delayMillis)
+    return if (swapIn) {
+        val type = getAnimateType()
+        when (type) {
+            TransitionAnimationType.CLOSE -> snap()
+            TransitionAnimationType.BOUNCE -> getAnimateTweenBounce(delayMillis)
+            TransitionAnimationType.JELLY_BOUNCE -> getAnimateTweenJellyBounce(delayMillis)
+            else -> getAnimateTween(delayMillis)
+        }
+    } else {
+        getAnimateTween(delayMillis)
     }
 }
 
