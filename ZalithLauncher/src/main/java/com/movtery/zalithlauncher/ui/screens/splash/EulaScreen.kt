@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.main
+package com.movtery.zalithlauncher.ui.screens.splash
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
