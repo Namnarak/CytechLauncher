@@ -17,7 +17,7 @@ public class JellyBounceInterpolator extends BaseInterpolator {
         final float PHASE1_END = 0.3f;
         final float PHASE2_END = 0.5f;
         final float BOUNCE_HEIGHT = 1.1f;
-        final float SETTLE_HEIGHT = 0.9f;
+        final float SETTLE_HEIGHT = 0.98f;
 
         if (t < PHASE1_END) {
             float progress = t / PHASE1_END;
