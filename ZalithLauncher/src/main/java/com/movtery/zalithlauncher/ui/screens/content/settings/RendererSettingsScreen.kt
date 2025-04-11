@@ -60,7 +60,7 @@ fun RendererSettingsScreen() {
                     title = stringResource(R.string.settings_renderer_global_renderer_title),
                     summary = stringResource(R.string.settings_renderer_global_renderer_summary),
                     getItemText = { it.getRendererName() },
-                    getItemId = { it.getRendererId() }
+                    getItemId = { it.getUniqueIdentifier() }
                 )
             }
         }
