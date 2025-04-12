@@ -6,7 +6,13 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.Settings
+import com.movtery.zalithlauncher.utils.file.ensureDirectory
+import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.readString
+import org.apache.commons.io.IOUtils
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 fun refreshContext(context: Context) {
     PathManager.refreshPaths(context)
@@ -32,4 +38,36 @@ fun Context.getFileName(uri: Uri): String? {
             }
         } ?: uri.lastPathSegment
     }.getOrNull() ?: uri.lastPathSegment
+}
+
+@Throws(IOException::class)
+fun Context.copyAssetFile(fileName: String, output: String, overwrite: Boolean) {
+    this.copyAssetFile(fileName, output, File(fileName).name, overwrite)
+}
+
+@Throws(IOException::class)
+fun Context.copyAssetFile(
+    fileName: String,
+    output: String,
+    outputName: String,
+    overwrite: Boolean
+) {
+    val destinationFile = File(File(output).ensureDirectory(), outputName)
+    this.copyAssetFile(fileName, destinationFile, overwrite)
+}
+
+@Throws(IOException::class)
+fun Context.copyAssetFile(
+    fileName: String,
+    output: File,
+    overwrite: Boolean
+) {
+    val destinationFile = output.ensureParentDirectory()
+    if (!destinationFile.exists() || overwrite) {
+        assets.open(fileName).use { inputStream ->
+            FileOutputStream(destinationFile).use { outputStream ->
+                IOUtils.copy(inputStream, outputStream)
+            }
+        }
+    }
 }

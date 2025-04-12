@@ -12,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.SplashException
+import com.movtery.zalithlauncher.components.Components
 import com.movtery.zalithlauncher.components.InstallableItem
+import com.movtery.zalithlauncher.components.UnpackComponentsTask
 import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
 import com.movtery.zalithlauncher.context.readAssetFile
@@ -87,6 +89,18 @@ class SplashActivity : BaseComponentActivity() {
     }
 
     private fun initUnpackItems() {
+        Components.entries.forEach { component ->
+            val task = UnpackComponentsTask(this@SplashActivity, component)
+            if (!task.isCheckFailed()) {
+                unpackItems.add(
+                    InstallableItem(
+                        component.displayName,
+                        getString(component.summary),
+                        task
+                    )
+                )
+            }
+        }
         Jre.entries.forEach { jre ->
             val task = UnpackJreTask(this@SplashActivity, jre)
             if (!task.isCheckFailed()) {
