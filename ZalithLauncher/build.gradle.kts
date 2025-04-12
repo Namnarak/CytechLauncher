@@ -123,6 +123,7 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = true
+            pickFirsts += listOf("**/libbytehook.so")
         }
     }
 
@@ -136,6 +137,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        prefab = true
     }
 }
 
@@ -230,6 +232,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.coil.compose)
     //Utils
+    implementation(libs.bytehook)
     implementation(libs.gson)
     implementation(libs.commons.io)
     implementation(libs.commons.codec)

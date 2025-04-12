@@ -19,6 +19,11 @@ class ErrorActivity : BaseComponentActivity() {
     companion object {
         const val BUNDLE_THROWABLE = "BUNDLE_THROWABLE"
         const val BUNDLE_CAN_RESTART = "BUNDLE_CAN_RESTART"
+
+        @JvmStatic
+        fun showExitMessage(context: Context, code: Int, isSignal: Boolean) {
+            //TODO 游戏崩溃
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

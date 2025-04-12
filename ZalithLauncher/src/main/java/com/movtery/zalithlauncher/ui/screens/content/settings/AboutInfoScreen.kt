@@ -40,6 +40,7 @@ const val ABOUT_INFO_SCREEN_TAG = "AboutInfoScreen"
 private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
 private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
 private const val LICENSE_APACHE_2 = "Apache License 2.0"
+private const val LICENSE_MIT = "MIT License"
 private const val URL_KTOR = "https://ktor.io"
 
 private val libraryData = listOf(
@@ -47,7 +48,8 @@ private val libraryData = listOf(
     LibraryInfo("androidx-material-icons-extended", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material"),
     LibraryInfo("androidx-material-icons-core", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material"),
     LibraryInfo("androidx-navigation-compose", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/compose/navigation"),
-    LibraryInfo("Coil Compose", "Copyright 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil"),
+    LibraryInfo("ByteHook", "Copyright © 2020-2024 ByteDance, Inc.", LICENSE_MIT, "https://github.com/bytedance/bhook"),
+    LibraryInfo("Coil Compose", "Copyright © 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil"),
     LibraryInfo("Apache Commons Compress", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-compress"),
     LibraryInfo("Apache Commons Codec", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-codec"),
     LibraryInfo("Apache Commons IO", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-io"),
