@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.Settings
-import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.readString
 import org.apache.commons.io.IOUtils
@@ -52,8 +51,7 @@ fun Context.copyAssetFile(
     outputName: String,
     overwrite: Boolean
 ) {
-    val destinationFile = File(File(output).ensureDirectory(), outputName)
-    this.copyAssetFile(fileName, destinationFile, overwrite)
+    this.copyAssetFile(fileName, File(output, outputName), overwrite)
 }
 
 @Throws(IOException::class)
