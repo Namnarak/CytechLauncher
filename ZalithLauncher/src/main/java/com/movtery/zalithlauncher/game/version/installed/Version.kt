@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.version.installed
 import android.os.Parcel
 import android.os.Parcelable
 import com.movtery.zalithlauncher.game.path.getGameHome
+import com.movtery.zalithlauncher.setting.AllSettings
 import java.io.File
 
 /**
@@ -56,6 +57,11 @@ class Version(
     fun isValid() = isValid && getVersionPath().exists()
 
     /**
+     * @return 是否开启了版本隔离
+     */
+    fun isIsolation() = versionConfig.isIsolation()
+
+    /**
      * @return 获取版本的游戏文件夹路径（若开启了版本隔离，则路径为版本文件夹）
      */
     fun getGameDir(): File {
@@ -64,6 +70,17 @@ class Version(
         else if (versionConfig.getCustomPath().isNotEmpty()) File(versionConfig.getCustomPath())
         else File(getGameHome())
     }
+
+    private fun String.getValueOrDefault(default: String): String = this.takeIf { it.isNotEmpty() } ?: default
+
+    fun getRenderer(): String = versionConfig.getRenderer().getValueOrDefault(AllSettings.renderer.getValue())
+
+//    fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.driver.getValue())
+
+    fun getJavaDir(): String = versionConfig.getJavaDir().getValueOrDefault(AllSettings.javaRuntime.getValue())
+
+//    fun getJavaArgs(): String = versionConfig.getJavaArgs().getValueOrDefault(AllSettings.javaArgs.getValue())
+
 
     private fun Boolean.getInt(): Int = if (this) 1 else 0
 

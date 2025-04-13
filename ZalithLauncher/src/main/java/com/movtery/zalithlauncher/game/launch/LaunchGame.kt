@@ -7,6 +7,7 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.ObjectStates
+import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 
 object LaunchGame {
@@ -24,7 +25,7 @@ object LaunchGame {
             customName = version.getVersionName(),
             verifyIntegrity = true,
             onCompletion = {
-
+                runGame(context, version)
             }
         ).getDownloadTask()
 

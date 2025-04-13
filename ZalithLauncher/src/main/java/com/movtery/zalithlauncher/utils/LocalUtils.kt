@@ -34,3 +34,9 @@ fun getSystemLanguage(): String {
     val locale = Locale.getDefault()
     return locale.language + "_" + locale.country.lowercase(Locale.getDefault())
 }
+
+fun getDisplayFriendlyRes(displaySideRes: Int, scaling: Float): Int {
+    var display = (displaySideRes * scaling).toInt()
+    if (display % 2 != 0) display--
+    return display
+}

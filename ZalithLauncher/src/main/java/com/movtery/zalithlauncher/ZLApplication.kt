@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
+import android.util.DisplayMetrics
 import android.util.Log
 import com.movtery.zalithlauncher.context.getContextWrapper
 import com.movtery.zalithlauncher.context.refreshContext
@@ -22,6 +23,9 @@ class ZLApplication : Application() {
     companion object {
         @JvmStatic
         var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
+
+        @JvmStatic
+        var DISPLAY_METRICS by Delegates.notNull<DisplayMetrics>()
     }
 
     override fun onCreate() {

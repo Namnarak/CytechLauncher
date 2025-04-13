@@ -8,9 +8,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:name="com.movtery.zalithlauncher.ZLApplication"
+        android:name="ZLApplication"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:networkSecurityConfig="@xml/network_security_config"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,13 +19,19 @@
         android:label="${launcher_name}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.ZalithLauncher"
+        android:appCategory="game"
+        android:process=":launcher"
         android:supportsRtl="true"
+        android:isGame="true"
         android:allowBackup="true"
+        android:hasFragileUserData="true"
+        android:resizeableActivity="true"
         android:requestLegacyExternalStorage="true"
+        android:allowNativeHeapPointerTagging="false"
         tools:targetApi="31"
         tools:ignore="DiscouragedApi">
         <activity
-            android:name="com.movtery.zalithlauncher.ui.activities.SplashActivity"
+            android:name=".ui.activities.SplashActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
@@ -36,11 +43,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.movtery.zalithlauncher.ui.activities.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
             android:screenOrientation="sensorLandscape" />
-        <activity android:name="com.movtery.zalithlauncher.ui.activities.ErrorActivity"
+        <activity
+            android:name=".ui.activities.VMActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
+            android:launchMode="singleTop"
+            android:process=":game"
+            android:screenOrientation="sensorLandscape" />
+        <activity android:name=".ui.activities.ErrorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
             android:screenOrientation="sensorLandscape" />
     </application>

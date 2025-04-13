@@ -99,6 +99,12 @@ fun File.ensureParentDirectory(): File {
     return this
 }
 
+fun File.ensureDirectorySilently(): Boolean {
+    if (isFile) return false
+    return if (exists()) canWrite()
+    else mkdirs()
+}
+
 fun File.child(vararg paths: String) = File(this, paths.joinToString(File.separator))
 
 fun InputStream.readString(): String {

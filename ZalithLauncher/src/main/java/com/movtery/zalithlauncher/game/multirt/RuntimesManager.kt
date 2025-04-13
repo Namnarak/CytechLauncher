@@ -183,7 +183,7 @@ object RuntimesManager {
     private suspend fun unpack200(
         nativeLibraryDir: String,
         runtimePath: String
-    ) = withContext(Dispatchers.IO) {
+    ) = withContext(Dispatchers.Default) {
             val basePath = File(runtimePath)
             val files: Collection<File> = FileUtils.listFiles(basePath, arrayOf("pack"), true)
 

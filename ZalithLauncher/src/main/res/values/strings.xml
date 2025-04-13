@@ -22,6 +22,7 @@
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
     <string name="generic_unpacking">正在解压 %s</string>
+    <string name="generic_unknown">未知</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_embermire">釉烬</string>
@@ -51,11 +52,14 @@
     <string name="unpack_screen_jre8">Java 8 环境，Minecraft 1.16- 依赖 Java 8。</string>
     <string name="unpack_screen_jre17">Java 17 环境，Minecraft 1.17+ 依赖 Java 17。</string>
     <string name="unpack_screen_jre21">Java 21 环境，Minecraft 1.20.5+ 依赖 Java 21。</string>
+    <string name="unpack_screen_authlib_injector">通过运行时修改 authlib 实现游戏外登录。</string>
     <string name="unpack_screen_lwjgl">轻量级 Java 游戏库，Minecraft 依赖它运行游戏。</string>
+    <string name="unpack_screen_launcher">启动器依赖的一些组件。</string>
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_task_menu">任务菜单</string>
     <!--  启动游戏  -->
+    <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境</string>
     <!--  账号  -->
     <string name="account_no_account">未找到可用账号</string>
     <string name="account_logging_in">%s 登陆中</string>
@@ -165,6 +169,7 @@
     <string name="settings_tab_info_about">关于</string>
     <string name="settings_renderer_global_renderer_title">全局渲染器</string>
     <string name="settings_renderer_global_renderer_summary">全局默认的渲染器，通过动态库转换层，确保游戏能在移动端运行</string>
+    <string name="settings_renderer_from_plugins">来自 %s 插件</string>
     <string name="settings_game_version_isolation_title">全局版本隔离</string>
     <string name="settings_game_version_isolation_summary">默认隔离所有的版本，版本之间的数据互不干扰</string>
     <string name="settings_game_java_runtime_title">游戏 Java 环境</string>

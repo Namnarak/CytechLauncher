@@ -112,5 +112,13 @@ class StringUtils {
             val lines = this.trimIndent().split("\n")
             return if (line in 1..lines.size) lines[line - 1] else null
         }
+
+        fun insertJSONValueList(args: Array<String>, keyValueMap: Map<String, String>) =
+            args.map { it.insertSingleJSONValue(keyValueMap) }.toTypedArray()
+
+        fun String.insertSingleJSONValue(keyValueMap: Map<String, String>): String =
+            keyValueMap.entries.fold(this) { acc, (k, v) ->
+                acc.replace("\${$k}", v ?: "")
+            }
     }
 }
