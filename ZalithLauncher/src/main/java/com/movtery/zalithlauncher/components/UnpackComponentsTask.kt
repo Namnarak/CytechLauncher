@@ -13,8 +13,8 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 class UnpackComponentsTask(val context: Context, val component: Components) : AbstractUnpackTask() {
+    private val rootDir: File = PathManager.DIR_COMPONENTS
     private lateinit var am: AssetManager
-    private lateinit var rootDir: File
     private lateinit var versionFile: File
     private lateinit var input: InputStream
     private var isCheckFailed: Boolean = false
@@ -22,8 +22,7 @@ class UnpackComponentsTask(val context: Context, val component: Components) : Ab
     init {
         runCatching {
             am = context.assets
-            rootDir = if (component.privateDirectory) PathManager.DIR_FILES_PRIVATE else PathManager.DIR_FILES_EXTERNAL
-            versionFile = File("$rootDir/components/${component.component}/version")
+            versionFile = File("$rootDir/${component.component}/version")
             input = am.open("components/${component.component}/version")
         }.getOrElse {
             isCheckFailed = true
@@ -58,7 +57,7 @@ class UnpackComponentsTask(val context: Context, val component: Components) : Ab
         for (fileName in fileList!!) {
             context.copyAssetFile(
                 "components/${component.component}/$fileName",
-                rootDir.child("components", component.component, fileName),
+                rootDir.child(component.component, fileName),
                 true
             )
         }
