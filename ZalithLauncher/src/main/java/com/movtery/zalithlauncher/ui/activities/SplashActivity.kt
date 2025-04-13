@@ -6,10 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.SplashException
 import com.movtery.zalithlauncher.components.Components
@@ -29,11 +26,12 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : BaseComponentActivity() {
     private val unpackItems: MutableList<InstallableItem> = ArrayList()
-    private var finishedTaskCount by mutableIntStateOf(0)
+    private var finishedTaskCount = AtomicInteger(0)
     private var eulaDate: String = AllSettings.splashEulaDate.getValue()
     private var eulaText: String? = null
 
@@ -120,7 +118,7 @@ class SplashActivity : BaseComponentActivity() {
         unpackItems.forEach { item ->
             if (!item.task.isNeedUnpack()) {
                 item.isFinished = true
-                finishedTaskCount++
+                finishedTaskCount.incrementAndGet()
             }
         }
     }
@@ -137,7 +135,7 @@ class SplashActivity : BaseComponentActivity() {
                         }.onFailure {
                             throw SplashException(it)
                         }
-                        finishedTaskCount++
+                        finishedTaskCount.incrementAndGet()
                         item.isRunning = false
                         item.isFinished = true
                     }
@@ -148,12 +146,12 @@ class SplashActivity : BaseComponentActivity() {
                 //检查并设置默认的Java环境
                 if (getValue().isEmpty()) put(Jre.JRE_8.jreName).save()
             }
-            checkTasks()
+            swapToMain()
         }
     }
 
     private fun checkTasks(): Boolean {
-        val toMain = finishedTaskCount >= unpackItems.size
+        val toMain = finishedTaskCount.get() >= unpackItems.size
         if (toMain) {
             Log.i("SplashActivity", "All content that needs to be extracted is already the latest version!")
             swapToMain()
