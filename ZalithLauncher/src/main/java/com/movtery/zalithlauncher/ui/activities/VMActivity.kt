@@ -39,6 +39,8 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
+import com.movtery.zalithlauncher.ui.screens.game.GameScreen
+import com.movtery.zalithlauncher.ui.screens.game.JVMScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +64,9 @@ class VMActivity : BaseComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
+
+        lateinit var screenToDisplay: @Composable () -> Unit
+
         val launcher: Launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
             val version: Version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 bundle.getParcelable(INTENT_VERSION, Version::class.java)
@@ -69,8 +74,10 @@ class VMActivity : BaseComponentActivity() {
                 bundle.getParcelable(INTENT_VERSION)
             } ?: throw IllegalStateException("No launch version has been set.")
             val gameManifest = getGameManifest(version)
+            screenToDisplay = { GameScreen() }
             GameLauncher(this, version, gameManifest.javaVersion?.majorVersion ?: 8)
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
+            screenToDisplay = { JVMScreen() }
             //TODO 执行 Jar
             DefaultLauncher(this, RuntimesManager.loadRuntime(AllSettings.javaRuntime.getValue()), emptyList(), "")
         } else {
@@ -100,7 +107,10 @@ class VMActivity : BaseComponentActivity() {
                 LocalColorThemeState provides colorThemeState
             ) {
                 ZalithLauncherTheme {
-                    Screen(launcher = launcher)
+                    Screen(
+                        launcher = launcher,
+                        content = screenToDisplay
+                    )
                 }
             }
         }
