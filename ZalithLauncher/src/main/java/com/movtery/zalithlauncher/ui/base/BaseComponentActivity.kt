@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
 
@@ -17,6 +18,8 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
 
         //加载渲染器
         Renderers.init()
+        //加载插件
+        PluginLoader.loadAllPlugins(this, false)
         //刷新游戏目录
         GamePathManager.reloadPath()
     }
