@@ -260,7 +260,7 @@ abstract class Launcher {
 
     @CallSuper
     protected open fun initSoundEngine() {
-        ZLBridge.dlopen("$dirNameHomeJre/libopenal.so")
+        ZLBridge.dlopen("${PathManager.DIR_NATIVE_LIB}/libopenal.so")
     }
 
     companion object {
