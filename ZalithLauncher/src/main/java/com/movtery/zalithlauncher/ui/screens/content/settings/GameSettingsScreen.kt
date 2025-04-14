@@ -85,6 +85,12 @@ fun GameSettingsScreen() {
                     getItemText = { it.name },
                     getItemId = { it.name }
                 )
+
+                TextInputSettingsLayout(
+                    unit = AllSettings.jvmArgs,
+                    title = stringResource(R.string.settings_game_jvm_args_title),
+                    summary = stringResource(R.string.settings_game_jvm_args_summary)
+                )
             }
         }
     }

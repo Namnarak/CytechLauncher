@@ -42,11 +42,11 @@ class GameLauncher(
         }
 
         val account = AccountsManager.currentAccountFlow.value!!
-        val customArgs = "" //TODO 自定义JVM参数
+        val customArgs = version.getJvmArgs().takeIf { it.isNotBlank() } ?: ""
         val javaRuntime = getRuntime()
 
         printLauncherInfo(
-            javaArguments = customArgs,
+            javaArguments = customArgs.takeIf { it.isNotEmpty() } ?: "NONE",
             javaRuntime = javaRuntime,
             account = account
         )
@@ -335,6 +335,9 @@ class GameLauncher(
             }
         }
 
+        /**
+         * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L505-L516)
+         */
         private fun hasExtension(extensions: String, name: String): Boolean {
             var start = extensions.indexOf(name)
             while (start >= 0) {
@@ -353,13 +356,6 @@ class GameLauncher(
         private const val EGL_OPENGL_ES3_BIT_KHR: Int = 0x0040
 
         fun getDetectedVersion(): Int {
-            /*
-         * Get all the device configurations and check the EGL_RENDERABLE_TYPE attribute
-         * to determine the highest ES version supported by any config. The
-         * EGL_KHR_create_context extension is required to check for ES3 support; if the
-         * extension is not present this test will fail to detect ES3 support. This
-         * effectively makes the extension mandatory for ES3-capable devices.
-         */
             val egl = EGLContext.getEGL() as EGL10
             val display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY)
             val numConfigs = IntArray(1)

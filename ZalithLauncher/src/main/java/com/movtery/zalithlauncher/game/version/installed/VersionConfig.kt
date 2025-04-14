@@ -16,7 +16,7 @@ import java.io.FileWriter
 class VersionConfig(private var versionPath: File) : Parcelable {
     private var isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL
     private var javaDir: String = ""
-    private var javaArgs: String = ""
+    private var jvmArgs: String = ""
     private var renderer: String = ""
     private var driver: String = ""
     private var control: String = ""
@@ -27,7 +27,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         filePath: File,
         isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL,
         javaDir: String = "",
-        javaArgs: String = "",
+        jvmArgs: String = "",
         renderer: String = "",
         driver: String = "",
         control: String = "",
@@ -36,7 +36,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     ) : this(filePath) {
         this.isolationType = isolationType
         this.javaDir = javaDir
-        this.javaArgs = javaArgs
+        this.jvmArgs = jvmArgs
         this.renderer = renderer
         this.driver = driver
         this.control = control
@@ -47,7 +47,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     fun copy(): VersionConfig = VersionConfig(versionPath,
         getIsolationTypeNotNull(isolationType),
         getStringNotNull(javaDir),
-        getStringNotNull(javaArgs),
+        getStringNotNull(jvmArgs),
         getStringNotNull(renderer),
         getStringNotNull(driver),
         getStringNotNull(control),
@@ -97,9 +97,9 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun setJavaDir(dir: String) { this.javaDir = dir }
 
-    fun getJavaArgs(): String = getStringNotNull(javaArgs)
+    fun getJvmArgs(): String = getStringNotNull(jvmArgs)
 
-    fun setJavaArgs(args: String) { this.javaArgs = args }
+    fun setJvmArgs(args: String) { this.jvmArgs = args }
 
     fun getRenderer(): String = getStringNotNull(renderer)
 
@@ -124,7 +124,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     fun checkDifferent(otherConfig: VersionConfig): Boolean {
         return !(this.getIsolationType() == otherConfig.getIsolationType() &&
                 this.getJavaDir() == otherConfig.getJavaDir() &&
-                this.getJavaArgs() == otherConfig.getJavaArgs() &&
+                this.getJvmArgs() == otherConfig.getJvmArgs() &&
                 this.getRenderer() == otherConfig.getRenderer() &&
                 this.getDriver() == otherConfig.getDriver() &&
                 this.getControl() == otherConfig.getControl() &&
@@ -140,7 +140,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         dest.writeString(versionPath.absolutePath)
         dest.writeInt(getIsolationTypeNotNull(isolationType).ordinal)
         dest.writeString(getStringNotNull(javaDir))
-        dest.writeString(getStringNotNull(javaArgs))
+        dest.writeString(getStringNotNull(jvmArgs))
         dest.writeString(getStringNotNull(renderer))
         dest.writeString(getStringNotNull(driver))
         dest.writeString(getStringNotNull(control))
@@ -153,13 +153,13 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val versionPath = File(parcel.readString().orEmpty())
             val isolationType = IsolationType.entries.getOrNull(parcel.readInt()) ?: IsolationType.FOLLOW_GLOBAL
             val javaDir = parcel.readString().orEmpty()
-            val javaArgs = parcel.readString().orEmpty()
+            val jvmArgs = parcel.readString().orEmpty()
             val renderer = parcel.readString().orEmpty()
             val driver = parcel.readString().orEmpty()
             val control = parcel.readString().orEmpty()
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
-            return VersionConfig(versionPath, isolationType, javaDir, javaArgs, renderer, driver, control, customPath, customInfo)
+            return VersionConfig(versionPath, isolationType, javaDir, jvmArgs, renderer, driver, control, customPath, customInfo)
         }
 
         override fun newArray(size: Int): Array<VersionConfig?> {

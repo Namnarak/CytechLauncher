@@ -80,7 +80,7 @@ class Version(
 
     fun getJavaDir(): String = versionConfig.getJavaDir().getValueOrDefault(AllSettings.javaRuntime.getValue())
 
-//    fun getJavaArgs(): String = versionConfig.getJavaArgs().getValueOrDefault(AllSettings.javaArgs.getValue())
+    fun getJvmArgs(): String = versionConfig.getJvmArgs().getValueOrDefault(AllSettings.jvmArgs.getValue())
 
     fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)

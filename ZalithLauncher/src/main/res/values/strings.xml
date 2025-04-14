@@ -177,6 +177,8 @@
     <string name="settings_game_version_custom_info_summary">自定义信息会显示在游戏主菜单左下角和 F3 调试界面左上角。部分特殊版本或使用外置账号登录时可能不生效。你也可以添加 [zl_version] 字段，启动器会自动替换为当前版本号</string>
     <string name="settings_game_java_runtime_title">游戏 Java 环境</string>
     <string name="settings_game_java_runtime_summary">指定运行 Minecraft 时默认使用的 Java 环境</string>
+    <string name="settings_game_jvm_args_title">JVM 启动参数</string>
+    <string name="settings_game_jvm_args_summary">启动 Minecraft 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致游戏崩溃</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>

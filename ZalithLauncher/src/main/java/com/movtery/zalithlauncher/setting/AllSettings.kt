@@ -33,6 +33,11 @@ class AllSettings {
          */
         val javaRuntime = StringSettingUnit("javaRuntime", "")
 
+        /**
+         * 自定义Jvm启动参数
+         */
+        val jvmArgs = StringSettingUnit("jvmArgs", "")
+
         //Launcher
         /**
          * 颜色主题色
