@@ -18,7 +18,6 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
