@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.game.version.installed
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.setting.AllSettings
 import java.io.File
@@ -81,6 +82,8 @@ class Version(
 
 //    fun getJavaArgs(): String = versionConfig.getJavaArgs().getValueOrDefault(AllSettings.javaArgs.getValue())
 
+    fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
+        .replace("[zl_version]", BuildConfig.VERSION_NAME)
 
     private fun Boolean.getInt(): Int = if (this) 1 else 0
 

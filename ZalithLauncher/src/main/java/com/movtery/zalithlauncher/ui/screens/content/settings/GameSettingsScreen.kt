@@ -55,6 +55,12 @@ fun GameSettingsScreen() {
                     title = stringResource(R.string.settings_game_version_isolation_title),
                     summary = stringResource(R.string.settings_game_version_isolation_summary)
                 )
+
+                TextInputSettingsLayout(
+                    unit = AllSettings.versionCustomInfo,
+                    title = stringResource(R.string.settings_game_version_custom_info_title),
+                    summary = stringResource(R.string.settings_game_version_custom_info_summary)
+                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             val yOffset2 by swapAnimateDpAsState(

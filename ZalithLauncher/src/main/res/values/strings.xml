@@ -173,6 +173,8 @@
     <string name="settings_renderer_from_plugins">来自 %s 插件</string>
     <string name="settings_game_version_isolation_title">全局版本隔离</string>
     <string name="settings_game_version_isolation_summary">默认隔离所有的版本，版本之间的数据互不干扰</string>
+    <string name="settings_game_version_custom_info_title">自定义版本信息</string>
+    <string name="settings_game_version_custom_info_summary">自定义信息会显示在游戏主菜单左下角和 F3 调试界面左上角。部分特殊版本或使用外置账号登录时可能不生效。你也可以添加 [zl_version] 字段，启动器会自动替换为当前版本号</string>
     <string name="settings_game_java_runtime_title">游戏 Java 环境</string>
     <string name="settings_game_java_runtime_summary">指定运行 Minecraft 时默认使用的 Java 环境</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>

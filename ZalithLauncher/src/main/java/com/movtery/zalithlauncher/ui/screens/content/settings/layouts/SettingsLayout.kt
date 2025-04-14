@@ -20,6 +20,7 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -277,6 +278,40 @@ class SettingsLayoutScope {
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
+        }
+    }
+
+    @Composable
+    fun TextInputSettingsLayout(
+        modifier: Modifier = Modifier,
+        unit: StringSettingUnit,
+        title: String,
+        summary: String? = null,
+        onValueChange: (String) -> Unit = {},
+        singleLine: Boolean = true
+    ) {
+        var value by remember { mutableStateOf(unit.getValue()) }
+
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+        ) {
+            TitleAndSummary(title = title, summary = summary)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = value,
+                textStyle = MaterialTheme.typography.labelMedium,
+                onValueChange = {
+                    value = it
+                    unit.put(value).save()
+                    onValueChange(value)
+                },
+                singleLine = singleLine,
+                shape = MaterialTheme.shapes.large
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 

@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.setting
 
 import android.os.Build
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -21,6 +22,11 @@ class AllSettings {
          * 版本隔离
          */
         val versionIsolation = BooleanSettingUnit("versionIsolation", true)
+
+        /**
+         * 版本自定义信息
+         */
+        val versionCustomInfo = StringSettingUnit("", "${InfoDistributor.LAUNCHER_IDENTIFIER}[zl_version]")
 
         /**
          * 启动器的Java环境

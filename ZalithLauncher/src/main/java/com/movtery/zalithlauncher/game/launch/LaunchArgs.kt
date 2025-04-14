@@ -156,9 +156,9 @@ class LaunchArgs(
     private fun setLauncherInfo(verArgMap: MutableMap<String, String>) {
         verArgMap["launcher_name"] = InfoDistributor.LAUNCHER_NAME
         verArgMap["launcher_version"] = BuildConfig.VERSION_NAME
-//        verArgMap["version_type"] = minecraftVersion.getCustomInfo()
-//            .takeIf { it.isNotEmpty() && it.isNotBlank() }
-//            ?: versionInfo.type
+        verArgMap["version_type"] = minecraftVersion.getCustomInfo()
+            .takeIf { it.isNotEmpty() && it.isNotBlank() }
+            ?: gameManifest.type
     }
 
     private fun splitAndFilterEmpty(arg: String): Array<String> {
