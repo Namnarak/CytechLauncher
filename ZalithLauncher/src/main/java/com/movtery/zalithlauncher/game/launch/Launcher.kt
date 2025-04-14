@@ -18,6 +18,7 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
@@ -221,7 +222,6 @@ abstract class Launcher {
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath
             map["LD_LIBRARY_PATH"] = ldLibraryPath
             map["PATH"] = "$jreHome/bin:${Os.getenv("PATH")}"
-//            map["FORCE_VSYNC"] = //TODO 垂直同步
             map["AWTSTUB_WIDTH"] = (CallbackBridge.windowWidth.takeIf { it > 0 } ?: CallbackBridge.physicalWidth).toString()
             map["AWTSTUB_HEIGHT"] = (CallbackBridge.windowHeight.takeIf { it > 0 } ?: CallbackBridge.physicalHeight).toString()
 
