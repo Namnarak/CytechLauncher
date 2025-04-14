@@ -116,10 +116,6 @@ void load_vulkan() {
 }
 
 int pojavInitOpenGL() {
-//    const char *forceVsync = getenv("FORCE_VSYNC");
-//    if (!strcmp(forceVsync, "true"))
-//        pojav_environ->force_vsync = true;
-
     const char *renderer = getenv("POJAV_RENDERER");
 
     if (!strncmp("opengles", renderer, 8))

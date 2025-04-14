@@ -34,7 +34,6 @@ struct pojav_environ_s {
     struct ANativeWindow* pojavWindow;
     basic_render_window_t* mainWindowBundle;
     int config_renderer;
-    bool force_vsync;
     atomic_size_t eventCounter; // Count the number of events to be pumped out
     GLFWInputEvent events[EVENT_WINDOW_SIZE];
     size_t outEventIndex; // Point to the current event that has yet to be pumped out to MC
