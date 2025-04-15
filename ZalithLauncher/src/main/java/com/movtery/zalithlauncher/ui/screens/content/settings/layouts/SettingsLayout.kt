@@ -75,11 +75,7 @@ class SettingsLayoutScope {
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .align(alignment = Alignment.CenterVertically)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 TitleAndSummary(title, summary)
             }
             Spacer(modifier = Modifier.width(width = 8.dp))
