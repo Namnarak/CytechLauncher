@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
+import com.movtery.zalithlauncher.game.plugin.ffmpeg.FFmpegPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPlugin
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
@@ -36,6 +37,7 @@ object PluginLoader {
             val applicationInfo = it.activityInfo.applicationInfo
             DriverPluginManager.parsePlugin(context, applicationInfo)
             RendererPluginManager.parseApkPlugin(context, applicationInfo)
+            FFmpegPluginManager.parsePlugin(applicationInfo)
         }
 
         if (RendererPluginManager.isAvailable()) {

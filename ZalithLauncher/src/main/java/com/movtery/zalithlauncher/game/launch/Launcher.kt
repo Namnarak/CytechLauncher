@@ -14,6 +14,7 @@ import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.path.getGameHome
+import com.movtery.zalithlauncher.game.plugin.ffmpeg.FFmpegPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
@@ -138,10 +139,9 @@ abstract class Launcher {
 
         val libName = if (is64BitsDevice) "lib64" else "lib"
         val ldLibraryPath = java.lang.StringBuilder()
-        //TODO FFMPEG插件
-//        if (FFmpegPlugin.isAvailable) {
-//            ldLibraryPath.append(FFmpegPlugin.libraryPath).append(":")
-//        }
+        if (FFmpegPluginManager.isAvailable) {
+            ldLibraryPath.append(FFmpegPluginManager.libraryPath!!).append(":")
+        }
         val customRenderer = RendererPluginManager.selectedRendererPlugin
         if (customRenderer != null) {
             ldLibraryPath.append(customRenderer.path).append(":")
@@ -229,9 +229,8 @@ abstract class Launcher {
             if (AllSettings.zinkPreferSystemDriver.getValue()) map["POJAV_ZINK_PREFER_SYSTEM_DRIVER"] = "1"
             if (AllSettings.vsyncInZink.getValue()) map["POJAV_VSYNC_IN_ZINK"] = "1"
             if (AllSettings.bigCoreAffinity.getValue()) map["POJAV_BIG_CORE_AFFINITY"] = "1"
-            //TODO FFMPEG 插件
-            //        if (FFmpegPlugin.isAvailable)
-            //            envMap.put("POJAV_FFMPEG_PATH", FFmpegPlugin.executablePath);
+
+            if (FFmpegPluginManager.isAvailable) map["POJAV_FFMPEG_PATH"] = FFmpegPluginManager.executablePath!!
         }
     }
 
