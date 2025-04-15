@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -286,7 +288,8 @@ class SettingsLayoutScope {
         title: String,
         summary: String? = null,
         onValueChange: (String) -> Unit = {},
-        singleLine: Boolean = true
+        singleLine: Boolean = true,
+        textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         var value by remember { mutableStateOf(unit.getValue()) }
 
@@ -308,7 +311,11 @@ class SettingsLayoutScope {
                     onValueChange(value)
                 },
                 singleLine = singleLine,
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.large,
+                colors = OutlinedTextFieldDefaults.colors().copy(
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor
+                )
             )
         }
     }
