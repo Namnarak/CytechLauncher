@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPlugin
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
@@ -23,7 +24,7 @@ object PluginLoader {
         if (isInitialized && !force) return
         isInitialized = true
 
-//        DriverPluginManager.initDriver(context, force)
+        DriverPluginManager.initDriver(context, force)
         if (force) RendererPluginManager.clearPlugin()
 
         val queryIntentActivities =
@@ -33,7 +34,7 @@ object PluginLoader {
             )
         queryIntentActivities.forEach {
             val applicationInfo = it.activityInfo.applicationInfo
-//            DriverPluginManager.parsePlugin(applicationInfo)
+            DriverPluginManager.parsePlugin(context, applicationInfo)
             RendererPluginManager.parseApkPlugin(context, applicationInfo)
         }
 

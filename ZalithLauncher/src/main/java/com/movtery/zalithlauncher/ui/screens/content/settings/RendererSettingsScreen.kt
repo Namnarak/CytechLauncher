@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
@@ -67,6 +68,14 @@ fun RendererSettingsScreen() {
                     summary = stringResource(R.string.settings_renderer_global_renderer_summary),
                     getItemText = { it.getRendererName() },
                     getItemId = { it.getUniqueIdentifier() }
+                )
+
+                ListSettingsLayout(
+                    unit = AllSettings.vulkanDriver,
+                    items = DriverPluginManager.getDriverList(),
+                    title = stringResource(R.string.settings_renderer_global_vulkan_driver_title),
+                    getItemText = { it.name },
+                    getItemId = { it.id }
                 )
 
                 SliderSettingsLayout(

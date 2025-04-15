@@ -76,7 +76,7 @@ class Version(
 
     fun getRenderer(): String = versionConfig.getRenderer().getValueOrDefault(AllSettings.renderer.getValue())
 
-//    fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.driver.getValue())
+    fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.vulkanDriver.getValue())
 
     fun getJavaDir(): String = versionConfig.getJavaDir().getValueOrDefault(AllSettings.javaRuntime.getValue())
 

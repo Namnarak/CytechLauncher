@@ -217,7 +217,6 @@ abstract class Launcher {
     private fun setJavaEnv(envMap: () -> MutableMap<String, String>, jreHome: String) {
         envMap().let { map ->
             map["POJAV_NATIVEDIR"] = PathManager.DIR_NATIVE_LIB
-//            map["DRIVER_PATH"] = //TODO 驱动器
             map["JAVA_HOME"] = jreHome
             map["HOME"] = PathManager.DIR_FILES_EXTERNAL.absolutePath
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath

@@ -18,6 +18,11 @@ class AllSettings {
         val renderer = StringSettingUnit("renderer", "")
 
         /**
+         * Vulkan 驱动器
+         */
+        val vulkanDriver = StringSettingUnit("vulkanDriver", "default turnip")
+
+        /**
          * 分辨率
          */
         val resolutionRatio = IntSettingUnit("resolutionRatio", 100)

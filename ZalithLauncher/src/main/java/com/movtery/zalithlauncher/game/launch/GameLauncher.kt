@@ -15,6 +15,7 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.path.getLibrariesHome
+import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.download.artifactToPath
@@ -66,6 +67,10 @@ class GameLauncher(
 
     override fun initEnv(jreHome: String, runtime: Runtime): MutableMap<String, String> {
         val envMap = super.initEnv(jreHome, runtime)
+
+        DriverPluginManager.setDriverById(version.getDriver())
+        envMap["DRIVER_PATH"] = DriverPluginManager.getDriver().path
+
         checkAndUsedJSPH(envMap, runtime)
         version.getVersionInfo()?.loaderInfo?.getLoaderEnvKey()?.let { loaderKey ->
             envMap[loaderKey] = "1"
