@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +72,8 @@ class SettingsLayoutScope {
                 .clickable {
                     change(!checked)
                 }
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -82,9 +82,7 @@ class SettingsLayoutScope {
             ) {
                 TitleAndSummary(title, summary)
             }
-            Spacer(
-                modifier = Modifier.width(width = 8.dp)
-            )
+            Spacer(modifier = Modifier.width(width = 8.dp))
 
             Switch(
                 modifier = Modifier.align(alignment = Alignment.CenterVertically),
@@ -112,7 +110,8 @@ class SettingsLayoutScope {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
         ) {
             TitleAndSummary(title, summary)
             SimpleTextSlider(
@@ -149,7 +148,8 @@ class SettingsLayoutScope {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
         ) {
             TitleAndSummary(title, summary)
             FlowRow(
@@ -204,14 +204,14 @@ class SettingsLayoutScope {
         var selectedItem by remember { mutableStateOf(initialItem) }
         var expanded by remember { mutableStateOf(false) }
 
-        Row(modifier = modifier.fillMaxWidth()) {
+        Row(modifier = modifier.fillMaxWidth().padding(bottom = 4.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(shape = MaterialTheme.shapes.extraLarge)
                         .clickable { expanded = !expanded }
-                        .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                        .padding(all = 8.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         TitleAndSummary(title, summary)
@@ -295,7 +295,8 @@ class SettingsLayoutScope {
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
         ) {
             TitleAndSummary(title = title, summary = summary)
             Spacer(modifier = Modifier.height(8.dp))
@@ -311,7 +312,6 @@ class SettingsLayoutScope {
                 singleLine = singleLine,
                 shape = MaterialTheme.shapes.large
             )
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
