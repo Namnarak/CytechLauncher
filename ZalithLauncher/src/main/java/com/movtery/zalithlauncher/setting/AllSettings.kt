@@ -17,6 +17,11 @@ class AllSettings {
          */
         val renderer = StringSettingUnit("renderer", "")
 
+        /**
+         * 分辨率
+         */
+        val resolutionRatio = IntSettingUnit("resolutionRatio", 100)
+
         //Game
         /**
          * 版本隔离

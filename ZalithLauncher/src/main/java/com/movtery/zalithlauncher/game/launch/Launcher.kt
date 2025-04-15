@@ -317,6 +317,8 @@ abstract class Launcher {
             val userArguments = parseJavaArguments(userArgumentsString).toMutableList()
             val resolvFile = File(PathManager.DIR_FILES_PRIVATE.parent, "resolv.conf").absolutePath
 
+            val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
+
             val overridableArguments = listOf(
                 "-Djava.home=$runtimeHome",
                 "-Djava.io.tmpdir=${PathManager.DIR_CACHE.absolutePath}",
@@ -329,18 +331,8 @@ abstract class Launcher {
                 "-Dpojav.path.private.account=${PathManager.DIR_ACCOUNT}",
                 "-Duser.timezone=${TimeZone.getDefault().id}",
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dglfwstub.windowWidth=${
-                    getDisplayFriendlyRes(
-                        ZLApplication.DISPLAY_METRICS.widthPixels,
-                        1f //TODO 缩放
-                    )
-                }",
-                "-Dglfwstub.windowHeight=${
-                    getDisplayFriendlyRes(
-                        ZLApplication.DISPLAY_METRICS.heightPixels,
-                        1f //TODO 缩放
-                    )
-                }",
+                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)}",
+                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)}",
                 "-Dglfwstub.initEgl=false",
                 "-Dext.net.resolvPath=$resolvFile",
                 "-Dlog4j2.formatMsgNoLookups=true",

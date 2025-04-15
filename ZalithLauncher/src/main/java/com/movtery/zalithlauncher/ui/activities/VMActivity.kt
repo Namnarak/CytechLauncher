@@ -96,8 +96,9 @@ class VMActivity : BaseComponentActivity() {
             Logger.begin(logFile.absolutePath)
 
             refreshDisplayMetrics()
-            CallbackBridge.windowWidth = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, 1f)
-            CallbackBridge.windowHeight = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, 1f)
+            val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
+            CallbackBridge.windowWidth = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)
+            CallbackBridge.windowHeight = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)
         }
 
         setContent {
@@ -177,9 +178,9 @@ class VMActivity : BaseComponentActivity() {
     }
 
     private fun refreshSize() {
-        val displayMetrics = ZLApplication.DISPLAY_METRICS
-        val width = getDisplayFriendlyRes(displayMetrics.widthPixels, 1f)
-        val height = getDisplayFriendlyRes(displayMetrics.heightPixels, 1f)
+        val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
+        val width = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)
+        val height = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)
         if (width < 1 || height < 1) {
             Log.e("VMActivity", "Impossible resolution : $width x $height")
             return
