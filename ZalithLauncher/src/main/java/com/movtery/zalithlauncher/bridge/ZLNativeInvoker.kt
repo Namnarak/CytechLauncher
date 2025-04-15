@@ -1,18 +1,67 @@
 package com.movtery.zalithlauncher.bridge
 
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
+import android.util.Log
+import com.movtery.zalithlauncher.context.GlobalContext
+import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.utils.file.shareFile
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import java.io.File
+
 object ZLNativeInvoker {
     @JvmStatic
     fun openLink(link: String) {
-        //TODO 打开链接
+        (GlobalContext as? Activity)?.let { activity ->
+            activity.runOnUiThread {
+                var prefix = "file:"
+                if (link.startsWith(prefix)) {
+                    if (link.startsWith("file://")) prefix += "//"
+                    val newLink = link.removePrefix(prefix)
+                    Log.i("ZLNativeInvoker", "open link: $newLink")
+
+                    val file = File(newLink)
+                    shareFile(activity, file)
+                    Log.i("ZLNativeInvoker", "In-game Share File/Folder: ${file.absolutePath}")
+                } else {
+                    NetWorkUtils.openLink(activity, link, "*/*")
+                }
+            }
+        }
     }
 
     @JvmStatic
     fun querySystemClipboard() {
-        //TODO 查询系统剪贴板
+        (GlobalContext as? Activity)?.let { activity ->
+            activity.runOnUiThread {
+                val clipData = (activity.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager)?.primaryClip ?: run {
+                    ZLBridge.clipboardReceived(null, null)
+                    return@runOnUiThread
+                }
+                val clipItemText = clipData.getItemAt(0).text ?: run {
+                    ZLBridge.clipboardReceived(null, null)
+                    return@runOnUiThread
+                }
+                ZLBridge.clipboardReceived(clipItemText.toString(), "plain")
+            }
+        }
     }
 
     @JvmStatic
     fun putClipboardData(data: String, mimeType: String) {
-        //TODO 在剪贴板放置数据
+        (GlobalContext as? Activity)?.let { activity ->
+            activity.runOnUiThread {
+                val clipData = when (mimeType) {
+                    "text/plain" -> ClipData.newPlainText(InfoDistributor.LAUNCHER_IDENTIFIER, data)
+                    "text/html" -> ClipData.newHtmlText(InfoDistributor.LAUNCHER_IDENTIFIER, data, data)
+                    else -> null
+                }
+                clipData?.let {
+                    (activity.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(it)
+                }
+            }
+        }
     }
 }

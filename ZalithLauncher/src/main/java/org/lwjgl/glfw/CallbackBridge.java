@@ -5,12 +5,16 @@ import static com.movtery.zalithlauncher.bridge.ZLBridgeStatesKt.CURSOR_ENABLED;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.view.Choreographer;
 
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates;
+import com.movtery.zalithlauncher.bridge.ZLNativeInvoker;
+import com.movtery.zalithlauncher.context.ContextsKt;
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode;
 
 import java.util.function.Consumer;
@@ -111,25 +115,23 @@ public class CallbackBridge {
     // Called from JRE side
     @SuppressWarnings("unused")
     public static @Nullable String accessAndroidClipboard(int type, String copy) {
-//        switch (type) {
-//            case CLIPBOARD_COPY:
-//                MainActivity.GLOBAL_CLIPBOARD.setPrimaryClip(ClipData.newPlainText("Copy", copy));
-//                return null;
-//
-//            case CLIPBOARD_PASTE:
-//                if (MainActivity.GLOBAL_CLIPBOARD.hasPrimaryClip() && MainActivity.GLOBAL_CLIPBOARD.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-//                    return MainActivity.GLOBAL_CLIPBOARD.getPrimaryClip().getItemAt(0).getText().toString();
-//                } else {
-//                    return "";
-//                }
-//
-//            case CLIPBOARD_OPEN:
-//                MainActivity.openLink(copy);
-//                return null;
-//            default: return null;
-//        }
-        //TODO 剪贴板实现
-        return "";
+        ClipboardManager clipboard = (ClipboardManager) ContextsKt.getGlobalContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        switch (type) {
+            case CLIPBOARD_COPY:
+                ClipData clip = ClipData.newPlainText("ZalithLauncher", copy);
+                clipboard.setPrimaryClip(clip);
+                return null;
+            case CLIPBOARD_PASTE:
+                if (clipboard.hasPrimaryClip() && clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                    return clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+                } else {
+                    return "";
+                }
+            case CLIPBOARD_OPEN:
+                ZLNativeInvoker.openLink(copy);
+            default:
+                return null;
+        }
     }
 
 

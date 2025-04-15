@@ -13,6 +13,9 @@ import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.properties.Delegates
+
+var GlobalContext by Delegates.notNull<Context>()
 
 fun refreshContext(context: Context) {
     PathManager.refreshPaths(context)

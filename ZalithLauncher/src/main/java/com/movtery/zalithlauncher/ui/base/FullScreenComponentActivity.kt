@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +14,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
 import kotlinx.coroutines.launch
 
-abstract class FullScreenComponentActivity : ComponentActivity() {
+abstract class FullScreenComponentActivity : AbstractComponentActivity() {
     val fullScreenViewModel: LauncherFullScreenViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {

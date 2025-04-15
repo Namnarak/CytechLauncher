@@ -20,7 +20,6 @@ import kotlin.math.min
 open class BaseComponentActivity : FullScreenComponentActivity() {
     private var notchSize = -1
 
-    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

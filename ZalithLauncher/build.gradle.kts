@@ -57,9 +57,15 @@ android {
     }
 
     buildTypes {
+        val storageProviderId = "$zalithPackageName.v2.storage_provider"
+
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("releaseBuild")
+            resValue("string", "storageProviderAuthorities", storageProviderId)
+        }
+        debug {
+            resValue("string", "storageProviderAuthorities", "$storageProviderId.debug")
         }
     }
 
