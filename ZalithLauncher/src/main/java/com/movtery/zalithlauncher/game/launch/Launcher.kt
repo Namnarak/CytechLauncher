@@ -226,15 +226,11 @@ abstract class Launcher {
             map["AWTSTUB_WIDTH"] = (CallbackBridge.windowWidth.takeIf { it > 0 } ?: CallbackBridge.physicalWidth).toString()
             map["AWTSTUB_HEIGHT"] = (CallbackBridge.windowHeight.takeIf { it > 0 } ?: CallbackBridge.physicalHeight).toString()
 
-            //TODO 更多设置
-            //        if (AllSettings.getDumpShaders().getValue())
-            //            envMap.put("LIBGL_VGPU_DUMP", "1");
-            //        if (AllSettings.getZinkPreferSystemDriver().getValue())
-            //            envMap.put("POJAV_ZINK_PREFER_SYSTEM_DRIVER", "1");
-            //        if (AllSettings.getVsyncInZink().getValue())
-            //            envMap.put("POJAV_VSYNC_IN_ZINK", "1");
-            //        if (AllSettings.getBigCoreAffinity().getValue())
-            //            envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
+            if (AllSettings.dumpShaders.getValue()) map["LIBGL_VGPU_DUMP"] = "1"
+            if (AllSettings.zinkPreferSystemDriver.getValue()) map["POJAV_ZINK_PREFER_SYSTEM_DRIVER"] = "1"
+            if (AllSettings.vsyncInZink.getValue()) map["POJAV_VSYNC_IN_ZINK"] = "1"
+            if (AllSettings.bigCoreAffinity.getValue()) map["POJAV_BIG_CORE_AFFINITY"] = "1"
+            //TODO FFMPEG 插件
             //        if (FFmpegPlugin.isAvailable)
             //            envMap.put("POJAV_FFMPEG_PATH", FFmpegPlugin.executablePath);
         }

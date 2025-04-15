@@ -67,30 +67,50 @@ class SettingsLayoutScope {
             onCheckedChange(checked)
         }
 
+        SwitchSettingsLayout(
+            checked = checked,
+            onCheckedChange = { value ->
+                change(value)
+            },
+            modifier = modifier,
+            title = title,
+            summary = summary
+        )
+    }
+
+    @Composable
+    fun SwitchSettingsLayout(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        title: String,
+        summary: String? = null
+    ) {
+        fun change(value: Boolean) {
+            onCheckedChange(value)
+        }
+
         Row(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(shape = MaterialTheme.shapes.extraLarge)
-                .clickable {
-                    change(!checked)
-                }
+                .clickable { change(!checked) }
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 TitleAndSummary(title, summary)
             }
-            Spacer(modifier = Modifier.width(width = 8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Switch(
-                modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically),
                 checked = checked,
-                onCheckedChange = { value ->
-                    change(value)
-                }
+                onCheckedChange = { value -> change(value) }
             )
         }
     }
+
 
     @Composable
     fun SliderSettingsLayout(

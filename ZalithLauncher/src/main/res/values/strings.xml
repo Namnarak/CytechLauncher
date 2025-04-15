@@ -175,6 +175,15 @@
     <string name="settings_renderer_resolution_scale_summary">数值越低性能越高，数值越高画质越清晰，根据实际需求进行调整</string>
     <string name="settings_renderer_sustained_performance_title">启用持续性能模式</string>
     <string name="settings_renderer_sustained_performance_summary">启用后，系统会为游戏提供更稳定的性能输出，适用于长时间游玩，但可能略微降低设备响应速度以防止过热</string>
+    <string name="settings_renderer_shader_dump_title">着色器日志输出</string>
+    <string name="settings_renderer_shader_dump_summary">将游戏运行时转换后的着色器代码输出到日志文件，便于调试或分析图形渲染过程</string>
+    <string name="settings_renderer_vulkan_driver_system_title">使用系统 Vulkan 驱动</string>
+    <string name="settings_renderer_vulkan_driver_system_summary">启用后，启动器将强制使用系统自带的 Vulkan 驱动（适用于 Adreno GPU），而不使用默认的 Turnip 驱动。本设置仅影响使用 Vulkan 渲染的 Zink 后端及相关模组</string>
+    <string name="settings_renderer_zink_driver_adreno">启动器检测到你的设备为 Adreno GPU，开启这个选项可能会导致 Zink 渲染器无法正常工作，你确定要打开这个选项吗？</string>
+    <string name="settings_renderer_vsync_in_zink_title">启用 Zink 垂直同步</string>
+    <string name="settings_renderer_vsync_in_zink_summary">通过系统接口为 Zink 渲染器启用垂直同步</string>
+    <string name="settings_renderer_force_big_core_title">强制在高性能核心运行</string>
+    <string name="settings_renderer_force_big_core_summary">将 Minecraft 的渲染线程绑定到 CPU 的高性能核心（大核）上，启用后可能增加功耗与发热</string>
     <string name="settings_game_version_isolation_title">全局版本隔离</string>
     <string name="settings_game_version_isolation_summary">默认隔离所有的版本，版本之间的数据互不干扰</string>
     <string name="settings_game_version_custom_info_title">自定义版本信息</string>

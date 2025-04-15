@@ -27,6 +27,26 @@ class AllSettings {
          */
         val sustainedPerformance = BooleanSettingUnit("sustainedPerformance", false)
 
+        /**
+         * 使用系统的 Vulkan 驱动
+         */
+        val zinkPreferSystemDriver = BooleanSettingUnit("zinkPreferSystemDriver", false)
+
+        /**
+         * Zink 垂直同步
+         */
+        val vsyncInZink = BooleanSettingUnit("vsyncInZink", false)
+
+        /**
+         * 强制在高性能核心运行
+         */
+        val bigCoreAffinity = BooleanSettingUnit("bigCoreAffinity", false)
+
+        /**
+         * 启用着色器日志输出
+         */
+        val dumpShaders = BooleanSettingUnit("dumpShaders", false)
+
         //Game
         /**
          * 版本隔离
