@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -21,8 +22,24 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.device.Architecture
+import com.movtery.zalithlauncher.utils.platform.MemoryUtils
+import com.movtery.zalithlauncher.utils.platform.bytesToMB
+import kotlin.math.min
 
 const val GAME_SETTINGS_TAG = "GameSettingsScreen"
+
+@Composable
+private fun getMaxRam(): Float {
+    val deviceRam = MemoryUtils.getTotalMemory(LocalContext.current).bytesToMB()
+    val maxRam: Float = if (Architecture.is32BitsDevice || deviceRam < 2048) {
+        min(1024.0, deviceRam).toFloat()
+    } else {
+        //To have a minimum for the device to breathe
+        (deviceRam - (if (deviceRam < 3064) 800 else 1024)).toFloat()
+    }
+    return maxRam
+}
 
 @Composable
 fun GameSettingsScreen() {
@@ -84,6 +101,14 @@ fun GameSettingsScreen() {
                     summary = stringResource(R.string.settings_game_java_runtime_summary),
                     getItemText = { it.name },
                     getItemId = { it.name }
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.ramAllocation,
+                    title = stringResource(R.string.settings_game_java_memory_title),
+                    summary = stringResource(R.string.settings_game_java_memory_summary),
+                    valueRange = 256f..getMaxRam(),
+                    suffix = "MB"
                 )
 
                 TextInputSettingsLayout(

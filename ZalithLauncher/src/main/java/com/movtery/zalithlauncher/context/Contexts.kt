@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.Settings
+import com.movtery.zalithlauncher.setting.loadAllSettings
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.readString
 import org.apache.commons.io.IOUtils
@@ -16,6 +17,7 @@ import java.io.IOException
 fun refreshContext(context: Context) {
     PathManager.refreshPaths(context)
     Settings.refreshSettings()
+    loadAllSettings(context)
 }
 
 fun getContextWrapper(context: Context): ContextWrapper {

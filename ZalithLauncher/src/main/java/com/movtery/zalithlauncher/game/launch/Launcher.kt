@@ -18,6 +18,7 @@ import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
@@ -106,8 +107,9 @@ abstract class Launcher {
         args.add("-javaagent:${LibPath.MIO_LIB_PATCHER.absolutePath}")
 
         //Add automatically generated args
-        args.add("-Xms1024M") //TODO 内存
-        args.add("-Xmx1024M") //TODO 内存
+        val ramAllocation = AllSettings.ramAllocation.getValue().toString()
+        args.add("-Xms${ramAllocation}M")
+        args.add("-Xmx${ramAllocation}M")
 
         // Force LWJGL to use the Freetype library intended for it, instead of using the one
         // that we ship with Java (since it may be older than what's needed)

@@ -34,6 +34,11 @@ class AllSettings {
         val javaRuntime = StringSettingUnit("javaRuntime", "")
 
         /**
+         * 游戏内存分配大小
+         */
+        val ramAllocation = IntSettingUnit("ramAllocation", -1)
+
+        /**
          * 自定义Jvm启动参数
          */
         val jvmArgs = StringSettingUnit("jvmArgs", "")
