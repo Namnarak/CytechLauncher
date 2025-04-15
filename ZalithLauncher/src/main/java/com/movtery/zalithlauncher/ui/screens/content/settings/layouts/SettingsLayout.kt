@@ -236,21 +236,23 @@ class SettingsLayoutScope {
                         )
                     }
                 }
-                if (expanded) {
-                    repeat(items.size) { index ->
-                        val item = items[index]
-                        ListItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            selected = getItemId(selectedItem) == getItemId(item),
-                            itemName = getItemText(item),
-                            onClick = {
-                                if (getItemId(selectedItem) != getItemId(item)) {
-                                    selectedItem = item
-                                    unit.put(getItemId(item)).save()
-                                    onValueChange(item)
+                Column(modifier = Modifier.animateContentSize(animationSpec = getAnimateTween())) {
+                    if (expanded) {
+                        repeat(items.size) { index ->
+                            val item = items[index]
+                            ListItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                selected = getItemId(selectedItem) == getItemId(item),
+                                itemName = getItemText(item),
+                                onClick = {
+                                    if (getItemId(selectedItem) != getItemId(item)) {
+                                        selectedItem = item
+                                        unit.put(getItemId(item)).save()
+                                        onValueChange(item)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
