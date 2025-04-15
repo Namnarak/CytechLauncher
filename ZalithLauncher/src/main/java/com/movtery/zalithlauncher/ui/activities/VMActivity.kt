@@ -86,7 +86,9 @@ class VMActivity : BaseComponentActivity() {
 
         window?.apply {
             setBackgroundDrawable(Color.BLACK.toDrawable())
-//            setSustainedPerformanceMode() //TODO 持续性能模式
+            if (AllSettings.sustainedPerformance.getValue()) {
+                setSustainedPerformanceMode(true)
+            }
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) // 防止系统息屏
         }
 

@@ -68,6 +68,12 @@ fun RendererSettingsScreen() {
                     valueRange = 25f..300f,
                     suffix = "%"
                 )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.sustainedPerformance,
+                    title = stringResource(R.string.settings_renderer_sustained_performance_title),
+                    summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
+                )
             }
         }
     }

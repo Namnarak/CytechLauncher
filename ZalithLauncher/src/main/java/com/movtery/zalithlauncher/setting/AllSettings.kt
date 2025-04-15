@@ -22,6 +22,11 @@ class AllSettings {
          */
         val resolutionRatio = IntSettingUnit("resolutionRatio", 100)
 
+        /**
+         * 持续性能模式
+         */
+        val sustainedPerformance = BooleanSettingUnit("sustainedPerformance", false)
+
         //Game
         /**
          * 版本隔离
