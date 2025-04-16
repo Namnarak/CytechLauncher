@@ -5,6 +5,8 @@ import android.os.Parcelable
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.getInt
+import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
 
 /**
@@ -85,8 +87,6 @@ class Version(
     fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)
 
-    private fun Boolean.getInt(): Int = if (this) 1 else 0
-
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -98,8 +98,6 @@ class Version(
     }
 
     companion object CREATOR : Parcelable.Creator<Version> {
-        private fun Int.toBoolean(): Boolean = this != 0
-
         override fun createFromParcel(parcel: Parcel): Version {
             val stringList = ArrayList<String>()
             parcel.readStringList(stringList)

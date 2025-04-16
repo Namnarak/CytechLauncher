@@ -107,4 +107,6 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
             notchSize = -1
         }
     }
+
+    protected fun runFinish() = run { finish() }
 }

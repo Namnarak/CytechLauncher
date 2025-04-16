@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.SurfaceTexture
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -44,6 +43,7 @@ import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
+import com.movtery.zalithlauncher.utils.getParcelableSafely
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.lwjgl.glfw.CallbackBridge
@@ -65,18 +65,14 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     private var isRenderingStarted: Boolean = false
 
-    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
 
         launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
-            val version: Version = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bundle.getParcelable(INTENT_VERSION, Version::class.java)
-            } else {
-                bundle.getParcelable(INTENT_VERSION)
-            } ?: throw IllegalStateException("No launch version has been set.")
+            val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
+                ?: throw IllegalStateException("No launch version has been set.")
             val gameManifest = getGameManifest(version)
             handler = GameHandler()
             GameLauncher(this, version, gameManifest.javaVersion?.majorVersion ?: 8)

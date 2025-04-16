@@ -40,7 +40,11 @@
     <string name="animate_type_slice_in">切入</string>
     <!--  崩溃  -->
     <string name="crash_launcher_title">%s 遇到了严重的问题崩溃了</string>
-    <string name="crash_launcher_message">以下错误信息将帮助开发者改进程序</string>
+    <string name="crash_launcher_message">应用程序意外崩溃了，以下错误信息将帮助开发者改进程序</string>
+    <string name="crash_exit_message">JVM 以代码 %d 退出。</string>
+    <string name="crash_singnal_message">JVM 因致命信号 %d 而中止。</string>
+    <string name="crash_exit_note">具体错误原因请查看日志文件。如果你无法亲自解决此问题，请将日志文件发送给有能力解决的人帮助你解决问题！</string>
+    <string name="crash_exit_no_screenshot">请不要只是截图当前应用界面，否则没人知道究竟发生了什么事，请分享你的日志文件或崩溃报告！</string>
     <string name="crash_restart">重启应用</string>
     <string name="crash_exit">退出应用</string>
     <!--  启动页面  -->

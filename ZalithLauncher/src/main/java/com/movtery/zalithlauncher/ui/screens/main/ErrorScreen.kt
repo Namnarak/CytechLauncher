@@ -26,11 +26,11 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.components.DownShadow
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.utils.string.StringUtils
 
 @Composable
 fun ErrorScreen(
-    throwable: Throwable,
+    message: String,
+    messageBody: String,
     canRestart: Boolean = true,
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
@@ -56,7 +56,8 @@ fun ErrorScreen(
                 MaterialTheme.colorScheme.surfaceVariant
             }
             ErrorContent(
-                throwable = throwable,
+                message = message,
+                messageBody = messageBody,
                 canRestart = canRestart,
                 modifier = Modifier
                     .fillMaxSize()
@@ -97,7 +98,8 @@ private fun TopBar(
 
 @Composable
 private fun ErrorContent(
-    throwable: Throwable,
+    message: String,
+    messageBody: String,
     canRestart: Boolean,
     modifier: Modifier = Modifier,
     onRestartClick: () -> Unit = {},
@@ -119,13 +121,13 @@ private fun ErrorContent(
                     .padding(all = 12.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.crash_launcher_message),
+                    text = message,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = StringUtils.throwableToString(throwable),
-                    style = MaterialTheme.typography.bodySmall
+                    text = messageBody,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
