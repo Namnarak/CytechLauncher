@@ -23,6 +23,18 @@ fun getAnimateSpeed(): Int = calculateAnimationTime(
 )
 
 /**
+ * 获取根据动画倍速调整后的 delayMillis
+ */
+fun getAdjustedDelayMillis(baseDelayMillis: Int): Int {
+    if (baseDelayMillis == 0) return 0
+    val adjustedAnimationTime = calculateAnimationTime(
+        AllSettings.launcherAnimateSpeed.getValue().coerceIn(0, 10),
+        baseDelayMillis
+    )
+    return adjustedAnimationTime
+}
+
+/**
  * 获取切换动画的类型
  */
 fun getAnimateType(): TransitionAnimationType {
@@ -62,20 +74,24 @@ fun <E> getAnimateTweenJellyBounce(
     }
 )
 
+/**
+ * 获取页面切换动画
+ */
 fun <E> getSwapAnimateTween(
     swapIn: Boolean,
     delayMillis: Int = 0
 ): FiniteAnimationSpec<E> {
+    val adjustedDelayMillis = getAdjustedDelayMillis(delayMillis)
     return if (swapIn) {
         val type = getAnimateType()
         when (type) {
             TransitionAnimationType.CLOSE -> snap()
-            TransitionAnimationType.BOUNCE -> getAnimateTweenBounce(delayMillis)
-            TransitionAnimationType.JELLY_BOUNCE -> getAnimateTweenJellyBounce(delayMillis)
-            else -> getAnimateTween(delayMillis)
+            TransitionAnimationType.BOUNCE -> getAnimateTweenBounce(adjustedDelayMillis)
+            TransitionAnimationType.JELLY_BOUNCE -> getAnimateTweenJellyBounce(adjustedDelayMillis)
+            else -> getAnimateTween(adjustedDelayMillis)
         }
     } else {
-        getAnimateTween(delayMillis)
+        getAnimateTween(adjustedDelayMillis)
     }
 }
 
