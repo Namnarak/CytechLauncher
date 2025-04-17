@@ -121,7 +121,8 @@ class SettingsLayoutScope {
         valueRange: ClosedFloatingPointRange<Float>,
         steps: Int = 0,
         suffix: String? = null,
-        onValueChange: (Int) -> Unit = {}
+        onValueChange: (Int) -> Unit = {},
+        fineTuningControl: Boolean = false
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
 
@@ -145,7 +146,9 @@ class SettingsLayoutScope {
                 toInt = true,
                 valueRange = valueRange,
                 steps = steps,
-                suffix = suffix
+                suffix = suffix,
+                fineTuningControl = fineTuningControl,
+                fineTuningStep = 1f
             )
         }
     }

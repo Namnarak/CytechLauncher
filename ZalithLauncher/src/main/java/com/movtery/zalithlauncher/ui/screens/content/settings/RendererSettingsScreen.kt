@@ -83,7 +83,8 @@ fun RendererSettingsScreen() {
                     title = stringResource(R.string.settings_renderer_resolution_scale_title),
                     summary = stringResource(R.string.settings_renderer_resolution_scale_summary),
                     valueRange = 25f..300f,
-                    suffix = "%"
+                    suffix = "%",
+                    fineTuningControl = true
                 )
             }
 

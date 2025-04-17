@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.utils.math
 
+import java.math.BigDecimal
+
 /**
  * Find the object T with the closest (or higher) value compared to targetValue
  * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/045018f/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/MathUtils.java#L28-L44)
@@ -32,3 +34,15 @@ fun <T> findNearestPositive(
 
     return selectedObject?.let { RankedValue(it, minDelta) }
 }
+
+fun Float.addBigDecimal(other: Float): Float =
+    BigDecimal(this.toDouble()).add(BigDecimal(other.toDouble())).toFloat()
+
+fun Float.subtractBigDecimal(other: Float): Float =
+    BigDecimal(this.toDouble()).subtract(BigDecimal(other.toDouble())).toFloat()
+
+fun Float.multiplyBigDecimal(other: Float): Float =
+    BigDecimal(this.toDouble()).multiply(BigDecimal(other.toDouble())).toFloat()
+
+fun Float.divideBigDecimal(other: Float): Float =
+    BigDecimal(this.toDouble()).divide(BigDecimal(other.toDouble())).toFloat()

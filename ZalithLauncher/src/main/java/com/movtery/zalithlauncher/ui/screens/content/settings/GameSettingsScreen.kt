@@ -108,7 +108,8 @@ fun GameSettingsScreen() {
                     title = stringResource(R.string.settings_game_java_memory_title),
                     summary = stringResource(R.string.settings_game_java_memory_summary),
                     valueRange = 256f..getMaxRam(),
-                    suffix = "MB"
+                    suffix = "MB",
+                    fineTuningControl = true
                 )
 
                 TextInputSettingsLayout(
