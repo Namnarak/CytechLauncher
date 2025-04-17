@@ -211,7 +211,7 @@ class SettingsLayoutScope {
         items: List<E>,
         title: String,
         summary: String? = null,
-        getItemText: (E) -> String,
+        getItemText: @Composable (E) -> String,
         getItemId: (E) -> String,
         onValueChange: (E) -> Unit = {}
     ) {

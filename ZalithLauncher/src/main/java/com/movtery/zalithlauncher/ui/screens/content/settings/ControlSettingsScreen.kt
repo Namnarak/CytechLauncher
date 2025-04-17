@@ -64,15 +64,13 @@ fun ControlSettingsScreen() {
                     fineTuningControl = true
                 )
 
-                EnumSettingsLayout(
+                ListSettingsLayout(
                     unit = AllSettings.mouseControlMode,
-                    entries = ControlMode.entries,
+                    items = ControlMode.entries,
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
-                    getRadioText = { enum ->
-                        stringResource(enum.nameRes)
-                    },
-                    getRadioEnable = { true }
+                    getItemId = { it.name },
+                    getItemText = { stringResource(it.nameRes) }
                 )
             }
         }
