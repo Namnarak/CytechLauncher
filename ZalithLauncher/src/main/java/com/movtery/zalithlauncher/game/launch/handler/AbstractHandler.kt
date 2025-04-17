@@ -9,7 +9,7 @@ import com.movtery.zalithlauncher.game.launch.Launcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class AbstractHandler {
+abstract class AbstractHandler(val type: HandlerType) {
     var mIsSurfaceDestroyed: Boolean = false
 
     @CallSuper

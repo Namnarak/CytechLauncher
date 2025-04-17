@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.game.launch.handler.AbstractHandler
+import com.movtery.zalithlauncher.game.launch.handler.HandlerType
 import com.movtery.zalithlauncher.game.launch.handler.JVMHandler
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -102,9 +103,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             Logger.begin(logFile.absolutePath)
 
             refreshDisplayMetrics()
-            val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
-            CallbackBridge.windowWidth = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)
-            CallbackBridge.windowHeight = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)
+            CallbackBridge.windowWidth = getDisplayPixels(ZLApplication.DISPLAY_METRICS.widthPixels)
+            CallbackBridge.windowHeight = getDisplayPixels(ZLApplication.DISPLAY_METRICS.heightPixels)
         }
 
         setContent {
@@ -210,9 +210,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     }
 
     private fun refreshSize() {
-        val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
-        val width = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)
-        val height = getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)
+        val width = getDisplayPixels(ZLApplication.DISPLAY_METRICS.widthPixels)
+        val height = getDisplayPixels(ZLApplication.DISPLAY_METRICS.heightPixels)
         if (width < 1 || height < 1) {
             Log.e("VMActivity", "Impossible resolution : $width x $height")
             return
@@ -223,6 +222,13 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             surfaceTexture?.setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
         }
         CallbackBridge.sendUpdateWindowSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
+    }
+
+    private fun getDisplayPixels(pixels: Int): Int {
+        return when (handler.type) {
+            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.getValue() / 100f)
+            HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
+        }
     }
 }
 

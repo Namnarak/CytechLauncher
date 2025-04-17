@@ -17,9 +17,9 @@ import androidx.core.graphics.withSave
 import com.movtery.zalithlauncher.ZLApplication
 import kotlinx.coroutines.Dispatchers
 
-class JVMHandler : AbstractHandler() {
-    private val mCanvasWidth = (ZLApplication.DISPLAY_METRICS.widthPixels * 0.8).toInt()
-    private val mCanvasHeight = (ZLApplication.DISPLAY_METRICS.heightPixels * 0.8).toInt()
+class JVMHandler : AbstractHandler(HandlerType.JVM) {
+    val mCanvasWidth = (ZLApplication.DISPLAY_METRICS.widthPixels * 0.8).toInt()
+    val mCanvasHeight = (ZLApplication.DISPLAY_METRICS.heightPixels * 0.8).toInt()
 
     override fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
         scope.launch(Dispatchers.Default) {

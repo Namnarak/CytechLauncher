@@ -8,7 +8,7 @@ import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 
-class GameHandler : AbstractHandler() {
+class GameHandler : AbstractHandler(HandlerType.GAME) {
     override fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
         super.execute(surface, launcher, scope)
