@@ -162,6 +162,7 @@ class SettingsLayoutScope {
         title: String,
         summary: String? = null,
         getRadioText: @Composable (E) -> String,
+        getRadioEnable: (E) -> Boolean,
         onValueChange: (E) -> Unit = {}
     ) {
         var value by rememberSaveable { mutableStateOf(unit.getValue()) }
@@ -183,6 +184,7 @@ class SettingsLayoutScope {
                     Row {
                         val radioText = getRadioText(enum)
                         RadioButton(
+                            enabled = getRadioEnable(enum),
                             selected = value == enum.name,
                             onClick = {
                                 if (value == enum.name) return@RadioButton

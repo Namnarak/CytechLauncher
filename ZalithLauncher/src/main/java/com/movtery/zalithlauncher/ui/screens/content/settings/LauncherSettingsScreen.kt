@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -61,6 +62,9 @@ fun LauncherSettingsScreen() {
                     title = stringResource(R.string.settings_launcher_color_theme_title),
                     summary = stringResource(R.string.settings_launcher_color_theme_summary),
                     entries = ColorThemeType.entries,
+                    getRadioEnable = { enum ->
+                        if (enum == ColorThemeType.DYNAMIC) Build.VERSION.SDK_INT >= Build.VERSION_CODES.S else true
+                    },
                     getRadioText = { enum ->
                         when (enum) {
                             ColorThemeType.DYNAMIC -> stringResource(R.string.theme_color_dynamic)
@@ -102,6 +106,7 @@ fun LauncherSettingsScreen() {
                     title = stringResource(R.string.settings_launcher_swap_animate_type_title),
                     summary = stringResource(R.string.settings_launcher_swap_animate_type_summary),
                     entries = TransitionAnimationType.entries,
+                    getRadioEnable = { true },
                     getRadioText = { enum ->
                         when (enum) {
                             TransitionAnimationType.CLOSE -> stringResource(R.string.generic_close)
