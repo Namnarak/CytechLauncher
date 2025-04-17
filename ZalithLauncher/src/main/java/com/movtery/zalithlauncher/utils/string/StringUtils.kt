@@ -120,5 +120,38 @@ class StringUtils {
             keyValueMap.entries.fold(this) { acc, (k, v) ->
                 acc.replace("\${$k}", v ?: "")
             }
+
+        fun String.splitPreservingQuotes(): List<String> {
+            val result = mutableListOf<String>()
+            val currentPart = StringBuilder()
+            var inQuotes = false
+
+            for ((index, c) in withIndex()) {
+                when {
+                    c == '"' && (index == 0 || this[index - 1] != '\\') -> {
+                        // 切换引号状态（忽略转义引号）
+                        inQuotes = !inQuotes
+                    }
+                    c.isWhitespace() && !inQuotes -> {
+                        // 如果不在引号内且遇到空格，则结束当前部分并添加到结果中
+                        if (currentPart.isNotEmpty()) {
+                            result.add(currentPart.toString())
+                            currentPart.clear() // 清空当前部分
+                        }
+                    }
+                    else -> {
+                        // 将字符添加到当前部分
+                        currentPart.append(c)
+                    }
+                }
+            }
+
+            // 添加最后一部分（如果有的话）
+            if (currentPart.isNotEmpty()) {
+                result.add(currentPart.toString())
+            }
+
+            return result
+        }
     }
 }

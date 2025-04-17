@@ -2,6 +2,7 @@
 <resources>
     <string name="generic_cancel">取消</string>
     <string name="generic_confirm">确认</string>
+    <string name="generic_error">错误</string>
     <string name="generic_warning">警告</string>
     <string name="generic_back">返回</string>
     <string name="generic_refresh">刷新</string>
@@ -135,6 +136,10 @@
     <string name="multirt_runtime_version_name">版本：%s</string>
     <string name="multirt_runtime_version_code">版本号：%s</string>
     <string name="multirt_runtime_version_arch">架构：%s</string>
+    <string name="multirt_no_java_8">未找到 Java 8，要使用这个功能，你必须安装 Java 8</string>
+    <string name="multirt_no_compatible_multirt">找不到任何兼容的 Java 运行环境，需要使用 Java %d 或更新版本</string>
+    <string name="execute_jar_title">执行 Jar 文件</string>
+    <string name="execute_jar_incompatible_runtime">该 Jar 文件与 Java %d 不兼容</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>

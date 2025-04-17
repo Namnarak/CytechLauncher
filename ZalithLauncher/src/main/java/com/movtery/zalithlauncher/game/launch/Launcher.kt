@@ -7,7 +7,7 @@ import android.system.Os
 import android.util.ArrayMap
 import android.util.Log
 import androidx.annotation.CallSuper
-import com.movtery.zalithlauncher.ZLApplication
+import com.movtery.zalithlauncher.ZLApplication.Companion.DISPLAY_METRICS
 import com.movtery.zalithlauncher.bridge.Logger
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.multirt.Runtime
@@ -40,6 +40,7 @@ abstract class Launcher {
 
     abstract suspend fun launch()
     abstract fun chdir(): String
+    abstract fun getLogName(): String
 
     protected fun launchJvm(
         activity: Activity,
@@ -325,8 +326,8 @@ abstract class Launcher {
                 "-Dpojav.path.private.account=${PathManager.DIR_ACCOUNT}",
                 "-Duser.timezone=${TimeZone.getDefault().id}",
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.widthPixels, resolutionRatioScaling)}",
-                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(ZLApplication.DISPLAY_METRICS.heightPixels, resolutionRatioScaling)}",
+                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(DISPLAY_METRICS.widthPixels, resolutionRatioScaling)}",
+                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(DISPLAY_METRICS.heightPixels, resolutionRatioScaling)}",
                 "-Dglfwstub.initEgl=false",
                 "-Dext.net.resolvPath=$resolvFile",
                 "-Dlog4j2.formatMsgNoLookups=true",
@@ -389,16 +390,12 @@ abstract class Launcher {
             return parsedArguments
         }
 
-        fun getCacioJavaArgs(
-            isJava8: Boolean,
-            widthPixels: Int,
-            heightPixels: Int
-        ): List<String> {
+        fun getCacioJavaArgs(isJava8: Boolean): List<String> {
             val argsList: MutableList<String> = ArrayList()
 
             // Caciocavallo config AWT-enabled version
             argsList.add("-Djava.awt.headless=false")
-            argsList.add("-Dcacio.managed.screensize=" + (widthPixels * 0.8).toInt() + "x" + (heightPixels * 0.8).toInt())
+            argsList.add("-Dcacio.managed.screensize=" + (DISPLAY_METRICS.widthPixels * 0.8).toInt() + "x" + (DISPLAY_METRICS.heightPixels * 0.8).toInt())
             argsList.add("-Dcacio.font.fontmanager=sun.awt.X11FontManager")
             argsList.add("-Dcacio.font.fontscaler=sun.font.FreetypeFontScaler")
             argsList.add("-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel")

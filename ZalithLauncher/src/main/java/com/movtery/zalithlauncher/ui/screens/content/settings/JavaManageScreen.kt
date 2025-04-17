@@ -1,7 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +47,7 @@ import com.movtery.zalithlauncher.context.getFileName
 import com.movtery.zalithlauncher.contract.ExtensionFilteredDocumentPicker
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -67,6 +71,7 @@ sealed interface RuntimeOperation {
     data class PreDelete(val runtime: Runtime): RuntimeOperation
     data class Delete(val runtime: Runtime): RuntimeOperation
     data class ProgressUri(val uris: List<Uri>): RuntimeOperation
+    data class ExecuteJar(val uri: Uri): RuntimeOperation
 }
 
 @Composable
@@ -88,11 +93,19 @@ fun JavaManageScreen() {
             callRefresh = { runtimes = getRuntimes(true) }
         )
 
-        val filePicker = rememberLauncherForActivityResult(
+        val runtimePicker = rememberLauncherForActivityResult(
             contract = ExtensionFilteredDocumentPicker(extension = "xz", allowMultiple = true)
         ) { uris ->
             uris.takeIf { it.isNotEmpty() }?.let {
                 runtimeOperation = RuntimeOperation.ProgressUri(it)
+            }
+        }
+
+        val jarPicker = rememberLauncherForActivityResult(
+            contract = ExtensionFilteredDocumentPicker(extension = "jar", allowMultiple = false)
+        ) { uris ->
+            uris.takeIf { it.isNotEmpty() }?.get(0)?.let { uri ->
+                runtimeOperation = RuntimeOperation.ExecuteJar(uri)
             }
         }
 
@@ -107,7 +120,9 @@ fun JavaManageScreen() {
                     )
                 }
         ) {
-            Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
+            Row(modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .fillMaxWidth()) {
                 IconTextButton(
                     onClick = { runtimes = getRuntimes(true) },
                     imageVector = Icons.Filled.Refresh,
@@ -116,10 +131,17 @@ fun JavaManageScreen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconTextButton(
-                    onClick = { filePicker.launch("") },
+                    onClick = { runtimePicker.launch("") },
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.generic_import),
                     text = stringResource(R.string.generic_import),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconTextButton(
+                    onClick = { jarPicker.launch("") },
+                    imageVector = Icons.Default.Terminal,
+                    contentDescription = stringResource(R.string.execute_jar_title),
+                    text = stringResource(R.string.execute_jar_title),
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -201,6 +223,18 @@ private fun RuntimeOperation(
                     uri = uri,
                     onFinally = callRefresh
                 )
+            }
+            updateOperation(RuntimeOperation.None)
+        }
+        is RuntimeOperation.ExecuteJar -> {
+            val context = LocalContext.current
+            RuntimesManager.getExactJreName(8) ?: run {
+                Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
+                updateOperation(RuntimeOperation.None)
+                return
+            }
+            (context as? Activity)?.let { activity ->
+                JvmLauncher.executeJarWithUri(activity, runtimeOperation.uri)
             }
             updateOperation(RuntimeOperation.None)
         }

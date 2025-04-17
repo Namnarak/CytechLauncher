@@ -65,6 +65,8 @@ class GameLauncher(
         return version.getGameDir().absolutePath
     }
 
+    override fun getLogName(): String = "latest_game"
+
     override fun initEnv(jreHome: String, runtime: Runtime): MutableMap<String, String> {
         val envMap = super.initEnv(jreHome, runtime)
 
@@ -122,13 +124,8 @@ class GameLauncher(
             gameManifest = gameManifest,
             runtime = runtime,
             launchClassPath = launchClassPath,
-            readAssetsFile = { path ->
-                activity.readAssetFile(path)
-            },
-            getCacioJavaArgs = { isJava8 ->
-                val displayMetrics = ZLApplication.DISPLAY_METRICS
-                getCacioJavaArgs(isJava8, displayMetrics.widthPixels, displayMetrics.heightPixels)
-            }
+            readAssetsFile = { path -> activity.readAssetFile(path) },
+            getCacioJavaArgs = { isJava8 -> getCacioJavaArgs(isJava8) }
         ).getAllArgs()
 
         launchJvm(activity, runtime, launchArgs, customArgs)
