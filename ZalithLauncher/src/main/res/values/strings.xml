@@ -208,6 +208,12 @@
     <string name="settings_game_java_memory_summary">控制给 Minecraft 分配多少内存</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>
     <string name="settings_game_jvm_args_summary">启动 Minecraft 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致游戏崩溃</string>
+    <string name="settings_control_mouse_size_title">虚拟鼠标大小</string>
+    <string name="settings_control_mouse_speed_title">虚拟鼠标灵敏度</string>
+    <string name="settings_control_mouse_control_mode_title">虚拟鼠标控制模式</string>
+    <string name="settings_control_mouse_control_mode_summary">选择虚拟鼠标的操作方式：滑动屏幕移动光标，或点击屏幕指定位置</string>
+    <string name="settings_control_mouse_control_mode_slide">滑动控制</string>
+    <string name="settings_control_mouse_control_mode_click">点击控制</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>

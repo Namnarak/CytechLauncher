@@ -6,6 +6,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -77,6 +78,22 @@ class AllSettings {
          * 自定义Jvm启动参数
          */
         val jvmArgs = StringSettingUnit("jvmArgs", "")
+
+        //Control
+        /**
+         * 虚拟鼠标大小（Dp）
+         */
+        val mouseSize = IntSettingUnit("mouseSize", 24)
+
+        /**
+         * 虚拟鼠标速度
+         */
+        val mouseSpeed = IntSettingUnit("mouseSpeed", 100)
+
+        /**
+         * 虚拟鼠标控制模式
+         */
+        val mouseControlMode = StringSettingUnit("mouseControlMode", ControlMode.SLIDE.name)
 
         //Launcher
         /**

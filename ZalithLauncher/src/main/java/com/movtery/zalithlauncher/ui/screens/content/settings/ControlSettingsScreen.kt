@@ -9,10 +9,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -44,7 +48,32 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
+                SliderSettingsLayout(
+                    unit = AllSettings.mouseSize,
+                    title = stringResource(R.string.settings_control_mouse_size_title),
+                    valueRange = 10f..50f,
+                    suffix = "Dp",
+                    fineTuningControl = true
+                )
 
+                SliderSettingsLayout(
+                    unit = AllSettings.mouseSpeed,
+                    title = stringResource(R.string.settings_control_mouse_speed_title),
+                    valueRange = 25f..300f,
+                    suffix = "%",
+                    fineTuningControl = true
+                )
+
+                EnumSettingsLayout(
+                    unit = AllSettings.mouseControlMode,
+                    entries = ControlMode.entries,
+                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
+                    summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
+                    getRadioText = { enum ->
+                        stringResource(enum.nameRes)
+                    },
+                    getRadioEnable = { true }
+                )
             }
         }
     }
