@@ -1,13 +1,15 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
+import android.content.Context
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 
-class FreedrenoRenderer : RendererInterface {
+class FreedrenoRenderer(private val context: Context) : RendererInterface {
     override fun getRendererId(): String = "gallium_freedreno"
 
     override fun getUniqueIdentifier(): String = "1ad7249f-5784-4f00-bc72-174b3578ee46"
 
-    override fun getRendererName(): String = "Freedreno (Adreno)"
+    override fun getRendererName(): String = context.getString(R.string.renderer_name_freedreno)
 
     override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
 

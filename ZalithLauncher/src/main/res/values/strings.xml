@@ -65,6 +65,11 @@
     <string name="main_task_menu">任务菜单</string>
     <!--  启动游戏  -->
     <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境</string>
+    <!--  渲染器  -->
+    <string name="renderer_name_gl4es">GL4ES (低于等于 1.21.4 可用)</string>
+    <string name="renderer_name_vulkan_zink">Vulkan Zink (低于等于 1.21.4 可用)</string>
+    <string name="renderer_name_freedreno">Freedreno (Adreno，低于等于 1.21.4 可用)</string>
+    <string name="renderer_name_panfrost">Panfrost (Mali，低于等于 1.21.4 可用)</string>
     <!--  账号  -->
     <string name="account_no_account">未找到可用账号</string>
     <string name="account_logging_in">%s 登陆中</string>

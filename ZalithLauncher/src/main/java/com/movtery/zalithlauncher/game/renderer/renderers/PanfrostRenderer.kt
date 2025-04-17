@@ -1,13 +1,15 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
+import android.content.Context
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 
-class PanfrostRenderer : RendererInterface {
+class PanfrostRenderer(private val context: Context) : RendererInterface {
     override fun getRendererId(): String = "gallium_panfrost"
 
     override fun getUniqueIdentifier(): String = "9b2808c4-11af-4c72-a9c6-94c940396475"
 
-    override fun getRendererName(): String = "Panfrost (Mali)"
+    override fun getRendererName(): String = context.getString(R.string.renderer_name_panfrost)
 
     override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
 

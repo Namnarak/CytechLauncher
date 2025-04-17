@@ -28,7 +28,7 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
         checkStoragePermissions()
 
         //加载渲染器
-        Renderers.init()
+        Renderers.init(this)
         //加载插件
         PluginLoader.loadAllPlugins(this, false)
         //刷新游戏目录

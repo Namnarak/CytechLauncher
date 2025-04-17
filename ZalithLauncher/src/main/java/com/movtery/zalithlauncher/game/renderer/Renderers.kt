@@ -19,7 +19,10 @@ object Renderers {
     private var currentRenderer: RendererInterface? = null
     private var isInitialized: Boolean = false
 
-    fun init(reset: Boolean = false) {
+    fun init(
+        context: Context,
+        reset: Boolean = false
+    ) {
         if (isInitialized && !reset) return
         isInitialized = true
 
@@ -30,11 +33,11 @@ object Renderers {
         }
 
         addRenderers(
-            GL4ESRenderer(),
-            VulkanZinkRenderer(),
+            GL4ESRenderer(context),
+            VulkanZinkRenderer(context),
             VirGLRenderer(),
-            FreedrenoRenderer(),
-            PanfrostRenderer()
+            FreedrenoRenderer(context),
+            PanfrostRenderer(context)
         )
     }
 
