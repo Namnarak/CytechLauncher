@@ -12,7 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.movtery.zalithlauncher.ui.control.input.CharacterSenderStrategy;
+import com.movtery.zalithlauncher.game.input.CharacterSenderStrategy;
 
 /**
  * This class is intended for sending characters used in chat via the virtual keyboard

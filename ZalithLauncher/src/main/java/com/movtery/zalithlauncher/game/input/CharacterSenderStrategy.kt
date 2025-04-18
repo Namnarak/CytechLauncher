@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.control.input
+package com.movtery.zalithlauncher.game.input
 
 /**
  * Simple interface for sending chars through whatever bridge will be necessary

@@ -38,12 +38,16 @@ public class CallbackBridge {
             holdingNumlock, holdingShift;
 
     public static void putMouseEventWithCoords(int button, float x, float y) {
-        putMouseEventWithCoords(button, true, x, y);
-        sChoreographer.postFrameCallbackDelayed(l -> putMouseEventWithCoords(button, false, x, y), 33);
+        sendCursorPos(x, y);
+        putMouseEvent(button);
+    }
+
+    public static void putMouseEvent(int button) {
+        putMouseEvent(button, true);
+        sChoreographer.postFrameCallbackDelayed(l -> putMouseEvent(button, false), 33);
     }
     
-    public static void putMouseEventWithCoords(int button, boolean isDown, float x, float y /* , int dz, long nanos */) {
-        sendCursorPos(x, y);
+    public static void putMouseEvent(int button, boolean isDown) {
         sendMouseKeycode(button, CallbackBridge.getCurrentMods(), isDown);
     }
 

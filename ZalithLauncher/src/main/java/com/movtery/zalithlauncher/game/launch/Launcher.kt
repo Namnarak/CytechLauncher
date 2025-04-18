@@ -20,6 +20,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
@@ -312,8 +313,6 @@ abstract class Launcher {
             val userArguments = parseJavaArguments(userArgumentsString).toMutableList()
             val resolvFile = File(PathManager.DIR_FILES_PRIVATE.parent, "resolv.conf").absolutePath
 
-            val resolutionRatioScaling = AllSettings.resolutionRatio.getValue() / 100f
-
             val overridableArguments = listOf(
                 "-Djava.home=$runtimeHome",
                 "-Djava.io.tmpdir=${PathManager.DIR_CACHE.absolutePath}",
@@ -326,8 +325,8 @@ abstract class Launcher {
                 "-Dpojav.path.private.account=${PathManager.DIR_ACCOUNT}",
                 "-Duser.timezone=${TimeZone.getDefault().id}",
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(DISPLAY_METRICS.widthPixels, resolutionRatioScaling)}",
-                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(DISPLAY_METRICS.heightPixels, resolutionRatioScaling)}",
+                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(DISPLAY_METRICS.widthPixels, scaleFactor)}",
+                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(DISPLAY_METRICS.heightPixels, scaleFactor)}",
                 "-Dglfwstub.initEgl=false",
                 "-Dext.net.resolvPath=$resolvFile",
                 "-Dlog4j2.formatMsgNoLookups=true",

@@ -20,7 +20,7 @@ import com.movtery.zalithlauncher.bridge.Logger
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TouchableButton
-import com.movtery.zalithlauncher.ui.control.input.AWTCharSender
+import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.input.view.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout

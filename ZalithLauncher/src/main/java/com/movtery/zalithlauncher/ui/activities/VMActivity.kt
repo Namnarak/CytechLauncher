@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -229,7 +230,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     private fun getDisplayPixels(pixels: Int): Int {
         return when (handler.type) {
-            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.getValue() / 100f)
+            HandlerType.GAME -> getDisplayFriendlyRes(pixels, scaleFactor)
             HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
         }
     }

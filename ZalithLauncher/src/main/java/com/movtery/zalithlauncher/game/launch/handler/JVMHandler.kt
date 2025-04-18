@@ -6,20 +6,20 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.withSave
 import androidx.lifecycle.LifecycleCoroutineScope
+import com.movtery.zalithlauncher.ZLApplication
+import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.ui.screens.game.JVMScreen
-import androidx.core.graphics.createBitmap
-import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import kotlinx.coroutines.launch
-import androidx.core.graphics.withSave
-import com.movtery.zalithlauncher.ZLApplication
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class JVMHandler : AbstractHandler(HandlerType.JVM) {
-    val mCanvasWidth = (ZLApplication.DISPLAY_METRICS.widthPixels * 0.8).toInt()
-    val mCanvasHeight = (ZLApplication.DISPLAY_METRICS.heightPixels * 0.8).toInt()
+    private val mCanvasWidth = (ZLApplication.DISPLAY_METRICS.widthPixels * 0.8).toInt()
+    private val mCanvasHeight = (ZLApplication.DISPLAY_METRICS.heightPixels * 0.8).toInt()
 
     override fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
         scope.launch(Dispatchers.Default) {
@@ -69,7 +69,7 @@ class JVMHandler : AbstractHandler(HandlerType.JVM) {
     }
 
     override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
-        return event.keyCode == KeyEvent.KEYCODE_DEL
+        return true
     }
 
     @Composable
