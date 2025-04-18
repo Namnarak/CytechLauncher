@@ -6,8 +6,10 @@ import android.content.Context
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.GLES20
+import android.os.Process
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.movtery.zalithlauncher.info.InfoDistributor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -129,4 +131,12 @@ fun isAdrenoGPU(): Boolean {
 
     Log.d("CheckVendor", "Running on Adreno GPU: $isAdreno")
     return isAdreno
+}
+
+fun killProgress() {
+    runCatching {
+        Process.killProcess(Process.myPid())
+    }.onFailure {
+        Log.e(InfoDistributor.LAUNCHER_IDENTIFIER, "Could not enable System.exit() method!", it)
+    }
 }

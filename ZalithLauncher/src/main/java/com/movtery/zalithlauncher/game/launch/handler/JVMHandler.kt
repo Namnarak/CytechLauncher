@@ -68,7 +68,9 @@ class JVMHandler : AbstractHandler(HandlerType.JVM) {
     override fun onGraphicOutput() {
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean = true
+    override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
+        return event.keyCode == KeyEvent.KEYCODE_DEL
+    }
 
     @Composable
     override fun getComposableLayout() = @Composable {

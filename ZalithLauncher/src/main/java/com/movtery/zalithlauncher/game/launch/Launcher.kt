@@ -318,7 +318,7 @@ abstract class Launcher {
                 "-Djava.home=$runtimeHome",
                 "-Djava.io.tmpdir=${PathManager.DIR_CACHE.absolutePath}",
                 "-Djna.boot.library.path=${PathManager.DIR_NATIVE_LIB}",
-                "-Duser.home=${GamePathManager.currentPath}",
+                "-Duser.home=${GamePathManager.getUserHome()}",
                 "-Duser.language=${System.getProperty("user.language")}",
                 "-Dos.name=Linux",
                 "-Dos.version=Android-${Build.VERSION.RELEASE}",

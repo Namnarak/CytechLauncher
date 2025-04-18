@@ -36,6 +36,11 @@ object GamePathManager {
      */
     var currentPath by mutableStateOf<String>(defaultGamePath)
 
+    /**
+     * 当前用户路径
+     */
+    fun getUserHome(): String = File(currentPath).parentFile!!.absolutePath
+
     fun reloadPath() {
         _gamePathData.update { emptyList() }
 

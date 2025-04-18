@@ -155,7 +155,10 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        return handler.dispatchKeyEvent(event)
+        if (handler.shouldIgnoreKeyEvent(event)) {
+            return super.dispatchKeyEvent(event)
+        }
+        return true
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {

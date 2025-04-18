@@ -26,7 +26,7 @@ abstract class AbstractHandler(val type: HandlerType) {
     abstract fun onPause()
     abstract fun onResume()
     abstract fun onGraphicOutput()
-    abstract fun dispatchKeyEvent(event: KeyEvent): Boolean
+    abstract fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean
 
     @Composable
     abstract fun getComposableLayout(): @Composable () -> Unit

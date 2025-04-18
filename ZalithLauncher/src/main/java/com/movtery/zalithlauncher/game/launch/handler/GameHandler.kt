@@ -23,8 +23,8 @@ class GameHandler : AbstractHandler(HandlerType.GAME) {
     override fun onGraphicOutput() {
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        return true
+    override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
+        return false
     }
 
     @Composable

@@ -2,16 +2,23 @@ package com.movtery.zalithlauncher.ui.control.mouse
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
@@ -22,11 +29,10 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.math.hypot
 
 /**
  * 两种控制模式：
@@ -145,93 +151,62 @@ fun TouchpadLayout(
     inputChange: Array<Any> = arrayOf(Unit)
 ) {
     val viewConfig = LocalViewConfiguration.current
-    var initialDownPosition by remember { mutableStateOf<Offset?>(null) }
-    var isDragging by remember { mutableStateOf(false) }
-    var longPressTriggered by remember { mutableStateOf(false) }
-    var shouldEndLongPressOnRelease by remember { mutableStateOf(false) }
-    val longPressJob = remember { mutableStateOf<Job?>(null) }
-    val scope = rememberCoroutineScope()
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(*inputChange) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val pos = event.changes.first().position
+                coroutineScope {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        var pointer = down
+                        var isDragging = false
+                        var longPressTriggered = false
+                        val startPosition = down.position
+                        val longPressJob = launch {
+                            delay(viewConfig.longPressTimeoutMillis)
+                            if (!isDragging) {
+                                longPressTriggered = true
+                                onLongPress()
+                            }
+                        }
 
-                        when (event.type) {
-                            PointerEventType.Press -> {
-                                initialDownPosition = pos
-                                if (controlMode == ControlMode.CLICK) {
-                                    onPointerMove(pos)
-                                }
-                                isDragging = false
-                                longPressTriggered = false
-                                longPressJob.value?.cancel()
-                                longPressJob.value = scope.launch {
-                                    delay(viewConfig.longPressTimeoutMillis)
-                                    if (!isDragging) {
-                                        onLongPress()
-                                        longPressTriggered = true
-                                    }
+                        if (controlMode == ControlMode.CLICK) {
+                            //点击模式下，如果触摸，无论如何都应该更新指针位置
+                            onPointerMove(pointer.position)
+                        }
+
+                        drag(down.id) { change ->
+                            isDragging = true
+                            val delta = change.positionChange()
+                            val distance = delta.getDistance()
+
+                            if (distance > viewConfig.touchSlop) {
+                                //超出了滑动检测距离，说明是真的在进行滑动
+                                longPressJob.cancel() //取消长按计时
+                            }
+
+                            //更新滑动轨迹
+                            if (controlMode == ControlMode.CLICK) {
+                                pointer = change
+                                onPointerMove(change.position)
+                            } else {
+                                if (isDragging || longPressTriggered) {
+                                    pointer = change
+                                    onPointerMove(delta)
                                 }
                             }
 
-                            PointerEventType.Move -> {
-                                if (controlMode == ControlMode.CLICK) {
-                                    initialDownPosition?.let { startPos ->
-                                        val delta = pos - startPos
-                                        if (!isDragging) {
-                                            if (hypot(delta.x, delta.y) > viewConfig.touchSlop) {
-                                                isDragging = true
-                                                longPressJob.value?.cancel()
-                                                if (longPressTriggered) {
-                                                    shouldEndLongPressOnRelease = true //标记延迟取消
-                                                }
-                                            }
-                                        }
-                                        onPointerMove(pos)
-                                    }
-                                } else {
-                                    initialDownPosition?.let { startPos ->
-                                        val delta = pos - startPos
-                                        if (!isDragging) {
-                                            if (hypot(delta.x, delta.y) > viewConfig.touchSlop) {
-                                                isDragging = true
-                                                longPressJob.value?.cancel()
-                                                if (longPressTriggered) {
-                                                    shouldEndLongPressOnRelease = true //标记延迟取消
-                                                }
-                                            }
-                                        }
-                                        if (isDragging || longPressTriggered) {
-                                            onPointerMove(delta)
-                                            initialDownPosition = pos
-                                        }
-                                    }
-                                }
-                            }
+                            change.consume()
+                        }
 
-                            PointerEventType.Release -> {
-                                initialDownPosition?.let { startPos ->
-                                    if (!isDragging && !longPressTriggered) {
-                                        if (hypot(pos.x - startPos.x, pos.y - startPos.y) < viewConfig.touchSlop) {
-                                            onTap(pos)
-                                        }
-                                    }
-                                }
-
-                                if (longPressTriggered || shouldEndLongPressOnRelease) {
-                                    onLongPressEnd()
-                                }
-
-                                initialDownPosition = null
-                                isDragging = false
-                                longPressTriggered = false
-                                shouldEndLongPressOnRelease = false
-                                longPressJob.value?.cancel()
+                        longPressJob.cancel()
+                        if (longPressTriggered) {
+                            onLongPressEnd()
+                        } else if (!isDragging) {
+                            val totalMovement = (pointer.position - startPosition).getDistance()
+                            if (totalMovement < viewConfig.touchSlop) {
+                                onTap(pointer.position)
                             }
                         }
                     }

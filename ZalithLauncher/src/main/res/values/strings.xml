@@ -9,6 +9,7 @@
     <string name="generic_delete">删除</string>
     <string name="generic_rename">重命名</string>
     <string name="generic_copy">复制</string>
+    <string name="generic_paste">粘贴</string>
     <string name="generic_more">更多</string>
     <string name="generic_setting">设置</string>
     <string name="generic_expand">展开</string>
@@ -65,6 +66,12 @@
     <string name="main_task_menu">任务菜单</string>
     <!--  启动游戏  -->
     <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境</string>
+    <string name="game_button_input">输入法</string>
+    <string name="game_button_force_close">强制关闭</string>
+    <string name="game_button_log_output">日志输出</string>
+    <string name="game_button_mouse_left">鼠标左键</string>
+    <string name="game_button_mouse_right">鼠标右键</string>
+    <string name="game_dialog_force_close_message">你确定要强制关闭，并返回主界面吗？</string>
     <!--  渲染器  -->
     <string name="renderer_name_gl4es">GL4ES (低于等于 1.21.4 可用)</string>
     <string name="renderer_name_vulkan_zink">Vulkan Zink (低于等于 1.21.4 可用)</string>
