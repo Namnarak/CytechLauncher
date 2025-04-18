@@ -62,12 +62,13 @@ fun MousePointerScreen() {
 
         var mousePainter = getDefaultMousePointer()
         var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-
-        MousePointerOperation(
-            mouseOperation = mouseOperation,
-            updateOperation = { mouseOperation = it },
-            refreshMousePointer = { mousePainter = getDefaultMousePointer() }
-        )
+        when (mouseOperation) {
+            is MousePointerOperation.None -> {}
+            is MousePointerOperation.Refresh -> {
+                mousePainter = getDefaultMousePointer()
+                mouseOperation = MousePointerOperation.None
+            }
+        }
 
         val filePicker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument()
@@ -119,21 +120,6 @@ fun MousePointerScreen() {
                     }
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun MousePointerOperation(
-    mouseOperation: MousePointerOperation,
-    updateOperation: (MousePointerOperation) -> Unit = {},
-    refreshMousePointer: @Composable () -> Unit = {}
-) {
-    when (mouseOperation) {
-        is MousePointerOperation.None -> {}
-        is MousePointerOperation.Refresh -> {
-            refreshMousePointer()
-            updateOperation(MousePointerOperation.None)
         }
     }
 }
