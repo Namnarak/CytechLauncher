@@ -65,9 +65,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 
 @Composable
-fun SettingsScreen(
-    mainNavController: NavController
-) {
+fun SettingsScreen() {
     BaseScreen(
         screenTag = SETTINGS_SCREEN_TAG,
         currentTag = MutableStates.mainScreenTag
@@ -94,7 +92,6 @@ fun SettingsScreen(
                 modifier = Modifier.weight(7.5f)
             ) {
                 NavigationUI(
-                    mainNavController = mainNavController,
                     settingsNavController = settingsNavController
                 )
             }
@@ -196,7 +193,6 @@ private data class SettingsItem(
 
 @Composable
 private fun NavigationUI(
-    mainNavController: NavController,
     settingsNavController: NavHostController,
     modifier: Modifier = Modifier
 ) {
@@ -239,7 +235,7 @@ private fun NavigationUI(
         composable(
             route = CONTROL_SETTINGS_SCREEN_TAG
         ) {
-            ControlSettingsScreen(mainNavController)
+            ControlSettingsScreen()
         }
         composable(
             route = LAUNCHER_SETTINGS_TAG

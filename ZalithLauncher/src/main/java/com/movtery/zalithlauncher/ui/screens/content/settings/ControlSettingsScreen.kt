@@ -1,34 +1,58 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.context.copyLocalFile
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
-import com.movtery.zalithlauncher.ui.screens.content.MOUSE_POINTER_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
+import com.movtery.zalithlauncher.ui.control.mouse.getDefaultMousePointer
+import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.Dispatchers
+import org.apache.commons.io.FileUtils
 
 const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
 
 @Composable
-fun ControlSettingsScreen(
-    mainNavController: NavController
-) {
+fun ControlSettingsScreen() {
     BaseScreen(
         screenTag = CONTROL_SETTINGS_SCREEN_TAG,
         currentTag = MutableStates.settingsScreenTag
@@ -78,13 +102,119 @@ fun ControlSettingsScreen(
                     getItemText = { stringResource(it.nameRes) }
                 )
 
-                TeleportToSetting(
-                    title = stringResource(R.string.settings_control_mouse_pointer_title),
-                    summary = stringResource(R.string.settings_control_mouse_pointer_summary)
-                ) {
-                    mainNavController.navigateTo(MOUSE_POINTER_SCREEN_TAG)
-                }
+                val defaultPainter: Painter = getDefaultMousePointer()
+                var mousePainter by remember { mutableStateOf(defaultPainter) }
+                MousePointerLayout(painter = mousePainter) { mousePainter = it }
             }
+        }
+    }
+}
+
+private sealed interface MousePointerOperation {
+    data object None: MousePointerOperation
+    data object Reset: MousePointerOperation
+    data object Refresh: MousePointerOperation
+}
+
+@Composable
+private fun MousePointerLayout(
+    painter: Painter,
+    updatePainter: (Painter) -> Unit = {}
+) {
+    val context = LocalContext.current
+
+    var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+    when (mouseOperation) {
+        is MousePointerOperation.None -> {}
+        is MousePointerOperation.Reset -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.settings_control_mouse_pointer_reset_message),
+                onConfirm = {
+                    FileUtils.deleteQuietly(mousePointerFile)
+                    mouseOperation = MousePointerOperation.Refresh
+                },
+                onDismiss = { mouseOperation = MousePointerOperation.None }
+            )
+        }
+        is MousePointerOperation.Refresh -> {
+            updatePainter(getDefaultMousePointer())
+            mouseOperation = MousePointerOperation.None
+        }
+    }
+
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { result ->
+        if (result != null) {
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = {
+                        context.copyLocalFile(result, mousePointerFile)
+                        mouseOperation = MousePointerOperation.Refresh
+                    },
+                    onError = { th ->
+                        FileUtils.deleteQuietly(mousePointerFile)
+                        ObjectStates.updateThrowable(
+                            ObjectStates.ThrowableMessage(
+                                title = context.getString(R.string.error_import_image),
+                                message = th.getMessageOrToString()
+                            )
+                        )
+                    }
+                )
+            )
+        }
+    }
+
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clickable { filePicker.launch(arrayOf("image/*")) }
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.settings_control_mouse_pointer_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(
+                modifier = Modifier.height(height = 4.dp)
+            )
+            Text(
+                text = stringResource(R.string.settings_control_mouse_pointer_summary),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .padding(end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MousePointer(
+                modifier = Modifier.padding(all = 8.dp),
+                mouseSize = 24.dp,
+                mousePainter = painter,
+                centerIcon = true
+            )
+
+            IconTextButton(
+                onClick = {
+                    if (mousePointerFile.exists()) {
+                        mouseOperation = MousePointerOperation.Reset
+                    }
+                },
+                imageVector = Icons.Default.RestartAlt,
+                contentDescription = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.generic_reset)
+            )
         }
     }
 }
