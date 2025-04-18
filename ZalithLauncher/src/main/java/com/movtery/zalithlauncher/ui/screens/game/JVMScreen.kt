@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.ui.control.input.AWTCharSender
 import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.input.view.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
+import com.movtery.zalithlauncher.ui.control.mouse.getDefaultMousePointer
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.utils.killProgress
 
@@ -37,6 +38,7 @@ fun JVMScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         SimpleMouseControlLayout(
+            modifier = Modifier.fillMaxSize(),
             sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
             sendMouseDragging = { dragging ->
                 if (dragging) {
@@ -95,15 +97,20 @@ fun JVMScreen() {
 
 @Composable
 private fun SimpleMouseControlLayout(
+    modifier: Modifier = Modifier,
     sendMousePress: () -> Unit = {},
     sendMouseDragging: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
+    val mousePainter = getDefaultMousePointer()
+
     VirtualPointerLayout(
+        modifier = modifier,
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseDragging(true) },
-        onLongPressEnd = { sendMouseDragging(false) }
+        onLongPressEnd = { sendMouseDragging(false) },
+        mousePainter = mousePainter
     )
 }
 

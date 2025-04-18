@@ -239,7 +239,7 @@ private fun NavigationUI(
         composable(
             route = CONTROL_SETTINGS_SCREEN_TAG
         ) {
-            ControlSettingsScreen()
+            ControlSettingsScreen(mainNavController)
         }
         composable(
             route = LAUNCHER_SETTINGS_TAG

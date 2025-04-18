@@ -15,6 +15,7 @@ class PathManager {
         lateinit var DIR_ACCOUNT_SKIN: File
         lateinit var DIR_MULTIRT: File
         lateinit var DIR_COMPONENTS: File
+        lateinit var DIR_MOUSE_POINTER: File
 
         lateinit var FILE_CRASH_REPORT: File
         lateinit var FILE_SETTINGS: File
@@ -31,6 +32,7 @@ class PathManager {
             DIR_ACCOUNT_SKIN = File(DIR_ACCOUNT, "skins")
             DIR_MULTIRT = File(DIR_GAME, "runtimes")
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
+            DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
 
             FILE_CRASH_REPORT = File(DIR_FILES_EXTERNAL, "crash_report.log")
             FILE_SETTINGS = File(DIR_FILES_PRIVATE, "settings.json")
@@ -45,6 +47,7 @@ class PathManager {
             DIR_ACCOUNT_SKIN.mkdirs()
             DIR_MULTIRT.mkdirs()
             DIR_COMPONENTS.mkdirs()
+            DIR_MOUSE_POINTER.mkdirs()
         }
     }
 }

@@ -77,6 +77,8 @@ import com.movtery.zalithlauncher.ui.screens.content.FILE_SELECTOR_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LAUNCHER_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
+import com.movtery.zalithlauncher.ui.screens.content.MOUSE_POINTER_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.MousePointerScreen
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
@@ -406,6 +408,11 @@ private fun NavigationUI(
             ) {
                 navController.popBackStack()
             }
+        }
+        composable(
+            route = MOUSE_POINTER_SCREEN_TAG
+        ) {
+            MousePointerScreen()
         }
     }
 }

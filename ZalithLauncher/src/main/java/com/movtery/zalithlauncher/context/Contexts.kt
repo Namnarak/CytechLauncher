@@ -9,6 +9,7 @@ import com.movtery.zalithlauncher.setting.Settings
 import com.movtery.zalithlauncher.setting.loadAllSettings
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.readString
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
@@ -72,5 +73,15 @@ fun Context.copyAssetFile(
                 IOUtils.copy(inputStream, outputStream)
             }
         }
+    }
+}
+
+@Throws(IOException::class)
+fun Context.copyLocalFile(
+    uri: Uri,
+    outputFile: File
+) {
+    contentResolver.openInputStream(uri).use { inputStream ->
+        FileUtils.copyInputStreamToFile(inputStream, outputFile)
     }
 }

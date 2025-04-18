@@ -237,6 +237,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)

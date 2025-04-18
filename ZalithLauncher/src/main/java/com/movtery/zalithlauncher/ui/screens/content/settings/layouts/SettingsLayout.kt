@@ -52,6 +52,25 @@ annotation class SettingsLayoutDsl
 @SettingsLayoutDsl
 class SettingsLayoutScope {
     @Composable
+    fun TeleportToSetting(
+        modifier: Modifier = Modifier,
+        title: String,
+        summary: String? = null,
+        onClick: () -> Unit
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clickable(onClick = onClick)
+                .padding(all = 8.dp)
+                .padding(bottom = 4.dp)
+        ) {
+            TitleAndSummary(title, summary)
+        }
+    }
+
+    @Composable
     fun SwitchSettingsLayout(
         modifier: Modifier = Modifier,
         unit: BooleanSettingUnit,
