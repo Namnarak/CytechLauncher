@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
@@ -45,6 +47,11 @@ import org.apache.commons.io.FileUtils
 
 const val MOUSE_POINTER_SCREEN_TAG = "MousePointerScreen"
 
+private sealed interface MousePointerOperation {
+    data object None: MousePointerOperation
+    data object Refresh: MousePointerOperation
+}
+
 @Composable
 fun MousePointerScreen() {
     BaseScreen(
@@ -54,12 +61,13 @@ fun MousePointerScreen() {
         val context = LocalContext.current
 
         var mousePainter = getDefaultMousePointer()
-        var refreshMousePointer by remember { mutableStateOf(false) }
+        var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
 
-        if (refreshMousePointer) {
-            mousePainter = getDefaultMousePointer()
-            refreshMousePointer = false
-        }
+        MousePointerOperation(
+            mouseOperation = mouseOperation,
+            updateOperation = { mouseOperation = it },
+            refreshMousePointer = { mousePainter = getDefaultMousePointer() }
+        )
 
         val filePicker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument()
@@ -70,7 +78,7 @@ fun MousePointerScreen() {
                         dispatcher = Dispatchers.IO,
                         task = {
                             context.copyLocalFile(result, mousePointerFile)
-                            refreshMousePointer = true
+                            mouseOperation = MousePointerOperation.Refresh
                         },
                         onError = { th ->
                             FileUtils.deleteQuietly(mousePointerFile)
@@ -105,10 +113,27 @@ fun MousePointerScreen() {
                     .padding(top = 12.dp, bottom = 12.dp, end = 12.dp),
                 importMouseFile = { filePicker.launch(arrayOf("image/*")) },
                 resetMouseFile = {
-                    FileUtils.deleteQuietly(mousePointerFile)
-                    refreshMousePointer = true
+                    if (mousePointerFile.exists()) {
+                        FileUtils.deleteQuietly(mousePointerFile)
+                        mouseOperation = MousePointerOperation.Refresh
+                    }
                 }
             )
+        }
+    }
+}
+
+@Composable
+private fun MousePointerOperation(
+    mouseOperation: MousePointerOperation,
+    updateOperation: (MousePointerOperation) -> Unit = {},
+    refreshMousePointer: @Composable () -> Unit = {}
+) {
+    when (mouseOperation) {
+        is MousePointerOperation.None -> {}
+        is MousePointerOperation.Refresh -> {
+            refreshMousePointer()
+            updateOperation(MousePointerOperation.None)
         }
     }
 }
@@ -161,39 +186,38 @@ private fun RightMenu(
         shadowElevation = 4.dp
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (mousePointer, reset) = createRefs()
+            val preview = createRef()
 
-            Box(
+            Column(
                 modifier = Modifier
-                    .constrainAs(mousePointer) {
+                    .constrainAs(preview) {
                         top.linkTo(parent.top)
-                        bottom.linkTo(anchor = parent.bottom, margin = 34.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .clip(shape = MaterialTheme.shapes.large)
-                    .clickable(onClick = importMouseFile)
-            ) {
-                MousePointer(
-                    modifier = Modifier.padding(all = 12.dp),
-                    mouseSize = 54.dp,
-                    mousePainter = mousePainter,
-                    centerIcon = true
-                )
-            }
-
-            IconTextButton(
-                modifier = Modifier
-                    .constrainAs(reset) {
-                        top.linkTo(anchor = mousePointer.bottom, margin = 8.dp)
+                        bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                onClick = resetMouseFile,
-                imageVector = Icons.Default.RestartAlt,
-                contentDescription = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.generic_reset)
-            )
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(shape = MaterialTheme.shapes.large)
+                        .clickable(onClick = importMouseFile)
+                ) {
+                    MousePointer(
+                        modifier = Modifier.padding(all = 8.dp),
+                        mouseSize = 54.dp,
+                        mousePainter = mousePainter,
+                        centerIcon = true
+                    )
+                }
+
+                IconTextButton(
+                    onClick = resetMouseFile,
+                    imageVector = Icons.Default.RestartAlt,
+                    contentDescription = stringResource(R.string.generic_reset),
+                    text = stringResource(R.string.generic_reset)
+                )
+            }
         }
     }
 }
