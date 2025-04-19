@@ -34,7 +34,7 @@ class PathManager {
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
             DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
 
-            FILE_CRASH_REPORT = File(DIR_FILES_EXTERNAL, "crash_report.log")
+            FILE_CRASH_REPORT = File(DIR_FILES_EXTERNAL, "launcher_crash.log")
             FILE_SETTINGS = File(DIR_FILES_PRIVATE, "settings.json")
             FILE_MINECRAFT_VERSIONS = File(DIR_GAME, "minecraft_versions.json")
 
