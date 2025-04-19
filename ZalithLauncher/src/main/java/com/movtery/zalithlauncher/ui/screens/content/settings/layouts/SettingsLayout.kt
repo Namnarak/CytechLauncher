@@ -272,7 +272,7 @@ class SettingsLayoutScope {
                         repeat(items.size) { index ->
                             val item = items[index]
                             ListItem(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 3.dp),
                                 selected = getItemId(selectedItem) == getItemId(item),
                                 itemName = getItemText(item),
                                 onClick = {
@@ -299,7 +299,7 @@ class SettingsLayoutScope {
     ) {
         Row(
             modifier = modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clip(shape = MaterialTheme.shapes.large)
                 .clickable(onClick = onClick)
         ) {
             RadioButton(
