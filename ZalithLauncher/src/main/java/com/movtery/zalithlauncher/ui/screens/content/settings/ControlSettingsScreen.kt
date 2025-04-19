@@ -83,6 +83,12 @@ fun ControlSettingsScreen() {
                 var mouseFile by remember { mutableStateOf(mousePointerFile.takeIf { it.exists() }) }
                 var mouseSize by remember { mutableIntStateOf(AllSettings.mouseSize.getValue()) }
 
+                MousePointerLayout(
+                    mouseFile = mouseFile,
+                    mouseSize = mouseSize,
+                    updateFile = { mouseFile = it }
+                )
+
                 SliderSettingsLayout(
                     unit = AllSettings.mouseSize,
                     title = stringResource(R.string.settings_control_mouse_size_title),
@@ -92,20 +98,6 @@ fun ControlSettingsScreen() {
                     onValueChange = { mouseSize = it }
                 )
 
-                SliderSettingsLayout(
-                    unit = AllSettings.mouseSpeed,
-                    title = stringResource(R.string.settings_control_mouse_speed_title),
-                    valueRange = 25f..300f,
-                    suffix = "%",
-                    fineTuningControl = true
-                )
-
-                MousePointerLayout(
-                    mouseFile = mouseFile,
-                    mouseSize = mouseSize,
-                    updateFile = { mouseFile = it }
-                )
-
                 ListSettingsLayout(
                     unit = AllSettings.mouseControlMode,
                     items = ControlMode.entries,
@@ -113,6 +105,14 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
                     getItemId = { it.name },
                     getItemText = { stringResource(it.nameRes) }
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.mouseSpeed,
+                    title = stringResource(R.string.settings_control_mouse_speed_title),
+                    valueRange = 25f..300f,
+                    suffix = "%",
+                    fineTuningControl = true
                 )
             }
 

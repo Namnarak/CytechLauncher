@@ -297,7 +297,11 @@ class SettingsLayoutScope {
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {}
     ) {
-        Row(modifier = modifier.clickable(onClick = onClick)) {
+        Row(
+            modifier = modifier
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clickable(onClick = onClick)
+        ) {
             RadioButton(
                 selected = selected,
                 onClick = onClick
