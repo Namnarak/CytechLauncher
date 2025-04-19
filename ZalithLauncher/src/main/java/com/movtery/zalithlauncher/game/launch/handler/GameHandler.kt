@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.launch.handler
 
+import android.content.Context
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Surface
@@ -10,12 +11,29 @@ import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.Launcher
+import com.movtery.zalithlauncher.game.launch.MCOptions
+import com.movtery.zalithlauncher.game.launch.loadLanguage
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import org.lwjgl.glfw.CallbackBridge
 
-class GameHandler : AbstractHandler(HandlerType.GAME) {
+class GameHandler(
+    private val context: Context,
+    private val version: Version
+) : AbstractHandler(HandlerType.GAME) {
     override fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
+
+        MCOptions.setup(context, version)
+
+        MCOptions.apply {
+            set("fullscreen", "false")
+            set("overrideWidth", CallbackBridge.windowWidth.toString())
+            set("overrideHeight", CallbackBridge.windowHeight.toString())
+            loadLanguage(version.getVersionInfo()!!.minecraftVersion)
+            save()
+        }
+
         super.execute(surface, launcher, scope)
     }
 

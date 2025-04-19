@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.setting
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.setting.enums.toGestureButtonType
@@ -25,3 +26,8 @@ var gestureTapMouseAction by mutableStateOf(AllSettings.gestureTapMouseAction.ge
  * 手势控制长按时触发的鼠标按钮
  */
 var gestureLongPressMouseAction by mutableStateOf(AllSettings.gestureLongPressMouseAction.getValue().toGestureButtonType())
+
+/**
+ * GUI 缩放
+ */
+var mcOptionsGuiScale by mutableIntStateOf(0)

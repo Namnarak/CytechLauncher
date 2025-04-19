@@ -79,7 +79,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
             val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                 ?: throw IllegalStateException("No launch version has been set.")
-            handler = GameHandler()
+            handler = GameHandler(this, version)
             GameLauncher(this, version)
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
             val jarInfo: JarInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JarInfo::class.java)
