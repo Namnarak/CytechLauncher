@@ -248,7 +248,9 @@ class SettingsLayoutScope {
                         Text(
                             text = radioText,
                             style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .alpha(alpha = if (getRadioEnable(enum)) 1f else 0.5f)
                         )
                     }
                 }
