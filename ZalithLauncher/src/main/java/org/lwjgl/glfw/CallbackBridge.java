@@ -58,6 +58,10 @@ public class CallbackBridge {
         nativeSendCursorPos(mouseX, mouseY);
     }
 
+    public static void sendCursorDelta(float x, float y) {
+        sendCursorPos(mouseX + x, mouseY + y);
+    }
+
     public static void sendKeycode(int keycode, char keychar, int scancode, int modifiers, boolean isDown) {
         // TODO CHECK: This may cause input issue, not receive input!
         if(keycode != 0)  nativeSendKey(keycode,scancode,isDown ? 1 : 0, modifiers);

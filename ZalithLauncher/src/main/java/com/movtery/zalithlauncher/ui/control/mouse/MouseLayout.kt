@@ -70,6 +70,7 @@ fun VirtualPointerLayout(
                 screenWidth = size.width.toFloat()
                 screenHeight = size.height.toFloat()
                 pointerPosition = Offset(screenWidth / 2, screenHeight / 2)
+                onPointerMove(pointerPosition)
             }
     ) {
         MousePointer(
