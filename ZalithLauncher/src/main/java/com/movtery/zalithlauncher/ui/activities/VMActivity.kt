@@ -79,6 +79,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                 ?: throw IllegalStateException("No launch version has been set.")
             val gameManifest = getGameManifest(version)
+            CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
             handler = GameHandler()
             GameLauncher(this, version, gameManifest.javaVersion?.majorVersion ?: 8)
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
@@ -99,14 +100,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
 
         val logFile = File(PathManager.DIR_FILES_EXTERNAL, "${launcher.getLogName()}.log")
-        runCatching {
-            if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
-            Logger.begin(logFile.absolutePath)
-
-            refreshDisplayMetrics()
-            CallbackBridge.windowWidth = getDisplayPixels(ZLApplication.DISPLAY_METRICS.widthPixels)
-            CallbackBridge.windowHeight = getDisplayPixels(ZLApplication.DISPLAY_METRICS.heightPixels)
-        }
+        if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
+        Logger.begin(logFile.absolutePath)
 
         setContent {
             val colorThemeState = remember { ColorThemeState() }
@@ -186,6 +181,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
         if (!isRenderingStarted) {
             isRenderingStarted = true
+            refreshSize()
             handler.onGraphicOutput()
         }
     }

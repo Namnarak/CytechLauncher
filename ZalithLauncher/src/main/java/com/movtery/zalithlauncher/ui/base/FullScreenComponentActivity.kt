@@ -7,6 +7,7 @@ import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
 import androidx.activity.viewModels
+import androidx.annotation.CallSuper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 abstract class FullScreenComponentActivity : AbstractComponentActivity() {
     val fullScreenViewModel: LauncherFullScreenViewModel by viewModels()
 
+    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFullscreen()
@@ -30,6 +32,7 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
         }
     }
 
+    @CallSuper
     override fun onPostResume() {
         super.onPostResume()
         setFullscreen()

@@ -20,6 +20,7 @@ import kotlin.math.min
 open class BaseComponentActivity : FullScreenComponentActivity() {
     private var notchSize = -1
 
+    @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,6 +41,12 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
         super.onResume()
         checkStoragePermissions()
         AccountsManager.reloadAccounts()
+    }
+
+    @CallSuper
+    override fun onPostResume() {
+        super.onPostResume()
+        refreshDisplayMetrics()
     }
 
     override fun onAttachedToWindow() {
