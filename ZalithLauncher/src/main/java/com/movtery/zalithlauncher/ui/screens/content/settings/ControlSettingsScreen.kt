@@ -79,6 +79,14 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
+                val defaultPainter: Painter = getDefaultMousePointer()
+                var mousePainter by remember { mutableStateOf(defaultPainter) }
+
+                MousePointerLayout(
+                    painter = mousePainter,
+                    updatePainter = { mousePainter = it }
+                )
+
                 SliderSettingsLayout(
                     unit = AllSettings.mouseSize,
                     title = stringResource(R.string.settings_control_mouse_size_title),
@@ -103,10 +111,6 @@ fun ControlSettingsScreen() {
                     getItemId = { it.name },
                     getItemText = { stringResource(it.nameRes) }
                 )
-
-                val defaultPainter: Painter = getDefaultMousePointer()
-                var mousePainter by remember { mutableStateOf(defaultPainter) }
-                MousePointerLayout(painter = mousePainter) { mousePainter = it }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
