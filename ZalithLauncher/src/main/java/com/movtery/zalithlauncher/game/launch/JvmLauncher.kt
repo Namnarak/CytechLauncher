@@ -2,11 +2,13 @@ package com.movtery.zalithlauncher.game.launch
 
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.Logger
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
+import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -54,11 +56,32 @@ open class JvmLauncher(
                     .show()
             }
         }
+
+        private val DEFAULT_LAUNCHER_PROFILES = """{"profiles":{"default":{"lastVersionId":"latest-release"}},"selectedProfile":"default"}""".trimIndent()
+
+        /**
+         * 写入一个默认的 launcher_profiles.json 文件，不存在将会导致 Forge、NeoForge 等无法正常安装
+         */
+        private fun generateLauncherProfiles() {
+            runCatching {
+                File(GamePathManager.currentPath, "launcher_profiles.json").run {
+                    if (!exists()) {
+                        if (parentFile?.exists() == false) parentFile?.mkdirs()
+                        if (!createNewFile()) throw IOException("Failed to create launcher_profiles.json file!")
+                        writeText(DEFAULT_LAUNCHER_PROFILES)
+                        Log.i("JvmLauncher", "The content has already been written! File Location: $absolutePath")
+                    }
+                }
+            }.onFailure {
+                Log.w("JvmLauncher", "Unable to generate launcher_profiles.json file!", it)
+            }
+        }
     }
 
     private val jarFile = File(jarInfo.jarPath)
 
     override suspend fun launch() {
+        generateLauncherProfiles()
         redirectAndPrintJRELog()
         val (runtime, argList) = getStartupNeeded() ?: return
         launchJvm(activity, runtime, argList, AllSettings.jvmArgs.getValue())
