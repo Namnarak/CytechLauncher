@@ -19,9 +19,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -142,14 +142,15 @@ fun SimpleEditDialog(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                TextField(
+                OutlinedTextField(
                     value = value,
                     onValueChange = { onValueChange(it) },
                     label = label,
                     isError = isError,
                     supportingText = supportingText,
                     singleLine = singleLine,
-                    maxLines = maxLines
+                    maxLines = maxLines,
+                    shape = MaterialTheme.shapes.large
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 Row(
@@ -207,16 +208,21 @@ fun SimpleCheckEditDialog(
                     style = MaterialTheme.typography.labelSmall
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                TextField(
+                OutlinedTextField(
                     value = value,
                     onValueChange = onValueChange,
                     label = label,
                     isError = isError,
                     supportingText = supportingText,
                     singleLine = singleLine,
-                    maxLines = maxLines
+                    maxLines = maxLines,
+                    shape = MaterialTheme.shapes.large
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     checkBoxText?.let{ Text(text = it, style = MaterialTheme.typography.labelMedium) }
                     Checkbox(
                         checked = checked,

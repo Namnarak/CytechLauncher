@@ -28,10 +28,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -354,7 +354,7 @@ fun OtherServerLoginDialog(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                TextField(
+                OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     isError = email.isEmpty(),
@@ -364,10 +364,11 @@ fun OtherServerLoginDialog(
                             Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
                         }
                     },
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.large
                 )
                 Spacer(modifier = Modifier.size(8.dp))
-                TextField(
+                OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     isError = password.isEmpty(),
@@ -381,7 +382,8 @@ fun OtherServerLoginDialog(
                             Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
                         }
                     },
-                    singleLine = true
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.large
                 )
                 if (!server.register.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.size(4.dp))
