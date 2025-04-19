@@ -70,16 +70,18 @@ class LaunchArgs(
         argsList.addAll(getCacioJavaArgs(runtime.javaVersion == 8))
 
         val configFilePath = minecraftVersion.getVersionPath().child("log4j2.xml")
-        val is7 = VersionNumber.compare(VersionNumber.asVersion(gameManifest.id ?: "0.0").canonical, "1.12") < 0
-        runCatching {
-            val content = if (is7) {
-                readAssetsFile("components/log4j-1.7.xml")
-            } else {
-                readAssetsFile("components/log4j-1.12.xml")
+        if (!configFilePath.exists()) {
+            val is7 = VersionNumber.compare(VersionNumber.asVersion(gameManifest.id ?: "0.0").canonical, "1.12") < 0
+            runCatching {
+                val content = if (is7) {
+                    readAssetsFile("components/log4j-1.7.xml")
+                } else {
+                    readAssetsFile("components/log4j-1.12.xml")
+                }
+                configFilePath.writeText(content)
+            }.onFailure {
+                Log.w("LaunchArgs", "Failed to write fallback Log4j configuration autonomously!", it)
             }
-            configFilePath.writeText(content)
-        }.onFailure {
-            Log.w("LaunchArgs", "Failed to write fallback Log4j configuration autonomously!", it)
         }
         argsList.add("-Dlog4j.configurationFile=${configFilePath.absolutePath}")
 

@@ -63,8 +63,8 @@ class MinecraftDownloader(
     //File
     private val versionJarSource: File = getVersionJarPath(version)
     private val versionJarTarget: File = getVersionJarPath(customName)
-    private val versionLog4jXMLSource: File = getLog4jXMLPath(version)
-    private val versionLog4jXMLTarget: File = getLog4jXMLPath(customName)
+//    private val versionLog4jXMLSource: File = getLog4jXMLPath(version)
+//    private val versionLog4jXMLTarget: File = getLog4jXMLPath(customName)
 
     //已下载文件计数器
     private var downloadedFileSize: AtomicLong = AtomicLong(0)
@@ -170,7 +170,7 @@ class MinecraftDownloader(
                 }
             }
             ensureFileCopy(versionJarSource, versionJarTarget)
-            ensureFileCopy(versionLog4jXMLSource, versionLog4jXMLTarget)
+//            ensureFileCopy(versionLog4jXMLSource, versionLog4jXMLTarget)
         }.onFailure { e ->
             executor.shutdownNow()
             when(e) {
@@ -197,7 +197,7 @@ class MinecraftDownloader(
         scheduleClientJarDownload(gameManifest1, version)
         scheduleAssetDownloads(assetsIndex)
         scheduleLibraryDownloads(gameManifest1)
-        scheduleLog4jXMLDownload(gameManifest1, version)
+//        scheduleLog4jXMLDownload(gameManifest1, version)
 
         if (this.version != version) {
             findVersion(this.version)?.let {
@@ -213,8 +213,8 @@ class MinecraftDownloader(
     private fun getVersionJarPath(version: String) =
         File(versionsTarget, "$version/$version.jar".replace("/", File.separator)).createParent()
 
-    private fun getLog4jXMLPath(version: String) =
-        File(versionsTarget, "$version/log4j2.xml".replace("/", File.separator)).createParent()
+//    private fun getLog4jXMLPath(version: String) =
+//        File(versionsTarget, "$version/log4j2.xml".replace("/", File.separator)).createParent()
 
     /**
      * 创建版本 Json
@@ -298,13 +298,13 @@ class MinecraftDownloader(
         }
     }
 
-    /** 计划日志格式化配置下载 */
-    private fun scheduleLog4jXMLDownload(gameManifest: GameManifest, version: String) {
-        val versionLoggingTarget = getLog4jXMLPath(version)
-        gameManifest.logging?.client?.file?.let { loggingConfig ->
-            scheduleDownload(loggingConfig.url, loggingConfig.sha1, versionLoggingTarget, loggingConfig.size)
-        }
-    }
+//    /** 计划日志格式化配置下载 */
+//    private fun scheduleLog4jXMLDownload(gameManifest: GameManifest, version: String) {
+//        val versionLoggingTarget = getLog4jXMLPath(version)
+//        gameManifest.logging?.client?.file?.let { loggingConfig ->
+//            scheduleDownload(loggingConfig.url, loggingConfig.sha1, versionLoggingTarget, loggingConfig.size)
+//        }
+//    }
 
     /**
      * 提交计划下载
