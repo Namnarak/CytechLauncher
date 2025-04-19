@@ -282,8 +282,17 @@ private fun progressRuntimeUri(
             },
             onFinally = callRefresh,
             onCancel = {
-                RuntimesManager.removeRuntime(name)
-                callRefresh()
+                runCatching {
+                    RuntimesManager.removeRuntime(name)
+                    callRefresh()
+                }.onFailure { t ->
+                    ObjectStates.updateThrowable(
+                        ObjectStates.ThrowableMessage(
+                            title = context.getString(R.string.multirt_runtime_delete_failed),
+                            message = t.getMessageOrToString()
+                        )
+                    )
+                }
             }
         )
     )
