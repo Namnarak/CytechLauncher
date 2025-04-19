@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
+import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.Launcher
-import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import org.lwjgl.glfw.CallbackBridge
 

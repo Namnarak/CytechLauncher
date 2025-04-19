@@ -11,9 +11,9 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.movtery.zalithlauncher.R
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 
 class StoragePermissionsUtils {

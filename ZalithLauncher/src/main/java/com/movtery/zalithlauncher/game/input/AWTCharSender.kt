@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.input
 
-import com.movtery.zalithlauncher.bridge.AWTInputEvent
 import com.movtery.zalithlauncher.bridge.ZLBridge
 
 object AWTCharSender : CharacterSenderStrategy {

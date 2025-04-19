@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.bridge;
+package com.movtery.zalithlauncher.game.input;
 
 /*
      * Copyright (c) 1996, 2009, Oracle and/or its affiliates. All rights reserved.
