@@ -24,6 +24,9 @@
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
+    <string name="generic_input_failed_to_number">输入的内容无法正常解析为数字</string>
+    <string name="generic_input_too_small">输入的数值不能小于 %s</string>
+    <string name="generic_input_too_large">输入的数值不能大于 %s</string>
     <string name="generic_unpacking">正在解压 %s</string>
     <string name="generic_unknown">未知</string>
     <!--  主题  -->

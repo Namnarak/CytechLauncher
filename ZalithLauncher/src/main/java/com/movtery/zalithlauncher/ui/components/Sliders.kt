@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,10 +17,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -37,6 +34,7 @@ fun SimpleTextSlider(
     suffix: String? = null,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
+    onTextClick: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     fineTuningControl: Boolean = false,
     fineTuningStep: Float = 0.5f
@@ -48,10 +46,7 @@ fun SimpleTextSlider(
         formatter.format(value)
     }}${if (suffix == null) "" else " $suffix"}"
 
-    var textString by rememberSaveable { mutableStateOf(getTextString(value)) }
-
     fun changeValue(newValue: Float, finished: Boolean) {
-        textString = getTextString(newValue)
         onValueChange(newValue)
         if (finished) onValueChangeFinished?.invoke()
     }
@@ -80,7 +75,10 @@ fun SimpleTextSlider(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = textString,
+                    modifier = Modifier.then(
+                        if (onTextClick != null) Modifier.clickable(onClick = onTextClick) else Modifier
+                    ),
+                    text = getTextString(value),
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
                 if (fineTuningControl) {

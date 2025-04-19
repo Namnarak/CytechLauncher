@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
@@ -38,11 +39,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import kotlin.enums.EnumEntries
@@ -126,6 +129,16 @@ class SettingsLayoutScope {
         fineTuningControl: Boolean = false
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
+        var showValueEditDialog by remember { mutableStateOf(false) }
+
+        fun changeValue(newValue: Int) {
+            value = newValue
+            onValueChange(value)
+        }
+
+        fun changeFinished() {
+            unit.put(value).save()
+        }
 
         Column(
             modifier = modifier
@@ -137,19 +150,59 @@ class SettingsLayoutScope {
             SimpleTextSlider(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toFloat(),
-                onValueChange = { newValue ->
-                    value = newValue.toInt()
-                    onValueChange(value)
-                },
-                onValueChangeFinished = {
-                    unit.put(value).save()
-                },
+                onValueChange = { changeValue(it.toInt()) },
+                onValueChangeFinished = { changeFinished() },
+                onTextClick = { showValueEditDialog = true },
                 toInt = true,
                 valueRange = valueRange,
                 steps = steps,
                 suffix = suffix,
                 fineTuningControl = fineTuningControl,
                 fineTuningStep = 1f
+            )
+        }
+
+        if (showValueEditDialog) {
+            val maxLength = listOf(
+                valueRange.start.toInt().toString().length,
+                valueRange.endInclusive.toInt().toString().length
+            ).maxOrNull() ?: 5
+
+            var inputValue by remember { mutableStateOf(value.toString()) }
+            var errorText by remember { mutableStateOf("") }
+            val numberFormatError = stringResource(R.string.generic_input_failed_to_number)
+            val numberTooSmallError = stringResource(R.string.generic_input_too_small, valueRange.start.toInt())
+            val numberTooLargeError = stringResource(R.string.generic_input_too_large, valueRange.endInclusive.toInt())
+
+            SimpleEditDialog(
+                title = title,
+                value = inputValue,
+                onValueChange = { newInput ->
+                    val filteredInput = newInput.take(maxLength)
+                    inputValue = filteredInput
+
+                    val result = filteredInput.toIntOrNull()
+                    errorText = when {
+                        result == null -> numberFormatError
+                        result < valueRange.start -> numberTooSmallError
+                        result > valueRange.endInclusive -> numberTooLargeError
+                        else -> ""
+                    }
+                },
+                isError = errorText.isNotEmpty(),
+                supportingText = {
+                    if (errorText.isNotEmpty()) Text(text = errorText)
+                },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                onConfirm = {
+                    if (errorText.isEmpty()) {
+                        val newValue = inputValue.toIntOrNull() ?: value
+                        changeValue(newValue)
+                        changeFinished()
+                        showValueEditDialog = false
+                    }
+                },
+                onDismissRequest = { showValueEditDialog = false }
             )
         }
     }
@@ -231,7 +284,10 @@ class SettingsLayoutScope {
 
         if (!enabled) expanded = false
 
-        Row(modifier = modifier.fillMaxWidth().alpha(alpha = if (enabled) 1f else 0.5f).padding(bottom = 4.dp)) {
+        Row(modifier = modifier
+            .fillMaxWidth()
+            .alpha(alpha = if (enabled) 1f else 0.5f)
+            .padding(bottom = 4.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier
@@ -272,7 +328,9 @@ class SettingsLayoutScope {
                         repeat(items.size) { index ->
                             val item = items[index]
                             ListItem(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 3.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 3.dp),
                                 selected = getItemId(selectedItem) == getItemId(item),
                                 itemName = getItemText(item),
                                 onClick = {

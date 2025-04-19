@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -128,6 +129,7 @@ fun SimpleEditDialog(
     supportingText: @Composable (() -> Unit)? = null,
     singleLine: Boolean = false,
     maxLines: Int = 3,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
@@ -150,6 +152,7 @@ fun SimpleEditDialog(
                     supportingText = supportingText,
                     singleLine = singleLine,
                     maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
                     shape = MaterialTheme.shapes.large
                 )
                 Spacer(modifier = Modifier.size(16.dp))
@@ -190,6 +193,7 @@ fun SimpleCheckEditDialog(
     supportingText: @Composable (() -> Unit)? = null,
     singleLine: Boolean = false,
     maxLines: Int = 3,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
@@ -216,6 +220,7 @@ fun SimpleCheckEditDialog(
                     supportingText = supportingText,
                     singleLine = singleLine,
                     maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
                     shape = MaterialTheme.shapes.large
                 )
                 Row(
