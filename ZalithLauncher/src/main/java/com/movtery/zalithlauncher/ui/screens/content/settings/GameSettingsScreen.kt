@@ -85,12 +85,15 @@ fun GameSettingsScreen() {
                     summary = stringResource(R.string.settings_game_version_custom_info_summary)
                 )
             }
+
             Spacer(modifier = Modifier.height(12.dp))
+
             val yOffset2 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,
                 delayMillis = 50
             )
+
             SettingsBackground(
                 modifier = Modifier
                     .offset {

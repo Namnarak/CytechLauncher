@@ -14,6 +14,9 @@ import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.bridge.Logger
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
+import com.movtery.zalithlauncher.setting.enums.GestureButtonType
+import com.movtery.zalithlauncher.setting.gestureControl
+import com.movtery.zalithlauncher.setting.gestureTriggerButton
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
@@ -58,10 +61,10 @@ fun MouseControlLayout(
                 CallbackBridge.sendCursorPos(position.x.sumPosition(), position.y.sumPosition())
             },
             onLongPress = {
-                CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), true)
+                pressButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt())
             },
             onLongPressEnd = {
-                CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), false)
+                releaseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt())
             },
             mousePainter = getDefaultMousePointer()
         )
@@ -70,6 +73,26 @@ fun MouseControlLayout(
     if (mode == CURSOR_DISABLED) {
         TouchpadLayout(
             modifier = modifier,
+            onTap = {
+                if (gestureControl) {
+                    CallbackBridge.putMouseEvent(
+                        when (gestureTriggerButton) {
+                            GestureButtonType.MOUSE_RIGHT -> LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT
+                            GestureButtonType.MOUSE_LEFT -> LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT
+                        }.toInt()
+                    )
+                }
+            },
+            onLongPress = {
+                if (gestureControl) {
+                    pressButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt())
+                }
+            },
+            onLongPressEnd = {
+                if (gestureControl) {
+                    releaseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt())
+                }
+            },
             onPointerMove = { delta ->
                 val deltaX = (delta.x * sensitivityFactor).toFloat()
                 val deltaY = (delta.y * sensitivityFactor).toFloat()
@@ -77,6 +100,14 @@ fun MouseControlLayout(
             }
         )
     }
+}
+
+private fun pressButton(button: Int) {
+    CallbackBridge.putMouseEvent(button, true)
+}
+
+private fun releaseButton(button: Int) {
+    CallbackBridge.putMouseEvent(button, false)
 }
 
 private fun Float.sumPosition(): Float {

@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.setting
 import android.os.Build
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.setting.enums.GestureButtonType
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -99,6 +100,16 @@ class AllSettings {
          * 虚拟鼠标控制模式
          */
         val mouseControlMode = StringSettingUnit("mouseControlMode", ControlMode.SLIDE.name)
+
+        /**
+         * 手势控制
+         */
+        val gestureControl = BooleanSettingUnit("gestureControl", false)
+
+        /**
+         * 手势控制点击时触发的按钮
+         */
+        val gestureTriggerButton = StringSettingUnit("gestureTriggerButton", GestureButtonType.MOUSE_RIGHT.name)
 
         //Launcher
         /**

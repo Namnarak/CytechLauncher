@@ -34,6 +34,8 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.GestureButtonType
+import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -63,7 +65,7 @@ fun ControlSettingsScreen() {
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp)
         ) {
-            val yOffset by swapAnimateDpAsState(
+            val yOffset1 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible
             )
@@ -73,7 +75,7 @@ fun ControlSettingsScreen() {
                     .offset {
                         IntOffset(
                             x = 0,
-                            y = yOffset.roundToPx()
+                            y = yOffset1.roundToPx()
                         )
                     }
             ) {
@@ -105,6 +107,40 @@ fun ControlSettingsScreen() {
                 val defaultPainter: Painter = getDefaultMousePointer()
                 var mousePainter by remember { mutableStateOf(defaultPainter) }
                 MousePointerLayout(painter = mousePainter) { mousePainter = it }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val yOffset2 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 50
+            )
+
+            SettingsBackground(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = yOffset2.roundToPx()
+                        )
+                    }
+            ) {
+                SwitchSettingsLayout(
+                    unit = AllSettings.gestureControl,
+                    title = stringResource(R.string.settings_control_gesture_control_title),
+                    summary = stringResource(R.string.settings_control_gesture_control_summary),
+                    onCheckedChange = { gestureControl = it }
+                )
+
+                ListSettingsLayout(
+                    unit = AllSettings.gestureTriggerButton,
+                    items = GestureButtonType.entries,
+                    title = stringResource(R.string.settings_control_gesture_control_trigger_button_title),
+                    getItemText = { stringResource(it.nameRes) },
+                    getItemId = { it.name },
+                    enabled = gestureControl
+                )
             }
         }
     }

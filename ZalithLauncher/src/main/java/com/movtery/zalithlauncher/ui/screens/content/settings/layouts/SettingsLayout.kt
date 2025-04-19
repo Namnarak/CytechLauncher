@@ -33,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -213,6 +214,7 @@ class SettingsLayoutScope {
         summary: String? = null,
         getItemText: @Composable (E) -> String,
         getItemId: (E) -> String,
+        enabled: Boolean = true,
         onValueChange: (E) -> Unit = {}
     ) {
         require(items.isNotEmpty()) { "Items list cannot be empty" }
@@ -227,13 +229,15 @@ class SettingsLayoutScope {
         var selectedItem by remember { mutableStateOf(initialItem) }
         var expanded by remember { mutableStateOf(false) }
 
-        Row(modifier = modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+        if (!enabled) expanded = false
+
+        Row(modifier = modifier.fillMaxWidth().alpha(alpha = if (enabled) 1f else 0.5f).padding(bottom = 4.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .clickable { expanded = !expanded }
+                        .clickable(enabled = enabled) { expanded = !expanded }
                         .padding(all = 8.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {

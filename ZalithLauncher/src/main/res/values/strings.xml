@@ -233,6 +233,11 @@
     <string name="settings_control_mouse_pointer_title">虚拟鼠标指针</string>
     <string name="settings_control_mouse_pointer_summary">自定义虚拟鼠标指针的图片以匹配个人需求</string>
     <string name="settings_control_mouse_pointer_reset_message">你确定要重置虚拟鼠标指针的图片吗？</string>
+    <string name="settings_control_gesture_control_title">手势控制</string>
+    <string name="settings_control_gesture_control_summary">支持通过点击和长按等手势，在游戏中进行交互，类似基岩版</string>
+    <string name="settings_control_gesture_control_trigger_button_title">点击触发的操作类型</string>
+    <string name="settings_control_gesture_control_trigger_mouse_left">左键操作</string>
+    <string name="settings_control_gesture_control_trigger_mouse_right">右键操作</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>
