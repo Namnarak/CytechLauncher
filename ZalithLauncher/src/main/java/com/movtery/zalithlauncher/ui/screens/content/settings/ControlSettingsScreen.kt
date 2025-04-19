@@ -18,13 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -43,13 +43,14 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
-import com.movtery.zalithlauncher.ui.control.mouse.getDefaultMousePointer
+import com.movtery.zalithlauncher.ui.control.mouse.getMouseFile
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
+import java.io.File
 
 const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
 
@@ -79,20 +80,16 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
-                val defaultPainter: Painter = getDefaultMousePointer()
-                var mousePainter by remember { mutableStateOf(defaultPainter) }
-
-                MousePointerLayout(
-                    painter = mousePainter,
-                    updatePainter = { mousePainter = it }
-                )
+                var mouseFile by remember { mutableStateOf(mousePointerFile.takeIf { it.exists() }) }
+                var mouseSize by remember { mutableIntStateOf(AllSettings.mouseSize.getValue()) }
 
                 SliderSettingsLayout(
                     unit = AllSettings.mouseSize,
                     title = stringResource(R.string.settings_control_mouse_size_title),
                     valueRange = 5f..50f,
                     suffix = "Dp",
-                    fineTuningControl = true
+                    fineTuningControl = true,
+                    onValueChange = { mouseSize = it }
                 )
 
                 SliderSettingsLayout(
@@ -101,6 +98,12 @@ fun ControlSettingsScreen() {
                     valueRange = 25f..300f,
                     suffix = "%",
                     fineTuningControl = true
+                )
+
+                MousePointerLayout(
+                    mouseFile = mouseFile,
+                    mouseSize = mouseSize,
+                    updateFile = { mouseFile = it }
                 )
 
                 ListSettingsLayout(
@@ -169,8 +172,9 @@ private sealed interface MousePointerOperation {
 
 @Composable
 private fun MousePointerLayout(
-    painter: Painter,
-    updatePainter: (Painter) -> Unit = {}
+    mouseFile: File?,
+    mouseSize: Int,
+    updateFile: (File?) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -189,7 +193,7 @@ private fun MousePointerLayout(
             )
         }
         is MousePointerOperation.Refresh -> {
-            updatePainter(getDefaultMousePointer())
+            updateFile(getMouseFile())
             mouseOperation = MousePointerOperation.None
         }
     }
@@ -251,8 +255,8 @@ private fun MousePointerLayout(
         ) {
             MousePointer(
                 modifier = Modifier.padding(all = 8.dp),
-                mouseSize = 24.dp,
-                mousePainter = painter,
+                mouseSize = mouseSize.dp,
+                mouseFile = mouseFile,
                 centerIcon = true
             )
 

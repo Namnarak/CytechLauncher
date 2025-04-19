@@ -15,17 +15,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.gif.GifDecoder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.ui.components.rememberAsyncGIFImagePainter
 import com.movtery.zalithlauncher.utils.file.child
 import java.io.File
 
@@ -43,7 +45,6 @@ val mousePointerFile: File = PathManager.DIR_MOUSE_POINTER.child("default_pointe
  * @param onPointerMove     指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
  * @param mouseSize         指针大小
  * @param mouseSpeed        指针移动速度（滑动模式生效）
- * @param mousePainter      指针图标
  */
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
@@ -56,7 +57,6 @@ fun VirtualPointerLayout(
     onPointerMove: (Offset) -> Unit = {},
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
     mouseSpeed: Int = AllSettings.mouseSpeed.getValue(),
-    mousePainter: Painter
 ) {
     var screenWidth by remember { mutableFloatStateOf(0f) }
     var screenHeight by remember { mutableFloatStateOf(0f) }
@@ -79,7 +79,7 @@ fun VirtualPointerLayout(
                 y = with(LocalDensity.current) { pointerPosition.y.toDp() }
             ),
             mouseSize = mouseSize,
-            mousePainter = mousePainter
+            mouseFile = mousePointerFile
         )
 
         TouchpadLayout(
@@ -121,21 +121,41 @@ fun VirtualPointerLayout(
 fun MousePointer(
     modifier: Modifier = Modifier,
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
-    mousePainter: Painter,
+    mouseFile: File?,
     centerIcon: Boolean = false
 ) {
-    Image(
-        painter = mousePainter,
-        contentDescription = null,
-        alignment = if (centerIcon) Alignment.Center else Alignment.TopStart,
-        contentScale = ContentScale.Fit,
-        modifier = modifier.size(mouseSize)
-    )
+    val context = LocalContext.current
+
+    val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
+    val imageModifier = modifier.size(mouseSize)
+    val imageLoader = remember {
+        ImageLoader.Builder(context)
+            .components {
+                add(GifDecoder.Factory())
+            }
+            .build()
+    }
+
+    if (mouseFile != null) {
+        AsyncImage(
+            model = mouseFile,
+            imageLoader = imageLoader,
+            contentDescription = null,
+            alignment = imageAlignment,
+            contentScale = ContentScale.Fit,
+            modifier = imageModifier
+        )
+    } else {
+        Image(
+            painter = painterResource(R.drawable.ic_mouse_pointer),
+            contentDescription = null,
+            alignment = imageAlignment,
+            contentScale = ContentScale.Fit,
+            modifier = imageModifier
+        )
+    }
 }
 
-@Composable
-fun getDefaultMousePointer(): Painter {
-    return mousePointerFile.takeIf { it.exists() }?.let {
-        rememberAsyncGIFImagePainter(it)
-    } ?: painterResource(R.drawable.ic_mouse_pointer)
+fun getMouseFile(): File? = mousePointerFile.takeIf { it.exists() }?.let {
+    File(it.absolutePath)
 }

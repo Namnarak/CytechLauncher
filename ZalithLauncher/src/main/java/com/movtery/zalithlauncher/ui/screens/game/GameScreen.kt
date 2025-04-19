@@ -21,7 +21,6 @@ import com.movtery.zalithlauncher.setting.gestureTapMouseAction
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
-import com.movtery.zalithlauncher.ui.control.mouse.getDefaultMousePointer
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import org.lwjgl.glfw.CallbackBridge
 
@@ -66,8 +65,7 @@ fun MouseControlLayout(
             },
             onLongPressEnd = {
                 CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), false)
-            },
-            mousePainter = getDefaultMousePointer()
+            }
         )
     }
 
