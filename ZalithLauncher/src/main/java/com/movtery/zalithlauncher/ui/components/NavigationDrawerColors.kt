@@ -16,8 +16,8 @@ fun secondaryContainerDrawerItemColors(): NavigationDrawerItemColors {
         selectedContainerColor = colorScheme.secondary.copy(alpha = 0.24f),
         unselectedContainerColor = Color.Transparent,
         selectedIconColor = colorScheme.onSecondaryContainer,
-        unselectedIconColor = colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+        unselectedIconColor = colorScheme.onSecondaryContainer,
         selectedTextColor = colorScheme.onSecondaryContainer,
-        unselectedTextColor = colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+        unselectedTextColor = colorScheme.onSecondaryContainer,
     )
 }
