@@ -201,6 +201,8 @@
     <string name="settings_renderer_from_plugins">来自 %s 插件</string>
     <string name="settings_renderer_resolution_scale_title">游戏窗口分辨率</string>
     <string name="settings_renderer_resolution_scale_summary">数值越低性能越高，数值越高画质越清晰，根据实际需求进行调整</string>
+    <string name="settings_renderer_full_screen_title">游戏页面全屏化</string>
+    <string name="settings_renderer_full_screen_summary">使游戏页面全屏化，忽略刘海屏、挖孔屏等屏幕的安全区</string>
     <string name="settings_renderer_sustained_performance_title">启用持续性能模式</string>
     <string name="settings_renderer_sustained_performance_summary">启用后，系统会为游戏提供更稳定的性能输出，适用于长时间游玩，但可能略微降低设备响应速度以防止过热</string>
     <string name="settings_renderer_shader_dump_title">着色器日志输出</string>

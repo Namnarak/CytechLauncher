@@ -86,6 +86,12 @@ fun RendererSettingsScreen() {
                     suffix = "%",
                     fineTuningControl = true
                 )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.gameFullScreen,
+                    title = stringResource(R.string.settings_renderer_full_screen_title),
+                    summary = stringResource(R.string.settings_renderer_full_screen_summary)
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

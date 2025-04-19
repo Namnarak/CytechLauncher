@@ -39,7 +39,7 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
         ignoreNotch()
     }
 
-    protected fun shouldIgnoreNotch() = AllSettings.launcherFullScreen.getValue()
+    protected open fun shouldIgnoreNotch() = AllSettings.launcherFullScreen.getValue()
 
     private fun setFullscreen() {
         val decorView = window.decorView

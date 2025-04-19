@@ -50,6 +50,8 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
@@ -116,6 +118,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
     }
 
+    override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
+
     override fun onResume() {
         super.onResume()
         handler.onResume()
@@ -146,7 +150,10 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     override fun onPostResume() {
         super.onPostResume()
-        refreshSize()
+        lifecycleScope.launch {
+            delay(500)
+            refreshSize()
+        }
     }
 
     @SuppressLint("RestrictedApi")

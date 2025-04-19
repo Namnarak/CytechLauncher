@@ -30,6 +30,11 @@ class AllSettings {
         val resolutionRatio = IntSettingUnit("resolutionRatio", 100)
 
         /**
+         * 游戏页面全屏化
+         */
+        val gameFullScreen = BooleanSettingUnit("gameFullScreen", true)
+
+        /**
          * 持续性能模式
          */
         val sustainedPerformance = BooleanSettingUnit("sustainedPerformance", false)
