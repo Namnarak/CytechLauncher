@@ -25,7 +25,7 @@ object LaunchGame {
             context = context,
             version = version.getVersionInfo()?.minecraftVersion ?: version.getVersionName(),
             customName = version.getVersionName(),
-            verifyIntegrity = AllSettings.skipGameIntegrityCheck.getValue(),
+            verifyIntegrity = !AllSettings.skipGameIntegrityCheck.getValue(),
             mode = DownloadMode.VERIFY_AND_REPAIR,
             onCompletion = {
                 runGame(context, version)
