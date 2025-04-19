@@ -6,6 +6,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -23,7 +24,7 @@ object LaunchGame {
             context = context,
             version = version.getVersionInfo()?.minecraftVersion ?: version.getVersionName(),
             customName = version.getVersionName(),
-            verifyIntegrity = true,
+            verifyIntegrity = AllSettings.skipGameIntegrityCheck.getValue(),
             onCompletion = {
                 runGame(context, version)
             }

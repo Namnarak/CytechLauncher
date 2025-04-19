@@ -60,6 +60,11 @@ class AllSettings {
         val versionIsolation = BooleanSettingUnit("versionIsolation", true)
 
         /**
+         * 不检查游戏完整性
+         */
+        val skipGameIntegrityCheck = BooleanSettingUnit("skipGameIntegrityCheck", false)
+
+        /**
          * 版本自定义信息
          */
         val versionCustomInfo = StringSettingUnit("", "${InfoDistributor.LAUNCHER_IDENTIFIER}[zl_version]")
