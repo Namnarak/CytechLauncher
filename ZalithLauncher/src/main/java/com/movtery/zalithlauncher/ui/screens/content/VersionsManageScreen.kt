@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -119,7 +121,7 @@ private fun GamePathLayout(
                 )
             },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
         Column {
@@ -195,7 +197,7 @@ private fun VersionsLayout(
         swapIn = isVisible
     )
 
-    Surface(
+    Card(
         modifier = modifier
             .offset {
                 IntOffset(
@@ -204,8 +206,7 @@ private fun VersionsLayout(
                 )
             },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shadowElevation = 4.dp
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         if (VersionsManager.isRefreshing) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -237,11 +238,12 @@ private fun VersionsLayout(
                                 )
                             }
                         }
+
                         HorizontalDivider(
                             modifier = Modifier
                                 .padding(horizontal = 4.dp)
                                 .fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         LazyColumn(

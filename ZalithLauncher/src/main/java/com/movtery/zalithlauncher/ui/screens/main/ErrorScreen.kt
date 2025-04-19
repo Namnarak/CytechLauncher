@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,16 +57,29 @@ fun ErrorScreen(
             } else {
                 MaterialTheme.colorScheme.surfaceVariant
             }
-            ErrorContent(
-                message = message,
-                messageBody = messageBody,
-                canRestart = canRestart,
+            Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = backgroundColor),
-                onRestartClick = onRestartClick,
-                onExitClick = onExitClick
-            )
+                    .background(color = backgroundColor)
+            ) {
+                ErrorContent(
+                    modifier = Modifier
+                        .weight(7f)
+                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
+                    message = message,
+                    messageBody = messageBody,
+
+                )
+
+                ActionContext(
+                    modifier = Modifier
+                        .weight(3f)
+                        .padding(all = 12.dp),
+                    canRestart = canRestart,
+                    onRestartClick = onRestartClick,
+                    onExitClick = onExitClick
+                )
+            }
 
             DownShadow(
                 modifier = Modifier
@@ -98,67 +113,65 @@ private fun TopBar(
 
 @Composable
 private fun ErrorContent(
-    message: String,
-    messageBody: String,
-    canRestart: Boolean,
     modifier: Modifier = Modifier,
+    message: String,
+    messageBody: String
+) {
+    Card(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = rememberScrollState())
+                .padding(all = 12.dp)
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = messageBody,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionContext(
+    modifier: Modifier = Modifier,
+    canRestart: Boolean,
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
-    Row(modifier = modifier) {
-        Surface(
-            modifier = Modifier
-                .weight(7f)
-                .padding(start = 12.dp, top = 12.dp, bottom = 12.dp),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = MaterialTheme.shapes.extraLarge,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(state = rememberScrollState())
-                    .padding(all = 12.dp)
-            ) {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = messageBody,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
-        Surface(
-            modifier = Modifier
-                .weight(3f)
-                .padding(all = 12.dp),
-            color = MaterialTheme.colorScheme.inversePrimary,
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(all = 12.dp).fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                if (canRestart) {
-                    ScalingActionButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onRestartClick
-                    ) {
-                        Text(text = stringResource(R.string.crash_restart))
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
+            if (canRestart) {
                 ScalingActionButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onExitClick
+                    onClick = onRestartClick
                 ) {
-                    Text(text = stringResource(R.string.crash_exit))
+                    Text(text = stringResource(R.string.crash_restart))
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            ScalingActionButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onExitClick
+            ) {
+                Text(text = stringResource(R.string.crash_exit))
             }
         }
     }

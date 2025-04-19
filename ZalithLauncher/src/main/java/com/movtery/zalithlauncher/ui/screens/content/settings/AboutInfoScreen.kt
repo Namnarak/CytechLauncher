@@ -104,14 +104,14 @@ fun AboutInfoScreen() {
                         modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
                         text = stringResource(R.string.about_library_title),
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(width = 8.dp))
                     HorizontalDivider(
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
                             .fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp).padding(top = 12.dp, bottom = 8.dp)) {
                         repeat(libraryData.size) { index ->
@@ -133,11 +133,12 @@ fun AboutInfoScreen() {
 private fun LibraryInfoItem(
     info: LibraryInfo,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
         shadowElevation = 4.dp,

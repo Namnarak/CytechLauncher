@@ -21,8 +21,8 @@ fun ScalingLabel(
     modifier: Modifier = Modifier,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.inversePrimary,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {

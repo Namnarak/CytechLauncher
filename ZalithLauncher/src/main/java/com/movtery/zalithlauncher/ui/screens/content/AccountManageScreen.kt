@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -151,7 +153,7 @@ private fun ServerTypeTab(
             }
             .fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
         Column {
@@ -408,16 +410,15 @@ private fun AccountsLayout(
     val accounts by AccountsManager.accountsFlow.collectAsState()
     val currentAccount by AccountsManager.currentAccountFlow.collectAsState()
 
-    Surface(
+    Card(
         modifier = modifier.offset {
             IntOffset(
                 x = 0,
                 y = yOffset.roundToPx()
             )
         },
-        color = MaterialTheme.colorScheme.primaryContainer,
         shape = MaterialTheme.shapes.extraLarge,
-        shadowElevation = 4.dp
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         var accountOperation by remember { mutableStateOf<AccountOperation>(AccountOperation.None) }
         AccountOperation(

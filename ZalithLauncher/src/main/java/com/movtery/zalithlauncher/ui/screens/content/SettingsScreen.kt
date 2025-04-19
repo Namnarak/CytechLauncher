@@ -42,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.ui.screens.content.settings.ABOUT_INFO_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.AboutInfoScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.CONTROL_MANAGE_SCREEN_TAG
@@ -118,7 +119,7 @@ private fun TabMenu(
             )
         },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
         @Composable
@@ -177,7 +178,8 @@ private fun TabMenu(
                     selected = MutableStates.settingsScreenTag == item.screenTag,
                     onClick = {
                         settingsNavController.navigateOnce(item.screenTag)
-                    }
+                    },
+                    colors = secondaryContainerDrawerItemColors()
                 )
             }
         }

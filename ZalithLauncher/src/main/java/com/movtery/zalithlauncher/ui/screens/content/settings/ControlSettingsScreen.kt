@@ -234,16 +234,14 @@ private fun MousePointerLayout(
         ) {
             Text(
                 text = stringResource(R.string.settings_control_mouse_pointer_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                style = MaterialTheme.typography.titleSmall
             )
             Spacer(
                 modifier = Modifier.height(height = 4.dp)
             )
             Text(
                 text = stringResource(R.string.settings_control_mouse_pointer_summary),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                style = MaterialTheme.typography.labelSmall
             )
         }
 

@@ -52,6 +52,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
+import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -87,6 +88,7 @@ fun GamePathItemLayout(
 
     NavigationDrawerItem(
         modifier = modifier,
+        colors = secondaryContainerDrawerItemColors(),
         label = {
             Column(
                 modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
@@ -428,7 +430,8 @@ fun VersionItemLayout(
     version: Version,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: () -> Unit = {},
     onRenameClick: () -> Unit = {},
     onCopyClick: () -> Unit = {},
@@ -440,7 +443,7 @@ fun VersionItemLayout(
     }
     Surface(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
         shadowElevation = 4.dp,

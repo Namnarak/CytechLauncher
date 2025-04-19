@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -185,7 +187,7 @@ private fun LeftActionMenu(
                 )
             },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
         Column(
@@ -228,7 +230,7 @@ private fun FilesLayout(
         swapIn = isVisible
     )
 
-    Surface(
+    Card(
         modifier = modifier
             .offset {
                 IntOffset(
@@ -237,8 +239,7 @@ private fun FilesLayout(
                 )
             },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shadowElevation = 4.dp
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             currentPath.listFiles()?.toList()?.filter {
@@ -254,30 +255,17 @@ private fun FilesLayout(
                 ) {
                     items(files.size) { index ->
                         val file = files[index]
-                        val scale = remember { Animatable(initialValue = 0.95f) }
-                        LaunchedEffect(Unit) {
-                            scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
-                        }
-                        Surface(
+                        FileItem(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp)
-                                .graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-                            color = MaterialTheme.colorScheme.inversePrimary,
-                            shape = MaterialTheme.shapes.large,
-                            shadowElevation = 4.dp,
+                                .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp),
+                            file = file,
                             onClick = {
                                 if (!selectFile && file.isDirectory) {
                                     updatePath(file)
                                 }
                             }
-                        ) {
-                            BaseFileItem(
-                                file = file,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                            )
-                        }
+                        )
                     }
                 }
             } ?: run {
@@ -287,5 +275,30 @@ private fun FilesLayout(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FileItem(
+    modifier: Modifier = Modifier,
+    file: File,
+    onClick: () -> Unit = {}
+) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+    Surface(
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 4.dp,
+        onClick = onClick
+    ) {
+        BaseFileItem(
+            file = file,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+        )
     }
 }

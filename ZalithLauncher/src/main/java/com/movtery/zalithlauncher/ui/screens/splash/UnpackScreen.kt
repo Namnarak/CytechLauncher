@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,119 +51,123 @@ fun UnpackScreen(
         currentTag = MutableStates.splashScreenTag
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
-            val xOffset by swapAnimateDpAsState(
-                targetValue = 40.dp,
-                swapIn = isVisible
-            )
-            val yOffset by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
-            )
-
-            Surface(
+            UnpackTaskList(
+                isVisible = isVisible,
+                items = items,
                 modifier = Modifier
                     .weight(7f)
                     .fillMaxHeight()
                     .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset.roundToPx()
-                        )
-                    },
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = MaterialTheme.shapes.extraLarge,
-                shadowElevation = 4.dp
-            ) {
-                UnpackTaskList(
-                    items = items,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+            )
 
-            Surface(
+            ActionMenu(
+                isVisible = isVisible,
                 modifier = Modifier
                     .weight(3f)
                     .fillMaxHeight()
-                    .padding(all = 12.dp)
-                    .offset {
-                        IntOffset(
-                            x = xOffset.roundToPx(),
-                            y = 0
-                        )
-                    },
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.inversePrimary,
-                shadowElevation = 4.dp
-            ) {
-                ActionMenu(
-                    modifier = Modifier.fillMaxSize(),
-                    onAgreeClick = onAgreeClick
-                )
-            }
+                    .padding(all = 12.dp),
+                onAgreeClick = onAgreeClick
+            )
         }
     }
 }
 
 @Composable
 private fun ActionMenu(
+    isVisible: Boolean,
     modifier: Modifier = Modifier,
     onAgreeClick: () -> Unit = {}
 ) {
     var installing by remember { mutableStateOf(false) }
 
-    ConstraintLayout(modifier = modifier) {
-        val (text, button) = createRefs()
+    val xOffset by swapAnimateDpAsState(
+        targetValue = 40.dp,
+        swapIn = isVisible
+    )
 
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 16.dp))
-                .constrainAs(text) {
-                    top.linkTo(parent.top, margin = 16.dp)
-                },
-            text = if (installing) {
-                stringResource(R.string.splash_screen_installing)
-            } else {
-                stringResource(R.string.splash_screen_unpack_desc)
+    Surface(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = xOffset.roundToPx(),
+                    y = 0
+                )
             },
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shadowElevation = 4.dp
+    ) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+            val (text, button) = createRefs()
 
-        ScalingActionButton(
-            enabled = !installing,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(PaddingValues(horizontal = 12.dp))
-                .constrainAs(button) {
-                    bottom.linkTo(parent.bottom, margin = 8.dp)
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(PaddingValues(horizontal = 16.dp))
+                    .constrainAs(text) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                    },
+                text = if (installing) {
+                    stringResource(R.string.splash_screen_installing)
+                } else {
+                    stringResource(R.string.splash_screen_unpack_desc)
                 },
-            onClick = {
-                installing = true
-                onAgreeClick()
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            ScalingActionButton(
+                enabled = !installing,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(PaddingValues(horizontal = 12.dp))
+                    .constrainAs(button) {
+                        bottom.linkTo(parent.bottom, margin = 8.dp)
+                    },
+                onClick = {
+                    installing = true
+                    onAgreeClick()
+                }
+            ) {
+                Text(text = stringResource(R.string.splash_screen_agree))
             }
-        ) {
-            Text(text = stringResource(R.string.splash_screen_agree))
         }
     }
 }
 
 @Composable
 private fun UnpackTaskList(
+    isVisible: Boolean,
     items: List<InstallableItem>,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(all = 12.dp)
+    val yOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp,
+        swapIn = isVisible
+    )
+
+    Card(
+        modifier = modifier
+            .offset {
+                IntOffset(
+                    x = 0,
+                    y = yOffset.roundToPx()
+                )
+            },
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
-        items(items.size) { index ->
-            val item = items[index]
-            TaskItem(
-                item = item,
-                modifier = Modifier.padding(bottom = if (index == items.size - 1) 0.dp else 12.dp)
-            )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(all = 12.dp)
+        ) {
+            items(items.size) { index ->
+                val item = items[index]
+                TaskItem(
+                    item = item,
+                    modifier = Modifier.padding(bottom = if (index == items.size - 1) 0.dp else 12.dp)
+                )
+            }
         }
     }
 }
@@ -174,8 +180,8 @@ private fun TaskItem(
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.inversePrimary,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         shadowElevation = 4.dp
     ) {
         Row {

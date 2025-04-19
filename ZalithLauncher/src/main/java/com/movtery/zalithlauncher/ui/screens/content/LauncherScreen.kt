@@ -93,7 +93,7 @@ private fun RightMenu(
             )
         },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
         ConstraintLayout {

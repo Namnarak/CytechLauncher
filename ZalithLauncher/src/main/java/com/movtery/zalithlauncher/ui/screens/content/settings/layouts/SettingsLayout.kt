@@ -21,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -37,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -301,8 +299,7 @@ class SettingsLayoutScope {
                         Spacer(modifier = Modifier.height(height = 4.dp))
                         Text(
                             text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
                     val rotation by animateFloatAsState(
@@ -318,8 +315,7 @@ class SettingsLayoutScope {
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.ArrowDropDown,
-                            contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse)
                         )
                     }
                 }
@@ -379,8 +375,7 @@ class SettingsLayoutScope {
         title: String,
         summary: String? = null,
         onValueChange: (String) -> Unit = {},
-        singleLine: Boolean = true,
-        textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+        singleLine: Boolean = true
     ) {
         var value by remember { mutableStateOf(unit.getValue()) }
 
@@ -402,11 +397,7 @@ class SettingsLayoutScope {
                     onValueChange(value)
                 },
                 singleLine = singleLine,
-                shape = MaterialTheme.shapes.large,
-                colors = OutlinedTextFieldDefaults.colors().copy(
-                    focusedTextColor = textColor,
-                    unfocusedTextColor = textColor
-                )
+                shape = MaterialTheme.shapes.large
             )
         }
     }
@@ -418,8 +409,7 @@ class SettingsLayoutScope {
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            style = MaterialTheme.typography.titleSmall
         )
         summary?.let { text ->
             Spacer(
@@ -427,8 +417,7 @@ class SettingsLayoutScope {
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                style = MaterialTheme.typography.labelSmall
             )
         }
     }

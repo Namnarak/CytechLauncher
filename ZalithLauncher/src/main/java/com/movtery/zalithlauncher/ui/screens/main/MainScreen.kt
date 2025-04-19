@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +54,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -428,15 +432,14 @@ private fun TaskMenu(
         animationSpec = getAnimateTween()
     )
 
-    Surface(
+    Card(
         modifier = modifier
             .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
             .alpha(surfaceAlpha)
             .padding(all = 4.dp)
             .width(240.dp),
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shadowElevation = 4.dp
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
         Column {
             Box(
@@ -459,14 +462,13 @@ private fun TaskMenu(
 
                 Text(
                     modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.main_task_menu),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    text = stringResource(R.string.main_task_menu)
                 )
             }
 
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             LazyColumn(
@@ -500,13 +502,16 @@ fun TaskItem(
     taskMessageRes: Int?,
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.large,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onCancelClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier,
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.inversePrimary,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        shape = shape,
+        color = color,
+        contentColor = contentColor,
         shadowElevation = 4.dp
     ) {
         Row(

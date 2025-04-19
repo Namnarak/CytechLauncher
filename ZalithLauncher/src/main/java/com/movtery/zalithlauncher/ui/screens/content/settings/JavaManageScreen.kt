@@ -149,7 +149,7 @@ fun JavaManageScreen() {
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
                     .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             LazyColumn(
@@ -302,7 +302,8 @@ private fun progressRuntimeUri(
 private fun JavaRuntimeItem(
     runtime: Runtime,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit
 ) {
@@ -312,7 +313,7 @@ private fun JavaRuntimeItem(
     }
     Surface(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
         shadowElevation = 4.dp,

@@ -187,7 +187,8 @@ fun AccountItem(
     modifier: Modifier = Modifier,
     currentAccount: Account?,
     account: Account,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -199,7 +200,7 @@ fun AccountItem(
     }
     Surface(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
-        color = MaterialTheme.colorScheme.inversePrimary,
+        color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
         shadowElevation = 4.dp,
