@@ -97,7 +97,7 @@ fun LauncherSettingsScreen() {
                     title = stringResource(R.string.settings_launcher_animate_speed_title),
                     summary = stringResource(R.string.settings_launcher_animate_speed_summary),
                     valueRange = 0f..10f,
-                    steps = 10,
+                    steps = 9,
                     suffix = "x"
                 )
 
