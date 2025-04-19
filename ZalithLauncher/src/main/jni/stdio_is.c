@@ -125,8 +125,7 @@ _Noreturn void nominal_exit(int code, bool is_signal) {
     if (errorCode != JNI_OK)
         killpg(getpgrp(), SIGTERM);
 
-    if (code != 0)
-        (*env)->CallStaticVoidMethod(env, exitTrap_exitClass, exitTrap_exitMethod, exitTrap_ctx, code, is_signal);
+    (*env)->CallStaticVoidMethod(env, exitTrap_exitClass, exitTrap_exitMethod, exitTrap_ctx, code, is_signal);
 
     // Delete the reference, not gonna need 'em later anyway
     (*env)->DeleteGlobalRef(env, exitTrap_ctx);
@@ -174,6 +173,6 @@ Java_com_movtery_zalithlauncher_bridge_ZLBridge_setupExitMethod(JNIEnv *env, jcl
                                                         jobject context) {
     exitTrap_ctx = (*env)->NewGlobalRef(env,context);
     (*env)->GetJavaVM(env,&exitTrap_jvm);
-    exitTrap_exitClass = (*env)->NewGlobalRef(env,(*env)->FindClass(env,"com/movtery/zalithlauncher/ui/activities/ErrorActivity"));
-    exitTrap_exitMethod = (*env)->GetStaticMethodID(env, exitTrap_exitClass, "showExitMessage", "(Landroid/content/Context;IZ)V");
+    exitTrap_exitClass = (*env)->NewGlobalRef(env,(*env)->FindClass(env,"com/movtery/zalithlauncher/bridge/ZLNativeInvoker"));
+    exitTrap_exitMethod = (*env)->GetStaticMethodID(env, exitTrap_exitClass, "jvmExit", "(Landroid/content/Context;IZ)V");
 }

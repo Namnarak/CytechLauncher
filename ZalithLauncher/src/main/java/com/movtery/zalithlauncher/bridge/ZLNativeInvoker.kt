@@ -3,11 +3,14 @@ package com.movtery.zalithlauncher.bridge
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.util.Log
 import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.file.shareFile
+import com.movtery.zalithlauncher.utils.killProgress
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.File
 
@@ -62,6 +65,15 @@ object ZLNativeInvoker {
                     (activity.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(it)
                 }
             }
+        }
+    }
+
+    @JvmStatic
+    fun jvmExit(context: Context, exitCode: Int, isSignal: Boolean) {
+        if (exitCode == 0) {
+            killProgress()
+        } else {
+            ErrorActivity.showExitMessage(context, exitCode, isSignal)
         }
     }
 }
