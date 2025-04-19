@@ -36,6 +36,7 @@ class MinecraftDownloader(
     private val version: String,
     private val customName: String = version,
     private val verifyIntegrity: Boolean,
+    private val mode: DownloadMode = DownloadMode.DOWNLOAD,
     private val onCompletion: () -> Unit = {},
     private val maxDownloadThreads: Int = 64
 ) {
@@ -80,6 +81,12 @@ class MinecraftDownloader(
     private fun File.createPath(): File = this.apply { if (!(exists() && isDirectory)) mkdirs() }
     private fun File.createParent(): File = this.apply { parentFile!!.createPath() }
 
+    private fun getTaskMessage(download: Int, verify: Int): Int =
+        when (mode) {
+            DownloadMode.DOWNLOAD -> download
+            DownloadMode.VERIFY_AND_REPAIR -> verify
+        }
+
     fun getDownloadTask(): Task {
         return Task.runTask(
             id = LOG_TAG,
@@ -88,19 +95,19 @@ class MinecraftDownloader(
                 task.updateProgress(-1f, R.string.minecraft_getting_version_list)
                 val selectedVersion = findVersion(customName)
 
-                task.updateProgress(-1f, R.string.minecraft_download_progress_version_json)
+                task.updateProgress(-1f, getTaskMessage(R.string.minecraft_download_download_version_json, R.string.minecraft_download_progress_version_json))
                 val gameManifest = selectedVersion?.let { createVersionJson(it) }
 
-                task.updateProgress(-1f, R.string.minecraft_download_task_analysis)
+                task.updateProgress(-1f, getTaskMessage(R.string.minecraft_download_stat_download_task, R.string.minecraft_download_stat_verify_task))
                 progressDownloadTasks(gameManifest, customName)
 
                 if (allDownloadTasks.isNotEmpty()) {
                     //使用线程池进行下载
-                    downloadAll(task, allDownloadTasks, R.string.minecraft_download_downloading)
+                    downloadAll(task, allDownloadTasks, getTaskMessage(R.string.minecraft_download_downloading_game_files, R.string.minecraft_download_verifying_and_repairing_files))
                     if (downloadFailedTasks.isNotEmpty()) {
                         downloadedFileCount.set(0)
                         totalFileCount.set(downloadFailedTasks.size.toLong())
-                        downloadAll(task, downloadFailedTasks.toList(), R.string.minecraft_download_downloading_retry)
+                        downloadAll(task, downloadFailedTasks.toList(), getTaskMessage(R.string.minecraft_download_progress_retry_downloading_files, R.string.minecraft_download_progress_retry_verifying_files))
                     }
                     if (downloadFailedTasks.isNotEmpty()) throw DownloadFailedException()
                 }
@@ -111,7 +118,10 @@ class MinecraftDownloader(
                 Log.e("MinecraftDownloader", "Failed to download Minecraft!", e)
                 val message = when(e) {
                     is InterruptedException, is InterruptedIOException, is CancellationException -> return@runTask
-                    is DownloadFailedException -> "${context.getString(R.string.minecraft_download_failed_retried)}\n${e.getMessageOrToString()}"
+                    is DownloadFailedException -> {
+                        val failedUrls = downloadFailedTasks.map { it.url }
+                        "${ context.getString(R.string.minecraft_download_failed_retried) }\r\n${ failedUrls.joinToString("\r\n") }\r\n${ e.getMessageOrToString() }"
+                    }
                     else -> e.getMessageOrToString()
                 }
                 ObjectStates.updateThrowable(
@@ -306,7 +316,7 @@ class MinecraftDownloader(
     }
 
     inner class DownloadTask(
-        private val url: String,
+        val url: String,
         private val targetFile: File,
         private val sha1: String?
     ) : Runnable {

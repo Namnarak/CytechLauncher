@@ -176,10 +176,14 @@
     <string name="versions_manage_install_new">安装新游戏</string>
     <!--  游戏  -->
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
-    <string name="minecraft_download_progress_version_json">下载并读取版本元数据</string>
-    <string name="minecraft_download_task_analysis">统计下载任务</string>
-    <string name="minecraft_download_downloading">下载游戏文件中 \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_downloading_retry">重试下载游戏文件中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_download_version_json">下载并读取版本元数据</string>
+    <string name="minecraft_download_progress_version_json">读取版本元数据</string>
+    <string name="minecraft_download_stat_download_task">统计下载任务</string>
+    <string name="minecraft_download_stat_verify_task">统计验证任务</string>
+    <string name="minecraft_download_downloading_game_files">下载游戏文件中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_verifying_and_repairing_files">验证并补全游戏文件中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_progress_retry_downloading_files">重试下载游戏文件中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_progress_retry_verifying_files">重试验证并补全游戏文件中 \n(%d/%d, %s/%s)</string>
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
     <!--  设置  -->
