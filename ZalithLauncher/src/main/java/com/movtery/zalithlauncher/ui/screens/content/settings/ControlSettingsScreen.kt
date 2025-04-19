@@ -34,7 +34,7 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.enums.GestureButtonType
+import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
@@ -134,9 +134,20 @@ fun ControlSettingsScreen() {
                 )
 
                 ListSettingsLayout(
-                    unit = AllSettings.gestureTriggerButton,
-                    items = GestureButtonType.entries,
-                    title = stringResource(R.string.settings_control_gesture_control_trigger_button_title),
+                    unit = AllSettings.gestureTapMouseAction,
+                    items = GestureActionType.entries,
+                    title = stringResource(R.string.settings_control_gesture_tap_action_title),
+                    summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
+                    getItemText = { stringResource(it.nameRes) },
+                    getItemId = { it.name },
+                    enabled = gestureControl
+                )
+
+                ListSettingsLayout(
+                    unit = AllSettings.gestureLongPressMouseAction,
+                    items = GestureActionType.entries,
+                    title = stringResource(R.string.settings_control_gesture_long_press_action_title),
+                    summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
                     getItemText = { stringResource(it.nameRes) },
                     getItemId = { it.name },
                     enabled = gestureControl

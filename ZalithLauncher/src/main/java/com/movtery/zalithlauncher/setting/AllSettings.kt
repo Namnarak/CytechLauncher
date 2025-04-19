@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.setting
 import android.os.Build
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.setting.enums.GestureButtonType
+import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -107,9 +107,14 @@ class AllSettings {
         val gestureControl = BooleanSettingUnit("gestureControl", false)
 
         /**
-         * 手势控制点击时触发的按钮
+         * 手势控制点击时触发的鼠标按钮
          */
-        val gestureTriggerButton = StringSettingUnit("gestureTriggerButton", GestureButtonType.MOUSE_RIGHT.name)
+        val gestureTapMouseAction = StringSettingUnit("gestureTapMouseAction", GestureActionType.MOUSE_RIGHT.name)
+
+        /**
+         * 手势控制长按时触发的鼠标按钮
+         */
+        val gestureLongPressMouseAction = StringSettingUnit("gestureLongPressMouseAction", GestureActionType.MOUSE_LEFT.name)
 
         //Launcher
         /**

@@ -17,6 +17,11 @@ var scaleFactor by mutableFloatStateOf(AllSettings.resolutionRatio.getValue() / 
 var gestureControl by mutableStateOf(AllSettings.gestureControl.getValue())
 
 /**
- * 手势控制点击时触发的按钮
+ * 手势控制点击时触发的鼠标按钮
  */
-var gestureTriggerButton by mutableStateOf(AllSettings.gestureTriggerButton.getValue().toGestureButtonType())
+var gestureTapMouseAction by mutableStateOf(AllSettings.gestureTapMouseAction.getValue().toGestureButtonType())
+
+/**
+ * 手势控制长按时触发的鼠标按钮
+ */
+var gestureLongPressMouseAction by mutableStateOf(AllSettings.gestureLongPressMouseAction.getValue().toGestureButtonType())
