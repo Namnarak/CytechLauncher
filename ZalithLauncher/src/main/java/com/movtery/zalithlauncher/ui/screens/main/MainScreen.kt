@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -437,20 +438,36 @@ private fun TaskMenu(
         color = MaterialTheme.colorScheme.primaryContainer,
         shadowElevation = 4.dp
     ) {
-        Row {
-            Spacer(modifier = Modifier.width(12.dp))
-
-            IconButton(
+        Column {
+            Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .align(Alignment.CenterVertically),
-                onClick = changeExpandedState
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 8.dp, bottom = 4.dp)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
-                    contentDescription = stringResource(R.string.main_task_menu)
+                IconButton(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .align(Alignment.CenterStart),
+                    onClick = changeExpandedState
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
+                        contentDescription = stringResource(R.string.generic_collapse)
+                    )
+                }
+
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.main_task_menu),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
+
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
 
             LazyColumn(
                 modifier = Modifier
