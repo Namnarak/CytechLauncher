@@ -87,7 +87,13 @@ fun SimpleTextSlider(
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
                         modifier = Modifier.size(26.dp),
-                        onClick = { changeValue(value.subtractBigDecimal(fineTuningStep), true) }
+                        onClick = {
+                            if (value <= valueRange.start) {
+                                changeValue(valueRange.start, true)
+                            } else {
+                                changeValue(value.subtractBigDecimal(fineTuningStep), true)
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
@@ -97,7 +103,13 @@ fun SimpleTextSlider(
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
                         modifier = Modifier.size(26.dp),
-                        onClick = { changeValue(value.addBigDecimal(fineTuningStep), true) }
+                        onClick = {
+                            if (value >= valueRange.endInclusive) {
+                                changeValue(valueRange.endInclusive, true)
+                            } else {
+                                changeValue(value.addBigDecimal(fineTuningStep), true)
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowRight,
