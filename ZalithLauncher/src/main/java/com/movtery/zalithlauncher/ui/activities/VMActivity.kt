@@ -40,7 +40,6 @@ import com.movtery.zalithlauncher.game.launch.handler.HandlerType
 import com.movtery.zalithlauncher.game.launch.handler.JVMHandler
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.Version
-import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
@@ -80,10 +79,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
             val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                 ?: throw IllegalStateException("No launch version has been set.")
-            val gameManifest = getGameManifest(version)
-            CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
             handler = GameHandler()
-            GameLauncher(this, version, gameManifest.javaVersion?.majorVersion ?: 8)
+            GameLauncher(this, version)
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
             val jarInfo: JarInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JarInfo::class.java)
                 ?: throw IllegalStateException("No launch jar info has been set.")

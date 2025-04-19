@@ -80,9 +80,9 @@ class Version(
 
     fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.vulkanDriver.getValue())
 
-    fun getJavaDir(): String = versionConfig.getJavaDir().getValueOrDefault(AllSettings.javaRuntime.getValue())
+    fun getJavaDir(): String = versionConfig.getJavaDir()
 
-    fun getJvmArgs(): String = versionConfig.getJvmArgs().getValueOrDefault(AllSettings.jvmArgs.getValue())
+    fun getJvmArgs(): String = versionConfig.getJvmArgs()
 
     fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)

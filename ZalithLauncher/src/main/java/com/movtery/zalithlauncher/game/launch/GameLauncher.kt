@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
+import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
@@ -34,16 +35,20 @@ import javax.microedition.khronos.egl.EGLContext
 
 class GameLauncher(
     private val activity: Activity,
-    private val version: Version,
-    private val targetJavaVersion: Int
+    private val version: Version
 ) : Launcher() {
+    private lateinit var gameManifest: GameManifest
+
     override suspend fun launch() {
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(activity, version.getRenderer())
         }
 
+        gameManifest = getGameManifest(version)
+        CallbackBridge.nativeSetUseInputStackQueue(gameManifest.arguments != null)
+
         val account = AccountsManager.currentAccountFlow.value!!
-        val customArgs = version.getJvmArgs().takeIf { it.isNotBlank() } ?: ""
+        val customArgs = version.getJvmArgs().takeIf { it.isNotBlank() } ?: AllSettings.jvmArgs.getValue()
         val javaRuntime = getRuntime()
 
         printLauncherInfo(
@@ -111,7 +116,6 @@ class GameLauncher(
     ) {
         val runtime = RuntimesManager.forceReload(javaRuntime)
 
-        val gameManifest = getGameManifest(version)
         val gameDirPath = version.getGameDir()
 
         disableSplash(gameDirPath)
@@ -158,6 +162,8 @@ class GameLauncher(
         val versionRuntime = version.getJavaDir().takeIf { it.isNotEmpty() } ?: ""
 
         if (versionRuntime.isNotEmpty()) return versionRuntime
+
+        val targetJavaVersion = gameManifest.javaVersion?.majorVersion ?: 8
 
         //如果版本未选择Java环境，则自动选择合适的环境
         var runtime = AllSettings.javaRuntime.getValue()
