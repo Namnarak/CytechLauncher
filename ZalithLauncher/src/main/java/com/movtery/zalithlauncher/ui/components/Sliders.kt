@@ -88,10 +88,11 @@ fun SimpleTextSlider(
                     IconButton(
                         modifier = Modifier.size(26.dp),
                         onClick = {
-                            if (value <= valueRange.start) {
+                            val newValue = value.subtractBigDecimal(fineTuningStep)
+                            if (newValue <= valueRange.start) {
                                 changeValue(valueRange.start, true)
                             } else {
-                                changeValue(value.subtractBigDecimal(fineTuningStep), true)
+                                changeValue(newValue, true)
                             }
                         }
                     ) {
@@ -104,10 +105,11 @@ fun SimpleTextSlider(
                     IconButton(
                         modifier = Modifier.size(26.dp),
                         onClick = {
-                            if (value >= valueRange.endInclusive) {
+                            val newValue = value.addBigDecimal(fineTuningStep)
+                            if (newValue >= valueRange.endInclusive) {
                                 changeValue(valueRange.endInclusive, true)
                             } else {
-                                changeValue(value.addBigDecimal(fineTuningStep), true)
+                                changeValue(newValue, true)
                             }
                         }
                     ) {
