@@ -221,7 +221,7 @@ private fun RuntimeOperation(
                 progressRuntimeUri(
                     context = context,
                     uri = uri,
-                    onFinally = callRefresh
+                    callRefresh = callRefresh
                 )
             }
             updateOperation(RuntimeOperation.None)
@@ -244,7 +244,7 @@ private fun RuntimeOperation(
 private fun progressRuntimeUri(
     context: Context,
     uri: Uri,
-    onFinally: () -> Unit
+    callRefresh: () -> Unit
 ) {
     fun showError(message: String) {
         ObjectStates.updateThrowable(
@@ -280,7 +280,11 @@ private fun progressRuntimeUri(
             onError = {
                 showError(StringUtils.throwableToString(it))
             },
-            onFinally = onFinally
+            onFinally = callRefresh,
+            onCancel = {
+                RuntimesManager.removeRuntime(name)
+                callRefresh()
+            }
         )
     )
 }

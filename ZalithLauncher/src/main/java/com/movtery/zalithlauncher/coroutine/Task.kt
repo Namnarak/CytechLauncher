@@ -14,7 +14,8 @@ class Task private constructor(
     val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     val task: suspend CoroutineScope.(Task) -> Unit,
     val onError: (Throwable) -> Unit = {},
-    val onFinally: () -> Unit = {}
+    val onFinally: () -> Unit = {},
+    val onCancel: () -> Unit = {}
 ) {
     var currentProgress by mutableFloatStateOf(-1f)
         private set
@@ -81,9 +82,17 @@ class Task private constructor(
             dispatcher: CoroutineDispatcher = Dispatchers.Default,
             task: suspend CoroutineScope.(Task) -> Unit,
             onError: (Throwable) -> Unit = {},
-            onFinally: () -> Unit = {}
+            onFinally: () -> Unit = {},
+            onCancel: () -> Unit = {}
         ): Task =
-            Task(id = id ?: getRandomID(), dispatcher = dispatcher, task = task, onError = onError, onFinally = onFinally)
+            Task(
+                id = id ?: getRandomID(),
+                dispatcher = dispatcher,
+                task = task,
+                onError = onError,
+                onFinally = onFinally,
+                onCancel = onCancel
+            )
 
         private fun getRandomID(): String = UUID.randomUUID().toString()
     }

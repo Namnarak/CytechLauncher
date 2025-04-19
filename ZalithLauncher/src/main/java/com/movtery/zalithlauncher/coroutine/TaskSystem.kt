@@ -73,12 +73,19 @@ object TaskSystem {
         removeTaskEndedListener(task.id)
     }
 
+    private fun onTaskCanceled(task: Task) {
+        scope.launch {
+            task.onCancel()
+        }
+        onTaskEnded(task)
+    }
+
     /**
      * 取消任务
      */
     fun cancelTask(task: Task) {
         allJobs[task.id]?.cancel()
-        onTaskEnded(task)
+        onTaskCanceled(task)
     }
 
     /**
@@ -86,7 +93,7 @@ object TaskSystem {
      */
     fun cancelTask(id: String) {
         allJobs[id]?.cancel()
-        _tasksFlow.value.find { it.id == id }?.let { onTaskEnded(it) }
+        _tasksFlow.value.find { it.id == id }?.let { onTaskCanceled(it) }
     }
 
     /**
