@@ -297,10 +297,10 @@ fun VersionsOperation(
         }
         is VersionsOperation.Delete -> {
             val version = versionsOperation.version
-            DeleteVersionDialog(
-                version = version,
+            SimpleAlertDialog(
+                title = stringResource(R.string.versions_manage_delete_version),
                 text = versionsOperation.text ?: stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
-                onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
+                onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onConfirm = {
                     updateVersionsOperation(
                         VersionsOperation.RunTask(
@@ -407,21 +407,6 @@ fun CopyVersionDialog(
                 onConfirm(name, copyAll)
             }
         }
-    )
-}
-
-@Composable
-fun DeleteVersionDialog(
-    version: Version,
-    text: String,
-    onDismissRequest: () -> Unit = {},
-    onConfirm: () -> Unit = {}
-) {
-    SimpleAlertDialog(
-        title = stringResource(R.string.versions_manage_delete_version),
-        text = text,
-        onDismiss = onDismissRequest,
-        onConfirm = onConfirm
     )
 }
 
