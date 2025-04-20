@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
+import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -117,28 +118,38 @@ fun VirtualPointerLayout(
     }
 }
 
+/**
+ * @param triggerRefresh 触发强制重组更新，用于刷新鼠标指针
+ */
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
     mouseFile: File?,
-    centerIcon: Boolean = false
+    centerIcon: Boolean = false,
+    triggerRefresh: Boolean = false
 ) {
     val context = LocalContext.current
 
     val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
     val imageModifier = modifier.size(mouseSize)
-    val imageLoader = remember {
-        ImageLoader.Builder(context)
-            .components {
-                add(GifDecoder.Factory())
-            }
-            .build()
-    }
 
     if (mouseFile != null) {
+        val imageLoader = remember {
+            ImageLoader.Builder(context)
+                .components { add(GifDecoder.Factory()) }
+                .build()
+        }
+
+        val imageModel = remember(mouseFile, triggerRefresh) {
+            ImageRequest.Builder(context)
+                .data(mouseFile)
+                .diskCacheKey("${mouseFile.path}_${triggerRefresh.hashCode()}")
+                .build()
+        }
+
         AsyncImage(
-            model = mouseFile,
+            model = imageModel,
             imageLoader = imageLoader,
             contentDescription = null,
             alignment = imageAlignment,
@@ -154,8 +165,4 @@ fun MousePointer(
             modifier = imageModifier
         )
     }
-}
-
-fun getMouseFile(): File? = mousePointerFile.takeIf { it.exists() }?.let {
-    File(it.absolutePath)
 }

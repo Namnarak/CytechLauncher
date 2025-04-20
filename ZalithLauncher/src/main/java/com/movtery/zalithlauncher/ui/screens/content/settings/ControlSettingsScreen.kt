@@ -43,7 +43,6 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
-import com.movtery.zalithlauncher.ui.control.mouse.getMouseFile
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -80,13 +79,10 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
-                var mouseFile by remember { mutableStateOf(mousePointerFile.takeIf { it.exists() }) }
                 var mouseSize by remember { mutableIntStateOf(AllSettings.mouseSize.getValue()) }
 
                 MousePointerLayout(
-                    mouseFile = mouseFile,
-                    mouseSize = mouseSize,
-                    updateFile = { mouseFile = it }
+                    mouseSize = mouseSize
                 )
 
                 SliderSettingsLayout(
@@ -172,11 +168,12 @@ private sealed interface MousePointerOperation {
 
 @Composable
 private fun MousePointerLayout(
-    mouseFile: File?,
-    mouseSize: Int,
-    updateFile: (File?) -> Unit = {}
+    mouseSize: Int
 ) {
     val context = LocalContext.current
+
+    var mouseFile by remember { mutableStateOf(mousePointerFile.takeIf { it.exists() }) }
+    var triggerState by remember { mutableStateOf(false) }
 
     var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
     when (mouseOperation) {
@@ -193,7 +190,8 @@ private fun MousePointerLayout(
             )
         }
         is MousePointerOperation.Refresh -> {
-            updateFile(getMouseFile())
+            mouseFile = mousePointerFile.takeIf { it.exists() }
+            triggerState = !triggerState
             mouseOperation = MousePointerOperation.None
         }
     }
@@ -255,7 +253,8 @@ private fun MousePointerLayout(
                 modifier = Modifier.padding(all = 8.dp),
                 mouseSize = mouseSize.dp,
                 mouseFile = mouseFile,
-                centerIcon = true
+                centerIcon = true,
+                triggerRefresh = triggerState
             )
 
             IconTextButton(
