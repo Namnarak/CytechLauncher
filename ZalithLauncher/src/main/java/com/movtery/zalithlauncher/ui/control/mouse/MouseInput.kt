@@ -12,6 +12,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalViewConfiguration
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -65,17 +66,21 @@ fun TouchpadLayout(
                         var isDragging = false
                         var longPressTriggered = false
                         val startPosition = down.position
-                        val longPressJob = launch {
-                            delay(viewConfig.longPressTimeoutMillis)
-                            if (!isDragging) {
-                                longPressTriggered = true
-                                onLongPress()
-                            }
-                        }
+                        var longPressJob: Job? = null
 
                         if (controlMode == ControlMode.CLICK) {
-                            //点击模式下，如果触摸，无论如何都应该更新指针位置
+                            //点击模式 立即触发长按开始事件
+                            longPressTriggered = true
                             onPointerMove(pointer.position)
+                            onLongPress()
+                        } else {
+                            longPressJob = launch {
+                                delay(viewConfig.longPressTimeoutMillis)
+                                if (!isDragging) {
+                                    longPressTriggered = true
+                                    onLongPress()
+                                }
+                            }
                         }
 
                         drag(down.id) { change ->
@@ -83,16 +88,16 @@ fun TouchpadLayout(
                             val delta = change.positionChange()
                             val distance = delta.getDistance()
 
-                            if (distance > viewConfig.touchSlop) {
-                                //超出了滑动检测距离，说明是真的在进行滑动
-                                longPressJob.cancel() //取消长按计时
-                            }
-
-                            //更新滑动轨迹
                             if (controlMode == ControlMode.CLICK) {
+                                //点击模式下，如果触摸，无论如何都应该更新指针位置
                                 pointer = change
                                 onPointerMove(change.position)
                             } else {
+                                if (distance > viewConfig.touchSlop) {
+                                    //超出了滑动检测距离，说明是真的在进行滑动
+                                    longPressJob?.cancel() //取消长按计时
+                                }
+
                                 if (isDragging || longPressTriggered) {
                                     pointer = change
                                     onPointerMove(delta)
@@ -102,10 +107,13 @@ fun TouchpadLayout(
                             change.consume()
                         }
 
-                        longPressJob.cancel()
+                        longPressJob?.cancel()
                         if (longPressTriggered) {
                             onLongPressEnd()
-                        } else if (!isDragging) {
+                        }
+
+                        //点击事件判断：点击模式为滑动，未滑动，未触发长按
+                        if (controlMode == ControlMode.SLIDE && !isDragging && (!longPressTriggered)) {
                             val totalMovement = (pointer.position - startPosition).getDistance()
                             if (totalMovement < viewConfig.touchSlop) {
                                 onTap(pointer.position)

@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
@@ -57,9 +58,7 @@ fun MouseControlLayout(
             onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
             },
-            onPointerMove = { position ->
-                CallbackBridge.sendCursorPos(position.x.sumPosition(), position.y.sumPosition())
-            },
+            onPointerMove = { it.sendPosition() },
             onLongPress = {
                 CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), true)
             },
@@ -97,6 +96,10 @@ fun MouseControlLayout(
             }
         )
     }
+}
+
+private fun Offset.sendPosition() {
+    CallbackBridge.sendCursorPos(x.sumPosition(), y.sumPosition())
 }
 
 private fun Float.sumPosition(): Float {

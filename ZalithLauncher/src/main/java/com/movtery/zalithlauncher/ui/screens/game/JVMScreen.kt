@@ -39,10 +39,8 @@ fun JVMScreen() {
         SimpleMouseControlLayout(
             modifier = Modifier.fillMaxSize(),
             sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
-            sendMouseDragging = { dragging ->
-                if (dragging) {
-                    ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK)
-                }
+            sendMouseLongPress = { isPressed ->
+                ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
             },
             placeMouse = { mouseX, mouseY ->
                 ZLBridge.sendMousePos((mouseX * 0.8).toInt(), (mouseY * 0.8).toInt())
@@ -98,15 +96,15 @@ fun JVMScreen() {
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
     sendMousePress: () -> Unit = {},
-    sendMouseDragging: (Boolean) -> Unit = {},
+    sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
     VirtualPointerLayout(
         modifier = modifier,
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
-        onLongPress = { sendMouseDragging(true) },
-        onLongPressEnd = { sendMouseDragging(false) }
+        onLongPress = { sendMouseLongPress(true) },
+        onLongPressEnd = { sendMouseLongPress(false) }
     )
 }
 

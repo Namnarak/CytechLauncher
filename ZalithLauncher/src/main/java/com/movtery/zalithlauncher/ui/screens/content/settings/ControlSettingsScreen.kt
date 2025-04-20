@@ -49,7 +49,6 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
-import java.io.File
 
 const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
 
