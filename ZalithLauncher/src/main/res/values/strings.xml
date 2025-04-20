@@ -223,8 +223,10 @@
     <string name="settings_game_skip_game_integrity_check_summary">启动游戏时，若已存在的游戏文件与实际不匹配，是否进行重新下载</string>
     <string name="settings_game_version_custom_info_title">自定义版本信息</string>
     <string name="settings_game_version_custom_info_summary">自定义信息会显示在游戏主菜单左下角和 F3 调试界面左上角。部分特殊版本或使用外置账号登录时可能不生效。你也可以添加 [zl_version] 字段，启动器会自动替换为当前版本号</string>
+    <string name="settings_game_auto_pick_java_runtime_title">自动选择 Java 环境</string>
+    <string name="settings_game_auto_pick_java_runtime_summary">在需要使用 Java 时，启动器将自动选择合适的环境。若无法判断，将使用默认 Java 环境</string>
     <string name="settings_game_java_runtime_title">游戏 Java 环境</string>
-    <string name="settings_game_java_runtime_summary">指定运行 Minecraft 时默认使用的 Java 环境</string>
+    <string name="settings_game_java_runtime_summary">指定默认使用的 Java 环境</string>
     <string name="settings_game_java_memory_title">内存分配</string>
     <string name="settings_game_java_memory_summary">控制给 Minecraft 分配多少内存</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>

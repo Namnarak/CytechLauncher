@@ -81,6 +81,11 @@ class AllSettings {
         val javaRuntime = StringSettingUnit("javaRuntime", "")
 
         /**
+         * 自动选择Java环境
+         */
+        val autoPickJavaRuntime = BooleanSettingUnit("autoPickJavaRuntime", true)
+
+        /**
          * 游戏内存分配大小
          */
         val ramAllocation = IntSettingUnit("ramAllocation", -1)

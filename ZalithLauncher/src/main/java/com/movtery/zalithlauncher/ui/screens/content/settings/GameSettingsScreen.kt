@@ -112,6 +112,12 @@ fun GameSettingsScreen() {
                     getItemId = { it.name }
                 )
 
+                SwitchSettingsLayout(
+                    unit = AllSettings.autoPickJavaRuntime,
+                    title = stringResource(R.string.settings_game_auto_pick_java_runtime_title),
+                    summary = stringResource(R.string.settings_game_auto_pick_java_runtime_summary)
+                )
+
                 SliderSettingsLayout(
                     unit = AllSettings.ramAllocation,
                     title = stringResource(R.string.settings_game_java_memory_title),

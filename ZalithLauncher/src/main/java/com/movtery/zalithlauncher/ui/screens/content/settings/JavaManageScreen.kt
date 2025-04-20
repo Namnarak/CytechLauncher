@@ -51,6 +51,7 @@ import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -234,7 +235,8 @@ private fun RuntimeOperation(
                 return
             }
             (context as? Activity)?.let { activity ->
-                JvmLauncher.executeJarWithUri(activity, runtimeOperation.uri)
+                val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
+                JvmLauncher.executeJarWithUri(activity, runtimeOperation.uri, jreName)
             }
             updateOperation(RuntimeOperation.None)
         }

@@ -165,10 +165,11 @@ class GameLauncher(
 
         val targetJavaVersion = gameManifest.javaVersion?.majorVersion ?: 8
 
-        //如果版本未选择Java环境，则自动选择合适的环境
         var runtime = AllSettings.javaRuntime.getValue()
         val pickedRuntime = RuntimesManager.loadRuntime(runtime)
-        if (pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion) {
+
+        if (AllSettings.autoPickJavaRuntime.getValue() &&
+            (pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion)) {
             runtime = RuntimesManager.getNearestJreName(targetJavaVersion) ?: run {
                 activity.runOnUiThread {
                     Toast.makeText(activity, activity.getString(R.string.game_auto_pick_runtime_failed), Toast.LENGTH_SHORT).show()
