@@ -29,6 +29,8 @@ class MainActivity : BaseComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        VersionsManager.refresh()
+        if (VersionsManager.versions.value.isEmpty()) {
+            VersionsManager.refresh()
+        }
     }
 }
