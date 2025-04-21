@@ -159,7 +159,7 @@ private fun TabMenu(
                 if (item.division) {
                     HorizontalDivider(
                         modifier = Modifier
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 12.dp)
                             .fillMaxWidth(),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                     )

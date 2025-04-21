@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
+import android.widget.Toast
+import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -10,14 +12,31 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.activities.runGame
+import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 
 object LaunchGame {
     private var isLaunching: Boolean = false
 
-    fun launchGame(context: Context) {
+    fun launchGame(
+        context: Context,
+        navController: NavController
+    ) {
         if (isLaunching) return
-        val version = VersionsManager.currentVersion ?: return
+
+        val version = VersionsManager.currentVersion ?: run {
+            Toast.makeText(context, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
+            navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
+            return
+        }
+
+        val account = AccountsManager.getCurrentAccount() ?: run {
+            Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
+            navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
+            return
+        }
 
         isLaunching = true
 
@@ -38,8 +57,8 @@ object LaunchGame {
 
         val loginTask = if (NetWorkUtils.isNetworkAvailable(context)) {
             AccountsManager.performLoginTask(
-                context,
-                AccountsManager.getCurrentAccount()!!,
+                context = context,
+                account = account,
                 onFailed = { error ->
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(

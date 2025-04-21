@@ -241,7 +241,7 @@ private fun VersionsLayout(
 
                         HorizontalDivider(
                             modifier = Modifier
-                                .padding(horizontal = 4.dp)
+                                .padding(horizontal = 12.dp)
                                 .fillMaxWidth(),
                             color = MaterialTheme.colorScheme.onSurface
                         )
