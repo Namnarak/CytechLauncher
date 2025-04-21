@@ -38,6 +38,11 @@ import java.io.File
 val mousePointerFile: File = PathManager.DIR_MOUSE_POINTER.child("default_pointer.image")
 
 /**
+ * 获取鼠标指针图片（检查是否存在）
+ */
+fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists() }
+
+/**
  * 虚拟指针模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
@@ -82,7 +87,7 @@ fun VirtualPointerLayout(
                 y = with(LocalDensity.current) { pointerPosition.y.toDp() }
             ),
             mouseSize = mouseSize,
-            mouseFile = mousePointerFile
+            mouseFile = getMousePointerFileAvailable()
         )
 
         TouchpadLayout(

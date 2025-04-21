@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
+import com.movtery.zalithlauncher.ui.control.mouse.getMousePointerFileAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -200,7 +201,7 @@ private fun MousePointerLayout(
 ) {
     val context = LocalContext.current
 
-    var mouseFile by remember { mutableStateOf(mousePointerFile.takeIf { it.exists() }) }
+    var mouseFile by remember { mutableStateOf(getMousePointerFileAvailable()) }
     var triggerState by remember { mutableStateOf(false) }
 
     var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
@@ -218,7 +219,7 @@ private fun MousePointerLayout(
             )
         }
         is MousePointerOperation.Refresh -> {
-            mouseFile = mousePointerFile.takeIf { it.exists() }
+            mouseFile = getMousePointerFileAvailable()
             triggerState = !triggerState
             mouseOperation = MousePointerOperation.None
         }
@@ -287,7 +288,7 @@ private fun MousePointerLayout(
 
             IconTextButton(
                 onClick = {
-                    if (mousePointerFile.exists()) {
+                    getMousePointerFileAvailable()?.let {
                         mouseOperation = MousePointerOperation.Reset
                     }
                 },
