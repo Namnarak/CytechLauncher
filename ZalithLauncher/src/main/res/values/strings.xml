@@ -240,6 +240,8 @@
     <string name="settings_control_mouse_pointer_title">虚拟鼠标指针</string>
     <string name="settings_control_mouse_pointer_summary">自定义虚拟鼠标指针的图片以匹配个人需求</string>
     <string name="settings_control_mouse_pointer_reset_message">你确定要重置虚拟鼠标指针的图片吗？</string>
+    <string name="settings_control_mouse_long_press_delay_title">鼠标长按触发的延迟</string>
+    <string name="settings_control_mouse_long_press_delay_summary">在屏幕上按住多长时间后识别为长按</string>
     <string name="settings_control_gesture_control_title">手势控制</string>
     <string name="settings_control_gesture_control_summary">支持通过点击和长按等手势，在游戏中进行交互，类似基岩版</string>
     <string name="settings_control_gesture_tap_action_title">点击触发的操作类型</string>
@@ -248,6 +250,7 @@
     <string name="settings_control_gesture_long_press_action_summary">选择在长按屏幕时应触发的鼠标按键操作</string>
     <string name="settings_control_gesture_trigger_mouse_left">左键操作</string>
     <string name="settings_control_gesture_trigger_mouse_right">右键操作</string>
+    <string name="settings_control_gesture_long_press_delay_title">手势长按触发的延迟</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>

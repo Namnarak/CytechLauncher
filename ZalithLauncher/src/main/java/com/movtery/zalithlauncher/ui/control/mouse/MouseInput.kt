@@ -36,17 +36,19 @@ fun StringSettingUnit.toControlMode(): ControlMode {
 
 /**
  * 原始触摸控制模拟层
- * @param controlMode       控制模式：SLIDE（滑动控制）、CLICK（点击控制）
- * @param onTap             点击回调，参数是触摸点在控件内的绝对坐标
- * @param onLongPress       长按开始回调
- * @param onLongPressEnd    长按结束回调
- * @param onPointerMove     指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
- * @param inputChange       重新启动内部的 pointerInput 块，让触摸逻辑能够实时拿到最新的外部参数
+ * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
+ * @param longPressTimeoutMillis    长按触发检测时长
+ * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
+ * @param onLongPress               长按开始回调
+ * @param onLongPressEnd            长按结束回调
+ * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
+ * @param inputChange               重新启动内部的 pointerInput 块，让触摸逻辑能够实时拿到最新的外部参数
  */
 @Composable
 fun TouchpadLayout(
     modifier: Modifier = Modifier,
     controlMode: ControlMode = ControlMode.SLIDE,
+    longPressTimeoutMillis: Long = -1L,
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -67,7 +69,8 @@ fun TouchpadLayout(
                         val startPosition = down.position
                         val longPressJob = if (controlMode == ControlMode.SLIDE) launch {
                             //只在滑动点击模式下进行长按计时
-                            delay(viewConfig.longPressTimeoutMillis)
+                            val timeout = if (longPressTimeoutMillis > 0) longPressTimeoutMillis else viewConfig.longPressTimeoutMillis
+                            delay(timeout)
                             if (!isDragging) {
                                 longPressTriggered = true
                                 onLongPress()

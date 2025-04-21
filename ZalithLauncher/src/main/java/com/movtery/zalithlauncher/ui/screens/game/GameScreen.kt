@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
@@ -17,8 +18,13 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.setting.gestureControl
+import com.movtery.zalithlauncher.setting.gestureLongPressDelay
 import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
 import com.movtery.zalithlauncher.setting.gestureTapMouseAction
+import com.movtery.zalithlauncher.setting.mouseControlMode
+import com.movtery.zalithlauncher.setting.mouseLongPressDelay
+import com.movtery.zalithlauncher.setting.mouseSize
+import com.movtery.zalithlauncher.setting.mouseSpeed
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
@@ -64,7 +70,11 @@ fun MouseControlLayout(
             },
             onLongPressEnd = {
                 CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), false)
-            }
+            },
+            controlMode = mouseControlMode,
+            mouseSize = mouseSize.dp,
+            mouseSpeed = mouseSpeed,
+            longPressTimeoutMillis = mouseLongPressDelay.toLong()
         )
     }
 
@@ -74,6 +84,7 @@ fun MouseControlLayout(
 
         TouchpadLayout(
             modifier = modifier,
+            longPressTimeoutMillis = gestureLongPressDelay.toLong(),
             onTap = {
                 if (gestureControl) {
                     CallbackBridge.putMouseEvent(tapMouseAction)

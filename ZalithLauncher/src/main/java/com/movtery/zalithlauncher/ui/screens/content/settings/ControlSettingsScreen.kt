@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,6 +35,13 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.gestureControl
+import com.movtery.zalithlauncher.setting.gestureLongPressDelay
+import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
+import com.movtery.zalithlauncher.setting.gestureTapMouseAction
+import com.movtery.zalithlauncher.setting.mouseControlMode
+import com.movtery.zalithlauncher.setting.mouseLongPressDelay
+import com.movtery.zalithlauncher.setting.mouseSize
+import com.movtery.zalithlauncher.setting.mouseSpeed
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -78,8 +84,6 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
-                var mouseSize by remember { mutableIntStateOf(AllSettings.mouseSize.getValue()) }
-
                 MousePointerLayout(
                     mouseSize = mouseSize
                 )
@@ -99,7 +103,8 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
                     getItemId = { it.name },
-                    getItemText = { stringResource(it.nameRes) }
+                    getItemText = { stringResource(it.nameRes) },
+                    onValueChange = { mouseControlMode = it }
                 )
 
                 SliderSettingsLayout(
@@ -107,7 +112,18 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_mouse_speed_title),
                     valueRange = 25f..300f,
                     suffix = "%",
-                    fineTuningControl = true
+                    fineTuningControl = true,
+                    onValueChange = { mouseSpeed = it }
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.mouseLongPressDelay,
+                    title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
+                    summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
+                    valueRange = 100f..1000f,
+                    suffix = "ms",
+                    fineTuningControl = true,
+                    onValueChange = { mouseLongPressDelay = it }
                 )
             }
 
@@ -142,7 +158,8 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
                     getItemText = { stringResource(it.nameRes) },
                     getItemId = { it.name },
-                    enabled = gestureControl
+                    enabled = gestureControl,
+                    onValueChange = { gestureTapMouseAction = it }
                 )
 
                 ListSettingsLayout(
@@ -152,7 +169,19 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
                     getItemText = { stringResource(it.nameRes) },
                     getItemId = { it.name },
-                    enabled = gestureControl
+                    enabled = gestureControl,
+                    onValueChange = { gestureLongPressMouseAction = it }
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.gestureLongPressDelay,
+                    title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
+                    summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
+                    valueRange = 100f..1000f,
+                    suffix = "ms",
+                    enabled = gestureControl,
+                    fineTuningControl = true,
+                    onValueChange = { gestureLongPressDelay = it }
                 )
             }
         }

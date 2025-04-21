@@ -39,19 +39,21 @@ val mousePointerFile: File = PathManager.DIR_MOUSE_POINTER.child("default_pointe
 
 /**
  * 虚拟指针模拟层
- * @param controlMode       控制模式：SLIDE（滑动控制）、CLICK（点击控制）
- * @param onTap             点击回调，参数是触摸点在控件内的绝对坐标
- * @param onLongPress       长按开始回调
- * @param onLongPressEnd    长按结束回调
- * @param onPointerMove     指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
- * @param mouseSize         指针大小
- * @param mouseSpeed        指针移动速度（滑动模式生效）
+ * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
+ * @param longPressTimeoutMillis    长按触发检测时长
+ * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
+ * @param onLongPress               长按开始回调
+ * @param onLongPressEnd            长按结束回调
+ * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
+ * @param mouseSize                 指针大小
+ * @param mouseSpeed                指针移动速度（滑动模式生效）
  */
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
     controlMode: ControlMode = AllSettings.mouseControlMode.toControlMode(),
+    longPressTimeoutMillis: Long = -1L,
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -86,6 +88,7 @@ fun VirtualPointerLayout(
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
             controlMode = controlMode,
+            longPressTimeoutMillis = longPressTimeoutMillis,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == ControlMode.CLICK) {

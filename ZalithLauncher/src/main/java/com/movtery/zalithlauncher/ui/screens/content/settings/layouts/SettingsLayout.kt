@@ -124,6 +124,7 @@ class SettingsLayoutScope {
         steps: Int = 0,
         suffix: String? = null,
         onValueChange: (Int) -> Unit = {},
+        enabled: Boolean = true,
         fineTuningControl: Boolean = false
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
@@ -144,10 +145,15 @@ class SettingsLayoutScope {
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
         ) {
-            TitleAndSummary(title, summary)
+            Column(
+                modifier = Modifier.alpha(alpha = if (enabled) 1f else 0.5f)
+            ) {
+                TitleAndSummary(title, summary)
+            }
             SimpleTextSlider(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toFloat(),
+                enabled = enabled,
                 onValueChange = { changeValue(it.toInt()) },
                 onValueChangeFinished = { changeFinished() },
                 onTextClick = { showValueEditDialog = true },

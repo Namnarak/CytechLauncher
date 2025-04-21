@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.utils.math.addBigDecimal
 import com.movtery.zalithlauncher.utils.math.subtractBigDecimal
@@ -65,6 +66,7 @@ fun SimpleTextSlider(
         )
         Surface(
             modifier = Modifier
+                .alpha(alpha = if (enabled) 1f else 0.5f)
                 .padding(start = 12.dp)
                 .align(Alignment.CenterVertically),
             shape = MaterialTheme.shapes.medium,
@@ -76,7 +78,9 @@ fun SimpleTextSlider(
             ) {
                 Text(
                     modifier = Modifier.then(
-                        if (onTextClick != null) Modifier.clickable(onClick = onTextClick) else Modifier
+                        if (onTextClick != null) {
+                            Modifier.clickable(enabled = enabled, onClick = onTextClick)
+                        } else Modifier
                     ),
                     text = getTextString(value),
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -84,6 +88,7 @@ fun SimpleTextSlider(
                 if (fineTuningControl) {
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
+                        enabled = enabled,
                         modifier = Modifier.size(26.dp),
                         onClick = {
                             val newValue = value.subtractBigDecimal(fineTuningStep)
@@ -101,6 +106,7 @@ fun SimpleTextSlider(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
+                        enabled = enabled,
                         modifier = Modifier.size(26.dp),
                         onClick = {
                             val newValue = value.addBigDecimal(fineTuningStep)

@@ -112,6 +112,11 @@ class AllSettings {
         val mouseControlMode = StringSettingUnit("mouseControlMode", ControlMode.SLIDE.name)
 
         /**
+         * 鼠标控制长按延迟
+         */
+        val mouseLongPressDelay = IntSettingUnit("mouseLongPressDelay", 300)
+
+        /**
          * 手势控制
          */
         val gestureControl = BooleanSettingUnit("gestureControl", false)
@@ -125,6 +130,11 @@ class AllSettings {
          * 手势控制长按时触发的鼠标按钮
          */
         val gestureLongPressMouseAction = StringSettingUnit("gestureLongPressMouseAction", GestureActionType.MOUSE_LEFT.name)
+
+        /**
+         * 手势控制长按延迟
+         */
+        val gestureLongPressDelay = IntSettingUnit("gestureLongPressDelay", 300)
 
         //Launcher
         /**
