@@ -185,7 +185,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
         if (!isRenderingStarted) {
             isRenderingStarted = true
-            refreshSize()
             handler.onGraphicOutput()
         }
     }
@@ -222,8 +221,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
         CallbackBridge.windowWidth = width
         CallbackBridge.windowHeight = height
-        mTextureView?.apply {
-            surfaceTexture?.setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
+        mTextureView?.surfaceTexture?.apply {
+            setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
+        } ?: run {
+            Log.w("VMActivity", "Attempt to refresh size on null surface")
+            return
         }
         CallbackBridge.sendUpdateWindowSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
     }
