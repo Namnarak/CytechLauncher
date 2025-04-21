@@ -73,7 +73,7 @@ class AllSettings {
         /**
          * 版本自定义信息
          */
-        val versionCustomInfo = StringSettingUnit("", "${InfoDistributor.LAUNCHER_IDENTIFIER}[zl_version]")
+        val versionCustomInfo = StringSettingUnit("versionCustomInfo", "${InfoDistributor.LAUNCHER_IDENTIFIER}[zl_version]")
 
         /**
          * 启动器的Java环境
