@@ -91,12 +91,12 @@ object AccountsManager {
         onFinally: () -> Unit = {}
     ): Task? =
         when {
-            isNoLoginRequired(account) -> null
-            isOtherLoginAccount(account) -> {
+            account.isNoLoginRequired() -> null
+            account.isOtherLoginAccount() -> {
                 otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
-            isMicrosoftAccount(account) -> {
-                microsoftRefresh(context = context, account = account, onSuccess = onSuccess, onFinally = onFinally)
+            account.isMicrosoftAccount() -> {
+                microsoftRefresh(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
             else -> null
         }
@@ -136,7 +136,7 @@ object AccountsManager {
      */
     fun deleteAccount(account: Account) {
         val accountFile = File(PathManager.DIR_ACCOUNT, account.uniqueUUID)
-        val accountSkinFile = File(PathManager.DIR_ACCOUNT_SKIN, "${account.uniqueUUID}.png")
+        val accountSkinFile = account.getSkinFile()
         FileUtils.deleteQuietly(accountFile)
         FileUtils.deleteQuietly(accountSkinFile)
         reloadAccounts()
@@ -146,7 +146,7 @@ object AccountsManager {
      * 是否已登录过微软账号
      */
     fun hasMicrosoftAccount(): Boolean = synchronized(accountsLock) {
-        _accounts.any(::isMicrosoftAccount)
+        _accounts.any { it.isMicrosoftAccount() }
     }
 
     /**

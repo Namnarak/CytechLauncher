@@ -22,6 +22,7 @@ class Account {
     var otherAccount: String? = null
     var otherPassword: String? = null
     var accountType: String? = null
+    var skinModelType: String = ""
     val uniqueUUID: String = UUID.randomUUID().toString().lowercase()
 
     fun save() {
@@ -31,19 +32,21 @@ class Account {
         accountFile.writeText(encryptedData)
     }
 
+    fun getSkinFile() = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
+
     /**
      * 下载并更新账号的皮肤文件
      */
     suspend fun downloadSkin() = withContext(Dispatchers.IO) {
         when {
-            isMicrosoftAccount(this@Account) -> updateSkin("https://sessionserver.mojang.com")
-            isOtherLoginAccount(this@Account) -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
+            isMicrosoftAccount() -> updateSkin("https://sessionserver.mojang.com")
+            isOtherLoginAccount() -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
             else -> {}
         }
     }
 
     private suspend fun updateSkin(url: String) {
-        val skinFile = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
+        val skinFile = getSkinFile()
         if (skinFile.exists()) FileUtils.deleteQuietly(skinFile) //清除一次皮肤文件
 
         runCatching {

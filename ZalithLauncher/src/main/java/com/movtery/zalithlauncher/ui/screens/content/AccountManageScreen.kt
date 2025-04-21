@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,8 +36,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.context.copyLocalFile
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
+import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoftLogin
@@ -43,6 +51,7 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -53,10 +62,12 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.CryptoManager
@@ -64,8 +75,10 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.regex.Pattern
 
@@ -435,6 +448,23 @@ private fun AccountsLayout(
             ) {
                 items(accounts.size) { index ->
                     val account = accounts[index]
+
+                    var accountSkinOperation by remember { mutableStateOf<AccountSkinOperation>(AccountSkinOperation.None) }
+                    AccountSkinOperation(
+                        account = account,
+                        accountSkinOperation = accountSkinOperation,
+                        updateOperation = { accountSkinOperation = it }
+                    )
+
+                    val skinPicker = rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.OpenDocument()
+                    ) { uri ->
+                        uri?.let { result ->
+                            accountSkinOperation = AccountSkinOperation.SaveSkin(result)
+                        }
+                    }
+
+                    val context = LocalContext.current
                     AccountItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -443,6 +473,16 @@ private fun AccountsLayout(
                         account = account,
                         onSelected = { uniqueUUID ->
                             AccountsManager.setCurrentAccount(uniqueUUID)
+                        },
+                        onChangeSkin = {
+                            if (account.isMicrosoftAccount()) {
+                                NetWorkUtils.openLink(context = context, link = UrlManager.URL_MINECRAFT_CHANGE_SKIN)
+                            } else if (account.isLocalAccount()) {
+                                skinPicker.launch(arrayOf("image/*"))
+                            }
+                        },
+                        onResetSkin = {
+                            accountSkinOperation = AccountSkinOperation.PreResetSkin
                         },
                         onRefreshClick = { accountOperation = AccountOperation.Refresh(account) },
                         onDeleteClick = { accountOperation = AccountOperation.Delete(account) }
@@ -457,6 +497,76 @@ private fun AccountsLayout(
                     modifier = Modifier.align(Alignment.Center),
                     text = stringResource(R.string.account_no_account)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccountSkinOperation(
+    account: Account,
+    accountSkinOperation: AccountSkinOperation,
+    updateOperation: (AccountSkinOperation) -> Unit
+) {
+    val context = LocalContext.current
+    when (accountSkinOperation) {
+        is AccountSkinOperation.None -> {}
+        is AccountSkinOperation.SaveSkin -> {
+            val skinFile = account.getSkinFile()
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = {
+                        context.copyLocalFile(accountSkinOperation.uri, skinFile)
+                        updateOperation(AccountSkinOperation.SelectSkinModel)
+                    },
+                    onError = { th ->
+                        FileUtils.deleteQuietly(skinFile)
+                        ObjectStates.updateThrowable(
+                            ObjectStates.ThrowableMessage(
+                                title = context.getString(R.string.error_import_image),
+                                message = th.getMessageOrToString()
+                            )
+                        )
+                        updateOperation(AccountSkinOperation.None)
+                    }
+                )
+            )
+        }
+        is AccountSkinOperation.SelectSkinModel -> {
+            SelectSkinModelDialog(
+                onDismissRequest = {
+                    updateOperation(AccountSkinOperation.None)
+                },
+                onSelected = { type ->
+                    account.skinModelType = type.name
+                    updateOperation(AccountSkinOperation.AlertModel)
+                }
+            )
+        }
+        is AccountSkinOperation.AlertModel -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_warning),
+                text = stringResource(R.string.account_change_skin_select_model_alert),
+                onDismiss = {
+                    saveAccount(account)
+                    updateOperation(AccountSkinOperation.None)
+                }
+            )
+        }
+        is AccountSkinOperation.PreResetSkin -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.account_change_skin_reset_skin_message),
+                onDismiss = { updateOperation(AccountSkinOperation.None) },
+                onConfirm = { updateOperation(AccountSkinOperation.ResetSkin) }
+            )
+        }
+        is AccountSkinOperation.ResetSkin -> {
+            account.apply {
+                FileUtils.deleteQuietly(getSkinFile())
+                skinModelType = ""
+                saveAccount(this)
             }
         }
     }

@@ -7,6 +7,7 @@ import android.util.Log
 import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.mcOptionsGuiScale
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.splitPreservingQuotes
 import org.lwjgl.glfw.CallbackBridge.windowHeight
 import org.lwjgl.glfw.CallbackBridge.windowWidth
 import java.io.File
@@ -72,7 +73,22 @@ object MCOptions {
 
     fun set(key: String, value: String) = parameterMap.put(key, value)
 
+    fun set(key: String, value: List<String>) {
+        set(key, value.joinToString(prefix = "[", postfix = "]") { "\"$it\"" })
+    }
+
     fun get(key: String): String? = parameterMap[key]
+
+    fun getAsList(key: String): List<String> {
+        val raw = get(key) ?: return emptyList()
+
+        return raw
+            .removeSurrounding("[", "]")
+            .takeIf { it.isNotBlank() }
+            ?.splitPreservingQuotes(',')
+            ?.map { it.trim() }
+            ?: emptyList()
+    }
 
     fun containsKey(key: String): Boolean = parameterMap.containsKey(key)
 

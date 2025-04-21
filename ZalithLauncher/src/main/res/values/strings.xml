@@ -98,6 +98,13 @@
     <string name="account_label_server_url">填写认证服务器地址</string>
     <string name="account_label_email">填写邮箱或用户名</string>
     <string name="account_label_password">填写密码</string>
+    <string name="account_change_skin">更换皮肤</string>
+    <string name="account_change_skin_select_model_title">选择皮肤模型</string>
+    <string name="account_change_skin_select_model_message">该皮肤是 Steve 模型（粗臂）还是 Alex 模型（细臂）？</string>
+    <string name="account_change_skin_select_model_alert">从 Minecraft 1.19.3 起，皮肤种类和角色模型有了更细致的区分。目前由于技术限制，该功能仅保证在 1.19.2 及以下版本中有效！</string>
+    <string name="account_change_skin_model_steve">Steve 模型</string>
+    <string name="account_change_skin_model_alex">Alex 模型</string>
+    <string name="account_change_skin_reset_skin_message">你确定要重置当前账号的皮肤吗？</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
     <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
     <string name="account_supporting_username_invalid_still_use">仍旧使用</string>

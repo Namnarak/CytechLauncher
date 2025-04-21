@@ -58,7 +58,7 @@ class LaunchArgs(
     private fun getJavaArgs(): List<String> {
         val argsList: MutableList<String> = ArrayList()
 
-        if (isOtherLoginAccount(account)) {
+        if (account.isOtherLoginAccount()) {
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
                 argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
                 argsList.add("-Dnide8auth.client=true")

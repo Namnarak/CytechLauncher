@@ -121,7 +121,7 @@ class StringUtils {
                 acc.replace("\${$k}", v ?: "")
             }
 
-        fun String.splitPreservingQuotes(): List<String> {
+        fun String.splitPreservingQuotes(delimiter: Char = ' '): List<String> {
             val result = mutableListOf<String>()
             val currentPart = StringBuilder()
             var inQuotes = false
@@ -132,7 +132,7 @@ class StringUtils {
                         // 切换引号状态（忽略转义引号）
                         inQuotes = !inQuotes
                     }
-                    c.isWhitespace() && !inQuotes -> {
+                    c == delimiter && !inQuotes -> {
                         // 如果不在引号内且遇到空格，则结束当前部分并添加到结果中
                         if (currentPart.isNotEmpty()) {
                             result.add(currentPart.toString())

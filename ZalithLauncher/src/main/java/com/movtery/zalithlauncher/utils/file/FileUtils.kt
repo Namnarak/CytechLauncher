@@ -15,6 +15,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = true): Boolean {
     val computedSHA = runCatching {
@@ -136,4 +138,19 @@ fun shareFile(context: Context, fileName: String, filePath: String) {
 
     val sendIntent = Intent.createChooser(shareIntent, fileName)
     context.startActivity(sendIntent)
+}
+
+fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {
+    current.listFiles()?.forEach { file ->
+        val entryName = file.relativeTo(baseDir).invariantSeparatorsPath
+        if (file.isDirectory) {
+            zipOut.putNextEntry(ZipEntry("$entryName/"))
+            zipOut.closeEntry()
+            zipDirRecursive(baseDir, file, zipOut)
+        } else {
+            zipOut.putNextEntry(ZipEntry(entryName))
+            file.inputStream().copyTo(zipOut)
+            zipOut.closeEntry()
+        }
+    }
 }

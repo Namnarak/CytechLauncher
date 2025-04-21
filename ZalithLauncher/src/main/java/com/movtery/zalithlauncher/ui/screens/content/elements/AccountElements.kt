@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
@@ -24,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,11 +60,12 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
+import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
-import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 
@@ -92,6 +96,18 @@ sealed interface AccountOperation {
     data class Delete(val account: Account) : AccountOperation
     data class Refresh(val account: Account) : AccountOperation
     data class OnFailed(val error: String) : AccountOperation
+}
+
+/**
+ * 更换账号皮肤的状态
+ */
+sealed interface AccountSkinOperation {
+    data object None: AccountSkinOperation
+    data class SaveSkin(val uri: Uri): AccountSkinOperation
+    data object SelectSkinModel: AccountSkinOperation
+    data object AlertModel: AccountSkinOperation
+    data object PreResetSkin: AccountSkinOperation
+    data object ResetSkin: AccountSkinOperation
 }
 
 /**
@@ -190,6 +206,8 @@ fun AccountItem(
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: (uniqueUUID: String) -> Unit = {},
+    onChangeSkin: () -> Unit = {},
+    onResetSkin: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
@@ -241,6 +259,25 @@ fun AccountItem(
                 )
             }
             Row {
+                val isLocalHasSkin = account.isLocalAccount() && account.getSkinFile().exists()
+                val icon = if (isLocalHasSkin) Icons.Default.RestartAlt else Icons.Outlined.Checkroom
+                val description = if (isLocalHasSkin) {
+                    stringResource(R.string.generic_reset)
+                } else {
+                    stringResource(R.string.account_change_skin)
+                }
+                val onClickAction = if (isLocalHasSkin) onResetSkin else onChangeSkin
+
+                IconButton(
+                    onClick = onClickAction,
+                    enabled = account.isSkinChangeAllowed()
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = icon,
+                        contentDescription = description
+                    )
+                }
                 IconButton(
                     onClick = onRefreshClick,
                     enabled = account.accountType != AccountType.LOCAL.tag
@@ -422,9 +459,65 @@ fun OtherServerLoginDialog(
     }
 }
 
+@Composable
+fun SelectSkinModelDialog(
+    onDismissRequest: () -> Unit = {},
+    onSelected: (SkinModelType) -> Unit = {}
+) {
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 4.dp
+        ) {
+            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(R.string.account_change_skin_select_model_title),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.account_change_skin_select_model_message),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.size(16.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onSelected(SkinModelType.STEVE)
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.account_change_skin_model_steve))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onSelected(SkinModelType.ALEX)
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.account_change_skin_model_alex))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onDismissRequest
+                    ) {
+                        Text(text = stringResource(R.string.generic_cancel))
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Throws(Exception::class)
 private fun getAvatarFromAccount(context: Context, account: Account, size: Int): Bitmap {
-    val skin = File(PathManager.DIR_ACCOUNT_SKIN, "${account.uniqueUUID}.png")
+    val skin = account.getSkinFile()
     if (skin.exists()) {
         runCatching {
             Files.newInputStream(skin.toPath()).use { `is` ->

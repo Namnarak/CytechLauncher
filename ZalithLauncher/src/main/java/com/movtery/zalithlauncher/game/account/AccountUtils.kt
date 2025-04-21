@@ -38,16 +38,24 @@ import java.util.Locale
 import java.util.Objects
 import kotlin.coroutines.CoroutineContext
 
-fun isOtherLoginAccount(account: Account): Boolean {
-    return !Objects.isNull(account.otherBaseUrl) && account.otherBaseUrl != "0"
+fun Account.isOtherLoginAccount(): Boolean {
+    return !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
 }
 
-fun isMicrosoftAccount(account: Account): Boolean {
-    return account.accountType == AccountType.MICROSOFT.tag
+fun Account.isMicrosoftAccount(): Boolean {
+    return accountType == AccountType.MICROSOFT.tag
 }
 
-fun isNoLoginRequired(account: Account?): Boolean {
-    return account == null || account.accountType == AccountType.LOCAL.tag
+fun Account.isLocalAccount(): Boolean {
+    return accountType == AccountType.LOCAL.tag
+}
+
+fun Account?.isNoLoginRequired(): Boolean {
+    return this == null || isLocalAccount()
+}
+
+fun Account.isSkinChangeAllowed(): Boolean {
+    return isMicrosoftAccount() || isLocalAccount()
 }
 
 private const val MICROSOFT_LOGGING_TASK = "microsoft_logging_task"
@@ -138,6 +146,7 @@ fun microsoftRefresh(
     context: Context,
     account: Account,
     onSuccess: suspend (Account, Task) -> Unit,
+    onFailed: (error: String) -> Unit = {},
     onFinally: () -> Unit = {}
 ): Task? {
     if (TaskSystem.containsTask(account.profileId)) return null
@@ -170,12 +179,7 @@ fun microsoftRefresh(
                 is CancellationException -> null
                 else -> e.getMessageOrToString()
             }?.let { message ->
-                ObjectStates.updateThrowable(
-                    ObjectStates.ThrowableMessage(
-                        title = context.getString(R.string.account_logging_in_failed),
-                        message = message
-                    )
-                )
+                onFailed(message)
             }
         },
         onFinally = onFinally
@@ -271,9 +275,9 @@ fun saveAccount(account: Account) {
  * 获取账号类型名称
  */
 fun getAccountTypeName(context: Context, account: Account): String {
-    return if (isMicrosoftAccount(account)) {
+    return if (account.isMicrosoftAccount()) {
         context.getString(R.string.account_type_microsoft)
-    } else if (isOtherLoginAccount(account)) {
+    } else if (account.isOtherLoginAccount()) {
         account.accountType ?: "Unknown"
     } else {
         context.getString(R.string.account_type_local)

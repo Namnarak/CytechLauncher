@@ -13,7 +13,7 @@ abstract class AbstractHandler(val type: HandlerType) {
     var mIsSurfaceDestroyed: Boolean = false
 
     @CallSuper
-    open fun execute(
+    open suspend fun execute(
         surface: Surface,
         launcher: Launcher,
         scope: LifecycleCoroutineScope

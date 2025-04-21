@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.lwjgl.glfw.CallbackBridge
@@ -170,7 +171,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         handler.mIsSurfaceDestroyed = false
         refreshSize()
-        handler.execute(Surface(surface), launcher, lifecycleScope)
+        lifecycleScope.launch(Dispatchers.Default) {
+            handler.execute(Surface(surface), launcher, lifecycleScope)
+        }
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
