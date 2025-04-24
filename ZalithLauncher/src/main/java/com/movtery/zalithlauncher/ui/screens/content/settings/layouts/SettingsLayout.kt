@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -20,23 +19,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
-import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
-import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -122,87 +116,23 @@ class SettingsLayoutScope {
         fineTuningControl: Boolean = false
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
-        var showValueEditDialog by remember { mutableStateOf(false) }
 
-        fun changeValue(newValue: Int) {
-            value = newValue
-            onValueChange(value)
-        }
-
-        fun changeFinished() {
-            unit.put(value).save()
-        }
-
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier.alpha(alpha = if (enabled) 1f else 0.5f)
-            ) {
-                TitleAndSummary(title, summary)
-            }
-            SimpleTextSlider(
-                modifier = Modifier.fillMaxWidth(),
-                value = value.toFloat(),
-                enabled = enabled,
-                onValueChange = { changeValue(it.toInt()) },
-                onValueChangeFinished = { changeFinished() },
-                onTextClick = { showValueEditDialog = true },
-                toInt = true,
-                valueRange = valueRange,
-                steps = steps,
-                suffix = suffix,
-                fineTuningControl = fineTuningControl,
-                fineTuningStep = 1f
-            )
-        }
-
-        if (showValueEditDialog) {
-            val maxLength = listOf(
-                valueRange.start.toInt().toString().length,
-                valueRange.endInclusive.toInt().toString().length
-            ).maxOrNull() ?: 5
-
-            var inputValue by remember { mutableStateOf(value.toString()) }
-            var errorText by remember { mutableStateOf("") }
-            val numberFormatError = stringResource(R.string.generic_input_failed_to_number)
-            val numberTooSmallError = stringResource(R.string.generic_input_too_small, valueRange.start.toInt())
-            val numberTooLargeError = stringResource(R.string.generic_input_too_large, valueRange.endInclusive.toInt())
-
-            SimpleEditDialog(
-                title = title,
-                value = inputValue,
-                onValueChange = { newInput ->
-                    val filteredInput = newInput.take(maxLength)
-                    inputValue = filteredInput
-
-                    val result = filteredInput.toIntOrNull()
-                    errorText = when {
-                        result == null -> numberFormatError
-                        result < valueRange.start -> numberTooSmallError
-                        result > valueRange.endInclusive -> numberTooLargeError
-                        else -> ""
-                    }
-                },
-                isError = errorText.isNotEmpty(),
-                supportingText = {
-                    if (errorText.isNotEmpty()) Text(text = errorText)
-                },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                onConfirm = {
-                    if (errorText.isEmpty()) {
-                        val newValue = inputValue.toIntOrNull() ?: value
-                        changeValue(newValue)
-                        changeFinished()
-                        showValueEditDialog = false
-                    }
-                },
-                onDismissRequest = { showValueEditDialog = false }
-            )
-        }
+        SimpleIntSliderLayout(
+            modifier = modifier,
+            value = value,
+            title = title,
+            summary = summary,
+            valueRange = valueRange,
+            steps = steps,
+            suffix = suffix,
+            onValueChange = {
+                value = it
+                onValueChange(value)
+            },
+            onChangeFinished = { unit.put(it).save() },
+            enabled = enabled,
+            fineTuningControl = fineTuningControl
+        )
     }
 
     @OptIn(ExperimentalLayoutApi::class)

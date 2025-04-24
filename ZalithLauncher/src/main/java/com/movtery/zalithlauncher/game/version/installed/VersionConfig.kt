@@ -22,6 +22,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     private var customPath: String = ""
     private var customInfo: String = ""
     private var versionSummary: String = ""
+    var ramAllocation: Int = -1
 
     constructor(
         filePath: File,
@@ -33,7 +34,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         control: String = "",
         customPath: String = "",
         customInfo: String = "",
-        versionSummary: String = ""
+        versionSummary: String = "",
+        ramAllocation: Int = -1
     ) : this(filePath) {
         this.isolationType = isolationType
         this.javaRuntime = javaRuntime
@@ -44,9 +46,11 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.customPath = customPath
         this.customInfo = customInfo
         this.versionSummary = versionSummary
+        this.ramAllocation = ramAllocation
     }
 
-    fun copy(): VersionConfig = VersionConfig(versionPath,
+    fun copy(): VersionConfig = VersionConfig(
+        versionPath,
         getIsolationTypeNotNull(isolationType),
         getStringNotNull(javaRuntime),
         getStringNotNull(jvmArgs),
@@ -55,7 +59,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         getStringNotNull(control),
         getStringNotNull(customPath),
         getStringNotNull(customInfo),
-        getStringNotNull(versionSummary)
+        getStringNotNull(versionSummary),
+        ramAllocation
     )
 
     fun save() {
@@ -133,16 +138,19 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(versionPath.absolutePath)
-        dest.writeInt(getIsolationTypeNotNull(isolationType).ordinal)
-        dest.writeString(getStringNotNull(javaRuntime))
-        dest.writeString(getStringNotNull(jvmArgs))
-        dest.writeString(getStringNotNull(renderer))
-        dest.writeString(getStringNotNull(driver))
-        dest.writeString(getStringNotNull(control))
-        dest.writeString(getStringNotNull(customPath))
-        dest.writeString(getStringNotNull(customInfo))
-        dest.writeString(getStringNotNull(versionSummary))
+        dest.run {
+            writeString(versionPath.absolutePath)
+            writeInt(getIsolationTypeNotNull(isolationType).ordinal)
+            writeString(getStringNotNull(javaRuntime))
+            writeString(getStringNotNull(jvmArgs))
+            writeString(getStringNotNull(renderer))
+            writeString(getStringNotNull(driver))
+            writeString(getStringNotNull(control))
+            writeString(getStringNotNull(customPath))
+            writeString(getStringNotNull(customInfo))
+            writeString(getStringNotNull(versionSummary))
+            writeInt(ramAllocation)
+        }
     }
 
     companion object CREATOR : Parcelable.Creator<VersionConfig> {
@@ -157,7 +165,21 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
             val versionSummary = parcel.readString().orEmpty()
-            return VersionConfig(versionPath, isolationType, javaRuntime, jvmArgs, renderer, driver, control, customPath, customInfo, versionSummary)
+            val ramAllocation = parcel.readInt()
+
+            return VersionConfig(
+                versionPath,
+                isolationType,
+                javaRuntime,
+                jvmArgs,
+                renderer,
+                driver,
+                control,
+                customPath,
+                customInfo,
+                versionSummary,
+                ramAllocation
+            )
         }
 
         override fun newArray(size: Int): Array<VersionConfig?> {

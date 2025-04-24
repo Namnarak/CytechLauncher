@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,10 +11,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -25,15 +32,18 @@ import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
+import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 
 const val VERSION_CONFIG_SCREEN_TAG = "VersionConfigScreen"
@@ -167,6 +177,43 @@ private fun GameConfigs(
                 }
             }
         )
+
+        Row(verticalAlignment = Alignment.Bottom) {
+            var checked by remember { mutableStateOf(config.ramAllocation >= 256) }
+            var ramAllocation by remember { mutableIntStateOf(config.ramAllocation.takeIf { it >= 256 } ?: AllSettings.ramAllocation.getValue()) }
+
+            SimpleIntSliderLayout(
+                modifier = Modifier.weight(1f),
+                value = ramAllocation,
+                title = stringResource(R.string.settings_game_java_memory_title),
+                summary = stringResource(R.string.settings_game_java_memory_summary),
+                valueRange = 256f..MemoryUtils.getMaxMemoryForSettings(LocalContext.current).toFloat(),
+                onValueChange = { ramAllocation = it },
+                onChangeFinished = { value ->
+                    config.ramAllocation = value
+                    config.saveOrShowError(context)
+                },
+                suffix = "MB",
+                enabled = checked,
+                fineTuningControl = true,
+                appendContent = {
+                    Checkbox(
+                        modifier = Modifier.padding(start = 12.dp),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                            ramAllocation = AllSettings.ramAllocation.getValue()
+                            if (checked) {
+                                config.ramAllocation = ramAllocation
+                            } else {
+                                config.ramAllocation = -1
+                            }
+                            config.saveOrShowError(context)
+                        }
+                    )
+                }
+            )
+        }
 
         TextInputLayout(
             currentValue = config.getCustomInfo(),

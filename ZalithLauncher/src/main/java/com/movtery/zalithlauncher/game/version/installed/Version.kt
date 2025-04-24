@@ -1,14 +1,18 @@
 package com.movtery.zalithlauncher.game.version.installed
 
+import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import com.movtery.zalithlauncher.BuildConfig
+import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.getInt
+import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
+import kotlin.math.min
 
 /**
  * Minecraft 版本，由版本名称进行区分
@@ -108,6 +112,10 @@ class Version(
 
     fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)
+
+    fun getRamAllocation(context: Context = GlobalContext): Int = versionConfig.ramAllocation.takeIf { it >= 256 }?.let {
+        min(it, MemoryUtils.getMaxMemoryForSettings(context))
+    } ?: AllSettings.ramAllocation.getValue()
 
     override fun describeContents(): Int = 0
 

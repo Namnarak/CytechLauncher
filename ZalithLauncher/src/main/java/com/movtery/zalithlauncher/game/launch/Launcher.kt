@@ -92,7 +92,14 @@ abstract class Launcher {
         }
     }
 
-    protected open fun progressFinalUserArgs(args: MutableList<String>) {
+    /**
+     * @param args 需要进行处理的参数
+     * @param ramAllocation 指定内存空间大小
+     */
+    protected open fun progressFinalUserArgs(
+        args: MutableList<String>,
+        ramAllocation: Int = AllSettings.ramAllocation.getValue()
+    ) {
         args.purgeArg("-Xms")
         args.purgeArg("-Xmx")
         args.purgeArg("-d32")
@@ -110,9 +117,9 @@ abstract class Launcher {
         args.add("-javaagent:${LibPath.MIO_LIB_PATCHER.absolutePath}")
 
         //Add automatically generated args
-        val ramAllocation = AllSettings.ramAllocation.getValue().toString()
-        args.add("-Xms${ramAllocation}M")
-        args.add("-Xmx${ramAllocation}M")
+        val ramAllocationString = ramAllocation.toString()
+        args.add("-Xms${ramAllocationString}M")
+        args.add("-Xmx${ramAllocationString}M")
 
         // Force LWJGL to use the Freetype library intended for it, instead of using the one
         // that we ship with Java (since it may be older than what's needed)

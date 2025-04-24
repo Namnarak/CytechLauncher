@@ -38,7 +38,8 @@ fun SimpleTextSlider(
     onTextClick: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     fineTuningControl: Boolean = false,
-    fineTuningStep: Float = 0.5f
+    fineTuningStep: Float = 0.5f,
+    appendContent: @Composable () -> Unit = {}
 ) {
     val formatter = DecimalFormat("#0.00")
     fun getTextString(value: Float) = "${if (toInt) {
@@ -125,5 +126,6 @@ fun SimpleTextSlider(
                 }
             }
         }
+        appendContent()
     }
 }

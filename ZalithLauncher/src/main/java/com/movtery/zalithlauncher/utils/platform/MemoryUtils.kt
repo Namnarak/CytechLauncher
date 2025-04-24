@@ -3,16 +3,18 @@ package com.movtery.zalithlauncher.utils.platform
 import android.app.ActivityManager
 import android.content.Context
 import androidx.annotation.WorkerThread
+import com.movtery.zalithlauncher.utils.device.Architecture
 import java.math.BigDecimal
 import java.math.RoundingMode
 import kotlin.math.floor
+import kotlin.math.min
 import kotlin.math.round
 
 object MemoryUtils {
     private inline val Context.activityManager: ActivityManager
         get() = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
-    private inline fun getMemoryInfo(context: Context): ActivityManager.MemoryInfo {
+    private fun getMemoryInfo(context: Context): ActivityManager.MemoryInfo {
         return ActivityManager.MemoryInfo().apply {
             context.activityManager.getMemoryInfo(this)
         }
@@ -41,6 +43,22 @@ object MemoryUtils {
     @WorkerThread
     @JvmStatic
     fun getFreeMemory(context: Context) = getMemoryInfo(context).availMem
+
+    /**
+     * 为设置项获取最大可设置的内存值（为系统预留一些可用内存）
+     */
+    @WorkerThread
+    @JvmStatic
+    fun getMaxMemoryForSettings(context: Context): Int {
+        val deviceRam = getTotalMemory(context).bytesToMB()
+        val maxRam: Int = if (Architecture.is32BitsDevice || deviceRam < 2048) {
+            min(1024.0, deviceRam).toInt()
+        } else {
+            //To have a minimum for the device to breathe
+            (deviceRam - (if (deviceRam < 3064) 800 else 1024)).toInt()
+        }
+        return maxRam
+    }
 }
 
 private const val BYTES_PER_MB = 1024L * 1024

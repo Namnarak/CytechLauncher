@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -236,6 +238,100 @@ fun TextInputLayout(
             supportingText = supportingText,
             singleLine = singleLine,
             shape = MaterialTheme.shapes.large
+        )
+    }
+}
+
+@Composable
+fun SimpleIntSliderLayout(
+    modifier: Modifier = Modifier,
+    value: Int,
+    title: String,
+    summary: String? = null,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    suffix: String? = null,
+    onValueChange: (Int) -> Unit = {},
+    onChangeFinished: (Int) -> Unit = {},
+    enabled: Boolean = true,
+    fineTuningControl: Boolean = false,
+    appendContent: @Composable () -> Unit = {}
+) {
+    var showValueEditDialog by remember { mutableStateOf(false) }
+
+    fun changeFinished() {
+        onChangeFinished(value)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.alpha(alpha = if (enabled) 1f else 0.5f)
+        ) {
+            TitleAndSummary(title, summary)
+        }
+        SimpleTextSlider(
+            modifier = Modifier.fillMaxWidth(),
+            value = value.toFloat(),
+            enabled = enabled,
+            onValueChange = { onValueChange(it.toInt()) },
+            onValueChangeFinished = { changeFinished() },
+            onTextClick = { showValueEditDialog = true },
+            toInt = true,
+            valueRange = valueRange,
+            steps = steps,
+            suffix = suffix,
+            fineTuningControl = fineTuningControl,
+            fineTuningStep = 1f,
+            appendContent = appendContent
+        )
+    }
+
+    if (showValueEditDialog) {
+        val maxLength = listOf(
+            valueRange.start.toInt().toString().length,
+            valueRange.endInclusive.toInt().toString().length
+        ).maxOrNull() ?: 5
+
+        var inputValue by remember { mutableStateOf(value.toString()) }
+        var errorText by remember { mutableStateOf("") }
+        val numberFormatError = stringResource(R.string.generic_input_failed_to_number)
+        val numberTooSmallError = stringResource(R.string.generic_input_too_small, valueRange.start.toInt())
+        val numberTooLargeError = stringResource(R.string.generic_input_too_large, valueRange.endInclusive.toInt())
+
+        SimpleEditDialog(
+            title = title,
+            value = inputValue,
+            onValueChange = { newInput ->
+                val filteredInput = newInput.take(maxLength)
+                inputValue = filteredInput
+
+                val result = filteredInput.toIntOrNull()
+                errorText = when {
+                    result == null -> numberFormatError
+                    result < valueRange.start -> numberTooSmallError
+                    result > valueRange.endInclusive -> numberTooLargeError
+                    else -> ""
+                }
+            },
+            isError = errorText.isNotEmpty(),
+            supportingText = {
+                if (errorText.isNotEmpty()) Text(text = errorText)
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            onConfirm = {
+                if (errorText.isEmpty()) {
+                    val newValue = inputValue.toIntOrNull() ?: value
+                    onValueChange(newValue)
+                    changeFinished()
+                    showValueEditDialog = false
+                }
+            },
+            onDismissRequest = { showValueEditDialog = false }
         )
     }
 }
