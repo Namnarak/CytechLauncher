@@ -146,7 +146,6 @@ fun VersionOverViewScreen() {
                 swapIn = isVisible
             )
 
-
             VersionInfoLayout(
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
                 version, versionName, versionSummary, iconFileExists, refreshVersionIcon,
@@ -225,16 +224,16 @@ private fun VersionInfoLayout(
                 IconTextButton(
                     onClick = pickIcon,
                     imageVector = Icons.Outlined.Image,
-                    contentDescription = stringResource(R.string.versions_manage_settings_custom_version_icon),
-                    text = stringResource(R.string.versions_manage_settings_custom_version_icon)
+                    contentDescription = stringResource(R.string.versions_overview_custom_version_icon),
+                    text = stringResource(R.string.versions_overview_custom_version_icon)
                 )
                 if (iconFileExists) {
                     Spacer(modifier = Modifier.width(12.dp))
                     IconTextButton(
                         onClick = resetIcon,
                         imageVector = Icons.Outlined.RestartAlt,
-                        contentDescription = stringResource(R.string.versions_manage_settings_reset_version_icon),
-                        text = stringResource(R.string.versions_manage_settings_reset_version_icon)
+                        contentDescription = stringResource(R.string.versions_overview_reset_version_icon),
+                        text = stringResource(R.string.versions_overview_reset_version_icon)
                     )
                 }
             }
@@ -256,7 +255,7 @@ private fun VersionManagementLayout(
         ) {
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp, bottom = 8.dp),
-                text = stringResource(R.string.versions_manage_settings_overview_management),
+                text = stringResource(R.string.versions_settings_overview_management),
                 style = MaterialTheme.typography.labelLarge
             )
 
@@ -266,7 +265,7 @@ private fun VersionManagementLayout(
                     onClick = onEditSummary
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_settings_edit_version_summary)
+                        text = stringResource(R.string.versions_overview_edit_version_summary)
                     )
                 }
                 OutlinedButton(
@@ -304,7 +303,7 @@ private fun VersionQuickActions(
         ) {
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp, bottom = 8.dp),
-                text = stringResource(R.string.versions_manage_settings_overview_quick_actions),
+                text = stringResource(R.string.versions_settings_overview_quick_actions),
                 style = MaterialTheme.typography.labelLarge
             )
 
@@ -314,7 +313,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_version_folder)
+                        text = stringResource(R.string.versions_overview_version_folder)
                     )
                 }
                 OutlinedButton(
@@ -322,7 +321,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("saves") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_saves_folder)
+                        text = stringResource(R.string.versions_overview_saves_folder)
                     )
                 }
                 OutlinedButton(
@@ -330,7 +329,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("resourcepacks") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_resource_pack_folder)
+                        text = stringResource(R.string.versions_overview_resource_pack_folder)
                     )
                 }
                 OutlinedButton(
@@ -338,7 +337,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("shaderpacks") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_shaders_pack_folder)
+                        text = stringResource(R.string.versions_overview_shaders_pack_folder)
                     )
                 }
                 OutlinedButton(
@@ -346,7 +345,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("screenshots") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_screenshot_folder)
+                        text = stringResource(R.string.versions_overview_screenshot_folder)
                     )
                 }
                 OutlinedButton(
@@ -354,7 +353,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("logs") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_logs_folder)
+                        text = stringResource(R.string.versions_overview_logs_folder)
                     )
                 }
                 OutlinedButton(
@@ -362,7 +361,7 @@ private fun VersionQuickActions(
                     onClick = { accessFolder("crash-reports") }
                 ) {
                     Text(
-                        text = stringResource(R.string.versions_manage_crash_report_folder)
+                        text = stringResource(R.string.versions_overview_crash_report_folder)
                     )
                 }
             }
@@ -397,7 +396,7 @@ private fun VersionsOperation(
         is VersionsOperation.ResetIconAlert -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.versions_manage_settings_reset_version_icon_message),
+                text = stringResource(R.string.versions_overview_reset_version_icon_message),
                 onDismiss = { updateOperation(VersionsOperation.None) },
                 onConfirm = { updateOperation(VersionsOperation.ResetIcon) }
             )
@@ -442,11 +441,11 @@ private fun VersionsOperation(
             var value by remember { mutableStateOf(version.getVersionConfig().getVersionSummary()) }
 
             SimpleEditDialog(
-                title = stringResource(R.string.versions_manage_settings_edit_version_summary),
+                title = stringResource(R.string.versions_overview_edit_version_summary),
                 value = value,
                 onValueChange = { value = it },
                 label = {
-                    Text(text = stringResource(R.string.versions_manage_settings_edit_version_summary_label))
+                    Text(text = stringResource(R.string.versions_overview_edit_version_summary_label))
                 },
                 singleLine = true,
                 onDismissRequest = { updateOperation(VersionsOperation.None) },

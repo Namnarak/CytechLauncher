@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,17 +9,10 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -44,7 +35,10 @@ import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
+import com.movtery.zalithlauncher.ui.components.TextInputLayout
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import kotlin.enums.EnumEntries
 
@@ -276,104 +270,21 @@ class SettingsLayoutScope {
         enabled: Boolean = true,
         onValueChange: (E) -> Unit = {}
     ) {
-        require(items.isNotEmpty()) { "Items list cannot be empty" }
-
-        val currentId = unit.getValue()
-        val defaultValue = unit.defaultValue
-        val initialItem = remember(items, currentId, defaultValue) {
-            items.firstOrNull { getItemId(it) == currentId }
-                ?: items.firstOrNull { getItemId(it) == defaultValue }
-                ?: items.first()
-        }
-        var selectedItem by remember { mutableStateOf(initialItem) }
-        var expanded by remember { mutableStateOf(false) }
-
-        if (!enabled) expanded = false
-
-        Row(modifier = modifier
-            .fillMaxWidth()
-            .alpha(alpha = if (enabled) 1f else 0.5f)
-            .padding(bottom = 4.dp)) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .clickable(enabled = enabled) { expanded = !expanded }
-                        .padding(all = 8.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        TitleAndSummary(title, summary)
-                        Spacer(modifier = Modifier.height(height = 4.dp))
-                        Text(
-                            text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                    val rotation by animateFloatAsState(
-                        targetValue = if (expanded) -180f else 0f,
-                        animationSpec = getAnimateTween()
-                    )
-                    IconButton(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .size(34.dp)
-                            .rotate(rotation),
-                        onClick = { expanded = !expanded }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowDropDown,
-                            contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse)
-                        )
-                    }
-                }
-                Column(modifier = Modifier.animateContentSize(animationSpec = getAnimateTween())) {
-                    if (expanded) {
-                        repeat(items.size) { index ->
-                            val item = items[index]
-                            ListItem(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 3.dp),
-                                selected = getItemId(selectedItem) == getItemId(item),
-                                itemName = getItemText(item),
-                                onClick = {
-                                    if (getItemId(selectedItem) != getItemId(item)) {
-                                        selectedItem = item
-                                        unit.put(getItemId(item)).save()
-                                        onValueChange(item)
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
+        SimpleListLayout(
+            modifier = modifier,
+            items = items,
+            currentId = unit.getValue(),
+            defaultId = unit.defaultValue,
+            title = title,
+            summary = summary,
+            getItemText = getItemText,
+            getItemId = getItemId,
+            enabled = enabled,
+            onValueChange = { item ->
+                unit.put(getItemId(item)).save()
+                onValueChange(item)
             }
-        }
-    }
-
-    @Composable
-    private fun ListItem(
-        selected: Boolean,
-        itemName: String,
-        modifier: Modifier = Modifier,
-        onClick: () -> Unit = {}
-    ) {
-        Row(
-            modifier = modifier
-                .clip(shape = MaterialTheme.shapes.large)
-                .clickable(onClick = onClick)
-        ) {
-            RadioButton(
-                selected = selected,
-                onClick = onClick
-            )
-            Text(
-                text = itemName,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-        }
+        )
     }
 
     @Composable
@@ -385,48 +296,16 @@ class SettingsLayoutScope {
         onValueChange: (String) -> Unit = {},
         singleLine: Boolean = true
     ) {
-        var value by remember { mutableStateOf(unit.getValue()) }
-
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
-        ) {
-            TitleAndSummary(title = title, summary = summary)
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = value,
-                textStyle = MaterialTheme.typography.labelMedium,
-                onValueChange = {
-                    value = it
-                    unit.put(value).save()
-                    onValueChange(value)
-                },
-                singleLine = singleLine,
-                shape = MaterialTheme.shapes.large
-            )
-        }
-    }
-
-    @Composable
-    private fun TitleAndSummary(
-        title: String,
-        summary: String? = null,
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall
+        TextInputLayout(
+            modifier = modifier,
+            currentValue = unit.getValue(),
+            title = title,
+            summary = summary,
+            onValueChange = { value ->
+                unit.put(value).save()
+                onValueChange(value)
+            },
+            singleLine = singleLine
         )
-        summary?.let { text ->
-            Spacer(
-                modifier = Modifier.height(height = 4.dp)
-            )
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelSmall
-            )
-        }
     }
 }

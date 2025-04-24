@@ -1,19 +1,43 @@
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 @Composable
@@ -38,6 +62,200 @@ fun ScalingLabel(
         Text(
             modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
             text = text
+        )
+    }
+}
+
+@Composable
+fun <E> SimpleListLayout(
+    modifier: Modifier = Modifier,
+    items: List<E>,
+    currentId: String,
+    defaultId: String,
+    title: String,
+    summary: String? = null,
+    getItemText: @Composable (E) -> String,
+    getItemId: (E) -> String,
+    enabled: Boolean = true,
+    onValueChange: (E) -> Unit = {}
+) {
+    require(items.isNotEmpty()) { "Items list cannot be empty" }
+
+    val initialItem = remember(items, currentId, defaultId) {
+        items.firstOrNull { getItemId(it) == currentId }
+            ?: items.firstOrNull { getItemId(it) == defaultId }
+            ?: items.first()
+    }
+    var selectedItem by remember { mutableStateOf(initialItem) }
+    var expanded by remember { mutableStateOf(false) }
+
+    if (!enabled) expanded = false
+
+    Row(modifier = modifier
+        .fillMaxWidth()
+        .alpha(alpha = if (enabled) 1f else 0.5f)
+        .padding(bottom = 4.dp)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .clickable(enabled = enabled) { expanded = !expanded }
+                    .padding(all = 8.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    TitleAndSummary(title, summary)
+                    Spacer(modifier = Modifier.height(height = 4.dp))
+                    Text(
+                        text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                val rotation by animateFloatAsState(
+                    targetValue = if (expanded) -180f else 0f,
+                    animationSpec = getAnimateTween()
+                )
+                IconButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .size(34.dp)
+                        .rotate(rotation),
+                    onClick = { expanded = !expanded }
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowDropDown,
+                        contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse)
+                    )
+                }
+            }
+            Column(modifier = Modifier.animateContentSize(animationSpec = getAnimateTween())) {
+                if (expanded) {
+                    repeat(items.size) { index ->
+                        val item = items[index]
+                        SimpleListItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 3.dp),
+                            selected = getItemId(selectedItem) == getItemId(item),
+                            itemName = getItemText(item),
+                            onClick = {
+                                if (getItemId(selectedItem) != getItemId(item)) {
+                                    selectedItem = item
+                                    onValueChange(item)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SimpleListItem(
+    selected: Boolean,
+    itemName: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.large)
+            .clickable(onClick = onClick)
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+        Text(
+            text = itemName,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.align(Alignment.CenterVertically)
+        )
+    }
+}
+
+data class IDItem(val id: String, val title: String)
+
+@Composable
+fun SimpleIDListLayout(
+    modifier: Modifier = Modifier,
+    items: List<IDItem>,
+    currentId: String,
+    defaultId: String,
+    title: String,
+    summary: String? = null,
+    enabled: Boolean = true,
+    onValueChange: (IDItem) -> Unit = {}
+) {
+    SimpleListLayout(
+        modifier = modifier,
+        items = items,
+        currentId = currentId,
+        defaultId = defaultId,
+        title = title,
+        summary = summary,
+        getItemText = { it.title },
+        getItemId = { it.id },
+        enabled = enabled,
+        onValueChange = onValueChange
+    )
+}
+
+@Composable
+fun TextInputLayout(
+    modifier: Modifier = Modifier,
+    currentValue: String = "",
+    title: String,
+    summary: String? = null,
+    onValueChange: (String) -> Unit = {},
+    label: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = true
+) {
+    var value by remember { mutableStateOf(currentValue) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        TitleAndSummary(title = title, summary = summary)
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            textStyle = MaterialTheme.typography.labelMedium,
+            onValueChange = {
+                value = it
+                onValueChange(value)
+            },
+            label = label,
+            supportingText = supportingText,
+            singleLine = singleLine,
+            shape = MaterialTheme.shapes.large
+        )
+    }
+}
+
+@Composable
+fun TitleAndSummary(
+    title: String,
+    summary: String? = null,
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall
+    )
+    summary?.let { text ->
+        Spacer(
+            modifier = Modifier.height(height = 4.dp)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall
         )
     }
 }

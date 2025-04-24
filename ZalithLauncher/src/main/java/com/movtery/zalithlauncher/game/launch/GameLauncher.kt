@@ -159,7 +159,7 @@ class GameLauncher(
     }
 
     private fun getRuntime(): String {
-        val versionRuntime = version.getJavaDir().takeIf { it.isNotEmpty() } ?: ""
+        val versionRuntime = version.getJavaRuntime().takeIf { it.isNotEmpty() } ?: ""
 
         if (versionRuntime.isNotEmpty()) return versionRuntime
 

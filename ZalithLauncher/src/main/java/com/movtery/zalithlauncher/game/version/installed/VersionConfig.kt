@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.version.installed
 
-import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
@@ -15,7 +14,7 @@ import java.io.FileWriter
 
 class VersionConfig(private var versionPath: File) : Parcelable {
     private var isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL
-    private var javaDir: String = ""
+    private var javaRuntime: String = ""
     private var jvmArgs: String = ""
     private var renderer: String = ""
     private var driver: String = ""
@@ -27,7 +26,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     constructor(
         filePath: File,
         isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL,
-        javaDir: String = "",
+        javaRuntime: String = "",
         jvmArgs: String = "",
         renderer: String = "",
         driver: String = "",
@@ -37,7 +36,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         versionSummary: String = ""
     ) : this(filePath) {
         this.isolationType = isolationType
-        this.javaDir = javaDir
+        this.javaRuntime = javaRuntime
         this.jvmArgs = jvmArgs
         this.renderer = renderer
         this.driver = driver
@@ -49,7 +48,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun copy(): VersionConfig = VersionConfig(versionPath,
         getIsolationTypeNotNull(isolationType),
-        getStringNotNull(javaDir),
+        getStringNotNull(javaRuntime),
         getStringNotNull(jvmArgs),
         getStringNotNull(renderer),
         getStringNotNull(driver),
@@ -97,9 +96,9 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun setIsolationType(isolationType: IsolationType) { this.isolationType = isolationType }
 
-    fun getJavaDir(): String = getStringNotNull(javaDir)
+    fun getJavaRuntime(): String = getStringNotNull(javaRuntime)
 
-    fun setJavaDir(dir: String) { this.javaDir = dir }
+    fun setJavaRuntime(dir: String) { this.javaRuntime = dir }
 
     fun getJvmArgs(): String = getStringNotNull(jvmArgs)
 
@@ -129,18 +128,6 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun setVersionSummary(versionSummary: String) { this.versionSummary = versionSummary }
 
-    fun checkDifferent(otherConfig: VersionConfig): Boolean {
-        return !(this.getIsolationType() == otherConfig.getIsolationType() &&
-                this.getJavaDir() == otherConfig.getJavaDir() &&
-                this.getJvmArgs() == otherConfig.getJvmArgs() &&
-                this.getRenderer() == otherConfig.getRenderer() &&
-                this.getDriver() == otherConfig.getDriver() &&
-                this.getControl() == otherConfig.getControl() &&
-                this.getCustomPath() == otherConfig.getCustomPath() &&
-                this.getCustomInfo() == otherConfig.getCustomInfo()) &&
-                this.getVersionSummary() == otherConfig.getVersionSummary()
-    }
-
     private fun getIsolationTypeNotNull(type: IsolationType?) = type ?: IsolationType.FOLLOW_GLOBAL
 
     override fun describeContents(): Int = 0
@@ -148,7 +135,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(versionPath.absolutePath)
         dest.writeInt(getIsolationTypeNotNull(isolationType).ordinal)
-        dest.writeString(getStringNotNull(javaDir))
+        dest.writeString(getStringNotNull(javaRuntime))
         dest.writeString(getStringNotNull(jvmArgs))
         dest.writeString(getStringNotNull(renderer))
         dest.writeString(getStringNotNull(driver))
@@ -162,7 +149,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         override fun createFromParcel(parcel: Parcel): VersionConfig {
             val versionPath = File(parcel.readString().orEmpty())
             val isolationType = IsolationType.entries.getOrNull(parcel.readInt()) ?: IsolationType.FOLLOW_GLOBAL
-            val javaDir = parcel.readString().orEmpty()
+            val javaRuntime = parcel.readString().orEmpty()
             val jvmArgs = parcel.readString().orEmpty()
             val renderer = parcel.readString().orEmpty()
             val driver = parcel.readString().orEmpty()
@@ -170,7 +157,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
             val versionSummary = parcel.readString().orEmpty()
-            return VersionConfig(versionPath, isolationType, javaDir, jvmArgs, renderer, driver, control, customPath, customInfo, versionSummary)
+            return VersionConfig(versionPath, isolationType, javaRuntime, jvmArgs, renderer, driver, control, customPath, customInfo, versionSummary)
         }
 
         override fun newArray(size: Int): Array<VersionConfig?> {
@@ -206,15 +193,11 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             config.setIsolationType(IsolationType.ENABLE)
             return config
         }
-
-        fun getIsolationString(context: Context, type: IsolationType): String = when (type) {
-            IsolationType.FOLLOW_GLOBAL -> context.getString(R.string.versions_manage_isolation_type_follow_global)
-            IsolationType.ENABLE -> context.getString(R.string.generic_open)
-            IsolationType.DISABLE -> context.getString(R.string.generic_close)
-        }
     }
 
-    enum class IsolationType {
-        FOLLOW_GLOBAL, ENABLE, DISABLE
+    enum class IsolationType(val textRes: Int) {
+        FOLLOW_GLOBAL(R.string.generic_follow_global),
+        ENABLE(R.string.generic_open),
+        DISABLE(R.string.generic_close)
     }
 }

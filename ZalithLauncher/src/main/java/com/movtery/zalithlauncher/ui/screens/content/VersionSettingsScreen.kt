@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +38,9 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
+import com.movtery.zalithlauncher.ui.screens.content.versions.VERSION_CONFIG_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.versions.VERSION_OVERVIEW_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
@@ -114,7 +117,8 @@ private fun TabMenu(
         }
 
         val settingItems = listOf(
-            VersionSettingsItem(VERSION_OVERVIEW_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Dashboard, R.string.versions_manage_settings_overview) }, R.string.versions_manage_settings_overview)
+            VersionSettingsItem(VERSION_OVERVIEW_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
+            VersionSettingsItem(VERSION_CONFIG_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config)
         )
 
         LazyColumn(
@@ -185,6 +189,11 @@ private fun NavigationUI(
             route = VERSION_OVERVIEW_SCREEN_TAG
         ) {
             VersionOverViewScreen()
+        }
+        composable(
+            route = VERSION_CONFIG_SCREEN_TAG
+        ) {
+            VersionConfigScreen()
         }
     }
 }

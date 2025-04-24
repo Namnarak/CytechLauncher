@@ -102,7 +102,7 @@ class Version(
 
     fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.vulkanDriver.getValue())
 
-    fun getJavaDir(): String = versionConfig.getJavaDir()
+    fun getJavaRuntime(): String = versionConfig.getJavaRuntime()
 
     fun getJvmArgs(): String = versionConfig.getJvmArgs()
 
