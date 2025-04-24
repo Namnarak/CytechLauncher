@@ -126,9 +126,6 @@ fun VirtualPointerLayout(
     }
 }
 
-/**
- * @param triggerRefresh 触发强制重组更新，用于刷新鼠标指针
- */
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
@@ -138,6 +135,12 @@ fun MousePointer(
     triggerRefresh: Any? = null
 ) {
     val context = LocalContext.current
+
+    val imageLoader = remember(triggerRefresh, context) {
+        ImageLoader.Builder(context)
+            .components { add(GifDecoder.Factory()) }
+            .build()
+    }
 
     val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
     val imageModifier = modifier.size(mouseSize)
@@ -162,9 +165,7 @@ fun MousePointer(
     if (model != null) {
         AsyncImage(
             model = model,
-            imageLoader = ImageLoader.Builder(context)
-                .components { add(GifDecoder.Factory()) }
-                .build(),
+            imageLoader = imageLoader,
             contentDescription = null,
             alignment = imageAlignment,
             contentScale = ContentScale.Fit,

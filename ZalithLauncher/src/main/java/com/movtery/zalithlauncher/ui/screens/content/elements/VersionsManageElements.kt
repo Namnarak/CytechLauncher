@@ -630,6 +630,12 @@ fun VersionIconImage(
 ) {
     val context = LocalContext.current
 
+    val imageLoader = remember(refreshKey, context) {
+        ImageLoader.Builder(context)
+            .components { add(GifDecoder.Factory()) }
+            .build()
+    }
+
     val (model, fallbackRes) = remember(refreshKey, context) {
         when {
             version == null -> null to R.drawable.ic_minecraft
@@ -650,9 +656,7 @@ fun VersionIconImage(
     if (model != null) {
         AsyncImage(
             model = model,
-            imageLoader = ImageLoader.Builder(context)
-                .components { add(GifDecoder.Factory()) }
-                .build(),
+            imageLoader = imageLoader,
             modifier = modifier,
             contentScale = ContentScale.Inside,
             contentDescription = null
