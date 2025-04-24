@@ -108,14 +108,14 @@ private fun VersionConfigs(
 
         SimpleListLayout(
             items = VersionConfig.IsolationType.entries,
-            currentId = config.getIsolationType().name,
+            currentId = config.isolationType.name,
             defaultId = VersionConfig.IsolationType.FOLLOW_GLOBAL.name,
             title = stringResource(R.string.versions_config_isolation),
             getItemText = { stringResource(it.textRes) },
             getItemId = { it.takeIf { it != VersionConfig.IsolationType.FOLLOW_GLOBAL }?.name ?: "" },
             onValueChange = { type ->
-                if (config.getIsolationType() != type) {
-                    config.setIsolationType(type)
+                if (config.isolationType != type) {
+                    config.isolationType = type
                     config.saveOrShowError(context)
                 }
             }
@@ -123,12 +123,12 @@ private fun VersionConfigs(
 
         SimpleIDListLayout(
             items = getIDList(Renderers.getCompatibleRenderers(context).second) { IDItem(it.getUniqueIdentifier(), it.getRendererName()) },
-            currentId = config.getRenderer(),
+            currentId = config.renderer,
             defaultId = "",
             title = stringResource(R.string.versions_config_renderer),
             onValueChange = { item ->
-                if (config.getRenderer() != item.id) {
-                    config.setRenderer(item.id)
+                if (config.renderer != item.id) {
+                    config.renderer = item.id
                     config.saveOrShowError(context)
                 }
             }
@@ -136,12 +136,12 @@ private fun VersionConfigs(
 
         SimpleIDListLayout(
             items = getIDList(DriverPluginManager.getDriverList()) { IDItem(it.id, it.name) },
-            currentId = config.getDriver(),
+            currentId = config.driver,
             defaultId = "",
             title = stringResource(R.string.versions_config_vulkan_driver),
             onValueChange = { item ->
-                if (config.getDriver() != item.id) {
-                    config.setDriver(item.id)
+                if (config.driver != item.id) {
+                    config.driver = item.id
                     config.saveOrShowError(context)
                 }
             }
@@ -166,13 +166,13 @@ private fun GameConfigs(
 
         SimpleIDListLayout(
             items = getIDList(RuntimesManager.getRuntimes().filter { it.isCompatible }) { IDItem(it.name, it.name) },
-            currentId = config.getJavaRuntime(),
+            currentId = config.javaRuntime,
             defaultId = "",
             title = stringResource(R.string.settings_game_java_runtime_title),
             summary = stringResource(R.string.versions_config_java_runtime_summary),
             onValueChange = { item ->
-                if (config.getJavaRuntime() != item.id) {
-                    config.setJavaRuntime(item.id)
+                if (config.javaRuntime != item.id) {
+                    config.javaRuntime = item.id
                     config.saveOrShowError(context)
                 }
             }
@@ -216,12 +216,12 @@ private fun GameConfigs(
         }
 
         TextInputLayout(
-            currentValue = config.getCustomInfo(),
+            currentValue = config.customInfo,
             title = stringResource(R.string.settings_game_version_custom_info_title),
             summary = stringResource(R.string.settings_game_version_custom_info_summary),
             onValueChange = { value ->
-                if (config.getCustomInfo() != value) {
-                    config.setCustomInfo(value)
+                if (config.customInfo != value) {
+                    config.customInfo = value
                     config.saveOrShowError(context)
                 }
             },
@@ -231,12 +231,12 @@ private fun GameConfigs(
         )
 
         TextInputLayout(
-            currentValue = config.getJvmArgs(),
+            currentValue = config.jvmArgs,
             title = stringResource(R.string.settings_game_jvm_args_title),
             summary = stringResource(R.string.settings_game_jvm_args_summary),
             onValueChange = { value ->
-                if (config.getJvmArgs() != value) {
-                    config.setJvmArgs(value)
+                if (config.jvmArgs != value) {
+                    config.jvmArgs = value
                     config.saveOrShowError(context)
                 }
             },

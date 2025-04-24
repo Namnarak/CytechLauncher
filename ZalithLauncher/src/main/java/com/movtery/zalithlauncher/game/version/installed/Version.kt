@@ -68,7 +68,7 @@ class Version(
      * @return 版本描述是否可用
      */
     fun isSummaryValid(): Boolean {
-        val summary = versionConfig.getVersionSummary()
+        val summary = versionConfig.versionSummary
         return summary.isNotEmpty() && summary.isNotBlank()
     }
 
@@ -77,7 +77,7 @@ class Version(
      */
     fun getVersionSummary(): String {
         if (!isValid()) throw IllegalStateException("The version is invalid!")
-        return if (isSummaryValid()) versionConfig.getVersionSummary() else versionInfo!!.getInfoString()
+        return if (isSummaryValid()) versionConfig.versionSummary else versionInfo!!.getInfoString()
     }
 
     /**
@@ -96,21 +96,21 @@ class Version(
     fun getGameDir(): File {
         return if (versionConfig.isIsolation()) versionConfig.getVersionPath()
         //未开启版本隔离可以使用自定义路径，如果自定义路径为空（则为未设置），那么返回默认游戏路径（.minecraft/）
-        else if (versionConfig.getCustomPath().isNotEmpty()) File(versionConfig.getCustomPath())
+        else if (versionConfig.customPath.isNotEmpty()) File(versionConfig.customPath)
         else File(getGameHome())
     }
 
     private fun String.getValueOrDefault(default: String): String = this.takeIf { it.isNotEmpty() } ?: default
 
-    fun getRenderer(): String = versionConfig.getRenderer().getValueOrDefault(AllSettings.renderer.getValue())
+    fun getRenderer(): String = versionConfig.renderer.getValueOrDefault(AllSettings.renderer.getValue())
 
-    fun getDriver(): String = versionConfig.getDriver().getValueOrDefault(AllSettings.vulkanDriver.getValue())
+    fun getDriver(): String = versionConfig.driver.getValueOrDefault(AllSettings.vulkanDriver.getValue())
 
-    fun getJavaRuntime(): String = versionConfig.getJavaRuntime()
+    fun getJavaRuntime(): String = versionConfig.javaRuntime
 
-    fun getJvmArgs(): String = versionConfig.getJvmArgs()
+    fun getJvmArgs(): String = versionConfig.jvmArgs
 
-    fun getCustomInfo(): String = versionConfig.getCustomInfo().getValueOrDefault(AllSettings.versionCustomInfo.getValue())
+    fun getCustomInfo(): String = versionConfig.customInfo.getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)
 
     fun getRamAllocation(context: Context = GlobalContext): Int = versionConfig.ramAllocation.takeIf { it >= 256 }?.let {

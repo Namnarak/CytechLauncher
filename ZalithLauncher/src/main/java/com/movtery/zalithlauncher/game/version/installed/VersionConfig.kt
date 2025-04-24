@@ -13,15 +13,24 @@ import java.io.File
 import java.io.FileWriter
 
 class VersionConfig(private var versionPath: File) : Parcelable {
-    private var isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL
-    private var javaRuntime: String = ""
-    private var jvmArgs: String = ""
-    private var renderer: String = ""
-    private var driver: String = ""
-    private var control: String = ""
-    private var customPath: String = ""
-    private var customInfo: String = ""
-    private var versionSummary: String = ""
+    var isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL
+        get() = getIsolationTypeNotNull(field)
+    var javaRuntime: String = ""
+        get() = getStringNotNull(field)
+    var jvmArgs: String = ""
+        get() = getStringNotNull(field)
+    var renderer: String = ""
+        get() = getStringNotNull(field)
+    var driver: String = ""
+        get() = getStringNotNull(field)
+    var control: String = ""
+        get() = getStringNotNull(field)
+    var customPath: String = ""
+        get() = getStringNotNull(field)
+    var customInfo: String = ""
+        get() = getStringNotNull(field)
+    var versionSummary: String = ""
+        get() = getStringNotNull(field)
     var ramAllocation: Int = -1
 
     constructor(
@@ -96,42 +105,6 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         IsolationType.ENABLE -> true
         IsolationType.DISABLE -> false
     }
-
-    fun getIsolationType() = getIsolationTypeNotNull(isolationType)
-
-    fun setIsolationType(isolationType: IsolationType) { this.isolationType = isolationType }
-
-    fun getJavaRuntime(): String = getStringNotNull(javaRuntime)
-
-    fun setJavaRuntime(dir: String) { this.javaRuntime = dir }
-
-    fun getJvmArgs(): String = getStringNotNull(jvmArgs)
-
-    fun setJvmArgs(args: String) { this.jvmArgs = args }
-
-    fun getRenderer(): String = getStringNotNull(renderer)
-
-    fun setRenderer(renderer: String) { this.renderer = renderer }
-
-    fun getDriver(): String = getStringNotNull(driver)
-
-    fun setDriver(driver: String) { this.driver = driver }
-
-    fun getControl(): String = getStringNotNull(control)
-
-    fun setControl(control: String) { this.control = control }
-
-    fun getCustomPath(): String = getStringNotNull(customPath)
-
-    fun setCustomPath(customPath: String) { this.customPath = customPath }
-
-    fun getCustomInfo(): String = getStringNotNull(customInfo)
-
-    fun setCustomInfo(customInfo: String) { this.customInfo = customInfo }
-
-    fun getVersionSummary(): String = getStringNotNull(versionSummary)
-
-    fun setVersionSummary(versionSummary: String) { this.versionSummary = versionSummary }
 
     private fun getIsolationTypeNotNull(type: IsolationType?) = type ?: IsolationType.FOLLOW_GLOBAL
 
@@ -212,7 +185,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
         fun createIsolation(versionPath: File): VersionConfig {
             val config = VersionConfig(versionPath)
-            config.setIsolationType(IsolationType.ENABLE)
+            config.isolationType = IsolationType.ENABLE
             return config
         }
     }

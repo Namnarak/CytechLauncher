@@ -125,7 +125,7 @@ fun VersionOverViewScreen() {
             },
             setVersionSummary = { value ->
                 version.getVersionConfig().apply {
-                    setVersionSummary(value)
+                    this.versionSummary = value
                     save()
                 }
                 versionSummary = version.getVersionSummary()
@@ -438,7 +438,7 @@ private fun VersionsOperation(
         }
         is VersionsOperation.EditSummary -> {
             val version = versionsOperation.version
-            var value by remember { mutableStateOf(version.getVersionConfig().getVersionSummary()) }
+            var value by remember { mutableStateOf(version.getVersionConfig().versionSummary) }
 
             SimpleEditDialog(
                 title = stringResource(R.string.versions_overview_edit_version_summary),
