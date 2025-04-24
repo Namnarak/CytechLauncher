@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -446,6 +447,7 @@ fun VersionItemLayout(
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onRenameClick: () -> Unit = {},
     onCopyClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -545,6 +547,15 @@ fun VersionItemLayout(
                         }
                     }
                 }
+            }
+            IconButton(
+                onClick = onSettingsClick
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.versions_manage_settings)
+                )
             }
             Row {
                 var menuExpanded by remember { mutableStateOf(false) }

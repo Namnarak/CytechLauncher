@@ -141,6 +141,7 @@ private fun RightMenu(
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
                         onClick = {
+                            VersionsManager.versionBeingSet = VersionsManager.currentVersion
                             navController.navigateTo(VERSION_SETTINGS_SCREEN_TAG)
                         }
                     ) {

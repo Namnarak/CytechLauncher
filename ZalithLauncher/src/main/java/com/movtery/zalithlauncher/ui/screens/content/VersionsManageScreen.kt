@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -74,6 +75,7 @@ fun VersionsManageScreen(
 
             VersionsLayout(
                 isVisible = isVisible,
+                navController = navController,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
@@ -188,6 +190,7 @@ private fun GamePathLayout(
 @Composable
 private fun VersionsLayout(
     isVisible: Boolean,
+    navController: NavController,
     modifier: Modifier = Modifier,
     onRefresh: () -> Unit,
     onInstall: () -> Unit
@@ -267,6 +270,10 @@ private fun VersionsLayout(
                                             //不允许选择无效版本
                                             versionsOperation = VersionsOperation.InvalidDelete(version)
                                         }
+                                    },
+                                    onSettingsClick = {
+                                        VersionsManager.versionBeingSet = version
+                                        navController.navigateTo(VERSION_SETTINGS_SCREEN_TAG)
                                     },
                                     onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
                                     onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
