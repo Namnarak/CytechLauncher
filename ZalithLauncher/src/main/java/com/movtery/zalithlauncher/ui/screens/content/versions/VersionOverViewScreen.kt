@@ -88,6 +88,7 @@ fun VersionOverViewScreen() {
             uri?.let { result ->
                 TaskSystem.submitTask(
                     Task.runTask(
+                        dispatcher = Dispatchers.IO,
                         task = {
                             context.copyLocalFile(result, iconFile)
                             refreshVersionIcon++
