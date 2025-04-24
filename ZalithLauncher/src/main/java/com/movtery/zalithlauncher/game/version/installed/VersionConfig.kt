@@ -22,6 +22,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     private var control: String = ""
     private var customPath: String = ""
     private var customInfo: String = ""
+    private var versionSummary: String = ""
 
     constructor(
         filePath: File,
@@ -32,7 +33,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         driver: String = "",
         control: String = "",
         customPath: String = "",
-        customInfo: String = ""
+        customInfo: String = "",
+        versionSummary: String = ""
     ) : this(filePath) {
         this.isolationType = isolationType
         this.javaDir = javaDir
@@ -42,6 +44,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.control = control
         this.customPath = customPath
         this.customInfo = customInfo
+        this.versionSummary = versionSummary
     }
 
     fun copy(): VersionConfig = VersionConfig(versionPath,
@@ -52,7 +55,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         getStringNotNull(driver),
         getStringNotNull(control),
         getStringNotNull(customPath),
-        getStringNotNull(customInfo)
+        getStringNotNull(customInfo),
+        getStringNotNull(versionSummary)
     )
 
     fun save() {
@@ -121,6 +125,10 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun setCustomInfo(customInfo: String) { this.customInfo = customInfo }
 
+    fun getVersionSummary(): String = getStringNotNull(versionSummary)
+
+    fun setVersionSummary(versionSummary: String) { this.versionSummary = versionSummary }
+
     fun checkDifferent(otherConfig: VersionConfig): Boolean {
         return !(this.getIsolationType() == otherConfig.getIsolationType() &&
                 this.getJavaDir() == otherConfig.getJavaDir() &&
@@ -129,7 +137,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
                 this.getDriver() == otherConfig.getDriver() &&
                 this.getControl() == otherConfig.getControl() &&
                 this.getCustomPath() == otherConfig.getCustomPath() &&
-                this.getCustomInfo() == otherConfig.getCustomInfo())
+                this.getCustomInfo() == otherConfig.getCustomInfo()) &&
+                this.getVersionSummary() == otherConfig.getVersionSummary()
     }
 
     private fun getIsolationTypeNotNull(type: IsolationType?) = type ?: IsolationType.FOLLOW_GLOBAL
@@ -146,6 +155,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         dest.writeString(getStringNotNull(control))
         dest.writeString(getStringNotNull(customPath))
         dest.writeString(getStringNotNull(customInfo))
+        dest.writeString(getStringNotNull(versionSummary))
     }
 
     companion object CREATOR : Parcelable.Creator<VersionConfig> {
@@ -159,7 +169,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val control = parcel.readString().orEmpty()
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
-            return VersionConfig(versionPath, isolationType, javaDir, jvmArgs, renderer, driver, control, customPath, customInfo)
+            val versionSummary = parcel.readString().orEmpty()
+            return VersionConfig(versionPath, isolationType, javaDir, jvmArgs, renderer, driver, control, customPath, customInfo, versionSummary)
         }
 
         override fun newArray(size: Int): Array<VersionConfig?> {

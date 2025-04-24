@@ -85,6 +85,8 @@ import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
@@ -411,6 +413,11 @@ private fun NavigationUI(
             ) {
                 navController.popBackStack()
             }
+        }
+        composable(
+            route = VERSION_SETTINGS_SCREEN_TAG
+        ) {
+            VersionSettingsScreen()
         }
     }
 }

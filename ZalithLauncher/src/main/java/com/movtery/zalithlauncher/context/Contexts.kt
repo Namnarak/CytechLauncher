@@ -82,6 +82,6 @@ fun Context.copyLocalFile(
     outputFile: File
 ) {
     contentResolver.openInputStream(uri).use { inputStream ->
-        FileUtils.copyInputStreamToFile(inputStream, outputFile)
+        FileUtils.copyToFile(inputStream, outputFile)
     }
 }

@@ -15,8 +15,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +41,7 @@ import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.launch.LaunchGame
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -113,17 +118,38 @@ private fun RightMenu(
             ) {
                 navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
             }
-            VersionManagerLayout(
-                modifier = Modifier
-                    .height(56.dp)
-                    .padding(8.dp)
-                    .constrainAs(versionManagerLayout) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(launchButton.top)
-                    }
+            Row(
+                modifier = Modifier.constrainAs(versionManagerLayout) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    bottom.linkTo(launchButton.top)
+                },
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
+                val version = VersionsManager.currentVersion
+                VersionManagerLayout(
+                    version = version,
+                    modifier = Modifier
+                        .height(56.dp)
+                        .weight(1f)
+                        .padding(8.dp),
+                    swapToVersionManage = {
+                        navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
+                    }
+                )
+                version?.let {
+                    IconButton(
+                        modifier = Modifier.padding(end = 8.dp),
+                        onClick = {
+                            navController.navigateTo(VERSION_SETTINGS_SCREEN_TAG)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.versions_manage_settings)
+                        )
+                    }
+                }
             }
             ScalingActionButton(
                 modifier = Modifier
@@ -143,14 +169,15 @@ private fun RightMenu(
 
 @Composable
 private fun VersionManagerLayout(
+    version: Version?,
     modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-    onClick: () -> Unit = {}
+    swapToVersionManage: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
-            .clickable(onClick = onClick)
+            .clickable(onClick = swapToVersionManage)
     ) {
         Row(
             modifier = Modifier.fillMaxSize().padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
@@ -160,34 +187,43 @@ private fun VersionManagerLayout(
                     CircularProgressIndicator(modifier = Modifier.size(24.dp).align(Alignment.Center))
                 }
             } else {
-                val version = VersionsManager.currentVersion
                 VersionIconImage(
                     version = version,
                     modifier = Modifier.size(28.dp).align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Column(
-                    modifier = Modifier.weight(1f)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    val title = version?.getVersionName() ?: stringResource(R.string.versions_manage_no_versions)
+
+                if (version == null) {
                     Text(
-                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                        modifier = Modifier.align(Alignment.CenterVertically).basicMarquee(iterations = Int.MAX_VALUE),
                         overflow = TextOverflow.Clip,
-                        text = title,
+                        text = stringResource(R.string.versions_manage_no_versions),
                         style = MaterialTheme.typography.labelMedium,
                         color = textColor,
                         maxLines = 1
                     )
-                    version?.getVersionInfo()?.getInfoString()?.let { infoText ->
+                } else {
+                    Column(
+                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                    ) {
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                             overflow = TextOverflow.Clip,
-                            text = infoText,
-                            style = MaterialTheme.typography.labelSmall,
+                            text = version.getVersionName(),
+                            style = MaterialTheme.typography.labelMedium,
                             color = textColor,
                             maxLines = 1
                         )
+                        if (version.isValid()) {
+                            Text(
+                                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                                overflow = TextOverflow.Clip,
+                                text = version.getVersionSummary(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = textColor,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }

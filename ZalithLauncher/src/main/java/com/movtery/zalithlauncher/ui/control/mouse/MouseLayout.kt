@@ -135,30 +135,36 @@ fun MousePointer(
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
     mouseFile: File?,
     centerIcon: Boolean = false,
-    triggerRefresh: Boolean = false
+    triggerRefresh: Any? = null
 ) {
     val context = LocalContext.current
 
     val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
     val imageModifier = modifier.size(mouseSize)
 
-    if (mouseFile != null) {
-        val imageLoader = remember {
-            ImageLoader.Builder(context)
-                .components { add(GifDecoder.Factory()) }
-                .build()
+    val (model, defaultRes) = remember(mouseFile, triggerRefresh, context) {
+        val default = null to R.drawable.ic_mouse_pointer
+        when {
+            mouseFile == null -> default
+            else -> {
+                if (mouseFile.exists()) {
+                    val model = ImageRequest.Builder(context)
+                        .data(mouseFile)
+                        .build()
+                    model to null
+                } else {
+                    default
+                }
+            }
         }
+    }
 
-        val imageModel = remember(mouseFile, triggerRefresh) {
-            ImageRequest.Builder(context)
-                .data(mouseFile)
-                .diskCacheKey("${mouseFile.path}_${triggerRefresh.hashCode()}")
-                .build()
-        }
-
+    if (model != null) {
         AsyncImage(
-            model = imageModel,
-            imageLoader = imageLoader,
+            model = model,
+            imageLoader = ImageLoader.Builder(context)
+                .components { add(GifDecoder.Factory()) }
+                .build(),
             contentDescription = null,
             alignment = imageAlignment,
             contentScale = ContentScale.Fit,
@@ -166,7 +172,7 @@ fun MousePointer(
         )
     } else {
         Image(
-            painter = painterResource(R.drawable.ic_mouse_pointer),
+            painter = painterResource(id = defaultRes!!),
             contentDescription = null,
             alignment = imageAlignment,
             contentScale = ContentScale.Fit,

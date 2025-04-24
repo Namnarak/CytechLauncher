@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.path.getGameHome
+import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.toBoolean
@@ -11,15 +12,13 @@ import java.io.File
 
 /**
  * Minecraft 版本，由版本名称进行区分
- * @param versionsFolder 版本所属的版本文件夹
- * @param versionPath 版本的路径
+ * @param versionName 版本名称
  * @param versionConfig 独立版本的配置
  * @param versionInfo 版本信息
  * @param isValid 版本的有效性
  */
 class Version(
-    private val versionsFolder: String,
-    private val versionPath: String,
+    private var versionName: String,
     private val versionConfig: VersionConfig,
     private val versionInfo: VersionInfo?,
     private val isValid: Boolean
@@ -32,17 +31,24 @@ class Version(
     /**
      * @return 获取版本所属的版本文件夹
      */
-    fun getVersionsFolder(): String = versionsFolder
+    fun getVersionsFolder(): String = getVersionsHome()
 
     /**
      * @return 获取版本文件夹
      */
-    fun getVersionPath(): File = File(versionPath)
+    fun getVersionPath(): File = File(getVersionsHome(), versionName)
 
     /**
      * @return 获取版本名称
      */
     fun getVersionName(): String = getVersionPath().name
+
+    /**
+     * 设置新的版本名称
+     */
+    fun setVersionName(versionName: String) {
+        this.versionName = versionName
+    }
 
     /**
      * @return 获取版本隔离配置
@@ -53,6 +59,22 @@ class Version(
      * @return 获取版本信息
      */
     fun getVersionInfo() = versionInfo
+
+    /**
+     * @return 版本描述是否可用
+     */
+    fun isSummaryValid(): Boolean {
+        val summary = versionConfig.getVersionSummary()
+        return summary.isNotEmpty() && summary.isNotBlank()
+    }
+
+    /**
+     * @return 获取版本描述
+     */
+    fun getVersionSummary(): String {
+        if (!isValid()) throw IllegalStateException("The version is invalid!")
+        return if (isSummaryValid()) versionConfig.getVersionSummary() else versionInfo!!.getInfoString()
+    }
 
     /**
      * @return 版本的有效性：是否存在版本JSON文件、版本文件夹是否存在
@@ -90,7 +112,7 @@ class Version(
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeStringList(listOf(versionsFolder, versionPath))
+        dest.writeString(versionName)
         dest.writeParcelable(versionConfig, flags)
         dest.writeParcelable(versionInfo, flags)
         dest.writeInt(isValid.getInt())
@@ -99,14 +121,13 @@ class Version(
 
     companion object CREATOR : Parcelable.Creator<Version> {
         override fun createFromParcel(parcel: Parcel): Version {
-            val stringList = ArrayList<String>()
-            parcel.readStringList(stringList)
+            val versionName = parcel.readString()!!
             val versionConfig = parcel.readParcelable<VersionConfig>(VersionConfig::class.java.classLoader)!!
             val versionInfo = parcel.readParcelable<VersionInfo?>(VersionInfo::class.java.classLoader)
             val isValid = parcel.readInt().toBoolean()
             val offlineAccount = parcel.readInt().toBoolean()
 
-            return Version(stringList[0], stringList[1], versionConfig, versionInfo, isValid).apply {
+            return Version(versionName, versionConfig, versionInfo, isValid).apply {
                 offlineAccountLogin = offlineAccount
             }
         }

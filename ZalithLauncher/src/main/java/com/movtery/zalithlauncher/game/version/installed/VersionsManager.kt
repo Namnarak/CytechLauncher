@@ -40,6 +40,11 @@ object VersionsManager {
     var currentVersion by mutableStateOf<Version?>(null)
         private set
 
+    /**
+     * 当前正在被设置的版本
+     */
+    var versionBeingSet by mutableStateOf<Version?>(null)
+
     private var currentJob: Job? = null
 
     /**
@@ -66,10 +71,9 @@ object VersionsManager {
             _versions.update { emptyList() }
 
             val newVersions = mutableListOf<Version>()
-            val versionsHome: String = getVersionsHome()
-            File(versionsHome).listFiles()?.forEach { versionFile ->
+            File(getVersionsHome()).listFiles()?.forEach { versionFile ->
                 runCatching {
-                    processVersionFile(versionsHome, versionFile)
+                    processVersionFile(versionFile)
                 }.getOrNull()?.let { newVersions.add(it) }
             }
 
@@ -92,7 +96,7 @@ object VersionsManager {
         }
     }
 
-    private fun processVersionFile(versionsHome: String, versionFile: File): Version? {
+    private fun processVersionFile(versionFile: File): Version? {
         if (versionFile.exists() && versionFile.isDirectory) {
             var isVersion = false
 
@@ -108,8 +112,7 @@ object VersionsManager {
             val versionConfig = VersionConfig.parseConfig(versionFile)
 
             val version = Version(
-                versionsHome,
-                versionFile.absolutePath,
+                versionFile.name,
                 versionConfig,
                 versionInfo,
                 isVersion
@@ -143,6 +146,7 @@ object VersionsManager {
                 returnVersionByFirst()
             }
         }
+        versionBeingSet = currentVersion
     }
 
     private fun getVersion(name: String?): Version? {
@@ -229,7 +233,7 @@ object VersionsManager {
     fun renameVersion(version: Version, name: String) {
         val currentVersionName = currentVersion?.getVersionName()
         //如果当前的版本是即将被重命名的版本，那么就把将要重命名的名字设置为当前版本
-        if (version.getVersionName() == currentVersionName) saveCurrentVersion(name)
+        val saveToCurrent = version.getVersionName() == currentVersionName
 
         //尝试刷新收藏夹内的版本名称
         FavoritesVersionUtils.renameVersion(version.getVersionName(), name)
@@ -255,8 +259,12 @@ object VersionsManager {
 
         FileUtils.deleteQuietly(versionFolder)
 
-        //重命名后，需要刷新列表
-        refresh()
+        version.setVersionName(name)
+
+        if (saveToCurrent) {
+            //设置并刷新当前版本
+            saveCurrentVersion(name)
+        }
     }
 
     /**

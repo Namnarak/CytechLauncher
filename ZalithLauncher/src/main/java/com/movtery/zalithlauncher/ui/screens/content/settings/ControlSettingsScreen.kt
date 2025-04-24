@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -202,7 +203,7 @@ private fun MousePointerLayout(
     val context = LocalContext.current
 
     var mouseFile by remember { mutableStateOf(getMousePointerFileAvailable()) }
-    var triggerState by remember { mutableStateOf(false) }
+    var triggerState by remember { mutableIntStateOf(0) }
 
     var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
     when (mouseOperation) {
@@ -220,7 +221,7 @@ private fun MousePointerLayout(
         }
         is MousePointerOperation.Refresh -> {
             mouseFile = getMousePointerFileAvailable()
-            triggerState = !triggerState
+            triggerState++
             mouseOperation = MousePointerOperation.None
         }
     }

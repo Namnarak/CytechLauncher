@@ -54,6 +54,7 @@
     <string name="crash_exit">退出应用</string>
     <!--  错误  -->
     <string name="error_import_image">导入图片时出现问题</string>
+    <string name="error_create_dir">无法创建文件夹：%s</string>
     <!--  启动页面  -->
     <string name="splash_screen_unpack_desc">启动器需要安装这些内容，才能够确保 Minecraft 能够正常启动。这些内容已经包含在应用中，需要解压之后才能正常使用，点击下方按钮，开始解压并更新这些内容。</string>
     <string name="splash_screen_installing">启动器正在解压这些内容，解压完成后将自动进入主界面，请耐心等待。</string>
@@ -186,6 +187,22 @@
     <string name="versions_manage_delete_version_tip_invalid">当前版本缺少版本 JSON 文件，所以被判定为无效的版本，因此你不能选择这个版本！点击确认，删除这个错误的版本。</string>
     <string name="versions_manage_task_error">操作版本时出现问题</string>
     <string name="versions_manage_install_new">安装新游戏</string>
+    <string name="versions_manage_settings">版本设置</string>
+    <string name="versions_manage_settings_overview">版本概览</string>
+    <string name="versions_manage_settings_overview_management">版本管理</string>
+    <string name="versions_manage_settings_overview_quick_actions">快捷操作</string>
+    <string name="versions_manage_settings_custom_version_icon">自定义图标</string>
+    <string name="versions_manage_settings_reset_version_icon">重置图标</string>
+    <string name="versions_manage_settings_reset_version_icon_message">你确定要重置当前版本的图标吗？</string>
+    <string name="versions_manage_settings_edit_version_summary">编辑描述</string>
+    <string name="versions_manage_settings_edit_version_summary_label">留空则使用启动器默认描述</string>
+    <string name="versions_manage_version_folder">版本文件夹</string>
+    <string name="versions_manage_saves_folder">存档文件夹</string>
+    <string name="versions_manage_resource_pack_folder">资源包文件夹</string>
+    <string name="versions_manage_shaders_pack_folder">光影包文件夹</string>
+    <string name="versions_manage_screenshot_folder">屏幕截图文件夹</string>
+    <string name="versions_manage_logs_folder">日志文件夹</string>
+    <string name="versions_manage_crash_report_folder">崩溃报告文件夹</string>
     <!--  游戏  -->
     <string name="minecraft_getting_version_list">获取完整游戏列表</string>
     <string name="minecraft_download_download_version_json">下载并读取版本元数据</string>

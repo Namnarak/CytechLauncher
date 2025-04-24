@@ -37,11 +37,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.gif.GifDecoder
+import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathItem
 import com.movtery.zalithlauncher.game.path.GamePathManager
@@ -267,7 +271,10 @@ fun VersionsOperation(
                     updateVersionsOperation(
                         VersionsOperation.RunTask(
                             title = R.string.versions_manage_rename_version,
-                            task = { VersionsManager.renameVersion(versionsOperation.version, it) }
+                            task = {
+                                VersionsManager.renameVersion(versionsOperation.version, it)
+                                VersionsManager.refresh()
+                            }
                         )
                     )
                 }
@@ -297,15 +304,15 @@ fun VersionsOperation(
         }
         is VersionsOperation.Delete -> {
             val version = versionsOperation.version
-            SimpleAlertDialog(
-                title = stringResource(R.string.versions_manage_delete_version),
-                text = versionsOperation.text ?: stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
-                onDismiss = { updateVersionsOperation(VersionsOperation.None) },
-                onConfirm = {
+            DeleteVersionDialog(
+                version = version,
+                message = versionsOperation.text,
+                onDismissRequest = { updateVersionsOperation(VersionsOperation.None) },
+                onConfirm = { title, task ->
                     updateVersionsOperation(
                         VersionsOperation.RunTask(
-                            title = R.string.versions_manage_delete_version,
-                            task = { VersionsManager.deleteVersion(version) }
+                            title = title,
+                            task = task
                         )
                     )
                 }
@@ -411,6 +418,27 @@ fun CopyVersionDialog(
 }
 
 @Composable
+fun DeleteVersionDialog(
+    version: Version,
+    message: String? = null,
+    onDismissRequest: () -> Unit = {},
+    onConfirm: (title: Int, task: suspend () -> Unit) -> Unit = { _, _ -> },
+    onVersionDeleted: () -> Unit = {}
+) {
+    SimpleAlertDialog(
+        title = stringResource(R.string.versions_manage_delete_version),
+        text = message ?: stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
+        onDismiss = onDismissRequest,
+        onConfirm = {
+            onConfirm(R.string.versions_manage_delete_version) {
+                VersionsManager.deleteVersion(version)
+                onVersionDeleted()
+            }
+        }
+    )
+}
+
+@Composable
 fun VersionItemLayout(
     version: Version,
     selected: Boolean,
@@ -462,9 +490,22 @@ fun VersionItemLayout(
             ) {
                 //版本名称
                 Text(
+                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                    overflow = TextOverflow.Clip,
+                    maxLines = 1,
                     text = version.getVersionName(),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelLarge
                 )
+                //版本描述
+                if (version.isValid() && version.isSummaryValid()) {
+                    Text(
+                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                        overflow = TextOverflow.Clip,
+                        maxLines = 1,
+                        text = version.getVersionSummary(),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
                 //版本详细信息
                 Row {
                     if (!version.isValid()) {
@@ -574,14 +615,20 @@ fun VersionItemLayout(
 fun VersionIconImage(
     version: Version?,
     modifier: Modifier = Modifier,
+    refreshKey: Any? = null
 ) {
-    val (model, fallbackRes) = remember(version) {
+    val context = LocalContext.current
+
+    val (model, fallbackRes) = remember(refreshKey, context) {
         when {
             version == null -> null to R.drawable.ic_minecraft
             else -> {
                 val iconFile = VersionsManager.getVersionIconFile(version)
                 if (iconFile.exists()) {
-                    iconFile to null
+                    val imageModel = ImageRequest.Builder(context)
+                        .data(iconFile)
+                        .build()
+                    imageModel to null
                 } else {
                     null to getLoaderIconRes(version)
                 }
@@ -592,6 +639,9 @@ fun VersionIconImage(
     if (model != null) {
         AsyncImage(
             model = model,
+            imageLoader = ImageLoader.Builder(context)
+                .components { add(GifDecoder.Factory()) }
+                .build(),
             modifier = modifier,
             contentScale = ContentScale.Inside,
             contentDescription = null

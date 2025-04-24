@@ -3,9 +3,8 @@ package com.movtery.zalithlauncher.utils.file
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.provider.DocumentsContract
 import android.util.Log
-import com.movtery.zalithlauncher.R
+import androidx.core.content.FileProvider
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.compareChar
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
@@ -120,24 +119,16 @@ fun InputStream.readString(): String {
 }
 
 fun shareFile(context: Context, file: File) {
-    shareFile(context, file.name, file.absolutePath)
-}
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 
-fun shareFile(context: Context, fileName: String, filePath: String) {
-    val contentUri = DocumentsContract.buildDocumentUri(
-        context.getString(R.string.storageProviderAuthorities),
-        filePath
-    )
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "*/*"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
 
-    val shareIntent = Intent(Intent.ACTION_SEND)
-    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
-    shareIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    shareIntent.setDataAndType(contentUri, "*/*")
-
-    val sendIntent = Intent.createChooser(shareIntent, fileName)
-    context.startActivity(sendIntent)
+    val chooserIntent = Intent.createChooser(shareIntent, file.name)
+    context.startActivity(chooserIntent)
 }
 
 fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {
