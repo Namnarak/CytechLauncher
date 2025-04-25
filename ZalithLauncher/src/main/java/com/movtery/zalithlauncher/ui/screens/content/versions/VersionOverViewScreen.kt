@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -79,43 +80,19 @@ fun VersionOverViewScreen() {
         var refreshVersionIcon by remember { mutableIntStateOf(0) }
 
         val context = LocalContext.current
-        val iconFile = VersionsManager.getVersionIconFile(version)
-        var iconFileExists by remember { mutableStateOf(iconFile.exists()) }
-
-        val iconPicker = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            uri?.let { result ->
-                TaskSystem.submitTask(
-                    Task.runTask(
-                        dispatcher = Dispatchers.IO,
-                        task = {
-                            context.copyLocalFile(result, iconFile)
-                            refreshVersionIcon++
-                        },
-                        onError = { e ->
-                            Log.e(VERSION_OVERVIEW_SCREEN_TAG, "Failed to import icon!", e)
-                            FileUtils.deleteQuietly(iconFile)
-                            ObjectStates.updateThrowable(
-                                ObjectStates.ThrowableMessage(
-                                    title = context.getString(R.string.error_import_image),
-                                    message = e.getMessageOrToString()
-                                )
-                            )
-                        },
-                        onFinally = {
-                            iconFileExists = iconFile.exists()
-                        }
-                    )
-                )
-            }
-        }
+        var iconFileExists by remember { mutableStateOf(VersionsManager.getVersionIconFile(version).exists()) }
 
         var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
         VersionsOperation(
             versionsOperation = versionsOperation,
             updateOperation = { versionsOperation = it },
+            onIconPicked = {
+                refreshVersionIcon++
+                iconFileExists = VersionsManager.getVersionIconFile(version).exists()
+                versionsOperation = VersionsOperation.None
+            },
             resetIcon = {
+                val iconFile = VersionsManager.getVersionIconFile(version)
                 FileUtils.deleteQuietly(iconFile)
                 refreshVersionIcon++
                 iconFileExists = iconFile.exists()
@@ -150,7 +127,7 @@ fun VersionOverViewScreen() {
             VersionInfoLayout(
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
                 version, versionName, versionSummary, iconFileExists, refreshVersionIcon,
-                pickIcon = { iconPicker.launch(arrayOf("image/*")) },
+                pickIcon = { versionsOperation = VersionsOperation.PickIcon(version) },
                 resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
             )
 
@@ -194,6 +171,42 @@ fun VersionOverViewScreen() {
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun PickIcon(version: Version, onDone: () -> Unit) {
+    val context = LocalContext.current
+
+    val iconFile = VersionsManager.getVersionIconFile(version)
+    val iconPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { result ->
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = {
+                        context.copyLocalFile(result, iconFile)
+                    },
+                    onError = { e ->
+                        Log.e(VERSION_OVERVIEW_SCREEN_TAG, "Failed to import icon!", e)
+                        FileUtils.deleteQuietly(iconFile)
+                        ObjectStates.updateThrowable(
+                            ObjectStates.ThrowableMessage(
+                                title = context.getString(R.string.error_import_image),
+                                message = e.getMessageOrToString()
+                            )
+                        )
+                    },
+                    onFinally = onDone
+                )
+            )
+        }
+    }
+
+    LaunchedEffect(iconPicker) {
+        iconPicker.launch(arrayOf("image/*"))
     }
 }
 
@@ -375,6 +388,7 @@ private fun VersionQuickActions(
  */
 sealed interface VersionsOperation {
     data object None: VersionsOperation
+    data class PickIcon(val version: Version): VersionsOperation
     data object ResetIconAlert: VersionsOperation
     data object ResetIcon: VersionsOperation
     data class EditSummary(val version: Version): VersionsOperation
@@ -387,6 +401,7 @@ sealed interface VersionsOperation {
 private fun VersionsOperation(
     versionsOperation: VersionsOperation,
     updateOperation: (VersionsOperation) -> Unit,
+    onIconPicked: () -> Unit = {},
     resetIcon: () -> Unit = {},
     setVersionName: (String) -> Unit = {},
     setVersionSummary: (String) -> Unit = {},
@@ -394,6 +409,9 @@ private fun VersionsOperation(
 ) {
     when(versionsOperation) {
         is VersionsOperation.None -> {}
+        is VersionsOperation.PickIcon -> {
+            PickIcon(version = versionsOperation.version, onDone = onIconPicked)
+        }
         is VersionsOperation.ResetIconAlert -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_reset),
