@@ -1,127 +1,43 @@
-package com.movtery.zalithlauncher.game.account.otherserver.models;
+package com.movtery.zalithlauncher.game.account.otherserver.models
 
-import com.google.gson.annotations.SerializedName;
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
-import java.util.List;
+@Serializable
+class AuthResult(
+    @SerialName("accessToken")
+    val accessToken: String,
+    @SerialName("clientToken")
+    var clientToken: String,
+    @SerialName("availableProfiles")
+    var availableProfiles: List<AvailableProfiles>? = null,
+    @SerialName("user")
+    var user: User? = null,
+    @SerialName("selectedProfile")
+    var selectedProfile: SelectedProfile? = null
+) {
+    @Serializable
+    class User(
+        @SerialName("id")
+        var id: String,
+        @SerialName("properties")
+        var properties: JsonElement? = null
+    )
 
-public class AuthResult {
-    @SerializedName("accessToken")
-    private String accessToken;
-    @SerializedName("clientToken")
-    private String clientToken;
-    @SerializedName("availableProfiles")
-    private List<AvailableProfiles> availableProfiles;
-    @SerializedName("user")
-    private User user;
-    @SerializedName("selectedProfile")
-    private SelectedProfile selectedProfile;
+    @Serializable
+    class SelectedProfile(
+        @SerialName("id")
+        var id: String,
+        @SerialName("name")
+        var name: String
+    )
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getClientToken() {
-        return clientToken;
-    }
-
-    public void setClientToken(String clientToken) {
-        this.clientToken = clientToken;
-    }
-
-    public List<AvailableProfiles> getAvailableProfiles() {
-        return availableProfiles;
-    }
-
-    public void setAvailableProfiles(List<AvailableProfiles> availableProfiles) {
-        this.availableProfiles = availableProfiles;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public SelectedProfile getSelectedProfile() {
-        return selectedProfile;
-    }
-
-    public void setSelectedProfile(SelectedProfile selectedProfile) {
-        this.selectedProfile = selectedProfile;
-    }
-
-    public static class User {
-        @SerializedName("id")
-        private String id;
-        @SerializedName("properties")
-        private List<?> properties;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public List<?> getProperties() {
-            return properties;
-        }
-
-        public void setProperties(List<?> properties) {
-            this.properties = properties;
-        }
-    }
-
-    public static class SelectedProfile {
-        @SerializedName("id")
-        private String id;
-        @SerializedName("name")
-        private String name;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
-
-    public static class AvailableProfiles {
-        @SerializedName("id")
-        private String id;
-        @SerializedName("name")
-        private String name;
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
+    @Serializable
+    class AvailableProfiles(
+        @SerialName("id")
+        var id: String,
+        @SerialName("name")
+        var name: String
+    )
 }

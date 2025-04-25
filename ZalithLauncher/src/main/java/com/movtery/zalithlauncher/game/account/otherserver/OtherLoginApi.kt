@@ -8,121 +8,168 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
-import com.movtery.zalithlauncher.path.UrlManager
-import com.movtery.zalithlauncher.path.UrlManager.Companion.createRequestBuilder
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.IOException
 import java.util.Objects
 import java.util.UUID
 
 object OtherLoginApi {
-    private var client: OkHttpClient = UrlManager.createOkHttpClient()
+    @OptIn(ExperimentalSerializationApi::class)
+    private var client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                explicitNulls = false
+                coerceInputValues = true
+            })
+        }
+    }
+
     private var baseUrl: String? = null
 
     fun setBaseUrl(baseUrl: String) {
         var url = baseUrl
         if (baseUrl.endsWith("/")) {
-            url = baseUrl.substring(0, baseUrl.length - 1)
+            url = baseUrl.dropLast(1)
         }
         OtherLoginApi.baseUrl = url
     }
 
     @Throws(IOException::class)
-    suspend fun login(context: Context, userName: String?, password: String?,
-              onSuccess: suspend (AuthResult) -> Unit = {},
-              onFailed: suspend (error: String) -> Unit = {}
+    suspend fun login(
+        context: Context,
+        userName: String,
+        password: String,
+        onSuccess: suspend (AuthResult) -> Unit = {},
+        onFailed: suspend (error: String) -> Unit = {}
     ) {
         if (Objects.isNull(baseUrl)) {
             onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
             return
         }
-        val agent = AuthRequest.Agent().apply {
-            this.name = "Minecraft"
-            this.version = 1.0
-        }
-        val authRequest = AuthRequest()
-            .apply {
-            this.username = userName
-            this.password = password
-            this.agent = agent
-            this.requestUser = true
-            this.clientToken = UUID.randomUUID().toString().lowercase()
-        }
+
+        val agent = AuthRequest.Agent(
+            name = "Minecraft",
+            version = 1.0
+        )
+
+        val authRequest = AuthRequest(
+            username = userName,
+            password = password,
+            agent = agent,
+            requestUser = true,
+            clientToken = UUID.randomUUID().toString().lowercase()
+        )
+
         val data = Gson().toJson(authRequest)
         callLogin(data, "/authserver/authenticate", onSuccess, onFailed)
     }
 
     @Throws(IOException::class)
-    suspend fun refresh(context: Context, account: Account, select: Boolean,
-                onSuccess: suspend (AuthResult) -> Unit = {},
-                onFailed: suspend (error: String) -> Unit = {}
+    suspend fun refresh(
+        context: Context,
+        account: Account,
+        select: Boolean,
+        onSuccess: suspend (AuthResult) -> Unit = {},
+        onFailed: suspend (error: String) -> Unit = {}
     ) {
         if (Objects.isNull(baseUrl)) {
             onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
             return
         }
-        val refresh = Refresh()
-            .apply {
-            this.clientToken = account.clientToken
-            this.accessToken = account.accessToken
-        }
+
+        val refresh = Refresh(
+            clientToken = account.clientToken,
+            accessToken = account.accessToken
+        )
+
         if (select) {
-            val selectedProfile = Refresh.SelectedProfile().apply {
-                this.name = account.username
-                this.id = account.profileId
-            }
-            refresh.selectedProfile = selectedProfile
+            refresh.selectedProfile = Refresh.SelectedProfile(
+                name = account.username,
+                id = account.profileId
+            )
         }
-        val data = Gson().toJson(refresh)
-        callLogin(data, "/authserver/refresh", onSuccess, onFailed)
+
+        val json = Gson().toJson(refresh)
+        callLogin(json, "/authserver/refresh", onSuccess, onFailed)
     }
 
     private suspend fun callLogin(
-        data: String, url: String,
+        data: String,
+        url: String,
         onSuccess: suspend (AuthResult) -> Unit = {},
         onFailed: suspend (error: String) -> Unit = {}
     ) = withContext(Dispatchers.IO) {
-        val body = data.toRequestBody("application/json".toMediaTypeOrNull())
-        val call = client.newCall(createRequestBuilder(baseUrl + url, body).build())
+        try {
+            val response: HttpResponse = client.post(baseUrl + url) {
+                contentType(ContentType.Application.Json)
+                setBody(data)
+            }
 
-        call.execute().use { response ->
-            val res = response.body?.string()
-            if (response.code == 200) {
-                val result = Gson().fromJson(res, AuthResult::class.java)
+            if (response.status == HttpStatusCode.OK) {
+                val result: AuthResult = response.body()
                 onSuccess(result)
             } else {
-                var errorMessage: String = res ?: "null"
-                runCatching parseMessage@{
-                    if (errorMessage == "null") return@parseMessage
-
-                    val jsonObject = JSONObject(errorMessage)
-                    errorMessage = if (jsonObject.has("errorMessage")) {
-                        jsonObject.getString("errorMessage")
-                    } else if (jsonObject.has("message")) {
-                        jsonObject.getString("message")
-                    } else {
-                        Log.e("Other Login", "The error message returned by the server could not be retrieved.")
-                        return@parseMessage
-                    }
-
-                    if (errorMessage.contains("\\u"))
-                        errorMessage = StringUtils.decodeUnicode(errorMessage.replace("\\\\u", "\\u"))
-                }.onFailure { e -> Log.e("Other Login", "Failed to parse error message.", e) }
-                onFailed("(${response.code}) $errorMessage")
+                val errorMessage = parseError(response)
+                onFailed("(${response.status.value}) $errorMessage")
             }
+        } catch (e: CancellationException) {
+            Log.d("Other Login", "Login cancelled")
+        } catch (e: Exception) {
+            Log.e("Other Login", "Request failed", e)
+            onFailed("Request failed: ${e.localizedMessage}")
         }
     }
 
-    fun getServeInfo(url: String): String? {
-        return client.newCall(createRequestBuilder(url).get().build()).execute().use { response ->
-            val res = response.body?.string()
-            if (response.code == 200) res else null
+    private suspend fun parseError(response: HttpResponse): String {
+        return try {
+            val res = response.bodyAsText()
+            val json = JSONObject(res)
+            var message = when {
+                json.has("errorMessage") -> json.getString("errorMessage")
+                json.has("message") -> json.getString("message")
+                else -> "Unknown error"
+            }
+            if (message.contains("\\u")) {
+                message = StringUtils.decodeUnicode(message.replace("\\\\u", "\\u"))
+            }
+            message
+        } catch (e: Exception) {
+            Log.e("Other Login", "Failed to parse error", e)
+            "Unknown error"
+        }
+    }
+
+    suspend fun getServeInfo(url: String): String? = withContext(Dispatchers.IO) {
+        try {
+            val response = client.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                response.bodyAsText()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("Other Login", "Failed to get server info", e)
+            null
         }
     }
 }

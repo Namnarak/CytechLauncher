@@ -230,11 +230,12 @@ fun addOtherServer(
             ensureActive()
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
-                val server = Server()
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
-                    server.serverName = meta.optString("serverName")
-                    server.baseUrl = fullServerUrl
-                    server.register = meta.optJSONObject("links")?.optString("register") ?: ""
+                    val server = Server(
+                        serverName = meta.optString("serverName"),
+                        baseUrl = fullServerUrl,
+                        register = meta.optJSONObject("links")?.optString("register") ?: ""
+                    )
                     if (serverConfig().value.server.any { it.baseUrl == server.baseUrl }) {
                         //确保服务器不重复
                         return@runTask

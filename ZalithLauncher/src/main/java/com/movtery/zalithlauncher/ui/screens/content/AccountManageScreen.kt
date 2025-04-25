@@ -86,7 +86,7 @@ const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
 private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 
-private val otherServerConfig = MutableStateFlow(Servers().apply { server = ArrayList() })
+private val otherServerConfig = MutableStateFlow(Servers(ArrayList()))
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
 
 private fun refreshOtherServer() {

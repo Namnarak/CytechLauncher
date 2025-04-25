@@ -50,7 +50,7 @@ class OtherLoginHelper(
                     onSuccess = { authResult ->
                         if (!Objects.isNull(authResult.selectedProfile)) {
                             onlyOneRole(authResult, task)
-                        } else {
+                        } else if (!Objects.isNull(authResult.availableProfiles)) {
                             hasMultipleRoles(authResult, task)
                         }
                     },
@@ -95,13 +95,13 @@ class OtherLoginHelper(
         val task = login(
             context,
             onlyOneRole = { authResult, task ->
-                val profileId = authResult.selectedProfile.id
+                val profileId = authResult.selectedProfile!!.id
                 val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
-                updateAccountInfo(account, authResult, authResult.selectedProfile.name, profileId)
+                updateAccountInfo(account, authResult, authResult.selectedProfile!!.name, profileId)
                 onSuccess(account, task)
             },
             hasMultipleRoles = { authResult, _ ->
-                selectRole(authResult.availableProfiles) { selectedProfile ->
+                selectRole(authResult.availableProfiles!!) { selectedProfile ->
                     val profileId = selectedProfile.id
                     val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
                     updateAccountInfo(account, authResult, selectedProfile.name, profileId)
@@ -125,15 +125,15 @@ class OtherLoginHelper(
         return login(
             context,
             onlyOneRole = { authResult, task ->
-                if (authResult.selectedProfile.id != account.profileId) {
+                if (authResult.selectedProfile!!.id != account.profileId) {
                     roleNotFound()
                     return@login
                 }
-                updateAccountInfo(account, authResult, authResult.selectedProfile.name, authResult.selectedProfile.id)
+                updateAccountInfo(account, authResult, authResult.selectedProfile!!.name, authResult.selectedProfile!!.id)
                 onSuccess(account, task)
             },
             hasMultipleRoles = { authResult, task ->
-                authResult.availableProfiles.forEach { profile ->
+                authResult.availableProfiles!!.forEach { profile ->
                     if (profile.id == account.profileId) {
                         //匹配当前账号的ID时，那么这个角色就是这个账号
                         updateAccountInfo(account, authResult, profile.name, profile.id)
