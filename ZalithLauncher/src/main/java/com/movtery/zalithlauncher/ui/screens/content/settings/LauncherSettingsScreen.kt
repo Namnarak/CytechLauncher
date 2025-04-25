@@ -20,6 +20,7 @@ import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
@@ -32,8 +33,10 @@ fun LauncherSettingsScreen() {
     val context = LocalContext.current
 
     BaseScreen(
-        screenTag = LAUNCHER_SETTINGS_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = LAUNCHER_SETTINGS_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier

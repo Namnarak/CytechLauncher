@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -78,8 +79,10 @@ sealed interface RuntimeOperation {
 @Composable
 fun JavaManageScreen() {
     BaseScreen(
-        screenTag = JAVA_MANAGE_SCREEN_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = JAVA_MANAGE_SCREEN_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

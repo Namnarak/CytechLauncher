@@ -48,6 +48,7 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
+import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
@@ -66,8 +67,10 @@ const val VERSION_OVERVIEW_SCREEN_TAG = "VersionBasicManagementScreen"
 @Composable
 fun VersionOverViewScreen() {
     BaseScreen(
-        screenTag = VERSION_OVERVIEW_SCREEN_TAG,
-        currentTag = MutableStates.versionSettingsScreenTag
+        parentScreenTag = VERSION_SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = VERSION_OVERVIEW_SCREEN_TAG,
+        childCurrentTag = MutableStates.versionSettingsScreenTag
     ) { isVisible ->
 
         val version = VersionsManager.versionBeingSet?.takeIf { it.isValid() } ?: run {

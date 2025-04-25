@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
@@ -36,8 +37,10 @@ const val RENDERER_SETTINGS_SCREEN_TAG = "RendererSettingsScreen"
 @Composable
 fun RendererSettingsScreen() {
     BaseScreen(
-        screenTag = RENDERER_SETTINGS_SCREEN_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = RENDERER_SETTINGS_SCREEN_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         val context = LocalContext.current
 

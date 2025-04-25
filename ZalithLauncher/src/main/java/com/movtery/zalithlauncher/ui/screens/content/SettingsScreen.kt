@@ -72,10 +72,6 @@ fun SettingsScreen() {
     ) { isVisible ->
         val settingsNavController = rememberNavController()
 
-        if (!isVisible) {
-            MutableStates.settingsScreenTag = null
-        }
-
         Row(
             modifier = Modifier.fillMaxSize()
         ) {

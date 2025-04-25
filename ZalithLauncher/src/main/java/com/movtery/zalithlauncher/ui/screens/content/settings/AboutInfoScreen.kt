@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -76,8 +77,10 @@ private data class LibraryInfo(
 @Composable
 fun AboutInfoScreen() {
     BaseScreen(
-        screenTag = ABOUT_INFO_SCREEN_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = ABOUT_INFO_SCREEN_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier

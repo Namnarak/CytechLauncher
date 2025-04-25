@@ -20,6 +20,7 @@ import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils.getMaxMemoryForSettings
@@ -29,8 +30,10 @@ const val GAME_SETTINGS_TAG = "GameSettingsScreen"
 @Composable
 fun GameSettingsScreen() {
     BaseScreen(
-        screenTag = GAME_SETTINGS_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = GAME_SETTINGS_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier

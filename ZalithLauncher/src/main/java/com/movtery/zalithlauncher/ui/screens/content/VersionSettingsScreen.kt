@@ -56,10 +56,6 @@ fun VersionSettingsScreen() {
     ) { isVisible ->
         val navController = rememberNavController()
 
-        if (!isVisible) {
-            MutableStates.versionSettingsScreenTag = null
-        }
-
         Row(
             modifier = Modifier.fillMaxSize()
         ) {

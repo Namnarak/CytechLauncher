@@ -41,6 +41,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
+import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
@@ -51,8 +52,10 @@ const val VERSION_CONFIG_SCREEN_TAG = "VersionConfigScreen"
 @Composable
 fun VersionConfigScreen() {
     BaseScreen(
-        screenTag = VERSION_CONFIG_SCREEN_TAG,
-        currentTag = MutableStates.versionSettingsScreenTag
+        parentScreenTag = VERSION_SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = VERSION_CONFIG_SCREEN_TAG,
+        childCurrentTag = MutableStates.versionSettingsScreenTag
     ) { isVisible ->
 
         val config = VersionsManager.versionBeingSet?.takeIf { it.isValid() }?.getVersionConfig() ?: run {

@@ -52,6 +52,7 @@ import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.getMousePointerFileAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -63,8 +64,10 @@ const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
 @Composable
 fun ControlSettingsScreen() {
     BaseScreen(
-        screenTag = CONTROL_SETTINGS_SCREEN_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = CONTROL_SETTINGS_SCREEN_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier

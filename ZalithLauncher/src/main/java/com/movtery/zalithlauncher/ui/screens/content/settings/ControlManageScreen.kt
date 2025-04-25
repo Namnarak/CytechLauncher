@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -21,8 +22,10 @@ const val CONTROL_MANAGE_SCREEN_TAG = "ControlManageScreen"
 @Composable
 fun ControlManageScreen() {
     BaseScreen(
-        screenTag = CONTROL_MANAGE_SCREEN_TAG,
-        currentTag = MutableStates.settingsScreenTag
+        parentScreenTag = SETTINGS_SCREEN_TAG,
+        parentCurrentTag = MutableStates.mainScreenTag,
+        childScreenTag = CONTROL_MANAGE_SCREEN_TAG,
+        childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
         Column(
             modifier = Modifier
