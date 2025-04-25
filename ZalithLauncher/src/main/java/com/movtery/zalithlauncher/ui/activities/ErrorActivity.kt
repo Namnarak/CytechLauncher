@@ -6,11 +6,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.state.ColorThemeState
-import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_CAN_RESTART
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_EXIT_TYPE
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_THROWABLE
@@ -96,22 +92,16 @@ class ErrorActivity : BaseComponentActivity() {
         val canRestart: Boolean = extras.getBoolean(BUNDLE_CAN_RESTART, true)
 
         setContent {
-            val colorThemeState = remember { ColorThemeState() }
-
-            CompositionLocalProvider(
-                LocalColorThemeState provides colorThemeState
-            ) {
-                ZalithLauncherTheme {
-                    ErrorScreen(
-                        message = msg1,
-                        messageBody = msg2,
-                        canRestart = canRestart,
-                        onRestartClick = {
-                            startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
-                        },
-                        onExitClick = { finish() }
-                    )
-                }
+            ZalithLauncherTheme {
+                ErrorScreen(
+                    message = msg1,
+                    messageBody = msg2,
+                    canRestart = canRestart,
+                    onRestartClick = {
+                        startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
+                    },
+                    onExitClick = { finish() }
+                )
             }
         }
     }

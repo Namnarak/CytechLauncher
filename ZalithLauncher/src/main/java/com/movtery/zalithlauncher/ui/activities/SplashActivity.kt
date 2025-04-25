@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.SplashException
 import com.movtery.zalithlauncher.components.Components
@@ -16,8 +14,6 @@ import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
 import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.ColorThemeState
-import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -43,22 +39,16 @@ class SplashActivity : BaseComponentActivity() {
         checkAllTask()
 
         setContent {
-            val colorThemeState = remember { ColorThemeState() }
-
             if (eulaText == null && checkTasks()) return@setContent
 
-            CompositionLocalProvider(
-                LocalColorThemeState provides colorThemeState
-            ) {
-                ZalithLauncherTheme {
-                    SplashScreen(
-                        eulaText = eulaText,
-                        eulaDate = eulaDate,
-                        checkTasks = { checkTasks() },
-                        startAllTask = { startAllTask() },
-                        unpackItems = unpackItems
-                    )
-                }
+            ZalithLauncherTheme {
+                SplashScreen(
+                    eulaText = eulaText,
+                    eulaDate = eulaDate,
+                    checkTasks = { checkTasks() },
+                    startAllTask = { startAllTask() },
+                    unpackItems = unpackItems
+                )
             }
         }
     }

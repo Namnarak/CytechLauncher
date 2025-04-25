@@ -11,13 +11,16 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.movtery.zalithlauncher.state.ColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
@@ -761,54 +764,60 @@ fun ZalithLauncherTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val currentColorTheme by LocalColorThemeState.current
+    val colorThemeState = remember { ColorThemeState() }
 
-    val colorScheme = when {
-        dynamicColor && currentColorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    CompositionLocalProvider(
+        LocalColorThemeState provides colorThemeState
+    ) {
+        val currentColorTheme by LocalColorThemeState.current
+
+        val colorScheme = when {
+            dynamicColor && currentColorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+
+            darkTheme -> when (currentColorTheme) {
+                ColorThemeType.EMBERMIRE -> embermireDark
+                ColorThemeType.VELVET_ROSE -> velvetRoseDark
+                ColorThemeType.MISTWAVE -> mistwaveDark
+                ColorThemeType.GLACIER -> glacierDark
+                ColorThemeType.VERDANTFIELD -> verdantFieldDark
+                ColorThemeType.ASHVEIL -> ashveilDark
+                ColorThemeType.URBAN_ASH -> urbanAshDark
+                ColorThemeType.VERDANT_DAWN -> verdantDawnDark
+                ColorThemeType.CELESTINE_VEIL -> celestineVeilDark
+                else -> embermireDark
+            }
+            else -> when (currentColorTheme) {
+                ColorThemeType.EMBERMIRE -> embermireLight
+                ColorThemeType.VELVET_ROSE -> velvetRoseLight
+                ColorThemeType.MISTWAVE -> mistwaveLight
+                ColorThemeType.GLACIER -> glacierLight
+                ColorThemeType.VERDANTFIELD -> verdantFieldLight
+                ColorThemeType.ASHVEIL -> ashveilLight
+                ColorThemeType.URBAN_ASH -> urbanAshLight
+                ColorThemeType.VERDANT_DAWN -> verdantDawnLight
+                ColorThemeType.CELESTINE_VEIL -> celestineVeilLight
+                else -> embermireLight
+            }
         }
 
-        darkTheme -> when (currentColorTheme) {
-            ColorThemeType.EMBERMIRE -> embermireDark
-            ColorThemeType.VELVET_ROSE -> velvetRoseDark
-            ColorThemeType.MISTWAVE -> mistwaveDark
-            ColorThemeType.GLACIER -> glacierDark
-            ColorThemeType.VERDANTFIELD -> verdantFieldDark
-            ColorThemeType.ASHVEIL -> ashveilDark
-            ColorThemeType.URBAN_ASH -> urbanAshDark
-            ColorThemeType.VERDANT_DAWN -> verdantDawnDark
-            ColorThemeType.CELESTINE_VEIL -> celestineVeilDark
-            else -> embermireDark
+        val animateColorScheme = animateColorScheme(colorScheme)
+
+        val view = LocalView.current
+        if (!view.isInEditMode) {
+            SideEffect {
+                val window = (view.context as Activity).window
+                window.statusBarColor = animateColorScheme.primary.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            }
         }
-        else -> when (currentColorTheme) {
-            ColorThemeType.EMBERMIRE -> embermireLight
-            ColorThemeType.VELVET_ROSE -> velvetRoseLight
-            ColorThemeType.MISTWAVE -> mistwaveLight
-            ColorThemeType.GLACIER -> glacierLight
-            ColorThemeType.VERDANTFIELD -> verdantFieldLight
-            ColorThemeType.ASHVEIL -> ashveilLight
-            ColorThemeType.URBAN_ASH -> urbanAshLight
-            ColorThemeType.VERDANT_DAWN -> verdantDawnLight
-            ColorThemeType.CELESTINE_VEIL -> celestineVeilLight
-            else -> embermireLight
-        }
+
+        MaterialTheme(
+            colorScheme = animateColorScheme,
+            typography = AppTypography,
+            content = content
+        )
     }
-
-    val animateColorScheme = animateColorScheme(colorScheme)
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = animateColorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
-    }
-
-    MaterialTheme(
-        colorScheme = animateColorScheme,
-        typography = AppTypography,
-        content = content
-    )
 }

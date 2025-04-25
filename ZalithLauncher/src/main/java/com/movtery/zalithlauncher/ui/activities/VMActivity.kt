@@ -18,8 +18,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -43,8 +41,6 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
-import com.movtery.zalithlauncher.state.ColorThemeState
-import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
@@ -104,14 +100,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         Logger.begin(logFile.absolutePath)
 
         setContent {
-            val colorThemeState = remember { ColorThemeState() }
-
-            CompositionLocalProvider(
-                LocalColorThemeState provides colorThemeState
-            ) {
-                ZalithLauncherTheme {
-                    Screen(content = handler.getComposableLayout())
-                }
+            ZalithLauncherTheme {
+                Screen(content = handler.getComposableLayout())
             }
         }
     }
