@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -70,7 +69,6 @@ fun VersionsManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
             )
 
             VersionsLayout(
@@ -79,7 +77,8 @@ fun VersionsManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
-                    .padding(all = 12.dp),
+                    .padding(vertical = 12.dp)
+                    .padding(end = 12.dp),
                 onRefresh = {
                     if (!VersionsManager.isRefreshing) {
                         VersionsManager.refresh()
@@ -114,75 +113,64 @@ private fun GamePathLayout(
         changeState = { gamePathOperation = it }
     )
 
-    Surface(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = surfaceXOffset.roundToPx(),
-                    y = 0
-                )
-            },
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 4.dp
+    Column(
+        modifier = modifier.offset { IntOffset(x = surfaceXOffset.roundToPx(), y = 0) },
     ) {
-        Column {
-            val gamePaths by GamePathManager.gamePathData.collectAsState()
-            val currentPath = GamePathManager.currentPath
-            val context = LocalContext.current
+        val gamePaths by GamePathManager.gamePathData.collectAsState()
+        val currentPath = GamePathManager.currentPath
+        val context = LocalContext.current
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(all = 12.dp)
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                items(gamePaths.size) { index ->
-                    val pathItem = gamePaths[index]
-                    GamePathItemLayout(
-                        item = pathItem,
-                        selected = currentPath == pathItem.path,
-                        onClick = {
-                            if (!VersionsManager.isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
-                                if (pathItem.id == GamePathManager.DEFAULT_ID) {
-                                    GamePathManager.saveDefaultPath()
-                                } else {
-                                    (context as? MainActivity)?.let { activity ->
-                                        StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                                            GamePathManager.saveCurrentPath(pathItem.id)
-                                        })
-                                    }
+        LazyColumn(
+            modifier = Modifier
+                .padding(all = 12.dp)
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            items(gamePaths.size) { index ->
+                val pathItem = gamePaths[index]
+                GamePathItemLayout(
+                    item = pathItem,
+                    selected = currentPath == pathItem.path,
+                    onClick = {
+                        if (!VersionsManager.isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
+                            if (pathItem.id == GamePathManager.DEFAULT_ID) {
+                                GamePathManager.saveDefaultPath()
+                            } else {
+                                (context as? MainActivity)?.let { activity ->
+                                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                                        GamePathManager.saveCurrentPath(pathItem.id)
+                                    })
                                 }
                             }
-                        },
-                        onDelete = {
-                            gamePathOperation = GamePathOperation.DeletePath(pathItem)
-                        },
-                        onRename = {
-                            gamePathOperation = GamePathOperation.RenamePath(pathItem)
                         }
-                    )
-                }
-            }
-
-            ScalingActionButton(
-                modifier = Modifier
-                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                    .fillMaxWidth(),
-                onClick = {
-                    (context as? MainActivity)?.let { activity ->
-                        StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                            navController.navigateToFileSelector(
-                                startPath = Environment.getExternalStorageDirectory().absolutePath,
-                                selectFile = false,
-                                saveTag = VERSIONS_MANAGE_SCREEN_TAG
-                            )
-                        })
+                    },
+                    onDelete = {
+                        gamePathOperation = GamePathOperation.DeletePath(pathItem)
+                    },
+                    onRename = {
+                        gamePathOperation = GamePathOperation.RenamePath(pathItem)
                     }
-                }
-            ) {
-                Text(text = stringResource(R.string.versions_manage_game_path_add_new))
+                )
             }
+        }
+
+        ScalingActionButton(
+            modifier = Modifier
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .fillMaxWidth(),
+            onClick = {
+                (context as? MainActivity)?.let { activity ->
+                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
+                        navController.navigateToFileSelector(
+                            startPath = Environment.getExternalStorageDirectory().absolutePath,
+                            selectFile = false,
+                            saveTag = VERSIONS_MANAGE_SCREEN_TAG
+                        )
+                    })
+                }
+            }
+        ) {
+            Text(text = stringResource(R.string.versions_manage_game_path_add_new))
         }
     }
 }

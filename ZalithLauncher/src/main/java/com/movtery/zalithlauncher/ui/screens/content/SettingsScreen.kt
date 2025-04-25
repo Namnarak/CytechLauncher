@@ -23,7 +23,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -86,7 +85,6 @@ fun SettingsScreen() {
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
             )
 
             Box(
@@ -111,77 +109,66 @@ private fun TabMenu(
         swapIn = isVisible
     )
 
-    Surface(
-        modifier = modifier.offset {
-            IntOffset(
-                x = xOffset.roundToPx(),
-                y = 0
-            )
-        },
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 4.dp
-    ) {
-        @Composable
-        fun SettingsIcon(iconRes: Int, textRes: Int, iconPadding: PaddingValues = PaddingValues()) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = stringResource(textRes),
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(iconPadding)
-            )
-        }
-        @Composable
-        fun SettingsIcon(image: ImageVector, textRes: Int) {
-            Icon(
-                imageVector = image,
-                contentDescription = stringResource(textRes),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        val settingItems = listOf(
-            SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
-            SettingsItem(GAME_SETTINGS_TAG, { SettingsIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
-            SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
-            SettingsItem(LAUNCHER_SETTINGS_TAG, { SettingsIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
-            SettingsItem(JAVA_MANAGE_SCREEN_TAG, { SettingsIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
-            SettingsItem(CONTROL_MANAGE_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
-            SettingsItem(ABOUT_INFO_SCREEN_TAG, { SettingsIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
+    @Composable
+    fun SettingsIcon(iconRes: Int, textRes: Int, iconPadding: PaddingValues = PaddingValues()) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = stringResource(textRes),
+            modifier = Modifier
+                .size(24.dp)
+                .padding(iconPadding)
         )
+    }
+    @Composable
+    fun SettingsIcon(image: ImageVector, textRes: Int) {
+        Icon(
+            imageVector = image,
+            contentDescription = stringResource(textRes),
+            modifier = Modifier.size(24.dp)
+        )
+    }
 
-        LazyColumn(
-            contentPadding = PaddingValues(all = 12.dp)
-        ) {
-            items(settingItems.size) { index ->
-                val item = settingItems[index]
-                if (item.division) {
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                    )
-                }
-                NavigationDrawerItem(
-                    icon = {
-                        item.icon()
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(item.textRes),
-                            softWrap = true,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    selected = MutableStates.settingsScreenTag == item.screenTag,
-                    onClick = {
-                        settingsNavController.navigateOnce(item.screenTag)
-                    },
-                    colors = secondaryContainerDrawerItemColors()
+    val settingItems = listOf(
+        SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
+        SettingsItem(GAME_SETTINGS_TAG, { SettingsIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
+        SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
+        SettingsItem(LAUNCHER_SETTINGS_TAG, { SettingsIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
+        SettingsItem(JAVA_MANAGE_SCREEN_TAG, { SettingsIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
+        SettingsItem(CONTROL_MANAGE_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
+        SettingsItem(ABOUT_INFO_SCREEN_TAG, { SettingsIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
+    )
+
+    LazyColumn(
+        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
+        contentPadding = PaddingValues(all = 12.dp)
+    ) {
+        items(settingItems.size) { index ->
+            val item = settingItems[index]
+            if (item.division) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
             }
+            NavigationDrawerItem(
+                icon = {
+                    item.icon()
+                },
+                label = {
+                    Text(
+                        text = stringResource(item.textRes),
+                        softWrap = true,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                selected = MutableStates.settingsScreenTag == item.screenTag,
+                onClick = {
+                    settingsNavController.navigateOnce(item.screenTag)
+                },
+                colors = secondaryContainerDrawerItemColors()
+            )
         }
     }
 }

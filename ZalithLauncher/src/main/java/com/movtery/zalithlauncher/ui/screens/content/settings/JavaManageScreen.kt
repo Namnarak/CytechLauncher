@@ -113,7 +113,8 @@ fun JavaManageScreen() {
         SettingsBackground(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(all = 12.dp)
+                .padding(vertical = 12.dp)
+                .padding(end = 12.dp)
                 .offset {
                     IntOffset(
                         x = 0,

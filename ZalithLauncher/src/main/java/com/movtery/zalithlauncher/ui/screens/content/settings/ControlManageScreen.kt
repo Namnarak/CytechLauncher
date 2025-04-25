@@ -28,7 +28,8 @@ fun ControlManageScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+                .padding(vertical = 12.dp)
+                .padding(end = 12.dp)
         ) {
             val yOffset by swapAnimateDpAsState(
                 targetValue = (-40).dp,

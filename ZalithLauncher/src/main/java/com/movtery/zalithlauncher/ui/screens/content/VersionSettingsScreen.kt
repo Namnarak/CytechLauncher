@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,7 +69,6 @@ fun VersionSettingsScreen() {
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
-                    .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
             )
 
             Box(
@@ -96,54 +93,43 @@ private fun TabMenu(
         swapIn = isVisible
     )
 
-    Surface(
-        modifier = modifier.offset {
-            IntOffset(
-                x = xOffset.roundToPx(),
-                y = 0
-            )
-        },
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 4.dp
-    ) {
-        @Composable
-        fun VersionSettingsIcon(image: ImageVector, textRes: Int) {
-            Icon(
-                imageVector = image,
-                contentDescription = stringResource(textRes),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        val settingItems = listOf(
-            VersionSettingsItem(VERSION_OVERVIEW_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
-            VersionSettingsItem(VERSION_CONFIG_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config)
+    @Composable
+    fun VersionSettingsIcon(image: ImageVector, textRes: Int) {
+        Icon(
+            imageVector = image,
+            contentDescription = stringResource(textRes),
+            modifier = Modifier.size(24.dp)
         )
+    }
 
-        LazyColumn(
-            contentPadding = PaddingValues(all = 12.dp)
-        ) {
-            items(settingItems.size) { index ->
-                val item = settingItems[index]
-                NavigationDrawerItem(
-                    icon = {
-                        item.icon()
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(item.textRes),
-                            softWrap = true,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    selected = MutableStates.versionSettingsScreenTag == item.screenTag,
-                    onClick = {
-                        navController.navigateOnce(item.screenTag)
-                    },
-                    colors = secondaryContainerDrawerItemColors()
-                )
-            }
+    val settingItems = listOf(
+        VersionSettingsItem(VERSION_OVERVIEW_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
+        VersionSettingsItem(VERSION_CONFIG_SCREEN_TAG, { VersionSettingsIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config)
+    )
+
+    LazyColumn(
+        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
+        contentPadding = PaddingValues(all = 12.dp)
+    ) {
+        items(settingItems.size) { index ->
+            val item = settingItems[index]
+            NavigationDrawerItem(
+                icon = {
+                    item.icon()
+                },
+                label = {
+                    Text(
+                        text = stringResource(item.textRes),
+                        softWrap = true,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                selected = MutableStates.versionSettingsScreenTag == item.screenTag,
+                onClick = {
+                    navController.navigateOnce(item.screenTag)
+                },
+                colors = secondaryContainerDrawerItemColors()
+            )
         }
     }
 }
