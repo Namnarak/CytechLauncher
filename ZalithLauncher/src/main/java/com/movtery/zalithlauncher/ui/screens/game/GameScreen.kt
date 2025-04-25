@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.setting.enums.toAction
@@ -40,13 +40,13 @@ fun GameScreen() {
         MouseControlLayout(modifier = Modifier.fillMaxSize())
 
         if (enableLog) {
-            Logger.setLogListener { logString ->
-                logText += "$logString\n"
+            LoggerBridge.setListener { log ->
+                logText += "$log\n"
             }
             LogBox(logText = logText)
         } else {
             logText = ""
-            Logger.setLogListener(null)
+            LoggerBridge.setListener(null)
         }
     }
 }

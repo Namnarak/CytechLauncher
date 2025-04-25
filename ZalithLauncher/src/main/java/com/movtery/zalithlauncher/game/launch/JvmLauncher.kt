@@ -5,7 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
@@ -82,7 +82,6 @@ open class JvmLauncher(
 
     override suspend fun launch() {
         generateLauncherProfiles()
-        redirectAndPrintJRELog()
         val (runtime, argList) = getStartupNeeded() ?: return
         launchJvm(activity, runtime, argList, AllSettings.jvmArgs.getValue())
     }
@@ -111,9 +110,8 @@ open class JvmLauncher(
             add(jarFile.absolutePath)
         }
 
-        Logger.appendToLog("--------- Start launching the jvm")
-        Logger.appendToLog("Info: Java arguments: \r\n${argList.joinToString("\r\n")}")
-        Logger.appendToLog("---------\r\n")
+        LoggerBridge.appendTitle("Launch JVM")
+        LoggerBridge.append("Info: Java arguments: \r\n${argList.joinToString("\r\n")}")
 
         return Pair(runtime, argList)
     }

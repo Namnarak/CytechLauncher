@@ -19,7 +19,7 @@
 #include <stdatomic.h>
 #include <math.h>
 
-#include "log.h"
+#include "logger/logger.h"
 #include "utils.h"
 #include "environ/environ.h"
 
@@ -36,7 +36,7 @@ static void registerFunctions(JNIEnv *env);
 
 jint JNI_OnLoad(JavaVM* vm, __attribute__((unused)) void* reserved) {
     if (pojav_environ->dalvikJavaVMPtr == NULL) {
-        __android_log_print(ANDROID_LOG_INFO, "Native", "Saving DVM environ...");
+        LOG_TO_I("<%s> %s", "Native", "Saving DVM environ...");
         //Save dalvik global JavaVM pointer
         pojav_environ->dalvikJavaVMPtr = vm;
         (*vm)->GetEnv(vm, (void**) &pojav_environ->dalvikJNIEnvPtr_ANDROID, JNI_VERSION_1_4);
@@ -45,7 +45,7 @@ jint JNI_OnLoad(JavaVM* vm, __attribute__((unused)) void* reserved) {
         pojav_environ->method_onGrabStateChanged = (*pojav_environ->dalvikJNIEnvPtr_ANDROID)->GetStaticMethodID(pojav_environ->dalvikJNIEnvPtr_ANDROID, pojav_environ->bridgeClazz, "onGrabStateChanged", "(Z)V");
         pojav_environ->isUseStackQueueCall = JNI_FALSE;
     } else if (pojav_environ->dalvikJavaVMPtr != vm) {
-        __android_log_print(ANDROID_LOG_INFO, "Native", "Saving JVM environ...");
+        LOG_TO_I("<%s> %s", "Native", "Saving JVM environ...");
         pojav_environ->runtimeJavaVMPtr = vm;
         (*vm)->GetEnv(vm, (void**) &pojav_environ->runtimeJNIEnvPtr_JRE, JNI_VERSION_1_4);
         pojav_environ->vmGlfwClass = (*pojav_environ->runtimeJNIEnvPtr_JRE)->NewGlobalRef(pojav_environ->runtimeJNIEnvPtr_JRE, (*pojav_environ->runtimeJNIEnvPtr_JRE)->FindClass(pojav_environ->runtimeJNIEnvPtr_JRE, "org/lwjgl/glfw/GLFW"));
@@ -239,11 +239,11 @@ jint getLibraryPath_fix(__attribute__((unused)) JNIEnv *env,
  */
 void installEMUIIteratorMititgation() {
     if(getenv("POJAV_EMUI_ITERATOR_MITIGATE") == NULL) return;
-    __android_log_print(ANDROID_LOG_INFO, "EMUIIteratorFix", "Installing...");
+    LOG_TO_I("<%s> %s", "EMUIIteratorFix", "Installing...");
     JNIEnv* env = pojav_environ->runtimeJNIEnvPtr_JRE;
     jclass sharedLibraryUtil = (*env)->FindClass(env, "org/lwjgl/system/SharedLibraryUtil");
     if(sharedLibraryUtil == NULL) {
-        __android_log_print(ANDROID_LOG_ERROR, "EMUIIteratorFix", "Failed to find the target class");
+        LOG_TO_E("<%s> %s", "EMUIIteratorFix", "Failed to find the target class");
         (*env)->ExceptionClear(env);
         return;
     }
@@ -251,7 +251,7 @@ void installEMUIIteratorMititgation() {
             {"getLibraryPath", "(JJI)I", &getLibraryPath_fix}
     };
     if((*env)->RegisterNatives(env, sharedLibraryUtil, getLibraryPathMethod, 1) != 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "EMUIIteratorFix", "Failed to register the mitigation method");
+        LOG_TO_E("<%s> %s", "EMUIIteratorFix", "Failed to register the mitigation method");
         (*env)->ExceptionClear(env);
     }
 }
@@ -274,7 +274,7 @@ JNIEXPORT jstring JNICALL Java_org_lwjgl_glfw_CallbackBridge_nativeClipboard(JNI
     assert(dalvikEnv != NULL);
     assert(pojav_environ->bridgeClazz != NULL);
     
-    LOGD("Clipboard: Converting string\n");
+    LOG_TO_D("Clipboard: Converting string");
     char *copySrcC;
     jstring copyDst = NULL;
     if (copySrc) {
@@ -282,7 +282,7 @@ JNIEXPORT jstring JNICALL Java_org_lwjgl_glfw_CallbackBridge_nativeClipboard(JNI
         copyDst = (*dalvikEnv)->NewStringUTF(dalvikEnv, copySrcC);
     }
 
-    LOGD("Clipboard: Calling 2nd\n");
+    LOG_TO_D("Clipboard: Calling 2nd");
     jstring pasteDst = convertStringJVM(dalvikEnv, env, (jstring) (*dalvikEnv)->CallStaticObjectMethod(dalvikEnv, pojav_environ->bridgeClazz, pojav_environ->method_accessAndroidClipboard, action, copyDst));
 
     if (copySrc) {
@@ -297,7 +297,7 @@ JNIEXPORT jboolean JNICALL JavaCritical_org_lwjgl_glfw_CallbackBridge_nativeSetI
 #ifdef DEBUG
     LOGD("Debug: Changing input state, isReady=%d, pojav_environ->isUseStackQueueCall=%d\n", inputReady, pojav_environ->isUseStackQueueCall);
 #endif
-    __android_log_print(ANDROID_LOG_INFO, "NativeInput", "Input ready: %i", inputReady);
+    LOG_TO_I("<%s> %s: %i", "NativeInput", "Input ready", inputReady);
     pojav_environ->isInputReady = inputReady;
     return pojav_environ->isUseStackQueueCall;
 }
@@ -538,7 +538,7 @@ static bool tryCriticalNative(JNIEnv *env) {
     };
     jclass criticalNativeTest = (*env)->FindClass(env, "com/movtery/zalithlauncher/game/input/CriticalNativeTest");
     if(criticalNativeTest == NULL) {
-        LOGD("No CriticalNativeTest class found !");
+        LOG_TO_D("No CriticalNativeTest class found !");
         (*env)->ExceptionClear(env);
         return false;
     }
@@ -552,13 +552,13 @@ static bool tryCriticalNative(JNIEnv *env) {
 static void registerFunctions(JNIEnv *env) {
     bool use_critical_cc = tryCriticalNative(env);
     jclass bridge_class = (*env)->FindClass(env, "org/lwjgl/glfw/CallbackBridge");
-    if(use_critical_cc) {
-        __android_log_print(ANDROID_LOG_INFO, "pojavexec", "CriticalNative is available. Enjoy the 4.6x times faster input!");
-    }else{
-        __android_log_print(ANDROID_LOG_INFO, "pojavexec", "CriticalNative is not available. Upgrade, maybe?");
+    if (use_critical_cc) {
+        LOG_TO_I("CriticalNative is available. Enjoy the 4.6x times faster input!");
+    } else {
+        LOG_TO_I("CriticalNative is not available. Upgrade, maybe?");
     }
     (*env)->RegisterNatives(env,
                             bridge_class,
                             use_critical_cc ? critical_fcns : noncritical_fcns,
-                            sizeof(critical_fcns)/sizeof(critical_fcns[0]));
+                            sizeof(critical_fcns) / sizeof(critical_fcns[0]));
 }

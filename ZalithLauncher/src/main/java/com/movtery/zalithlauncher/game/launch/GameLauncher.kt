@@ -7,7 +7,8 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge.append
+import com.movtery.zalithlauncher.bridge.LoggerBridge.appendTitle
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.game.account.Account
@@ -57,8 +58,6 @@ class GameLauncher(
             account = account
         )
 
-        redirectAndPrintJRELog()
-
         launchGame(
             account = account,
             javaRuntime = javaRuntime,
@@ -89,8 +88,10 @@ class GameLauncher(
         return envMap
     }
 
-    override fun initSoundEngine() {
-        super.initSoundEngine()
+    override fun dlopenEngine() {
+        super.dlopenEngine()
+        appendTitle("DLOPEN Renderer")
+
         //声音引擎加载后，dlopen渲染器的库
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
             renderer.dlopen.forEach { lib -> ZLBridge.dlopen("${renderer.path}/$lib") }
@@ -143,19 +144,18 @@ class GameLauncher(
         var mcInfo = version.getVersionName()
         version.getVersionInfo()?.let { info -> mcInfo = info.getInfoString() }
 
-        Logger.appendToLog("--------- Start launching the game")
-        Logger.appendToLog("Info: Launcher version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
-        Logger.appendToLog("Info: Architecture: ${Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE)}")
-        Logger.appendToLog("Info: Device model: ${Build.MANUFACTURER}, ${Build.MODEL}")
-        Logger.appendToLog("Info: API version: ${Build.VERSION.SDK_INT}")
-        Logger.appendToLog("Info: Renderer: ${Renderers.getCurrentRenderer().getRendererName()}")
-        Logger.appendToLog("Info: Selected Minecraft version: ${version.getVersionName()}")
-        Logger.appendToLog("Info: Minecraft Info: $mcInfo")
-        Logger.appendToLog("Info: Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")
-        Logger.appendToLog("Info: Custom Java arguments: $javaArguments")
-        Logger.appendToLog("Info: Java Runtime: $javaRuntime")
-        Logger.appendToLog("Info: Account: ${account.username} (${account.accountType})")
-        Logger.appendToLog("---------\r\n")
+        appendTitle("Launch Minecraft")
+        append("Info: Launcher version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+        append("Info: Architecture: ${Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE)}")
+        append("Info: Device model: ${Build.MANUFACTURER}, ${Build.MODEL}")
+        append("Info: API version: ${Build.VERSION.SDK_INT}")
+        append("Info: Renderer: ${Renderers.getCurrentRenderer().getRendererName()}")
+        append("Info: Selected Minecraft version: ${version.getVersionName()}")
+        append("Info: Minecraft Info: $mcInfo")
+        append("Info: Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")
+        append("Info: Custom Java arguments: $javaArguments")
+        append("Info: Java Runtime: $javaRuntime")
+        append("Info: Account: ${account.username} (${account.accountType})")
     }
 
     private fun getRuntime(): String {
@@ -214,31 +214,29 @@ class GameLauncher(
         gameManifest: GameManifest,
         isClientFirst: Boolean = false
     ): String {
-        val finalClasspath = StringBuilder() //versionDir + "/" + version + "/" + version + ".jar:";
+        val classpathList = mutableListOf<String>()
 
         val classpath: Array<String> = generateLibClasspath(gameManifest)
 
         val clientClass = File(version.getVersionPath(), "${version.getVersionName()}.jar")
         val clientClasspath: String = clientClass.absolutePath
 
-        if (isClientFirst) {
-            finalClasspath.append(clientClasspath)
+        if (isClientFirst && clientClass.exists()) {
+            classpathList.add(clientClasspath)
         }
         for (jarFile in classpath) {
-            if (!clientClass.exists()) {
+            val jarFileObj = File(jarFile)
+            if (!jarFileObj.exists()) {
                 Log.d("GameLauncher", "Ignored non-exists file: $jarFile")
                 continue
             }
-            finalClasspath
-                .append(if (isClientFirst) ":" else "")
-                .append(jarFile)
-                .append(if (!isClientFirst) ":" else "")
+            classpathList.add(jarFile)
         }
-        if (!isClientFirst) {
-            finalClasspath.append(clientClasspath)
+        if (!isClientFirst && clientClass.exists()) {
+            classpathList.add(clientClasspath)
         }
 
-        return finalClasspath.toString()
+        return classpathList.joinToString(":")
     }
 
     /**

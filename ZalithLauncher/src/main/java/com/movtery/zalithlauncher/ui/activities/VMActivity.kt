@@ -25,7 +25,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
@@ -97,7 +97,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         val logFile = File(PathManager.DIR_FILES_EXTERNAL, "${launcher.getLogName()}.log")
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
-        Logger.begin(logFile.absolutePath)
+        LoggerBridge.start(logFile.absolutePath)
 
         setContent {
             ZalithLauncherTheme {

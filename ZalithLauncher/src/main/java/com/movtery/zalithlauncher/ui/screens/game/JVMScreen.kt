@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
@@ -53,13 +53,13 @@ fun JVMScreen() {
         )
 
         if (enableLog) {
-            Logger.setLogListener { logString ->
-                logText += "$logString\n"
+            LoggerBridge.setListener { log ->
+                logText += "$log\n"
             }
             LogBox(logText = logText)
         } else {
             logText = ""
-            Logger.setLogListener(null)
+            LoggerBridge.setListener(null)
         }
 
         ButtonsLayout(

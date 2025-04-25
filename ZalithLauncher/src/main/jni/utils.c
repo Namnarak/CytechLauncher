@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "log.h"
+#include "logger/logger.h"
 
 #include "utils.h"
 
@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_setLdLibr
 		updateLdLibPath = dlsym(libdl_handle, "__loader_android_update_LD_LIBRARY_PATH");
 		if (updateLdLibPath == NULL) {
 			char *dl_error_c = dlerror();
-			LOGE("Error getting symbol android_update_LD_LIBRARY_PATH: %s", dl_error_c);
+			LOG_TO_E("Error getting symbol android_update_LD_LIBRARY_PATH: %s", dl_error_c);
 			// (*env)->ThrowNew(env, exception_cls, dl_error_c);
 		}
 	}
@@ -104,9 +104,9 @@ JNIEXPORT jboolean JNICALL Java_com_movtery_zalithlauncher_bridge_ZLBridge_dlope
 	const char *nameUtf = (*env)->GetStringUTFChars(env, name, 0);
 	void* handle = dlopen(nameUtf, RTLD_GLOBAL | RTLD_LAZY);
 	if (!handle) {
-		LOGE("dlopen %s failed: %s", nameUtf, dlerror());
+		LOG_TO_E("DLOPEN: %s , failed ( %s )", nameUtf, dlerror());
 	} else {
-		LOGD("dlopen %s success", nameUtf);
+		LOG_TO_D("DLOPEN: %s , success", nameUtf);
 	}
 	(*env)->ReleaseStringUTFChars(env, name, nameUtf);
 	return handle != NULL;

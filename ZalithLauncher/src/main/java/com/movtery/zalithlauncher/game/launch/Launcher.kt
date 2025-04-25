@@ -8,7 +8,7 @@ import android.util.ArrayMap
 import android.util.Log
 import androidx.annotation.CallSuper
 import com.movtery.zalithlauncher.ZLApplication.Companion.DISPLAY_METRICS
-import com.movtery.zalithlauncher.bridge.Logger
+import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
@@ -52,9 +52,15 @@ abstract class Launcher {
         val runtimeHome = RuntimesManager.getRuntimeHome(runtime.name).absolutePath
         relocateLibPath(runtime, runtimeHome)
         initLdLibraryPath(runtimeHome)
+
+        LoggerBridge.appendTitle("Env Map")
         setEnv(runtimeHome, runtime)
-        initJavaRuntime(runtimeHome)
-        initSoundEngine()
+
+        LoggerBridge.appendTitle("DLOPEN Java Runtime")
+        dlopenJavaRuntime(runtimeHome)
+
+        dlopenEngine()
+
         launchJavaVM(activity, runtimeHome, jvmArgs, userArgs)
     }
 
@@ -69,6 +75,7 @@ abstract class Launcher {
 
         args.addAll(jvmArgs)
 
+        LoggerBridge.appendTitle("JVM Args")
         val iterator = args.iterator()
         while (iterator.hasNext()) {
             val arg = iterator.next()
@@ -76,7 +83,7 @@ abstract class Launcher {
                 iterator.next()
                 continue
             }
-            Logger.appendToLog("JVMArg: $arg")
+            LoggerBridge.append("JVMArgs: $arg")
         }
 
         ZLBridge.setupExitMethod(activity.application)
@@ -86,7 +93,7 @@ abstract class Launcher {
         args.add(0, "java") //argv[0] is the program name according to C standard.
 
         val exitCode = VMLauncher.launchJVM(args.toTypedArray())
-        Logger.appendToLog("Java Exit code: $exitCode")
+        LoggerBridge.append("Java Exit code: $exitCode")
         if (exitCode != 0) {
             ErrorActivity.showExitMessage(activity, exitCode, false)
         }
@@ -129,7 +136,7 @@ abstract class Launcher {
         args.add("-XX:ActiveProcessorCount=${java.lang.Runtime.getRuntime().availableProcessors()}")
     }
 
-    private fun MutableList<String>.purgeArg(argStart: String) {
+    protected fun MutableList<String>.purgeArg(argStart: String) {
         removeIf { arg: String -> arg.startsWith(argStart) }
     }
 
@@ -207,7 +214,7 @@ abstract class Launcher {
     private fun setEnv(jreHome: String, runtime: Runtime) {
         val envMap = initEnv(jreHome, runtime)
         envMap.forEach { (key, value) ->
-            Logger.appendToLog("Added env: $key = $value")
+            LoggerBridge.append("Added env: $key = $value")
             runCatching {
                 Os.setenv(key, value, true)
             }.onFailure {
@@ -243,7 +250,7 @@ abstract class Launcher {
         }
     }
 
-    private fun initJavaRuntime(jreHome: String) {
+    private fun dlopenJavaRuntime(jreHome: String) {
         ZLBridge.dlopen(findInLdLibPath("libjli.so"))
         if (!ZLBridge.dlopen("libjvm.so")) {
             Log.w("DynamicLoader", "Failed to load with no path, trying with full path")
@@ -263,55 +270,11 @@ abstract class Launcher {
     }
 
     @CallSuper
-    protected open fun initSoundEngine() {
+    protected open fun dlopenEngine() {
         ZLBridge.dlopen("${PathManager.DIR_NATIVE_LIB}/libopenal.so")
     }
 
     companion object {
-        fun redirectAndPrintJRELog() {
-            Log.v("jrelog", "Log starts here")
-            Thread(object : Runnable {
-                var failTime: Int = 0
-                var logcatPb: ProcessBuilder? = null
-                override fun run() {
-                    try {
-                        if (logcatPb == null) {
-                            logcatPb = ProcessBuilder().command("logcat", "-v", "brief", "-s", "jrelog:I", "LIBGL:I", "NativeInput").redirectErrorStream(true)
-                        }
-
-                        Log.i("jrelog-logcat", "Clearing logcat")
-                        ProcessBuilder().command("logcat", "-c").redirectErrorStream(true).start()
-                        Log.i("jrelog-logcat", "Starting logcat")
-                        val p = logcatPb!!.start()
-
-                        val buf = ByteArray(1024)
-                        var len: Int
-                        while ((p.inputStream.read(buf).also { len = it }) != -1) {
-                            val currStr = String(buf, 0, len)
-                            Logger.appendToLog(currStr)
-                        }
-
-                        if (p.waitFor() != 0) {
-                            Log.e("jrelog-logcat", "Logcat exited with code " + p.exitValue())
-                            failTime++
-                            Log.i(
-                                "jrelog-logcat",
-                                (if (failTime <= 10) "Restarting logcat" else "Too many restart fails") + " (attempt " + failTime + "/10"
-                            )
-                            if (failTime <= 10) {
-                                run()
-                            } else {
-                                Logger.appendToLog("ERROR: Unable to get more Logging.")
-                            }
-                        }
-                    } catch (e: Throwable) {
-                        Log.e("jrelog-logcat", "Exception on logging thread", e)
-                        Logger.appendToLog("Exception on logging thread:\n${Log.getStackTraceString(e)}")
-                    }
-                }
-            }).start()
-            Log.i("jrelog-logcat", "Logcat thread started")
-        }
 
         /**
          * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L345-L401)

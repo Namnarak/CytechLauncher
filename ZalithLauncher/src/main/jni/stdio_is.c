@@ -67,7 +67,7 @@ static void *logger_thread() {
 }
 
 JNIEXPORT void JNICALL
-Java_com_movtery_zalithlauncher_bridge_Logger_begin(JNIEnv *env, __attribute((unused)) jclass clazz, jstring logPath) {
+Java_com_movtery_zalithlauncher_bridge_LoggerBridge_start(JNIEnv *env, __attribute((unused)) jclass clazz, jstring logPath) {
     if (latestlog_fd != -1)
     {
         int localfd = latestlog_fd;
@@ -77,7 +77,7 @@ Java_com_movtery_zalithlauncher_bridge_Logger_begin(JNIEnv *env, __attribute((un
 
     if (logger_onEventLogged == NULL)
     {
-        jclass eventLogListener = (*env)->FindClass(env, "com/movtery/zalithlauncher/bridge/Logger$eventLogListener");
+        jclass eventLogListener = (*env)->FindClass(env, "com/movtery/zalithlauncher/bridge/LoggerBridge$EventLogListener");
         logger_onEventLogged = (*env)->GetMethodID(env, eventLogListener, "onEventLogged", "(Ljava/lang/String;)V");
     }
 
@@ -147,7 +147,7 @@ _Noreturn void nominal_exit(int code, bool is_signal) {
     while(1) {}
 }
 
-JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_Logger_appendToLog(JNIEnv *env, __attribute((unused)) jclass clazz, jstring text) {
+JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_LoggerBridge_append(JNIEnv *env, __attribute((unused)) jclass clazz, jstring text) {
     jsize appendStringLength = (*env)->GetStringUTFLength(env, text);
     char newChars[appendStringLength+2];
     (*env)->GetStringUTFRegion(env, text, 0, (*env)->GetStringLength(env, text), newChars);
@@ -158,7 +158,7 @@ JNIEXPORT void JNICALL Java_com_movtery_zalithlauncher_bridge_Logger_appendToLog
 }
 
 JNIEXPORT void JNICALL
-Java_com_movtery_zalithlauncher_bridge_Logger_setLogListener(JNIEnv *env, __attribute((unused)) jclass clazz, jobject log_listener) {
+Java_com_movtery_zalithlauncher_bridge_LoggerBridge_setListener(JNIEnv *env, __attribute((unused)) jclass clazz, jobject log_listener) {
     jobject logListenerLocal = logListener;
 
     if (log_listener == NULL) logListener = NULL;

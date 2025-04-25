@@ -33,7 +33,7 @@
 // Boardwalk: missing include
 #include <string.h>
 
-#include "log.h"
+#include "logger/logger.h"
 #include "utils.h"
 #include "environ/environ.h"
 
@@ -139,10 +139,10 @@ static jint launchJVM(int margc, char** margv) {
    // LOGD("JLI lib = %x", (int)libjli);
    if (NULL == libjli)
    {
-       LOGE("JLI lib = NULL: %s", dlerror());
+       LOG_TO_E("JLI lib = NULL: %s", dlerror());
        return -1;
    }
-   LOGD("Found JLI lib");
+   LOG_TO_D("Found JLI lib");
 
    JLI_Launch_func *pJLI_Launch = (JLI_Launch_func *)dlsym(libjli, "JLI_Launch");
     // Boardwalk: silence
@@ -150,11 +150,11 @@ static jint launchJVM(int margc, char** margv) {
 
    if (NULL == pJLI_Launch)
    {
-       LOGE("JLI_Launch = NULL");
+       LOG_TO_E("JLI_Launch = NULL");
        return -1;
    }
 
-   LOGD("Calling JLI_Launch");
+   LOG_TO_D("Calling JLI_Launch");
 
    return pJLI_Launch(margc, margv,
                    0, NULL, // sizeof(const_jargs) / sizeof(char *), const_jargs,
@@ -176,19 +176,19 @@ JNIEXPORT jint JNICALL Java_com_oracle_dalvik_VMLauncher_launchJVM(JNIEnv *env, 
 
     if (argsArray == NULL)
     {
-        LOGE("Args array null, returning");
+        LOG_TO_E("Args array null, returning");
         return 0;
     }
 
     int argc = (*env)->GetArrayLength(env, argsArray);
     char **argv = convert_to_char_array(env, argsArray);
-    LOGD("Done processing args");
+    LOG_TO_D("Done processing args");
 
     res = launchJVM(argc, argv);
 
-    LOGD("Going to free args");
+    LOG_TO_D("Going to free args");
     free_char_array(env, argsArray, argv);
 
-    LOGD("Free done");
+    LOG_TO_D("Free done");
     return res;
 }
