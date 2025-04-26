@@ -352,8 +352,8 @@ class MinecraftDownloader(
          * @return 是否跳过此次下载
          */
         private fun verifySha1(): Boolean {
-            sha1 ?: return false
             if (targetFile.exists()) {
+                sha1 ?: return !verifyIntegrity
                 if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
                     return true
                 } else {
