@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.theme
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.compose.animation.animateColorAsState
@@ -20,8 +21,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.google.android.material.color.utilities.Hct
+import com.google.android.material.color.utilities.Scheme
 import com.movtery.zalithlauncher.state.ColorThemeState
+import com.movtery.zalithlauncher.state.CustomColorThemeState
 import com.movtery.zalithlauncher.state.LocalColorThemeState
+import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 private val embermireLight = lightColorScheme(
@@ -708,6 +713,110 @@ private val celestineVeilDark = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark.celestineVeil,
 )
 
+@SuppressLint("RestrictedApi")
+private fun customLight(color: Color): ColorScheme {
+    val scheme = Scheme.light(color.toArgb())
+    val hctNeutral = Hct.fromInt(scheme.surface)
+    //https://github.com/flutter/flutter/issues/137679
+    val surfaceDim               = Hct.from(hctNeutral.hue, hctNeutral.chroma, 87.0).toInt()
+    val surfaceBright            = Hct.from(hctNeutral.hue, hctNeutral.chroma, 98.0).toInt()
+    val surfaceContainerLowest   = Hct.from(hctNeutral.hue, hctNeutral.chroma, 100.0).toInt()
+    val surfaceContainerLow      = Hct.from(hctNeutral.hue, hctNeutral.chroma, 96.0).toInt()
+    val surfaceContainer         = Hct.from(hctNeutral.hue, hctNeutral.chroma, 94.0).toInt()
+    val surfaceContainerHigh     = Hct.from(hctNeutral.hue, hctNeutral.chroma, 92.0).toInt()
+    val surfaceContainerHighest  = Hct.from(hctNeutral.hue, hctNeutral.chroma, 90.0).toInt()
+
+    return lightColorScheme(
+        primary = Color(scheme.primary),
+        onPrimary = Color(scheme.onPrimary),
+        primaryContainer = Color(scheme.primaryContainer),
+        onPrimaryContainer = Color(scheme.onPrimaryContainer),
+        secondary = Color(scheme.secondary),
+        onSecondary = Color(scheme.onSecondary),
+        secondaryContainer = Color(scheme.secondaryContainer),
+        onSecondaryContainer = Color(scheme.onSecondaryContainer),
+        tertiary = Color(scheme.tertiary),
+        onTertiary = Color(scheme.onTertiary),
+        tertiaryContainer = Color(scheme.tertiaryContainer),
+        onTertiaryContainer = Color(scheme.onTertiaryContainer),
+        error = Color(scheme.error),
+        onError = Color(scheme.onError),
+        errorContainer = Color(scheme.errorContainer),
+        onErrorContainer = Color(scheme.onErrorContainer),
+        background = Color(scheme.background),
+        onBackground = Color(scheme.onBackground),
+        surface = Color(scheme.surface),
+        onSurface = Color(scheme.onSurface),
+        surfaceVariant = Color(scheme.surfaceVariant),
+        onSurfaceVariant = Color(scheme.onSurfaceVariant),
+        outline = Color(scheme.outline),
+        outlineVariant = Color(scheme.outlineVariant),
+        scrim = Color(scheme.scrim),
+        inverseSurface = Color(scheme.inverseSurface),
+        inverseOnSurface = Color(scheme.inverseOnSurface),
+        inversePrimary = Color(scheme.inversePrimary),
+        surfaceDim = Color(surfaceDim),
+        surfaceBright = Color(surfaceBright),
+        surfaceContainerLowest = Color(surfaceContainerLowest),
+        surfaceContainerLow = Color(surfaceContainerLow),
+        surfaceContainer = Color(surfaceContainer),
+        surfaceContainerHigh = Color(surfaceContainerHigh),
+        surfaceContainerHighest = Color(surfaceContainerHighest)
+    )
+}
+
+@SuppressLint("RestrictedApi")
+private fun customDark(color: Color): ColorScheme {
+    val scheme = Scheme.dark(color.toArgb())
+    val hctNeutral = Hct.fromInt(scheme.surface)
+    //https://github.com/flutter/flutter/issues/137679
+    val surfaceDim                = Hct.from(hctNeutral.hue, hctNeutral.chroma, 6.0).toInt()
+    val surfaceBright             = Hct.from(hctNeutral.hue, hctNeutral.chroma, 24.0).toInt()
+    val surfaceContainerLowest    = Hct.from(hctNeutral.hue, hctNeutral.chroma, 4.0).toInt()
+    val surfaceContainerLow       = Hct.from(hctNeutral.hue, hctNeutral.chroma, 10.0).toInt()
+    val surfaceContainer          = Hct.from(hctNeutral.hue, hctNeutral.chroma, 12.0).toInt()
+    val surfaceContainerHigh      = Hct.from(hctNeutral.hue, hctNeutral.chroma, 17.0).toInt()
+    val surfaceContainerHighest   = Hct.from(hctNeutral.hue, hctNeutral.chroma, 22.0).toInt()
+
+    return lightColorScheme(
+        primary = Color(scheme.primary),
+        onPrimary = Color(scheme.onPrimary),
+        primaryContainer = Color(scheme.primaryContainer),
+        onPrimaryContainer = Color(scheme.onPrimaryContainer),
+        secondary = Color(scheme.secondary),
+        onSecondary = Color(scheme.onSecondary),
+        secondaryContainer = Color(scheme.secondaryContainer),
+        onSecondaryContainer = Color(scheme.onSecondaryContainer),
+        tertiary = Color(scheme.tertiary),
+        onTertiary = Color(scheme.onTertiary),
+        tertiaryContainer = Color(scheme.tertiaryContainer),
+        onTertiaryContainer = Color(scheme.onTertiaryContainer),
+        error = Color(scheme.error),
+        onError = Color(scheme.onError),
+        errorContainer = Color(scheme.errorContainer),
+        onErrorContainer = Color(scheme.onErrorContainer),
+        background = Color(scheme.background),
+        onBackground = Color(scheme.onBackground),
+        surface = Color(scheme.surface),
+        onSurface = Color(scheme.onSurface),
+        surfaceVariant = Color(scheme.surfaceVariant),
+        onSurfaceVariant = Color(scheme.onSurfaceVariant),
+        outline = Color(scheme.outline),
+        outlineVariant = Color(scheme.outlineVariant),
+        scrim = Color(scheme.scrim),
+        inverseSurface = Color(scheme.inverseSurface),
+        inverseOnSurface = Color(scheme.inverseOnSurface),
+        inversePrimary = Color(scheme.inversePrimary),
+        surfaceDim = Color(surfaceDim),
+        surfaceBright = Color(surfaceBright),
+        surfaceContainerLowest = Color(surfaceContainerLowest),
+        surfaceContainerLow = Color(surfaceContainerLow),
+        surfaceContainer = Color(surfaceContainer),
+        surfaceContainerHigh = Color(surfaceContainerHigh),
+        surfaceContainerHighest = Color(surfaceContainerHighest)
+    )
+}
+
 @Composable
 private fun animateColorScheme(target: ColorScheme): ColorScheme {
     @Composable
@@ -765,11 +874,14 @@ fun ZalithLauncherTheme(
     content: @Composable () -> Unit
 ) {
     val colorThemeState = remember { ColorThemeState() }
+    val customColorThemeState = remember { CustomColorThemeState() }
 
     CompositionLocalProvider(
-        LocalColorThemeState provides colorThemeState
+        LocalColorThemeState provides colorThemeState,
+        LocalCustomColorThemeState provides customColorThemeState
     ) {
         val currentColorTheme by LocalColorThemeState.current
+        val currentCustomColor by LocalCustomColorThemeState.current
 
         val colorScheme = when {
             dynamicColor && currentColorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -787,6 +899,7 @@ fun ZalithLauncherTheme(
                 ColorThemeType.URBAN_ASH -> urbanAshDark
                 ColorThemeType.VERDANT_DAWN -> verdantDawnDark
                 ColorThemeType.CELESTINE_VEIL -> celestineVeilDark
+                ColorThemeType.CUSTOM -> customDark(currentCustomColor)
                 else -> embermireDark
             }
             else -> when (currentColorTheme) {
@@ -799,6 +912,7 @@ fun ZalithLauncherTheme(
                 ColorThemeType.URBAN_ASH -> urbanAshLight
                 ColorThemeType.VERDANT_DAWN -> verdantDawnLight
                 ColorThemeType.CELESTINE_VEIL -> celestineVeilLight
+                ColorThemeType.CUSTOM -> customLight(currentCustomColor)
                 else -> embermireLight
             }
         }

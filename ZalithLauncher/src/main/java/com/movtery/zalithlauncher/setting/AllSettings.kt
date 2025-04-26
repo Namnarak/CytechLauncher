@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.setting
 
 import android.os.Build
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
@@ -146,6 +148,11 @@ class AllSettings {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) "DYNAMIC"
             else ColorThemeType.EMBERMIRE.name
         )
+
+        /**
+         * 自定义颜色主题色
+         */
+        val launcherCustomColor = IntSettingUnit("launcherCustomColor", Color.Blue.toArgb())
 
         /**
          * 启动器部分屏幕全屏

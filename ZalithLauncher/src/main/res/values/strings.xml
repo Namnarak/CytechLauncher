@@ -30,6 +30,7 @@
     <string name="generic_unpacking">正在解压 %s</string>
     <string name="generic_unknown">未知</string>
     <string name="generic_follow_global">跟随全局</string>
+    <string name="generic_custom">自定义</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_embermire">釉烬</string>
@@ -41,6 +42,7 @@
     <string name="theme_color_urban_ash">钛影</string>
     <string name="theme_color_verdant_dawn">静林之晨</string>
     <string name="theme_color_celestine_veil">霁岚</string>
+    <string name="theme_color_picker_title">颜色选择器</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
     <string name="animate_type_jelly_bounce">回弹</string>

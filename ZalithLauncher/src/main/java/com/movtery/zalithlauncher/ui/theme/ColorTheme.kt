@@ -24,5 +24,6 @@ enum class ColorThemeType {
     ASHVEIL,
     URBAN_ASH,
     VERDANT_DAWN,
-    CELESTINE_VEIL
+    CELESTINE_VEIL,
+    CUSTOM
 }

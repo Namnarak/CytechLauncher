@@ -9,6 +9,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -17,9 +20,12 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.LocalColorThemeState
+import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
 import com.movtery.zalithlauncher.state.MutableStates
+import com.movtery.zalithlauncher.state.getCustomColorFromSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
+import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
@@ -61,6 +67,8 @@ fun LauncherSettingsScreen() {
                         )
                     }
             ) {
+                var showColorPicker by remember { mutableStateOf(false) }
+
                 EnumSettingsLayout(
                     unit = AllSettings.launcherColorTheme,
                     title = stringResource(R.string.settings_launcher_color_theme_title),
@@ -81,10 +89,35 @@ fun LauncherSettingsScreen() {
                             ColorThemeType.URBAN_ASH -> stringResource(R.string.theme_color_urban_ash)
                             ColorThemeType.VERDANT_DAWN -> stringResource(R.string.theme_color_verdant_dawn)
                             ColorThemeType.CELESTINE_VEIL -> stringResource(R.string.theme_color_celestine_veil)
+                            ColorThemeType.CUSTOM -> stringResource(R.string.generic_custom)
                         }
+                    },
+                    onRadioClick = { enum ->
+                        if (enum == ColorThemeType.CUSTOM) showColorPicker = true
                     }
                 ) { type ->
                     currentColorThemeState.updateValue(type)
+                }
+
+                if (showColorPicker) {
+                    val customColorTheme = LocalCustomColorThemeState.current
+                    ColorPickerDialog(
+                        initialColor = getCustomColorFromSettings(),
+                        realTimeUpdate = false,
+                        onColorChanged = { color ->
+                            customColorTheme.updateValue(color)
+                        },
+                        onDismissRequest = {
+                            showColorPicker = false
+                        },
+                        onConfirm = { color ->
+                            customColorTheme.updateValue(color)
+                            customColorTheme.saveValue()
+                            showColorPicker = false
+                        },
+                        showAlpha = false,
+                        showBrightness = false
+                    )
                 }
 
                 SwitchSettingsLayout(
