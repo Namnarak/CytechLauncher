@@ -135,8 +135,10 @@ private fun TabMenu(
     )
 
     LazyColumn(
-        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
-        contentPadding = PaddingValues(all = 12.dp)
+        modifier = modifier
+            .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
+            .padding(start = 12.dp),
+        contentPadding = PaddingValues(vertical = 12.dp)
     ) {
         items(settingItems.size) { index ->
             val item = settingItems[index]

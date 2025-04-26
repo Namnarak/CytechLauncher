@@ -48,8 +48,7 @@ fun LauncherSettingsScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
-                .padding(vertical = 12.dp)
-                .padding(end = 12.dp)
+                .padding(all = 12.dp)
         ) {
             val currentColorThemeState = LocalColorThemeState.current
 

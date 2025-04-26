@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -104,8 +105,10 @@ private fun TabMenu(
     )
 
     LazyColumn(
-        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
-        contentPadding = PaddingValues(all = 12.dp)
+        modifier = modifier
+            .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
+            .padding(start = 12.dp),
+        contentPadding = PaddingValues(vertical = 12.dp)
     ) {
         items(settingItems.size) { index ->
             val item = settingItems[index]
