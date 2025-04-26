@@ -129,7 +129,7 @@ class SettingsLayoutScope {
                 value = it
                 onValueChange(value)
             },
-            onChangeFinished = { unit.put(it).save() },
+            onValueChangeFinished = { unit.put(value).save() },
             enabled = enabled,
             fineTuningControl = fineTuningControl
         )

@@ -193,8 +193,8 @@ private fun GameConfigs(
                 summary = stringResource(R.string.settings_game_java_memory_summary),
                 valueRange = 256f..MemoryUtils.getMaxMemoryForSettings(LocalContext.current).toFloat(),
                 onValueChange = { ramAllocation = it },
-                onChangeFinished = { value ->
-                    config.ramAllocation = value
+                onValueChangeFinished = {
+                    config.ramAllocation = ramAllocation
                     config.saveOrShowError(context)
                 },
                 suffix = "MB",

@@ -252,16 +252,12 @@ fun SimpleIntSliderLayout(
     steps: Int = 0,
     suffix: String? = null,
     onValueChange: (Int) -> Unit = {},
-    onChangeFinished: (Int) -> Unit = {},
+    onValueChangeFinished: () -> Unit = {},
     enabled: Boolean = true,
     fineTuningControl: Boolean = false,
     appendContent: @Composable () -> Unit = {}
 ) {
     var showValueEditDialog by remember { mutableStateOf(false) }
-
-    fun changeFinished() {
-        onChangeFinished(value)
-    }
 
     Column(
         modifier = modifier
@@ -279,7 +275,7 @@ fun SimpleIntSliderLayout(
             value = value.toFloat(),
             enabled = enabled,
             onValueChange = { onValueChange(it.toInt()) },
-            onValueChangeFinished = { changeFinished() },
+            onValueChangeFinished = { onValueChangeFinished() },
             onTextClick = { showValueEditDialog = true },
             toInt = true,
             valueRange = valueRange,
@@ -327,7 +323,7 @@ fun SimpleIntSliderLayout(
                 if (errorText.isEmpty()) {
                     val newValue = inputValue.toIntOrNull() ?: value
                     onValueChange(newValue)
-                    changeFinished()
+                    onValueChangeFinished()
                     showValueEditDialog = false
                 }
             },
