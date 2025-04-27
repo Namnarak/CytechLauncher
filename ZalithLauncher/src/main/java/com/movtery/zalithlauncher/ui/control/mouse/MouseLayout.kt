@@ -78,7 +78,7 @@ fun VirtualPointerLayout(
 
     val speedFactor = mouseSpeed / 100f
 
-    var showMousePointer by remember { mutableStateOf(true) }
+    var showMousePointer by remember { mutableStateOf(requestPointerCapture) }
 
     Box(
         modifier = modifier
