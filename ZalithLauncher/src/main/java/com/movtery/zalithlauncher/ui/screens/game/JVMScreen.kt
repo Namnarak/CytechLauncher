@@ -1,16 +1,20 @@
 package com.movtery.zalithlauncher.ui.screens.game
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -39,6 +43,9 @@ fun JVMScreen() {
         SimpleMouseControlLayout(
             modifier = Modifier.fillMaxSize(),
             sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
+            sendMouseCodePress = { code, pressed ->
+                ZLBridge.sendMousePress(code, pressed)
+            },
             sendMouseLongPress = { isPressed ->
                 ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
             },
@@ -96,15 +103,29 @@ fun JVMScreen() {
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
     sendMousePress: () -> Unit = {},
+    sendMouseCodePress: (Int, Boolean) -> Unit = { _, _ -> },
     sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        //请求焦点，否则无法正常处理实体鼠标指针数据
+        focusRequester.requestFocus()
+    }
+
     VirtualPointerLayout(
-        modifier = modifier,
+        modifier = modifier
+            .focusable() //能够获得焦点，便于实体鼠标指针捕获
+            .focusRequester(focusRequester),
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },
-        onLongPressEnd = { sendMouseLongPress(false) }
+        onLongPressEnd = { sendMouseLongPress(false) },
+        onMouseButton = { button, pressed ->
+            val code = AWTCharSender.getMouseButton(button) ?: return@VirtualPointerLayout
+            sendMouseCodePress(code, pressed)
+        }
     )
 }
 
