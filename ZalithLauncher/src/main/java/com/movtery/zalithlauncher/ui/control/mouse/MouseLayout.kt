@@ -50,6 +50,8 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
  * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
+ * @param onMouseScroll             实体鼠标指针滚轮滑动
+ * @param onMouseButton             实体鼠标指针按钮按下反馈
  * @param mouseSize                 指针大小
  * @param mouseSpeed                指针移动速度（滑动模式生效）
  */
@@ -63,6 +65,8 @@ fun VirtualPointerLayout(
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
+    onMouseScroll: (Offset) -> Unit = {},
+    onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
     mouseSpeed: Int = AllSettings.mouseSpeed.getValue(),
 ) {
@@ -121,6 +125,15 @@ fun VirtualPointerLayout(
                 }
                 onPointerMove(pointerPosition)
             },
+            onMouseMove = { offset ->
+                pointerPosition = Offset(
+                    x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
+                    y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)
+                )
+                onPointerMove(pointerPosition)
+            },
+            onMouseScroll = onMouseScroll,
+            onMouseButton = onMouseButton,
             inputChange = arrayOf(speedFactor, controlMode)
         )
     }

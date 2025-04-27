@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.input
 
+import android.view.MotionEvent
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import org.lwjgl.glfw.CallbackBridge
 
@@ -15,5 +16,17 @@ object LWJGLCharSender : CharacterSenderStrategy {
 
     override fun sendChar(character: Char) {
         CallbackBridge.sendChar(character, 0)
+    }
+
+    /**
+     * 获取 LWJGL 鼠标点击事件
+     */
+    fun getMouseButton(button: Int): Short? {
+        return when (button) {
+            MotionEvent.BUTTON_PRIMARY -> LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT
+            MotionEvent.BUTTON_TERTIARY -> LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_MIDDLE
+            MotionEvent.BUTTON_SECONDARY -> LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT
+            else -> null
+        }
     }
 }

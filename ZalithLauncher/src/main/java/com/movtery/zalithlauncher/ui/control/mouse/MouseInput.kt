@@ -1,14 +1,20 @@
 package com.movtery.zalithlauncher.ui.control.mouse
 
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -42,6 +48,9 @@ fun StringSettingUnit.toControlMode(): ControlMode {
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
  * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
+ * @param onMouseMove               实体鼠标指针移动回调
+ * @param onMouseScroll             实体鼠标指针滚轮滑动
+ * @param onMouseButton             实体鼠标指针按钮按下反馈
  * @param inputChange               重新启动内部的 pointerInput 块，让触摸逻辑能够实时拿到最新的外部参数
  */
 @Composable
@@ -53,6 +62,9 @@ fun TouchpadLayout(
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
     onPointerMove: (Offset) -> Unit = {},
+    onMouseMove: (Offset) -> Unit = {},
+    onMouseScroll: (Offset) -> Unit = {},
+    onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
     inputChange: Array<Any> = arrayOf(Unit)
 ) {
     val viewConfig = LocalViewConfiguration.current
@@ -63,6 +75,11 @@ fun TouchpadLayout(
                 coroutineScope {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
+                        if (down.type != PointerType.Touch) {
+                            //过滤掉不是触摸的类型
+                            return@awaitEachGesture
+                        }
+
                         var pointer = down
                         var isDragging = false
                         var longPressTriggered = false
@@ -129,4 +146,70 @@ fun TouchpadLayout(
                 }
             }
     )
+
+    SimpleMouseCapture(
+        onMouseMove = onMouseMove,
+        onMouseScroll = onMouseScroll,
+        onMouseButton = onMouseButton
+    )
+}
+
+@Composable
+fun SimpleMouseCapture(
+    onMouseMove: (Offset) -> Unit,
+    onMouseScroll: (Offset) -> Unit,
+    onMouseButton: (button: Int, pressed: Boolean) -> Unit
+) {
+    val view = LocalView.current
+
+    DisposableEffect(view) {
+        fun requestCapture() {
+            view.requestFocus()
+            view.requestPointerCapture()
+        }
+
+        val pointerListener = View.OnCapturedPointerListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_MOVE -> {
+                    val relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X)
+                    val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
+                    val dx = if (relX != 0f) relX else event.x
+                    val dy = if (relY != 0f) relY else event.y
+                    onMouseMove(Offset(dx, dy))
+                    true
+                }
+                MotionEvent.ACTION_SCROLL -> {
+                    onMouseScroll(
+                        Offset(
+                            event.getAxisValue(MotionEvent.AXIS_HSCROLL),
+                            event.getAxisValue(MotionEvent.AXIS_VSCROLL)
+                        )
+                    )
+                    true
+                }
+                MotionEvent.ACTION_BUTTON_PRESS -> {
+                    onMouseButton(event.actionButton, true)
+                    true
+                }
+                MotionEvent.ACTION_BUTTON_RELEASE -> {
+                    onMouseButton(event.actionButton, false)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        //窗口获得焦点时请求指针捕获
+        val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
+            if (hasFocus) requestCapture()
+        }
+
+        view.setOnCapturedPointerListener(pointerListener)
+        view.viewTreeObserver.addOnWindowFocusChangeListener(focusListener)
+
+        onDispose {
+            view.setOnCapturedPointerListener(null)
+            view.viewTreeObserver.removeOnWindowFocusChangeListener(focusListener)
+        }
+    }
 }

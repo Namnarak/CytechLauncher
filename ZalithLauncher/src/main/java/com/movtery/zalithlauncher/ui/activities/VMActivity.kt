@@ -188,7 +188,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
-                modifier = Modifier.fillMaxSize().align(Alignment.Center),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center),
                 factory = { context ->
                     TextureView(context).apply {
                         isOpaque = true
