@@ -23,7 +23,6 @@ object AWTCharSender : CharacterSenderStrategy {
         return when (button) {
             MotionEvent.BUTTON_PRIMARY -> AWTInputEvent.BUTTON1_DOWN_MASK
             MotionEvent.BUTTON_TERTIARY -> AWTInputEvent.BUTTON2_DOWN_MASK
-            MotionEvent.BUTTON_SECONDARY -> AWTInputEvent.BUTTON3_DOWN_MASK
             else -> null
         }
     }

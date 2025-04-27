@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.game.launch.handler
 
 import android.content.Context
 import android.util.Log
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
@@ -73,19 +72,6 @@ class GameHandler(
             }
         }
 
-        event.device?.let {
-            val source = event.source
-            if (source and InputDevice.SOURCE_MOUSE_RELATIVE == InputDevice.SOURCE_MOUSE_RELATIVE ||
-                source and InputDevice.SOURCE_MOUSE == InputDevice.SOURCE_MOUSE) {
-
-                if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-                    val isDown = event.action == KeyEvent.ACTION_DOWN
-                    CallbackBridge.sendMouseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT.toInt(), isDown)
-                    return false
-                }
-            }
-        }
-
         EfficientAndroidLWJGLKeycode.getIndexByKey(event.keyCode).takeIf { it >= 0 }?.let { index ->
             EfficientAndroidLWJGLKeycode.execKey(event, index)
             return false
@@ -103,6 +89,10 @@ class GameHandler(
 
             else -> (event.flags and KeyEvent.FLAG_FALLBACK) != KeyEvent.FLAG_FALLBACK
         }
+    }
+
+    override fun sendMouseRight(isPressed: Boolean) {
+        CallbackBridge.sendMouseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT.toInt(), isPressed)
     }
 
     @Composable
