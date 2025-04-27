@@ -1,20 +1,16 @@
 package com.movtery.zalithlauncher.ui.screens.game
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -23,6 +19,7 @@ import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
+import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TouchableButton
 import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
@@ -107,17 +104,12 @@ private fun SimpleMouseControlLayout(
     sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        //请求焦点，否则无法正常处理实体鼠标指针数据
-        focusRequester.requestFocus()
-    }
+    //非实体鼠标控制 -> 抓取系统指针，使用虚拟鼠标
+    val requestPointerCapture = !physicalMouseMode
 
     VirtualPointerLayout(
-        modifier = modifier
-            .focusable() //能够获得焦点，便于实体鼠标指针捕获
-            .focusRequester(focusRequester),
+        modifier = modifier,
+        requestPointerCapture = requestPointerCapture,
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },

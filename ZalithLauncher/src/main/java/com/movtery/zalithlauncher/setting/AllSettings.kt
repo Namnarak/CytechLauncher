@@ -119,6 +119,11 @@ class AllSettings {
         val mouseLongPressDelay = IntSettingUnit("mouseLongPressDelay", 300)
 
         /**
+         * 实体鼠标控制
+         */
+        val physicalMouseMode = BooleanSettingUnit("physicalMouseMode", true)
+
+        /**
          * 手势控制
          */
         val gestureControl = BooleanSettingUnit("gestureControl", false)

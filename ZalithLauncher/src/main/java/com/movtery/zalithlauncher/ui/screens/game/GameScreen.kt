@@ -1,17 +1,13 @@
 package com.movtery.zalithlauncher.ui.screens.game
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.ZLApplication
@@ -30,6 +26,7 @@ import com.movtery.zalithlauncher.setting.mouseControlMode
 import com.movtery.zalithlauncher.setting.mouseLongPressDelay
 import com.movtery.zalithlauncher.setting.mouseSize
 import com.movtery.zalithlauncher.setting.mouseSpeed
+import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
@@ -60,24 +57,17 @@ fun GameScreen() {
 fun MouseControlLayout(
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        //请求焦点，否则无法正常处理实体鼠标指针数据
-        focusRequester.requestFocus()
-    }
-
-    Box(
-        modifier = modifier
-            .focusable() //能够获得焦点，便于实体鼠标指针捕获
-            .focusRequester(focusRequester)
-    ) {
+    Box(modifier = modifier) {
         val sensitivityFactor = 1.4 * (1080f / ZLApplication.DISPLAY_METRICS.heightPixels)
 
         val mode = ZLBridgeStates.cursorMode
         if (mode == CURSOR_ENABLED) {
+            //非实体鼠标控制 -> 抓取系统指针，使用虚拟鼠标
+            val requestPointerCapture = !physicalMouseMode
+
             VirtualPointerLayout(
                 modifier = Modifier.fillMaxSize(),
+                requestPointerCapture = requestPointerCapture,
                 onTap = { position ->
                     CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
                 },
@@ -109,6 +99,7 @@ fun MouseControlLayout(
             TouchpadLayout(
                 modifier = Modifier.fillMaxSize(),
                 longPressTimeoutMillis = gestureLongPressDelay.toLong(),
+                requestPointerCapture = true,
                 onTap = {
                     if (gestureControl) {
                         CallbackBridge.putMouseEvent(tapMouseAction)

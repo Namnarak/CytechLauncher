@@ -46,6 +46,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * 虚拟指针模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
+ * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
@@ -61,6 +62,7 @@ fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
     controlMode: ControlMode = AllSettings.mouseControlMode.toControlMode(),
     longPressTimeoutMillis: Long = -1L,
+    requestPointerCapture: Boolean = true,
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -76,6 +78,8 @@ fun VirtualPointerLayout(
 
     val speedFactor = mouseSpeed / 100f
 
+    var showMousePointer by remember { mutableStateOf(true) }
+
     Box(
         modifier = modifier
             .onSizeChanged { size ->
@@ -85,19 +89,22 @@ fun VirtualPointerLayout(
                 onPointerMove(pointerPosition)
             }
     ) {
-        MousePointer(
-            modifier = Modifier.offset(
-                x = with(LocalDensity.current) { pointerPosition.x.toDp() },
-                y = with(LocalDensity.current) { pointerPosition.y.toDp() }
-            ),
-            mouseSize = mouseSize,
-            mouseFile = getMousePointerFileAvailable()
-        )
+        if (showMousePointer) {
+            MousePointer(
+                modifier = Modifier.offset(
+                    x = with(LocalDensity.current) { pointerPosition.x.toDp() },
+                    y = with(LocalDensity.current) { pointerPosition.y.toDp() }
+                ),
+                mouseSize = mouseSize,
+                mouseFile = getMousePointerFileAvailable()
+            )
+        }
 
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
             controlMode = controlMode,
             longPressTimeoutMillis = longPressTimeoutMillis,
+            requestPointerCapture = requestPointerCapture,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == ControlMode.CLICK) {
@@ -112,6 +119,7 @@ fun VirtualPointerLayout(
             onLongPress = onLongPress,
             onLongPressEnd = onLongPressEnd,
             onPointerMove = { offset ->
+                if (!showMousePointer) showMousePointer = true
                 pointerPosition =  if (controlMode == ControlMode.SLIDE) {
                     Offset(
                         x = (pointerPosition.x + offset.x * speedFactor)
@@ -126,11 +134,18 @@ fun VirtualPointerLayout(
                 onPointerMove(pointerPosition)
             },
             onMouseMove = { offset ->
-                pointerPosition = Offset(
-                    x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
-                    y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)
-                )
-                onPointerMove(pointerPosition)
+                if (requestPointerCapture) {
+                    pointerPosition = Offset(
+                        x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
+                        y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)
+                    )
+                    onPointerMove(pointerPosition)
+                } else {
+                    //非鼠标抓取模式
+                    if (showMousePointer) showMousePointer = false
+                    pointerPosition = offset
+                    onPointerMove(pointerPosition)
+                }
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,

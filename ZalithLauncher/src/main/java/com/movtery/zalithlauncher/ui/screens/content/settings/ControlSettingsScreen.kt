@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.setting.mouseControlMode
 import com.movtery.zalithlauncher.setting.mouseLongPressDelay
 import com.movtery.zalithlauncher.setting.mouseSize
 import com.movtery.zalithlauncher.setting.mouseSpeed
+import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -130,6 +131,14 @@ fun ControlSettingsScreen() {
                     fineTuningControl = true,
                     onValueChange = { mouseLongPressDelay = it }
                 )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.physicalMouseMode,
+                    title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
+                    summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
+                ) {
+                    physicalMouseMode = it
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

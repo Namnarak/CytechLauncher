@@ -34,6 +34,11 @@ var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.toControlMod
 var mouseLongPressDelay by mutableIntStateOf(AllSettings.mouseLongPressDelay.getValue())
 
 /**
+ * 实体鼠标控制
+ */
+var physicalMouseMode by mutableStateOf(AllSettings.physicalMouseMode.getValue())
+
+/**
  * 手势控制
  */
 var gestureControl by mutableStateOf(AllSettings.gestureControl.getValue())

@@ -3,15 +3,29 @@ package com.movtery.zalithlauncher.ui.control.mouse
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.isBackPressed
+import androidx.compose.ui.input.pointer.isForwardPressed
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.isTertiaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalView
@@ -44,6 +58,7 @@ fun StringSettingUnit.toControlMode(): ControlMode {
  * 原始触摸控制模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
+ * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
@@ -58,6 +73,7 @@ fun TouchpadLayout(
     modifier: Modifier = Modifier,
     controlMode: ControlMode = ControlMode.SLIDE,
     longPressTimeoutMillis: Long = -1L,
+    requestPointerCapture: Boolean = true,
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -65,12 +81,21 @@ fun TouchpadLayout(
     onMouseMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
-    inputChange: Array<Any> = arrayOf(Unit)
+    inputChange: Array<out Any> = arrayOf(Unit)
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        //请求焦点，否则无法正常处理实体鼠标指针数据
+        focusRequester.requestFocus()
+    }
+
     val viewConfig = LocalViewConfiguration.current
 
     Box(
         modifier = modifier
+            .focusable() //能够获得焦点，便于实体鼠标指针捕获
+            .focusRequester(focusRequester)
             .pointerInput(*inputChange) {
                 coroutineScope {
                     awaitEachGesture {
@@ -145,9 +170,19 @@ fun TouchpadLayout(
                     }
                 }
             }
+            .then(
+                Modifier.mouseEventModifier(
+                    requestPointerCapture = requestPointerCapture,
+                    inputChange = inputChange,
+                    onMouseMove = onMouseMove,
+                    onMouseScroll = onMouseScroll,
+                    onMouseButton = onMouseButton
+                )
+            )
     )
 
     SimpleMouseCapture(
+        requestPointerCapture = requestPointerCapture,
         onMouseMove = onMouseMove,
         onMouseScroll = onMouseScroll,
         onMouseButton = onMouseButton
@@ -156,60 +191,136 @@ fun TouchpadLayout(
 
 @Composable
 fun SimpleMouseCapture(
+    requestPointerCapture: Boolean,
     onMouseMove: (Offset) -> Unit,
     onMouseScroll: (Offset) -> Unit,
     onMouseButton: (button: Int, pressed: Boolean) -> Unit
 ) {
     val view = LocalView.current
+    val currentOnMouseMove by rememberUpdatedState(onMouseMove)
+    val currentOnMouseScroll by rememberUpdatedState(onMouseScroll)
+    val currentOnMouseButton by rememberUpdatedState(onMouseButton)
 
-    DisposableEffect(view) {
-        fun requestCapture() {
-            view.requestFocus()
-            view.requestPointerCapture()
-        }
+    DisposableEffect(view, requestPointerCapture) {
+        view.setOnCapturedPointerListener(null)
 
-        val pointerListener = View.OnCapturedPointerListener { _, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_MOVE -> {
-                    val relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X)
-                    val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
-                    val dx = if (relX != 0f) relX else event.x
-                    val dy = if (relY != 0f) relY else event.y
-                    onMouseMove(Offset(dx, dy))
-                    true
-                }
-                MotionEvent.ACTION_SCROLL -> {
-                    onMouseScroll(
-                        Offset(
-                            event.getAxisValue(MotionEvent.AXIS_HSCROLL),
-                            event.getAxisValue(MotionEvent.AXIS_VSCROLL)
-                        )
-                    )
-                    true
-                }
-                MotionEvent.ACTION_BUTTON_PRESS -> {
-                    onMouseButton(event.actionButton, true)
-                    true
-                }
-                MotionEvent.ACTION_BUTTON_RELEASE -> {
-                    onMouseButton(event.actionButton, false)
-                    true
-                }
-                else -> false
+        val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
+            if (requestPointerCapture && hasFocus) {
+                view.requestFocus() //虽然可能会比较多余 e...
+                view.requestPointerCapture()
             }
         }
-
-        //窗口获得焦点时请求指针捕获
-        val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
-            if (hasFocus) requestCapture()
-        }
-
-        view.setOnCapturedPointerListener(pointerListener)
         view.viewTreeObserver.addOnWindowFocusChangeListener(focusListener)
 
-        onDispose {
+        if (requestPointerCapture) {
+            if (view.hasWindowFocus()) {
+                view.requestPointerCapture()
+            }
+
+            val pointerListener = View.OnCapturedPointerListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_MOVE -> {
+                        val relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X)
+                        val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
+                        val dx = if (relX != 0f) relX else event.x
+                        val dy = if (relY != 0f) relY else event.y
+                        currentOnMouseMove(Offset(dx, dy))
+                        true
+                    }
+                    MotionEvent.ACTION_SCROLL -> {
+                        currentOnMouseScroll(
+                            Offset(
+                                event.getAxisValue(MotionEvent.AXIS_HSCROLL),
+                                event.getAxisValue(MotionEvent.AXIS_VSCROLL)
+                            )
+                        )
+                        true
+                    }
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_BUTTON_PRESS -> {
+                        currentOnMouseButton(event.actionButton, true)
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_BUTTON_RELEASE -> {
+                        currentOnMouseButton(event.actionButton, false)
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            view.setOnCapturedPointerListener(pointerListener)
+        } else {
+            view.releasePointerCapture()
             view.setOnCapturedPointerListener(null)
+        }
+
+        onDispose {
             view.viewTreeObserver.removeOnWindowFocusChangeListener(focusListener)
+            view.setOnCapturedPointerListener(null)
         }
     }
+}
+
+fun Modifier.mouseEventModifier(
+    requestPointerCapture: Boolean,
+    inputChange: Array<out Any> = arrayOf(Unit),
+    onMouseMove: (Offset) -> Unit,
+    onMouseScroll: (Offset) -> Unit,
+    onMouseButton: (Int, Boolean) -> Unit
+) = this.pointerInput(*inputChange, requestPointerCapture) {
+    val previousButtonStates = mutableMapOf<Int, Boolean>()
+
+    if (requestPointerCapture) return@pointerInput
+
+    awaitEachGesture {
+        while (true) {
+            val event = awaitPointerEvent()
+            val change = event.changes.firstOrNull()
+
+            val pointerType = change?.type
+            if (pointerType != PointerType.Mouse) {
+                //过滤掉不是实体鼠标的类型
+                continue
+            }
+
+            if (event.type == PointerEventType.Move) {
+                onMouseMove(change.position)
+            }
+
+            //滚动，但是方向要进行取反
+            if (event.type == PointerEventType.Scroll) {
+                onMouseScroll(-change.scrollDelta)
+            }
+
+            detectButtonChanges(previousButtonStates, event, onMouseButton)
+
+            event.changes.forEach { it.consume() }
+        }
+    }
+}
+
+private fun detectButtonChanges(
+    previousButtonStates: MutableMap<Int, Boolean>,
+    event: PointerEvent,
+    onMouseButton: (Int, Boolean) -> Unit
+) {
+    val buttons = event.buttons
+
+    val buttonStates = mapOf(
+        MotionEvent.BUTTON_PRIMARY to buttons.isPrimaryPressed,
+        MotionEvent.BUTTON_SECONDARY to buttons.isSecondaryPressed,
+        MotionEvent.BUTTON_TERTIARY to buttons.isTertiaryPressed,
+        MotionEvent.BUTTON_BACK to buttons.isBackPressed,
+        MotionEvent.BUTTON_FORWARD to buttons.isForwardPressed
+    )
+
+    for ((button, isPressed) in buttonStates) {
+        val previousPressed = previousButtonStates[button] ?: false
+        if (previousPressed != isPressed) {
+            onMouseButton(button, isPressed)
+        }
+    }
+
+    previousButtonStates.clear()
+    previousButtonStates.putAll(buttonStates)
 }
