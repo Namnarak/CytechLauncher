@@ -13,6 +13,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -129,15 +131,22 @@ class VersionSettingsLayoutScope {
                 modifier = Modifier
                     .width(240.dp)
                     .align(Alignment.CenterVertically),
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.extraLarge,
                 shadowElevation = 2.dp
             ) {
                 TabRow(
                     modifier = Modifier.fillMaxWidth(),
                     selectedTabIndex = selectedTab,
-                    divider = { /* 禁用底部横线 */ },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    indicator = @Composable { tabPositions ->
+                        if (selectedTab < tabPositions.size) {
+                            TabRowDefaults.PrimaryIndicator(
+                                Modifier.tabIndicatorOffset(tabPositions[selectedTab])
+                            )
+                        }
+                    },
+                    divider = { /* 禁用底部横线 */ },
                     tabs = {
                         repeat(allItems.size) { index ->
                             val state = allItems[index]
