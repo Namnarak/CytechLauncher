@@ -9,7 +9,6 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.version.download.DownloadMode
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
@@ -44,7 +43,7 @@ object LaunchGame {
             context = context,
             version = version.getVersionInfo()?.minecraftVersion ?: version.getVersionName(),
             customName = version.getVersionName(),
-            verifyIntegrity = !AllSettings.skipGameIntegrityCheck.getValue(),
+            verifyIntegrity = !version.skipGameIntegrityCheck(),
             mode = DownloadMode.VERIFY_AND_REPAIR,
             onCompletion = {
                 runGame(context, version)

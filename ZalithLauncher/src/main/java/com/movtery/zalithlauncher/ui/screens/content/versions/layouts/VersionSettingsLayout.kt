@@ -83,7 +83,7 @@ class VersionSettingsLayoutScope {
         currentValue: SettingState,
         onValueChange: (SettingState) -> Unit,
         title: String,
-        summary: String?
+        summary: String? = null
     ) {
         var value by remember { mutableStateOf(currentValue) }
 

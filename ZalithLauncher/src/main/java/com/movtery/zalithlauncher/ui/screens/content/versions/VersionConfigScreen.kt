@@ -120,6 +120,18 @@ private fun VersionConfigs(
             summary = stringResource(R.string.versions_config_isolation_summary)
         )
 
+        StatefulSwitchLayoutFollowGlobal(
+            currentValue = config.skipGameIntegrityCheck,
+            onValueChange = { type ->
+                if (config.skipGameIntegrityCheck != type) {
+                    config.skipGameIntegrityCheck = type
+                    config.saveOrShowError(context)
+                }
+            },
+            title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
+            summary = stringResource(R.string.settings_game_skip_game_integrity_check_summary)
+        )
+
         SimpleIDListLayout(
             items = getIDList(Renderers.getCompatibleRenderers(context).second) { IDItem(it.getUniqueIdentifier(), it.getRendererName()) },
             currentId = config.renderer,

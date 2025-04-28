@@ -91,6 +91,11 @@ class Version(
     fun isIsolation() = versionConfig.isIsolation()
 
     /**
+     * @return 是否跳过游戏完整性检查
+     */
+    fun skipGameIntegrityCheck() = versionConfig.skipGameIntegrityCheck()
+
+    /**
      * @return 获取版本的游戏文件夹路径（若开启了版本隔离，则路径为版本文件夹）
      */
     fun getGameDir(): File {

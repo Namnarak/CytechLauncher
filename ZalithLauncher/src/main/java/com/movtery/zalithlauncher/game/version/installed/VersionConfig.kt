@@ -15,6 +15,8 @@ import java.io.FileWriter
 class VersionConfig(private var versionPath: File) : Parcelable {
     var isolationType: SettingState = SettingState.FOLLOW_GLOBAL
         get() = getSettingStateNotNull(field)
+    var skipGameIntegrityCheck: SettingState = SettingState.FOLLOW_GLOBAL
+        get() = getSettingStateNotNull(field)
     var javaRuntime: String = ""
         get() = getStringNotNull(field)
     var jvmArgs: String = ""
@@ -38,6 +40,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     constructor(
         filePath: File,
         isolationType: SettingState = SettingState.FOLLOW_GLOBAL,
+        skipGameIntegrityCheck: SettingState = SettingState.FOLLOW_GLOBAL,
         javaRuntime: String = "",
         jvmArgs: String = "",
         renderer: String = "",
@@ -50,6 +53,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         ramAllocation: Int = -1
     ) : this(filePath) {
         this.isolationType = isolationType
+        this.skipGameIntegrityCheck = skipGameIntegrityCheck
         this.javaRuntime = javaRuntime
         this.jvmArgs = jvmArgs
         this.renderer = renderer
@@ -65,6 +69,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     fun copy(): VersionConfig = VersionConfig(
         versionPath,
         getSettingStateNotNull(isolationType),
+        getSettingStateNotNull(skipGameIntegrityCheck),
         getStringNotNull(javaRuntime),
         getStringNotNull(jvmArgs),
         getStringNotNull(renderer),
@@ -105,8 +110,12 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.versionPath = versionPath
     }
 
-    fun isIsolation(): Boolean = when(getSettingStateNotNull(isolationType)) {
-        SettingState.FOLLOW_GLOBAL -> AllSettings.versionIsolation.getValue()
+    fun isIsolation(): Boolean = isolationType.toBoolean(AllSettings.versionIsolation.getValue())
+
+    fun skipGameIntegrityCheck(): Boolean = skipGameIntegrityCheck.toBoolean(AllSettings.skipGameIntegrityCheck.getValue())
+
+    private fun SettingState.toBoolean(global: Boolean) = when(getSettingStateNotNull(this)) {
+        SettingState.FOLLOW_GLOBAL -> global
         SettingState.ENABLE -> true
         SettingState.DISABLE -> false
     }
@@ -117,6 +126,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         dest.run {
             writeString(versionPath.absolutePath)
             writeInt(getSettingStateNotNull(isolationType).ordinal)
+            writeInt(getSettingStateNotNull(skipGameIntegrityCheck).ordinal)
             writeString(getStringNotNull(javaRuntime))
             writeString(getStringNotNull(jvmArgs))
             writeString(getStringNotNull(renderer))
@@ -134,6 +144,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         override fun createFromParcel(parcel: Parcel): VersionConfig {
             val versionPath = File(parcel.readString().orEmpty())
             val isolationType = SettingState.entries.getOrNull(parcel.readInt()) ?: SettingState.FOLLOW_GLOBAL
+            val skipGameIntegrityCheck = SettingState.entries.getOrNull(parcel.readInt()) ?: SettingState.FOLLOW_GLOBAL
             val javaRuntime = parcel.readString().orEmpty()
             val jvmArgs = parcel.readString().orEmpty()
             val renderer = parcel.readString().orEmpty()
@@ -148,6 +159,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             return VersionConfig(
                 versionPath,
                 isolationType,
+                skipGameIntegrityCheck,
                 javaRuntime,
                 jvmArgs,
                 renderer,
