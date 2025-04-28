@@ -59,6 +59,9 @@ object LaunchGame {
             AccountsManager.performLoginTask(
                 context = context,
                 account = account,
+                onSuccess = { acc, _ ->
+                    acc.save()
+                },
                 onFailed = { error ->
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(
