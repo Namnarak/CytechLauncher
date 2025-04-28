@@ -15,6 +15,6 @@ class Servers(
         @SerializedName("serverName")
         var serverName: String,
         @SerializedName("register")
-        var register: String
+        var register: String? = null
     )
 }

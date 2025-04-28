@@ -321,7 +321,7 @@ private fun JavaRuntimeItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp,
+        shadowElevation = 2.dp,
         onClick = onClick
     ) {
         Row {

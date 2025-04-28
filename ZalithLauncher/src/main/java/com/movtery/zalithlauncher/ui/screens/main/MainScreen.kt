@@ -519,7 +519,7 @@ fun TaskItem(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 4.dp
+        shadowElevation = 2.dp
     ) {
         Row(
             modifier = Modifier.padding(all = 8.dp)

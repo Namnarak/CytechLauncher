@@ -221,7 +221,7 @@ fun AccountItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp,
+        shadowElevation = 2.dp,
         onClick = {
             if (selected) return@Surface
             onSelected(account.uniqueUUID)
@@ -428,7 +428,7 @@ fun OtherServerLoginDialog(
                     Text(
                         text = stringResource(R.string.account_other_login_register),
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Start).clickable { onRegisterClick(server.register) }
+                        modifier = Modifier.align(Alignment.Start).clickable { onRegisterClick(server.register!!) }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                 } else Spacer(modifier = Modifier.size(16.dp))

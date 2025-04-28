@@ -182,7 +182,7 @@ private fun TaskItem(
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shadowElevation = 4.dp
+        shadowElevation = 2.dp
     ) {
         Row {
             Column(

@@ -292,7 +292,7 @@ private fun FileItem(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = MaterialTheme.colorScheme.surfaceContainer,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp,
+        shadowElevation = 2.dp,
         onClick = onClick
     ) {
         BaseFileItem(

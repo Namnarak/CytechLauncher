@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -49,6 +50,7 @@ fun ScalingLabel(
     shape: Shape = MaterialTheme.shapes.extraLarge,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = 2.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -59,7 +61,7 @@ fun ScalingLabel(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 4.dp
+        shadowElevation = shadowElevation
     ) {
         Text(
             modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),

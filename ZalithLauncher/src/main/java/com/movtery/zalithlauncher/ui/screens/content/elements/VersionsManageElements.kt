@@ -461,7 +461,7 @@ fun VersionItemLayout(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp,
+        shadowElevation = 2.dp,
         onClick = {
             if (selected) return@Surface
             onSelected()

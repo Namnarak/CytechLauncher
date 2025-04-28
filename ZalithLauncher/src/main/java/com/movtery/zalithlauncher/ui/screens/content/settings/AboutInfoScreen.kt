@@ -147,7 +147,7 @@ private fun LibraryInfoItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 4.dp,
+        shadowElevation = 2.dp,
         onClick = {}
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
