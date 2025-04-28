@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.setting.enums.toGestureButtonType
-import com.movtery.zalithlauncher.ui.control.mouse.toControlMode
+import com.movtery.zalithlauncher.setting.enums.toMouseControlMode
 
 /**
  * 缩放因子
@@ -26,7 +26,7 @@ var mouseSpeed by mutableIntStateOf(AllSettings.mouseSpeed.getValue())
 /**
  * 鼠标控制模式
  */
-var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.toControlMode())
+var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.toMouseControlMode())
 
 /**
  * 鼠标长按触发延迟

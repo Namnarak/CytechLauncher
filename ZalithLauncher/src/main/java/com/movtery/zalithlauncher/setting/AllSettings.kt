@@ -6,10 +6,10 @@ import androidx.compose.ui.graphics.toArgb
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
+import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
-import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -111,7 +111,7 @@ class AllSettings {
         /**
          * 虚拟鼠标控制模式
          */
-        val mouseControlMode = StringSettingUnit("mouseControlMode", ControlMode.SLIDE.name)
+        val mouseControlMode = StringSettingUnit("mouseControlMode", MouseControlMode.SLIDE.name)
 
         /**
          * 鼠标控制长按延迟

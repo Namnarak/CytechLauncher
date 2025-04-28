@@ -29,6 +29,9 @@ import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.enums.toMouseControlMode
+import com.movtery.zalithlauncher.utils.device.isPhysicalMouseConnected
 import com.movtery.zalithlauncher.utils.file.child
 import java.io.File
 
@@ -60,7 +63,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
 @Composable
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
-    controlMode: ControlMode = AllSettings.mouseControlMode.toControlMode(),
+    controlMode: MouseControlMode = AllSettings.mouseControlMode.toMouseControlMode(),
     longPressTimeoutMillis: Long = -1L,
     requestPointerCapture: Boolean = true,
     onTap: (Offset) -> Unit = {},
@@ -78,7 +81,9 @@ fun VirtualPointerLayout(
 
     val speedFactor = mouseSpeed / 100f
 
-    var showMousePointer by remember { mutableStateOf(requestPointerCapture) }
+    var showMousePointer by remember {
+        mutableStateOf(!isPhysicalMouseConnected() || requestPointerCapture)
+    }
 
     Box(
         modifier = modifier
@@ -107,7 +112,7 @@ fun VirtualPointerLayout(
             requestPointerCapture = requestPointerCapture,
             onTap = { fingerPos ->
                 onTap(
-                    if (controlMode == ControlMode.CLICK) {
+                    if (controlMode == MouseControlMode.CLICK) {
                         //当前手指的绝对坐标
                         pointerPosition = fingerPos
                         fingerPos
@@ -120,7 +125,7 @@ fun VirtualPointerLayout(
             onLongPressEnd = onLongPressEnd,
             onPointerMove = { offset ->
                 if (!showMousePointer) showMousePointer = true
-                pointerPosition =  if (controlMode == ControlMode.SLIDE) {
+                pointerPosition =  if (controlMode == MouseControlMode.SLIDE) {
                     Offset(
                         x = (pointerPosition.x + offset.x * speedFactor)
                             .coerceIn(0f, screenWidth),

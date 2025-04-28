@@ -35,6 +35,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
+import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.setting.gestureLongPressDelay
 import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
@@ -49,7 +50,6 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
-import com.movtery.zalithlauncher.ui.control.mouse.ControlMode
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.getMousePointerFileAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
@@ -105,7 +105,7 @@ fun ControlSettingsScreen() {
 
                 ListSettingsLayout(
                     unit = AllSettings.mouseControlMode,
-                    items = ControlMode.entries,
+                    items = MouseControlMode.entries,
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
                     getItemId = { it.name },
