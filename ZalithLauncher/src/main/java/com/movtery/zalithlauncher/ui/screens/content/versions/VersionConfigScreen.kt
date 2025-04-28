@@ -247,6 +247,21 @@ private fun GameConfigs(
                 Text(text = stringResource(R.string.versions_config_follow_global_if_blank))
             }
         )
+
+        TextInputLayout(
+            currentValue = config.serverIp,
+            title = stringResource(R.string.versions_config_auto_join_server_ip_title),
+            summary = stringResource(R.string.versions_config_auto_join_server_ip_summary),
+            onValueChange = { value ->
+                if (config.serverIp != value) {
+                    config.serverIp = value
+                    config.saveOrShowError(context)
+                }
+            },
+            label = {
+                Text(text = stringResource(R.string.versions_config_disable_if_blank))
+            }
+        )
     }
 }
 

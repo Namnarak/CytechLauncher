@@ -46,6 +46,25 @@ class LaunchArgs(
         argsList.add(gameManifest.mainClass)
         argsList.addAll(getMinecraftClientArgs())
 
+        minecraftVersion.getServerIp()?.let { serverIp ->
+            val (ip, port) = serverIp.split(":").run {
+                first() to getOrElse(1) { "25565" }
+            }
+            if (VersionNumber.compare(minecraftVersion.getVersionInfo()!!.minecraftVersion, "1.20") < 0) {
+                argsList.apply {
+                    add("--server")
+                    add(ip)
+                    add("--port")
+                    add(port)
+                }
+            } else {
+                argsList.apply {
+                    add("--quickPlayMultiplayer")
+                    add("$ip:$port")
+                }
+            }
+        }
+
         return argsList
     }
 

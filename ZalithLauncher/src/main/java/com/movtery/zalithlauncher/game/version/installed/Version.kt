@@ -113,6 +113,8 @@ class Version(
     fun getCustomInfo(): String = versionConfig.customInfo.getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)
 
+    fun getServerIp(): String? = versionConfig.serverIp.takeIf { it.isNotEmpty() && it.isNotBlank() }
+
     fun getRamAllocation(context: Context = GlobalContext): Int = versionConfig.ramAllocation.takeIf { it >= 256 }?.let {
         min(it, MemoryUtils.getMaxMemoryForSettings(context))
     } ?: AllSettings.ramAllocation.getValue()

@@ -31,6 +31,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         get() = getStringNotNull(field)
     var versionSummary: String = ""
         get() = getStringNotNull(field)
+    var serverIp: String = ""
+        get() = getStringNotNull(field)
     var ramAllocation: Int = -1
 
     constructor(
@@ -44,6 +46,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         customPath: String = "",
         customInfo: String = "",
         versionSummary: String = "",
+        serverIp: String = "",
         ramAllocation: Int = -1
     ) : this(filePath) {
         this.isolationType = isolationType
@@ -55,6 +58,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.customPath = customPath
         this.customInfo = customInfo
         this.versionSummary = versionSummary
+        this.serverIp = serverIp
         this.ramAllocation = ramAllocation
     }
 
@@ -69,6 +73,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         getStringNotNull(customPath),
         getStringNotNull(customInfo),
         getStringNotNull(versionSummary),
+        getStringNotNull(serverIp),
         ramAllocation
     )
 
@@ -122,6 +127,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             writeString(getStringNotNull(customPath))
             writeString(getStringNotNull(customInfo))
             writeString(getStringNotNull(versionSummary))
+            writeString(getStringNotNull(serverIp))
             writeInt(ramAllocation)
         }
     }
@@ -138,6 +144,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
             val versionSummary = parcel.readString().orEmpty()
+            val serverIp = parcel.readString().orEmpty()
             val ramAllocation = parcel.readInt()
 
             return VersionConfig(
@@ -151,6 +158,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
                 customPath,
                 customInfo,
                 versionSummary,
+                serverIp,
                 ramAllocation
             )
         }
