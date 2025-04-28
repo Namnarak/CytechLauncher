@@ -208,7 +208,8 @@
     <string name="versions_overview_crash_report_folder">崩溃报告文件夹</string>
     <string name="versions_config_version_settings">版本独立设置</string>
     <string name="versions_config_game_settings">游戏独立设置</string>
-    <string name="versions_config_isolation">版本隔离</string>
+    <string name="versions_config_isolation_title">版本隔离</string>
+    <string name="versions_config_isolation_summary">隔离当前的版本，与所有版本之间的数据互不干扰</string>
     <string name="versions_config_renderer">渲染器</string>
     <string name="versions_config_vulkan_driver">Vulkan 驱动器</string>
     <string name="versions_config_java_runtime_summary">指定当前版本所使用的 Java 环境</string>

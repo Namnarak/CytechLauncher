@@ -39,7 +39,6 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
-import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
@@ -109,19 +108,16 @@ private fun VersionConfigs(
             style = MaterialTheme.typography.labelLarge
         )
 
-        SimpleListLayout(
-            items = VersionConfig.IsolationType.entries,
-            currentId = config.isolationType.name,
-            defaultId = VersionConfig.IsolationType.FOLLOW_GLOBAL.name,
-            title = stringResource(R.string.versions_config_isolation),
-            getItemText = { stringResource(it.textRes) },
-            getItemId = { it.takeIf { it != VersionConfig.IsolationType.FOLLOW_GLOBAL }?.name ?: "" },
+        StatefulSwitchLayoutFollowGlobal(
+            currentValue = config.isolationType,
             onValueChange = { type ->
                 if (config.isolationType != type) {
                     config.isolationType = type
                     config.saveOrShowError(context)
                 }
-            }
+            },
+            title = stringResource(R.string.versions_config_isolation_title),
+            summary = stringResource(R.string.versions_config_isolation_summary)
         )
 
         SimpleIDListLayout(

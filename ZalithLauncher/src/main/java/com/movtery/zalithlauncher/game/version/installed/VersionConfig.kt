@@ -13,8 +13,8 @@ import java.io.File
 import java.io.FileWriter
 
 class VersionConfig(private var versionPath: File) : Parcelable {
-    var isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL
-        get() = getIsolationTypeNotNull(field)
+    var isolationType: SettingState = SettingState.FOLLOW_GLOBAL
+        get() = getSettingStateNotNull(field)
     var javaRuntime: String = ""
         get() = getStringNotNull(field)
     var jvmArgs: String = ""
@@ -37,7 +37,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     constructor(
         filePath: File,
-        isolationType: IsolationType = IsolationType.FOLLOW_GLOBAL,
+        isolationType: SettingState = SettingState.FOLLOW_GLOBAL,
         javaRuntime: String = "",
         jvmArgs: String = "",
         renderer: String = "",
@@ -64,7 +64,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
     fun copy(): VersionConfig = VersionConfig(
         versionPath,
-        getIsolationTypeNotNull(isolationType),
+        getSettingStateNotNull(isolationType),
         getStringNotNull(javaRuntime),
         getStringNotNull(jvmArgs),
         getStringNotNull(renderer),
@@ -105,20 +105,18 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.versionPath = versionPath
     }
 
-    fun isIsolation(): Boolean = when(getIsolationTypeNotNull(isolationType)) {
-        IsolationType.FOLLOW_GLOBAL -> AllSettings.versionIsolation.getValue()
-        IsolationType.ENABLE -> true
-        IsolationType.DISABLE -> false
+    fun isIsolation(): Boolean = when(getSettingStateNotNull(isolationType)) {
+        SettingState.FOLLOW_GLOBAL -> AllSettings.versionIsolation.getValue()
+        SettingState.ENABLE -> true
+        SettingState.DISABLE -> false
     }
-
-    private fun getIsolationTypeNotNull(type: IsolationType?) = type ?: IsolationType.FOLLOW_GLOBAL
 
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.run {
             writeString(versionPath.absolutePath)
-            writeInt(getIsolationTypeNotNull(isolationType).ordinal)
+            writeInt(getSettingStateNotNull(isolationType).ordinal)
             writeString(getStringNotNull(javaRuntime))
             writeString(getStringNotNull(jvmArgs))
             writeString(getStringNotNull(renderer))
@@ -135,7 +133,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     companion object CREATOR : Parcelable.Creator<VersionConfig> {
         override fun createFromParcel(parcel: Parcel): VersionConfig {
             val versionPath = File(parcel.readString().orEmpty())
-            val isolationType = IsolationType.entries.getOrNull(parcel.readInt()) ?: IsolationType.FOLLOW_GLOBAL
+            val isolationType = SettingState.entries.getOrNull(parcel.readInt()) ?: SettingState.FOLLOW_GLOBAL
             val javaRuntime = parcel.readString().orEmpty()
             val jvmArgs = parcel.readString().orEmpty()
             val renderer = parcel.readString().orEmpty()
@@ -193,14 +191,16 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
         fun createIsolation(versionPath: File): VersionConfig {
             val config = VersionConfig(versionPath)
-            config.isolationType = IsolationType.ENABLE
+            config.isolationType = SettingState.ENABLE
             return config
         }
     }
-
-    enum class IsolationType(val textRes: Int) {
-        FOLLOW_GLOBAL(R.string.generic_follow_global),
-        ENABLE(R.string.generic_open),
-        DISABLE(R.string.generic_close)
-    }
 }
+
+enum class SettingState(val textRes: Int) {
+    FOLLOW_GLOBAL(R.string.generic_follow_global),
+    ENABLE(R.string.generic_open),
+    DISABLE(R.string.generic_close)
+}
+
+private fun getSettingStateNotNull(type: SettingState?) = type ?: SettingState.FOLLOW_GLOBAL
