@@ -115,10 +115,11 @@ class VersionSettingsLayoutScope {
                 .padding(bottom = 4.dp)
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp)
             ) {
                 TitleAndSummary(title, summary)
-                Spacer(modifier = Modifier.width(16.dp))
             }
 
             val allItems = SettingState.entries
