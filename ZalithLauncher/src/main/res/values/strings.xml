@@ -232,6 +232,7 @@
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
     <!--  设置  -->
     <string name="settings_element_selected">当前选择项：%s</string>
+    <string name="settings_label_ignore_if_blank">留白则忽略此设置</string>
     <string name="settings_tab_renderer">渲染设置</string>
     <string name="settings_tab_game">游戏设置</string>
     <string name="settings_tab_control">控制设置</string>
@@ -271,7 +272,7 @@
     <string name="settings_game_java_memory_title">内存分配</string>
     <string name="settings_game_java_memory_summary">控制给 Minecraft 分配多少内存</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>
-    <string name="settings_game_jvm_args_summary">启动 Minecraft 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致游戏崩溃</string>
+    <string name="settings_game_jvm_args_summary">启动 JVM 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致崩溃</string>
     <string name="settings_game_log_text_size_title">日志字体大小</string>
     <string name="settings_game_log_text_size_summary">调整日志屏幕上的文字大小</string>
     <string name="settings_game_log_buffer_flush_interval_title">日志刷新间隔</string>

@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
@@ -226,6 +228,7 @@ class SettingsLayoutScope {
         unit: StringSettingUnit,
         title: String,
         summary: String? = null,
+        label: String? = null,
         onValueChange: (String) -> Unit = {},
         singleLine: Boolean = true
     ) {
@@ -237,6 +240,9 @@ class SettingsLayoutScope {
             onValueChange = { value ->
                 unit.put(value).save()
                 onValueChange(value)
+            },
+            label = {
+                Text(text = label ?: stringResource(R.string.settings_label_ignore_if_blank))
             },
             singleLine = singleLine
         )
