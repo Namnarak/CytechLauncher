@@ -90,6 +90,14 @@ fun ControlSettingsScreen() {
                         )
                     }
             ) {
+                SwitchSettingsLayout(
+                    unit = AllSettings.physicalMouseMode,
+                    title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
+                    summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
+                ) {
+                    physicalMouseMode = it
+                }
+
                 MousePointerLayout(
                     mouseSize = mouseSize
                 )
@@ -131,14 +139,6 @@ fun ControlSettingsScreen() {
                     fineTuningControl = true,
                     onValueChange = { mouseLongPressDelay = it }
                 )
-
-                SwitchSettingsLayout(
-                    unit = AllSettings.physicalMouseMode,
-                    title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
-                    summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
-                ) {
-                    physicalMouseMode = it
-                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

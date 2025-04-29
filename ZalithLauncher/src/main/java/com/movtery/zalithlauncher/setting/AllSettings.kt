@@ -99,6 +99,11 @@ class AllSettings {
 
         //Control
         /**
+         * 实体鼠标控制
+         */
+        val physicalMouseMode = BooleanSettingUnit("physicalMouseMode", true)
+
+        /**
          * 虚拟鼠标大小（Dp）
          */
         val mouseSize = IntSettingUnit("mouseSize", 24)
@@ -117,11 +122,6 @@ class AllSettings {
          * 鼠标控制长按延迟
          */
         val mouseLongPressDelay = IntSettingUnit("mouseLongPressDelay", 300)
-
-        /**
-         * 实体鼠标控制
-         */
-        val physicalMouseMode = BooleanSettingUnit("physicalMouseMode", true)
 
         /**
          * 手势控制

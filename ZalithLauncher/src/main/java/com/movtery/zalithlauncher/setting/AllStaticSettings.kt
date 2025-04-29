@@ -14,6 +14,11 @@ import com.movtery.zalithlauncher.setting.enums.toMouseControlMode
 var scaleFactor by mutableFloatStateOf(AllSettings.resolutionRatio.getValue() / 100f)
 
 /**
+ * 实体鼠标控制
+ */
+var physicalMouseMode by mutableStateOf(AllSettings.physicalMouseMode.getValue())
+
+/**
  * 鼠标大小
  */
 var mouseSize by mutableIntStateOf(AllSettings.mouseSize.getValue())
@@ -32,11 +37,6 @@ var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.toMouseContr
  * 鼠标长按触发延迟
  */
 var mouseLongPressDelay by mutableIntStateOf(AllSettings.mouseLongPressDelay.getValue())
-
-/**
- * 实体鼠标控制
- */
-var physicalMouseMode by mutableStateOf(AllSettings.physicalMouseMode.getValue())
 
 /**
  * 手势控制
