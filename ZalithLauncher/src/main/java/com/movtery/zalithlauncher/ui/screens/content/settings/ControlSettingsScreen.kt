@@ -51,7 +51,6 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
-import com.movtery.zalithlauncher.ui.control.mouse.getMousePointerFileAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
@@ -214,7 +213,6 @@ private fun MousePointerLayout(
 ) {
     val context = LocalContext.current
 
-    var mouseFile by remember { mutableStateOf(getMousePointerFileAvailable()) }
     var triggerState by remember { mutableIntStateOf(0) }
 
     var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
@@ -232,7 +230,6 @@ private fun MousePointerLayout(
             )
         }
         is MousePointerOperation.Refresh -> {
-            mouseFile = getMousePointerFileAvailable()
             triggerState++
             mouseOperation = MousePointerOperation.None
         }
@@ -294,21 +291,23 @@ private fun MousePointerLayout(
             MousePointer(
                 modifier = Modifier.padding(all = 8.dp),
                 mouseSize = mouseSize.dp,
-                mouseFile = mouseFile,
+                mouseFile = mousePointerFile,
                 centerIcon = true,
                 triggerRefresh = triggerState
             )
 
-            IconTextButton(
-                onClick = {
-                    getMousePointerFileAvailable()?.let {
+            val mouseExists = remember(triggerState) { mousePointerFile.exists() }
+
+            if (mouseExists) {
+                IconTextButton(
+                    onClick = {
                         mouseOperation = MousePointerOperation.Reset
-                    }
-                },
-                imageVector = Icons.Default.RestartAlt,
-                contentDescription = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.generic_reset)
-            )
+                    },
+                    imageVector = Icons.Default.RestartAlt,
+                    contentDescription = stringResource(R.string.generic_reset),
+                    text = stringResource(R.string.generic_reset)
+                )
+            }
         }
     }
 }
