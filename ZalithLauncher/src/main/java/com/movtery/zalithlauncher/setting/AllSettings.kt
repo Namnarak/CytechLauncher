@@ -97,6 +97,16 @@ class AllSettings {
          */
         val jvmArgs = StringSettingUnit("jvmArgs", "")
 
+        /**
+         * 日志字体大小
+         */
+        val logTextSize = IntSettingUnit("logTextSize", 15)
+
+        /**
+         * 日志缓冲区刷新时间
+         */
+        val logBufferFlushInterval = IntSettingUnit("logBufferFlushInterval", 200)
+
         //Control
         /**
          * 实体鼠标控制

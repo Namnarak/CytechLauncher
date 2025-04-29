@@ -13,7 +13,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import com.movtery.zalithlauncher.bridge.LoggerBridge
+import com.movtery.zalithlauncher.setting.AllSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -37,9 +40,7 @@ fun LogBox(
     val config = remember {
         object {
             /** 缓冲区刷新间隔，单位：ms */
-            val BUFFER_FLUSH_INTERVAL = 200L
-            /** 滚动节流时间 */
-            val SCROLL_THROTTLE = 200L
+            val BUFFER_FLUSH_INTERVAL: Long = AllSettings.logBufferFlushInterval.getValue().toLong()
         }
     }
 
@@ -73,14 +74,9 @@ fun LogBox(
 
             //自动滚动部分
             launch(Dispatchers.Main) {
-                var lastScrollTime = 0L
                 scrollChannel.consumeAsFlow().collect {
-                    val now = System.currentTimeMillis()
-                    if (now - lastScrollTime > config.SCROLL_THROTTLE) {
-                        if (logList.isNotEmpty()) {
-                            scrollState.animateScrollToItem(logList.lastIndex)
-                        }
-                        lastScrollTime = now
+                    if (logList.isNotEmpty()) {
+                        scrollState.animateScrollToItem(logList.lastIndex)
                     }
                 }
             }
@@ -94,7 +90,8 @@ fun LogBox(
     if (enableLog) {
         Surface(
             modifier = modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onSurface
         ) {
             SelectionContainer {
                 LogList(
@@ -120,9 +117,9 @@ private fun LogList(
         items(logs.size) { index ->
             val log = logs[index]
             Text(
-                modifier = Modifier.fillParentMaxWidth(),
                 text = log,
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.fillParentMaxWidth(),
+                fontSize = TextUnit(AllSettings.logTextSize.getValue().toFloat(), TextUnitType.Sp)
             )
         }
     }

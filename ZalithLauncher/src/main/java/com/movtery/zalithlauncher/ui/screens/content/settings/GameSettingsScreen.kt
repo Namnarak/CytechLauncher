@@ -121,6 +121,42 @@ fun GameSettingsScreen() {
                     summary = stringResource(R.string.settings_game_jvm_args_summary)
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val yOffset3 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 100
+            )
+
+            SettingsBackground(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = yOffset3.roundToPx()
+                        )
+                    }
+            ) {
+                SliderSettingsLayout(
+                    unit = AllSettings.logTextSize,
+                    title = stringResource(R.string.settings_game_log_text_size_title),
+                    summary = stringResource(R.string.settings_game_log_text_size_summary),
+                    valueRange = 5f..20f,
+                    suffix = "Sp",
+                    fineTuningControl = true
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.logBufferFlushInterval,
+                    title = stringResource(R.string.settings_game_log_buffer_flush_interval_title),
+                    summary = stringResource(R.string.settings_game_log_buffer_flush_interval_summary),
+                    valueRange = 100f..1000f,
+                    suffix = "ms",
+                    fineTuningControl = true
+                )
+            }
         }
     }
 }
