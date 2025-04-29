@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
@@ -32,7 +31,6 @@ import com.movtery.zalithlauncher.utils.killProgress
 fun JVMScreen() {
     var forceCloseDialog by remember { mutableStateOf(false) }
     var enableLog by remember { mutableStateOf(false) }
-    var logText by remember { mutableStateOf("") }
 
     val charInputRef = remember { mutableStateOf<TouchCharInput?>(null) }
 
@@ -51,20 +49,15 @@ fun JVMScreen() {
             }
         )
 
+        LogBox(
+            enableLog = enableLog,
+            modifier = Modifier.fillMaxSize()
+        )
+
         TouchCharInput(
             characterSender = AWTCharSender,
             onViewReady = { charInputRef.value = it }
         )
-
-        if (enableLog) {
-            LoggerBridge.setListener { log ->
-                logText += "$log\n"
-            }
-            LogBox(logText = logText)
-        } else {
-            logText = ""
-            LoggerBridge.setListener(null)
-        }
 
         ButtonsLayout(
             modifier = Modifier

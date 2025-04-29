@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
-import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
@@ -36,20 +35,14 @@ import org.lwjgl.glfw.CallbackBridge
 @Composable
 fun GameScreen() {
     var enableLog by remember { mutableStateOf(false) }
-    var logText by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MouseControlLayout(modifier = Modifier.fillMaxSize())
 
-        if (enableLog) {
-            LoggerBridge.setListener { log ->
-                logText += "$log\n"
-            }
-            LogBox(logText = logText)
-        } else {
-            logText = ""
-            LoggerBridge.setListener(null)
-        }
+        LogBox(
+            enableLog = enableLog,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
