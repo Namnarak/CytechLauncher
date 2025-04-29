@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -103,11 +102,12 @@ fun AboutInfoScreen() {
                             x = 0,
                             y = yOffset.roundToPx()
                         )
-                    }
+                    },
+                contentPadding = 0.dp
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                         text = stringResource(R.string.about_library_title),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurface
@@ -115,11 +115,15 @@ fun AboutInfoScreen() {
                     Spacer(modifier = Modifier.width(width = 8.dp))
                     HorizontalDivider(
                         modifier = Modifier
-                            .padding(horizontal = 4.dp)
+                            .padding(horizontal = 12.dp)
                             .fillMaxWidth(),
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp).padding(top = 12.dp, bottom = 8.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(all = 12.dp)
+                    ) {
                         repeat(libraryData.size) { index ->
                             val info = libraryData[index]
                             LibraryInfoItem(

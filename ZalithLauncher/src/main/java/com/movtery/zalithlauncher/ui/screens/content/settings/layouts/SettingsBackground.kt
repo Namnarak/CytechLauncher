@@ -10,11 +10,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsBackground(
     modifier: Modifier = Modifier,
+    content: @Composable SettingsLayoutScope.() -> Unit
+) {
+    SettingsBackground(
+        modifier = modifier,
+        contentPadding = 8.dp,
+        content = content
+    )
+}
+
+@Composable
+fun SettingsBackground(
+    modifier: Modifier = Modifier,
+    contentPadding: Dp,
     content: @Composable SettingsLayoutScope.() -> Unit
 ) {
     Card(
@@ -25,7 +39,7 @@ fun SettingsBackground(
         Column(
             modifier = Modifier
                 .clip(shape = MaterialTheme.shapes.large)
-                .padding(all = 8.dp)
+                .padding(contentPadding)
         ) {
             val scope = remember { SettingsLayoutScope() }
 

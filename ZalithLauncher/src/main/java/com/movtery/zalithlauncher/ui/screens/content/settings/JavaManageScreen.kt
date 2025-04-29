@@ -122,11 +122,15 @@ fun JavaManageScreen() {
                         x = 0,
                         y = yOffset.roundToPx()
                     )
-                }
+                },
+            contentPadding = 0.dp
         ) {
-            Row(modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+            ) {
                 IconTextButton(
                     onClick = { runtimes = getRuntimes(true) },
                     imageVector = Icons.Filled.Refresh,
@@ -151,14 +155,14 @@ fun JavaManageScreen() {
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(
                 modifier = Modifier
-                    .padding(horizontal = 4.dp)
+                    .padding(horizontal = 12.dp)
                     .fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onSurface
             )
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp)
+                contentPadding = PaddingValues(all = 12.dp)
             ) {
                 items(runtimes.size) { index ->
                     JavaRuntimeItem(
