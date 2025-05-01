@@ -14,6 +14,9 @@ val zalithPackageName = "com.movtery.zalithlauncher"
 val launcherAPPName = project.findProperty("launcher_app_name") as? String ?: error("The \"launcher_app_name\" property is not set in gradle.properties.")
 val launcherName = project.findProperty("launcher_name") as? String ?: error("The \"launcher_name\" property is not set in gradle.properties.")
 
+val launcherVersionCode = (project.findProperty("launcher_version_code") as? String)?.toIntOrNull() ?: error("The \"launcher_version_code\" property is not set as an integer in gradle.properties.")
+val launcherVersionName = project.findProperty("launcher_version_name") as? String ?: error("The \"launcher_version_name\" property is not set in gradle.properties.")
+
 val defaultCryptoKey = project.findProperty("default_crypto_key") as? String ?: error("The \"default_crypto_key\" property is not set in gradle.properties.")
 val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
@@ -56,8 +59,8 @@ android {
         applicationIdSuffix = ".v2"
         minSdk = 26
         targetSdk = 35
-        versionCode = 190000
-        versionName = "2.0.0"
+        versionCode = launcherVersionCode
+        versionName = launcherVersionName
         manifestPlaceholders["launcher_name"] = launcherAPPName
     }
 

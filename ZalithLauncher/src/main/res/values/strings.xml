@@ -31,6 +31,9 @@
     <string name="generic_unknown">未知</string>
     <string name="generic_follow_global">跟随全局</string>
     <string name="generic_custom">自定义</string>
+    <!--  启动器版本  -->
+    <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
+    <string name="launcher_version_label_beta">公测版本：%s，仅供演示</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
     <string name="theme_color_embermire">釉烬</string>

@@ -1,5 +1,5 @@
 Zalith Launcher End User License Agreement (EULA)
-Last Updated: April 11, 2025
+Last Updated: May 1, 2025
 
 Please read this agreement carefully before using the software.
 Developer: MovTery
@@ -14,7 +14,7 @@ II. Naming Guidelines (Derivative Versions)
 1) Modified versions must not use the following names:
     - The full name "Zalith Launcher."
     - The abbreviation "ZL."
-2) Derivative versions must prominently display "Non-Official Modified Version" in a visible location.
+2) Any derived version must prominently display the label "Zalith Launcher Unofficial Modified Version."
 3) Use of visual elements (icons/trademarks) resembling those of this Software is strictly prohibited.
 
 III. Disclaimer

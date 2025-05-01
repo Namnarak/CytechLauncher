@@ -2,6 +2,11 @@ package com.movtery.zalithlauncher.ui.activities
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
@@ -12,7 +17,14 @@ class MainActivity : BaseComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ZalithLauncherTheme {
-                MainScreen()
+                Box {
+                    MainScreen()
+                    LauncherVersion(
+                        modifier = Modifier
+                            .padding(vertical = 2.dp)
+                            .align(Alignment.BottomCenter)
+                    )
+                }
             }
         }
     }
