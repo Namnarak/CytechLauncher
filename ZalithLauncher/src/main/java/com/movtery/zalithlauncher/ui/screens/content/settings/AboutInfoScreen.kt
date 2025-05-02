@@ -41,6 +41,7 @@ private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project
 private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
 private const val LICENSE_APACHE_2 = "Apache License 2.0"
 private const val LICENSE_MIT = "MIT License"
+private const val LICENSE_LGPL_3 = "LGPL-3.0 License"
 private const val URL_KTOR = "https://ktor.io"
 
 private val libraryData = listOf(
@@ -64,6 +65,7 @@ private val libraryData = listOf(
     LibraryInfo("ktor-serialization-kotlinx-json", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR),
     LibraryInfo("material-color-utilities", "Copyright 2021 Google LLC", LICENSE_APACHE_2, "https://github.com/material-foundation/material-color-utilities"),
     LibraryInfo("OkHttp", "Copyright © 2019 Square, Inc.", LICENSE_APACHE_2, "https://github.com/square/okhttp"),
+    LibraryInfo("proxy-client-android", null, LICENSE_LGPL_3, "https://github.com/TouchController/TouchController"),
     LibraryInfo("StringFog", "Copyright © 2016-2023, Megatron King", LICENSE_APACHE_2, "https://github.com/MegatronKing/StringFog"),
     LibraryInfo("XZ for Java", "Copyright © The XZ for Java authors and contributors", "0BSD License", "https://tukaani.org/xz/java.html")
 )

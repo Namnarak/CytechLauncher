@@ -16,6 +16,7 @@ import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
+import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerModifier
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.setting.gestureLongPressDelay
@@ -33,11 +34,16 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import org.lwjgl.glfw.CallbackBridge
 
 @Composable
-fun GameScreen() {
+fun GameScreen(
+    isTouchProxyEnabled: Boolean
+) {
     var enableLog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        MouseControlLayout(modifier = Modifier.fillMaxSize())
+        MouseControlLayout(
+            isTouchProxyEnabled = isTouchProxyEnabled,
+            modifier = Modifier.fillMaxSize()
+        )
 
         LogBox(
             enableLog = enableLog,
@@ -48,6 +54,7 @@ fun GameScreen() {
 
 @Composable
 fun MouseControlLayout(
+    isTouchProxyEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -90,7 +97,13 @@ fun MouseControlLayout(
             val longPressMouseAction = gestureLongPressMouseAction.toAction()
 
             TouchpadLayout(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (isTouchProxyEnabled) {
+                            Modifier.touchControllerModifier()
+                        } else Modifier
+                    ),
                 longPressTimeoutMillis = gestureLongPressDelay.toLong(),
                 requestPointerCapture = true,
                 onTap = {

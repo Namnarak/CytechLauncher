@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SwitchLayout
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -130,7 +131,7 @@ fun RendererSettingsScreen() {
                         AllSettings.zinkPreferSystemDriver.put(value).save()
                     }
 
-                    SwitchSettingsLayout(
+                    SwitchLayout(
                         title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
                         summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
                         checked = value,

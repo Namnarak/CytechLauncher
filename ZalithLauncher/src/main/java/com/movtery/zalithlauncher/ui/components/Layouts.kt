@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -330,6 +331,42 @@ fun SimpleIntSliderLayout(
                 }
             },
             onDismissRequest = { showValueEditDialog = false }
+        )
+    }
+}
+
+@Composable
+fun SwitchLayout(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    title: String,
+    summary: String? = null
+) {
+    fun change(value: Boolean) {
+        onCheckedChange(value)
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape = MaterialTheme.shapes.extraLarge)
+            .clickable { change(!checked) }
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 16.dp)
+        ) {
+            TitleAndSummary(title, summary)
+        }
+
+        Switch(
+            modifier = Modifier.align(Alignment.CenterVertically),
+            checked = checked,
+            onCheckedChange = { value -> change(value) }
         )
     }
 }

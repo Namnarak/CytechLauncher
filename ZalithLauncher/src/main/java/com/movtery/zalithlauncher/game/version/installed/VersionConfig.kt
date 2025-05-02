@@ -7,8 +7,10 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager.getZalithVersionPath
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.GSON
+import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getStringNotNull
+import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
 import java.io.FileWriter
 
@@ -36,6 +38,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
     var serverIp: String = ""
         get() = getStringNotNull(field)
     var ramAllocation: Int = -1
+    var enableTouchProxy: Boolean = false
+    var touchVibrateDuration: Int = -1
 
     constructor(
         filePath: File,
@@ -50,7 +54,9 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         customInfo: String = "",
         versionSummary: String = "",
         serverIp: String = "",
-        ramAllocation: Int = -1
+        ramAllocation: Int = -1,
+        enableTouchProxy: Boolean = false,
+        touchVibrateDuration: Int = -1
     ) : this(filePath) {
         this.isolationType = isolationType
         this.skipGameIntegrityCheck = skipGameIntegrityCheck
@@ -64,6 +70,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         this.versionSummary = versionSummary
         this.serverIp = serverIp
         this.ramAllocation = ramAllocation
+        this.enableTouchProxy = enableTouchProxy
+        this.touchVibrateDuration = touchVibrateDuration
     }
 
     fun copy(): VersionConfig = VersionConfig(
@@ -79,7 +87,9 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         getStringNotNull(customInfo),
         getStringNotNull(versionSummary),
         getStringNotNull(serverIp),
-        ramAllocation
+        ramAllocation,
+        enableTouchProxy,
+        touchVibrateDuration
     )
 
     fun save() {
@@ -137,6 +147,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             writeString(getStringNotNull(versionSummary))
             writeString(getStringNotNull(serverIp))
             writeInt(ramAllocation)
+            writeInt(enableTouchProxy.getInt())
+            writeInt(touchVibrateDuration)
         }
     }
 
@@ -155,6 +167,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
             val versionSummary = parcel.readString().orEmpty()
             val serverIp = parcel.readString().orEmpty()
             val ramAllocation = parcel.readInt()
+            val enableTouchProxy = parcel.readInt().toBoolean()
+            val touchVibrateDuration = parcel.readInt()
 
             return VersionConfig(
                 versionPath,
@@ -169,7 +183,9 @@ class VersionConfig(private var versionPath: File) : Parcelable {
                 customInfo,
                 versionSummary,
                 serverIp,
-                ramAllocation
+                ramAllocation,
+                enableTouchProxy,
+                touchVibrateDuration
             )
         }
 

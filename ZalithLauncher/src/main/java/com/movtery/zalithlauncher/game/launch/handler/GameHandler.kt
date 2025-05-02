@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.launch.handler
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.KeyEvent
@@ -36,6 +37,8 @@ class GameHandler(
     private val context: Context,
     private val version: Version
 ) : AbstractHandler(HandlerType.GAME) {
+    private val isTouchProxyEnabled = version.isTouchProxyEnabled()
+
     override suspend fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
@@ -95,9 +98,10 @@ class GameHandler(
         CallbackBridge.sendMouseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT.toInt(), isPressed)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Composable
     override fun getComposableLayout() = @Composable {
-        GameScreen()
+        GameScreen(isTouchProxyEnabled)
     }
 
     private fun localSkinResourcePack() {

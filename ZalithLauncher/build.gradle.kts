@@ -257,4 +257,6 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     //Safe
     implementation(libs.stringfog.xor)
+    //Support
+    implementation(libs.proxy.client.android)
 }

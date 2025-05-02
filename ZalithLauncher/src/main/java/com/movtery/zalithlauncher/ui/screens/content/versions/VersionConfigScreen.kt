@@ -3,7 +3,6 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +18,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -88,6 +85,18 @@ fun VersionConfigScreen() {
             GameConfigs(
                 config = config,
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+            val yOffset3 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 100
+            )
+
+            SupportConfigs(
+                config = config,
+                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) }
             )
         }
     }
@@ -189,42 +198,16 @@ private fun GameConfigs(
             }
         )
 
-        Row(verticalAlignment = Alignment.Bottom) {
-            var checked by remember { mutableStateOf(config.ramAllocation >= 256) }
-            var ramAllocation by remember { mutableIntStateOf(config.ramAllocation.takeIf { it >= 256 } ?: AllSettings.ramAllocation.getValue()) }
-
-            SimpleIntSliderLayout(
-                modifier = Modifier.weight(1f),
-                value = ramAllocation,
-                title = stringResource(R.string.settings_game_java_memory_title),
-                summary = stringResource(R.string.settings_game_java_memory_summary),
-                valueRange = 256f..MemoryUtils.getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                onValueChange = { ramAllocation = it },
-                onValueChangeFinished = {
-                    config.ramAllocation = ramAllocation
-                    config.saveOrShowError(context)
-                },
-                suffix = "MB",
-                enabled = checked,
-                fineTuningControl = true,
-                appendContent = {
-                    Checkbox(
-                        modifier = Modifier.padding(start = 12.dp),
-                        checked = checked,
-                        onCheckedChange = {
-                            checked = it
-                            ramAllocation = AllSettings.ramAllocation.getValue()
-                            if (checked) {
-                                config.ramAllocation = ramAllocation
-                            } else {
-                                config.ramAllocation = -1
-                            }
-                            config.saveOrShowError(context)
-                        }
-                    )
-                }
-            )
-        }
+        ToggleableSliderSetting(
+            currentValue = config.ramAllocation,
+            valueRange = 256f..MemoryUtils.getMaxMemoryForSettings(LocalContext.current).toFloat(),
+            defaultValue = AllSettings.ramAllocation.getValue(),
+            title = stringResource(R.string.settings_game_java_memory_title),
+            summary = stringResource(R.string.settings_game_java_memory_summary),
+            suffix = "MB",
+            onValueChange = { config.ramAllocation = it },
+            onValueChangeFinished = { config.saveOrShowError(context) }
+        )
 
         TextInputLayout(
             currentValue = config.customInfo,
@@ -269,6 +252,57 @@ private fun GameConfigs(
             label = {
                 Text(text = stringResource(R.string.versions_config_disable_if_blank))
             }
+        )
+    }
+}
+
+@Composable
+private fun SupportConfigs(
+    config: VersionConfig,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    VersionSettingsBackground(modifier = modifier) {
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp).padding(top = 4.dp, bottom = 8.dp),
+            text = stringResource(R.string.versions_config_support_settings),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.labelLarge
+        )
+
+        var enableTouchProxy by remember { mutableStateOf(config.enableTouchProxy) }
+
+        SwitchConfigLayout(
+            currentValue = enableTouchProxy,
+            onCheckedChange = { value ->
+                enableTouchProxy = value
+                if (config.enableTouchProxy != value) {
+                    config.enableTouchProxy = value
+                    config.saveOrShowError(context)
+                }
+            },
+            title = stringResource(R.string.versions_config_enable_touch_proxy_title),
+            summary = stringResource(R.string.versions_config_enable_touch_proxy_summary)
+        )
+
+        var touchVibrateDuration by remember { mutableIntStateOf(config.touchVibrateDuration) }
+
+        SimpleIntSliderLayout(
+            value = touchVibrateDuration,
+            title = stringResource(R.string.versions_config_vibrate_duration_title),
+            summary = stringResource(R.string.versions_config_vibrate_duration_summary),
+            valueRange = 80f..500f,
+            onValueChange = {
+                touchVibrateDuration = it
+                config.touchVibrateDuration = touchVibrateDuration
+            },
+            onValueChangeFinished = {
+                config.saveOrShowError(context)
+            },
+            suffix = "ms",
+            enabled = enableTouchProxy,
+            fineTuningControl = true
         )
     }
 }

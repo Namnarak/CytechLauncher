@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -31,6 +28,7 @@ import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
+import com.movtery.zalithlauncher.ui.components.SwitchLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -57,7 +55,7 @@ class SettingsLayoutScope {
             onCheckedChange(checked)
         }
 
-        SwitchSettingsLayout(
+        SwitchLayout(
             checked = checked,
             onCheckedChange = { value ->
                 change(value)
@@ -67,43 +65,6 @@ class SettingsLayoutScope {
             summary = summary
         )
     }
-
-    @Composable
-    fun SwitchSettingsLayout(
-        checked: Boolean,
-        onCheckedChange: (Boolean) -> Unit,
-        modifier: Modifier = Modifier,
-        title: String,
-        summary: String? = null
-    ) {
-        fun change(value: Boolean) {
-            onCheckedChange(value)
-        }
-
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .clickable { change(!checked) }
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp)
-            ) {
-                TitleAndSummary(title, summary)
-            }
-
-            Switch(
-                modifier = Modifier.align(Alignment.CenterVertically),
-                checked = checked,
-                onCheckedChange = { value -> change(value) }
-            )
-        }
-    }
-
 
     @Composable
     fun SliderSettingsLayout(

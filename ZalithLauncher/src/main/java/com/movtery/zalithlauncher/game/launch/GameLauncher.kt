@@ -19,6 +19,7 @@ import com.movtery.zalithlauncher.game.path.getLibrariesHome
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
 import com.movtery.zalithlauncher.game.version.download.artifactToPath
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.getGameManifest
@@ -133,7 +134,15 @@ class GameLauncher(
             getCacioJavaArgs = { isJava8 -> getCacioJavaArgs(isJava8) }
         ).getAllArgs()
 
+        tryStartTouchProxy()
+
         launchJvm(activity, runtime, launchArgs, customArgs)
+    }
+
+    private fun tryStartTouchProxy() {
+        if (version.isTouchProxyEnabled()) {
+            ControllerProxy.startProxy(activity, version.getTouchVibrateDuration())
+        }
     }
 
     private fun printLauncherInfo(

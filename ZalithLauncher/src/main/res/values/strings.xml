@@ -211,6 +211,7 @@
     <string name="versions_overview_crash_report_folder">Crash Reports</string>
     <string name="versions_config_version_settings">Version-Specific Settings</string>
     <string name="versions_config_game_settings">Game Settings</string>
+    <string name="versions_config_support_settings">Additional Support Settings</string>
     <string name="versions_config_isolation_title">Isolation</string>
     <string name="versions_config_isolation_summary">Isolate this version\'s data</string>
     <string name="versions_config_renderer">Renderer</string>
@@ -218,6 +219,10 @@
     <string name="versions_config_java_runtime_summary">Java runtime for this version</string>
     <string name="versions_config_auto_join_server_ip_title">Auto-Join Server</string>
     <string name="versions_config_auto_join_server_ip_summary">Enter server IP (e.g., 114.514.114.514:114514)</string>
+    <string name="versions_config_enable_touch_proxy_title">Enable Control Proxy</string>
+    <string name="versions_config_enable_touch_proxy_summary">Enable the control proxy prepared for the Touch Controller module</string>
+    <string name="versions_config_vibrate_duration_title">Vibration Duration</string>
+    <string name="versions_config_vibrate_duration_summary">Set the vibration duration required by the Touch Controller module</string>
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>

@@ -124,6 +124,10 @@ class Version(
         min(it, MemoryUtils.getMaxMemoryForSettings(context))
     } ?: AllSettings.ramAllocation.getValue()
 
+    fun isTouchProxyEnabled(): Boolean = versionConfig.enableTouchProxy
+
+    fun getTouchVibrateDuration(): Int? = versionConfig.touchVibrateDuration.takeIf { it >= 80 }
+
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
