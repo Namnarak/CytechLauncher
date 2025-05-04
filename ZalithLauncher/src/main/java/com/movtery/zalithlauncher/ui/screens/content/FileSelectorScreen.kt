@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.FilePathSelectorData
 import com.movtery.zalithlauncher.state.MutableStates
@@ -39,21 +38,12 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.sortWithFileName
 import java.io.File
 
 const val FILE_SELECTOR_SCREEN_TAG = "FileSelectorScreen?"
-
-fun NavController.navigateToFileSelector(
-    startPath: String,
-    selectFile: Boolean,
-    saveTag: String
-) {
-    navigateTo("${FILE_SELECTOR_SCREEN_TAG}startPath=$startPath&saveTag=$saveTag&selectFile=$selectFile")
-}
 
 @Composable
 fun FileSelectorScreen(

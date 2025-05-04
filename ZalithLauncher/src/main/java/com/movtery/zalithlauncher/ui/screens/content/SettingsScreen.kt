@@ -4,7 +4,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -20,7 +18,6 @@ import androidx.compose.material.icons.outlined.RocketLaunch
 import androidx.compose.material.icons.outlined.VideoSettings
 import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
@@ -28,8 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -42,6 +37,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
+import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.settings.ABOUT_INFO_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.AboutInfoScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.CONTROL_MANAGE_SCREEN_TAG
@@ -83,16 +79,23 @@ fun SettingsScreen() {
                     .weight(2.5f)
             )
 
-            Box(
+            NavigationUI(
+                settingsNavController = settingsNavController,
                 modifier = Modifier.weight(7.5f)
-            ) {
-                NavigationUI(
-                    settingsNavController = settingsNavController
-                )
-            }
+            )
         }
     }
 }
+
+private val settingItems = listOf(
+    SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, { CategoryIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
+    SettingsItem(GAME_SETTINGS_TAG, { CategoryIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
+    SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, { CategoryIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
+    SettingsItem(LAUNCHER_SETTINGS_TAG, { CategoryIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
+    SettingsItem(JAVA_MANAGE_SCREEN_TAG, { CategoryIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
+    SettingsItem(CONTROL_MANAGE_SCREEN_TAG, { CategoryIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
+    SettingsItem(ABOUT_INFO_SCREEN_TAG, { CategoryIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
+)
 
 @Composable
 private fun TabMenu(
@@ -103,35 +106,6 @@ private fun TabMenu(
     val xOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
         swapIn = isVisible
-    )
-
-    @Composable
-    fun SettingsIcon(iconRes: Int, textRes: Int, iconPadding: PaddingValues = PaddingValues()) {
-        Icon(
-            painter = painterResource(iconRes),
-            contentDescription = stringResource(textRes),
-            modifier = Modifier
-                .size(24.dp)
-                .padding(iconPadding)
-        )
-    }
-    @Composable
-    fun SettingsIcon(image: ImageVector, textRes: Int) {
-        Icon(
-            imageVector = image,
-            contentDescription = stringResource(textRes),
-            modifier = Modifier.size(24.dp)
-        )
-    }
-
-    val settingItems = listOf(
-        SettingsItem(RENDERER_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideoSettings, R.string.settings_tab_renderer) }, R.string.settings_tab_renderer),
-        SettingsItem(GAME_SETTINGS_TAG, { SettingsIcon(Icons.Outlined.RocketLaunch, R.string.settings_tab_game) }, R.string.settings_tab_game),
-        SettingsItem(CONTROL_SETTINGS_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control) }, R.string.settings_tab_control),
-        SettingsItem(LAUNCHER_SETTINGS_TAG, { SettingsIcon(R.drawable.ic_setting_launcher, R.string.settings_tab_launcher) }, R.string.settings_tab_launcher),
-        SettingsItem(JAVA_MANAGE_SCREEN_TAG, { SettingsIcon(R.drawable.ic_java, R.string.settings_tab_java_manage) }, R.string.settings_tab_java_manage, division = true),
-        SettingsItem(CONTROL_MANAGE_SCREEN_TAG, { SettingsIcon(Icons.Outlined.VideogameAsset, R.string.settings_tab_control_manage) }, R.string.settings_tab_control_manage),
-        SettingsItem(ABOUT_INFO_SCREEN_TAG, { SettingsIcon(Icons.Outlined.Info, R.string.settings_tab_info_about) }, R.string.settings_tab_info_about, division = true)
     )
 
     LazyColumn(

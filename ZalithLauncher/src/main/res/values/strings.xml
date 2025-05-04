@@ -31,6 +31,7 @@
     <string name="generic_unknown">Unknown</string>
     <string name="generic_follow_global">Follow Global</string>
     <string name="generic_custom">Custom</string>
+    <string name="generic_search">Search</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
@@ -77,6 +78,19 @@
     <!-- Main Menu -->
     <string name="main_launch_game">Launch Game</string>
     <string name="main_task_menu">Task Menu</string>
+    <!--  Download  -->
+    <string name="download_category_game">Game</string>
+    <string name="download_category_modpack">Modpack</string>
+    <string name="download_category_mod">Mod</string>
+    <string name="download_category_resource_pack">Resource Pack</string>
+    <string name="download_category_saves">Saves</string>
+    <string name="download_category_shaders">Shader Pack</string>
+    <string name="download_game_failed_to_get_versions">Failed to retrieve versions. Tap to retry.</string>
+    <string name="download_game_type_release">Release</string>
+    <string name="download_game_type_snapshot">Snapshot</string>
+    <string name="download_game_type_old">Old Version</string>
+    <string name="download_game_type_old_alpha">Alpha Version</string>
+    <string name="download_game_type_old_beta">Beta Version</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>
@@ -319,4 +333,7 @@
     <string name="about_library_title">Third-Party Libraries</string>
     <!-- Permissions -->
     <string name="permissions_external_storage">%s requires file access to function properly</string>
+    <!--  Url  -->
+    <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
+    <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>
 </resources>

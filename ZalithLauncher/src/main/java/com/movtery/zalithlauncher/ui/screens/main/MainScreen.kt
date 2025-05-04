@@ -78,6 +78,8 @@ import com.movtery.zalithlauncher.ui.components.DownShadow
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
+import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.DownloadScreen
 import com.movtery.zalithlauncher.ui.screens.content.FILE_SELECTOR_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LAUNCHER_SCREEN_TAG
@@ -91,6 +93,8 @@ import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.navigateToDownload
+import com.movtery.zalithlauncher.ui.screens.navigateToWeb
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateType
@@ -109,7 +113,7 @@ private fun ProgressStates(
 
     val webUrl by ObjectStates.url.collectAsState()
     if (!webUrl.isNullOrEmpty()) {
-        navController.navigateTo("$WEB_VIEW_SCREEN_TAG$webUrl")
+        navController.navigateToWeb(webUrl!!)
         ObjectStates.clearUrl()
     }
 
@@ -293,7 +297,7 @@ private fun TopBar(
                 }
                 .fillMaxHeight(),
             onClick = {
-
+                navController.navigateToDownload()
             }
         ) {
             Icon(
@@ -418,6 +422,12 @@ private fun NavigationUI(
             route = VERSION_SETTINGS_SCREEN_TAG
         ) {
             VersionSettingsScreen()
+        }
+        composable(
+            route = "${DOWNLOAD_SCREEN_TAG}?targetScreen={targetScreen}"
+        ) { backStackEntry ->
+            val targetScreen = backStackEntry.arguments?.getString("targetScreen")
+            DownloadScreen(targetScreen)
         }
     }
 }

@@ -31,6 +31,7 @@
     <string name="generic_unknown">未知</string>
     <string name="generic_follow_global">跟随全局</string>
     <string name="generic_custom">自定义</string>
+    <string name="generic_search">搜索</string>
     <!--  启动器版本  -->
     <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
     <string name="launcher_version_label_beta">公测版本：%s，仅供演示</string>
@@ -77,6 +78,19 @@
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_task_menu">任务菜单</string>
+    <!--  下载  -->
+    <string name="download_category_game">游戏</string>
+    <string name="download_category_modpack">整合包</string>
+    <string name="download_category_mod">Mod</string>
+    <string name="download_category_resource_pack">资源包</string>
+    <string name="download_category_saves">存档</string>
+    <string name="download_category_shaders">光影包</string>
+    <string name="download_game_failed_to_get_versions">获取版本失败，点击重试</string>
+    <string name="download_game_type_release">正式版</string>
+    <string name="download_game_type_snapshot">快照版</string>
+    <string name="download_game_type_old">远古版</string>
+    <string name="download_game_type_old_alpha">Alpha 版</string>
+    <string name="download_game_type_old_beta">Beta 版</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登陆游戏账号！</string>
@@ -319,4 +333,7 @@
     <string name="about_library_title">额外引入的依赖项目</string>
     <!--  权限  -->
     <string name="permissions_external_storage">%s 需要管理设备所有文件的权限，否则该功能将无法正常使用</string>
+    <!--  Url  -->
+    <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-cn</string>
+    <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>
 </resources>

@@ -27,6 +27,11 @@ object MutableStates {
     var versionSettingsScreenTag by mutableStateOf<String?>(null)
 
     /**
+     * 状态：下载屏幕的标签
+     */
+    var downloadScreenTag by mutableStateOf<String?>(null)
+
+    /**
      * 状态：文件、目录路径选择器
      */
     var filePathSelector by mutableStateOf<FilePathSelectorData?>(null)

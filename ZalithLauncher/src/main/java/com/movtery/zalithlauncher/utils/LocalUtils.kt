@@ -11,6 +11,10 @@ import android.util.Log
 import com.google.gson.GsonBuilder
 import com.movtery.zalithlauncher.info.InfoDistributor
 import java.text.SimpleDateFormat
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -30,6 +34,36 @@ fun formatDate(
     formatter.timeZone = timeZone
     return formatter.format(date)
 }
+
+/**
+ * 格式化时间戳
+ */
+fun formatDate(
+    date: ZonedDateTime,
+    pattern: String = "yyyy-MM-dd HH:mm:ss",
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault()
+): String {
+    val formatter = DateTimeFormatter.ofPattern(pattern)
+        .withLocale(locale)
+        .withZone(zoneId)
+    return formatter.format(date)
+}
+
+/**
+ * 格式化时间戳
+ */
+fun formatDate(
+    input: String,
+    pattern: String = "yyyy-MM-dd HH:mm:ss",
+    locale: Locale = Locale.getDefault(),
+    zoneId: ZoneId = ZoneId.systemDefault()
+) = formatDate(
+    date = OffsetDateTime.parse(input).toZonedDateTime(),
+    pattern = pattern,
+    locale = locale,
+    zoneId = zoneId
+)
 
 fun copyText(label: String?, text: String?, context: Context) {
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

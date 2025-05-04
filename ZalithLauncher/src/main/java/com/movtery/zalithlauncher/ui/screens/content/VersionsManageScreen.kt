@@ -44,11 +44,14 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.navigateToDownload
+import com.movtery.zalithlauncher.ui.screens.navigateToFileSelector
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -84,7 +87,9 @@ fun VersionsManageScreen(
                         VersionsManager.refresh()
                     }
                 },
-                onInstall = {}
+                onInstall = {
+                    navController.navigateToDownload(DOWNLOAD_GAME_SCREEN_TAG)
+                }
             )
         }
     }

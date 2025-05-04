@@ -80,6 +80,35 @@ fun BaseScreen(
     )
 }
 
+/**
+ * 多层级基础屏幕，根据层级列表中的每个层级标签判断当前屏幕是否可见
+ * @param levels 层级列表，每个层级包含（标签、当前标签、是否启用startWith）
+ */
+@Composable
+fun BaseScreen(
+    vararg levels: Triple<String, String?, Boolean>,
+    content: @Composable (isVisible: Boolean) -> Unit,
+) {
+    val targetVisible = remember(levels) {
+        levels.all { (tag, currentTag, startWith) ->
+            isTagVisible(tag, currentTag, startWith)
+        }
+    }
+
+    //初始不可见，用于触发首次的 false -> true 动画
+    val visibleState = remember { mutableStateOf(false) }
+
+    //仅在 composition 完成后，才允许更新可见状态
+    LaunchedEffect(targetVisible) {
+        visibleState.value = targetVisible
+    }
+
+    BaseScreen(
+        content = content,
+        visible = visibleState.value
+    )
+}
+
 @Composable
 private fun BaseScreen(
     content: @Composable (isVisible: Boolean) -> Unit,

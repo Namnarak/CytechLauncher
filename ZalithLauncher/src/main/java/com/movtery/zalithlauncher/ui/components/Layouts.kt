@@ -72,6 +72,35 @@ fun ScalingLabel(
 }
 
 @Composable
+fun ScalingLabel(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    text: String,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
+    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = 2.dp
+) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+    Surface(
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        shape = shape,
+        color = color,
+        contentColor = contentColor,
+        shadowElevation = shadowElevation,
+        onClick = onClick
+    ) {
+        Text(
+            modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
+            text = text
+        )
+    }
+}
+
+@Composable
 fun <E> SimpleListLayout(
     modifier: Modifier = Modifier,
     items: List<E>,

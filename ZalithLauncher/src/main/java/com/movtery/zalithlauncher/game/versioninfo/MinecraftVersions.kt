@@ -10,40 +10,37 @@ import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
+import java.util.concurrent.TimeUnit
 
 object MinecraftVersions {
     private var manifest: VersionManifest? = null
 
     /**
      * 获取Minecraft版本信息列表
+     * @param force 强制下载更新版本列表
      */
-    suspend fun getVersionManifest(): VersionManifest {
-        manifest?.let { return it }
+    suspend fun getVersionManifest(force: Boolean = false): VersionManifest {
+        manifest?.takeIf { !force }?.let { return it }
 
-        val localVersions = PathManager.FILE_MINECRAFT_VERSIONS
-
-        manifest = runCatching {
-            if (!localVersions.exists() || !localVersions.isFile ||
+        val localManifestFile = PathManager.FILE_MINECRAFT_VERSIONS
+        val isOutdated = !localManifestFile.exists() || !localManifestFile.isFile ||
                 //一天更新一次版本信息列表
-                localVersions.lastModified() + 1000 * 60 * 60 * 24 < System.currentTimeMillis()
-            ) {
+                localManifestFile.lastModified() + TimeUnit.DAYS.toMillis(1) < System.currentTimeMillis()
+
+        manifest = if (force || isOutdated) {
+            downloadVersionManifest()
+        } else {
+            try {
+                GSON.fromJson(localManifestFile.readText(), VersionManifest::class.java)
+            } catch (e: Exception) {
+                Log.w("MinecraftVersions", "Failed to parse version manifest, will redownload", e)
+                //读取失败则删除当前的版本信息文件
+                FileUtils.deleteQuietly(localManifestFile)
                 downloadVersionManifest()
-            } else {
-                runCatching {
-                    GSON.fromJson(localVersions.readText(), VersionManifest::class.java)
-                }.getOrElse { e ->
-                    Log.w("MinecraftVersions", "Failed to parse version manifest, will redownload", e)
-                    //读取失败则删除当前的版本信息文件
-                    FileUtils.deleteQuietly(localVersions)
-                    null
-                }
             }
-        }.getOrElse {
-            Log.e("MinecraftVersions", "Failed to get version manifest", it)
-            throw it
         }
 
-        return manifest ?: downloadVersionManifest()
+        return manifest ?: throw IllegalStateException("Version manifest is null after all attempts")
     }
 
     /**
