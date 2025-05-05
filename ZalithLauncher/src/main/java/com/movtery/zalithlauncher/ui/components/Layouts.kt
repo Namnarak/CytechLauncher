@@ -182,7 +182,7 @@ fun <E> SimpleListLayout(
                                 selected = getItemId(selectedItem) == getItemId(item),
                                 itemName = getItemText(item),
                                 onClick = {
-                                    if (getItemId(selectedItem) != getItemId(item)) {
+                                    if (expanded && getItemId(selectedItem) != getItemId(item)) {
                                         selectedItem = item
                                         onValueChange(item)
                                         if (autoCollapse) expanded = false
