@@ -59,7 +59,7 @@ fun DownloadGameScreen() {
         ) {
             SelectGameVersionScreen { versionString ->
                 //导航至DownloadGameWithAddonScreen
-                navController.navigateTo("$DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG?gameVersion=$versionString", true)
+                navController.navigateTo(DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG, "$DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG?gameVersion=$versionString", true)
             }
         }
         composable(
