@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.main
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -217,6 +218,7 @@ private fun TopBar(
             targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
             animationSpec = getAnimateTween()
         )
+        val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
         IconButton(
             modifier = Modifier
@@ -230,7 +232,9 @@ private fun TopBar(
             onClick = {
                 if (!inLauncherScreen) {
                     //不在主屏幕时才允许返回
-                    navController.popBackStack()
+                    backDispatcher?.onBackPressed() ?: run {
+                        navController.popBackStack()
+                    }
                 }
             }
         ) {
