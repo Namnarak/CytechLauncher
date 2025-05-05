@@ -1,8 +1,11 @@
 package com.movtery.zalithlauncher.ui.components
 
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -111,6 +114,7 @@ fun <E> SimpleListLayout(
     getItemText: @Composable (E) -> String,
     getItemId: (E) -> String,
     enabled: Boolean = true,
+    autoCollapse: Boolean = true,
     onValueChange: (E) -> Unit = {}
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
@@ -162,23 +166,30 @@ fun <E> SimpleListLayout(
                     )
                 }
             }
-            Column(modifier = Modifier.animateContentSize(animationSpec = getAnimateTween())) {
-                if (expanded) {
-                    repeat(items.size) { index ->
-                        val item = items[index]
-                        SimpleListItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 3.dp),
-                            selected = getItemId(selectedItem) == getItemId(item),
-                            itemName = getItemText(item),
-                            onClick = {
-                                if (getItemId(selectedItem) != getItemId(item)) {
-                                    selectedItem = item
-                                    onValueChange(item)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                AnimatedVisibility(
+                    visible = expanded,
+                    enter = expandVertically(animationSpec = getAnimateTween()),
+                    exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        items.forEach { item ->
+                            SimpleListItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 3.dp),
+                                selected = getItemId(selectedItem) == getItemId(item),
+                                itemName = getItemText(item),
+                                onClick = {
+                                    if (getItemId(selectedItem) != getItemId(item)) {
+                                        selectedItem = item
+                                        onValueChange(item)
+                                        if (autoCollapse) expanded = false
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
