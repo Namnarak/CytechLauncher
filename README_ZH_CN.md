@@ -1,4 +1,8 @@
 # Zalith Launcher 2
+![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
+[![QQ](https://img.shields.io/badge/QQ-blue)](https://qm.qq.com/q/2MVxS0B29y)
+[![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
+
 [English](README.md)  
 
 **Zalith Launcher 2** 是一个全新设计、面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。项目基于 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 的原生启动逻辑，采用 **Jetpack Compose** 与 **Material Design 3** 构建现代化 UI 体验。  
