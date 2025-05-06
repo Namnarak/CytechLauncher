@@ -105,7 +105,7 @@ Zalith Launcher 2 当前提供以下两种语言支持：
 ### 构建步骤
 
 ```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher-New.git
+git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 # 使用 Android Studio 打开项目并进行构建
 ```
 

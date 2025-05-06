@@ -100,7 +100,7 @@ Feedback, suggestions, and issue reports are very welcome. As it's a personal pr
 ### Build Steps
 
 ```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher-New.git
+git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 # Open the project in Android Studio and build
 ```
 
