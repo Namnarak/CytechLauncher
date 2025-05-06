@@ -3,7 +3,7 @@
 
 **Zalith Launcher 2** is a newly designed launcher for **Android devices**, built to run [Minecraft: Java Edition](https://www.minecraft.net/). It leverages the native launch mechanism from [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni), and utilizes **Jetpack Compose** and **Material Design 3** for a modern, native UI experience.
 
-> ⚠️ This project is **completely separate** from [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher).
+> ⚠️ This project is **completely separate** from [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher).  
 > ⚠️ The project is in an early development stage. Many features are still under construction—stay tuned for updates!
 
 ## 📅 Development Progress
