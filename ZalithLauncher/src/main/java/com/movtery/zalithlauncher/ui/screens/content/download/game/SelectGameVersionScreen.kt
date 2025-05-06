@@ -28,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -238,39 +239,36 @@ private fun VersionList(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                BasicTextField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(28.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(50f)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    value = versionFilter.id,
-                    onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontSize = 12.sp
-                    ),
-                    singleLine = true,
-                    decorationBox = { innerTextField ->
-                        Box(
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            if (versionFilter.id.isEmpty()) {
-                                Text(
-                                    text = stringResource(R.string.generic_search),
-                                    style = TextStyle(
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
-                                        fontSize = 12.sp
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = RoundedCornerShape(50f),
+                    shadowElevation = 2.dp
+                ) {
+                    BasicTextField(
+                        modifier = Modifier
+                            .height(28.dp)
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        value = versionFilter.id,
+                        onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
+                        textStyle = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp),
+                        singleLine = true,
+                        decorationBox = { innerTextField ->
+                            Box(
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                if (versionFilter.id.isEmpty()) {
+                                    Text(
+                                        text = stringResource(R.string.generic_search),
+                                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
                                     )
-                                )
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
                         }
-                    }
-                )
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
