@@ -1,5 +1,5 @@
 Zalith Launcher 最终用户许可协议（EULA）
-最后更新日期：2025年5月1日
+最后更新日期：2025年5月6日
 
 在开始使用本软件前请务必阅读本协议。
 开发者：MovTery
@@ -26,7 +26,7 @@ Zalith Launcher 最终用户许可协议（EULA）
 
 四、知识产权
 1) 本软件受GPL v3协议保护。
-    源代码仓库：https://github.com/ZalithLauncher/ZalithLauncher-New
+    源代码仓库：https://github.com/ZalithLauncher/ZalithLauncher2
 2) 商标权归ZalithLauncher组织所有。
 3) 第三方组件版权归原始开发者所有。
 4) 衍生版本亦须遵循GPL v3协议，并在适当位置保留原项目的许可信息与贡献声明。

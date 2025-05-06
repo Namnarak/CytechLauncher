@@ -1,5 +1,5 @@
 Zalith Launcher End User License Agreement (EULA)
-Last Updated: May 1, 2025
+Last Updated: May 6, 2025
 
 Please read this agreement carefully before using the software.
 Developer: MovTery
@@ -12,9 +12,9 @@ I. User Obligations
 
 II. Naming Guidelines (Derivative Versions)
 1) Modified versions must not use the following names:
-    - The full name "Zalith Launcher."
-    - The abbreviation "ZL."
-2) Any derived version must prominently display the label "Zalith Launcher Unofficial Modified Version."
+    - The full name "Zalith Launcher".
+    - The abbreviation "ZL".
+2) Any derived version must prominently display the label "Zalith Launcher Unofficial Modified Version".
 3) Use of visual elements (icons/trademarks) resembling those of this Software is strictly prohibited.
 
 III. Disclaimer
@@ -26,7 +26,7 @@ III. Disclaimer
 
 IV. Intellectual Property
 1) This Software is protected under the GPL v3 License.
-    Source Code Repository: https://github.com/ZalithLauncher/ZalithLauncher-New
+    Source Code Repository: https://github.com/ZalithLauncher/ZalithLauncher2
 2) Trademark rights belong to the ZalithLauncher organization.
 3) Third-party components retain copyright ownership by their original developers.
 4) Derivative versions must comply with the GPL v3 License and retain the original project's licensing information and attribution notices in appropriate locations.
