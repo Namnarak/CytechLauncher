@@ -75,6 +75,8 @@ If you would like to see your native language supported in the project, feel fre
 * Keep professional terminology and follow platform-specific expressions (e.g., Minecraft-related terms).
 * Do not translate punctuation marks or key instructions (e.g., "Shift", "Ctrl", etc.).
 * Ensure string integrity (placeholders like `%1$s`, `\n`, and similar formats must be retained).
+* Please note that special characters in XML need to be escaped, such as `<` should be written as `&lt;`, and `&` should be written as `&amp;`.
+   * For escape rules, refer to the [official XML escape rules](https://www.w3.org/TR/xml/#syntax).
 
 Thank you to all the language contributors for making Zalith Launcher 2 more multilingual and global! 🎉
 
