@@ -39,8 +39,6 @@ Here’s the current roadmap of features and development status:
 * [ ] Content managers: UI for managing mods / resource packs / worlds / shaders
 * [ ] Gamepad control support
 
-Sure! Here's the English translation of the section you provided:
-
 ## 🌐 Language and Translation Support
 
 Zalith Launcher 2 currently supports the following two languages:
