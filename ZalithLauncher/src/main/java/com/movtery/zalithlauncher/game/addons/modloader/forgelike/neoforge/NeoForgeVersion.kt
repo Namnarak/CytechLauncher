@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge
 
+import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeBuildVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.Version
 
 /**
  * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L773-L807)
@@ -10,7 +10,7 @@ class NeoForgeVersion(
     private val rawVersion: String,
     private val isLegacyForge: Boolean
 ) : ForgeLikeVersion(
-    version = parseVersion(rawVersion),
+    forgeBuildVersion = parseVersion(rawVersion),
     versionName = parseVersionName(rawVersion),
     inherit = parseInherit(rawVersion),
     fileExtension = "jar"
@@ -25,13 +25,13 @@ class NeoForgeVersion(
         get() = rawVersion.contains("beta")
 
     companion object {
-        private fun parseVersion(rawVersion: String): Version {
+        private fun parseVersion(rawVersion: String): ForgeBuildVersion {
             return when {
                 rawVersion.contains("1.20.1") -> {
                     val versionPart = rawVersion.replace("1.20.1-", "")
-                    Version.parse("19.$versionPart")
+                    ForgeBuildVersion.parse("19.$versionPart")
                 }
-                else -> Version.parse(rawVersion.substringBefore("-"))
+                else -> ForgeBuildVersion.parse(rawVersion.substringBefore("-"))
             }
         }
 

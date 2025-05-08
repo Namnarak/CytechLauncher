@@ -61,13 +61,9 @@ object ForgeVersions {
 
             if (html.length < 100) throw ResponseTooShortException("Response too short")
 
-            val versions = html.split("<td class=\"download-version")
+            html.split("<td class=\"download-version")
                 .drop(1)
                 .mapNotNull { parseVersionFromHtml(it, mcVersion) }
-
-            if (versions.isEmpty()) throw Exception("No versions found")
-
-            versions
         } catch (e: CancellationException) {
             Log.d(TAG, "Client cancelled.")
             null

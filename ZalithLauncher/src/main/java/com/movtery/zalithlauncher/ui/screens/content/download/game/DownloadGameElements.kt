@@ -116,9 +116,10 @@ private fun AddonTextLayout(
  * Addon 版本列表
  * @param state Addon 当前的加载状态
  * @param items Addon 版本列表
- * @param itemsFilter Addon 版本过滤器
  * @param current 当前选择的 Addon 版本
  * @param incompatibleSet 当前 Addon 的不兼容列表
+ * @param checkIncompatible 检查当前的 Addon 的不兼容情况
+ * @param triggerCheckIncompatible 手动触发检查不兼容情况
  * @param error 设置错误名称，让该列表不可用
  * @param iconPainter Addon 的图标
  * @param maxListHeight 列表展开最高显示高度
@@ -129,9 +130,10 @@ fun <E> AddonListLayout(
     modifier: Modifier = Modifier,
     state: AddonState,
     items: List<E>?,
-    itemsFilter: ((E) -> Boolean)? = null,
     current: E?,
     incompatibleSet: Set<ModLoader>,
+    checkIncompatible: () -> Unit = {},
+    triggerCheckIncompatible: Any = Unit,
     error: String? = null,
     iconPainter: Painter,
     title: String,
@@ -145,24 +147,20 @@ fun <E> AddonListLayout(
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var selectedItem by remember { mutableStateOf<E?>(null) }
-    var itemsValue by remember { mutableStateOf(items) }
 
-    LaunchedEffect(items, current, itemsFilter, error) {
-        itemsValue = if (error != null) {
-            null
-        } else {
-            items?.let { list ->
-                if (itemsFilter != null) list.filter { itemsFilter(it) }
-                else list
-            }
-        }
-        selectedItem = itemsValue?.firstOrNull { it == current }
+    LaunchedEffect(state, selectedItem, triggerCheckIncompatible) {
+        //加载状态 || 选择项变更 || 手动触发，检查一次不兼容情况
+        checkIncompatible()
+    }
+
+    LaunchedEffect(state, items, current) {
+        selectedItem = items?.firstOrNull { it == current }
     }
     var expanded by remember { mutableStateOf(false) }
 
     fun clear() {
-        selectedItem = null
         onValueChange(null)
+        selectedItem = null
         if (autoCollapse) expanded = false
     }
 
@@ -176,13 +174,7 @@ fun <E> AddonListLayout(
         shape = MaterialTheme.shapes.large,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 2.dp,
-        onClick = {
-            if (state == AddonState.None && !itemsValue.isNullOrEmpty() && incompatibleSet.isEmpty()) {
-                //加载已完成 && 版本列表不为空 && 不兼容列表为空 -> 可展开
-                expanded = !expanded
-            }
-        }
+        shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             AddonListHeader(
@@ -190,17 +182,20 @@ fun <E> AddonListLayout(
                 state = state,
                 iconPainter = iconPainter,
                 title = title,
-                items = itemsValue,
+                items = items,
                 selectedItem = selectedItem,
                 getItemText = getItemText,
                 incompatibleSet = incompatibleSet,
                 error = error,
                 expanded = expanded,
+                //加载已完成 && 版本列表不为空 && 不兼容列表为空 && 错误名称为 null -> 可展开
+                enabled = state == AddonState.None && !items.isNullOrEmpty() && incompatibleSet.isEmpty() && error == null,
+                onClick = { expanded = !expanded },
                 onClear = ::clear,
                 onReload = onReload
             )
 
-            if (state == AddonState.None && itemsValue != null) {
+            if (state == AddonState.None && !items.isNullOrEmpty() && error == null) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AnimatedVisibility(
                         visible = expanded,
@@ -215,12 +210,12 @@ fun <E> AddonListLayout(
                                 .padding(vertical = 4.dp),
                             contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
-                            items(itemsValue!!.size) { index ->
-                                val item = itemsValue!![index]
+                            items(items.size) { index ->
+                                val item = items[index]
                                 AddonListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 3.dp),
+                                        .padding(all = 4.dp),
                                     selected = selectedItem == item,
                                     itemName = getItemText(item),
                                     summary = summary?.let {
@@ -228,8 +223,8 @@ fun <E> AddonListLayout(
                                     },
                                     onClick = {
                                         if (expanded && selectedItem != item) {
-                                            selectedItem = item
                                             onValueChange(item)
+                                            selectedItem = item
                                             if (autoCollapse) expanded = false
                                         }
                                     }
@@ -255,11 +250,15 @@ private fun <E> AddonListHeader(
     incompatibleSet: Set<ModLoader>,
     error: String? = null,
     expanded: Boolean,
+    enabled: Boolean = true,
+    onClick: () -> Unit = {},
     onClear: () -> Unit = {},
     onReload: () -> Unit = {}
 ) {
     Row(
-        modifier = modifier.padding(vertical = 4.dp),
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.width(16.dp))
@@ -288,7 +287,7 @@ private fun <E> AddonListHeader(
                         summary = summary,
                     )
                 }
-                if (!items.isNullOrEmpty() && incompatibleSet.isEmpty()) {
+                if (!items.isNullOrEmpty() && incompatibleSet.isEmpty() && error == null) {
                     val rotation by animateFloatAsState(
                         targetValue = if (expanded) -180f else 0f,
                         animationSpec = getAnimateTween()
@@ -363,7 +362,7 @@ fun AddonListItem(
 ) {
     Row(
         modifier = modifier
-            .clip(shape = MaterialTheme.shapes.large)
+            .clip(shape = MaterialTheme.shapes.medium)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {

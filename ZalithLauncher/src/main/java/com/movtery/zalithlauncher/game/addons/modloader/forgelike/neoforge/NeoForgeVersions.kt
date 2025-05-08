@@ -71,7 +71,7 @@ object NeoForgeVersions {
             .map { it.value }
             .filter { it != "47.1.82" } //这个版本虽然在版本列表中，但不能下载
             .map { NeoForgeVersion(it, isLegacy) }
-            .sortedByDescending { it.version }
+            .sortedByDescending { it.forgeBuildVersion }
             .toList()
     }
 }

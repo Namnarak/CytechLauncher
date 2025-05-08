@@ -63,7 +63,8 @@ object OptiFineVersions {
             val jars  = jarPattern.findAll(html).map { it.groupValues[1].trim() }.toList()
 
             if (names.size != dates.size || names.size != forges.size || names.size != jars.size) {
-                throw Exception("The number of parsed fields is inconsistent.")
+                Log.w("OptiFineVersions", "The number of parsed fields is inconsistent.")
+                return@withContext emptyList()
             }
 
             val versions = mutableListOf<OptiFineVersion>()

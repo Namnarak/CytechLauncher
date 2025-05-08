@@ -65,7 +65,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCRE
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.utils.string.StringUtils
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -152,7 +151,9 @@ fun DownloadGameWithAddonScreen(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
         ) {
             ScreenHeader(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 gameVersion = gameVersion,
                 currentAddon = currentAddon,
                 onInstall = { customVersionName ->
@@ -349,32 +350,29 @@ private fun OptiFineList(
     currentAddon: CurrentAddon,
     addonList: AddonList
 ) {
+    val items = addonList.optifineList?.filter { version ->
+        //选择 Forge 之后，过滤为当前 OptiFine 列表内能够匹配的版本
+        currentAddon.forgeVersion?.let { forgeVersion ->
+            val requiredForgeVersion = version.forgeVersion ?: return@filter false //null：不兼容任何Forge
+            when {
+                requiredForgeVersion.isEmpty() -> true //字符串为控：兼容所有
+                else -> forgeVersion.forgeBuildVersion.compareOptiFineRequired(requiredForgeVersion)
+            }
+        } ?: true
+    }
+
     AddonListLayout(
         modifier = modifier,
         state = currentAddon.optifineState,
         title = ModLoader.OPTIFINE.displayName,
         iconPainter = painterResource(R.drawable.ic_optifine),
-        items = addonList.optifineList,
-        itemsFilter = if (currentAddon.forgeVersion != null) {
-            {
-                //选择 Forge 之后，过滤为当前 OptiFine 列表内能够匹配的版本
-                when {
-                    it.forgeVersion == null -> false
-                    it.forgeVersion.isEmpty() -> true
-                    else -> StringUtils.compareClassVersions(currentAddon.forgeVersion!!.version.toString(), it.forgeVersion) == 0
-                }
-            }
-        } else {
-            null
-        },
+        items = items,
         current = currentAddon.optifineVersion,
         incompatibleSet = currentAddon.incompatibleWithOptiFine,
-        getItemText = { it.displayName },
-        summary = { OptiFineVersionSummary(it) },
-        onValueChange = { version ->
+        checkIncompatible = {
             val ofType = listOf(ModLoader.OPTIFINE)
+            val version = currentAddon.optifineVersion
             if (version == null) {
-                currentAddon.optifineVersion = null
                 currentAddon.incompatibleWithForge -= ofType
                 currentAddon.incompatibleWithNeoForge -= ofType
                 currentAddon.incompatibleWithFabric -= ofType
@@ -397,7 +395,6 @@ private fun OptiFineList(
                         currentAddon.forgeVersion = null
                     }
                 }
-                currentAddon.optifineVersion = version
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
                 currentAddon.quiltVersion = null
@@ -405,6 +402,12 @@ private fun OptiFineList(
                 currentAddon.incompatibleWithFabric += ofType
                 currentAddon.incompatibleWithQuilt += ofType
             }
+        },
+        triggerCheckIncompatible = currentAddon.forgeState,
+        getItemText = { it.displayName },
+        summary = { OptiFineVersionSummary(it) },
+        onValueChange = { version ->
+            currentAddon.optifineVersion = version
         },
         onReload = { addonList.reloadOptiFine = !addonList.reloadOptiFine }
     )
@@ -425,34 +428,29 @@ private fun ForgeList(
     currentAddon: CurrentAddon,
     addonList: AddonList
 ) {
+    val items = addonList.forgeList?.filter {
+        //选择 OptiFine 之后，根据 OptiFine 需求的 Forge 版本进行过滤
+        currentAddon.optifineVersion?.let { optifineVersion ->
+            val requiredForgeVersion = optifineVersion.forgeVersion ?: return@filter false //null：不兼容任何Forge
+            when {
+                requiredForgeVersion.isEmpty() -> true //字符串为空：兼容所有
+                else -> it.forgeBuildVersion.compareOptiFineRequired(requiredForgeVersion)
+            }
+        } ?: true
+    }
+
     AddonListLayout(
         modifier = modifier,
         state = currentAddon.forgeState,
         title = ModLoader.FORGE.displayName,
         iconPainter = painterResource(R.drawable.ic_anvil),
-        items = addonList.forgeList,
-        itemsFilter = if (currentAddon.optifineVersion != null) {
-            {
-                //选择 OptiFine 之后，根据 OptiFine 需求的 Forge 版本进行过滤
-                val requiredVersion = currentAddon.optifineVersion!!.forgeVersion
-                when {
-                    requiredVersion == null -> false
-                    requiredVersion.isEmpty() -> true
-                    else -> StringUtils.compareClassVersions(it.version.toString(), requiredVersion) == 0
-                }
-            }
-        } else {
-            null
-        },
+        items = items,
         current = currentAddon.forgeVersion,
         incompatibleSet = currentAddon.incompatibleWithForge,
-        error = checkForgeCompatibilityError(addonList.forgeList),
-        getItemText = { it.versionName },
-        summary = { ForgeVersionSummary(it) },
-        onValueChange = { version ->
+        checkIncompatible = {
             val forgeType = listOf(ModLoader.FORGE)
+            val version = currentAddon.forgeVersion
             if (version == null) {
-                currentAddon.forgeVersion = null
                 currentAddon.incompatibleWithOptiFine -= forgeType
                 currentAddon.incompatibleWithNeoForge -= forgeType
                 currentAddon.incompatibleWithFabric -= forgeType
@@ -475,7 +473,6 @@ private fun ForgeList(
                         currentAddon.optifineVersion = null
                     }
                 }
-                currentAddon.forgeVersion = version
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
                 currentAddon.quiltVersion = null
@@ -483,6 +480,13 @@ private fun ForgeList(
                 currentAddon.incompatibleWithFabric += forgeType
                 currentAddon.incompatibleWithQuilt += forgeType
             }
+        },
+        triggerCheckIncompatible = currentAddon.optifineState,
+        error = checkForgeCompatibilityError(addonList.forgeList),
+        getItemText = { it.versionName },
+        summary = { ForgeVersionSummary(it) },
+        onValueChange = { version ->
+            currentAddon.forgeVersion = version
         },
         onReload = { addonList.reloadForge = !addonList.reloadForge }
     )
@@ -511,18 +515,15 @@ private fun NeoForgeList(
         items = addonList.neoforgeList,
         current = currentAddon.neoforgeVersion,
         incompatibleSet = currentAddon.incompatibleWithNeoForge,
-        getItemText = { it.versionName },
-        summary = { NeoForgeSummary(it) },
-        onValueChange = { version ->
+        checkIncompatible = {
             val neoforgeType = listOf(ModLoader.NEOFORGE)
+            val version = currentAddon.neoforgeVersion
             if (version == null) {
-                currentAddon.neoforgeVersion = null
                 currentAddon.incompatibleWithOptiFine -= neoforgeType
                 currentAddon.incompatibleWithForge -= neoforgeType
                 currentAddon.incompatibleWithFabric -= neoforgeType
                 currentAddon.incompatibleWithQuilt -= neoforgeType
             } else {
-                currentAddon.neoforgeVersion = version
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.fabricVersion = null
@@ -532,6 +533,11 @@ private fun NeoForgeList(
                 currentAddon.incompatibleWithFabric += neoforgeType
                 currentAddon.incompatibleWithQuilt += neoforgeType
             }
+        },
+        getItemText = { it.versionName },
+        summary = { NeoForgeSummary(it) },
+        onValueChange = { version ->
+            currentAddon.neoforgeVersion = version
         },
         onReload = { addonList.reloadNeoForge = !addonList.reloadNeoForge }
     )
@@ -560,18 +566,15 @@ private fun FabricList(
         items = addonList.fabricList,
         current = currentAddon.fabricVersion,
         incompatibleSet = currentAddon.incompatibleWithFabric,
-        getItemText = { it.version },
-        summary = { FabricSummary(it) },
-        onValueChange = { version ->
+        checkIncompatible = {
             val fabricType = listOf(ModLoader.FABRIC)
+            val version = currentAddon.fabricVersion
             if (version == null) {
-                currentAddon.fabricVersion = null
                 currentAddon.incompatibleWithOptiFine -= fabricType
                 currentAddon.incompatibleWithForge -= fabricType
                 currentAddon.incompatibleWithNeoForge -= fabricType
                 currentAddon.incompatibleWithQuilt -= fabricType
             } else {
-                currentAddon.fabricVersion = version
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
@@ -581,6 +584,11 @@ private fun FabricList(
                 currentAddon.incompatibleWithNeoForge += fabricType
                 currentAddon.incompatibleWithQuilt += fabricType
             }
+        },
+        getItemText = { it.version },
+        summary = { FabricSummary(it) },
+        onValueChange = { version ->
+            currentAddon.fabricVersion = version
         },
         onReload = { addonList.reloadFabric = !addonList.reloadFabric }
     )
@@ -609,18 +617,15 @@ private fun QuiltList(
         items = addonList.quiltList,
         current = currentAddon.quiltVersion,
         incompatibleSet = currentAddon.incompatibleWithQuilt,
-        getItemText = { it.version },
-        summary = { QuiltSummary(it) },
-        onValueChange =  { version ->
+        checkIncompatible = {
             val quiltType = listOf(ModLoader.QUILT)
+            val version = currentAddon.quiltVersion
             if (version == null) {
-                currentAddon.quiltVersion = null
                 currentAddon.incompatibleWithOptiFine -= quiltType
                 currentAddon.incompatibleWithForge -= quiltType
                 currentAddon.incompatibleWithNeoForge -= quiltType
                 currentAddon.incompatibleWithFabric -= quiltType
             } else {
-                currentAddon.quiltVersion = version
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
@@ -630,6 +635,11 @@ private fun QuiltList(
                 currentAddon.incompatibleWithNeoForge += quiltType
                 currentAddon.incompatibleWithFabric += quiltType
             }
+        },
+        getItemText = { it.version },
+        summary = { QuiltSummary(it) },
+        onValueChange =  { version ->
+            currentAddon.quiltVersion = version
         },
         onReload = { addonList.reloadQuilt = !addonList.reloadQuilt }
     )
@@ -649,25 +659,20 @@ private fun isOptiFineCompatibleWithForge(
 ): Boolean {
                                     //没有声明需要的 Forge 版本，视为不兼容
     val requiredVersion = optifine.forgeVersion ?: return false
-
-    if (requiredVersion.isBlank()) return true
-
-    return if ('.' in requiredVersion) {
-        StringUtils.compareClassVersions(forge.version.toString(), requiredVersion) == 0
-    } else {
-        forge.version.revision.toString() == requiredVersion
-    }
+    if (requiredVersion.isBlank()) return true //空字符串表示兼容所有
+    return forge.forgeBuildVersion.compareOptiFineRequired(requiredVersion)
 }
 
 private fun isOptiFineCompatibleWithForgeList(
     optifine: OptiFineVersion,
     forgeList: List<ForgeVersion>?
 ): Boolean {
+                                    //没有声明需要的 Forge 版本，视为不兼容
+    val requiredVersion = optifine.forgeVersion ?: return false
     return when {
-        optifine.forgeVersion == null -> false //为null则表示不兼容
-        optifine.forgeVersion.isEmpty() -> true //为空则表示不要求，兼容
+        requiredVersion.isEmpty() -> true //为空则表示不要求，兼容
         else -> forgeList?.any {
-            StringUtils.compareClassVersions(it.version.toString(), optifine.forgeVersion) == 0
+            it.forgeBuildVersion.compareOptiFineRequired(requiredVersion)
         } == true
     }
 }
@@ -676,12 +681,12 @@ private fun isForgeCompatibleWithOptiFineList(
     forge: ForgeVersion,
     optifineList: List<OptiFineVersion>?
 ): Boolean {
-    val forgeVersion = forge.version.toString()
+    val forgeVersion = forge.forgeBuildVersion
 
     optifineList?.forEach { optifine ->
         val ofVersion = optifine.forgeVersion ?: return@forEach //null: 不兼容，跳过
         if (ofVersion.isEmpty()) return true    //空字符串表示兼容所有
-        if (StringUtils.compareClassVersions(forgeVersion, ofVersion) == 0) return true
+        if (forgeVersion.compareOptiFineRequired(ofVersion)) return true
     }
 
     return false //没有匹配项
