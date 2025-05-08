@@ -20,6 +20,7 @@
     <string name="generic_done">Done</string>
     <string name="generic_open">Open</string>
     <string name="generic_close">Close</string>
+    <string name="generic_clear">Clear</string>
     <string name="generic_import">Import</string>
     <string name="generic_open_link">Open in Browser</string>
     <string name="generic_cannot_empty">Content cannot be empty!</string>
@@ -32,6 +33,7 @@
     <string name="generic_follow_global">Follow Global</string>
     <string name="generic_custom">Custom</string>
     <string name="generic_search">Search</string>
+    <string name="generic_loading">Loading</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
@@ -62,6 +64,11 @@
     <!-- Errors -->
     <string name="error_import_image">Failed to import image</string>
     <string name="error_create_dir">Failed to create directory: %s</string>
+    <string name="error_timeout">Request timed out</string>
+    <string name="error_network_unreachable">Network unavailable</string>
+    <string name="error_connection_failed">Failed to connect to server</string>
+    <string name="error_parse_failed">Failed to parse data</string>
+    <string name="error_unknown">Unknown error: %s</string>
     <!-- Splash Screen -->
     <string name="splash_screen_unpack_desc">The launcher needs to install these components to ensure Minecraft launches properly. They are included in the app and will be unpacked. Tap below to begin.</string>
     <string name="splash_screen_installing">Unpacking required components. The app will launch automatically once completed.</string>
@@ -91,6 +98,20 @@
     <string name="download_game_type_old">Old Version</string>
     <string name="download_game_type_old_alpha">Alpha Version</string>
     <string name="download_game_type_old_beta">Beta Version</string>
+    <string name="download_game_version_name">Version Name</string>
+    <string name="download_game_addon_list_load_error">Failed to load list: %s</string>
+    <string name="download_game_addon_available">Available</string>
+    <string name="download_game_addon_unavailable">Unavailable</string>
+    <string name="download_game_addon_incompatible_with">Incompatible with %s</string>
+    <string name="download_game_addon_compatible_with">Compatible with %s</string>
+    <string name="download_game_addon_release">Release</string>
+    <string name="download_game_addon_preview">Preview</string>
+    <string name="download_game_addon_stable">Stable</string>
+    <string name="download_game_addon_debug">Debug</string>
+    <string name="download_game_addon_date">Release Date: %s</string>
+    <string name="download_game_addon_recommended">Officially recommended by %s</string>
+    <string name="download_game_addon_not_installable">Not installable automatically</string>
+    <string name="download_install">Install</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>

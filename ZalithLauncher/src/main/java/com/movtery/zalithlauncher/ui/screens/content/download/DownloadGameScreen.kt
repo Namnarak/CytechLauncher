@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameScreenStates
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreen
@@ -66,7 +67,9 @@ fun DownloadGameScreen() {
             route = "${DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG}?gameVersion={gameVersion}"
         ) { backStackEntry ->
             val gameVersion = backStackEntry.arguments?.getString("gameVersion") ?: throw IllegalArgumentException("The game version is not set!")
-            DownloadGameWithAddonScreen(gameVersion)
+            DownloadGameWithAddonScreen(gameVersion) {
+                ObjectStates.backToLauncherScreen()
+            }
         }
     }
 }

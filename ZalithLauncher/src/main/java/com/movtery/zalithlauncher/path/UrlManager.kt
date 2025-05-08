@@ -14,7 +14,7 @@ class UrlManager {
     companion object {
         private const val URL_USER_AGENT: String = "ZalithLauncher/${BuildConfig.VERSION_NAME}"
         @JvmField
-        val TIME_OUT = Pair(8000, TimeUnit.MILLISECONDS)
+        val TIME_OUT = Pair(10000, TimeUnit.MILLISECONDS)
         const val URL_GITHUB_HOME: String = "https://api.github.com/repos/ZalithLauncher/Zalith-Info/contents/"
         const val URL_MCMOD: String = "https://www.mcmod.cn/"
         const val URL_MINECRAFT: String = "https://www.minecraft.net/"

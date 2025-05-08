@@ -119,15 +119,18 @@ fun <E> SimpleListLayout(
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
-    val initialItem = remember(items, currentId, defaultId) {
-        items.firstOrNull { getItemId(it) == currentId }
-            ?: items.firstOrNull { getItemId(it) == defaultId }
-            ?: items.first()
+    var selectedItem by remember {
+        mutableStateOf<E>(
+            items.firstOrNull { getItemId(it) == currentId }
+                ?: items.firstOrNull { getItemId(it) == defaultId }
+                ?: items.first()
+        )
     }
-    var selectedItem by remember { mutableStateOf(initialItem) }
     var expanded by remember { mutableStateOf(false) }
 
-    if (!enabled) expanded = false
+    LaunchedEffect(enabled) {
+        if (!enabled) expanded = false
+    }
 
     Row(modifier = modifier
         .fillMaxWidth()
@@ -198,7 +201,7 @@ fun <E> SimpleListLayout(
 }
 
 @Composable
-private fun SimpleListItem(
+fun SimpleListItem(
     selected: Boolean,
     itemName: String,
     modifier: Modifier = Modifier,
