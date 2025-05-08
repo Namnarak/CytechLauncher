@@ -21,6 +21,6 @@ class AuthRequest(
         @SerialName("name")
         var name: String,
         @SerialName("version")
-        var version: Double
+        var version: Int
     )
 }

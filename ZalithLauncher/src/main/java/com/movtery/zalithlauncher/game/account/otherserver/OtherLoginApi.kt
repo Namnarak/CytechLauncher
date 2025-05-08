@@ -69,7 +69,7 @@ object OtherLoginApi {
 
         val agent = AuthRequest.Agent(
             name = "Minecraft",
-            version = 1.0
+            version = 1
         )
 
         val authRequest = AuthRequest(
@@ -77,7 +77,7 @@ object OtherLoginApi {
             password = password,
             agent = agent,
             requestUser = true,
-            clientToken = UUID.randomUUID().toString().lowercase()
+            clientToken = UUID.randomUUID().toString().replace("-", "")
         )
 
         val data = Gson().toJson(authRequest)
@@ -129,8 +129,9 @@ object OtherLoginApi {
                 val result: AuthResult = response.body()
                 onSuccess(result)
             } else {
-                val errorMessage = parseError(response)
-                onFailed("(${response.status.value}) $errorMessage")
+                val errorMessage = "(${response.status.value}) ${parseError(response)}"
+                Log.e("Other Login", errorMessage)
+                onFailed(errorMessage)
             }
         } catch (e: CancellationException) {
             Log.d("Other Login", "Login cancelled")
