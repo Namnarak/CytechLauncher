@@ -19,4 +19,11 @@ class OptiFineVersion(
     val isPreview: Boolean
 ) : AddonVersion(
     inherit = inherit
-)
+) {
+    /**
+     * OptiFine_1.10.2_HD_U_C1 -> C1
+     * 1.20.6 J1 pre18 -> J1 pre18
+     */
+    val realVersion: String
+        get() = displayName.removePrefix(inherit).trim()
+}

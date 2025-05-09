@@ -234,6 +234,18 @@ private fun ScreenHeader(
             )
 
             var nameValue by remember { mutableStateOf(gameVersion) }
+            //用户是否对版本名称进行过编辑
+            var editedByUser by remember { mutableStateOf(false) }
+
+            AutoChangeVersionName(
+                gameVersion = gameVersion,
+                currentAddon = currentAddon,
+                editedByUser = editedByUser,
+                changeValue = {
+                    nameValue = it
+                }
+            )
+
             var errorMessage by remember { mutableStateOf("") }
 
             val isError = nameValue.isEmpty().also {
@@ -269,6 +281,10 @@ private fun ScreenHeader(
                         value = nameValue,
                         onValueChange = {
                             nameValue = it
+                            if (!editedByUser) {
+                                //用户已经对版本名称进行了编辑
+                                editedByUser = true
+                            }
                         },
                         textStyle = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp),
                         singleLine = true,
@@ -343,6 +359,48 @@ private fun VersionIconPreview(
     )
 }
 
+/**
+ * 根据当前已选择的Addon，自动修改版本名称
+ * @param editedByUser 版本名称是否已被用户修改，如果用户已经修改过版本名称，则阻止自动修改
+ */
+@Composable
+private fun AutoChangeVersionName(
+    gameVersion: String,
+    currentAddon: CurrentAddon,
+    editedByUser: Boolean,
+    changeValue: (String) -> Unit = {}
+) {
+    fun getOptiFine(optifine: OptiFineVersion) = "${ModLoader.OPTIFINE.displayName} ${optifine.realVersion}"
+    fun getForge(forge: ForgeVersion) = "${ModLoader.FORGE.displayName} ${forge.versionName}"
+
+    LaunchedEffect(
+        currentAddon.optifineVersion,
+        currentAddon.forgeVersion,
+        currentAddon.neoforgeVersion,
+        currentAddon.fabricVersion,
+        currentAddon.quiltVersion
+    ) {
+        if (editedByUser) return@LaunchedEffect //用户已修改，阻止自动更改
+
+        val modloaderValue = when {
+            currentAddon.optifineVersion != null && currentAddon.forgeVersion != null -> {
+                //OptiFine & Forge 同时选择
+                val forge = getForge(currentAddon.forgeVersion!!)
+                val optifine = getOptiFine(currentAddon.optifineVersion!!)
+                "$forge-$optifine"
+            }
+            currentAddon.optifineVersion != null -> getOptiFine(currentAddon.optifineVersion!!)
+            currentAddon.forgeVersion != null -> getForge(currentAddon.forgeVersion!!)
+            currentAddon.neoforgeVersion != null -> "${ModLoader.NEOFORGE.displayName} ${currentAddon.neoforgeVersion!!.versionName}"
+            currentAddon.fabricVersion != null -> "${ModLoader.FABRIC.displayName} ${currentAddon.fabricVersion!!.version}"
+            currentAddon.quiltVersion != null -> "${ModLoader.QUILT.displayName} ${currentAddon.quiltVersion!!.version}"
+            else -> null
+        }
+
+        changeValue(modloaderValue?.let { "$gameVersion $it" } ?: gameVersion)
+    }
+}
+
 @Composable
 private fun OptiFineList(
     modifier: Modifier = Modifier,
@@ -403,7 +461,7 @@ private fun OptiFineList(
                 currentAddon.incompatibleWithQuilt += ofType
             }
         },
-        triggerCheckIncompatible = currentAddon.forgeState,
+        triggerCheckIncompatible = arrayOf(currentAddon.forgeState),
         getItemText = { it.displayName },
         summary = { OptiFineVersionSummary(it) },
         onValueChange = { version ->
@@ -481,7 +539,7 @@ private fun ForgeList(
                 currentAddon.incompatibleWithQuilt += forgeType
             }
         },
-        triggerCheckIncompatible = currentAddon.optifineState,
+        triggerCheckIncompatible = arrayOf(currentAddon.optifineState),
         error = checkForgeCompatibilityError(addonList.forgeList),
         getItemText = { it.versionName },
         summary = { ForgeVersionSummary(it) },

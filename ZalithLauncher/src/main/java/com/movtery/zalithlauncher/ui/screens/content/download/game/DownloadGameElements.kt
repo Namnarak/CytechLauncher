@@ -133,7 +133,7 @@ fun <E> AddonListLayout(
     current: E?,
     incompatibleSet: Set<ModLoader>,
     checkIncompatible: () -> Unit = {},
-    triggerCheckIncompatible: Any = Unit,
+    triggerCheckIncompatible: Array<Any> = arrayOf(Unit),
     error: String? = null,
     iconPainter: Painter,
     title: String,
@@ -148,7 +148,7 @@ fun <E> AddonListLayout(
 ) {
     var selectedItem by remember { mutableStateOf<E?>(null) }
 
-    LaunchedEffect(state, selectedItem, triggerCheckIncompatible) {
+    LaunchedEffect(state, selectedItem, *triggerCheckIncompatible) {
         //加载状态 || 选择项变更 || 手动触发，检查一次不兼容情况
         checkIncompatible()
     }
