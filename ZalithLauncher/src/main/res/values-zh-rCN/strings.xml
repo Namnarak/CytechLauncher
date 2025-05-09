@@ -175,7 +175,7 @@
     <string name="account_delete_message">你确定要将账号 %s 从启动器内删除吗？</string>
     <string name="account_microsoft_fetch_device_code">获取设备码</string>
     <string name="account_microsoft_coped_device_code">已获取并自动复制设备码：%s，稍后请在网页中完成验证！</string>
-    <string name="account_microsoft_get_token">轮询中，尝试获取令牌</string>
+    <string name="account_microsoft_get_token">轮询中，尝试获取令牌；设备码：%s</string>
     <string name="account_microsoft_getting_access_token">获取访问令牌</string>
     <string name="account_microsoft_getting_xbl_token">获取 XBL 令牌</string>
     <string name="account_microsoft_getting_xsts_token">获取 XSTS 令牌</string>

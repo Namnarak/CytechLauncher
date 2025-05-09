@@ -84,7 +84,7 @@ fun microsoftLogin(
                 ).show()
             }
             ObjectStates.accessUrl(deviceCode.verificationUrl)
-            task.updateProgress(-1f, R.string.account_microsoft_get_token)
+            task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) {
                 MutableStates.mainScreenTag?.startsWith(WEB_VIEW_SCREEN_TAG) == false
             }

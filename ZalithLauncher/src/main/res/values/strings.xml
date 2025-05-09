@@ -175,7 +175,7 @@
     <string name="account_delete_message">Delete account %s from the launcher?</string>
     <string name="account_microsoft_fetch_device_code">Get Device Code</string>
     <string name="account_microsoft_coped_device_code">Device code copied: %s. Complete verification in your browser.</string>
-    <string name="account_microsoft_get_token">Polling for token</string>
+    <string name="account_microsoft_get_token">Polling in progress, attempting to obtain token; device code: %s</string>
     <string name="account_microsoft_getting_access_token">Requesting access token</string>
     <string name="account_microsoft_getting_xbl_token">Requesting XBL token</string>
     <string name="account_microsoft_getting_xsts_token">Requesting XSTS token</string>
