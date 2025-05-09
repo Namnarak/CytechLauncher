@@ -63,8 +63,11 @@ import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
@@ -80,11 +83,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import org.apache.commons.io.FileUtils
 import java.io.File
-import java.util.regex.Pattern
 
 const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
-
-private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 
 private val otherServerConfig = MutableStateFlow(Servers(ArrayList()))
 private val otherServerConfigFile = File(PathManager.DIR_GAME, "other_servers.json")
@@ -140,20 +140,34 @@ private fun ServerTypeTab(
         }
     }
 
-    var localLoginDialog by rememberSaveable { mutableStateOf(false) }
-    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
-    var otherLoginOperation by remember { mutableStateOf<OtherLoginOperation>(OtherLoginOperation.None) }
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
+    var localLoginOperation by remember { mutableStateOf<LocalLoginOperation>(LocalLoginOperation.None) }
 
-    ServerTypeOperation(
-        showLocalLoginDialog = localLoginDialog,
-        updateLocalLoginDialog = { localLoginDialog = it },
-        serverOperation = serverOperation,
-        updateServerOperation = { serverOperation = it },
-        otherLoginOperation = otherLoginOperation,
-        updateOtherLoginOperation = { otherLoginOperation = it },
+    var otherLoginOperation by remember { mutableStateOf<OtherLoginOperation>(OtherLoginOperation.None) }
+    var serverOperation by remember { mutableStateOf<ServerOperation>(ServerOperation.None) }
+
+    //微软账号操作逻辑
+    MicrosoftLoginOperation(
         microsoftLoginOperation = microsoftLoginOperation,
-        updateMicrosoftLoginOperation = { microsoftLoginOperation = it }
+        updateOperation = { microsoftLoginOperation = it }
+    )
+
+    //离线账号操作逻辑
+    LocalLoginOperation(
+        localLoginOperation = localLoginOperation,
+        updateOperation = { localLoginOperation = it }
+    )
+
+    //外置账号操作逻辑
+    OtherLoginOperation(
+        otherLoginOperation = otherLoginOperation,
+        updateOperation = { otherLoginOperation = it }
+    )
+
+    //外置服务器操作逻辑
+    ServerTypeOperation(
+        serverOperation = serverOperation,
+        updateServerOperation = { serverOperation = it }
     )
 
     Surface(
@@ -181,15 +195,16 @@ private fun ServerTypeTab(
                     serverName = stringResource(R.string.account_type_microsoft),
                 ) {
                     if (!isMicrosoftLogging()) {
-                        microsoftLoginOperation = MicrosoftLoginOperation.RunTask
+                        microsoftLoginOperation = MicrosoftLoginOperation.Tip
                     }
                 }
                 LoginItem(
                     modifier = Modifier.fillMaxWidth(),
                     serverName = stringResource(R.string.account_type_local)
                 ) {
-                    localLoginDialog = true
+                    localLoginOperation = LocalLoginOperation.Edit
                 }
+
                 val servers by otherServerConfig.collectAsState()
                 servers.server.forEachIndexed { index, server ->
                     ServerItem(
@@ -214,74 +229,143 @@ private fun ServerTypeTab(
     }
 }
 
+/**
+ * 微软账号登陆操作逻辑
+ */
 @Composable
-private fun ServerTypeOperation(
-    showLocalLoginDialog: Boolean,
-    updateLocalLoginDialog: (Boolean) -> Unit,
-    serverOperation: ServerOperation,
-    updateServerOperation: (ServerOperation) -> Unit,
-    otherLoginOperation: OtherLoginOperation,
-    updateOtherLoginOperation: (OtherLoginOperation) -> Unit,
+private fun MicrosoftLoginOperation(
     microsoftLoginOperation: MicrosoftLoginOperation,
-    updateMicrosoftLoginOperation: (MicrosoftLoginOperation) -> Unit
+    updateOperation: (MicrosoftLoginOperation) -> Unit = {}
 ) {
-    if (showLocalLoginDialog) {
-        var showAlert by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
-        var username by rememberSaveable { mutableStateOf("") }
-        var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
+    when (microsoftLoginOperation) {
+        is MicrosoftLoginOperation.None -> {}
+        is MicrosoftLoginOperation.Tip -> {
+            MicrosoftLoginTipDialog(
+                onDismissRequest = { updateOperation(MicrosoftLoginOperation.None) },
+                onConfirm = { updateOperation(MicrosoftLoginOperation.RunTask) }
+            )
+        }
+        is MicrosoftLoginOperation.RunTask -> {
+            microsoftLogin(
+                context = context,
+                updateOperation = { updateOperation(it) }
+            )
+            updateOperation(MicrosoftLoginOperation.None)
+        }
+    }
+}
 
-        SimpleEditDialog(
-            title = stringResource(R.string.account_type_local),
-            value = username,
-            onValueChange = { username = it.trim() },
-            label = { Text(text = stringResource(R.string.account_label_username)) },
-            isError = isUserNameInvalid,
-            supportingText = {
-                val errorText = when {
-                    username.isEmpty() -> stringResource(R.string.account_supporting_username_invalid_empty)
-                    username.length <= 2 -> stringResource(R.string.account_supporting_username_invalid_short)
-                    username.length > 16 -> stringResource(R.string.account_supporting_username_invalid_long)
-                    localNamePattern.matcher(username).find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
-                    else -> ""
-                }.also {
-                    isUserNameInvalid = it.isNotEmpty()
-                }
-                if (isUserNameInvalid) {
-                    Text(text = errorText)
-                }
-            },
-            singleLine = true,
-            onDismissRequest = { updateLocalLoginDialog(false) },
-            onConfirm = {
-                if (username.isNotEmpty()) {
-                    if (isUserNameInvalid) {
-                        showAlert = true
-                        return@SimpleEditDialog
+/**
+ * 离线账号登陆操作逻辑
+ */
+@Composable
+private fun LocalLoginOperation(
+    localLoginOperation: LocalLoginOperation,
+    updateOperation: (LocalLoginOperation) -> Unit = {}
+) {
+    when (localLoginOperation) {
+        is LocalLoginOperation.None -> {}
+        is LocalLoginOperation.Edit -> {
+            LocalLoginDialog(
+                onDismissRequest = { updateOperation(LocalLoginOperation.None) },
+                onConfirm = { isUserNameInvalid, userName ->
+                    val operation = if (isUserNameInvalid) {
+                        LocalLoginOperation.Alert(userName)
+                    } else {
+                        LocalLoginOperation.Create(userName)
                     }
-                    localLogin(userName = username)
-                    updateLocalLoginDialog(false)
+                    updateOperation(operation)
                 }
-            }
-        )
-
-        if (showAlert) {
+            )
+        }
+        is LocalLoginOperation.Create -> {
+            localLogin(userName = localLoginOperation.userName)
+            //复位
+            updateOperation(LocalLoginOperation.None)
+        }
+        is LocalLoginOperation.Alert -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.account_supporting_username_invalid_title),
                 text = stringResource(R.string.account_supporting_username_invalid_local_message),
                 confirmText = stringResource(R.string.account_supporting_username_invalid_still_use),
                 onConfirm = {
-                    showAlert = false
-                    updateLocalLoginDialog(false)
-                    localLogin(userName = username)
+                    updateOperation(LocalLoginOperation.Create(localLoginOperation.userName))
                 },
                 onDismiss = {
-                    showAlert = false
+                    updateOperation(LocalLoginOperation.None)
                 }
             )
         }
     }
+}
 
+@Composable
+private fun OtherLoginOperation(
+    otherLoginOperation: OtherLoginOperation,
+    updateOperation: (OtherLoginOperation) -> Unit = {}
+) {
+    val context = LocalContext.current
+    when (otherLoginOperation) {
+        is OtherLoginOperation.None -> {}
+        is OtherLoginOperation.OnLogin -> {
+            OtherServerLoginDialog(
+                server = otherLoginOperation.server,
+                onRegisterClick = { url ->
+                    NetWorkUtils.openLink(context, url)
+                    updateOperation(OtherLoginOperation.None)
+                },
+                onDismissRequest = { updateOperation(OtherLoginOperation.None) },
+                onConfirm = { email, password ->
+                    updateOperation(OtherLoginOperation.None)
+                    OtherLoginHelper(
+                        otherLoginOperation.server, email, password,
+                        onSuccess = { account, task ->
+                            task.updateMessage(R.string.account_logging_in_saving)
+                            account.downloadSkin()
+                            saveAccount(account)
+                        },
+                        onFailed = { error ->
+                            updateOperation(OtherLoginOperation.OnFailed(error))
+                        }
+                    ).createNewAccount(context) { availableProfiles, selectedFunction ->
+                        updateOperation(
+                            OtherLoginOperation.SelectRole(
+                                availableProfiles,
+                                selectedFunction
+                            )
+                        )
+                    }
+                }
+            )
+        }
+        is OtherLoginOperation.OnFailed -> {
+            ObjectStates.updateThrowable(
+                ObjectStates.ThrowableMessage(
+                    title = stringResource(R.string.account_logging_in_failed),
+                    message = otherLoginOperation.error
+                )
+            )
+            updateOperation(OtherLoginOperation.None)
+        }
+        is OtherLoginOperation.SelectRole -> {
+            SimpleListDialog(
+                title = stringResource(R.string.account_other_login_select_role),
+                itemsProvider = { otherLoginOperation.profiles },
+                itemTextProvider = { it.name },
+                onItemSelected = { otherLoginOperation.selected(it) },
+                onDismissRequest = { updateOperation(OtherLoginOperation.None) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ServerTypeOperation(
+    serverOperation: ServerOperation,
+    updateServerOperation: (ServerOperation) -> Unit
+) {
     when (serverOperation) {
         is ServerOperation.AddNew -> {
             var serverUrl by rememberSaveable { mutableStateOf("") }
@@ -342,71 +426,6 @@ private fun ServerTypeOperation(
             updateServerOperation(ServerOperation.None)
         }
         is ServerOperation.None -> {}
-    }
-
-    val context = LocalContext.current
-    when (otherLoginOperation) {
-        is OtherLoginOperation.OnLogin -> {
-            OtherServerLoginDialog(
-                server = otherLoginOperation.server,
-                onRegisterClick = { url ->
-                    NetWorkUtils.openLink(context, url)
-                    updateOtherLoginOperation(OtherLoginOperation.None)
-                },
-                onDismissRequest = { updateOtherLoginOperation(OtherLoginOperation.None) },
-                onConfirm = { email, password ->
-                    updateOtherLoginOperation(OtherLoginOperation.None)
-                    OtherLoginHelper(
-                        otherLoginOperation.server, email, password,
-                        onSuccess = { account, task ->
-                            task.updateMessage(R.string.account_logging_in_saving)
-                            account.downloadSkin()
-                            saveAccount(account)
-                        },
-                        onFailed = { error ->
-                            updateOtherLoginOperation(OtherLoginOperation.OnFailed(error))
-                        }
-                    ).createNewAccount(context) { availableProfiles, selectedFunction ->
-                        updateOtherLoginOperation(
-                            OtherLoginOperation.SelectRole(
-                                availableProfiles,
-                                selectedFunction
-                            )
-                        )
-                    }
-                }
-            )
-        }
-        is OtherLoginOperation.OnFailed -> {
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
-                    title = stringResource(R.string.account_logging_in_failed),
-                    message = otherLoginOperation.error
-                )
-            )
-            updateOtherLoginOperation(OtherLoginOperation.None)
-        }
-        is OtherLoginOperation.SelectRole -> {
-            SimpleListDialog(
-                title = stringResource(R.string.account_other_login_select_role),
-                itemsProvider = { otherLoginOperation.profiles },
-                itemTextProvider = { it.name },
-                onItemSelected = { otherLoginOperation.selected(it) },
-                onDismissRequest = { updateOtherLoginOperation(OtherLoginOperation.None) }
-            )
-        }
-        is OtherLoginOperation.None -> {}
-    }
-
-    when (microsoftLoginOperation) {
-        is MicrosoftLoginOperation.None -> {}
-        is MicrosoftLoginOperation.RunTask -> {
-            microsoftLogin(
-                context = context,
-                updateOperation = { updateMicrosoftLoginOperation(it) }
-            )
-            updateMicrosoftLoginOperation(MicrosoftLoginOperation.None)
-        }
     }
 }
 

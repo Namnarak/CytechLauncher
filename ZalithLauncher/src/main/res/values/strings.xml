@@ -129,6 +129,7 @@
     <string name="renderer_name_panfrost">Panfrost (Mali, up to 1.21.4)</string>
     <!-- Accounts -->
     <string name="account_no_account">No accounts available</string>
+    <string name="account_login">Login</string>
     <string name="account_logging_in">Logging in as %s</string>
     <string name="account_logging_in_failed">Login failed</string>
     <string name="account_logging_in_saving">Fetching skin and saving account info</string>
@@ -158,6 +159,18 @@
     <string name="account_supporting_username_invalid_empty">Username required</string>
     <string name="account_supporting_email_invalid_empty">Email required</string>
     <string name="account_supporting_password_invalid_empty">Password required</string>
+    <string name="account_supporting_microsoft_tip_title">Add Microsoft Account</string>
+    <string name="account_supporting_microsoft_tip_link_text">Shortcuts you might need:</string>
+    <string name="account_supporting_microsoft_tip_link_purchase">Buy Minecraft</string>
+    <string name="account_supporting_microsoft_tip_link_make_gameid">Create Profile / Edit Profile Name</string>
+    <string name="account_supporting_microsoft_tip_hint_t1">Please follow the steps below to add your account:</string>
+    <string name="account_supporting_microsoft_tip_hint_t2">1. Click the "Login" button — the launcher will attempt to retrieve a verification code;\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t3">2. Enter the code provided by %s on the pop-up webpage and click "Allow access";\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t4">3. Follow the instructions on the webpage to complete the sign-in process;\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t5">4. When prompted with "Let this app access your info?", click "Accept";\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t6">5. When the webpage displays "All done!", the account will be added automatically. Please wait a moment.</string>
+    <string name="account_supporting_microsoft_tip_hint_t7">If the webpage shows an "Error" message or the account fails to be added, please retry the above steps.\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t8">Tip: If your network connection is poor, the webpage may load slowly or fail to open. Try using a network proxy and retry.</string>
     <string name="account_delete_title">Delete Account</string>
     <string name="account_delete_message">Delete account %s from the launcher?</string>
     <string name="account_microsoft_fetch_device_code">Get Device Code</string>

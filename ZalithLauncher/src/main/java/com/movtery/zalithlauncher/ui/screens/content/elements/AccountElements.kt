@@ -13,6 +13,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,12 +23,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,7 +57,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.createBitmap
@@ -65,16 +74,39 @@ import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.game.skin.SkinModelType
+import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
 import java.nio.file.Files
+import java.util.regex.Pattern
 
 /**
  * 微软登录的操作状态
  */
 sealed interface MicrosoftLoginOperation {
     data object None : MicrosoftLoginOperation
+    /** 微软账号相关提示Dialog流程 */
+    data object Tip : MicrosoftLoginOperation
+    /** 正式开始登陆微软账号流程 */
     data object RunTask: MicrosoftLoginOperation
+}
+
+/**
+ * 离线登陆的操作状态
+ */
+sealed interface LocalLoginOperation {
+    data object None : LocalLoginOperation
+    /** 编辑用户名流程 */
+    data object Edit : LocalLoginOperation
+    /** 创建账号流程 */
+    data class Create(val userName: String) : LocalLoginOperation
+    /** 警告非法用户名流程 */
+    data class Alert(val userName: String) : LocalLoginOperation
 }
 
 /**
@@ -115,8 +147,11 @@ sealed interface AccountSkinOperation {
  */
 sealed interface OtherLoginOperation {
     data object None : OtherLoginOperation
+    /** 账号登陆（输入账号密码Dialog）流程 */
     data class OnLogin(val server: Server) : OtherLoginOperation
+    /** 登陆失败流程 */
     data class OnFailed(val error: String) : OtherLoginOperation
+    /** 账号存在多角色的情况，多角色处理流程 */
     data class SelectRole(
         val profiles: List<AuthResult.AvailableProfiles>,
         val selected: (AuthResult.AvailableProfiles) -> Unit
@@ -371,6 +406,131 @@ fun ServerItem(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun MicrosoftLoginTipDialog(
+    onDismissRequest: () -> Unit = {},
+    onConfirm: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    SimpleAlertDialog(
+        title = stringResource(R.string.account_supporting_microsoft_tip_title),
+        text = {
+            Text(
+                text = stringResource(R.string.account_supporting_microsoft_tip_link_text),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            FlowRow {
+                IconTextButton(
+                    onClick = {
+                        NetWorkUtils.openLink(context, UrlManager.URL_MINECRAFT_PURCHASE)
+                    },
+                    imageVector = Icons.Outlined.Link,
+                    contentDescription = null,
+                    text = stringResource(R.string.account_supporting_microsoft_tip_link_purchase)
+                )
+                IconTextButton(
+                    onClick = {
+                        NetWorkUtils.openLink(context, "https://www.minecraft.net/msaprofile/mygames/editprofile")
+                    },
+                    imageVector = Icons.Outlined.Link,
+                    contentDescription = null,
+                    text = stringResource(R.string.account_supporting_microsoft_tip_link_make_gameid)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = stringResource(R.string.account_supporting_microsoft_tip_hint_t1),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t2))
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t3, InfoDistributor.LAUNCHER_NAME))
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t4))
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t5))
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t6))
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t7))
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(stringResource(R.string.account_supporting_microsoft_tip_hint_t8))
+                    }
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmText = stringResource(R.string.account_login),
+        onConfirm = onConfirm,
+        onDismiss = onDismissRequest
+    )
+}
+
+private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
+
+@Composable
+fun LocalLoginDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: (isUserNameInvalid: Boolean, userName: String) -> Unit
+) {
+    var userName by rememberSaveable { mutableStateOf("") }
+    var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    SimpleEditDialog(
+        title = stringResource(R.string.account_type_local),
+        value = userName,
+        onValueChange = { userName = it.trim() },
+        label = { Text(text = stringResource(R.string.account_label_username)) },
+        isError = isUserNameInvalid,
+        supportingText = {
+            val errorText = when {
+                userName.isEmpty() -> stringResource(R.string.account_supporting_username_invalid_empty)
+                userName.length <= 2 -> stringResource(R.string.account_supporting_username_invalid_short)
+                userName.length > 16 -> stringResource(R.string.account_supporting_username_invalid_long)
+                localNamePattern.matcher(userName).find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
+                else -> ""
+            }.also {
+                isUserNameInvalid = it.isNotEmpty()
+            }
+            if (isUserNameInvalid) {
+                Text(text = errorText)
+            }
+        },
+        singleLine = true,
+        extraContent = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                IconTextButton(
+                    onClick = {
+                        NetWorkUtils.openLink(context, UrlManager.URL_MINECRAFT_PURCHASE)
+                    },
+                    imageVector = Icons.Outlined.Link,
+                    contentDescription = null,
+                    text = stringResource(R.string.account_supporting_microsoft_tip_link_purchase)
+                )
+            }
+        },
+        onDismissRequest = onDismissRequest,
+        onConfirm = {
+            if (userName.isNotEmpty()) {
+                onConfirm(isUserNameInvalid, userName)
+            }
+        }
+    )
+}
+
 @Composable
 fun OtherServerLoginDialog(
     server: Server,
@@ -386,52 +546,69 @@ fun OtherServerLoginDialog(
             shape = MaterialTheme.shapes.extraLarge,
             shadowElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = server.serverName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    isError = email.isEmpty(),
-                    label = { Text(text = stringResource(R.string.account_label_email)) },
-                    supportingText = {
-                        if (email.isEmpty()) {
-                            Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
-                        }
-                    },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    isError = password.isEmpty(),
-                    label = { Text(text = stringResource(R.string.account_label_password)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Transparent,
-                    ),
-                    supportingText = {
-                        if (password.isEmpty()) {
-                            Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
-                        }
-                    },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large
-                )
-                if (!server.register.isNullOrEmpty()) {
-                    Spacer(modifier = Modifier.size(4.dp))
-                    Text(
-                        text = stringResource(R.string.account_other_login_register),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Start).clickable { onRegisterClick(server.register!!) }
+
+                Column(
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        isError = email.isEmpty(),
+                        label = { Text(text = stringResource(R.string.account_label_email)) },
+                        supportingText = {
+                            if (email.isEmpty()) {
+                                Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
+                            }
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                } else Spacer(modifier = Modifier.size(16.dp))
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        isError = password.isEmpty(),
+                        label = { Text(text = stringResource(R.string.account_label_password)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Transparent,
+                        ),
+                        supportingText = {
+                            if (password.isEmpty()) {
+                                Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
+                            }
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
+                    )
+                    if (!server.register.isNullOrEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            IconTextButton(
+                                onClick = {
+                                    onRegisterClick(server.register!!)
+                                },
+                                imageVector = Icons.Outlined.Link,
+                                contentDescription = null,
+                                text = stringResource(R.string.account_other_login_register)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -469,18 +646,28 @@ fun SelectSkinModelDialog(
             shape = MaterialTheme.shapes.extraLarge,
             shadowElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(all = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = stringResource(R.string.account_change_skin_select_model_title),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.account_change_skin_select_model_message),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+
+                Column(
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.account_change_skin_select_model_message),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 Spacer(modifier = Modifier.size(16.dp))
+
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.SpaceBetween

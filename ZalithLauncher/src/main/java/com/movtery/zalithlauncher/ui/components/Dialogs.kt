@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -120,6 +119,41 @@ fun SimpleAlertDialog(
 }
 
 @Composable
+fun SimpleAlertDialog(
+    title: String,
+    text: @Composable () -> Unit = {},
+    confirmText: String = stringResource(R.string.generic_confirm),
+    dismissText: String = stringResource(R.string.generic_cancel),
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                text()
+            }
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text(text = confirmText)
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(text = dismissText)
+            }
+        }
+    )
+}
+
+@Composable
 fun SimpleEditDialog(
     title: String,
     value: String,
@@ -130,6 +164,8 @@ fun SimpleEditDialog(
     singleLine: Boolean = false,
     maxLines: Int = 3,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    extraBody: @Composable (() -> Unit)? = null,
+    extraContent: @Composable (() -> Unit)? = null,
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
@@ -138,24 +174,39 @@ fun SimpleEditDialog(
             shape = MaterialTheme.shapes.extraLarge,
             shadowElevation = 4.dp
         ) {
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                OutlinedTextField(
-                    value = value,
-                    onValueChange = { onValueChange(it) },
-                    label = label,
-                    isError = isError,
-                    supportingText = supportingText,
-                    singleLine = singleLine,
-                    maxLines = maxLines,
-                    keyboardOptions = keyboardOptions,
-                    shape = MaterialTheme.shapes.large
-                )
+
+                Column(
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    extraBody?.let {
+                        it.invoke()
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
+                    OutlinedTextField(
+                        value = value,
+                        onValueChange = { onValueChange(it) },
+                        label = label,
+                        isError = isError,
+                        supportingText = supportingText,
+                        singleLine = singleLine,
+                        maxLines = maxLines,
+                        keyboardOptions = keyboardOptions,
+                        shape = MaterialTheme.shapes.large
+                    )
+                    extraContent?.invoke()
+                }
                 Spacer(modifier = Modifier.size(16.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -197,65 +248,39 @@ fun SimpleCheckEditDialog(
     onDismissRequest: () -> Unit = {},
     onConfirm: () -> Unit = {},
 ) {
-    Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
-        ) {
-            Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                OutlinedTextField(
-                    value = value,
-                    onValueChange = onValueChange,
-                    label = label,
-                    isError = isError,
-                    supportingText = supportingText,
-                    singleLine = singleLine,
-                    maxLines = maxLines,
-                    keyboardOptions = keyboardOptions,
-                    shape = MaterialTheme.shapes.large
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+    SimpleEditDialog(
+        title = title,
+        value = value,
+        onValueChange = onValueChange,
+        label = label,
+        isError = isError,
+        supportingText = supportingText,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        keyboardOptions = keyboardOptions,
+        extraBody = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall
+            )
+        },
+        extraContent = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     checkBoxText?.let{ Text(text = it, style = MaterialTheme.typography.labelMedium) }
                     Checkbox(
                         checked = checked,
                         onCheckedChange = onCheckedChange
                     )
                 }
-                Spacer(modifier = Modifier.size(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest
-                    ) {
-                        Text(text = stringResource(R.string.generic_cancel))
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onConfirm
-                    ) {
-                        Text(text = stringResource(R.string.generic_confirm))
-                    }
-                }
             }
-        }
-    }
+        },
+        onDismissRequest = onDismissRequest,
+        onConfirm = onConfirm
+    )
 }
 
 /**
@@ -293,25 +318,26 @@ fun <T> SimpleListDialog(
                 )
                 Spacer(modifier = Modifier.size(16.dp))
                 LazyColumn(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f, fill = false)
                 ) {
                     items(itemsProvider().size) { index ->
                         val item = itemsProvider()[index]
-                        Text(
-                            text = itemTextProvider(item),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedItem = item
-                                    if (!showConfirmAndCancel) {
-                                        onItemSelected(item)
-                                        onDismissRequest()
-                                    }
+                        SimpleListItem(
+                            selected = false,
+                            itemName = itemTextProvider(item),
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                selectedItem = item
+                                if (!showConfirmAndCancel) {
+                                    onItemSelected(item)
+                                    onDismissRequest()
                                 }
-                                .padding(8.dp)
+                            }
                         )
                     }
                 }
+                Spacer(modifier = Modifier.size(4.dp))
+
                 if (showConfirmAndCancel) {
                     Button(
                         onClick = {

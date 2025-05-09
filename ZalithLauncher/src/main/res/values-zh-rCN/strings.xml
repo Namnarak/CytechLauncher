@@ -114,7 +114,7 @@
     <string name="download_install">安装</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
-    <string name="game_launch_no_account">未登陆游戏账号！</string>
+    <string name="game_launch_no_account">未登录游戏账号！</string>
     <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境</string>
     <string name="game_button_input">输入法</string>
     <string name="game_button_force_close">强制关闭</string>
@@ -129,8 +129,9 @@
     <string name="renderer_name_panfrost">Panfrost (Mali，低于等于 1.21.4 可用)</string>
     <!--  账号  -->
     <string name="account_no_account">未找到可用账号</string>
-    <string name="account_logging_in">%s 登陆中</string>
-    <string name="account_logging_in_failed">登陆失败</string>
+    <string name="account_login">登录</string>
+    <string name="account_logging_in">%s 登录中</string>
+    <string name="account_logging_in_failed">登录失败</string>
     <string name="account_logging_in_saving">获取玩家皮肤、保存账号信息</string>
     <string name="account_logging_time_out">网络访问超时，请检查网络环境</string>
     <string name="account_logging_not_purchased_minecraft">未检查到 Minecraft 配置信息，请前往 Minecraft 的官方网站购买</string>
@@ -158,6 +159,18 @@
     <string name="account_supporting_username_invalid_empty">未填写用户名</string>
     <string name="account_supporting_email_invalid_empty">未填写邮箱或用户名</string>
     <string name="account_supporting_password_invalid_empty">未填写填写密码</string>
+    <string name="account_supporting_microsoft_tip_title">添加微软账号</string>
+    <string name="account_supporting_microsoft_tip_link_text">你可能需要的快捷方式：</string>
+    <string name="account_supporting_microsoft_tip_link_purchase">购买 Minecraft</string>
+    <string name="account_supporting_microsoft_tip_link_make_gameid">创建档案 / 编辑档案名称</string>
+    <string name="account_supporting_microsoft_tip_hint_t1">请按照以下步骤添加账户：</string>
+    <string name="account_supporting_microsoft_tip_hint_t2">1. 点击“登录”按钮，启动器将尝试获取验证代码；\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t3">2. 在弹出的网页中输入 %s 提供的代码，并点击“允许访问”；\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t4">3. 根据网页提示完成登录流程；\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t5">4. 当网页询问“是否允许此应用访问你的信息？”时，请点击“接受”；\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t6">5. 当网页显示“大功告成”时，账户将自动添加，请稍候片刻。</string>
+    <string name="account_supporting_microsoft_tip_hint_t7">如果网页提示“出现错误”或账户添加失败，请按照上述步骤重新尝试。\n</string>
+    <string name="account_supporting_microsoft_tip_hint_t8">提示：若当前网络状况不佳，可能会导致网页加载缓慢或无法打开。请尝试使用网络代理后重试。</string>
     <string name="account_delete_title">删除账号</string>
     <string name="account_delete_message">你确定要将账号 %s 从启动器内删除吗？</string>
     <string name="account_microsoft_fetch_device_code">获取设备码</string>
@@ -178,7 +191,7 @@
     <string name="account_other_login_delete_server_title">删除认证服务器</string>
     <string name="account_other_login_delete_server_message">你确定要删除认证服务器 %s 吗？</string>
     <string name="account_other_login_select_role">选择角色进行登录</string>
-    <string name="account_other_login_select_role_logging">登陆角色 %s 中</string>
+    <string name="account_other_login_select_role_logging">登录角色 %s 中</string>
     <string name="account_other_login_role_not_found">未找到与当前账号相匹配的角色，请在你使用的服务器上检查这个角色是否存在！</string>
     <!--  文件管理  -->
     <string name="files_back_to_parent">返回上一级</string>
