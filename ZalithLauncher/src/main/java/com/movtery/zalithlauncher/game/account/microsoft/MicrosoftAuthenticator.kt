@@ -12,11 +12,9 @@ import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSAuthResult
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSProperties
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSRequest
 import com.movtery.zalithlauncher.info.InfoDistributor
-import io.ktor.client.HttpClient
+import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -27,13 +25,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -55,23 +51,12 @@ object MicrosoftAuthenticator {
     private const val XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com"
     private const val MINECRAFT_SERVICES_URL = "https://api.minecraftservices.com"
 
-    @OptIn(ExperimentalSerializationApi::class)
-    private val HTTP_CLIENT = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                explicitNulls = false
-                coerceInputValues = true
-            })
-        }
-    }
-
     private suspend inline fun <reified T> submitForm(
         url: String,
         parameters: Parameters,
         context: CoroutineContext = EmptyCoroutineContext
     ): T = withContext(context) {
-        return@withContext HTTP_CLIENT.submitForm(
+        return@withContext GLOBAL_CLIENT.submitForm(
             url = url,
             formParameters = parameters
         ) {
@@ -84,7 +69,7 @@ object MicrosoftAuthenticator {
         body: Any,
         context: CoroutineContext = EmptyCoroutineContext
     ): T = withContext(context) {
-        val response = HTTP_CLIENT.post(url) {
+        val response = GLOBAL_CLIENT.post(url) {
             contentType(ContentType.Application.Json)
             setBody(body)
         }
@@ -254,7 +239,7 @@ object MicrosoftAuthenticator {
         )
 
         return withRetry {
-            val response = HTTP_CLIENT.post("$XBL_AUTH_URL/user/authenticate") {
+            val response = GLOBAL_CLIENT.post("$XBL_AUTH_URL/user/authenticate") {
                 contentType(ContentType.Application.Json)
                 setBody(requestBody)
             }.body<JsonObject>()
@@ -315,7 +300,7 @@ object MicrosoftAuthenticator {
     private suspend fun verifyGameOwnership(accessToken: String, update: (AsyncStatus) -> Unit) {
         update(AsyncStatus.VERIFY_GAME_OWNERSHIP)
         withRetry {
-            val response = HTTP_CLIENT.get("$MINECRAFT_SERVICES_URL/entitlements/mcstore") {
+            val response = GLOBAL_CLIENT.get("$MINECRAFT_SERVICES_URL/entitlements/mcstore") {
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
             }
             if (Json.parseToJsonElement(response.bodyAsText()).jsonObject["items"]?.jsonArray?.isEmpty() != false) {
@@ -332,7 +317,7 @@ object MicrosoftAuthenticator {
     ): Account {
         statusUpdate(AsyncStatus.GETTING_PLAYER_PROFILE)
 
-        val profile = HTTP_CLIENT.get("$MINECRAFT_SERVICES_URL/minecraft/profile") {
+        val profile = GLOBAL_CLIENT.get("$MINECRAFT_SERVICES_URL/minecraft/profile") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }.body<JsonObject>()
 

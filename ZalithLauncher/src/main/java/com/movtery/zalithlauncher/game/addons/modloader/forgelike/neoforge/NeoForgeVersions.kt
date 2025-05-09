@@ -2,12 +2,9 @@ package com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge
 
 import android.util.Log
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
-import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -16,13 +13,6 @@ import kotlinx.coroutines.withContext
 object NeoForgeVersions {
     private const val TAG = "NeoForgeVersions"
     private var cacheResult: List<NeoForgeVersion>? = null
-
-    private val client = HttpClient(CIO) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = UrlManager.TIME_OUT.first.toLong()
-        }
-        expectSuccess = true
-    }
 
     /**
      * 获取 NeoForge 版本列表
@@ -34,12 +24,12 @@ object NeoForgeVersions {
         try {
             val neoforge = withContext(Dispatchers.IO) {
                 withRetry(TAG, maxRetries = 2) {
-                    client.get("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge").body<String>()
+                    GLOBAL_CLIENT.get("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge").body<String>()
                 }
             }
             val legacyForge = withContext(Dispatchers.IO) {
                 withRetry(TAG, maxRetries = 2) {
-                    client.get("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/forge").body<String>()
+                    GLOBAL_CLIENT.get("https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/forge").body<String>()
                 }
             }
             if (neoforge.length < 100 || legacyForge.length < 100) throw ResponseTooShortException("Response too short")

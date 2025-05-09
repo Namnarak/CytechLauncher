@@ -8,11 +8,9 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
+import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -21,29 +19,15 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.IOException
 import java.util.Objects
 import java.util.UUID
 
 object OtherLoginApi {
-    @OptIn(ExperimentalSerializationApi::class)
-    private var client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                explicitNulls = false
-                coerceInputValues = true
-            })
-        }
-    }
-
     private var baseUrl: String? = null
 
     fun setBaseUrl(baseUrl: String) {
@@ -120,7 +104,7 @@ object OtherLoginApi {
         onFailed: suspend (error: String) -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         try {
-            val response: HttpResponse = client.post(baseUrl + url) {
+            val response: HttpResponse = GLOBAL_CLIENT.post(baseUrl + url) {
                 contentType(ContentType.Application.Json)
                 setBody(data)
             }
@@ -162,7 +146,7 @@ object OtherLoginApi {
 
     suspend fun getServeInfo(url: String): String? = withContext(Dispatchers.IO) {
         try {
-            val response = client.get(url)
+            val response = GLOBAL_CLIENT.get(url)
             if (response.status == HttpStatusCode.OK) {
                 response.bodyAsText()
             } else {

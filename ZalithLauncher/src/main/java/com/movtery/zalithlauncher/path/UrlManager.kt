@@ -1,6 +1,15 @@
 package com.movtery.zalithlauncher.path
 
 import com.movtery.zalithlauncher.BuildConfig
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.headers
+import io.ktor.http.HttpHeaders
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -12,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 class UrlManager {
     companion object {
-        private const val URL_USER_AGENT: String = "ZalithLauncher/${BuildConfig.VERSION_NAME}"
+        const val URL_USER_AGENT: String = "ZL2/${BuildConfig.VERSION_NAME}"
         @JvmField
         val TIME_OUT = Pair(10000, TimeUnit.MILLISECONDS)
         const val URL_GITHUB_HOME: String = "https://api.github.com/repos/ZalithLauncher/Zalith-Info/contents/"
@@ -21,9 +30,29 @@ class UrlManager {
         const val URL_MINECRAFT_VERSION_REPOS: String = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
         const val URL_MINECRAFT_CHANGE_SKIN = "https://www.minecraft.net/msaprofile/mygames/editskin"
         const val URL_SUPPORT: String = "https://afdian.com/a/MovTery"
-        const val URL_HOME: String = "https://github.com/ZalithLauncher/ZalithLauncher"
+        const val URL_HOME: String = "https://github.com/ZalithLauncher/ZalithLauncher2"
         const val URL_FCL_RENDERER_PLUGIN: String = "https://github.com/ShirosakiMio/FCLRendererPlugin/releases/tag/Renderer"
         const val URL_FCL_DRIVER_PLUGIN: String = "https://github.com/FCL-Team/FCLDriverPlugin/releases/tag/Turnip"
+
+        val GLOBAL_CLIENT = HttpClient(CIO) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = TIME_OUT.first.toLong()
+            }
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    explicitNulls = false
+                    coerceInputValues = true
+                })
+            }
+            expectSuccess = true
+
+            defaultRequest {
+                headers {
+                    append(HttpHeaders.UserAgent, URL_USER_AGENT)
+                }
+            }
+        }
 
         @JvmStatic
         fun createConnection(url: URL): URLConnection {

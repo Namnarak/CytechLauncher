@@ -2,11 +2,8 @@ package com.movtery.zalithlauncher.game.addons.modloader.optifine
 
 import android.util.Log
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
-import com.movtery.zalithlauncher.path.UrlManager
-import io.ktor.client.HttpClient
+import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -28,13 +25,6 @@ object OptiFineVersions {
 
     private var cacheResult: List<OptiFineVersion>? = null
 
-    private val client = HttpClient(CIO) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = UrlManager.TIME_OUT.first.toLong()
-        }
-        expectSuccess = false
-    }
-
     /**
      * 获取 OptiFine 版本列表
      */
@@ -43,7 +33,7 @@ object OptiFineVersions {
 
         try {
             val response: HttpResponse = withContext(Dispatchers.IO) {
-                client.get(OPTIFINE_DOWNLOAD_URL)
+                GLOBAL_CLIENT.get(OPTIFINE_DOWNLOAD_URL)
             }
 
             val bytes: ByteArray = response.body()
@@ -133,7 +123,7 @@ object OptiFineVersions {
     suspend fun fetchOptiFineDownloadUrl(fileName: String): String? = withContext(Dispatchers.Default) {
         try {
             val response: HttpResponse = withContext(Dispatchers.IO) {
-                client.get("${OPTIFINE_ADLOADX_URL}?f=$fileName") {
+                GLOBAL_CLIENT.get("${OPTIFINE_ADLOADX_URL}?f=$fileName") {
                     contentType(ContentType.Text.Html)
                 }
             }

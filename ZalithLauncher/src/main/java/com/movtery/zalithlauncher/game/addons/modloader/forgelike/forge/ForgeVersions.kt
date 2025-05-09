@@ -2,21 +2,16 @@ package com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge
 
 import android.util.Log
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
-import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -27,18 +22,6 @@ import java.time.format.DateTimeFormatter
 object ForgeVersions {
     private const val TAG = "ForgeVersions"
     private const val FORGE_FILE_URL = "https://files.minecraftforge.net/maven/net/minecraftforge/forge"
-
-    private val client = HttpClient(CIO) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = UrlManager.TIME_OUT.first.toLong()
-        }
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-            })
-        }
-    }
 
     /**
      * 获取 Forge 版本列表
@@ -51,9 +34,9 @@ object ForgeVersions {
         try {
             val html = withContext(Dispatchers.IO) {
                 withRetry(TAG, maxRetries = 2) {
-                    client.get(url) {
+                    GLOBAL_CLIENT.get(url) {
                         headers {
-                            append(HttpHeaders.UserAgent, "Mozilla/5.0...")
+                            append(HttpHeaders.UserAgent, "Mozilla/5.0/$URL_USER_AGENT")
                         }
                     }.body<String>()
                 }
