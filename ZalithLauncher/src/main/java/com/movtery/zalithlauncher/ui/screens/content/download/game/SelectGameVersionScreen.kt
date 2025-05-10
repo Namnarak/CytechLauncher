@@ -65,14 +65,42 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.ConnectException
+import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
 
 const val SELECT_GAME_VERSION_SCREEN_TAG = "SelectGameVersionScreen"
 
+/** 版本列表加载状态 */
 private sealed interface VersionState {
+    /** 加载中 */
     data object Loading : VersionState
-    data object Failure : VersionState
+    /** 加载出现异常 */
+    data class Failure(val message: Int, val args: Array<Any>? = null) : VersionState {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Failure
+
+            if (message != other.message) return false
+            if (args != null) {
+                if (other.args == null) return false
+                if (!args.contentEquals(other.args)) return false
+            } else if (other.args != null) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = message
+            result = 31 * result + (args?.contentHashCode() ?: 0)
+            return result
+        }
+    }
 }
 
 private data class VersionFilter(val release: Boolean, val snapshot: Boolean, val old: Boolean, val id: String = "")
@@ -112,7 +140,7 @@ fun SelectGameVersionScreen(
             shape = MaterialTheme.shapes.extraLarge,
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
         ) {
-            when (versionState) {
+            when (val state = versionState) {
                 is VersionState.Loading -> {
                     Box(Modifier.fillMaxSize()) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -121,9 +149,15 @@ fun SelectGameVersionScreen(
 
                 is VersionState.Failure -> {
                     Box(Modifier.fillMaxSize()) {
+                        val message = if (state.args != null) {
+                            stringResource(state.message, *state.args)
+                        } else {
+                            stringResource(state.message)
+                        }
+
                         ScalingLabel(
                             modifier = Modifier.align(Alignment.Center),
-                            text = stringResource(R.string.download_game_failed_to_get_versions),
+                            text = stringResource(R.string.download_game_failed_to_get_versions, message),
                             onClick = {
                                 forceReload = true
                                 reloadTrigger = !reloadTrigger
@@ -155,9 +189,18 @@ fun SelectGameVersionScreen(
                     allVersions.filterVersions(versionFilter)
                 }
                 null
-            }.getOrElse {
-                Log.w(SELECT_GAME_VERSION_SCREEN_TAG, "Failed to get version manifest!", it)
-                VersionState.Failure
+            }.getOrElse { e ->
+                Log.w(SELECT_GAME_VERSION_SCREEN_TAG, "Failed to get version manifest!", e)
+                val message: Pair<Int, Array<Any>?> = when(e) {
+                    is HttpRequestTimeoutException -> R.string.error_timeout to null
+                    is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
+                    is ConnectException -> R.string.error_connection_failed to null
+                    else -> {
+                        val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
+                        R.string.error_unknown to arrayOf(errorMessage)
+                    }
+                }
+                VersionState.Failure(message.first, message.second)
             }
         }
 

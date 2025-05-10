@@ -74,7 +74,7 @@ object AccountsManager {
         context: Context,
         account: Account,
         onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
-        onFailed: (error: String) -> Unit = {}
+        onFailed: (th: Throwable) -> Unit = {}
     ) {
         val task = performLoginTask(context, account, onSuccess, onFailed)
         task?.let { TaskSystem.submitTask(it) }
@@ -87,7 +87,7 @@ object AccountsManager {
         context: Context,
         account: Account,
         onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
-        onFailed: (error: String) -> Unit = {},
+        onFailed: (th: Throwable) -> Unit = {},
         onFinally: () -> Unit = {}
     ): Task? =
         when {
@@ -96,7 +96,7 @@ object AccountsManager {
                 otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
             account.isMicrosoftAccount() -> {
-                microsoftRefresh(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
+                microsoftRefresh(account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
             else -> null
         }

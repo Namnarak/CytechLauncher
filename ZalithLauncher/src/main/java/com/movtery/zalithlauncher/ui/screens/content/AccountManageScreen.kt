@@ -46,8 +46,10 @@ import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
+import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
+import com.movtery.zalithlauncher.game.account.otherserver.ResponseException
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.saveAccount
 import com.movtery.zalithlauncher.path.PathManager
@@ -78,11 +80,15 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.net.ConnectException
+import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
 
 const val ACCOUNT_MANAGE_SCREEN_TAG = "AccountManageScreen"
 
@@ -326,8 +332,8 @@ private fun OtherLoginOperation(
                             account.downloadSkin()
                             saveAccount(account)
                         },
-                        onFailed = { error ->
-                            updateOperation(OtherLoginOperation.OnFailed(error))
+                        onFailed = { th ->
+                            updateOperation(OtherLoginOperation.OnFailed(th))
                         }
                     ).createNewAccount(context) { availableProfiles, selectedFunction ->
                         updateOperation(
@@ -341,10 +347,21 @@ private fun OtherLoginOperation(
             )
         }
         is OtherLoginOperation.OnFailed -> {
+            val message: String = when (val th = otherLoginOperation.th) {
+                is ResponseException -> th.responseMessage
+                is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
+                is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
+                is ConnectException -> stringResource(R.string.error_connection_failed)
+                else -> {
+                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
+                    stringResource(R.string.error_unknown, errorMessage)
+                }
+            }
+
             ObjectStates.updateThrowable(
                 ObjectStates.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
-                    message = otherLoginOperation.error
+                    message = message
                 )
             )
             updateOperation(OtherLoginOperation.None)
@@ -627,10 +644,21 @@ private fun AccountOperation(
             updateAccountOperation(AccountOperation.None)
         }
         is AccountOperation.OnFailed -> {
+            val message: String = when (val th = accountOperation.th) {
+                is NotPurchasedMinecraftException -> stringResource(R.string.account_logging_not_purchased_minecraft)
+                is ResponseException -> th.responseMessage
+                is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
+                is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
+                is ConnectException -> stringResource(R.string.error_connection_failed)
+                else -> {
+                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
+                    stringResource(R.string.error_unknown, errorMessage)
+                }
+            }
             ObjectStates.updateThrowable(
                 ObjectStates.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
-                    message = accountOperation.error
+                    message = message
                 )
             )
             updateAccountOperation(AccountOperation.None)

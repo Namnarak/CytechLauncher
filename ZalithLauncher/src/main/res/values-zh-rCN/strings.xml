@@ -92,7 +92,7 @@
     <string name="download_category_resource_pack">资源包</string>
     <string name="download_category_saves">存档</string>
     <string name="download_category_shaders">光影包</string>
-    <string name="download_game_failed_to_get_versions">获取版本失败，点击重试</string>
+    <string name="download_game_failed_to_get_versions">获取版本失败：%s，点击重试</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
     <string name="download_game_type_old">远古版</string>

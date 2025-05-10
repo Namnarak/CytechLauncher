@@ -127,7 +127,7 @@ sealed interface AccountOperation {
     data object None : AccountOperation
     data class Delete(val account: Account) : AccountOperation
     data class Refresh(val account: Account) : AccountOperation
-    data class OnFailed(val error: String) : AccountOperation
+    data class OnFailed(val th: Throwable) : AccountOperation
 }
 
 /**
@@ -150,7 +150,7 @@ sealed interface OtherLoginOperation {
     /** 账号登陆（输入账号密码Dialog）流程 */
     data class OnLogin(val server: Server) : OtherLoginOperation
     /** 登陆失败流程 */
-    data class OnFailed(val error: String) : OtherLoginOperation
+    data class OnFailed(val th: Throwable) : OtherLoginOperation
     /** 账号存在多角色的情况，多角色处理流程 */
     data class SelectRole(
         val profiles: List<AuthResult.AvailableProfiles>,

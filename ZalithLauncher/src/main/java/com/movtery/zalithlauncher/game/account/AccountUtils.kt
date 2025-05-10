@@ -10,7 +10,6 @@ import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
-import com.movtery.zalithlauncher.game.account.microsoft.TimeoutException
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
@@ -23,7 +22,7 @@ import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -32,8 +31,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
+import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
 import java.util.Locale
 import java.util.Objects
 import kotlin.coroutines.CoroutineContext
@@ -100,12 +102,17 @@ fun microsoftLogin(
             account.downloadSkin()
             saveAccount(account)
         },
-        onError = { e ->
-            when (e) {
-                is TimeoutException -> context.getString(R.string.account_logging_time_out)
+        onError = { th ->
+            when (th) {
+                is HttpRequestTimeoutException -> context.getString(R.string.account_logging_time_out)
                 is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+                is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
+                is ConnectException -> context.getString(R.string.error_connection_failed)
                 is CancellationException -> { null }
-                else -> e.getMessageOrToString()
+                else -> {
+                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
+                    context.getString(R.string.error_unknown, errorMessage)
+                }
             }?.let { message ->
                 ObjectStates.updateThrowable(
                     ObjectStates.ThrowableMessage(
@@ -143,10 +150,9 @@ private suspend fun authAsync(
 }
 
 fun microsoftRefresh(
-    context: Context,
     account: Account,
     onSuccess: suspend (Account, Task) -> Unit,
-    onFailed: (error: String) -> Unit = {},
+    onFailed: (th: Throwable) -> Unit = {},
     onFinally: () -> Unit = {}
 ): Task? {
     if (TaskSystem.containsTask(account.profileId)) return null
@@ -173,14 +179,8 @@ fun microsoftRefresh(
             onSuccess(account, task)
         },
         onError = { e ->
-            when (e) {
-                is TimeoutException -> context.getString(R.string.account_logging_time_out)
-                is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
-                is CancellationException -> null
-                else -> e.getMessageOrToString()
-            }?.let { message ->
-                onFailed(message)
-            }
+            if (e is CancellationException) return@runTask
+            onFailed(e)
         },
         onFinally = onFinally
     )
@@ -190,7 +190,7 @@ fun otherLogin(
     context: Context,
     account: Account,
     onSuccess: suspend (Account, task: Task) -> Unit = { _, _ -> },
-    onFailed: (error: String) -> Unit = {},
+    onFailed: (th: Throwable) -> Unit = {},
     onFinally: () -> Unit = {}
 ): Task? {
     if (TaskSystem.containsTask(account.uniqueUUID)) return null

@@ -120,7 +120,7 @@ class MinecraftDownloader(
                     is InterruptedException, is InterruptedIOException, is CancellationException -> return@runTask
                     is DownloadFailedException -> {
                         val failedUrls = downloadFailedTasks.map { it.url }
-                        "${ context.getString(R.string.minecraft_download_failed_retried) }\r\n${ failedUrls.joinToString("\r\n") }\r\n${ e.getMessageOrToString() }"
+                        "${ context.getString(R.string.minecraft_download_failed_retried) }\r\n${ failedUrls.joinToString("\r\n") } }"
                     }
                     else -> e.getMessageOrToString()
                 }

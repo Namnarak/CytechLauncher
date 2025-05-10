@@ -44,10 +44,10 @@ object OtherLoginApi {
         userName: String,
         password: String,
         onSuccess: suspend (AuthResult) -> Unit = {},
-        onFailed: suspend (error: String) -> Unit = {}
+        onFailed: suspend (th: Throwable) -> Unit = {}
     ) {
         if (Objects.isNull(baseUrl)) {
-            onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
+            onFailed(ResponseException(context.getString(R.string.account_other_login_baseurl_not_set)))
             return
         }
 
@@ -74,10 +74,10 @@ object OtherLoginApi {
         account: Account,
         select: Boolean,
         onSuccess: suspend (AuthResult) -> Unit = {},
-        onFailed: suspend (error: String) -> Unit = {}
+        onFailed: suspend (th: Throwable) -> Unit = {}
     ) {
         if (Objects.isNull(baseUrl)) {
-            onFailed(context.getString(R.string.account_other_login_baseurl_not_set))
+            onFailed(ResponseException(context.getString(R.string.account_other_login_baseurl_not_set)))
             return
         }
 
@@ -101,7 +101,7 @@ object OtherLoginApi {
         data: String,
         url: String,
         onSuccess: suspend (AuthResult) -> Unit = {},
-        onFailed: suspend (error: String) -> Unit = {}
+        onFailed: suspend (th: Throwable) -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         try {
             val response: HttpResponse = GLOBAL_CLIENT.post(baseUrl + url) {
@@ -115,13 +115,13 @@ object OtherLoginApi {
             } else {
                 val errorMessage = "(${response.status.value}) ${parseError(response)}"
                 Log.e("Other Login", errorMessage)
-                onFailed(errorMessage)
+                onFailed(ResponseException(errorMessage))
             }
         } catch (e: CancellationException) {
             Log.d("Other Login", "Login cancelled")
         } catch (e: Exception) {
             Log.e("Other Login", "Request failed", e)
-            onFailed("Request failed: ${e.localizedMessage}")
+            onFailed(e)
         }
     }
 

@@ -6,6 +6,8 @@ import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
+import com.movtery.zalithlauncher.game.account.otherserver.ResponseException
 import com.movtery.zalithlauncher.game.version.download.DownloadMode
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
@@ -15,6 +17,10 @@ import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import java.net.ConnectException
+import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
 
 object LaunchGame {
     private var isLaunching: Boolean = false
@@ -62,10 +68,22 @@ object LaunchGame {
                     acc.save()
                 },
                 onFailed = { error ->
+                    val message: String = when (error) {
+                        is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+                        is ResponseException -> error.responseMessage
+                        is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
+                        is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
+                        is ConnectException -> context.getString(R.string.error_connection_failed)
+                        else -> {
+                            val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"
+                            context.getString(R.string.error_unknown, errorMessage)
+                        }
+                    }
+
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(
                             title = context.getString(R.string.account_logging_in_failed),
-                            message = error
+                            message = message
                         )
                     )
                 },

@@ -92,7 +92,7 @@
     <string name="download_category_resource_pack">Resource Pack</string>
     <string name="download_category_saves">Saves</string>
     <string name="download_category_shaders">Shader Pack</string>
-    <string name="download_game_failed_to_get_versions">Failed to retrieve versions. Tap to retry.</string>
+    <string name="download_game_failed_to_get_versions">Failed to get version: %s. Tap to retry.</string>
     <string name="download_game_type_release">Release</string>
     <string name="download_game_type_snapshot">Snapshot</string>
     <string name="download_game_type_old">Old Version</string>

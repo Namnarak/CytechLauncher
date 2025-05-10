@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.account.microsoft
 import android.util.Log
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
+import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.microsoft.models.DeviceCodeResponse
 import com.movtery.zalithlauncher.game.account.microsoft.models.MinecraftAuthResponse
 import com.movtery.zalithlauncher.game.account.microsoft.models.TokenResponse
@@ -15,6 +16,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -150,7 +152,7 @@ object MicrosoftAuthenticator {
                 if (checkIsReallyCancelled()) throw CancellationException("Authentication cancelled")
             }
         }
-        throw TimeoutException("Authentication timed out!")
+        throw HttpRequestTimeoutException("Authentication timed out!", expireTime)
     }
 
     private suspend fun handleClientRequestException(e: ClientRequestException, interval: Long) {
@@ -321,12 +323,16 @@ object MicrosoftAuthenticator {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }.body<JsonObject>()
 
-        return Account().apply {
+        val profileId = profile["id"].text()
+        //避免同一个账号反复添加
+        val account = AccountsManager.loadFromProfileID(profileId) ?: Account()
+
+        return account.apply {
             this.username = profile["name"].text()
             this.accessToken = accessToken
             this.accountType = AccountType.MICROSOFT.tag
             this.clientToken = UUID.randomUUID().toString().replace("-", "")
-            this.profileId = profile["id"].text()
+            this.profileId = profileId
             this.refreshToken = refreshToken.ifEmpty { "None" }
             this.xuid = uhs
         }

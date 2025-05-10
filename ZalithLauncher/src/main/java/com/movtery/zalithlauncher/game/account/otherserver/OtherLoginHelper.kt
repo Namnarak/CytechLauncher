@@ -21,7 +21,7 @@ class OtherLoginHelper(
     private val email: String,
     private val password: String,
     private val onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
-    private val onFailed: (error: String) -> Unit = {},
+    private val onFailed: (th: Throwable) -> Unit = {},
     private val onFinally: () -> Unit = {}
 ) {
     constructor(
@@ -29,7 +29,7 @@ class OtherLoginHelper(
         email: String,
         password: String,
         onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
-        onFailed: (error: String) -> Unit = {},
+        onFailed: (th: Throwable) -> Unit = {},
         onFinally: () -> Unit = {}
     ): this(server.baseUrl, server.serverName, email, password, onSuccess, onFailed, onFinally)
 
@@ -58,9 +58,8 @@ class OtherLoginHelper(
                 )
             },
             onError = { e ->
-                val message = "An exception was encountered while performing the login task."
-                Log.e("OtherLogin", message, e)
-                onFailed(e.message ?: message)
+                Log.e("OtherLogin", "An exception was encountered while performing the login task.", e)
+                onFailed(e)
             },
             onFinally = onFinally
         ).apply { updateMessage(R.string.account_logging_in, loggingString) }
@@ -119,7 +118,7 @@ class OtherLoginHelper(
      */
     fun justLogin(context: Context, account: Account): Task {
         fun roleNotFound() { //未找到匹配的ID
-            onFailed(context.getString(R.string.account_other_login_role_not_found))
+            onFailed(ResponseException(context.getString(R.string.account_other_login_role_not_found)))
         }
 
         return login(
@@ -161,9 +160,8 @@ class OtherLoginHelper(
                 )
             },
             onError = { e ->
-                val message = "An exception was encountered while performing the refresh task."
-                Log.e("Other Login", message, e)
-                onFailed(e.message ?: message)
+                Log.e("Other Login", "An exception was encountered while performing the refresh task.", e)
+                onFailed(e)
             }
         ).apply { updateMessage(R.string.account_other_login_select_role_logging, account.username) }
 

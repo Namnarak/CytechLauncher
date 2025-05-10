@@ -324,7 +324,7 @@ private fun <E> AddonListHeader(
             }
             is AddonState.Error -> {
                 val message = if (state.args != null) {
-                    stringResource(state.message, state.args)
+                    stringResource(state.message, *state.args)
                 } else {
                     stringResource(state.message)
                 }

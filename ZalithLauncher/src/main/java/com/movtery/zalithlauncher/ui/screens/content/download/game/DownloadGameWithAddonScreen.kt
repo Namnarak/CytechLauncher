@@ -69,6 +69,7 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
 
 const val DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG = "DownloadGameWithAddonScreen"
 
@@ -774,13 +775,13 @@ private suspend fun <T> runWithState(
             updateState(AddonState.None)
         }
     }.onFailure { e ->
-        when (e) {
+        val state = when (e) {
             is ResponseTooShortException -> {
                 //忽略，判定为不可用
-                updateState(AddonState.None)
+                AddonState.None
             }
-            is HttpRequestTimeoutException -> updateState(AddonState.Error(R.string.error_timeout))
-            is UnknownHostException -> {
+            is HttpRequestTimeoutException -> AddonState.Error(R.string.error_timeout)
+            is UnknownHostException, is UnresolvedAddressException -> {
                 AddonState.Error(R.string.error_network_unreachable)
             }
             is ConnectException -> {
@@ -794,5 +795,6 @@ private suspend fun <T> runWithState(
                 AddonState.Error(R.string.error_unknown, arrayOf(errorMessage))
             }
         }
+        updateState(state)
     }.getOrNull()
 }
