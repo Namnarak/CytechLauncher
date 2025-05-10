@@ -6,9 +6,11 @@ import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,6 +49,14 @@ object ForgeVersions {
             html.split("<td class=\"download-version")
                 .drop(1)
                 .mapNotNull { parseVersionFromHtml(it, mcVersion) }
+        } catch (e: ClientRequestException) {
+            val statusCode = e.response.status
+            if (statusCode == HttpStatusCode.NotFound) {
+                Log.d(TAG, "Not found.")
+                null
+            } else {
+                throw e
+            }
         } catch (e: CancellationException) {
             Log.d(TAG, "Client cancelled.")
             null

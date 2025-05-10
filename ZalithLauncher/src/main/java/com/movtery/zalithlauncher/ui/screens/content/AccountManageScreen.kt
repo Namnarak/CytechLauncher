@@ -80,7 +80,9 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -352,6 +354,15 @@ private fun OtherLoginOperation(
                 is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
                 is ConnectException -> stringResource(R.string.error_connection_failed)
+                is ClientRequestException -> {
+                    val statusCode = th.response.status
+                    val res = when (statusCode) {
+                        HttpStatusCode.Unauthorized -> R.string.error_unauthorized
+                        HttpStatusCode.NotFound -> R.string.error_notfound
+                        else -> R.string.error_client_error
+                    }
+                    stringResource(res, statusCode)
+                }
                 else -> {
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)
@@ -650,6 +661,15 @@ private fun AccountOperation(
                 is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
                 is ConnectException -> stringResource(R.string.error_connection_failed)
+                is ClientRequestException -> {
+                    val statusCode = th.response.status
+                    val res = when (statusCode) {
+                        HttpStatusCode.Unauthorized -> R.string.error_unauthorized
+                        HttpStatusCode.NotFound -> R.string.error_notfound
+                        else -> R.string.error_client_error
+                    }
+                    stringResource(res, statusCode)
+                }
                 else -> {
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)

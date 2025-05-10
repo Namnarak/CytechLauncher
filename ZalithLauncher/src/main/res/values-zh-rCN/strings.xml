@@ -68,6 +68,9 @@
     <string name="error_network_unreachable">网络不可用</string>
     <string name="error_connection_failed">无法连接到服务器</string>
     <string name="error_parse_failed">数据解析失败</string>
+    <string name="error_unauthorized">（%s）未授权</string>
+    <string name="error_notfound">（%s）资源未找到</string>
+    <string name="error_client_error">（%s）客户端错误</string>
     <string name="error_unknown">未知错误：%s</string>
     <!--  启动页面  -->
     <string name="splash_screen_unpack_desc">启动器需要安装这些内容，才能够确保 Minecraft 能够正常启动。这些内容已经包含在应用中，需要解压之后才能正常使用，点击下方按钮，开始解压并更新这些内容。</string>

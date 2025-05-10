@@ -17,7 +17,9 @@ import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.http.HttpStatusCode
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
@@ -74,6 +76,15 @@ object LaunchGame {
                         is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
                         is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                         is ConnectException -> context.getString(R.string.error_connection_failed)
+                        is ClientRequestException -> {
+                            val statusCode = error.response.status
+                            val res = when (statusCode) {
+                                HttpStatusCode.Unauthorized -> R.string.error_unauthorized
+                                HttpStatusCode.NotFound -> R.string.error_notfound
+                                else -> R.string.error_client_error
+                            }
+                            context.getString(res, statusCode)
+                        }
                         else -> {
                             val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"
                             context.getString(R.string.error_unknown, errorMessage)

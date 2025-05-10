@@ -65,7 +65,9 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCRE
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -789,6 +791,15 @@ private suspend fun <T> runWithState(
             }
             is SerializationException -> {
                 AddonState.Error(R.string.error_parse_failed)
+            }
+            is ClientRequestException -> {
+                val statusCode = e.response.status
+                val res = when (statusCode) {
+                    HttpStatusCode.Unauthorized -> R.string.error_unauthorized
+                    HttpStatusCode.NotFound -> R.string.error_notfound
+                    else -> R.string.error_client_error
+                }
+                AddonState.Error(res, arrayOf(statusCode))
             }
             else -> {
                 val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
