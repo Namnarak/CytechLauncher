@@ -42,7 +42,7 @@ fun getOptiFineDownloadTask(
                 OptiFineVersions.fetchOptiFineDownloadUrl(optifine.fileName) ?: throw CantFetchingOptiFineUrlException()
             }
 
-            task.updateProgress(-1f, R.string.download_game_install_base_downloading_file, ModLoader.OPTIFINE.displayName)
+            task.updateProgress(-1f, R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion)
             NetWorkUtils.downloadFileSuspend(optifineUrl, targetTempInstaller)
 
             withContext(Dispatchers.IO) { //复制原版

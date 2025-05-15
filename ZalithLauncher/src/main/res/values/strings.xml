@@ -123,8 +123,7 @@
     <string name="download_game_addon_not_installable">Not installable automatically</string>
     <string name="download_game_install_title">Installing Game</string>
     <string name="download_game_install_vanilla">Downloading and installing Vanilla %s</string>
-    <string name="download_game_install_base">Download and install %s %s</string>
-    <string name="download_game_install_base_downloading_file">Download main file of %s</string>
+    <string name="download_game_install_base_download_file">Download %s %s main file</string>
     <string name="download_game_install_base_install">Install %s</string>
     <string name="download_game_install_base_installing">Installing %s in the foreground</string>
     <string name="download_game_install_optifine_fetch_download_url">Fetch download URL for OptiFine %s</string>

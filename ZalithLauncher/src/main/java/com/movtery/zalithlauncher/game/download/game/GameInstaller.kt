@@ -130,7 +130,7 @@ class GameInstaller(
                     //将OptiFine作为版本下载，其余情况则作为Mod下载
                     tasks.add(
                         GameInstallTask(
-                            context.getString(R.string.download_game_install_base, ModLoader.OPTIFINE.displayName, info.optifine.displayName),
+                            context.getString(R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, info.optifine.displayName),
                             getOptiFineDownloadTask(
                                 tempMinecraftDir = tempMinecraftDir,
                                 targetTempInstaller = targetInstaller,
@@ -318,7 +318,7 @@ class GameInstaller(
         //下载安装器
         addTask(
             GameInstallTask(
-                context.getString(R.string.download_game_install_base, forgeLikeVersion.loaderName, processedLoaderVersion),
+                context.getString(R.string.download_game_install_base_download_file, forgeLikeVersion.loaderName, processedLoaderVersion),
                 getForgeLikeDownloadTask(tempInstaller, forgeLikeVersion)
             )
         )
