@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge
 
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeBuildVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 
@@ -8,8 +9,9 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersi
  */
 class NeoForgeVersion(
     private val rawVersion: String,
-    private val isLegacyForge: Boolean
+    val isLegacyForge: Boolean
 ) : ForgeLikeVersion(
+    loaderName = ModLoader.NEOFORGE.displayName,
     forgeBuildVersion = parseVersion(rawVersion),
     versionName = parseVersionName(rawVersion),
     inherit = parseInherit(rawVersion),

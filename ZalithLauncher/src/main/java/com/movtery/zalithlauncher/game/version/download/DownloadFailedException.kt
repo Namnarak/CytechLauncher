@@ -1,7 +1,3 @@
-package com.movtery.zalithlauncher.game.version.download;
+package com.movtery.zalithlauncher.game.version.download
 
-public class DownloadFailedException extends RuntimeException {
-    public DownloadFailedException() {
-        super();
-    }
-}
+class DownloadFailedException : RuntimeException()

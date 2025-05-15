@@ -80,7 +80,6 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -354,7 +353,7 @@ private fun OtherLoginOperation(
                 is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
                 is ConnectException -> stringResource(R.string.error_connection_failed)
-                is ClientRequestException -> {
+                is io.ktor.client.plugins.ResponseException -> {
                     val statusCode = th.response.status
                     val res = when (statusCode) {
                         HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -364,6 +363,7 @@ private fun OtherLoginOperation(
                     stringResource(res, statusCode)
                 }
                 else -> {
+                    Log.e("OtherLoginOperation", "An unknown exception was caught!", th)
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)
                 }
@@ -661,7 +661,7 @@ private fun AccountOperation(
                 is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
                 is ConnectException -> stringResource(R.string.error_connection_failed)
-                is ClientRequestException -> {
+                is io.ktor.client.plugins.ResponseException -> {
                     val statusCode = th.response.status
                     val res = when (statusCode) {
                         HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -671,6 +671,7 @@ private fun AccountOperation(
                     stringResource(res, statusCode)
                 }
                 else -> {
+                    Log.e("AccountOperation", "An unknown exception was caught!", th)
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)
                 }

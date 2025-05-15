@@ -22,6 +22,7 @@ public class GameManifest {
     private String time;
     private String type;
     private Logging logging;
+    private String inheritsFrom; //作为非合并版本的标记
 
     public Arguments getArguments() {
         return arguments;
@@ -141,6 +142,14 @@ public class GameManifest {
 
     public void setLogging(Logging logging) {
         this.logging = logging;
+    }
+
+    public String getInheritsFrom() {
+        return inheritsFrom;
+    }
+
+    public void setInheritsFrom(String inheritsFrom) {
+        this.inheritsFrom = inheritsFrom;
     }
 
     public static class Arguments {

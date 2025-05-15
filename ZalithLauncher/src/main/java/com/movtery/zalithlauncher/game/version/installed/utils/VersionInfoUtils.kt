@@ -82,6 +82,17 @@ class VersionInfoUtils {
                 }
             }
 
+            //尝试从 LaunchFor (ZL安装的版本) 获取信息
+            json.getAsJsonObject("launchFor")
+                ?.getAsJsonArray("infos")
+                ?.firstOrNull { it.asJsonObject["name"]?.asString == "Minecraft" }
+                ?.asJsonObject
+                ?.getAsJsonPrimitive("version")
+                ?.asString
+                ?.let {
+                    return it
+                }
+
             //从minecraft库中获取
             json.getAsJsonArray("libraries")?.forEach { lib ->
                 val (group, artifact, version) = lib.asJsonObject["name"].asString.split(":").let {

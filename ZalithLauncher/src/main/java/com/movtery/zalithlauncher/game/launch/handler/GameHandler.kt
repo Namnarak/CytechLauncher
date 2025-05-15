@@ -6,14 +6,14 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
-import com.movtery.zalithlauncher.game.launch.Launcher
+import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.MCOptions.getAsList
 import com.movtery.zalithlauncher.game.launch.MCOptions.set
@@ -25,6 +25,7 @@ import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive
+import kotlinx.coroutines.CoroutineScope
 import org.apache.commons.io.FileUtils
 import org.lwjgl.glfw.CallbackBridge
 import java.io.BufferedOutputStream
@@ -35,11 +36,14 @@ import kotlin.io.path.createTempDirectory
 
 class GameHandler(
     private val context: Context,
-    private val version: Version
-) : AbstractHandler(HandlerType.GAME) {
+    private val version: Version,
+    getWindowSize: () -> IntSize,
+    gameLauncher: GameLauncher,
+    onExit: (code: Int) -> Unit
+) : AbstractHandler(HandlerType.GAME, getWindowSize, gameLauncher, onExit) {
     private val isTouchProxyEnabled = version.isTouchProxyEnabled()
 
-    override suspend fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
+    override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
         MCOptions.setup(context, version)
@@ -53,7 +57,7 @@ class GameHandler(
             save()
         }
 
-        super.execute(surface, launcher, scope)
+        super.execute(surface, scope)
     }
 
     override fun onPause() {
@@ -101,7 +105,7 @@ class GameHandler(
     @SuppressLint("ClickableViewAccessibility")
     @Composable
     override fun getComposableLayout() = @Composable {
-        GameScreen(isTouchProxyEnabled)
+        GameScreen(isTouchProxyEnabled, getWindowSize)
     }
 
     private fun localSkinResourcePack() {

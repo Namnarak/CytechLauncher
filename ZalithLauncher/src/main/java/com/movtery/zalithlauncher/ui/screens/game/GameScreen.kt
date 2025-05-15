@@ -9,8 +9,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
@@ -35,13 +35,15 @@ import org.lwjgl.glfw.CallbackBridge
 
 @Composable
 fun GameScreen(
-    isTouchProxyEnabled: Boolean
+    isTouchProxyEnabled: Boolean,
+    getWindowSize: () -> IntSize
 ) {
     var enableLog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MouseControlLayout(
             isTouchProxyEnabled = isTouchProxyEnabled,
+            getWindowSize = getWindowSize,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -55,10 +57,11 @@ fun GameScreen(
 @Composable
 fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
+    getWindowSize: () -> IntSize,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
-        val sensitivityFactor = 1.4 * (1080f / ZLApplication.DISPLAY_METRICS.heightPixels)
+        val sensitivityFactor = 1.4 * (1080f / getWindowSize().height)
 
         val mode = ZLBridgeStates.cursorMode
         if (mode == CURSOR_ENABLED) {

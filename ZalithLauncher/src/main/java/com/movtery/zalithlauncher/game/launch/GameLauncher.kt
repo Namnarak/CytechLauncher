@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
@@ -37,11 +38,13 @@ import javax.microedition.khronos.egl.EGLContext
 
 class GameLauncher(
     private val activity: Activity,
-    private val version: Version
-) : Launcher() {
+    private val version: Version,
+    private val getWindowSize: () -> IntSize,
+    onExit: (code: Int, isSignal: Boolean) -> Unit
+) : Launcher(onExit) {
     private lateinit var gameManifest: GameManifest
 
-    override suspend fun launch() {
+    override suspend fun launch(): Int {
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(activity, version.getRenderer())
         }
@@ -59,7 +62,7 @@ class GameLauncher(
             account = account
         )
 
-        launchGame(
+        return launchGame(
             account = account,
             javaRuntime = javaRuntime,
             customArgs = customArgs
@@ -111,11 +114,11 @@ class GameLauncher(
         }
     }
 
-    private fun launchGame(
+    private suspend fun launchGame(
         account: Account,
         javaRuntime: String,
         customArgs: String
-    ) {
+    ): Int {
         val runtime = RuntimesManager.forceReload(javaRuntime)
 
         val gameDirPath = version.getGameDir()
@@ -131,12 +134,21 @@ class GameLauncher(
             runtime = runtime,
             launchClassPath = launchClassPath,
             readAssetsFile = { path -> activity.readAssetFile(path) },
-            getCacioJavaArgs = { isJava8 -> getCacioJavaArgs(isJava8) }
+            getCacioJavaArgs = { isJava8 ->
+                val size = getWindowSize()
+                getCacioJavaArgs(size.width, size.height, isJava8)
+            }
         ).getAllArgs()
 
         tryStartTouchProxy()
 
-        launchJvm(activity, runtime, launchArgs, customArgs)
+        return launchJvm(
+            context = activity,
+            jvmArgs = launchArgs,
+            userArgs = customArgs,
+            getWindowSize = getWindowSize,
+            runtime = runtime
+        )
     }
 
     private fun tryStartTouchProxy() {

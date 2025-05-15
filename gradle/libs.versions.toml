@@ -18,6 +18,7 @@ composeBom = "2025.03.01"
 material = "1.12.0"
 materialColorUtilities = "2.1.1"
 materialIcons = "1.7.8"
+mavenArtifact = "3.9.9"
 navigationCompose = "2.8.9"
 okhttp = "4.12.0"
 proxyClientAndroid = "0.0.2"
@@ -55,6 +56,7 @@ ktor-http = { module = "io.ktor:ktor-http", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 material-color-utilities = { module = "com.materialkolor:material-color-utilities", version.ref = "materialColorUtilities" }
+maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "mavenArtifact" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 proxy-client-android = { module = "top.fifthlight.touchcontroller:proxy-client-android", version.ref = "proxyClientAndroid" }
 stringfog-gradle-plugin = { module = "com.github.megatronking.stringfog:gradle-plugin", version.ref = "stringfog-gradlePlugin" }

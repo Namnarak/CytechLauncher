@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge
 
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeBuildVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 
@@ -21,6 +22,7 @@ class ForgeVersion(
     /** 用于下载的文件版本名。可能在 Version 的基础上添加了分支。 */
     val fileVersion: String
 ) : ForgeLikeVersion(
+    loaderName = ModLoader.FORGE.displayName,
     forgeBuildVersion = parseVersion(versionName, branch, inherit),
     versionName = versionName,
     inherit = inherit,

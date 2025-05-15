@@ -470,7 +470,8 @@ fun MicrosoftLoginTipDialog(
         },
         confirmText = stringResource(R.string.account_login),
         onConfirm = onConfirm,
-        onDismiss = onDismissRequest
+        onCancel = onDismissRequest,
+        onDismissRequest = onDismissRequest
     )
 }
 

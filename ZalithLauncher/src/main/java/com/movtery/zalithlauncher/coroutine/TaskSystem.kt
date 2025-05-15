@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +28,9 @@ object TaskSystem {
 
         allJobs[task.id] = scope.launch(task.dispatcher) {
             try {
+                task.taskState = TaskState.RUNNING
                 task.task(this@launch, task)
+                task.taskState = TaskState.COMPLETED
             } catch (th: Throwable) {
                 if (th is CancellationException) return@launch
                 task.onError(th)
@@ -105,6 +108,16 @@ object TaskSystem {
      * @return 是否包括任务
      */
     fun containsTask(id: String) = _tasksFlow.value.any { it.id == id }
+
+    /**
+     * 停止所有任务
+     */
+    fun stopAll() {
+        scope.cancel()
+        _tasksFlow.update { emptyList() }
+        allJobs.clear()
+        allListeners.clear()
+    }
 
     private fun addTask(task: Task) {
         _tasksFlow.update { it + task }

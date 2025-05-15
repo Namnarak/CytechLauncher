@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
@@ -67,16 +66,16 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
     }
 
     protected fun refreshDisplayMetrics() {
-        ZLApplication.DISPLAY_METRICS = getDisplayMetrics()
-        CallbackBridge.physicalWidth = ZLApplication.DISPLAY_METRICS.widthPixels
-        CallbackBridge.physicalHeight = ZLApplication.DISPLAY_METRICS.heightPixels
+        val displayMetrics = getDisplayMetrics()
+        CallbackBridge.physicalWidth = displayMetrics.widthPixels
+        CallbackBridge.physicalHeight = displayMetrics.heightPixels
     }
 
     /**
      * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L598-L620)
      */
     @Suppress("DEPRECATION")
-    private fun getDisplayMetrics(): DisplayMetrics {
+    fun getDisplayMetrics(): DisplayMetrics {
         var displayMetrics = DisplayMetrics()
 
         if (isInMultiWindowMode || isInPictureInPictureMode) {

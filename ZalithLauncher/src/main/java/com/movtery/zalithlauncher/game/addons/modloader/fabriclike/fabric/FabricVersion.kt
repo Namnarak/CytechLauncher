@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric
 
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 
 class FabricVersion(
@@ -8,6 +9,7 @@ class FabricVersion(
     stable: Boolean
 ) : FabricLikeVersion(
     inherit = inherit,
+    loaderName = ModLoader.FABRIC.displayName,
     version = version,
     stable = stable
 )

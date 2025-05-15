@@ -11,18 +11,18 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-private const val LOG_TAG = "Minecraft.DownloaderUtils"
+private const val UTILS_LOG_TAG = "Minecraft.DownloaderUtils"
 
 private suspend fun downloadStringAndSave(
     url: String,
     targetFile: File
 ): String =
     withContext(Dispatchers.IO) {
-        val string = withRetry(LOG_TAG, maxRetries = 1) {
+        val string = withRetry(UTILS_LOG_TAG, maxRetries = 1) {
             NetWorkUtils.fetchStringFromUrl(url)
         }
         if (string.isBlank()) {
-            Log.e(LOG_TAG, "Downloaded string is empty, aborting.")
+            Log.e(UTILS_LOG_TAG, "Downloaded string is empty, aborting.")
             throw IllegalStateException("Downloaded string is empty.")
         }
         targetFile.writeText(string)
@@ -33,7 +33,7 @@ fun <T> String.parseTo(classOfT: Class<T>): T {
     return runCatching {
         GSON.fromJson(this, classOfT)
     }.getOrElse { e ->
-        Log.e(LOG_TAG, "Failed to parse JSON", e)
+        Log.e(UTILS_LOG_TAG, "Failed to parse JSON", e)
         throw e
     }
 }
@@ -55,7 +55,7 @@ suspend fun <T> downloadAndParseJson(
             return runCatching {
                 targetFile.readText().parseTo(classOfT)
             }.getOrElse {
-                Log.w(LOG_TAG, "Failed to parse existing JSON, re-downloading...")
+                Log.w(UTILS_LOG_TAG, "Failed to parse existing JSON, re-downloading...")
                 downloadAndParse()
             }
         } else {

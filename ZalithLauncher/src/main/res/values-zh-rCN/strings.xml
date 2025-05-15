@@ -77,6 +77,13 @@
     <string name="splash_screen_installing">启动器正在解压这些内容，解压完成后将自动进入主界面，请耐心等待。</string>
     <string name="splash_screen_continue">同意并继续</string>
     <string name="splash_screen_agree">同意并安装</string>
+    <!--  通知  -->
+    <string name="notification_title">检查通知权限</string>
+    <string name="notification_request">申请权限</string>
+    <string name="notification_ignore">无视</string>
+    <string name="notification_data_jvm_service_message">为了让安装顺利进行，启动器需要在后台运行安装器。我们会尝试启动一个前台服务来确保稳定性，不过这需要开启通知权限。能帮我们开启通知权限吗？这样可以避免安装中断哦！</string>
+    <string name="notification_data_jvm_service_name">前台安装服务</string>
+    <string name="notification_data_jvm_service_running">正在前台服务安装游戏中</string>
     <!--  解压  -->
     <string name="unpack_screen_jre8">Java 8 环境，Minecraft 1.16- 依赖 Java 8。</string>
     <string name="unpack_screen_jre17">Java 17 环境，Minecraft 1.17+ 依赖 Java 17。</string>
@@ -114,7 +121,23 @@
     <string name="download_game_addon_date">发布时间：%s</string>
     <string name="download_game_addon_recommended">%s 官方推荐</string>
     <string name="download_game_addon_not_installable">不支持自动安装</string>
+    <string name="download_game_install_title">安装游戏中</string>
+    <string name="download_game_install_vanilla">下载安装原版 %s</string>
+    <string name="download_game_install_base">下载安装 %s %s</string>
+    <string name="download_game_install_base_downloading_file">下载 %s 主文件</string>
+    <string name="download_game_install_base_install">安装 %s</string>
+    <string name="download_game_install_base_installing">正在前台安装 %s</string>
+    <string name="download_game_install_optifine_fetch_download_url">获取 OptiFine %s 下载链接</string>
+    <string name="download_game_install_forgelike_analyse">分析 %s 支持库</string>
+    <string name="download_game_install_forgelike_preparing_mapping_file">准备 %s 映射文件中</string>
+    <string name="download_game_install_game_files_progress">安装游戏文件</string>
     <string name="download_install">安装</string>
+    <string name="download_install_error_title">安装失败</string>
+    <string name="download_install_error_message">你的游戏在安装过程中出现了异常：</string>
+    <string name="download_install_error_cant_fetch_optifine_download_url">无法获取 OptiFine 主文件的下载链接</string>
+    <string name="download_install_error_jvm_crash">安装过程中遇到了异常，退出代码：%s</string>
+    <string name="download_install_success_title">安装成功</string>
+    <string name="download_install_success_message">你的游戏已顺利的经完成了安装！</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登录游戏账号！</string>
@@ -278,9 +301,6 @@
     <string name="versions_config_disable_if_blank">留白则不使用此功能</string>
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
     <!--  游戏  -->
-    <string name="minecraft_getting_version_list">获取完整游戏列表</string>
-    <string name="minecraft_download_download_version_json">下载并读取版本元数据</string>
-    <string name="minecraft_download_progress_version_json">读取版本元数据</string>
     <string name="minecraft_download_stat_download_task">统计下载任务</string>
     <string name="minecraft_download_stat_verify_task">统计验证任务</string>
     <string name="minecraft_download_downloading_game_files">下载游戏文件中 \n(%d/%d, %s/%s)</string>

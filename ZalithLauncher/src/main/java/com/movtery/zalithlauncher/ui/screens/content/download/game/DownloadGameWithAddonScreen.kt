@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.game
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.addons.modloader.AddonVersion
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
@@ -65,8 +65,8 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCRE
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -112,19 +112,6 @@ private class CurrentAddon {
     var incompatibleWithNeoForge by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithFabric by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithQuilt by mutableStateOf<Set<ModLoader>>(emptySet())
-
-    /**
-     * 获取当前所有已选择的 Addon 版本
-     */
-    fun getAllAddons(): List<AddonVersion> {
-        return listOfNotNull(
-            optifineVersion,
-            forgeVersion,
-            neoforgeVersion,
-            fabricVersion,
-            quiltVersion
-        )
-    }
 }
 
 @Composable
@@ -163,7 +150,11 @@ fun DownloadGameWithAddonScreen(
                     val info = GameDownloadInfo(
                         gameVersion = gameVersion,
                         customVersionName = customVersionName,
-                        addons = currentAddon.getAllAddons()
+                        optifine = currentAddon.optifineVersion,
+                        forge = currentAddon.forgeVersion,
+                        neoforge = currentAddon.neoforgeVersion,
+                        fabric = currentAddon.fabricVersion,
+                        quilt = currentAddon.quiltVersion
                     )
                     onInstall(info)
                 }
@@ -792,7 +783,7 @@ private suspend fun <T> runWithState(
             is SerializationException -> {
                 AddonState.Error(R.string.error_parse_failed)
             }
-            is ClientRequestException -> {
+            is ResponseException -> {
                 val statusCode = e.response.status
                 val res = when (statusCode) {
                     HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -802,6 +793,7 @@ private suspend fun <T> runWithState(
                 AddonState.Error(res, arrayOf(statusCode))
             }
             else -> {
+                Log.e(DOWNLOAD_GAME_WITH_ADDON_SCREEN_TAG, "An unknown exception was caught!", e)
                 val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                 AddonState.Error(R.string.error_unknown, arrayOf(errorMessage))
             }

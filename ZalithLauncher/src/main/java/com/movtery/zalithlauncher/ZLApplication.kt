@@ -6,10 +6,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
-import android.util.DisplayMetrics
 import android.util.Log
 import com.movtery.zalithlauncher.context.getContextWrapper
 import com.movtery.zalithlauncher.context.refreshContext
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
@@ -23,13 +23,13 @@ class ZLApplication : Application() {
     companion object {
         @JvmStatic
         var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
-
-        @JvmStatic
-        var DISPLAY_METRICS by Delegates.notNull<DisplayMetrics>()
     }
 
     override fun onCreate() {
         Thread.setDefaultUncaughtExceptionHandler { _, th ->
+            //停止所有任务
+            TaskSystem.stopAll()
+
             val throwable = if (th is SplashException) th.cause!!
             else th
 

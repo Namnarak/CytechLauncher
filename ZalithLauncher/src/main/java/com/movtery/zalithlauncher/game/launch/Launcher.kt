@@ -1,15 +1,16 @@
 package com.movtery.zalithlauncher.game.launch
 
-import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.system.ErrnoException
 import android.system.Os
 import android.util.ArrayMap
 import android.util.Log
 import androidx.annotation.CallSuper
-import com.movtery.zalithlauncher.ZLApplication.Companion.DISPLAY_METRICS
+import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
+import com.movtery.zalithlauncher.bridge.ZLNativeInvoker
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
@@ -21,7 +22,6 @@ import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
 import com.movtery.zalithlauncher.utils.device.Architecture.is64BitsDevice
@@ -34,21 +34,27 @@ import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.util.TimeZone
 
-abstract class Launcher {
+abstract class Launcher(
+    val onExit: (code: Int, isSignal: Boolean) -> Unit
+) {
     private var dirNameHomeJre: String = "lib"
     private var ldLibraryPath: String = ""
     private var jvmLibraryPath: String = ""
 
-    abstract suspend fun launch()
+    abstract suspend fun launch(): Int
     abstract fun chdir(): String
     abstract fun getLogName(): String
 
-    protected fun launchJvm(
-        activity: Activity,
-        runtime: Runtime,
+    protected suspend fun launchJvm(
+        context: Context,
         jvmArgs: List<String>,
-        userArgs: String
-    ) {
+        userHome: String? = null,
+        userArgs: String,
+        getWindowSize: () -> IntSize,
+        runtime: Runtime
+    ): Int {
+        ZLNativeInvoker.staticLauncher = this
+
         val runtimeHome = RuntimesManager.getRuntimeHome(runtime.name).absolutePath
         relocateLibPath(runtime, runtimeHome)
         initLdLibraryPath(runtimeHome)
@@ -61,16 +67,26 @@ abstract class Launcher {
 
         dlopenEngine()
 
-        launchJavaVM(activity, runtimeHome, jvmArgs, userArgs)
+        return launchJavaVM(
+            context = context,
+            jvmArgs = jvmArgs,
+            runtimeHome = runtimeHome,
+            userHome = userHome,
+            userArgs = userArgs,
+            getWindowSize = getWindowSize
+        )
     }
 
-    private fun launchJavaVM(
-        activity: Activity,
-        runtimeHome: String,
+    //伪 suspend 函数，等待 JVM 的退出代码
+    private suspend fun launchJavaVM(
+        context: Context,
         jvmArgs: List<String>,
-        userArgs: String
-    ) {
-        val args = getJavaArgs(runtimeHome, userArgs).toMutableList()
+        runtimeHome: String,
+        userHome: String? = null,
+        userArgs: String,
+        getWindowSize: () -> IntSize
+    ): Int {
+        val args = getJavaArgs(userHome, userArgs, getWindowSize, runtimeHome).toMutableList()
         progressFinalUserArgs(args)
 
         args.addAll(jvmArgs)
@@ -86,7 +102,7 @@ abstract class Launcher {
             LoggerBridge.append("JVMArgs: $arg")
         }
 
-        ZLBridge.setupExitMethod(activity.application)
+        ZLBridge.setupExitMethod(context.applicationContext)
         ZLBridge.initializeGameExitHook()
         ZLBridge.chdir(chdir())
 
@@ -94,9 +110,7 @@ abstract class Launcher {
 
         val exitCode = VMLauncher.launchJVM(args.toTypedArray())
         LoggerBridge.append("Java Exit code: $exitCode")
-        if (exitCode != 0) {
-            ErrorActivity.showExitMessage(activity, exitCode, false)
-        }
+        return exitCode
     }
 
     /**
@@ -279,15 +293,22 @@ abstract class Launcher {
         /**
          * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L345-L401)
          */
-        fun getJavaArgs(runtimeHome: String, userArgumentsString: String): List<String> {
+        fun getJavaArgs(
+            userHome: String? = null,
+            userArgumentsString: String,
+            getWindowSize: () -> IntSize,
+            runtimeHome: String
+        ): List<String> {
             val userArguments = parseJavaArguments(userArgumentsString).toMutableList()
             val resolvFile = File(PathManager.DIR_FILES_PRIVATE.parent, "resolv.conf").absolutePath
+
+            val windowSize = getWindowSize()
 
             val overridableArguments = listOf(
                 "-Djava.home=$runtimeHome",
                 "-Djava.io.tmpdir=${PathManager.DIR_CACHE.absolutePath}",
                 "-Djna.boot.library.path=${PathManager.DIR_NATIVE_LIB}",
-                "-Duser.home=${GamePathManager.getUserHome()}",
+                "-Duser.home=${userHome ?: GamePathManager.getUserHome()}",
                 "-Duser.language=${System.getProperty("user.language")}",
                 "-Dos.name=Linux",
                 "-Dos.version=Android-${Build.VERSION.RELEASE}",
@@ -295,8 +316,8 @@ abstract class Launcher {
                 "-Dpojav.path.private.account=${PathManager.DIR_ACCOUNT}",
                 "-Duser.timezone=${TimeZone.getDefault().id}",
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(DISPLAY_METRICS.widthPixels, scaleFactor)}",
-                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(DISPLAY_METRICS.heightPixels, scaleFactor)}",
+                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(windowSize.width, scaleFactor)}",
+                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(windowSize.height, scaleFactor)}",
                 "-Dglfwstub.initEgl=false",
                 "-Dext.net.resolvPath=$resolvFile",
                 "-Dlog4j2.formatMsgNoLookups=true",
@@ -359,12 +380,16 @@ abstract class Launcher {
             return parsedArguments
         }
 
-        fun getCacioJavaArgs(isJava8: Boolean): List<String> {
+        fun getCacioJavaArgs(
+            screenWidth: Int,
+            screenHeight: Int,
+            isJava8: Boolean
+        ): List<String> {
             val argsList: MutableList<String> = ArrayList()
 
             // Caciocavallo config AWT-enabled version
             argsList.add("-Djava.awt.headless=false")
-            argsList.add("-Dcacio.managed.screensize=" + (DISPLAY_METRICS.widthPixels * 0.8).toInt() + "x" + (DISPLAY_METRICS.heightPixels * 0.8).toInt())
+            argsList.add("-Dcacio.managed.screensize=" + (screenWidth * 0.8).toInt() + "x" + (screenHeight * 0.8).toInt())
             argsList.add("-Dcacio.font.fontmanager=sun.awt.X11FontManager")
             argsList.add("-Dcacio.font.fontscaler=sun.font.FreetypeFontScaler")
             argsList.add("-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel")

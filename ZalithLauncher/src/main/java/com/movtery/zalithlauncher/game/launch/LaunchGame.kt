@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
@@ -17,7 +18,6 @@ import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import java.net.ConnectException
@@ -55,6 +55,14 @@ object LaunchGame {
             mode = DownloadMode.VERIFY_AND_REPAIR,
             onCompletion = {
                 runGame(context, version)
+            },
+            onError = { message ->
+                ObjectStates.updateThrowable(
+                    ObjectStates.ThrowableMessage(
+                        title = context.getString(R.string.minecraft_download_failed),
+                        message = message
+                    )
+                )
             }
         ).getDownloadTask()
 
@@ -76,7 +84,7 @@ object LaunchGame {
                         is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
                         is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                         is ConnectException -> context.getString(R.string.error_connection_failed)
-                        is ClientRequestException -> {
+                        is io.ktor.client.plugins.ResponseException -> {
                             val statusCode = error.response.status
                             val res = when (statusCode) {
                                 HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -86,6 +94,7 @@ object LaunchGame {
                             context.getString(res, statusCode)
                         }
                         else -> {
+                            Log.e("LaunchGame", "An unknown exception was caught!", error)
                             val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"
                             context.getString(R.string.error_unknown, errorMessage)
                         }

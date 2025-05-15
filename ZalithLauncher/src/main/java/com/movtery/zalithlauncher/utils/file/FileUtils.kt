@@ -15,6 +15,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
 fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = true): Boolean {
@@ -143,5 +144,80 @@ fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {
             file.inputStream().copyTo(zipOut)
             zipOut.closeEntry()
         }
+    }
+}
+
+fun ZipFile.readText(entryPath: String): String =
+    getInputStream(getEntry(entryPath))
+        .bufferedReader()
+        .use {
+            it.readText()
+        }
+
+/**
+ * 从ZIP文件中提取指定内部路径下的所有条目到输出目录，保持相对路径结构
+ * @param internalPath ZIP文件中的路径前缀（类似目录），自动添加结尾斜杠
+ * @param outputDir 目标输出目录（必须为目录）
+ * @throws IllegalArgumentException 如果路径不存在或参数无效
+ * @throws SecurityException 如果检测到路径穿越攻击
+ */
+fun ZipFile.extractFromZip(internalPath: String, outputDir: File) {
+    require(outputDir.isDirectory || outputDir.mkdirs()) { "The output directory does not exist and cannot be created: $outputDir" }
+
+    val prefix = if (internalPath.endsWith("/")) internalPath else "$internalPath/"
+    val outputDirCanonical = outputDir.canonicalFile
+
+    entries()
+        .asSequence()
+        .filter { it.name.startsWith(prefix) }
+        .forEach { entry ->
+            val relativePath = entry.name.removePrefix(prefix)
+            val targetFile = File(outputDir, relativePath).canonicalFile
+
+            if (!targetFile.toPath().startsWith(outputDirCanonical.toPath())) {
+                throw SecurityException("Illegal path traversal detected: ${entry.name}")
+            }
+
+            when {
+                entry.isDirectory -> targetFile.mkdirs()
+                else -> {
+                    getInputStream(entry).use { input ->
+                        targetFile.ensureParentDirectory()
+                        input.copyTo(targetFile.outputStream())
+                    }
+                }
+            }
+        }
+}
+
+/**
+ * 提取指定ZIP条目到独立文件
+ * @param entryPath ZIP文件中的完整条目路径
+ * @param outputFile 目标输出文件路径
+ * @throws IllegalArgumentException 如果条目不存在或是目录
+ * @throws SecurityException 如果输出文件路径不合法
+ */
+fun ZipFile.extractEntryToFile(entryPath: String, outputFile: File) {
+    val entry = getEntry(entryPath) ?: throw IllegalArgumentException("ZIP entry does not exist: $entryPath")
+    this.extractEntryToFile(entry, outputFile)
+}
+
+/**
+ * 提取指定ZIP条目到独立文件
+ * @param outputFile 目标输出文件路径
+ * @throws IllegalArgumentException 如果条目是目录
+ * @throws SecurityException 如果输出文件路径不合法
+ */
+fun ZipFile.extractEntryToFile(entry: ZipEntry, outputFile: File) {
+    require(!entry.isDirectory) { "Cannot extract directory to file: ${entry.name}" }
+
+    val outputCanonical = outputFile.canonicalFile
+    if (outputCanonical.isDirectory) {
+        throw IllegalArgumentException("The output path cannot be a directory: $outputFile")
+    }
+
+    getInputStream(entry).use { input ->
+        outputCanonical.ensureParentDirectory()
+        input.copyTo(outputCanonical.outputStream())
     }
 }

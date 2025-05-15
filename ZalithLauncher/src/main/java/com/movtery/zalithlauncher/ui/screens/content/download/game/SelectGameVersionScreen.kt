@@ -65,8 +65,8 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -197,7 +197,7 @@ fun SelectGameVersionScreen(
                     is HttpRequestTimeoutException -> R.string.error_timeout to null
                     is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
                     is ConnectException -> R.string.error_connection_failed to null
-                    is ClientRequestException -> {
+                    is ResponseException -> {
                         val statusCode = e.response.status
                         val res = when (statusCode) {
                             HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -207,6 +207,7 @@ fun SelectGameVersionScreen(
                         res to arrayOf(statusCode)
                     }
                     else -> {
+                        Log.e(SELECT_GAME_VERSION_SCREEN_TAG, "An unknown exception was caught!", e)
                         val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                         R.string.error_unknown to arrayOf(errorMessage)
                     }

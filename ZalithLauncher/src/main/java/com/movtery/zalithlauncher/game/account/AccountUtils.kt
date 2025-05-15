@@ -22,8 +22,8 @@ import com.movtery.zalithlauncher.utils.CryptoManager
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -110,7 +110,7 @@ fun microsoftLogin(
                 is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
                 is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                 is ConnectException -> context.getString(R.string.error_connection_failed)
-                is ClientRequestException -> {
+                is ResponseException -> {
                     val statusCode = th.response.status
                     val res = when (statusCode) {
                         HttpStatusCode.Unauthorized -> R.string.error_unauthorized

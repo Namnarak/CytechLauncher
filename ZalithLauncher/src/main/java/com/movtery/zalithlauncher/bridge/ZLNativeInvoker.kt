@@ -3,18 +3,20 @@ package com.movtery.zalithlauncher.bridge
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 import android.util.Log
 import com.movtery.zalithlauncher.context.GlobalContext
+import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.killProgress
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.File
 
 object ZLNativeInvoker {
+    @JvmStatic
+    var staticLauncher: Launcher? = null
+
     @JvmStatic
     fun openLink(link: String) {
         (GlobalContext as? Activity)?.let { activity ->
@@ -69,11 +71,9 @@ object ZLNativeInvoker {
     }
 
     @JvmStatic
-    fun jvmExit(context: Context, exitCode: Int, isSignal: Boolean) {
-        if (exitCode == 0) {
-            killProgress()
-        } else {
-            ErrorActivity.showExitMessage(context, exitCode, isSignal)
-        }
+    fun jvmExit(exitCode: Int, isSignal: Boolean) {
+        staticLauncher?.onExit?.invoke(exitCode, isSignal)
+        staticLauncher = null
+        killProgress()
     }
 }

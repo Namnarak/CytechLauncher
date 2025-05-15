@@ -125,10 +125,11 @@ fun SimpleAlertDialog(
     confirmText: String = stringResource(R.string.generic_confirm),
     dismissText: String = stringResource(R.string.generic_cancel),
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onCancel: () -> Unit,
+    onDismissRequest: () -> Unit = {}
 ) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismissRequest,
         title = {
             Text(
                 text = title,
@@ -146,7 +147,7 @@ fun SimpleAlertDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(onClick = onCancel) {
                 Text(text = dismissText)
             }
         }

@@ -153,5 +153,7 @@ class StringUtils {
 
             return result
         }
+
+        fun String.isSurrounded(prefix: String, suffix: String): Boolean = this.startsWith(prefix) && this.endsWith(suffix)
     }
 }

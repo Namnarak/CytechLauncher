@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -15,6 +16,10 @@ import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 class MainActivity : BaseComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //初始化通知管理（创建渠道）
+        NotificationManager.initManager(this)
+
         setContent {
             ZalithLauncherTheme {
                 Box {

@@ -77,6 +77,13 @@
     <string name="splash_screen_installing">Unpacking required components. The app will launch automatically once completed.</string>
     <string name="splash_screen_continue">Agree and Continue</string>
     <string name="splash_screen_agree">Agree and Install</string>
+    <!--  Notification  -->
+    <string name="notification_title">Check Notification Permission</string>
+    <string name="notification_request">Request Permission</string>
+    <string name="notification_ignore">Ignore</string>
+    <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the background. We\'ll try to start a foreground service to keep things stable, but this requires notification permission. Could you help us enable it? This will help avoid any installation interruptions!</string>
+    <string name="notification_data_jvm_service_name">Foreground Installation Service</string>
+    <string name="notification_data_jvm_service_running">Installing the game via foreground service</string>
     <!-- Unpacking -->
     <string name="unpack_screen_jre8">Java 8 Environment (required for Minecraft 1.16 and below)</string>
     <string name="unpack_screen_jre17">Java 17 Environment (required for Minecraft 1.17+)</string>
@@ -114,7 +121,23 @@
     <string name="download_game_addon_date">Release Date: %s</string>
     <string name="download_game_addon_recommended">Officially recommended by %s</string>
     <string name="download_game_addon_not_installable">Not installable automatically</string>
+    <string name="download_game_install_title">Installing Game</string>
+    <string name="download_game_install_vanilla">Downloading and installing Vanilla %s</string>
+    <string name="download_game_install_base">Download and install %s %s</string>
+    <string name="download_game_install_base_downloading_file">Download main file of %s</string>
+    <string name="download_game_install_base_install">Install %s</string>
+    <string name="download_game_install_base_installing">Installing %s in the foreground</string>
+    <string name="download_game_install_optifine_fetch_download_url">Fetch download URL for OptiFine %s</string>
+    <string name="download_game_install_forgelike_analyse">Analyze libraries for %s</string>
+    <string name="download_game_install_forgelike_preparing_mapping_file">Preparing %s mapping file</string>
+    <string name="download_game_install_game_files_progress">Install game files</string>
     <string name="download_install">Install</string>
+    <string name="download_install_error_title">Installation Failed</string>
+    <string name="download_install_error_message">An exception occurred during the installation of your game:</string>
+    <string name="download_install_error_cant_fetch_optifine_download_url">Unable to retrieve the download link for the main OptiFine file</string>
+    <string name="download_install_error_jvm_crash">An exception occurred during installation, exit code: %s</string>
+    <string name="download_install_success_title">Installation Successful</string>
+    <string name="download_install_success_message">Your game has been successfully installed!</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>
@@ -278,9 +301,6 @@
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
     <!-- Game -->
-    <string name="minecraft_getting_version_list">Fetching game versions</string>
-    <string name="minecraft_download_download_version_json">Downloading metadata</string>
-    <string name="minecraft_download_progress_version_json">Reading metadata</string>
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>
     <string name="minecraft_download_downloading_game_files">Downloading files \n(%d/%d, %s/%s)</string>

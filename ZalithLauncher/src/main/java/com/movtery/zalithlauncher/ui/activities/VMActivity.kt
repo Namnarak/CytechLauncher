@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -22,17 +23,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
-import com.movtery.zalithlauncher.game.launch.JarInfo
+import com.movtery.zalithlauncher.game.launch.JvmLaunchInfo
 import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.game.launch.Launcher
 import com.movtery.zalithlauncher.game.launch.handler.AbstractHandler
@@ -63,6 +64,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
         private var isRunning = false
     }
+    private lateinit var displayMetrics: DisplayMetrics
 
     private var mTextureView: TextureView? = null
 
@@ -73,19 +75,46 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val displayMetrics = getDisplayMetrics()
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
+
+        val exitListener = { exitCode: Int, isSignal: Boolean ->
+            if (exitCode != 0) {
+                ErrorActivity.showExitMessage(this, exitCode, isSignal)
+            }
+        }
+
+        val getWindowSize = {
+            IntSize(displayMetrics.widthPixels, displayMetrics.heightPixels)
+        }
 
         launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
             val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                 ?: throw IllegalStateException("No launch version has been set.")
-            handler = GameHandler(this, version)
-            GameLauncher(this, version)
+            GameLauncher(
+                activity = this,
+                version = version,
+                getWindowSize = getWindowSize,
+                onExit = exitListener
+            ).also { launcher ->
+                handler = GameHandler(this, version, getWindowSize, launcher) { code ->
+                    exitListener(code, false)
+                }
+            }
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
-            val jarInfo: JarInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JarInfo::class.java)
+            val jvmLaunchInfo: JvmLaunchInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JvmLaunchInfo::class.java)
                 ?: throw IllegalStateException("No launch jar info has been set.")
-            handler = JVMHandler()
-            JvmLauncher(this, jarInfo) { finish() }
+            JvmLauncher(
+                context = this,
+                getWindowSize = getWindowSize,
+                jvmLaunchInfo = jvmLaunchInfo,
+                onExit = exitListener
+            ).also { launcher ->
+                handler = JVMHandler(launcher, getWindowSize) { code ->
+                    exitListener(code, false)
+                }
+            }
         } else {
             throw IllegalStateException("Unknown VM launch mode, or the launch mode was not set at all!")
         }
@@ -179,7 +208,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         handler.mIsSurfaceDestroyed = false
         refreshSize()
         lifecycleScope.launch(Dispatchers.Default) {
-            handler.execute(Surface(surface), launcher, lifecycleScope)
+            handler.execute(Surface(surface), lifecycleScope)
         }
     }
 
@@ -230,8 +259,10 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     }
 
     private fun refreshSize() {
-        val width = getDisplayPixels(ZLApplication.DISPLAY_METRICS.widthPixels)
-        val height = getDisplayPixels(ZLApplication.DISPLAY_METRICS.heightPixels)
+        displayMetrics = getDisplayMetrics()
+
+        val width = getDisplayPixels(displayMetrics.widthPixels)
+        val height = getDisplayPixels(displayMetrics.heightPixels)
         if (width < 1 || height < 1) {
             Log.e("VMActivity", "Impossible resolution : $width x $height")
             return
@@ -285,9 +316,17 @@ fun runJar(
         return
     }
 
+    val jvmArgsPrefix = customArgs?.let { "$it " } ?: ""
+    val jvmArgs = "$jvmArgsPrefix-jar ${jarFile.absolutePath}"
+
+    val jvmLaunchInfo = JvmLaunchInfo(
+        jvmArgs = jvmArgs,
+        jreName = jreName
+    )
+
     val intent = Intent(context, VMActivity::class.java).apply {
         putExtra(VMActivity.INTENT_RUN_JAR, true)
-        putExtra(VMActivity.INTENT_JAR_INFO, JarInfo(jarFile.absolutePath, jreName, customArgs))
+        putExtra(VMActivity.INTENT_JAR_INFO, jvmLaunchInfo)
         addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
     context.startActivity(intent)

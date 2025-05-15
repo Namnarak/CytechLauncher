@@ -1,8 +1,10 @@
 package com.movtery.zalithlauncher.game.launch
 
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.unit.IntSize
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.LoggerBridge
@@ -20,10 +22,11 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 open class JvmLauncher(
-    private val activity: Activity,
-    private val jarInfo: JarInfo,
-    private val callFinish: () -> Unit = {}
-) : Launcher() {
+    private val context: Context,
+    private val getWindowSize: () -> IntSize,
+    private val jvmLaunchInfo: JvmLaunchInfo,
+    onExit: (code: Int, isSignal: Boolean) -> Unit
+) : Launcher(onExit) {
     companion object {
         fun executeJarWithUri(activity: Activity, uri: Uri, jreName: String? = null) {
             runCatching {
@@ -62,9 +65,9 @@ open class JvmLauncher(
         /**
          * 写入一个默认的 launcher_profiles.json 文件，不存在将会导致 Forge、NeoForge 等无法正常安装
          */
-        private fun generateLauncherProfiles() {
+        private fun generateLauncherProfiles(userHome: String?) {
             runCatching {
-                File(GamePathManager.currentPath, "launcher_profiles.json").run {
+                File(userHome?.let { "$it/.minecraft" } ?: GamePathManager.currentPath, "launcher_profiles.json").run {
                     if (!exists()) {
                         if (parentFile?.exists() == false) parentFile?.mkdirs()
                         if (!createNewFile()) throw IOException("Failed to create launcher_profiles.json file!")
@@ -78,12 +81,18 @@ open class JvmLauncher(
         }
     }
 
-    private val jarFile = File(jarInfo.jarPath)
+    override suspend fun launch(): Int {
+        generateLauncherProfiles(jvmLaunchInfo.userHome)
+        val (runtime, argList) = getStartupNeeded()
 
-    override suspend fun launch() {
-        generateLauncherProfiles()
-        val (runtime, argList) = getStartupNeeded() ?: return
-        launchJvm(activity, runtime, argList, AllSettings.jvmArgs.getValue())
+        return launchJvm(
+            context = context,
+            jvmArgs = argList,
+            userHome = jvmLaunchInfo.userHome,
+            userArgs = AllSettings.jvmArgs.getValue(),
+            getWindowSize = getWindowSize,
+            runtime = runtime
+        )
     }
 
     override fun chdir(): String {
@@ -92,55 +101,25 @@ open class JvmLauncher(
 
     override fun getLogName(): String = "latest_jvm"
 
-    private fun getStartupNeeded(): Pair<Runtime, List<String>>? {
-        val args = jarInfo.jvmArgs?.splitPreservingQuotes()
+    private fun getStartupNeeded(): Pair<Runtime, List<String>> {
+        val args = jvmLaunchInfo.jvmArgs.splitPreservingQuotes()
 
-        val runtime = jarInfo.jreName?.let { jreName ->
+        val runtime = jvmLaunchInfo.jreName?.let { jreName ->
             RuntimesManager.forceReload(jreName)
         } ?: run {
-            selectRuntime()
-        } ?: return null
+            RuntimesManager.forceReload(AllSettings.javaRuntime.getValue())
+        }
 
+        val windowSize = getWindowSize()
         val argList: MutableList<String> = ArrayList(
-            getCacioJavaArgs(runtime.javaVersion == 8)
+            getCacioJavaArgs(windowSize.width, windowSize.height, runtime.javaVersion == 8)
         ).apply {
-            args?.let { val1 -> addAll(val1) }
-            //Jar文件路径
-            add("-jar")
-            add(jarFile.absolutePath)
+            addAll(args)
         }
 
         LoggerBridge.appendTitle("Launch JVM")
         LoggerBridge.append("Info: Java arguments: \r\n${argList.joinToString("\r\n")}")
 
         return Pair(runtime, argList)
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/19dc51fa8a8ec73a4c67e1a70deaaec63e58ab78/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/JavaGUILauncherActivity.java#L200-L219)
-     */
-    private fun selectRuntime(): Runtime? {
-        val javaVersion = RuntimesManager.getJavaVersionFromJar(jarFile)
-        if (javaVersion == -1) {
-            //读取失败，使用启动器默认 Java 环境
-            return RuntimesManager.forceReload(AllSettings.javaRuntime.getValue())
-        }
-
-        val nearestRuntime = RuntimesManager.getNearestJreName(javaVersion)
-            ?: run {
-                finalErrorDialog(activity, activity.getString(R.string.multirt_no_compatible_multirt, javaVersion), callFinish)
-                return null
-            }
-
-        val selectedRuntime = RuntimesManager.forceReload(nearestRuntime)
-        val selectedJavaVersion = maxOf(javaVersion, selectedRuntime.javaVersion)
-
-        // Don't allow versions higher than Java 17 because our caciocavallo implementation does not allow for it
-        if (selectedJavaVersion > 17) {
-            finalErrorDialog(activity, activity.getString(R.string.execute_jar_incompatible_runtime, selectedJavaVersion), callFinish)
-            return null
-        }
-
-        return selectedRuntime
     }
 }

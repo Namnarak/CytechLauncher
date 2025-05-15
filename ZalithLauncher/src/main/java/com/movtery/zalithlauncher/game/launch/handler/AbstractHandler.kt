@@ -4,22 +4,28 @@ import android.view.KeyEvent
 import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.game.launch.Launcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class AbstractHandler(val type: HandlerType) {
+abstract class AbstractHandler(
+    val type: HandlerType,
+    protected val getWindowSize: () -> IntSize,
+    val launcher: Launcher,
+    val onExit: (code: Int) -> Unit
+) {
     var mIsSurfaceDestroyed: Boolean = false
 
     @CallSuper
     open suspend fun execute(
-        surface: Surface,
-        launcher: Launcher,
-        scope: LifecycleCoroutineScope
+        surface: Surface?,
+        scope: CoroutineScope
     ) {
         scope.launch(Dispatchers.Default) {
-            launcher.launch()
+            val code = launcher.launch()
+            onExit(code)
         }
     }
 

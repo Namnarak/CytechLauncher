@@ -6,58 +6,67 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntSize
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.withSave
-import androidx.lifecycle.LifecycleCoroutineScope
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
-import com.movtery.zalithlauncher.game.launch.Launcher
+import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.ui.screens.game.JVMScreen
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class JVMHandler : AbstractHandler(HandlerType.JVM) {
-    private val mCanvasWidth = (ZLApplication.DISPLAY_METRICS.widthPixels * 0.8).toInt()
-    private val mCanvasHeight = (ZLApplication.DISPLAY_METRICS.heightPixels * 0.8).toInt()
+class JVMHandler(
+    jvmLauncher: JvmLauncher,
+    getWindowSize: () -> IntSize,
+    onExit: (code: Int) -> Unit
+) : AbstractHandler(HandlerType.JVM, getWindowSize, jvmLauncher, onExit) {
 
-    override suspend fun execute(surface: Surface, launcher: Launcher, scope: LifecycleCoroutineScope) {
-        scope.launch(Dispatchers.Default) {
-            var canvas: Canvas?
-            val rgbArrayBitmap = createBitmap(mCanvasWidth, mCanvasHeight)
-            val paint = Paint()
+    override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
+        surface?.run {
+            val windowSize = getWindowSize()
 
-            try {
-                while (!mIsSurfaceDestroyed && surface.isValid) {
-                    canvas = surface.lockCanvas(null)
-                    canvas?.drawRGB(0, 0, 0)
+            val canvasWidth = (windowSize.width * 0.8).toInt()
+            val canvasHeight = (windowSize.height * 0.8).toInt()
 
-                    ZLBridge.renderAWTScreenFrame()?.let { rgbArray ->
-                        canvas?.withSave {
-                            rgbArrayBitmap.setPixels(
-                                rgbArray,
-                                0,
-                                mCanvasWidth,
-                                0,
-                                0,
-                                mCanvasWidth,
-                                mCanvasHeight
-                            )
-                            this.drawBitmap(rgbArrayBitmap, 0f, 0f, paint)
+            scope.launch(Dispatchers.Default) {
+                var canvas: Canvas?
+                val rgbArrayBitmap = createBitmap(canvasWidth, canvasHeight)
+                val paint = Paint()
+
+                try {
+                    while (!mIsSurfaceDestroyed && surface.isValid) {
+                        canvas = surface.lockCanvas(null)
+                        canvas?.drawRGB(0, 0, 0)
+
+                        ZLBridge.renderAWTScreenFrame()?.let { rgbArray ->
+                            canvas?.withSave {
+                                rgbArrayBitmap.setPixels(
+                                    rgbArray,
+                                    0,
+                                    canvasWidth,
+                                    0,
+                                    0,
+                                    canvasWidth,
+                                    canvasHeight
+                                )
+                                this.drawBitmap(rgbArrayBitmap, 0f, 0f, paint)
+                            }
                         }
-                    }
 
-                    canvas?.let { surface.unlockCanvasAndPost(it) }
+                        canvas?.let { surface.unlockCanvasAndPost(it) }
+                    }
+                } catch (throwable: Throwable) {
+                    Log.e("JVMHandler", StringUtils.throwableToString(throwable))
+                } finally {
+                    rgbArrayBitmap.recycle()
+                    surface.release()
                 }
-            } catch (throwable: Throwable) {
-                Log.e("JVMHandler", StringUtils.throwableToString(throwable))
-            } finally {
-                rgbArrayBitmap.recycle()
-                surface.release()
             }
         }
-        super.execute(surface, launcher, scope)
+        super.execute(surface, scope)
     }
 
     override fun onPause() {

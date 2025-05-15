@@ -10,6 +10,9 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name="ZLApplication"
@@ -57,6 +60,12 @@
         <activity android:name=".ui.activities.ErrorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
             android:screenOrientation="sensorLandscape" />
+
+        <service
+            android:name=".game.download.jvm_server.JvmService"
+            android:enabled="true"
+            android:foregroundServiceType="dataSync"
+            android:process=":jvm" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

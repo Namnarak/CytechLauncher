@@ -17,6 +17,11 @@ class Task private constructor(
     val onFinally: () -> Unit = {},
     val onCancel: () -> Unit = {}
 ) {
+    /**
+     * 任务阶段（TaskSystem可能用不到，主要服务于GameInstaller）
+     */
+    var taskState by mutableStateOf(TaskState.PREPARING)
+
     var currentProgress by mutableFloatStateOf(-1f)
         private set
     var currentMessageRes by mutableStateOf<Int?>(null)
