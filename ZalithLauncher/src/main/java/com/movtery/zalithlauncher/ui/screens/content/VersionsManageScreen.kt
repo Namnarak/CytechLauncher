@@ -282,7 +282,10 @@ private fun VersionsLayout(
                 ) {
                     ScalingLabel(
                         modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.versions_manage_no_versions)
+                        text = stringResource(R.string.versions_manage_no_versions),
+                        onClick = {
+                            navController.navigateToDownload()
+                        }
                     )
                 }
             }
