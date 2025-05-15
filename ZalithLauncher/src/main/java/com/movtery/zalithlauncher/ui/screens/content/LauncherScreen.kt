@@ -137,7 +137,7 @@ private fun RightMenu(
                         navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
                     }
                 )
-                version?.let {
+                version?.takeIf { it.isValid() }?.let {
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
                         onClick = {

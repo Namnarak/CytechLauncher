@@ -548,14 +548,16 @@ fun VersionItemLayout(
                     }
                 }
             }
-            IconButton(
-                onClick = onSettingsClick
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.versions_manage_settings)
-                )
+            if (version.isValid()) {
+                IconButton(
+                    onClick = onSettingsClick
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.versions_manage_settings)
+                    )
+                }
             }
             Row {
                 var menuExpanded by remember { mutableStateOf(false) }
