@@ -10,6 +10,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
+import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -54,7 +55,7 @@ class NetWorkUtils {
             bufferSize: Int = 65536,
             sizeCallback: (Long) -> Unit = {}
         ) {
-            outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
+            outputFile.ensureParentDirectory()
 
             val conn = URL(url).openConnection() as HttpURLConnection
 
@@ -93,7 +94,7 @@ class NetWorkUtils {
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(outputFile)
                 if (e is CancellationException || e is InterruptedIOException) {
-                    Log.d("NetWorkUtils.downloadFile (Http)", "download task cancelled. url: $url")
+                    Log.d("NetWorkUtils.downloadFileWithHttp", "download task cancelled. url: $url")
                     return //取消了，不需要抛出异常
                 } else {
                     throw IOException("Download failed: $url", e)
