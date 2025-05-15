@@ -6,11 +6,10 @@ import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 import com.movtery.zalithlauncher.game.download.game.GameLibDownloader
+import com.movtery.zalithlauncher.game.download.game.copyVanillaFiles
+import com.movtery.zalithlauncher.game.download.game.getLibraryPath
 import com.movtery.zalithlauncher.game.download.game.models.ForgeLikeInstallProcessor
-import com.movtery.zalithlauncher.game.download.game.models.toPath
-import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
 import com.movtery.zalithlauncher.game.download.game.parseToJson
-import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.game.version.download.artifactToPath
 import com.movtery.zalithlauncher.game.version.download.parseTo
@@ -32,11 +31,15 @@ const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
 
 /**
  * Forge Like 分析与安装支持库 (仅支持处理新版本 Forge、NeoForge)
+ * @param pclWay 如果以 pcl 的方式安装 Forge，则需要复制原版文件到临时游戏目录
  */
 fun getForgeLikeAnalyseTask(
+    pclWay: Boolean,
     downloader: BaseMinecraftDownloader,
     targetTempInstaller: File,
     forgeLikeVersion: ForgeLikeVersion,
+    minecraftFolder: File,
+    targetVersion: String,
     inherit: String,
     loaderVersion: String
 ): Task {
@@ -44,12 +47,24 @@ fun getForgeLikeAnalyseTask(
         id = FORGE_LIKE_ANALYSE_ID,
         dispatcher = Dispatchers.Default,
         task = { task ->
+            if (pclWay) {
+                withContext(Dispatchers.IO) {
+                    //准备安装环境
+                    //复制原版文件
+                    copyVanillaFiles(
+                        targetVersion = targetVersion,
+                        destinationGameFolder = minecraftFolder,
+                        inheritVersion = inherit
+                    )
+                }
+            }
+
             analyseNewForge(
                 task = task,
                 downloader = downloader,
                 forgeLikeVersion = forgeLikeVersion,
                 installer = targetTempInstaller,
-                targetMinecraftDir = File(getGameHome()),
+                targetMinecraftDir = minecraftFolder,
                 inherit = inherit,
                 loaderVersion = loaderVersion
             )
@@ -95,8 +110,7 @@ private suspend fun analyseNewForge(
             }
 
             installProfile["path"]?.let { path ->
-                val libraryComponents = parseLibraryComponents(path.asString)
-                val libraryPath = libraryComponents.toPath()
+                val libraryPath = getLibraryPath(path.asString, targetMinecraftDir.absolutePath)
                 zip.getEntry("maven/$libraryPath")?.let { entry ->
                     val dest = File(targetMinecraftDir, "libraries/$libraryPath")
                     zip.extractEntryToFile(entry, dest)

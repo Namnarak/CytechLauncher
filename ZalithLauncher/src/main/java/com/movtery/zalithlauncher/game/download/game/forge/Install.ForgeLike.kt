@@ -43,10 +43,10 @@ const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
  */
 fun getForgeLikeInstallTask(
     isNew: Boolean,
+    pclWay: Boolean,
     forgeLikeVersion: ForgeLikeVersion,
     tempFolderName: String,
     tempInstaller: File,
-    @Suppress("UNUSED_PARAMETER")
     tempGameFolder: File,
     tempMinecraftDir: File,
     vanillaJar: File,
@@ -57,15 +57,26 @@ fun getForgeLikeInstallTask(
         task = { task ->
             val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
             if (isNew) { //新版 Forge、NeoForge
-                installNewForgeHMCLWay(
-                    task = task,
-                    forgeLikeVersion = forgeLikeVersion,
-                    tempInstaller = tempInstaller,
-                    targetGameFolder = File(GamePathManager.currentPath),
-                    targetMinecraftDir = File(getGameHome()),
-                    tempVersionJson = tempVersionJson,
-                    vanillaJar = vanillaJar
-                )
+                if (pclWay) {
+                    installNewForgePCLWay(
+                        task = task,
+                        forgeLikeVersion = forgeLikeVersion,
+                        tempVersionJson = tempVersionJson,
+                        tempInstaller = tempInstaller,
+                        tempGameFolder = tempGameFolder,
+                        tempMinecraftDir = tempMinecraftDir
+                    )
+                } else {
+                    installNewForgeHMCLWay(
+                        task = task,
+                        forgeLikeVersion = forgeLikeVersion,
+                        tempInstaller = tempInstaller,
+                        targetGameFolder = File(GamePathManager.currentPath),
+                        targetMinecraftDir = File(getGameHome()),
+                        tempVersionJson = tempVersionJson,
+                        vanillaJar = vanillaJar
+                    )
+                }
             } else { //旧版 Forge
                 installOldForge(
                     task = task,
@@ -165,7 +176,6 @@ private suspend fun installNewForgeHMCLWay(
  * 以 PCL2 的方式安装新版 Forge、NeoForge
  * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/bf6fa718c89e8615b947d1c639ed16a72ce125e0/Plain%20Craft%20Launcher%202/Pages/PageDownload/ModDownloadLib.vb#L1412-L1479)
  */
-@Suppress("unused")
 private suspend fun installNewForgePCLWay(
     task: Task,
     forgeLikeVersion: ForgeLikeVersion,

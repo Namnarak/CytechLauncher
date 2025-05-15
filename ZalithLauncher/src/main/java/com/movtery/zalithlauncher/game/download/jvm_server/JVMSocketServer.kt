@@ -1,10 +1,11 @@
 package com.movtery.zalithlauncher.game.download.jvm_server
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.*
@@ -67,16 +68,19 @@ object JVMSocketServer {
             }
             Log.i(TAG, "Socket server $ip:$port start!")
 
-            while (isActive) {
+            while (true) {
                 try {
+                    ensureActive()
                     socket!!.receive(packet)
                     val receiveMsg = String(packet!!.data, packet!!.offset, packet!!.length)
                     Log.i(TAG, "receive msg: $receiveMsg")
                     this@JVMSocketServer.receiveMsg = receiveMsg
                     onReceive(receiveMsg)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Log.i(TAG, "Socket server $ip:$port start!")
+                } catch (e: Exception) {
+                    if (e is CancellationException) return@launch
+                    else {
+                        Log.w(TAG, "Socket server $ip:$port crashed!", e)
+                    }
                 }
             }
         }

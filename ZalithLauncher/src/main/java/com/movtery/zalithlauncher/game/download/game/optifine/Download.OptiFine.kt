@@ -43,9 +43,7 @@ fun getOptiFineDownloadTask(
             }
 
             task.updateProgress(-1f, R.string.download_game_install_base_downloading_file, ModLoader.OPTIFINE.displayName)
-            withContext(Dispatchers.IO) {
-                NetWorkUtils.downloadFile(optifineUrl, targetTempInstaller)
-            }
+            NetWorkUtils.downloadFileSuspend(optifineUrl, targetTempInstaller)
 
             withContext(Dispatchers.IO) { //复制原版
                 val gameJson = File(targetClientFolder, "${targetClientFolder.name}.json")

@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import org.apache.commons.io.FileUtils
@@ -16,8 +20,8 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.HttpURLConnection
-import java.net.SocketTimeoutException
 import java.net.URL
 
 class NetWorkUtils {
@@ -44,36 +48,79 @@ class NetWorkUtils {
          * @param bufferSize 缓冲区大小
          * @param sizeCallback 正在下载的大小回调
          */
-        fun downloadFile(
+        fun downloadFileWithHttp(
             url: String,
             outputFile: File,
-            bufferSize: ByteArray = ByteArray(65536),
-            sizeCallback: (Int) -> Unit = {}
+            bufferSize: Int = 65536,
+            sizeCallback: (Long) -> Unit = {}
         ) {
             outputFile.parentFile?.takeUnless { it.exists() }?.mkdirs()
 
             val conn = URL(url).openConnection() as HttpURLConnection
+
             conn.apply {
                 readTimeout = UrlManager.TIME_OUT.first
                 connectTimeout = UrlManager.TIME_OUT.first
                 useCaches = true
+                setRequestProperty("User-Agent", "Mozilla/5.0/$URL_USER_AGENT")
             }
 
             try {
+                conn.connect()
+                if (conn.responseCode !in 200..299) {
+                    throw IOException("HTTP ${conn.responseCode} - ${conn.responseMessage}")
+                }
+
+                val contentLength = conn.contentLengthLong
+                val buffer = ByteArray(bufferSize)
+
                 conn.inputStream.use { inputStream ->
                     BufferedOutputStream(FileOutputStream(outputFile)).use { fos ->
+                        var totalBytesRead = 0L
                         var bytesRead: Int
-                        while (inputStream.read(bufferSize).also { bytesRead = it } != -1) {
-                            fos.write(bufferSize, 0, bytesRead)
-                            sizeCallback(bytesRead)
+
+                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                            fos.write(buffer, 0, bytesRead)
+                            totalBytesRead += bytesRead
+                            sizeCallback(bytesRead.toLong())
+                        }
+
+                        if (contentLength != -1L && totalBytesRead != contentLength) {
+                            throw IOException("Download incomplete. Expected $contentLength bytes, received $totalBytesRead bytes.")
                         }
                     }
                 }
-            } catch (e: SocketTimeoutException) {
+            } catch (e: Exception) {
                 FileUtils.deleteQuietly(outputFile)
-                throw IOException("Download timed out: $url", e)
-            } finally {
-                conn.disconnect()
+                if (e is CancellationException || e is InterruptedIOException) {
+                    Log.d("NetWorkUtils.downloadFile (Http)", "download task cancelled. url: $url")
+                    return //取消了，不需要抛出异常
+                } else {
+                    throw IOException("Download failed: $url", e)
+                }
+            }
+        }
+
+        /**
+         * 同步下载文件到本地
+         * @param url 要下载的文件URL
+         * @param outputFile 要保存的目标文件
+         * @param bufferSize 缓冲区大小
+         * @param sizeCallback 正在下载的大小回调
+         */
+        suspend fun downloadFileSuspend(
+            url: String,
+            outputFile: File,
+            bufferSize: Int = 65536,
+            sizeCallback: (Long) -> Unit = {}
+        ) = withContext(Dispatchers.IO) {
+            runInterruptible {
+                downloadFileWithHttp(
+                    url = url,
+                    outputFile = outputFile,
+                    bufferSize = bufferSize,
+                    sizeCallback = sizeCallback
+                )
             }
         }
 

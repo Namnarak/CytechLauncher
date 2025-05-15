@@ -9,15 +9,18 @@ import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import java.io.File
 import java.io.IOException
 import java.io.InterruptedIOException
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
@@ -31,25 +34,11 @@ class MinecraftDownloader(
     private val onError: (message: String) -> Unit = {},
     private val maxDownloadThreads: Int = 64
 ) {
-    companion object {
-        private val sThreadLocalDownloadBuffer: ThreadLocal<ByteArray> = ThreadLocal()
-
-        private fun getLocalBuffer() = lazy<ByteArray> {
-            var tlb = sThreadLocalDownloadBuffer.get()
-            if (tlb != null) return@lazy tlb
-            tlb = ByteArray(32768)
-            sThreadLocalDownloadBuffer.set(tlb)
-            return@lazy tlb
-        }
-    }
     //已下载文件计数器
     private var downloadedFileSize: AtomicLong = AtomicLong(0)
     private var downloadedFileCount: AtomicLong = AtomicLong(0)
     private var totalFileSize: AtomicLong = AtomicLong(0)
     private var totalFileCount: AtomicLong = AtomicLong(0)
-
-    //进度刷新频率限制
-    private var lastProgressUpdate: Long = 0L
 
     private var allDownloadTasks = mutableListOf<DownloadTask>()
     private var downloadFailedTasks = mutableListOf<DownloadTask>()
@@ -106,29 +95,26 @@ class MinecraftDownloader(
     }
 
     private suspend fun downloadAll(
-        task: Task, tasks: List<DownloadTask>, taskMessageRes: Int
+        task: Task,
+        tasks: List<DownloadTask>,
+        taskMessageRes: Int
     ) = coroutineScope {
         downloadFailedTasks.clear()
 
-        val executor = ThreadPoolExecutor(
-            4,
-            maxDownloadThreads,
-            500L,
-            TimeUnit.MILLISECONDS,
-            ArrayBlockingQueue(tasks.size)
-        )
+        val semaphore = Semaphore(maxDownloadThreads)
 
-        tasks.forEach { downloadTask ->
-            withContext(Dispatchers.IO) {
-                executor.execute(downloadTask)
+        val downloadJobs = tasks.map { downloadTask ->
+            launch {
+                semaphore.withPermit {
+                    downloadTask.download()
+                }
             }
         }
-        executor.shutdown()
 
-        runCatching {
-            while (!executor.awaitTermination(33, TimeUnit.MILLISECONDS)) {
-                ensureActive()
-                if (System.currentTimeMillis() - lastProgressUpdate > 100) {
+        val progressJob = launch(Dispatchers.Main) {
+            while (isActive) {
+                try {
+                    ensureActive()
                     val currentFileSize = downloadedFileSize.get()
                     val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
                     task.updateProgress(
@@ -137,15 +123,19 @@ class MinecraftDownloader(
                         downloadedFileCount.get(), totalFileCount.get(), //文件个数
                         formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
                     )
-                    lastProgressUpdate = System.currentTimeMillis()
+                    delay(100)
+                } catch (e: CancellationException) {
+                    break //取消
                 }
             }
-        }.onFailure { e ->
-            executor.shutdownNow()
-            when(e) {
-                is CancellationException, is InterruptedException, is InterruptedIOException -> return@onFailure
-                else -> throw e
-            }
+        }
+
+        try {
+            downloadJobs.joinAll()
+        } catch (e: CancellationException) {
+            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+        } finally {
+            progressJob.cancel()
         }
     }
 
@@ -197,7 +187,6 @@ class MinecraftDownloader(
             DownloadTask(
                 url = url,
                 verifyIntegrity = verifyIntegrity,
-                bufferSize = getLocalBuffer().value,
                 targetFile = targetFile,
                 sha1 = sha1,
                 onDownloadFailed = { task ->

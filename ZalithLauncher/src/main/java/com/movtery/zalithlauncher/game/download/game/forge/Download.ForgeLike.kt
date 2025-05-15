@@ -7,8 +7,6 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVer
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 const val FORGE_LIKE_DOWNLOAD_ID = "Download.ForgeLike"
@@ -35,9 +33,7 @@ fun getForgeLikeDownloadTask(
                 ForgeVersions.getDownloadUrl(forgeLikeVersion as ForgeVersion)
             }
 
-            withContext(Dispatchers.IO) {
-                NetWorkUtils.downloadFile(url, targetTempInstaller)
-            }
+            NetWorkUtils.downloadFileSuspend(url, targetTempInstaller)
         }
     )
 }
