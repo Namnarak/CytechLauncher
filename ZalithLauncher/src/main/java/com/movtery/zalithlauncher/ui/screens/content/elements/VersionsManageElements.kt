@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
@@ -428,17 +430,40 @@ fun DeleteVersionDialog(
     onConfirm: (title: Int, task: suspend () -> Unit) -> Unit = { _, _ -> },
     onVersionDeleted: () -> Unit = {}
 ) {
-    SimpleAlertDialog(
-        title = stringResource(R.string.versions_manage_delete_version),
-        text = message ?: stringResource(R.string.versions_manage_delete_version_tip, version.getVersionName()),
-        onDismiss = onDismissRequest,
-        onConfirm = {
-            onConfirm(R.string.versions_manage_delete_version) {
-                VersionsManager.deleteVersion(version)
-                onVersionDeleted()
-            }
+    val deleteVersion = {
+        onConfirm(R.string.versions_manage_delete_version) {
+            VersionsManager.deleteVersion(version)
+            onVersionDeleted()
         }
-    )
+    }
+
+    if (message != null) {
+        SimpleAlertDialog(
+            title = stringResource(R.string.versions_manage_delete_version),
+            text = message,
+            onDismiss = onDismissRequest,
+            onConfirm = deleteVersion
+        )
+    } else {
+        SimpleAlertDialog(
+            title = stringResource(R.string.versions_manage_delete_version),
+            text = {
+                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint1, version.getVersionName()))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint2))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint3))
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.versions_manage_delete_version_tip_hint3),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            onConfirm = deleteVersion,
+            onCancel = onDismissRequest,
+            onDismissRequest = onDismissRequest
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
