@@ -5,6 +5,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -439,6 +441,7 @@ fun DeleteVersionDialog(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VersionItemLayout(
     version: Version,
@@ -471,7 +474,8 @@ fun VersionItemLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(shape = MaterialTheme.shapes.large)
-                .padding(all = 8.dp)
+                .padding(all = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
                 selected = selected,
@@ -482,13 +486,11 @@ fun VersionItemLayout(
             )
             VersionIconImage(
                 version = version,
-                modifier = Modifier.size(34.dp).align(Alignment.CenterVertically)
+                modifier = Modifier.size(34.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             ) {
                 //版本名称
                 Text(
@@ -509,7 +511,7 @@ fun VersionItemLayout(
                     )
                 }
                 //版本详细信息
-                Row {
+                FlowRow {
                     if (!version.isValid()) {
                         Text(
                             text = stringResource(R.string.versions_manage_invalid),
@@ -527,14 +529,11 @@ fun VersionItemLayout(
                     }
                     version.getVersionInfo()?.let { versionInfo ->
                         Text(
-                            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                            overflow = TextOverflow.Clip,
                             text = versionInfo.minecraftVersion,
                             style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1
                         )
+                        Spacer(modifier = Modifier.width(12.dp))
                         versionInfo.loaderInfo?.let { loaderInfo ->
-                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = loaderInfo.name,
                                 style = MaterialTheme.typography.labelSmall
@@ -544,6 +543,7 @@ fun VersionItemLayout(
                                 text = loaderInfo.version,
                                 style = MaterialTheme.typography.labelSmall
                             )
+                            Spacer(modifier = Modifier.width(12.dp))
                         }
                     }
                 }
