@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.download.game.optifine.CantFetchingOptiFineUrlException
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
+import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -215,6 +216,7 @@ private fun GameInstallOperation(
                 is SerializationException, is JsonSyntaxException -> stringResource(R.string.error_parse_failed)
                 is CantFetchingOptiFineUrlException -> stringResource(R.string.download_install_error_cant_fetch_optifine_download_url)
                 is JvmCrashException -> stringResource(R.string.download_install_error_jvm_crash, th.code)
+                is DownloadFailedException -> stringResource(R.string.download_install_error_download_failed)
                 else -> {
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)

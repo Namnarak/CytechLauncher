@@ -136,6 +136,7 @@
     <string name="download_install_error_message">你的游戏在安装过程中出现了异常：</string>
     <string name="download_install_error_cant_fetch_optifine_download_url">无法获取 OptiFine 主文件的下载链接</string>
     <string name="download_install_error_jvm_crash">安装过程中遇到了异常，退出代码：%s</string>
+    <string name="download_install_error_download_failed">一些文件下载失败，可能是网络问题导致的</string>
     <string name="download_install_success_title">安装成功</string>
     <string name="download_install_success_message">你的游戏已顺利的经完成了安装！</string>
     <!--  启动游戏  -->

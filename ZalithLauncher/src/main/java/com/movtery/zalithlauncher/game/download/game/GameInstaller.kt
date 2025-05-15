@@ -354,6 +354,7 @@ class GameInstaller(
                 getForgeLikeInstallTask(
                     isNew = isNew,
                     pclWay = pclWay,
+                    downloader = downloader,
                     forgeLikeVersion = forgeLikeVersion,
                     tempFolderName = tempFolderName,
                     tempInstaller = tempInstaller,

@@ -1,11 +1,13 @@
 package com.movtery.zalithlauncher.game.download.game.forge
 
 import android.util.Log
+import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.jre.Jre
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
+import com.movtery.zalithlauncher.game.download.game.GameLibDownloader
 import com.movtery.zalithlauncher.game.download.game.getLibraryPath
 import com.movtery.zalithlauncher.game.download.game.models.ForgeLikeInstallProcessor
 import com.movtery.zalithlauncher.game.download.game.models.toPath
@@ -14,6 +16,7 @@ import com.movtery.zalithlauncher.game.download.game.parseToJson
 import com.movtery.zalithlauncher.game.download.jvm_server.runJvmRetryRuntimes
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.path.getGameHome
+import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
@@ -44,6 +47,7 @@ const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
 fun getForgeLikeInstallTask(
     isNew: Boolean,
     pclWay: Boolean,
+    downloader: BaseMinecraftDownloader,
     forgeLikeVersion: ForgeLikeVersion,
     tempFolderName: String,
     tempInstaller: File,
@@ -80,6 +84,7 @@ fun getForgeLikeInstallTask(
             } else { //旧版 Forge
                 installOldForge(
                     task = task,
+                    downloader = downloader,
                     tempInstaller = tempInstaller,
                     tempMinecraftDir = tempMinecraftDir,
                     tempFolderName = tempFolderName,
@@ -246,13 +251,16 @@ private suspend fun installNewForgePCLWay(
  */
 private suspend fun installOldForge(
     task: Task,
+    downloader: BaseMinecraftDownloader,
     tempInstaller: File,
     tempMinecraftDir: File,
     tempFolderName: String,
     tempVersionJson: File,
     inherit: String
 ) = withContext(Dispatchers.IO) {
-    ZipFile(tempInstaller).use { zip ->
+    val librariesFolder = File(tempMinecraftDir, "libraries")
+
+    val versionInfo: JsonObject? = ZipFile(tempInstaller).use { zip ->
         task.updateProgress(0.2f)
         val installProfile = zip.readText("install_profile.json").parseToJson()
 
@@ -270,7 +278,9 @@ private suspend fun installOldForge(
             task.updateProgress(0.6f)
 
             //解压支持库文件
-            zip.extractFromZip("maven", File(tempMinecraftDir, "libraries"))
+            zip.extractFromZip("maven", librariesFolder)
+
+            null
         } else {
             Log.i(FORGE_LIKE_INSTALL_ID, "Starting the Forge installation, Legacy method B")
             val artifact = installProfile["install"].asJsonObject["path"].asString
@@ -289,10 +299,35 @@ private suspend fun installOldForge(
                 versionInfo.addProperty("inheritsFrom", inherit)
             }
             tempVersionJson.writeText(GSON.toJson(versionInfo))
+
+            versionInfo.apply {
+                get("libraries").asJsonArray.removeAll {
+                    val lib = it.asJsonObject
+                    if (lib.has("name")) {
+                        val name = lib["name"].asString
+                        //过滤掉 path 对应的 library (这个是需要解压出去的，没法下载)
+                        //比如 net.minecraftforge:forge:1.7.10-10.13.4.1614-1.7.10
+                        name == artifact
+                    } else false //保留
+                }
+            }
         }
     }
-
     task.updateProgress(1f)
+
+    //判断是否需要补全 Forge 支持库
+    versionInfo?.let { info ->
+        val libDownloader = GameLibDownloader(
+            downloader = downloader,
+            gameJson = GSON.toJson(info)
+        )
+        libDownloader.schedule(
+            task = task,
+            targetDir = librariesFolder
+        )
+        //开始补全 Forge 支持库
+        libDownloader.download(task)
+    }
 }
 
 /**

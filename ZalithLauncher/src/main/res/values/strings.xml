@@ -136,6 +136,7 @@
     <string name="download_install_error_message">An exception occurred during the installation of your game:</string>
     <string name="download_install_error_cant_fetch_optifine_download_url">Unable to retrieve the download link for the main OptiFine file</string>
     <string name="download_install_error_jvm_crash">An exception occurred during installation, exit code: %s</string>
+    <string name="download_install_error_download_failed">Some files failed to download, possibly due to network issues.</string>
     <string name="download_install_success_title">Installation Successful</string>
     <string name="download_install_success_message">Your game has been successfully installed!</string>
     <!-- Game Launch -->
