@@ -638,7 +638,7 @@ private fun FabricList(
             }
         },
         getItemText = { it.version },
-        summary = { FabricSummary(it) },
+        summary = { FabricLikeSummary(it) },
         onValueChange = { version ->
             currentAddon.fabricVersion = version
         },
@@ -689,7 +689,7 @@ private fun QuiltList(
             }
         },
         getItemText = { it.version },
-        summary = { QuiltSummary(it) },
+        summary = { FabricLikeSummary(it) },
         onValueChange =  { version ->
             currentAddon.quiltVersion = version
         },

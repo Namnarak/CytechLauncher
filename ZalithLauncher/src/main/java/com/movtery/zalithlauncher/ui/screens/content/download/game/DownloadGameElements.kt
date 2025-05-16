@@ -46,8 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
@@ -406,7 +405,7 @@ fun OptiFineVersionSummary(optifine: OptiFineVersion) {
     }
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.8f)
+        modifier = Modifier.alpha(alpha = 0.7f)
     ) {
         Text(text = typeText, style = MaterialTheme.typography.labelSmall)
         Spacer(modifier = Modifier.width(12.dp))
@@ -427,7 +426,7 @@ fun ForgeVersionSummary(forgeVersion: ForgeVersion) {
     val dateText = stringResource(R.string.download_game_addon_date, forgeVersion.releaseTime)
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.8f)
+        modifier = Modifier.alpha(alpha = 0.7f)
     ) {
         recommendedText?.let {
             Text(text = it, style = MaterialTheme.typography.labelSmall)
@@ -446,37 +445,22 @@ fun NeoForgeSummary(neoforgeVersion: NeoForgeVersion) {
     }
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.8f)
+        modifier = Modifier.alpha(alpha = 0.7f)
     ) {
         Text(text = typeText, style = MaterialTheme.typography.labelSmall)
     }
 }
 
 @Composable
-fun FabricSummary(fabricVersion: FabricVersion) {
-    val typeText = if (fabricVersion.stable) {
+fun FabricLikeSummary(fabricLikeVersion: FabricLikeVersion) {
+    val typeText = if (fabricLikeVersion.stable) {
         stringResource(R.string.download_game_addon_stable)
     } else {
         stringResource(R.string.download_game_addon_debug)
     }
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.8f)
-    ) {
-        Text(text = typeText, style = MaterialTheme.typography.labelSmall)
-    }
-}
-
-@Composable
-fun QuiltSummary(quiltVersion: QuiltVersion) {
-    val typeText = if (quiltVersion.stable) {
-        stringResource(R.string.download_game_addon_stable)
-    } else {
-        stringResource(R.string.download_game_addon_debug)
-    }
-
-    Row(
-        modifier = Modifier.alpha(alpha = 0.8f)
+        modifier = Modifier.alpha(alpha = 0.7f)
     ) {
         Text(text = typeText, style = MaterialTheme.typography.labelSmall)
     }

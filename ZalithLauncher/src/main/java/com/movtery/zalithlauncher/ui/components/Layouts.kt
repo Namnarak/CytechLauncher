@@ -121,7 +121,7 @@ fun <E> SimpleListLayout(
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
     var selectedItem by remember {
-        mutableStateOf<E>(
+        mutableStateOf(
             items.firstOrNull { getItemId(it) == currentId }
                 ?: items.firstOrNull { getItemId(it) == defaultId }
                 ?: items.first()
