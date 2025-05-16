@@ -32,6 +32,10 @@ Here’s the current roadmap of features and development status:
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
+* [ ] Game version download extensions:
+    * [ ] Install OptiFine with OptiFabric and Fabric
+    * [ ] Install Fabric with the Fabric API mod
+    * [ ] Install Quilt with the Quilted Fabric API mod
 * [ ] Modpack download and automatic installation
 * [ ] Mod download and automatic installation
 * [ ] Resource pack download and automatic installation
