@@ -3,7 +3,6 @@ package com.movtery.zalithlauncher.path
 import com.movtery.zalithlauncher.BuildConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.engine.cio.endpoint
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -54,22 +53,6 @@ class UrlManager {
                     append(HttpHeaders.UserAgent, URL_USER_AGENT)
                 }
             }
-        }
-
-        val GLOBAL_DOWNLOAD_CLIENT = HttpClient(CIO) {
-            engine {
-                maxConnectionsCount = 1000
-                endpoint {
-                    maxConnectionsPerRoute = 100
-                    keepAliveTime = 30_000
-                }
-            }
-            defaultRequest {
-                headers {
-                    append(HttpHeaders.UserAgent, "Mozilla/5.0/$URL_USER_AGENT")
-                }
-            }
-            expectSuccess = false
         }
 
         @JvmStatic
