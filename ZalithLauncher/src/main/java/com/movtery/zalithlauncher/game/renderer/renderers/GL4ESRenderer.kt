@@ -1,15 +1,15 @@
 package com.movtery.zalithlauncher.game.renderer.renderers
 
-import android.content.Context
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 
-class GL4ESRenderer(private val context: Context) : RendererInterface {
+class GL4ESRenderer : RendererInterface {
     override fun getRendererId(): String = "opengles2"
 
     override fun getUniqueIdentifier(): String = "8b52d82d-8f6d-4d3a-a767-dc93f8b72fc7"
 
-    override fun getRendererName(): String = context.getString(R.string.renderer_name_gl4es)
+    override fun getRendererName(): String = "GL4ES"
+
+    override fun getMaxMCVersion(): String = "1.21.4"
 
     override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
 

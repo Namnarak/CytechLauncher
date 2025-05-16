@@ -33,8 +33,8 @@ object Renderers {
         }
 
         addRenderers(
-            GL4ESRenderer(context),
-            VulkanZinkRenderer(context),
+            GL4ESRenderer(),
+            VulkanZinkRenderer(),
             VirGLRenderer(),
             FreedrenoRenderer(context),
             PanfrostRenderer(context)

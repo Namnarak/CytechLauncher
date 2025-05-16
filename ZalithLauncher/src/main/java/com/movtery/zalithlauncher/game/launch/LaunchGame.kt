@@ -2,8 +2,6 @@ package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -14,9 +12,6 @@ import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.activities.runGame
-import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
-import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
@@ -27,23 +22,11 @@ import java.nio.channels.UnresolvedAddressException
 object LaunchGame {
     private var isLaunching: Boolean = false
 
-    fun launchGame(
-        context: Context,
-        navController: NavController
-    ) {
+    fun launchGame(context: Context) {
         if (isLaunching) return
 
-        val version = VersionsManager.currentVersion ?: run {
-            Toast.makeText(context, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
-            navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
-            return
-        }
-
-        val account = AccountsManager.getCurrentAccount() ?: run {
-            Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
-            navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
-            return
-        }
+        val version = VersionsManager.currentVersion ?: return
+        val account = AccountsManager.getCurrentAccount() ?: return
 
         isLaunching = true
 

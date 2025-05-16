@@ -36,8 +36,10 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
+import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
@@ -141,15 +143,18 @@ private fun VersionConfigs(
             summary = stringResource(R.string.settings_game_skip_game_integrity_check_summary)
         )
 
-        SimpleIDListLayout(
-            items = getIDList(Renderers.getCompatibleRenderers(context).second) { IDItem(it.getUniqueIdentifier(), it.getRendererName()) },
+        val renderers = Renderers.getCompatibleRenderers(context).second
+        val renderersIdList = getIDList(renderers) { IDItem(it.getUniqueIdentifier(), it.getRendererName()) }
+        SimpleListLayout(
+            items = renderersIdList,
             currentId = config.renderer,
             defaultId = "",
             title = stringResource(R.string.versions_config_renderer),
-            onValueChange = { item ->
-                if (config.renderer != item.id) {
-                    config.renderer = item.id
-                    config.saveOrShowError(context)
+            getItemText = { it.title },
+            getItemId = { it.id },
+            getItemSummary = { item ->
+                renderers.find { it.getUniqueIdentifier() == item.id }?.let { renderer ->
+                    RendererSummaryLayout(renderer)
                 }
             }
         )

@@ -1,18 +1,25 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -20,6 +27,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
+import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
@@ -65,14 +73,16 @@ fun RendererSettingsScreen() {
                         )
                     }
             ) {
-                val allRenderers = Renderers.getCompatibleRenderers(context).second
                 ListSettingsLayout(
                     unit = AllSettings.renderer,
-                    items = allRenderers,
+                    items = Renderers.getCompatibleRenderers(context).second,
                     title = stringResource(R.string.settings_renderer_global_renderer_title),
                     summary = stringResource(R.string.settings_renderer_global_renderer_summary),
                     getItemText = { it.getRendererName() },
-                    getItemId = { it.getUniqueIdentifier() }
+                    getItemId = { it.getUniqueIdentifier() },
+                    getItemSummary = {
+                        RendererSummaryLayout(it)
+                    }
                 )
 
                 ListSettingsLayout(
@@ -174,6 +184,38 @@ fun RendererSettingsScreen() {
                     title = stringResource(R.string.settings_renderer_shader_dump_title),
                     summary = stringResource(R.string.settings_renderer_shader_dump_summary)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+fun RendererSummaryLayout(renderer: RendererInterface) {
+    FlowRow {
+        with(renderer) {
+            getRendererSummary()?.let { summary ->
+                Text(text = summary, style = MaterialTheme.typography.labelSmall)
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            val minVer = getMinMCVersion()
+            val maxVer = getMaxMCVersion()
+
+            if (minVer != null || maxVer != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = stringResource(R.string.renderer_version_support), style = MaterialTheme.typography.labelSmall)
+
+                    minVer?.let {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = ">= $it", style = MaterialTheme.typography.labelSmall)
+                    }
+
+                    maxVer?.let {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = "<= $it", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
             }
         }
     }

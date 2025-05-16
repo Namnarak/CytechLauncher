@@ -51,6 +51,12 @@ object PluginLoader {
 
                         override fun getRendererName(): String = rendererPlugin.displayName
 
+                        override fun getRendererSummary(): String? = rendererPlugin.summary
+
+                        override fun getMinMCVersion(): String? = rendererPlugin.minMCVer
+
+                        override fun getMaxMCVersion(): String? = rendererPlugin.maxMCVer
+
                         override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { rendererPlugin.env }
 
                         override fun getDlopenLibrary(): Lazy<List<String>> = lazy { rendererPlugin.dlopen }

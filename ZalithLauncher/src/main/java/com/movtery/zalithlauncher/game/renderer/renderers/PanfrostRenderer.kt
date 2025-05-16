@@ -11,6 +11,8 @@ class PanfrostRenderer(private val context: Context) : RendererInterface {
 
     override fun getRendererName(): String = context.getString(R.string.renderer_name_panfrost)
 
+    override fun getMaxMCVersion(): String = "1.21.4"
+
     override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
 
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }

@@ -163,6 +163,7 @@ class SettingsLayoutScope {
         summary: String? = null,
         getItemText: @Composable (E) -> String,
         getItemId: (E) -> String,
+        getItemSummary: (@Composable (E) -> Unit)? = null,
         enabled: Boolean = true,
         onValueChange: (E) -> Unit = {}
     ) {
@@ -175,6 +176,7 @@ class SettingsLayoutScope {
             summary = summary,
             getItemText = getItemText,
             getItemId = getItemId,
+            getItemSummary = getItemSummary,
             enabled = enabled,
             onValueChange = { item ->
                 unit.put(getItemId(item)).save()

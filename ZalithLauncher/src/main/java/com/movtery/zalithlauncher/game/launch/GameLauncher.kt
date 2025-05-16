@@ -164,13 +164,17 @@ class GameLauncher(
     ) {
         var mcInfo = version.getVersionName()
         version.getVersionInfo()?.let { info -> mcInfo = info.getInfoString() }
+        val renderer = Renderers.getCurrentRenderer()
 
         appendTitle("Launch Minecraft")
         append("Info: Launcher version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         append("Info: Architecture: ${Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE)}")
         append("Info: Device model: ${Build.MANUFACTURER}, ${Build.MODEL}")
         append("Info: API version: ${Build.VERSION.SDK_INT}")
-        append("Info: Renderer: ${Renderers.getCurrentRenderer().getRendererName()}")
+        append("Info: Renderer: ${renderer.getRendererName()}")
+        renderer.getRendererSummary()?.let { summary ->
+            append("Info: Renderer Summary: $summary")
+        }
         append("Info: Selected Minecraft version: ${version.getVersionName()}")
         append("Info: Minecraft Info: $mcInfo")
         append("Info: Game Path: ${version.getGameDir().absolutePath} (Isolation: ${version.isIsolation()})")

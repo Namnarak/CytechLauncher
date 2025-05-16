@@ -20,6 +20,21 @@ interface RendererInterface {
     fun getRendererName(): String
 
     /**
+     * 获取渲染器的描述
+     */
+    fun getRendererSummary(): String? = null
+
+    /**
+     * 获取渲染器最低兼容版本
+     */
+    fun getMinMCVersion(): String? = null
+
+    /**
+     * 获取渲染器最高兼容版本
+     */
+    fun getMaxMCVersion(): String? = null
+
+    /**
      * 获取渲染器的环境变量
      */
     fun getRendererEnv(): Lazy<Map<String, String>>

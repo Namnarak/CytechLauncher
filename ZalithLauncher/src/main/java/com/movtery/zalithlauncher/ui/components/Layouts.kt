@@ -113,6 +113,7 @@ fun <E> SimpleListLayout(
     summary: String? = null,
     getItemText: @Composable (E) -> String,
     getItemId: (E) -> String,
+    getItemSummary: (@Composable (E) -> Unit)? = null,
     enabled: Boolean = true,
     autoCollapse: Boolean = true,
     onValueChange: (E) -> Unit = {}
@@ -184,6 +185,9 @@ fun <E> SimpleListLayout(
                                     .padding(horizontal = 3.dp),
                                 selected = getItemId(selectedItem) == getItemId(item),
                                 itemName = getItemText(item),
+                                summary = getItemSummary?.let {
+                                    { it.invoke(item) }
+                                },
                                 onClick = {
                                     if (expanded && getItemId(selectedItem) != getItemId(item)) {
                                         selectedItem = item
@@ -202,25 +206,34 @@ fun <E> SimpleListLayout(
 
 @Composable
 fun SimpleListItem(
+    modifier: Modifier = Modifier,
     selected: Boolean,
     itemName: String,
-    modifier: Modifier = Modifier,
+    summary: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = selected,
             onClick = onClick
         )
-        Text(
-            text = itemName,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
+        Column {
+            Text(
+                text = itemName,
+                style = MaterialTheme.typography.labelMedium
+            )
+            summary?.let {
+                Spacer(
+                    modifier = Modifier.height(height = 4.dp)
+                )
+                it()
+            }
+        }
     }
 }
 

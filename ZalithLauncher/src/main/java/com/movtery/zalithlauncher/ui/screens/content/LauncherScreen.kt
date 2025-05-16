@@ -27,11 +27,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -40,13 +42,13 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
+import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -88,7 +90,12 @@ private fun RightMenu(
         swapIn = isVisible
     )
 
-    val context = LocalContext.current
+    var launchGameOperation by remember { mutableStateOf<LaunchGameOperation>(LaunchGameOperation.None) }
+    LaunchGameOperation(
+        launchGameOperation = launchGameOperation,
+        updateOperation = { launchGameOperation = it },
+        navController = navController
+    )
 
     Surface(
         modifier = modifier.offset {
@@ -160,7 +167,9 @@ private fun RightMenu(
                     }
                     .padding(PaddingValues(horizontal = 12.dp)),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                onClick = { LaunchGame.launchGame(context, navController) },
+                onClick = {
+                    launchGameOperation = LaunchGameOperation.TryLaunch
+                },
             ) {
                 Text(text = stringResource(R.string.main_launch_game))
             }

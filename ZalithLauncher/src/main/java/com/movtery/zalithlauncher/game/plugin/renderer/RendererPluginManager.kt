@@ -109,24 +109,25 @@ object RendererPluginManager {
                 val packageName = info.packageName
 
                 val plugin = ApkRendererPlugin(
-                    rendererId,
-                    "$des (${
-                        context.getString(
-                            R.string.settings_renderer_from_plugins,
-                            runCatching {
-                                context.packageManager.getApplicationLabel(info)
-                            }.getOrElse {
-                                context.getString(R.string.generic_unknown)
-                            }
-                        )
-                    })",
-                    packageName,
-                    renderer[1],
-                    renderer[2].progressEglName(nativeLibraryDir),
-                    nativeLibraryDir,
-                    envList,
-                    dlopenList,
-                    packageName
+                    id = rendererId,
+                    displayName = des,
+                    summary = context.getString(
+                        R.string.settings_renderer_from_plugins,
+                        runCatching {
+                            context.packageManager.getApplicationLabel(info)
+                        }.getOrElse {
+                            context.getString(R.string.generic_unknown)
+                        }
+                    ),
+                    minMCVer = metaData.getString("minMCVer")?.takeIf { it.isNotEmpty() && it.isNotBlank() },
+                    maxMCVer = metaData.getString("maxMCVer")?.takeIf { it.isNotEmpty() && it.isNotBlank() },
+                    uniqueIdentifier = packageName,
+                    glName = renderer[1],
+                    eglName = renderer[2].progressEglName(nativeLibraryDir),
+                    path = nativeLibraryDir,
+                    env = envList,
+                    dlopen = dlopenList,
+                    packageName = packageName
                 )
 
                 rendererPluginList.add(plugin)

@@ -3,6 +3,9 @@ package com.movtery.zalithlauncher.game.plugin.renderer
 class ApkRendererPlugin(
     id: String,
     displayName: String,
+    summary: String? = null,
+    minMCVer: String? = null,
+    maxMCVer: String? = null,
     uniqueIdentifier: String,
     glName: String,
     eglName: String,
@@ -11,5 +14,15 @@ class ApkRendererPlugin(
     dlopen: List<String>,
     val packageName: String
 ) : RendererPlugin(
-    id, displayName, uniqueIdentifier, glName, eglName, path, env, dlopen
+    id = id,
+    displayName = displayName,
+    summary = summary,
+    minMCVer = minMCVer,
+    maxMCVer = maxMCVer,
+    uniqueIdentifier = uniqueIdentifier,
+    glName = glName,
+    eglName = eglName,
+    path = path,
+    env = env,
+    dlopen = dlopen
 )
