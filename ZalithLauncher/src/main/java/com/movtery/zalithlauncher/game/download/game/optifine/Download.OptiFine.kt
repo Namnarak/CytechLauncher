@@ -14,8 +14,8 @@ import java.io.File
 
 const val OPTIFINE_DOWNLOAD_ID = "Download.OptiFine"
 
-fun targetTempOptiFineInstaller(tempMinecraftDir: File, fileName: String, isNewVersion: Boolean): File {
-    return if (isNewVersion) File(tempMinecraftDir, ".temp/OptiFine.jar")
+fun targetTempOptiFineInstaller(tempGameDir: File, tempMinecraftDir: File, fileName: String, isNewVersion: Boolean): File {
+    return if (isNewVersion) File(tempGameDir, ".temp/OptiFine.jar")
     else {
         val nameFileCleaned = fileName
             .replace("OptiFine_", "")

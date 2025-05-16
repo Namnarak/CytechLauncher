@@ -11,7 +11,7 @@ import java.io.File
 
 const val FORGE_LIKE_DOWNLOAD_ID = "Download.ForgeLike"
 
-fun targetTempForgeLikeInstaller(tempMinecraftDir: File): File = File(tempMinecraftDir, ".temp/forge_like_installer.jar")
+fun targetTempForgeLikeInstaller(tempGameDir: File): File = File(tempGameDir, ".temp/forge_like_installer.jar")
 
 /**
  * 判断是否为 NeoForge 版本

@@ -100,11 +100,8 @@ class GameInstaller(
         }
 
         scope.launch(Dispatchers.IO) {
-            PathManager.DIR_CACHE_GAME_DOWNLOADER.takeIf { it.exists() }?.let { folder ->
-                //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
-                FileUtils.deleteQuietly(folder)
-                Log.i(TAG, "Temporary game directory cleared. Preparing for installation of new game ${info.customVersionName}.")
-            }
+            //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
+            clearTempGameDir()
 
             val tempGameDir = PathManager.DIR_CACHE_GAME_DOWNLOADER
             val tempMinecraftDir = File(tempGameDir, ".minecraft")
@@ -134,7 +131,7 @@ class GameInstaller(
             info.optifine?.let { optifineVersion ->
                 if (forgeDir == null && fabricDir == null) {
                     val isNewVersion: Boolean = optifineVersion.inherit.contains("w") || optifineVersion.inherit.split(".")[1].toInt() >= 14
-                    val targetInstaller: File = targetTempOptiFineInstaller(tempMinecraftDir, optifineVersion.fileName, isNewVersion)
+                    val targetInstaller: File = targetTempOptiFineInstaller(tempGameDir, tempMinecraftDir, optifineVersion.fileName, isNewVersion)
 
                     //将OptiFine作为版本下载，其余情况则作为Mod下载
                     tasks.add(
@@ -264,7 +261,9 @@ class GameInstaller(
             try {
                 ensureActive()
                 task.task.taskState = TaskState.RUNNING
-                task.task.task(this@withContext, task.task)
+                withContext(task.task.dispatcher) {
+                    task.task.task(this, task.task)
+                }
                 task.task.taskState = TaskState.COMPLETED
             } catch (th: Throwable) {
                 if (th is CancellationException) return@withContext
@@ -298,16 +297,28 @@ class GameInstaller(
     }
 
     /**
-     * 安装失败、取消安装时，都应该清除目标客户端版本文件夹
+     * 清除临时游戏目录
+     */
+    private suspend fun clearTempGameDir() = withContext(Dispatchers.IO) {
+        PathManager.DIR_CACHE_GAME_DOWNLOADER.takeIf { it.exists() }?.let { folder ->
+            FileUtils.deleteQuietly(folder)
+            Log.i(TAG, "Temporary game directory cleared.")
+        }
+    }
+
+    /**
+     * 安装失败、取消安装时，都应该清除目标客户端版本文件夹，和临时游戏目录
      */
     private fun clearTargetClient() {
         val dirToDelete = targetClientDir //临时变量
         targetClientDir = null
 
         CoroutineScope(Dispatchers.IO).launch {
+            clearTempGameDir()
             dirToDelete?.let {
                 //直接清除上一次安装的目标目录
                 FileUtils.deleteQuietly(it)
+                Log.i(TAG, "Successfully deleted version directory: ${it.name} at path: ${it.absolutePath}")
             }
         }
     }
@@ -348,7 +359,7 @@ class GameInstaller(
                 forgeLikeVersion.inherit to loaderVersion
             }
 
-        val tempInstaller = targetTempForgeLikeInstaller(tempMinecraftDir)
+        val tempInstaller = targetTempForgeLikeInstaller(tempGameDir)
         //下载安装器
         addTask(
             GameInstallTask(
@@ -451,6 +462,7 @@ class GameInstaller(
         quiltFolder: File? = null
     ) = Task.runTask(
         id = GAME_JSON_MERGER_ID,
+        dispatcher = Dispatchers.IO,
         task = { task ->
             //合并版本 Json
             task.updateProgress(0.1f)
@@ -483,6 +495,9 @@ class GameInstaller(
                 //默认开启版本隔离
                 VersionConfig.createIsolation(targetClientDir).save()
             }
+
+            //清除临时游戏目录
+            clearTempGameDir()
         }
     )
 
