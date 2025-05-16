@@ -8,8 +8,11 @@ import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
+import com.movtery.zalithlauncher.game.download.game.fabric.getFabricLikeCompleterTask
+import com.movtery.zalithlauncher.game.download.game.fabric.getFabricLikeDownloadTask
 import com.movtery.zalithlauncher.game.download.game.forge.getForgeLikeAnalyseTask
 import com.movtery.zalithlauncher.game.download.game.forge.getForgeLikeDownloadTask
 import com.movtery.zalithlauncher.game.download.game.forge.getForgeLikeInstallTask
@@ -174,6 +177,24 @@ class GameInstaller(
                     tempGameDir = tempGameDir,
                     tempMinecraftDir = tempMinecraftDir,
                     tempFolderName = neoforgeDir!!.name,
+                    addTask = { tasks.add(it) }
+                )
+            }
+
+            // FabricLike 安装
+            info.fabric?.let { fabricVersion ->
+                createFabricLikeTask(
+                    fabricLikeVersion = fabricVersion,
+                    tempMinecraftDir = tempMinecraftDir,
+                    tempFolderName = fabricDir!!.name,
+                    addTask = { tasks.add(it) }
+                )
+            }
+            info.quilt?.let { quiltVersion ->
+                createFabricLikeTask(
+                    fabricLikeVersion = quiltVersion,
+                    tempMinecraftDir = tempMinecraftDir,
+                    tempFolderName = quiltDir!!.name,
                     addTask = { tasks.add(it) }
                 )
             }
@@ -351,6 +372,38 @@ class GameInstaller(
                     tempGameFolder = tempGameDir,
                     tempMinecraftDir = tempMinecraftDir,
                     inherit = processedInherit
+                )
+            )
+        )
+    }
+
+    private fun createFabricLikeTask(
+        fabricLikeVersion: FabricLikeVersion,
+        tempMinecraftDir: File,
+        tempFolderName: String,
+        addTask: (GameInstallTask) -> Unit
+    ) {
+        val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
+
+        //下载 Json
+        addTask(
+            GameInstallTask(
+                context.getString(R.string.download_game_install_base_download_file, fabricLikeVersion.loaderName, fabricLikeVersion.version),
+                getFabricLikeDownloadTask(
+                    fabricLikeVersion = fabricLikeVersion,
+                    tempVersionJson = tempVersionJson
+                )
+            )
+        )
+
+        //补全游戏库
+        addTask(
+            GameInstallTask(
+                context.getString(R.string.download_game_install_forgelike_analyse, fabricLikeVersion.loaderName),
+                getFabricLikeCompleterTask(
+                    downloader = downloader,
+                    tempMinecraftDir = tempMinecraftDir,
+                    tempVersionJson= tempVersionJson
                 )
             )
         )

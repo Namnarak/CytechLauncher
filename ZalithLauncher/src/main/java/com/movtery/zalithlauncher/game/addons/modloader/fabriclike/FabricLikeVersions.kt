@@ -56,13 +56,12 @@ abstract class FabricLikeVersions(private val baseUrl: String) {
         }
     }
 
+//    protected val installerUrl: String
+//        get() = "$baseUrl/versions/installer"
 
-    protected val installerUrl: String
-        get() = "$baseUrl/versions/installer"
-
-    protected val loaderUrl: String
+    val loaderUrl: String
         get() = "$baseUrl/versions/loader"
 
-    protected val gameUrl: String
+    val gameUrl: String
         get() = "$baseUrl/versions/game"
 }
