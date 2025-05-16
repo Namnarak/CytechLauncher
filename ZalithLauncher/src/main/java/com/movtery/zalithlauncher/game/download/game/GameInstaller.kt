@@ -81,7 +81,7 @@ class GameInstaller(
         //目标版本目录
         targetClientDir = VersionsManager.getVersionPath(info.customVersionName).createDirAndLog()
         val targetVersionJson = File(targetClientDir!!, "${info.customVersionName}.json")
-        val targetVersionJar = File(targetClientDir!!, "${info.customVersionName}.jar")
+//        val targetVersionJar = File(targetClientDir!!, "${info.customVersionName}.jar")
         val ignoreFile = VersionsManager.ignoreFile(targetClientDir!!)
 
         //目标版本已经安装的情况
@@ -165,7 +165,6 @@ class GameInstaller(
                     tempGameDir = tempGameDir,
                     tempMinecraftDir = tempMinecraftDir,
                     tempFolderName = forgeDir!!.name,
-                    targetVersionJar = targetVersionJar,
                     addTask = { tasks.add(it) }
                 )
             }
@@ -175,7 +174,6 @@ class GameInstaller(
                     tempGameDir = tempGameDir,
                     tempMinecraftDir = tempMinecraftDir,
                     tempFolderName = neoforgeDir!!.name,
-                    targetVersionJar = targetVersionJar,
                     addTask = { tasks.add(it) }
                 )
             }
@@ -301,7 +299,6 @@ class GameInstaller(
         tempGameDir: File,
         tempMinecraftDir: File,
         tempFolderName: String,
-        targetVersionJar: File,
         addTask: (GameInstallTask) -> Unit
     ) {
         //类似 1.19.3-41.2.8 格式，优先使用 Version 中要求的版本而非 Inherit（例如 1.19.3 却使用了 1.19 的 Forge）
@@ -331,15 +328,10 @@ class GameInstaller(
                 GameInstallTask(
                     context.getString(R.string.download_game_install_forgelike_analyse, forgeLikeVersion.loaderName),
                     getForgeLikeAnalyseTask(
-                        pclWay = pclWay,
                         downloader = downloader,
                         targetTempInstaller = tempInstaller,
                         forgeLikeVersion = forgeLikeVersion,
-                        minecraftFolder = if (pclWay) {
-                            tempMinecraftDir
-                        } else {
-                            File(getGameHome())
-                        },
+                        tempMinecraftFolder = tempMinecraftDir,
                         targetVersion = info.customVersionName,
                         inherit = processedInherit,
                         loaderVersion = processedLoaderVersion
@@ -360,7 +352,6 @@ class GameInstaller(
                     tempInstaller = tempInstaller,
                     tempGameFolder = tempGameDir,
                     tempMinecraftDir = tempMinecraftDir,
-                    vanillaJar = targetVersionJar,
                     inherit = processedInherit
                 )
             )

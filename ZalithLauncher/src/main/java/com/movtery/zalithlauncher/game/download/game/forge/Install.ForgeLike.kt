@@ -14,8 +14,6 @@ import com.movtery.zalithlauncher.game.download.game.models.toPath
 import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
 import com.movtery.zalithlauncher.game.download.game.parseToJson
 import com.movtery.zalithlauncher.game.download.jvm_server.runJvmRetryRuntimes
-import com.movtery.zalithlauncher.game.path.GamePathManager
-import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.utils.GSON
@@ -53,12 +51,12 @@ fun getForgeLikeInstallTask(
     tempInstaller: File,
     tempGameFolder: File,
     tempMinecraftDir: File,
-    vanillaJar: File,
     inherit: String
 ): Task {
     return Task.runTask(
         id = FORGE_LIKE_INSTALL_ID,
         task = { task ->
+            val tempVanillaJar = File(tempMinecraftDir, "versions/$inherit/$inherit.jar")
             val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
             if (isNew) { //新版 Forge、NeoForge
                 if (pclWay) {
@@ -75,10 +73,10 @@ fun getForgeLikeInstallTask(
                         task = task,
                         forgeLikeVersion = forgeLikeVersion,
                         tempInstaller = tempInstaller,
-                        targetGameFolder = File(GamePathManager.currentPath),
-                        targetMinecraftDir = File(getGameHome()),
+                        tempGameFolder = tempGameFolder,
+                        tempMinecraftDir = tempMinecraftDir,
                         tempVersionJson = tempVersionJson,
-                        vanillaJar = vanillaJar
+                        tempVanillaJar = tempVanillaJar
                     )
                 }
             } else { //旧版 Forge
@@ -106,10 +104,10 @@ private suspend fun installNewForgeHMCLWay(
     task: Task,
     forgeLikeVersion: ForgeLikeVersion,
     tempInstaller: File,
-    targetGameFolder: File,
-    targetMinecraftDir: File,
+    tempGameFolder: File,
+    tempMinecraftDir: File,
     tempVersionJson: File,
-    vanillaJar: File
+    tempVanillaJar: File
 ) = withContext(Dispatchers.IO) {
     task.updateProgress(-1f)
 
@@ -129,7 +127,7 @@ private suspend fun installNewForgeHMCLWay(
                     if (client != null && client.isJsonPrimitive) {
                         Log.i(FORGE_LIKE_INSTALL_ID, "Attempting to recognize mapping: ${client.asString}")
                         parseLiteral(
-                            baseDir = targetMinecraftDir,
+                            baseDir = tempMinecraftDir,
                             literal = client.asString,
                             plainConverter = { str ->
                                 val dest: Path = Files.createTempFile(tempDir, null, null)
@@ -138,7 +136,7 @@ private suspend fun installNewForgeHMCLWay(
                                     .removePrefix("/")
                                     .replace("\\", "/")
                                 zip.extractEntryToFile(item, dest.toFile())
-                                Log.i(FORGE_LIKE_INSTALL_ID, "Extracting item %item to directory ${dest.toString()}")
+                                Log.i(FORGE_LIKE_INSTALL_ID, "Extracting item %item to directory ${dest}")
                                 dest.toString()
                             }
                         )?.let {
@@ -156,11 +154,11 @@ private suspend fun installNewForgeHMCLWay(
     task.updateProgress(1f, R.string.download_game_install_forgelike_preparing_mapping_file, forgeLikeVersion.loaderName)
 
     vars["SIDE"] = "client"
-    vars["MINECRAFT_JAR"] = vanillaJar.absolutePath
-    vars["MINECRAFT_VERSION"] = vanillaJar.absolutePath
-    vars["ROOT"] = targetMinecraftDir.absolutePath
+    vars["MINECRAFT_JAR"] = tempVanillaJar.absolutePath
+    vars["MINECRAFT_VERSION"] = tempVanillaJar.absolutePath
+    vars["ROOT"] = tempMinecraftDir.absolutePath
     vars["INSTALLER"] = tempInstaller.absolutePath
-    vars["LIBRARY_DIR"] = File(targetMinecraftDir, "libraries").absolutePath
+    vars["LIBRARY_DIR"] = File(tempMinecraftDir, "libraries").absolutePath
 
     val processors: List<ForgeLikeInstallProcessor> = installProfile["processors"]
         ?.asJsonArray
@@ -170,8 +168,8 @@ private suspend fun installNewForgeHMCLWay(
     runProcessors(
         task = task,
         loaderName = forgeLikeVersion.loaderName,
-        targetMinecraftDir = targetMinecraftDir,
-        targetGameDir = targetGameFolder,
+        tempMinecraftDir = tempMinecraftDir,
+        tempGameDir = tempGameFolder,
         processors = processors,
         vars = vars
     )
@@ -336,8 +334,8 @@ private suspend fun installOldForge(
 private suspend fun runProcessors(
     task: Task,
     loaderName: String,
-    targetMinecraftDir: File,
-    targetGameDir: File,
+    tempMinecraftDir: File,
+    tempGameDir: File,
     processors: List<ForgeLikeInstallProcessor>,
     vars: Map<String, String>
 ): Unit = withContext(Dispatchers.IO) {
@@ -345,13 +343,13 @@ private suspend fun runProcessors(
         val progress = index.toFloat() / processors.size
         task.updateProgress(progress, R.string.download_game_install_base_installing, loaderName)
 
-        val options = parseOptions(targetMinecraftDir, processor.getArgs(), vars)
-        if (options["task"] != "DOWNLOAD_MOJMAPS" || options["side"] != "client") return@forEachIndexed
+        val options = parseOptions(tempMinecraftDir, processor.getArgs(), vars)
+        if (options["task"] == "DOWNLOAD_MOJMAPS" || !processor.isSide("client")) return@forEachIndexed
 
         val outputs: Map<String?, String?> = processor.getOutputs().mapKeys { (k, _) ->
-            parseLiteral(targetMinecraftDir, k, vars)
+            parseLiteral(tempMinecraftDir, k, vars)
         }.mapValues { (_, v) ->
-            parseLiteral(targetMinecraftDir, v, vars)
+            parseLiteral(tempMinecraftDir, v, vars)
         }.also {
             require(it.keys.none { key -> key == null } && it.values.none { v -> v == null }) {
                 "Invalid forge installation configuration"
@@ -360,7 +358,7 @@ private suspend fun runProcessors(
         }
 
         val anyMissing = outputs.any { (key, expectedHash) ->
-            val artifact = targetMinecraftDir.toPath().resolve(key)
+            val artifact = tempMinecraftDir.toPath().resolve(key)
             if (!Files.exists(artifact)) return@any true
 
             val actualHash = Files.newInputStream(artifact).use { stream ->
@@ -375,7 +373,7 @@ private suspend fun runProcessors(
 
         if (outputs.isNotEmpty() && !anyMissing) return@forEachIndexed
 
-        val jarPath = targetMinecraftDir.toPath().resolve("libraries").resolve(processor.getJar().toPath())
+        val jarPath = tempMinecraftDir.toPath().resolve("libraries").resolve(processor.getJar().toPath())
         require(Files.isRegularFile(jarPath)) { "Game processor file not found: $jarPath" }
 
         val mainClass = JarFile(jarPath.toFile()).use {
@@ -384,7 +382,7 @@ private suspend fun runProcessors(
             ?: throw Exception("Game processor jar missing Main-Class: $jarPath")
 
         val classpath = processor.getClasspath().map { lib ->
-            targetMinecraftDir.toPath().resolve("libraries").resolve(lib.toPath()).also { path ->
+            tempMinecraftDir.toPath().resolve("libraries").resolve(lib.toPath()).also { path ->
                 require(Files.isRegularFile(path)) { "Missing dependency: $path" }
             }.toString()
         } + jarPath.toString()
@@ -396,7 +394,7 @@ private suspend fun runProcessors(
             add(mainClass)
             addAll(
                 processor.getArgs().map { arg ->
-                    parseLiteral(targetMinecraftDir, arg, vars)
+                    parseLiteral(tempMinecraftDir, arg, vars)
                         ?: throw IOException("Invalid forge installation argument: $arg")
                 }
             )
@@ -407,7 +405,7 @@ private suspend fun runProcessors(
             jvmArgs = jvmArgs,
             prefixArgs = { null },
             jre = Jre.JRE_8,
-            userHome = targetGameDir.absolutePath.trimEnd('\\')
+            userHome = tempGameDir.absolutePath.trimEnd('\\')
         ) {
             Log.i(FORGE_LIKE_INSTALL_ID, "Start to run ${processor.getJar().toPath()} with args: $jvmArgs")
         }

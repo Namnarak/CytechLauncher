@@ -31,14 +31,12 @@ const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
 
 /**
  * Forge Like 分析与安装支持库 (仅支持处理新版本 Forge、NeoForge)
- * @param pclWay 如果以 pcl 的方式安装 Forge，则需要复制原版文件到临时游戏目录
  */
 fun getForgeLikeAnalyseTask(
-    pclWay: Boolean,
     downloader: BaseMinecraftDownloader,
     targetTempInstaller: File,
     forgeLikeVersion: ForgeLikeVersion,
-    minecraftFolder: File,
+    tempMinecraftFolder: File,
     targetVersion: String,
     inherit: String,
     loaderVersion: String
@@ -47,16 +45,14 @@ fun getForgeLikeAnalyseTask(
         id = FORGE_LIKE_ANALYSE_ID,
         dispatcher = Dispatchers.Default,
         task = { task ->
-            if (pclWay) {
-                withContext(Dispatchers.IO) {
-                    //准备安装环境
-                    //复制原版文件
-                    copyVanillaFiles(
-                        targetVersion = targetVersion,
-                        destinationGameFolder = minecraftFolder,
-                        inheritVersion = inherit
-                    )
-                }
+            withContext(Dispatchers.IO) {
+                //准备安装环境
+                //复制原版文件
+                copyVanillaFiles(
+                    targetVersion = targetVersion,
+                    destinationGameFolder = tempMinecraftFolder,
+                    inheritVersion = inherit
+                )
             }
 
             analyseNewForge(
@@ -64,7 +60,7 @@ fun getForgeLikeAnalyseTask(
                 downloader = downloader,
                 forgeLikeVersion = forgeLikeVersion,
                 installer = targetTempInstaller,
-                targetMinecraftDir = minecraftFolder,
+                tempMinecraftFolder = tempMinecraftFolder,
                 inherit = inherit,
                 loaderVersion = loaderVersion
             )
@@ -81,7 +77,7 @@ private suspend fun analyseNewForge(
     downloader: BaseMinecraftDownloader,
     forgeLikeVersion: ForgeLikeVersion,
     installer: File,
-    targetMinecraftDir: File,
+    tempMinecraftFolder: File,
     inherit: String,
     loaderVersion: String
 ) {
@@ -103,16 +99,16 @@ private suspend fun analyseNewForge(
                 for (library in libraryList) {
                     val path = artifactToPath(library) ?: continue
                     zip.getEntry("maven/$path")?.let { entry ->
-                        val dest = File(targetMinecraftDir, "libraries/$path")
+                        val dest = File(tempMinecraftFolder, "libraries/$path")
                         zip.extractEntryToFile(entry, dest)
                     }
                 }
             }
 
             installProfile["path"]?.let { path ->
-                val libraryPath = getLibraryPath(path.asString, targetMinecraftDir.absolutePath)
+                val libraryPath = getLibraryPath(path.asString, tempMinecraftFolder.absolutePath)
                 zip.getEntry("maven/$libraryPath")?.let { entry ->
-                    val dest = File(targetMinecraftDir, "libraries/$libraryPath")
+                    val dest = File(tempMinecraftFolder, "libraries/$libraryPath")
                     zip.extractEntryToFile(entry, dest)
                 }
             }
@@ -129,14 +125,14 @@ private suspend fun analyseNewForge(
         downloader = downloader,
         gameJson = installProfileString
     )
-    libDownloader.schedule(task, File(targetMinecraftDir, "libraries").ensureDirectory(), false)
+    libDownloader.schedule(task, File(tempMinecraftFolder, "libraries").ensureDirectory(), false)
 
     //添加 Mojang Mappings 下载信息
     task.updateProgress(0.4f)
     scheduleMojangMappings(
         mergedJson = installProfile,
-        tempMinecraftDir = targetMinecraftDir,
-        tempVanillaJar = File(targetMinecraftDir, "versions/$inherit/$inherit.jar"),
+        tempMinecraftDir = tempMinecraftFolder,
+        tempVanillaJar = File(tempMinecraftFolder, "versions/$inherit/$inherit.jar"),
         tempInstaller = installer
     ) { url, sha1, targetFile, size ->
         libDownloader.scheduleDownload(
