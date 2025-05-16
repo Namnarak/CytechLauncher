@@ -321,7 +321,6 @@ class GameInstaller(
         )
         //分析与安装
         val isNew = forgeLikeVersion is NeoForgeVersion || !forgeLikeVersion.isLegacy
-        val pclWay = false //是否以 PCL2 的方式安装 Forge，false 则为 HMCL 的安装方式，仅供测试用
 
         if (isNew) {
             addTask(
@@ -345,7 +344,6 @@ class GameInstaller(
                 context.getString(R.string.download_game_install_base_install, forgeLikeVersion.loaderName),
                 getForgeLikeInstallTask(
                     isNew = isNew,
-                    pclWay = pclWay,
                     downloader = downloader,
                     forgeLikeVersion = forgeLikeVersion,
                     tempFolderName = tempFolderName,

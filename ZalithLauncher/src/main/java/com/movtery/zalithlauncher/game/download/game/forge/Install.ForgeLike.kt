@@ -44,7 +44,6 @@ const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
  */
 fun getForgeLikeInstallTask(
     isNew: Boolean,
-    pclWay: Boolean,
     downloader: BaseMinecraftDownloader,
     forgeLikeVersion: ForgeLikeVersion,
     tempFolderName: String,
@@ -59,26 +58,25 @@ fun getForgeLikeInstallTask(
             val tempVanillaJar = File(tempMinecraftDir, "versions/$inherit/$inherit.jar")
             val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
             if (isNew) { //新版 Forge、NeoForge
-                if (pclWay) {
-                    installNewForgePCLWay(
-                        task = task,
-                        forgeLikeVersion = forgeLikeVersion,
-                        tempVersionJson = tempVersionJson,
-                        tempInstaller = tempInstaller,
-                        tempGameFolder = tempGameFolder,
-                        tempMinecraftDir = tempMinecraftDir
-                    )
-                } else {
-                    installNewForgeHMCLWay(
-                        task = task,
-                        forgeLikeVersion = forgeLikeVersion,
-                        tempInstaller = tempInstaller,
-                        tempGameFolder = tempGameFolder,
-                        tempMinecraftDir = tempMinecraftDir,
-                        tempVersionJson = tempVersionJson,
-                        tempVanillaJar = tempVanillaJar
-                    )
-                }
+                //以 HMCL 的方式手动安装
+                installNewForgeHMCLWay(
+                    task = task,
+                    forgeLikeVersion = forgeLikeVersion,
+                    tempInstaller = tempInstaller,
+                    tempGameFolder = tempGameFolder,
+                    tempMinecraftDir = tempMinecraftDir,
+                    tempVersionJson = tempVersionJson,
+                    tempVanillaJar = tempVanillaJar
+                )
+
+//                installNewForgePCLWay(
+//                    task = task,
+//                    forgeLikeVersion = forgeLikeVersion,
+//                    tempVersionJson = tempVersionJson,
+//                    tempInstaller = tempInstaller,
+//                    tempGameFolder = tempGameFolder,
+//                    tempMinecraftDir = tempMinecraftDir
+//                )
             } else { //旧版 Forge
                 installOldForge(
                     task = task,
@@ -167,7 +165,6 @@ private suspend fun installNewForgeHMCLWay(
 
     runProcessors(
         task = task,
-        loaderName = forgeLikeVersion.loaderName,
         tempMinecraftDir = tempMinecraftDir,
         tempGameDir = tempGameFolder,
         processors = processors,
@@ -179,6 +176,7 @@ private suspend fun installNewForgeHMCLWay(
  * 以 PCL2 的方式安装新版 Forge、NeoForge
  * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/bf6fa718c89e8615b947d1c639ed16a72ce125e0/Plain%20Craft%20Launcher%202/Pages/PageDownload/ModDownloadLib.vb#L1412-L1479)
  */
+@Suppress("unused")
 private suspend fun installNewForgePCLWay(
     task: Task,
     forgeLikeVersion: ForgeLikeVersion,
@@ -333,18 +331,15 @@ private suspend fun installOldForge(
  */
 private suspend fun runProcessors(
     task: Task,
-    loaderName: String,
     tempMinecraftDir: File,
     tempGameDir: File,
     processors: List<ForgeLikeInstallProcessor>,
     vars: Map<String, String>
 ): Unit = withContext(Dispatchers.IO) {
-    processors.forEachIndexed { index, processor ->
-        val progress = index.toFloat() / processors.size
-        task.updateProgress(progress, R.string.download_game_install_base_installing, loaderName)
-
+    //优先构建所有需要执行的命令，以便于更好的计算进度
+    val commandList = processors.mapNotNull { processor ->
         val options = parseOptions(tempMinecraftDir, processor.getArgs(), vars)
-        if (options["task"] == "DOWNLOAD_MOJMAPS" || !processor.isSide("client")) return@forEachIndexed
+        if (options["task"] == "DOWNLOAD_MOJMAPS" || !processor.isSide("client")) return@mapNotNull null
 
         val outputs: Map<String?, String?> = processor.getOutputs().mapKeys { (k, _) ->
             parseLiteral(tempMinecraftDir, k, vars)
@@ -371,7 +366,7 @@ private suspend fun runProcessors(
             } else false
         }
 
-        if (outputs.isNotEmpty() && !anyMissing) return@forEachIndexed
+        if (outputs.isNotEmpty() && !anyMissing) return@mapNotNull null
 
         val jarPath = tempMinecraftDir.toPath().resolve("libraries").resolve(processor.getJar().toPath())
         require(Files.isRegularFile(jarPath)) { "Game processor file not found: $jarPath" }
@@ -400,6 +395,15 @@ private suspend fun runProcessors(
             )
         }.joinToString(" ")
 
+        Triple(processor, jvmArgs, outputs)
+    }
+
+    //正式开始执行命令
+    commandList.forEachIndexed { index, commandTriple ->
+        val processor = commandTriple.first
+        val jvmArgs = commandTriple.second
+        val outputs = commandTriple.third
+
         runJvmRetryRuntimes(
             logId = FORGE_LIKE_INSTALL_ID,
             jvmArgs = jvmArgs,
@@ -407,7 +411,13 @@ private suspend fun runProcessors(
             jre = Jre.JRE_8,
             userHome = tempGameDir.absolutePath.trimEnd('\\')
         ) {
-            Log.i(FORGE_LIKE_INSTALL_ID, "Start to run ${processor.getJar().toPath()} with args: $jvmArgs")
+            val jarPath = processor.getJar().toPath()
+            val jarName = File(jarPath).name
+
+            val progress = index.toFloat() / commandList.size
+            task.updateProgress(progress, R.string.download_game_install_base_installing, jarName)
+
+            Log.i(FORGE_LIKE_INSTALL_ID, "Start to run $jarPath with args: $jvmArgs")
         }
 
         for ((key, value) in outputs) {
