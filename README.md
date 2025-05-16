@@ -22,6 +22,7 @@ Here’s the current roadmap of features and development status:
 
 * [x] Core launcher framework (themes, animations, settings, etc.)
 * [x] Game launching and rendering
+* [x] Game version download and installation
 * [x] Control support: virtual mouse pointer / physical mouse & keyboard / gesture control
 * [x] Version management: list, overview, and configuration
 * [x] Customizable game installation directory
@@ -31,7 +32,6 @@ Here’s the current roadmap of features and development status:
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
-* [ ] Game version download and installation
 * [ ] Modpack download and automatic installation
 * [ ] Mod download and automatic installation
 * [ ] Resource pack download and automatic installation
