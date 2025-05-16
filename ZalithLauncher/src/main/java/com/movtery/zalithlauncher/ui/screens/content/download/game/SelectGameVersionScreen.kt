@@ -57,7 +57,6 @@ import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
-import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCREEN_TAG
@@ -327,12 +326,14 @@ private fun VersionList(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                IconTextButton(
-                    onClick = onRefreshClick,
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = stringResource(R.string.generic_refresh),
-                    text = stringResource(R.string.generic_refresh)
-                )
+                IconButton(
+                    onClick = onRefreshClick
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.generic_refresh)
+                    )
+                }
             }
         }
 

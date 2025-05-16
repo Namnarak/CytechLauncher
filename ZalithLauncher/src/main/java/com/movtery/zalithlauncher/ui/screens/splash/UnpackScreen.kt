@@ -4,13 +4,17 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Card
@@ -30,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.state.MutableStates
@@ -97,33 +100,33 @@ private fun ActionMenu(
         color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
-        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (text, button) = createRefs()
-
-            Text(
+        Column {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(PaddingValues(horizontal = 16.dp))
-                    .constrainAs(text) {
-                        top.linkTo(parent.top, margin = 16.dp)
+                    .verticalScroll(state = rememberScrollState())
+                    .weight(1f)
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    text = if (installing) {
+                        stringResource(R.string.splash_screen_installing)
+                    } else {
+                        stringResource(R.string.splash_screen_unpack_desc)
                     },
-                text = if (installing) {
-                    stringResource(R.string.splash_screen_installing)
-                } else {
-                    stringResource(R.string.splash_screen_unpack_desc)
-                },
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                style = MaterialTheme.typography.bodyMedium
-            )
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
             ScalingActionButton(
                 enabled = !installing,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PaddingValues(horizontal = 12.dp))
-                    .constrainAs(button) {
-                        bottom.linkTo(parent.bottom, margin = 8.dp)
-                    },
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 8.dp),
                 onClick = {
                     installing = true
                     onAgreeClick()

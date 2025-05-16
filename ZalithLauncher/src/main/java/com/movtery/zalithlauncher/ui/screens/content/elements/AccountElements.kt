@@ -494,7 +494,7 @@ fun LocalLoginDialog(
     val context = LocalContext.current
 
     SimpleEditDialog(
-        title = stringResource(R.string.account_type_local),
+        title = stringResource(R.string.account_local_create_account),
         value = userName,
         onValueChange = { userName = it.trim() },
         label = { Text(text = stringResource(R.string.account_label_username)) },

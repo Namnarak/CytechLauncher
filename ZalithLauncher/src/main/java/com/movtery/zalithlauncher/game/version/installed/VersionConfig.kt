@@ -227,8 +227,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
 enum class SettingState(val textRes: Int) {
     FOLLOW_GLOBAL(R.string.generic_follow_global),
-    ENABLE(R.string.generic_open),
-    DISABLE(R.string.generic_close)
+    ENABLE(R.string.generic_enable),
+    DISABLE(R.string.generic_disable)
 }
 
 private fun getSettingStateNotNull(type: SettingState?) = type ?: SettingState.FOLLOW_GLOBAL

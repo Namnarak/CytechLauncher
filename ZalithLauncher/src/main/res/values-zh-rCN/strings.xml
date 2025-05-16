@@ -22,6 +22,8 @@
     <string name="generic_close">关闭</string>
     <string name="generic_clear">清除</string>
     <string name="generic_import">导入</string>
+    <string name="generic_enable">启用</string>
+    <string name="generic_disable">禁用</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
@@ -165,6 +167,7 @@
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>
     <string name="account_add_new_server">添加认证服务器</string>
+    <string name="account_add_new_server_button">添加认证服务器</string>
     <string name="account_add_new_account">添加账号</string>
     <string name="account_label_username">填写用户名</string>
     <string name="account_label_server_url">填写 Yggdrasil API 服务器地址</string>
@@ -178,7 +181,11 @@
     <string name="account_change_skin_model_alex">Alex 模型</string>
     <string name="account_change_skin_reset_skin_message">你确定要重置当前账号的皮肤吗？</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
-    <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
+    <string name="account_supporting_username_invalid_local_message_hint1">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符</string>
+    <string name="account_supporting_username_invalid_local_message_hint2">否则可能将导致游戏无法正常运行</string>
+    <string name="account_supporting_username_invalid_local_message_hint3">正确的用户名举例：Name、Name_、Name123</string>
+    <string name="account_supporting_username_invalid_local_message_hint4">错误的用户名举例：Name@、N ame、name_name_name_name</string>
+    <string name="account_supporting_username_invalid_local_message_hint5">但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
     <string name="account_supporting_username_invalid_still_use">仍旧使用</string>
     <string name="account_supporting_username_invalid_short">该用户名过短</string>
     <string name="account_supporting_username_invalid_long">该用户名过长</string>
@@ -209,6 +216,7 @@
     <string name="account_microsoft_authenticate_minecraft">验证 Minecraft 基本信息</string>
     <string name="account_microsoft_verify_game_ownership">验证是否拥有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">获取玩家账户信息</string>
+    <string name="account_local_create_account">创建离线账号</string>
     <string name="account_other_login_baseurl_not_set">未设置基础 URL</string>
     <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
     <string name="account_other_login_getting_server_info">获取服务器信息中</string>
