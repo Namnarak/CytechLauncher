@@ -303,7 +303,7 @@ private fun VersionList(
                 ) {
                     BasicTextField(
                         modifier = Modifier
-                            .height(28.dp)
+                            .height(32.dp)
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         value = versionFilter.id,
                         onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },

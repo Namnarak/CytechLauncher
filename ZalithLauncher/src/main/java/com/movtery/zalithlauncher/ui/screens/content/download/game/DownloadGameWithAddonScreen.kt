@@ -270,7 +270,7 @@ private fun ScreenHeader(
                     BasicTextField(
                         modifier = Modifier
                             .weight(1f)
-                            .height(28.dp)
+                            .height(32.dp)
                             .padding(horizontal = 12.dp, vertical = 8.dp),
                         value = nameValue,
                         onValueChange = {
