@@ -21,9 +21,9 @@ import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.extractEntryToFile
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
+import com.movtery.zalithlauncher.utils.string.isBiggerOrEqualTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.maven.artifact.versioning.ComparableVersion
 import org.jackhuang.hmcl.util.DigestUtils
 import java.io.File
 import java.io.FileNotFoundException
@@ -457,7 +457,7 @@ private suspend fun progressIgnoreList(
                 ?.asString
         }
         .map { parseLibraryComponents(it) }
-        .any { it.groupId == "cpw.mods" && it.artifactId == "bootstraplauncher" && ComparableVersion(it.version) >= ComparableVersion("0.1.17") }
+        .any { it.groupId == "cpw.mods" && it.artifactId == "bootstraplauncher" && it.version.isBiggerOrEqualTo("0.1.17") }
 
     if (!hasNewBootstrapLauncher) return@withContext
 

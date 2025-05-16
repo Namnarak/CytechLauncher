@@ -1,6 +1,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.forgelike
 
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.isVersionEqualTo
 
 class ForgeBuildVersion private constructor(
     val major: Int,
@@ -22,7 +22,7 @@ class ForgeBuildVersion private constructor(
 
     fun compareOptiFineRequired(requiredVersion: String): Boolean {
         return if ('.' in requiredVersion) {
-            StringUtils.compareClassVersions(toString(), requiredVersion) == 0
+            toString().isVersionEqualTo(requiredVersion)
         } else {
             revision.toString() == requiredVersion
         }

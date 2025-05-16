@@ -15,7 +15,8 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.VERSIONS_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import org.apache.maven.artifact.versioning.ComparableVersion
+import com.movtery.zalithlauncher.utils.string.isBiggerTo
+import com.movtery.zalithlauncher.utils.string.isLowerTo
 
 sealed interface LaunchGameOperation {
     data object None : LaunchGameOperation
@@ -81,10 +82,11 @@ fun LaunchGameOperation(
             val rendererMinVer = currentRenderer.getMinMCVersion()
             val rendererMaxVer = currentRenderer.getMaxMCVersion()
 
-            val mcVer = ComparableVersion(version.getVersionInfo()!!.minecraftVersion)
+            val mcVer = version.getVersionInfo()!!.minecraftVersion
 
-            val isUnsupported = (rendererMinVer?.let { mcVer < ComparableVersion(it) } ?: false) ||
-                    (rendererMaxVer?.let { mcVer > ComparableVersion(it) } ?: false)
+            val isUnsupported =
+                (rendererMinVer?.let { mcVer.isLowerTo(it) } ?: false) ||
+                (rendererMaxVer?.let { mcVer.isBiggerTo(it) } ?: false)
 
             if (isUnsupported) {
                 updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer))

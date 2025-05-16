@@ -8,7 +8,7 @@ import com.movtery.zalithlauncher.game.download.game.models.toLaunchForInfo
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.json.merge
 import com.movtery.zalithlauncher.utils.json.safeGetMember
-import org.apache.maven.artifact.versioning.ComparableVersion
+import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import java.io.File
 
 const val GAME_JSON_MERGER_ID = "GameJsonMerger"
@@ -253,9 +253,7 @@ private fun extractClassifier(artifactId: String, version: String, filename: Str
 private fun isCurrentVersionHigher(currentVersion: String, existingLib: JsonObject): Boolean {
     val existingName = existingLib.get("name").asString
     val (_, _, existingVersion) = parseLibraryComponents(existingName)
-    val v1 = ComparableVersion(currentVersion)
-    val v2 = ComparableVersion(existingVersion)
-    return v1 > v2
+    return currentVersion.isBiggerTo(existingVersion)
 }
 
 

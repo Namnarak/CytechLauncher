@@ -16,7 +16,7 @@ import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.string.StringUtils
-import org.jackhuang.hmcl.util.versioning.VersionNumber
+import com.movtery.zalithlauncher.utils.string.isLowerTo
 import java.io.File
 
 class LaunchArgs(
@@ -50,7 +50,7 @@ class LaunchArgs(
             val (ip, port) = serverIp.split(":").run {
                 first() to getOrElse(1) { "25565" }
             }
-            if (VersionNumber.compare(minecraftVersion.getVersionInfo()!!.minecraftVersion, "1.20") < 0) {
+            if (minecraftVersion.getVersionInfo()!!.minecraftVersion.isLowerTo("1.20")) {
                 argsList.apply {
                     add("--server")
                     add(ip)
@@ -90,7 +90,7 @@ class LaunchArgs(
 
         val configFilePath = minecraftVersion.getVersionPath().child("log4j2.xml")
         if (!configFilePath.exists()) {
-            val is7 = VersionNumber.compare(VersionNumber.asVersion(gameManifest.id ?: "0.0").canonical, "1.12") < 0
+            val is7 = (gameManifest.id ?: "0.0").isLowerTo("1.12")
             runCatching {
                 val content = if (is7) {
                     readAssetsFile("components/log4j-1.7.xml")

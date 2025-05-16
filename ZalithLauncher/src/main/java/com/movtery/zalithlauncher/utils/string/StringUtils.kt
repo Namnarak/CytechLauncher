@@ -25,29 +25,6 @@ class StringUtils {
             }
         }
 
-        fun compareChar(s1: String, s2: String): Int {
-            val regex = "\\d+".toRegex()
-
-            val parts1 = regex.findAll(s1).map { it.value }.toList()
-            val parts2 = regex.findAll(s2).map { it.value }.toList()
-
-            val minSize = minOf(parts1.size, parts2.size)
-
-            for (i in 0 until minSize) {
-                val num1 = parts1[i].toIntOrNull()
-                val num2 = parts2[i].toIntOrNull()
-
-                if (num1 != null && num2 != null) {
-                    if (num1 != num2) return num1.compareTo(num2)
-                } else {
-                    val strCompare = parts1[i].compareTo(parts2[i], ignoreCase = true)
-                    if (strCompare != 0) return strCompare
-                }
-            }
-
-            return s1.compareTo(s2, ignoreCase = true)
-        }
-
         fun throwableToString(throwable: Throwable): String {
             val stringWriter = StringWriter()
             PrintWriter(stringWriter).use {
@@ -80,18 +57,6 @@ class StringUtils {
          * @return 检查字符串是否为null，如果是那么则返回""，如果不是，则返回字符串本身
          */
         fun getStringNotNull(string: String?): String = string ?: ""
-
-        fun compareClassVersions(thisName: String, otherName: String): Int {
-            val parts1 = thisName.split('.').map { it.toIntOrNull() ?: 0 }
-            val parts2 = otherName.split('.').map { it.toIntOrNull() ?: 0 }
-            val maxLength = maxOf(parts1.size, parts2.size)
-            for (i in 0 until maxLength) {
-                val p1 = parts1.getOrElse(i) { 0 }
-                val p2 = parts2.getOrElse(i) { 0 }
-                if (p1 != p2) return p1.compareTo(p2)
-            }
-            return 0
-        }
 
         /**
          * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/84aca2e/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L1032-L1039)

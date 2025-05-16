@@ -1,18 +1,17 @@
 package com.movtery.zalithlauncher.game.launch
 
 import com.movtery.zalithlauncher.utils.getSystemLanguage
-import org.jackhuang.hmcl.util.versioning.VersionNumber
-import org.jackhuang.hmcl.util.versioning.VersionRange
+import com.movtery.zalithlauncher.utils.string.isLowerOrEqualTo
 import java.util.regex.Pattern
 
 private val SNAPSHOT_REGEX: Pattern = Pattern.compile("^\\d+[a-zA-Z]\\d+[a-zA-Z]$")
 
 private fun isOlderVersionRelease(versionName: String): Boolean {
-    return VersionRange.atMost(VersionNumber.asVersion("1.10.2")).contains(VersionNumber.asVersion(versionName))
+    return versionName.isLowerOrEqualTo("1.10.2")
 }
 
 private fun isOlderVersionSnapshot(versionName: String): Boolean {
-    return VersionRange.atMost(VersionNumber.asVersion("16w32a")).contains(VersionNumber.asVersion(versionName))
+    return versionName.isLowerOrEqualTo("16w32a")
 }
 
 private fun getOlderLanguage(lang: String): String {

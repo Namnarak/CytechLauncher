@@ -12,6 +12,7 @@ import com.movtery.zalithlauncher.utils.file.readString
 import com.movtery.zalithlauncher.utils.math.findNearestPositive
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.extractUntilCharacter
+import com.movtery.zalithlauncher.utils.string.compareVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -49,7 +50,8 @@ object RuntimesManager {
             ?.filter { it.isDirectory }
             ?.mapNotNull { loadRuntime(it.name, forceLoad = forceLoad) }
             ?.sortedWith { o1, o2 ->
-                -StringUtils.compareClassVersions(o1.versionString ?: o1.name, o2.versionString ?: o2.name)
+                val thisVer = o1.versionString ?: o1.name
+                -thisVer.compareVersion(o2.versionString ?: o2.name)
             }
             ?: throw IllegalStateException("Failed to access runtime directory")
     }

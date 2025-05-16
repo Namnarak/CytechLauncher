@@ -12,6 +12,8 @@ import com.movtery.zalithlauncher.game.version.installed.favorites.FavoritesVers
 import com.movtery.zalithlauncher.game.version.installed.utils.VersionInfoUtils
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.compareChar
+import com.movtery.zalithlauncher.utils.string.compareVersion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -91,12 +93,12 @@ object VersionsManager {
             }
 
             newVersions.sortWith { o1, o2 ->
-                var sort = -StringUtils.compareClassVersions(
-                    o1.getVersionInfo()?.minecraftVersion ?: o1.getVersionName(),
+                val thisVer = o1.getVersionInfo()?.minecraftVersion ?: o1.getVersionName()
+                var sort = -thisVer.compareVersion(
                     o2.getVersionInfo()?.minecraftVersion ?: o2.getVersionName()
                 )
                 if (sort == 0) sort =
-                    StringUtils.compareChar(o1.getVersionName(), o2.getVersionName())
+                    compareChar(o1.getVersionName(), o2.getVersionName())
                 sort
             }
 
