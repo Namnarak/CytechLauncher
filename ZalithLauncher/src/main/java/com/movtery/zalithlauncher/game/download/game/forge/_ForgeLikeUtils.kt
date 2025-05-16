@@ -39,9 +39,7 @@ fun parseOptions(baseDir: File, args: List<String>, vars: Map<String, String>): 
             optionName = arg.removePrefix("--")
         } else {
             if (optionName != null) {
-                parseLiteral(baseDir, arg, vars)?.let {
-                    options[optionName!!] = it
-                }
+                options[optionName] = parseLiteral(baseDir, arg, vars)!!
                 optionName = null
             }
         }

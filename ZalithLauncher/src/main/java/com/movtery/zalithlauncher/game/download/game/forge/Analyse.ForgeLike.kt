@@ -25,6 +25,8 @@ import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.zip.ZipFile
 
 const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
@@ -179,17 +181,49 @@ private suspend fun scheduleMojangMappings(
     tempInstaller: File,
     schedule: (url: String, sha1: String?, targetFile: File, size: Long) -> Unit
 ) = withContext(Dispatchers.IO) {
+    val tempDir = File(tempMinecraftDir, ".temp/forge_installer_cache").ensureDirectory()
+    val vars = mutableMapOf<String, String>()
+
+    ZipFile(tempInstaller).use { zip ->
+        zip.readText("install_profile.json").parseToJson()["data"].asJsonObject?.let { data ->
+            for ((key, value) in data.entrySet()) {
+                if (value.isJsonObject) {
+                    val client = value.asJsonObject["client"]
+                    if (client != null && client.isJsonPrimitive) {
+                        parseLiteral(
+                            baseDir = tempMinecraftDir,
+                            literal = client.asString,
+                            plainConverter = { str ->
+                                val dest: Path = Files.createTempFile(tempDir.toPath(), null, null)
+                                val item = str
+                                    .removePrefix("\\")
+                                    .removePrefix("/")
+                                    .replace("\\", "/")
+                                zip.extractEntryToFile(item, dest.toFile())
+                                dest.toString()
+                            }
+                        )?.let {
+                            vars[key] = it
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    vars += mapOf(
+        "SIDE" to "client",
+        "MINECRAFT_JAR" to tempVanillaJar.absolutePath,
+        "MINECRAFT_VERSION" to tempVanillaJar.absolutePath,
+        "ROOT" to tempMinecraftDir.absolutePath,
+        "INSTALLER" to tempInstaller.absolutePath,
+        "LIBRARY_DIR" to File(tempMinecraftDir, "libraries").absolutePath
+    )
+
     parseProcessors(
         baseDir = tempMinecraftDir,
         jsonObject = mergedJson,
-        vars = mapOf(
-            "SIDE" to "client",
-            "MINECRAFT_JAR" to tempVanillaJar.absolutePath,
-            "MINECRAFT_VERSION" to tempVanillaJar.absolutePath,
-            "ROOT" to tempMinecraftDir.absolutePath,
-            "INSTALLER" to tempInstaller.absolutePath,
-            "LIBRARY_DIR" to File(tempMinecraftDir, "libraries").absolutePath
-        ),
+        vars = vars,
         schedule = schedule
     )
 }

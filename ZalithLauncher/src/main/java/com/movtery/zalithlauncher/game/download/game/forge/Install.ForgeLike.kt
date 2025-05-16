@@ -111,7 +111,7 @@ private suspend fun installNewForgeHMCLWay(
 ) = withContext(Dispatchers.IO) {
     task.updateProgress(-1f)
 
-    val tempDir = Files.createTempDirectory("forge_installer")
+    val tempDir = File(tempMinecraftDir, ".temp/forge_installer_cache").ensureDirectory()
     val vars = mutableMapOf<String, String>()
 
     val installProfile = ZipFile(tempInstaller).use { zip ->
@@ -130,13 +130,13 @@ private suspend fun installNewForgeHMCLWay(
                             baseDir = tempMinecraftDir,
                             literal = client.asString,
                             plainConverter = { str ->
-                                val dest: Path = Files.createTempFile(tempDir, null, null)
+                                val dest: Path = Files.createTempFile(tempDir.toPath(), null, null)
                                 val item = str
                                     .removePrefix("\\")
                                     .removePrefix("/")
                                     .replace("\\", "/")
                                 zip.extractEntryToFile(item, dest.toFile())
-                                Log.i(FORGE_LIKE_INSTALL_ID, "Extracting item %item to directory ${dest}")
+                                Log.i(FORGE_LIKE_INSTALL_ID, "Extracting item %item to directory $dest")
                                 dest.toString()
                             }
                         )?.let {
