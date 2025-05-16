@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -32,7 +33,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
@@ -193,6 +196,9 @@ fun SimpleEditDialog(
                         it.invoke()
                         Spacer(modifier = Modifier.size(8.dp))
                     }
+
+                    val focusManager = LocalFocusManager.current
+
                     OutlinedTextField(
                         value = value,
                         onValueChange = { onValueChange(it) },
@@ -201,7 +207,15 @@ fun SimpleEditDialog(
                         supportingText = supportingText,
                         singleLine = singleLine,
                         maxLines = maxLines,
-                        keyboardOptions = keyboardOptions,
+                        keyboardOptions = keyboardOptions.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus(true)
+                                onConfirm()
+                            }
+                        ),
                         shape = MaterialTheme.shapes.large
                     )
                     extraContent?.invoke()

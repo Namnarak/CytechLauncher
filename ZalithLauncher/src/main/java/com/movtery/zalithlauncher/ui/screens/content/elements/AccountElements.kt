@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -51,15 +53,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -542,6 +548,12 @@ fun OtherServerLoginDialog(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
+    val confirmAction = { //确认操作
+        if (email.isNotEmpty() && password.isNotEmpty()) {
+            onConfirm(email, password)
+        }
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
@@ -561,6 +573,9 @@ fun OtherServerLoginDialog(
                     modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val passwordFocus = remember { FocusRequester() }
+                    val focusManager = LocalFocusManager.current
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -571,11 +586,21 @@ fun OtherServerLoginDialog(
                                 Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
                             }
                         },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                //自动跳到密码输入框，无缝衔接
+                                passwordFocus.requestFocus()
+                            }
+                        ),
                         singleLine = true,
                         shape = MaterialTheme.shapes.large
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     OutlinedTextField(
+                        modifier = Modifier.focusRequester(passwordFocus),
                         value = password,
                         onValueChange = { password = it },
                         isError = password.isEmpty(),
@@ -589,6 +614,16 @@ fun OtherServerLoginDialog(
                                 Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
                             }
                         },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                //用户按下返回，甚至可以在这里直接进行登陆
+                                focusManager.clearFocus(true)
+                                confirmAction()
+                            }
+                        ),
                         singleLine = true,
                         shape = MaterialTheme.shapes.large
                     )
@@ -623,11 +658,7 @@ fun OtherServerLoginDialog(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            if (email.isNotEmpty() && password.isNotEmpty()) {
-                                onConfirm(email, password)
-                            }
-                        }
+                        onClick = confirmAction
                     ) {
                         Text(text = stringResource(R.string.generic_confirm))
                     }
