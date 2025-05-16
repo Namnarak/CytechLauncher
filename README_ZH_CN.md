@@ -10,8 +10,9 @@
 此外，我们已注意到有第三方使用“Zalith Launcher”名称搭建了一个看似官方的网站。请注意：**该网站并非我们创建**，其通过冒用名义并植入广告牟利。我们对此类行为**不参与、不认可、不信任**。  
 请务必提高警惕，**谨防个人隐私信息泄露**！  
 
-> ⚠️ 该项目与 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 属于两个完全不同的项目  
-> ⚠️ 项目目前仍处于早期开发阶段，功能持续添加中，欢迎关注更新！
+> [!WARNING]
+> 该项目与 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 属于两个完全不同的项目  
+> 项目目前仍处于早期开发阶段，功能持续添加中，欢迎关注更新！
 
 
 
