@@ -38,9 +38,7 @@ fun getOptiFineDownloadTask(
         id = OPTIFINE_DOWNLOAD_ID,
         task = { task ->
             task.updateProgress(-1f, R.string.download_game_install_optifine_fetch_download_url, optifine.realVersion)
-            val optifineUrl = withContext(Dispatchers.IO) {
-                OptiFineVersions.fetchOptiFineDownloadUrl(optifine.fileName) ?: throw CantFetchingOptiFineUrlException()
-            }
+            val optifineUrl = fetchOptiFineDownloadUrl(optifine)
 
             task.updateProgress(-1f, R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion)
             NetWorkUtils.downloadFileSuspend(optifineUrl, targetTempInstaller)
@@ -63,3 +61,27 @@ fun getOptiFineDownloadTask(
         }
     )
 }
+
+fun getOptiFineModsDownloadTask(
+    optifine: OptiFineVersion,
+    tempModsDir: File
+): Task {
+    return Task.runTask(
+        id = OPTIFINE_DOWNLOAD_ID,
+        task = { task ->
+            task.updateProgress(-1f, R.string.download_game_install_optifine_fetch_download_url, optifine.realVersion)
+            val optifineUrl = fetchOptiFineDownloadUrl(optifine)
+
+            //开始下载为 Mod
+            task.updateProgress(-1f, R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion)
+            NetWorkUtils.downloadFileSuspend(optifineUrl, File(tempModsDir, optifine.fileName))
+        }
+    )
+}
+
+/**
+ * 获取 OptiFine 主文件下载链接
+ */
+private suspend fun fetchOptiFineDownloadUrl(
+    optifine: OptiFineVersion
+): String = OptiFineVersions.fetchOptiFineDownloadUrl(optifine.fileName) ?: throw CantFetchingOptiFineUrlException()
