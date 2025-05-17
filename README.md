@@ -46,12 +46,18 @@ Here’s the current roadmap of features and development status:
 
 ## 🌐 Language and Translation Support
 
-Zalith Launcher 2 currently supports the following two languages:
+### Zalith Launcher 2 currently supports the following two languages:
 
 * **English** (default)
 * **Simplified Chinese**
 
-These two languages are the ones that the project officially **maintains and guarantees completeness**. We welcome community contributions for translations in other languages, but please note the following:
+These two languages are **officially maintained by the project and guaranteed for completeness**.
+
+### Community-supported languages for Zalith Launcher 2:
+
+We welcome the community to contribute translations for other languages!
+
+> No community translations available yet...
 
 ### 📌 Why Only English and Simplified Chinese?
 
