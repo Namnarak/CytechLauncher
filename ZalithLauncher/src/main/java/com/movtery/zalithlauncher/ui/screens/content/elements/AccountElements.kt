@@ -570,7 +570,10 @@ fun OtherServerLoginDialog(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 Column(
-                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val passwordFocus = remember { FocusRequester() }
