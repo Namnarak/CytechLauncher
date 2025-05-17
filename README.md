@@ -50,9 +50,6 @@ Here’s the current roadmap of features and development status:
 
 * **English** (default)
 * **Simplified Chinese**
-* **Turkish**
-
-Added Turkish language support by Star1xr.
 
 These two languages are **officially maintained by the project and guaranteed for completeness**.
 
@@ -60,7 +57,7 @@ These two languages are **officially maintained by the project and guaranteed fo
 
 We welcome the community to contribute translations for other languages!
 
-> No community translations available yet...
+* **Turkish** - by Star1xr
 
 ### 📌 Why Only English and Simplified Chinese?
 
