@@ -56,6 +56,7 @@ These two languages are the ones that the project officially **maintains and gua
 ### 📌 Why Only English and Simplified Chinese?
 
 * The project is **internationally aimed**, so English is used as the default language; however, since the developer is not a native English speaker, the English content relies heavily on AI-assisted translation, which may contain minor inaccuracies.
+   * If you have any objections to the English translation, please provide the line number of the translated content along with your feedback~ [`values/strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
 * The developer [@MovTery](https://github.com/MovTery) is based in China, and can guarantee the quality and completeness of the **Simplified Chinese** translation.
 * Due to resource limitations, the completeness of other language translations cannot be guaranteed at this time and will depend on community contributions.
 
@@ -65,8 +66,8 @@ If you would like to see your native language supported in the project, feel fre
 
 1. **Copy the Default Language Files**
 
-   * Default English translation file location:
-     [`strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
+   * Since the English content is translated by AI through multiple steps, please refer to the most accurate Simplified Chinese description as much as possible:  
+     [`values-zh-rCN/strings.xml`](./ZalithLauncher/src/main/res/values-zh-rCN/strings.xml)
 2. **Create Your Language Resource Directory**
 
    * For example, Traditional Chinese: `values-zh-rTW`, French: `values-fr`, Japanese: `values-ja`, etc.
