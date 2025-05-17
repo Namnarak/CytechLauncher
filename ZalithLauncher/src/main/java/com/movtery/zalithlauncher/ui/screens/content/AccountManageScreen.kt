@@ -628,11 +628,19 @@ private fun AccountSkinOperation(
             )
         }
         is AccountSkinOperation.ResetSkin -> {
-            account.apply {
-                FileUtils.deleteQuietly(getSkinFile())
-                skinModelType = ""
-                saveAccount(this)
-            }
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = {
+                        account.apply {
+                            FileUtils.deleteQuietly(getSkinFile())
+                            skinModelType = ""
+                            saveAccount(this)
+                        }
+                    }
+                )
+            )
+            updateOperation(AccountSkinOperation.None)
         }
     }
 }
