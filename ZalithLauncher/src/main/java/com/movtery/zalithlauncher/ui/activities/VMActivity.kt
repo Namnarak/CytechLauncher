@@ -11,6 +11,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
@@ -185,9 +186,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
                 if (event.keyCode == KeyEvent.KEYCODE_BACK) {
                     //由于安卓会将鼠标右键当成键盘返回键来处理（？），需要在这里进行拦截
-                    val isPressed = event.action == KeyEvent.ACTION_DOWN
-                    //然后发送真实的鼠标右键
-                    handler.sendMouseRight(isPressed)
+                    //避免鼠标右键返回，见下 onGenericMotionEvent
                     return false
                 }
             }
@@ -196,6 +195,27 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             return super.dispatchKeyEvent(event)
         }
         return true
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+        if (event.source and InputDevice.SOURCE_MOUSE == InputDevice.SOURCE_MOUSE) {
+            //捕获鼠标右键事件
+            when (event.action) {
+                MotionEvent.ACTION_BUTTON_PRESS -> {
+                    if (event.buttonState and MotionEvent.BUTTON_SECONDARY != 0) {
+                        handler.sendMouseRight(true)
+                        return true
+                    }
+                }
+                MotionEvent.ACTION_BUTTON_RELEASE -> {
+                    if (event.buttonState and MotionEvent.BUTTON_SECONDARY == 0) {
+                        handler.sendMouseRight(false)
+                        return true
+                    }
+                }
+            }
+        }
+        return super.onGenericMotionEvent(event)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
