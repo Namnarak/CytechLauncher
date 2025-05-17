@@ -139,7 +139,7 @@
     <string name="download_install_error_jvm_crash">安装过程中遇到了异常，退出代码：%s</string>
     <string name="download_install_error_download_failed">一些文件下载失败，可能是网络问题导致的</string>
     <string name="download_install_success_title">安装成功</string>
-    <string name="download_install_success_message">你的游戏已顺利的经完成了安装！</string>
+    <string name="download_install_success_message">你的游戏已顺利的完成了安装！</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登录游戏账号！</string>
