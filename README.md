@@ -50,6 +50,9 @@ Here’s the current roadmap of features and development status:
 
 * **English** (default)
 * **Simplified Chinese**
+* **Turkish**
+
+Added Turkish language support by Star1xr.
 
 These two languages are **officially maintained by the project and guaranteed for completeness**.
 
