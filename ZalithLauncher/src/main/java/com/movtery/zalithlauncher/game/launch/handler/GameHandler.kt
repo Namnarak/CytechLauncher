@@ -12,6 +12,7 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
+import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.MCOptions.getAsList
@@ -95,6 +96,10 @@ class GameHandler(
 
             else -> (event.flags and KeyEvent.FLAG_FALLBACK) != KeyEvent.FLAG_FALLBACK
         }
+    }
+
+    override fun sendMouseRight(isPressed: Boolean) {
+        CallbackBridge.sendMouseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT.toInt(), isPressed)
     }
 
     @SuppressLint("ClickableViewAccessibility")

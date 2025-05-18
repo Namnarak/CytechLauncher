@@ -402,7 +402,8 @@ fun SwitchLayout(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    shape: Shape = RoundedCornerShape(22.0.dp)
+    shape: Shape = RoundedCornerShape(22.0.dp),
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     fun change(value: Boolean) {
         onCheckedChange(value)
@@ -423,6 +424,8 @@ fun SwitchLayout(
         ) {
             TitleAndSummary(title, summary)
         }
+
+        trailingIcon?.invoke()
 
         Switch(
             modifier = Modifier.align(Alignment.CenterVertically),

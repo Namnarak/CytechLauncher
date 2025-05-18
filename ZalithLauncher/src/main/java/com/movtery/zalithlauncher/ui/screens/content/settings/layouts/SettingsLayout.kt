@@ -45,7 +45,8 @@ class SettingsLayoutScope {
         unit: BooleanSettingUnit,
         title: String,
         summary: String? = null,
-        onCheckedChange: (Boolean) -> Unit = {}
+        onCheckedChange: (Boolean) -> Unit = {},
+        trailingIcon: @Composable (() -> Unit)? = null
     ) {
         var checked by rememberSaveable { mutableStateOf(unit.getValue()) }
 
@@ -62,7 +63,8 @@ class SettingsLayoutScope {
             },
             modifier = modifier,
             title = title,
-            summary = summary
+            summary = summary,
+            trailingIcon = trailingIcon
         )
     }
 
