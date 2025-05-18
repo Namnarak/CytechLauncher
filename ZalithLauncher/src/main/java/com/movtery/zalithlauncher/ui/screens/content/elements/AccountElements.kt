@@ -141,10 +141,15 @@ sealed interface AccountOperation {
  */
 sealed interface AccountSkinOperation {
     data object None: AccountSkinOperation
+    /** 保存皮肤文件 */
     data class SaveSkin(val uri: Uri): AccountSkinOperation
-    data object SelectSkinModel: AccountSkinOperation
+    /** 选择皮肤模型，便于保存皮肤时，顺便将模型类型写入账号文件 */
+    data class SelectSkinModel(val uri: Uri): AccountSkinOperation
+    /** 警告皮肤模型的一些注意事项 */
     data object AlertModel: AccountSkinOperation
+    /** 警告用户是否真的想重置皮肤 */
     data object PreResetSkin: AccountSkinOperation
+    /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
     data object ResetSkin: AccountSkinOperation
 }
 

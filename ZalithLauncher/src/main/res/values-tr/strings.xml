@@ -36,6 +36,7 @@
     <string name="generic_custom">Özel</string>
     <string name="generic_search">Ara</string>
     <string name="generic_loading">Yükleniyor</string>
+    <string name="generic_anyway">Yine de Kullan</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Sürüm: %s (Demo)</string>
     <string name="launcher_version_label_beta">Beta Sürüm: %s (Demo)</string>
@@ -155,7 +156,6 @@
     <string name="renderer_name_panfrost">Panfrost (Mali, 1.21.4\'e kadar)</string>
     <string name="renderer_version_support">MC Sürüm Desteği:</string>
     <string name="renderer_version_unsupported_warning">Şu anki %s işleyicisi bu oyun sürümünü desteklemiyor. Devam etmek hatalara yol açabilir. Devam etmek istiyor musun?</string>
-    <string name="renderer_version_unsupported_anyway">Yine de Kullan</string>
     <!-- Accounts -->
     <string name="account_no_account">Hesap yok</string>
     <string name="account_login">Giriş Yap</string>
@@ -176,12 +176,11 @@
     <string name="account_change_skin">Skin Değiştir</string>
     <string name="account_change_skin_select_model_title">Model Seç</string>
     <string name="account_change_skin_select_model_message">Skin tipi Steve (geniş kol) mi Alex (ince kol) mu?</string>
-    <string name="account_change_skin_select_model_alert">Minecraft 1.19.3 ve sonrasında skin tipleri ayrıntılı. Bu özellik yakında güncellenir.</string>
     <string name="account_change_skin_model_steve">Steve Modeli</string>
     <string name="account_change_skin_model_alex">Alex Modeli</string>
     <string name="account_change_skin_reset_skin_message">Skin sıfırlansın mı?</string>
     <string name="account_supporting_username_invalid_title">Geçersiz Kullanıcı Adı</string>
-    <string name="account_supporting_username_invalid_local_message_hint1">Geçerli kullanıcı adları harf, sayı ve alt çizgi içerir (3-16 karakter).</string>
+    <string name="account_supporting_username_invalid_local_message_hint1">Geçerli kullanıcı adları harf, sayı ve alt çizgi içerir (3–16 karakter).</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Aksi halde oyun düzgün çalışmaz.</string>
     <string name="account_supporting_username_invalid_local_message_hint3">Örnek: Name, Name_, Name123</string>
     <string name="account_supporting_username_invalid_local_message_hint4">Hatalı: Name@, N ame, name_name_name_name</string>
