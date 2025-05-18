@@ -72,7 +72,7 @@ If you would like to see your native language supported in the project, feel fre
 
 1. **Copy the Default Language Files**
 
-   * Since the English content is translated by AI through multiple steps, please refer to the most accurate Simplified Chinese description as much as possible:  
+   * Since the English content was translated with AI assistance, please refer primarily to the most accurate Simplified Chinese description.:  
      [`values-zh-rCN/strings.xml`](./ZalithLauncher/src/main/res/values-zh-rCN/strings.xml)
 2. **Create Your Language Resource Directory**
 

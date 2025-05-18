@@ -77,7 +77,7 @@
 如果您希望项目支持您的母语，欢迎通过 Pull Request 的形式提交翻译文件。请按照以下方式操作：
 
 1. **复制默认语言文件**
-   * 由于英文内容由 AI 复转完成翻译，所以请尽量参考描述最准确的简体中文：
+   * 由于英文内容由 AI 辅助完成翻译，所以请尽量参考描述最准确的简体中文：
      [`values-zh-rCN/strings.xml`](./ZalithLauncher/src/main/res/values-zh-rCN/strings.xml)
 2. **创建您的语言资源目录**
    * 例如：繁体中文为 `values-zh-rTW`，法语为 `values-fr`，日语为 `values-ja` 等。
