@@ -46,6 +46,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val displayMetrics = getDisplayMetrics()
+        //初始化物理鼠标连接检查器
+        PhysicalMouseChecker.initChecker(this)
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
 
