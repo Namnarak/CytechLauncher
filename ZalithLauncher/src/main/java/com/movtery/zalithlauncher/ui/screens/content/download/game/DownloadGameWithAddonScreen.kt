@@ -62,6 +62,7 @@ import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
@@ -141,7 +142,7 @@ fun DownloadGameWithAddonScreen(
                 .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
             shape = MaterialTheme.shapes.extraLarge
         ) {
-            val itemContainerColor = MaterialTheme.colorScheme.surfaceVariant
+            val itemContainerColor = itemLayoutColor()
             val itemContentColor = MaterialTheme.colorScheme.onSurface
 
             ScreenHeader(
@@ -273,7 +274,7 @@ private fun ScreenHeader(
                     color = itemContainerColor,
                     contentColor = itemContentColor,
                     shape = RoundedCornerShape(50f),
-                    shadowElevation = 2.dp
+                    shadowElevation = 1.dp
                 ) {
                     BasicTextField(
                         modifier = Modifier

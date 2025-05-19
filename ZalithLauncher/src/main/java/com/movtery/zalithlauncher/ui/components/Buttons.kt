@@ -233,7 +233,7 @@ fun TooltipIconButton(
         tooltip = {
             RichTooltip(
                 title = { Text(text = tooltipTitle) },
-                shadowElevation = 2.dp
+                shadowElevation = 3.dp
             ) {
                 Text(text = tooltipMessage)
             }

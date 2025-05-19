@@ -74,6 +74,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.ACCOUNT_MANAGE_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
@@ -197,7 +198,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        shadowElevation = 4.dp
+        shadowElevation = 3.dp
     ) {
         ConstraintLayout {
             val (backButton, title, tasksLayout, download, settings) = createRefs()
@@ -507,7 +508,7 @@ fun TaskItem(
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = MaterialTheme.colorScheme.surfaceVariant,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onCancelClick: () -> Unit = {}
 ) {
@@ -516,7 +517,7 @@ fun TaskItem(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 2.dp
+        shadowElevation = 1.dp
     ) {
         Row(
             modifier = Modifier.padding(all = 8.dp)

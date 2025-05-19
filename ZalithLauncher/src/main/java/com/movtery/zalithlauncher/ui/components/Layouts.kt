@@ -54,9 +54,9 @@ fun ScalingLabel(
     modifier: Modifier = Modifier,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceVariant,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 2.dp
+    shadowElevation: Dp = 1.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -82,9 +82,9 @@ fun ScalingLabel(
     onClick: () -> Unit,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceVariant,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 2.dp
+    shadowElevation: Dp = 1.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {

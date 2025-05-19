@@ -85,6 +85,7 @@ import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
@@ -249,7 +250,7 @@ fun AccountItem(
     modifier: Modifier = Modifier,
     currentAccount: Account?,
     account: Account,
-    color: Color = MaterialTheme.colorScheme.surfaceVariant,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onChangeSkin: () -> Unit = {},
@@ -267,7 +268,7 @@ fun AccountItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 2.dp,
+        shadowElevation = 1.dp,
         onClick = {
             if (selected) return@Surface
             onSelected(account.uniqueUUID)
@@ -556,7 +557,7 @@ fun OtherServerLoginDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
+            shadowElevation = 6.dp
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -678,7 +679,7 @@ fun SelectSkinModelDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
+            shadowElevation = 6.dp
         ) {
             Column(
                 modifier = Modifier.padding(all = 16.dp),

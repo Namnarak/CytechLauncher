@@ -59,6 +59,7 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCREEN_TAG
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -169,7 +170,7 @@ fun SelectGameVersionScreen(
 
                 else -> {
                     VersionList(
-                        itemContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        itemContainerColor = itemLayoutColor(),
                         itemContentColor = MaterialTheme.colorScheme.onSurface,
                         versionFilter = versionFilter,
                         onVersionFilterChange = { versionFilter = it },
@@ -302,7 +303,7 @@ private fun VersionList(
                     color = itemContainerColor,
                     contentColor = itemContentColor,
                     shape = RoundedCornerShape(50f),
-                    shadowElevation = 2.dp
+                    shadowElevation = 1.dp
                 ) {
                     BasicTextField(
                         modifier = Modifier
@@ -398,7 +399,7 @@ private fun VersionItemLayout(
         shape = MaterialTheme.shapes.large,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 2.dp
+        shadowElevation = 1.dp
     ) {
         Row(
             modifier = Modifier

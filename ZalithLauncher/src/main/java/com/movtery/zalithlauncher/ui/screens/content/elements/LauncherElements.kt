@@ -106,7 +106,7 @@ fun getLocalSkinWarningButton(
                 tooltip = {
                     RichTooltip(
                         title = { Text(text = stringResource(R.string.generic_warning)) },
-                        shadowElevation = 2.dp
+                        shadowElevation = 3.dp
                     ) {
                         Column {
                             Text(text = stringResource(R.string.account_change_skin_compatibility_warning))

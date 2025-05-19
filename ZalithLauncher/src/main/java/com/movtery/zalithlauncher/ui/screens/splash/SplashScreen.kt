@@ -79,7 +79,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        shadowElevation = 4.dp
+        shadowElevation = 3.dp
     ) {
         Row(
             horizontalArrangement = Arrangement.Center

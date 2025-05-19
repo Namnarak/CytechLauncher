@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -178,9 +179,9 @@ private fun TaskItem(
     Surface(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = itemLayoutColor(),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shadowElevation = 2.dp
+        shadowElevation = 1.dp
     ) {
         Row {
             Column(

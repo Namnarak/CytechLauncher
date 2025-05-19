@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -115,7 +116,7 @@ fun FileSelectorScreen(
                         .fillMaxHeight()
                         .weight(7.5f)
                         .padding(start = 12.dp),
-                    itemColor = MaterialTheme.colorScheme.surfaceVariant
+                    itemColor = itemLayoutColor()
                 )
             }
         }

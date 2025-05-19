@@ -86,7 +86,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        shadowElevation = 4.dp
+        shadowElevation = 3.dp
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

@@ -194,7 +194,7 @@ private fun RightMenu(
                         bottom.linkTo(parent.bottom, margin = 8.dp)
                     }
                     .padding(PaddingValues(horizontal = 12.dp)),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
                 onClick = {
                     launchGameOperation = LaunchGameOperation.TryLaunch
                 },
