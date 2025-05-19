@@ -187,6 +187,8 @@
     <string name="account_change_skin_model_steve">Steve 模型</string>
     <string name="account_change_skin_model_alex">Alex 模型</string>
     <string name="account_change_skin_reset_skin_message">你确定要重置当前账号的皮肤吗？</string>
+    <string name="account_change_skin_not_supported_alex">当前 Minecraft 版本不支持使用 Alex 模型的皮肤，如果你给当前账号的皮肤设置为 Alex 模型，游戏内将只会显示 Steve 的皮肤！</string>
+    <string name="account_change_skin_compatibility_warning">因技术限制，在当前 Minecraft  版本使用自定义皮肤可能会不生效</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
     <string name="account_supporting_username_invalid_local_message_hint1">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符</string>
     <string name="account_supporting_username_invalid_local_message_hint2">否则可能将导致游戏无法正常运行</string>

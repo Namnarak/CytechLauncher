@@ -187,6 +187,8 @@
     <string name="account_change_skin_model_steve">Steve Model</string>
     <string name="account_change_skin_model_alex">Alex Model</string>
     <string name="account_change_skin_reset_skin_message">Are you sure you want to reset the current account\'s skin?</string>
+    <string name="account_change_skin_not_supported_alex">The current Minecraft version does not support skins using the Alex model. If you set the skin of this account to the Alex model, it will appear as the Steve model in-game!</string>
+    <string name="account_change_skin_compatibility_warning">Due to technical limitations, custom skins may not work in this Minecraft version.</string>
     <string name="account_supporting_username_invalid_title">Invalid Username</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Valid usernames only support letters (case-insensitive), numbers, and underscores, with length between 3 and 16 characters.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Otherwise, the game may not run properly.</string>

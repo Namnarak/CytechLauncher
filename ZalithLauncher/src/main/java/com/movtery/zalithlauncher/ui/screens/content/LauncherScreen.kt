@@ -50,6 +50,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
+import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
@@ -108,10 +109,11 @@ private fun RightMenu(
         color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 4.dp
     ) {
-        ConstraintLayout {
-            val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
+        val account by AccountsManager.currentAccountFlow.collectAsState()
+        val version = VersionsManager.currentVersion
 
-            val account by AccountsManager.currentAccountFlow.collectAsState()
+        ConstraintLayout {
+            val (accountAvatar, skinWarningLayout, versionManagerLayout, launchButton) = createRefs()
 
             AccountAvatar(
                 modifier = Modifier
@@ -125,6 +127,32 @@ private fun RightMenu(
             ) {
                 navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
             }
+
+            val skinWarning: (@Composable () -> Unit)? = version?.getVersionInfo()?.let { versionInfo ->
+                account?.let { acc1 ->
+                    //离线账号皮肤相关的警告
+                    getLocalSkinWarningButton(
+                        account = acc1,
+                        versionInfo = versionInfo,
+                        swapToAccountScreen = {
+                            navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
+                        }
+                    )
+                }
+            }
+
+            skinWarning?.let { button ->
+                Column(
+                    modifier = Modifier
+                        .constrainAs(skinWarningLayout) {
+                            top.linkTo(accountAvatar.top, margin = 50.dp)
+                            start.linkTo(accountAvatar.start, margin = 50.dp)
+                        }
+                ) {
+                    button()
+                }
+            }
+
             Row(
                 modifier = Modifier.constrainAs(versionManagerLayout) {
                     start.linkTo(parent.start)
@@ -133,7 +161,6 @@ private fun RightMenu(
                 },
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val version = VersionsManager.currentVersion
                 VersionManagerLayout(
                     version = version,
                     modifier = Modifier
@@ -159,6 +186,7 @@ private fun RightMenu(
                     }
                 }
             }
+
             ScalingActionButton(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,22 +218,30 @@ private fun VersionManagerLayout(
             .clickable(onClick = swapToVersionManage)
     ) {
         Row(
-            modifier = Modifier.fillMaxSize().padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
         ) {
             if (VersionsManager.isRefreshing) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp).align(Alignment.Center))
+                    CircularProgressIndicator(modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.Center))
                 }
             } else {
                 VersionIconImage(
                     version = version,
-                    modifier = Modifier.size(28.dp).align(Alignment.CenterVertically)
+                    modifier = Modifier
+                        .size(28.dp)
+                        .align(Alignment.CenterVertically)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
 
                 if (version == null) {
                     Text(
-                        modifier = Modifier.align(Alignment.CenterVertically).basicMarquee(iterations = Int.MAX_VALUE),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .basicMarquee(iterations = Int.MAX_VALUE),
                         overflow = TextOverflow.Clip,
                         text = stringResource(R.string.versions_manage_no_versions),
                         style = MaterialTheme.typography.labelMedium,
@@ -214,7 +250,9 @@ private fun VersionManagerLayout(
                     )
                 } else {
                     Column(
-                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
                     ) {
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),

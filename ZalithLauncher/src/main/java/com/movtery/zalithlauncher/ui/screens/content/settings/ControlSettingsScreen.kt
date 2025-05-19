@@ -15,21 +15,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +52,7 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
@@ -66,12 +60,10 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBa
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
 
 const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ControlSettingsScreen() {
     BaseScreen(
@@ -105,40 +97,16 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
                     trailingIcon = {
-                        val tooltipState = rememberTooltipState(isPersistent = true)
-                        val coroutineScope = rememberCoroutineScope()
-
-                        TooltipBox(
+                        TooltipIconButton(
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-                            tooltip = {
-                                RichTooltip(
-                                    title = { Text(text = stringResource(R.string.generic_warning)) },
-                                    shadowElevation = 2.dp
-                                ) {
-                                    Text(text = stringResource(R.string.settings_control_mouse_physical_mouse_warning))
-                                }
-                            },
-                            state = tooltipState,
-                            enableUserInput = false
+                            tooltipTitle = stringResource(R.string.generic_warning),
+                            tooltipMessage = stringResource(R.string.settings_control_mouse_physical_mouse_warning)
                         ) {
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        if (tooltipState.isVisible) {
-                                            tooltipState.dismiss()
-                                        } else {
-                                            tooltipState.show()
-                                        }
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = stringResource(R.string.generic_warning),
-                                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = stringResource(R.string.generic_warning),
+                                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                            )
                         }
                     },
                     onCheckedChange = {
