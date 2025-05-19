@@ -380,7 +380,7 @@
     <string name="settings_game_log_buffer_flush_interval_summary">Set how often the log buffer refreshes. Refreshing too frequently or too infrequently may affect performance</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">Physical Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
-    <string name="settings_control_mouse_physical_mouse_warning">If your device recognizes the physical mouse right-click as "Back" or the middle-click as "Go to Desktop", you can go to Developer Options and enable "Disable Permission Monitoring", which will most likely resolve the issue</string>
+    <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings > Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
     <string name="settings_control_mouse_size_title">Virtual Mouse Size</string>
     <string name="settings_control_mouse_speed_title">Virtual Mouse Sensitivity</string>
     <string name="settings_control_mouse_control_mode_title">Control Mode</string>
