@@ -60,6 +60,7 @@ import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
 import com.movtery.zalithlauncher.game.account.otherserver.ResponseException
 import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
 import com.movtery.zalithlauncher.game.account.saveAccount
+import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.state.MutableStates
@@ -627,6 +628,7 @@ private fun AccountSkinOperation(
                 },
                 onSelected = { type ->
                     account.skinModelType = type.name
+                    account.profileId = getLocalUUIDWithSkinModel(account.username, type)
                     updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri))
                 }
             )
@@ -702,6 +704,7 @@ private fun AccountSkinOperation(
                         account.apply {
                             FileUtils.deleteQuietly(getSkinFile())
                             skinModelType = ""
+                            profileId = getLocalUUIDWithSkinModel(username, null)
                             saveAccount(this)
                         }
                     }
