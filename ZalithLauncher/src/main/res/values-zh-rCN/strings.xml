@@ -328,6 +328,7 @@
     <string name="minecraft_download_progress_retry_verifying_files">重试验证并补全游戏文件中 \n(%d/%d, %s/%s)</string>
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
+    <string name="minecraft_download_failed_notfound">某些依赖文件无法下载，如果多次尝试仍失败，可能是游戏缺少必要的库文件，建议重新安装游戏</string>
     <!--  设置  -->
     <string name="settings_element_selected">当前选择项：%s</string>
     <string name="settings_label_ignore_if_blank">留白则忽略此设置</string>

@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
@@ -89,6 +90,7 @@ class MinecraftDownloader(
                 Log.e(DOWNLOADER_TAG, "Failed to download Minecraft!", e)
                 val message = when(e) {
                     is InterruptedException, is InterruptedIOException, is CancellationException -> return@runTask
+                    is FileNotFoundException -> context.getString(R.string.minecraft_download_failed_notfound)
                     is DownloadFailedException -> {
                         val failedUrls = downloadFailedTasks.map { it.url }
                         "${ context.getString(R.string.minecraft_download_failed_retried) }\r\n${ failedUrls.joinToString("\r\n") } }"
@@ -189,15 +191,15 @@ class MinecraftDownloader(
         downloader.loadAssetsDownload(assetsIndex) { url, hash, targetFile, size ->
             scheduleDownload(url, hash, targetFile, size)
         }
-        downloader.loadLibraryDownloads(gameManifest) { url, hash, targetFile, size ->
-            scheduleDownload(url, hash, targetFile, size)
+        downloader.loadLibraryDownloads(gameManifest) { url, hash, targetFile, size, isDownloadable ->
+            scheduleDownload(url, hash, targetFile, size, isDownloadable)
         }
     }
 
     /**
      * 提交计划下载
      */
-    private fun scheduleDownload(url: String, sha1: String?, targetFile: File, size: Long) {
+    private fun scheduleDownload(url: String, sha1: String?, targetFile: File, size: Long, isDownloadable: Boolean = true) {
         totalFileCount.incrementAndGet()
         totalFileSize.addAndGet(size)
         allDownloadTasks.add(
@@ -206,6 +208,7 @@ class MinecraftDownloader(
                 verifyIntegrity = verifyIntegrity,
                 targetFile = targetFile,
                 sha1 = sha1,
+                isDownloadable = isDownloadable,
                 onDownloadFailed = { task ->
                     downloadFailedTasks.add(task)
                 },

@@ -328,6 +328,7 @@
     <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%d/%d, %s/%s)</string>
     <string name="minecraft_download_failed">Download failed</string>
     <string name="minecraft_download_failed_retried">Retries exhausted. Some files failed to download.</string>
+    <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required library files. It is recommended to reinstall the game.</string>
     <!-- Settings -->
     <string name="settings_element_selected">Selected: %s</string>
     <string name="settings_label_ignore_if_blank">Leave blank to ignore</string>
