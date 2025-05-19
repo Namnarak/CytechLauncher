@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,7 +54,7 @@ fun ScalingLabel(
     modifier: Modifier = Modifier,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 2.dp
 ) {
@@ -81,7 +82,7 @@ fun ScalingLabel(
     onClick: () -> Unit,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 2.dp
 ) {
@@ -100,6 +101,29 @@ fun ScalingLabel(
         Text(
             modifier = Modifier.padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp)),
             text = text
+        )
+    }
+}
+
+@Composable
+fun LittleTextLabel(
+    modifier: Modifier = Modifier,
+    text: String,
+    color: Color = MaterialTheme.colorScheme.tertiary,
+    contentColor: Color = MaterialTheme.colorScheme.onTertiary,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = shape
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            text = text,
+            style = textStyle
         )
     }
 }

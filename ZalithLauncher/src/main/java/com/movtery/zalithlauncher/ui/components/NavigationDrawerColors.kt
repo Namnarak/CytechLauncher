@@ -13,11 +13,11 @@ import androidx.compose.ui.graphics.Color
 fun secondaryContainerDrawerItemColors(): NavigationDrawerItemColors {
     val colorScheme = MaterialTheme.colorScheme
     return NavigationDrawerItemDefaults.colors(
-        selectedContainerColor = colorScheme.secondary.copy(alpha = 0.24f),
+        selectedContainerColor = colorScheme.secondaryContainer.desaturate(0.5f),
         unselectedContainerColor = Color.Transparent,
         selectedIconColor = colorScheme.onSecondaryContainer,
-        unselectedIconColor = colorScheme.onSecondaryContainer,
+        unselectedIconColor = colorScheme.onSurface,
         selectedTextColor = colorScheme.onSecondaryContainer,
-        unselectedTextColor = colorScheme.onSecondaryContainer,
+        unselectedTextColor = colorScheme.onSurface,
     )
 }

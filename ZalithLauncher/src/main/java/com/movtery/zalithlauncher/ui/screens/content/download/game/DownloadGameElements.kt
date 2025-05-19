@@ -142,7 +142,7 @@ fun <E> AddonListLayout(
     autoCollapse: Boolean = true,
     onValueChange: (E?) -> Unit = {},
     onReload: () -> Unit = {},
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var selectedItem by remember { mutableStateOf<E?>(null) }

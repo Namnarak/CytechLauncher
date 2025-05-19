@@ -311,7 +311,7 @@ private fun progressRuntimeUri(
 private fun JavaRuntimeItem(
     runtime: Runtime,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit

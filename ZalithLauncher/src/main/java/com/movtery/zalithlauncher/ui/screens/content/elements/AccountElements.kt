@@ -249,7 +249,7 @@ fun AccountItem(
     modifier: Modifier = Modifier,
     currentAccount: Account?,
     account: Account,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onChangeSkin: () -> Unit = {},
@@ -352,7 +352,6 @@ fun AccountItem(
 fun LoginItem(
     modifier: Modifier = Modifier,
     serverName: String,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -364,8 +363,7 @@ fun LoginItem(
         Icon(
             modifier = Modifier.size(24.dp),
             imageVector = Icons.Default.Add,
-            contentDescription = serverName,
-            tint = contentColor
+            contentDescription = serverName
         )
         Spacer(
             modifier = Modifier.width(8.dp)
@@ -373,7 +371,6 @@ fun LoginItem(
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = serverName,
-            color = contentColor,
             style = MaterialTheme.typography.labelLarge
         )
     }
@@ -383,7 +380,6 @@ fun LoginItem(
 fun ServerItem(
     modifier: Modifier = Modifier,
     server: Server,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
@@ -398,7 +394,6 @@ fun ServerItem(
                 .weight(1f)
                 .align(Alignment.CenterVertically),
             text = server.serverName,
-            color = contentColor,
             style = MaterialTheme.typography.labelLarge
         )
         Spacer(
@@ -410,8 +405,7 @@ fun ServerItem(
             Icon(
                 modifier = Modifier.size(24.dp),
                 imageVector = Icons.Filled.Delete,
-                contentDescription = stringResource(R.string.generic_delete),
-                tint = contentColor
+                contentDescription = stringResource(R.string.generic_delete)
             )
         }
     }

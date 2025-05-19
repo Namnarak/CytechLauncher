@@ -472,7 +472,7 @@ fun VersionItemLayout(
     version: Version,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: () -> Unit = {},
     onSettingsClick: () -> Unit = {},

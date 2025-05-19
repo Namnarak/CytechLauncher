@@ -18,11 +18,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -98,21 +98,21 @@ private fun RightMenu(
         navController = navController
     )
 
-    Surface(
+    Card(
         modifier = modifier.offset {
             IntOffset(
                 x = xOffset.roundToPx(),
                 y = 0
             )
         },
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 4.dp
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         val account by AccountsManager.currentAccountFlow.collectAsState()
         val version = VersionsManager.currentVersion
 
-        ConstraintLayout {
+        ConstraintLayout(
+            modifier = Modifier.fillMaxSize()
+        ) {
             val (accountAvatar, skinWarningLayout, versionManagerLayout, launchButton) = createRefs()
 
             AccountAvatar(
