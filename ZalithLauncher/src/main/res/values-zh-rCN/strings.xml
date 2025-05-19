@@ -50,7 +50,6 @@
     <string name="theme_color_verdant_field">原野暮光</string>
     <string name="theme_color_urban_ash">钛影</string>
     <string name="theme_color_verdant_dawn">静林之晨</string>
-    <string name="theme_color_celestine_veil">霁岚</string>
     <string name="theme_color_picker_title">颜色选择器</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>

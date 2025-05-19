@@ -50,7 +50,6 @@
     <string name="theme_color_verdant_field">Verdant Twilight</string>
     <string name="theme_color_urban_ash">Urban Ash</string>
     <string name="theme_color_verdant_dawn">Silent Forest Dawn</string>
-    <string name="theme_color_celestine_veil">Celestine Veil</string>
     <string name="theme_color_picker_title">Color Picker</string>
     <!-- Animations -->
     <string name="animate_type_bounce">Bounce</string>
