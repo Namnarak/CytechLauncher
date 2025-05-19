@@ -49,19 +49,25 @@ class MinecraftDownloader(
             DownloadMode.VERIFY_AND_REPAIR -> verify
         }
 
-    fun getDownloadTask(): Task {
+    /**
+     * 自定义 client 目录 ->client<-/versions/..
+     */
+    fun getDownloadTask(
+        clientName: String = this.customName,
+        clientVersionsDir: File = downloader.versionsTarget
+    ): Task {
         return Task.runTask(
             id = DOWNLOADER_TAG,
             dispatcher = Dispatchers.Default,
             task = { task ->
                 task.updateProgress(-1f, getTaskMessage(R.string.minecraft_download_stat_download_task, R.string.minecraft_download_stat_verify_task))
                 if (mode == DownloadMode.DOWNLOAD) {
-                    progressNewDownloadTasks()
+                    progressNewDownloadTasks(clientName, clientVersionsDir)
                 } else {
                     val jsonFile = downloader.getVersionJsonPath(customName).takeIf { it.canRead() } ?: throw IOException("Version $customName JSON file is unreadable.")
                     val jsonText = jsonFile.readText()
                     val gameManifest = jsonText.parseTo(GameManifest::class.java)
-                    progressDownloadTasks(gameManifest, customName)
+                    progressDownloadTasks(gameManifest, clientName)
                 }
 
                 if (allDownloadTasks.isNotEmpty()) {
@@ -142,15 +148,22 @@ class MinecraftDownloader(
     /**
      * 仅将 Jar、Json 文件安装到自定义版本目录中
      */
-    private suspend fun progressNewDownloadTasks() {
+    private suspend fun progressNewDownloadTasks(
+        clientName: String,
+        clientVersionsDir: File
+    ) {
         val gameManifest = downloader.findVersion(this.version)?.let {
-            downloader.createVersionJson(it, this.customName)
+            downloader.createVersionJson(it, clientName, clientVersionsDir)
         } ?: throw IllegalArgumentException("Version not found: $version")
 
-        commonScheduleDownloads(gameManifest, this.customName)
+        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
     }
 
-    private suspend fun progressDownloadTasks(gameManifest: GameManifest, version: String) {
+    private suspend fun progressDownloadTasks(
+        gameManifest: GameManifest,
+        clientName: String,
+        clientVersionsDir: File = downloader.versionsTarget
+    ) {
         if (gameManifest.inheritsFrom != null) { //优先尝试解析原版
             val selectedVersion = downloader.findVersion(gameManifest.inheritsFrom)
             selectedVersion?.let {
@@ -160,13 +173,17 @@ class MinecraftDownloader(
             }
         }
 
-        commonScheduleDownloads(gameManifest, version)
+        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
     }
 
-    private suspend fun commonScheduleDownloads(gameManifest: GameManifest, version: String) {
+    private suspend fun commonScheduleDownloads(
+        gameManifest: GameManifest,
+        clientName: String,
+        clientVersionsDir: File
+    ) {
         val assetsIndex = downloader.createAssetIndex(downloader.assetIndexTarget, gameManifest)
 
-        downloader.loadClientJarDownload(gameManifest, version) { url, hash, targetFile, size ->
+        downloader.loadClientJarDownload(gameManifest, clientName, clientVersionsDir) { url, hash, targetFile, size ->
             scheduleDownload(url, hash, targetFile, size)
         }
         downloader.loadAssetsDownload(assetsIndex) { url, hash, targetFile, size ->

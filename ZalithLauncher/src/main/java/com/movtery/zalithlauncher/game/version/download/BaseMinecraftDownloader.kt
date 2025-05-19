@@ -86,11 +86,11 @@ class BaseMinecraftDownloader(
     /** 计划客户端jar下载 */
     fun loadClientJarDownload(
         gameManifest: GameManifest,
-        version: String,
+        clientName: String,
         mcFolder: File = versionsTarget,
         scheduleDownload: (url: String, hash: String?, targetFile: File, size: Long) -> Unit
     ) {
-        val clientFile = getVersionJarPath(version, mcFolder)
+        val clientFile = getVersionJarPath(clientName, mcFolder)
         gameManifest.downloads?.client?.let { client ->
             scheduleDownload(client.url, client.sha1, clientFile, client.size)
         }
