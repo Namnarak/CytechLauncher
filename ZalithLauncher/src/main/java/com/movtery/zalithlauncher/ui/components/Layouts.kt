@@ -117,6 +117,7 @@ fun <E> SimpleListLayout(
     getItemSummary: (@Composable (E) -> Unit)? = null,
     enabled: Boolean = true,
     autoCollapse: Boolean = true,
+    itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
     onValueChange: (E) -> Unit = {},
     selectableAreaShape: Shape = RoundedCornerShape(22.0.dp)
 ) {
@@ -181,7 +182,9 @@ fun <E> SimpleListLayout(
                     exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier.padding(itemListPadding)
+                    ) {
                         items.forEach { item ->
                             SimpleListItem(
                                 modifier = Modifier
@@ -252,6 +255,7 @@ fun SimpleIDListLayout(
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
+    itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
     onValueChange: (IDItem) -> Unit = {}
 ) {
     SimpleListLayout(
@@ -264,6 +268,7 @@ fun SimpleIDListLayout(
         getItemText = { it.title },
         getItemId = { it.id },
         enabled = enabled,
+        itemListPadding = itemListPadding,
         onValueChange = onValueChange
     )
 }
