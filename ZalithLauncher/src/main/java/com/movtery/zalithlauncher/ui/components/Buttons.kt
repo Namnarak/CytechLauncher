@@ -232,6 +232,7 @@ fun TooltipIconButton(
         modifier = modifier,
         tooltip = {
             RichTooltip(
+                modifier = Modifier.padding(all = 3.dp),
                 title = { Text(text = tooltipTitle) },
                 shadowElevation = 3.dp
             ) {

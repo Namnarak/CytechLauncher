@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Checkroom
@@ -105,6 +106,7 @@ fun getLocalSkinWarningButton(
                 positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
                 tooltip = {
                     RichTooltip(
+                        modifier = Modifier.padding(all = 3.dp),
                         title = { Text(text = stringResource(R.string.generic_warning)) },
                         shadowElevation = 3.dp
                     ) {
