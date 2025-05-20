@@ -306,7 +306,7 @@ fun AccountItem(
                 )
             }
             Row {
-                val isLocalHasSkin = account.isLocalAccount() && account.getSkinFile().exists()
+                val isLocalHasSkin = account.isLocalAccount() && account.hasSkinFile
                 val icon = if (isLocalHasSkin) Icons.Default.RestartAlt else Icons.Outlined.Checkroom
                 val description = if (isLocalHasSkin) {
                     stringResource(R.string.generic_reset)

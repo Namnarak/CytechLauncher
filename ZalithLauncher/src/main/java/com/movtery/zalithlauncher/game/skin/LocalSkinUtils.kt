@@ -28,9 +28,9 @@ private fun getLocalUuid(name: String): String {
 /**
  * 根据皮肤模型类型，生成 profileId
  */
-fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType?): String {
+fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType): String {
     val baseUuid = getLocalUuid(userName)
-    if (skinModelType == null) return baseUuid
+    if (skinModelType == SkinModelType.NONE) return baseUuid
 
     val prefix = baseUuid.substring(0, 27)
     val a = baseUuid[7].digitToInt(16)
@@ -39,14 +39,10 @@ fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType?): 
 
     var suffix = baseUuid.substring(27).toLong(16)
     val maxSuffix = 0xFFFFFL
-    val targetParity = when (skinModelType) {
-        SkinModelType.ALEX -> 1
-        SkinModelType.STEVE -> 0
-    }
 
     repeat(maxSuffix.toInt() + 1) {
         val currentD = (suffix and 0xFL).toInt()
-        if ((a xor b xor c xor currentD) % 2 == targetParity) {
+        if ((a xor b xor c xor currentD) % 2 == skinModelType.targetParity) {
             return prefix + suffix.toString(16).padStart(5, '0').uppercase()
         }
         suffix = if (suffix == maxSuffix) 0L else suffix + 1

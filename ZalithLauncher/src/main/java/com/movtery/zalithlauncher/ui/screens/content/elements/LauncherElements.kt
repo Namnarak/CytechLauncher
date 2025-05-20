@@ -80,10 +80,10 @@ fun getLocalSkinWarningButton(
         )
     }
 
-    if (!(account.isLocalAccount() && account.getSkinFile().exists())) return null
+    if (!(account.isLocalAccount() && account.hasSkinFile)) return null
 
     return if (
-        account.skinModelType == SkinModelType.ALEX.name &&
+        account.skinModelType == SkinModelType.ALEX &&
         isSkinModelUuidSupported(versionInfo)
     ) {
         @Composable {

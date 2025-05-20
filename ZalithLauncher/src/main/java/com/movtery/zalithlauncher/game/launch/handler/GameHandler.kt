@@ -112,9 +112,9 @@ class GameHandler(
     private suspend fun localSkinResourcePack() {
         AccountsManager.getCurrentAccount()?.takeIf {
             it.isLocalAccount() &&
-            it.skinModelType.isNotEmpty()
+            it.skinModelType != SkinModelType.NONE
         }?.let { account ->
-            val modelType = SkinModelType.entries.find { it.name == account.skinModelType } ?: return@let
+            val modelType = SkinModelType.entries.find { it == account.skinModelType } ?: return@let
 
             version.getVersionInfo()!!.getMcVersionCode().takeIf { it.main !in 0..5 }?.let { versionCode ->
                 val mainCode = versionCode.main
@@ -201,6 +201,7 @@ class GameHandler(
                     val targetFileName = when (modelType) {
                         SkinModelType.ALEX -> "alex.png"
                         SkinModelType.STEVE -> "steve.png"
+                        SkinModelType.NONE -> error("It should not pass in SkinModelType.NONE.")
                     }
                     listOf(entityBaseDir.child(targetFileName))
                 } else {
