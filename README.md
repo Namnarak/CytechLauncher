@@ -59,6 +59,7 @@ These two languages are **officially maintained by the project and guaranteed fo
 We welcome the community to contribute translations for other languages!
 
 * **Turkish** - by Star1xr
+* **Traditional Chinese** - by HongyiHank
 
 ### 📌 Why Only English and Simplified Chinese?
 
