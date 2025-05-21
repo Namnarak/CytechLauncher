@@ -126,6 +126,8 @@ enum class Difficulty(val levelCode: Int, val nameRes: Int) {
  */
 suspend fun parseLevelDatFile(saveFile: File, levelDatFile: File): SaveData = withContext(Dispatchers.IO) {
     runCatching {
+        if (!levelDatFile.exists()) error("The ${levelDatFile.absolutePath} file does not exist!")
+
         val compound: CompoundTag = NBTUtil.read(levelDatFile, true).tag as? CompoundTag
             ?: error("Failed to read the level.dat file as a CompoundTag.")
         val data: CompoundTag = compound.asCompoundTag("Data")

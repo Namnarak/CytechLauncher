@@ -222,12 +222,10 @@ fun SavesManagerScreen() {
                     try {
                         dirs.forEach { dir ->
                             ensureActive()
-
-                            val levelDatFile = File(dir, "level.dat").takeIf { it.exists() && it.isFile } ?: return@forEach
                             //解析存档 level.dat，读取必要数据
                             val data = parseLevelDatFile(
                                 saveFile = dir,
-                                levelDatFile = levelDatFile
+                                levelDatFile = File(dir, "level.dat")
                             )
                             tempList.add(data)
                         }
@@ -475,6 +473,7 @@ private fun SaveItemLayout(
 
                 //更多存档操作
                 SaveOperationMenu(
+                    saveValid = saveData.isValid,
                     buttonSize = 38.dp,
                     iconSize = 26.dp,
                     //1.20+ 快照 23w14a 才开始支持快速启动单人游戏
@@ -623,6 +622,7 @@ private fun SaveInfoTooltip(
 
 @Composable
 private fun SaveOperationMenu(
+    saveValid: Boolean,
     buttonSize: Dp,
     iconSize: Dp = buttonSize,
     canQuickPlay: Boolean,
@@ -652,7 +652,7 @@ private fun SaveOperationMenu(
             onDismissRequest = { menuExpanded = false }
         ) {
             DropdownMenuItem(
-                enabled = canQuickPlay,
+                enabled = saveValid && canQuickPlay,
                 text = {
                     Text(
                         text = if (canQuickPlay) {
@@ -675,6 +675,7 @@ private fun SaveOperationMenu(
                 }
             )
             DropdownMenuItem(
+                enabled = saveValid,
                 text = { Text(text = stringResource(R.string.generic_rename)) },
                 leadingIcon = {
                     Icon(
@@ -689,6 +690,7 @@ private fun SaveOperationMenu(
                 }
             )
             DropdownMenuItem(
+                enabled = saveValid,
                 text = { Text(text = stringResource(R.string.saves_manage_backup)) },
                 leadingIcon = {
                     Icon(
