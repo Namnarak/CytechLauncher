@@ -342,6 +342,8 @@
     <string name="saves_manage_save_name">Save Name</string>
     <string name="saves_manage_backup">Backup Save</string>
     <string name="saves_manage_delete_warning">Are you sure you want to delete the save file %s? This action cannot be undone!</string>
+    <string name="saves_manage_quick_play">Quick Play</string>
+    <string name="saves_manage_quick_play_disabled">Quick Play (1.20+ only)</string>
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>

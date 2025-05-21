@@ -23,6 +23,8 @@ sealed interface SavesState {
 
 sealed interface SavesOperation {
     data object None : SavesOperation
+    /** 快速启动 */
+    data class QuickPlay(val saveData: SaveData) : SavesOperation
     /** 重命名存档输入对话框 */
     data class RenameSave(val saveData: SaveData) : SavesOperation
     /** 备份存档输入对话框 */

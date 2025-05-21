@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
+import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.CopyAll
@@ -64,7 +66,11 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.launch.LaunchGame
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerOrEqualVer
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -144,6 +150,7 @@ fun SavesManagerScreen() {
 
                     var savesOperation by remember { mutableStateOf<SavesOperation>(SavesOperation.None) }
                     SaveOperation(
+                        version = version,
                         savesOperation = savesOperation,
                         savesDir = savesDir,
                         updateOperation = { savesOperation = it },
@@ -476,6 +483,11 @@ private fun SaveItemLayout(
                 SaveOperationMenu(
                     buttonSize = 38.dp,
                     iconSize = 26.dp,
+                    //1.20+ 快照 23w14a 才开始支持快速启动单人游戏
+                    canQuickPlay = minecraftVersion.isBiggerOrEqualVer("1.20", "23w14a"),
+                    onQuickPlayClick = {
+                        updateOperation(SavesOperation.QuickPlay(saveData))
+                    },
                     onRenameClick = {
                         updateOperation(SavesOperation.RenameSave(saveData))
                     },
@@ -619,6 +631,8 @@ private fun SaveInfoTooltip(
 private fun SaveOperationMenu(
     buttonSize: Dp,
     iconSize: Dp = buttonSize,
+    canQuickPlay: Boolean,
+    onQuickPlayClick: () -> Unit = {},
     onRenameClick: () -> Unit = {},
     onBackupClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
@@ -643,6 +657,29 @@ private fun SaveOperationMenu(
             shadowElevation = 3.dp,
             onDismissRequest = { menuExpanded = false }
         ) {
+            DropdownMenuItem(
+                enabled = canQuickPlay,
+                text = {
+                    Text(
+                        text = if (canQuickPlay) {
+                            stringResource(R.string.saves_manage_quick_play)
+                        } else {
+                            stringResource(R.string.saves_manage_quick_play_disabled)
+                        }
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        modifier = Modifier.size(20.dp),
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = stringResource(R.string.saves_manage_quick_play)
+                    )
+                },
+                onClick = {
+                    onQuickPlayClick()
+                    menuExpanded = false
+                }
+            )
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.generic_rename)) },
                 leadingIcon = {
@@ -691,6 +728,7 @@ private fun SaveOperationMenu(
 
 @Composable
 private fun SaveOperation(
+    version: Version,
     savesOperation: SavesOperation,
     savesDir: File,
     updateOperation: (SavesOperation) -> Unit,
@@ -698,8 +736,21 @@ private fun SaveOperation(
     backupSave: (SaveData, String) -> Unit,
     deleteSave: (SaveData) -> Unit
 ) {
+    val context = LocalContext.current
+
     when (savesOperation) {
         is SavesOperation.None -> {}
+        is SavesOperation.QuickPlay -> {
+            val saveData = savesOperation.saveData
+            AccountsManager.getCurrentAccount() ?: run {
+                Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
+                updateOperation(SavesOperation.None)
+                return
+            }
+            version.quickPlaySingle = saveData.saveFile.name
+            LaunchGame.launchGame(context, version)
+            updateOperation(SavesOperation.None)
+        }
         is SavesOperation.RenameSave -> {
             val saveData = savesOperation.saveData
             SaveNameInputDialog(
