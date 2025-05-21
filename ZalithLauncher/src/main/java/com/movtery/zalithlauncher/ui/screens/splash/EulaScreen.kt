@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -78,17 +77,11 @@ private fun EulaTextLayout(
             },
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        LazyColumn (
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(all = 16.dp)
-        ) {
-            items(1) {
-                Text(
-                    text = eulaText,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
+        Text(
+            modifier = Modifier.padding(all = 16.dp),
+            text = eulaText,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

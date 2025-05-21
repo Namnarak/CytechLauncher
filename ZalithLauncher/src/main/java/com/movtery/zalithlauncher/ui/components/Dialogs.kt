@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -338,8 +339,7 @@ fun <T> SimpleListDialog(
                 LazyColumn(
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
-                    items(itemsProvider().size) { index ->
-                        val item = itemsProvider()[index]
+                    items(itemsProvider()) { item ->
                         SimpleListItem(
                             selected = false,
                             itemName = itemTextProvider(item),

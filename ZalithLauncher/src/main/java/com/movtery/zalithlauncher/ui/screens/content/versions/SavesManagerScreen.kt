@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -42,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -125,7 +127,11 @@ fun SavesManagerScreen() {
         var savesFilter by remember { mutableStateOf(SavesFilter(onlyShowCompatible = false, saveName = "")) }
 
         var allSaves by remember { mutableStateOf<List<SaveData>>(emptyList()) }
-        var filteredSaves by remember { mutableStateOf<List<SaveData>>(emptyList()) }
+        val filteredSaves by remember(allSaves, savesFilter) {
+            derivedStateOf {
+                allSaves.filterSaves(minecraftVersion, savesFilter)
+            }
+        }
 
         var savesState by remember { mutableStateOf<SavesState>(SavesState.Loading) }
 
@@ -230,20 +236,9 @@ fun SavesManagerScreen() {
                     }
                 }
                 allSaves = tempList.sortedBy { it.saveFile.name }
-                filteredSaves = withContext(Dispatchers.Default) {
-                    allSaves.filterSaves(minecraftVersion, savesFilter)
-                }
             }
 
             savesState = SavesState.None
-        }
-
-        LaunchedEffect(savesFilter) {
-            if (allSaves.isNotEmpty()) {
-                filteredSaves = withContext(Dispatchers.Default) {
-                    allSaves.filterSaves(minecraftVersion, savesFilter)
-                }
-            }
         }
     }
 }
@@ -326,14 +321,13 @@ private fun SavesList(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(all = 12.dp)
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
     ) {
-        items(savesList.size) { index ->
-            val saveData = savesList[index]
+        items(savesList) { saveData ->
             SaveItemLayout(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = if (index != savesList.size - 1) 12.dp else 0.dp),
+                    .padding(vertical = 6.dp),
                 saveData = saveData,
                 minecraftVersion = minecraftVersion,
                 updateOperation = updateOperation,
