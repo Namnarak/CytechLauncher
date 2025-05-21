@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
+import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -218,18 +221,27 @@ private fun PluginInfoItem(
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .fillMaxWidth()
         ) {
-            val model = remember(context) {
-                ImageRequest.Builder(context)
-                    .data(apkPlugin.appIcon)
-                    .build()
+            val iconFile = appCacheIcon(apkPlugin.packageName)
+            if (iconFile.exists()) {
+                val model = remember(context) {
+                    ImageRequest.Builder(context)
+                        .data(iconFile)
+                        .build()
+                }
+                AsyncImage(
+                    modifier = Modifier.size(34.dp),
+                    model = model,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(34.dp),
+                    painter = painterResource(R.drawable.ic_unknown_icon),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
             }
-
-            AsyncImage(
-                modifier = Modifier.size(34.dp),
-                model = model,
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
 
             Spacer(modifier = Modifier.width(12.dp))
 

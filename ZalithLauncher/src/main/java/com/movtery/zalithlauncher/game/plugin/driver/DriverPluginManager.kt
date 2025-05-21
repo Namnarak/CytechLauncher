@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
+import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
 import com.movtery.zalithlauncher.setting.AllSettings
 
 /**
@@ -71,10 +72,10 @@ object DriverPluginManager {
                 )
 
                 runCatching {
+                    cacheAppIcon(context, info)
                     ApkPlugin(
                         packageName = packageName,
                         appName = appName,
-                        appIcon = info.loadIcon(packageManager),
                         appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
                     )
                 }.getOrNull()?.let { loaded(it) }

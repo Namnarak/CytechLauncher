@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
+import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
 import java.io.File
 
 object FFmpegPluginManager {
-    private val pluginPackageName = "net.kdt.pojavlaunch.ffmpeg"
+    private const val PLUGIN_PACKAGE_NAME = "net.kdt.pojavlaunch.ffmpeg"
 
     var libraryPath: String? = null
         private set
@@ -31,7 +32,7 @@ object FFmpegPluginManager {
         val manager: PackageManager = context.packageManager
         runCatching {
             val info = manager.getPackageInfo(
-                pluginPackageName,
+                PLUGIN_PACKAGE_NAME,
                 PackageManager.GET_SHARED_LIBRARY_FILES
             )
             val applicationInfo = info.applicationInfo!!
@@ -41,12 +42,12 @@ object FFmpegPluginManager {
             isAvailable = ffmpegExecutable.exists()
 
             if (isAvailable) {
+                cacheAppIcon(context, applicationInfo)
                 runCatching {
                     ApkPlugin(
-                        packageName = pluginPackageName,
+                        packageName = PLUGIN_PACKAGE_NAME,
                         appName = applicationInfo.loadLabel(manager).toString(),
-                        appIcon = applicationInfo.loadIcon(manager),
-                        appVersion = manager.getPackageInfo(pluginPackageName, 0).versionName ?: ""
+                        appVersion = manager.getPackageInfo(PLUGIN_PACKAGE_NAME, 0).versionName ?: ""
                     )
                 }.getOrNull()?.let { loaded(it) }
             }
