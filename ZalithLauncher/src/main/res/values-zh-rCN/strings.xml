@@ -344,6 +344,7 @@
     <string name="saves_manage_delete_warning">你确定要删除存档 %s 吗？该操作不可撤销！</string>
     <string name="saves_manage_quick_play">快速启动</string>
     <string name="saves_manage_quick_play_disabled">快速启动（仅限 1.20+）</string>
+    <string name="saves_manage_no_saves">当前版本还没有存档</string>
     <!--  游戏  -->
     <string name="minecraft_download_stat_download_task">统计下载任务</string>
     <string name="minecraft_download_stat_verify_task">统计验证任务</string>

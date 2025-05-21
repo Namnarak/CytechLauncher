@@ -77,6 +77,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -317,20 +318,29 @@ private fun SavesList(
     itemContentColor: Color,
     updateOperation: (SavesOperation) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-    ) {
-        items(savesList) { saveData ->
-            SaveItemLayout(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                saveData = saveData,
-                minecraftVersion = minecraftVersion,
-                updateOperation = updateOperation,
-                itemColor = itemColor,
-                itemContentColor = itemContentColor
+    if (savesList.isNotEmpty()) {
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            items(savesList) { saveData ->
+                SaveItemLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    saveData = saveData,
+                    minecraftVersion = minecraftVersion,
+                    updateOperation = updateOperation,
+                    itemColor = itemColor,
+                    itemContentColor = itemContentColor
+                )
+            }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ScalingLabel(
+                modifier = Modifier.align(Alignment.Center),
+                text = stringResource(R.string.saves_manage_no_saves)
             )
         }
     }
