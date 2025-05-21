@@ -75,8 +75,8 @@
     <string name="error_client_error">（%s）用戶端錯誤</string>
     <string name="error_unknown">未知錯誤：%s</string>
     <!--  啟動頁面  -->
-    <string name="splash_screen_unpack_desc">啟動器需要安裝這些內容，才能夠確保 Minecraft 能夠正常啟動。這些內容已經包含在應用中，需要解壓之後才能正常使用，點擊下方按鈕，開始解壓並更新這些內容。</string>
-    <string name="splash_screen_installing">啟動器正在解壓這些內容，解壓完成後將自動進入主介面，請耐心等待。</string>
+    <string name="splash_screen_unpack_desc">啟動器需要安裝這些內容，才能夠確保 Minecraft 能夠正常啟動。這些內容已經包含在應用中，需要解壓縮之後才能正常使用，點擊下方按鈕，開始解壓縮並更新這些內容。</string>
+    <string name="splash_screen_installing">啟動器正在解壓縮這些內容，解壓縮完成後將自動進入主介面，請耐心等待。</string>
     <string name="splash_screen_continue">同意並繼續</string>
     <string name="splash_screen_agree">同意並安裝</string>
     <!--  通知  -->
@@ -86,7 +86,7 @@
     <string name="notification_data_jvm_service_message">為了讓安裝順利進行，啟動器需要在背景執行安裝器。我們會嘗試啟動一個前景服務來確保穩定性，不過這需要開啟通知權限。能幫我們開啟通知權限嗎？這樣可以避免安裝中斷喔！</string>
     <string name="notification_data_jvm_service_name">前景安裝服務</string>
     <string name="notification_data_jvm_service_running">正在前景服務安裝遊戲中</string>
-    <!--  解壓  -->
+    <!--  解壓縮  -->
     <string name="unpack_screen_jre8">Java 8 環境，Minecraft 1.16- 依賴 Java 8。</string>
     <string name="unpack_screen_jre17">Java 17 環境，Minecraft 1.17+ 依賴 Java 17。</string>
     <string name="unpack_screen_jre21">Java 21 環境，Minecraft 1.20.5+ 依賴 Java 21。</string>
