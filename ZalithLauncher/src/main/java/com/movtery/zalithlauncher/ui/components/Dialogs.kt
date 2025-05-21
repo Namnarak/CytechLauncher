@@ -204,6 +204,7 @@ fun SimpleEditDialog(
                     val focusManager = LocalFocusManager.current
 
                     OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = value,
                         onValueChange = { onValueChange(it) },
                         label = label,
