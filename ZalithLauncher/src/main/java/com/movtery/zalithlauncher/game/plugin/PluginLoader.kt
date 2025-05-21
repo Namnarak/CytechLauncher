@@ -37,8 +37,8 @@ object PluginLoader {
             val applicationInfo = it.activityInfo.applicationInfo
             DriverPluginManager.parsePlugin(context, applicationInfo)
             RendererPluginManager.parseApkPlugin(context, applicationInfo)
-            FFmpegPluginManager.parsePlugin(applicationInfo)
         }
+        FFmpegPluginManager.loadPlugin(context)
 
         if (RendererPluginManager.isAvailable()) {
             val failedToLoadList: MutableList<RendererPlugin> = mutableListOf()
