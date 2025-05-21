@@ -434,6 +434,7 @@
     <string name="settings_launcher_swap_animate_type_title">Transition Animation</string>
     <string name="settings_launcher_swap_animate_type_summary">Choose the page transition animation that best suits your preferences</string>
     <!-- About -->
+    <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!-- Permissions -->
     <string name="permissions_external_storage">%s requires file access to function properly</string>

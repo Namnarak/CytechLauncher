@@ -2,11 +2,15 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,14 +24,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.plugin.ApkPlugin
+import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -94,49 +104,153 @@ fun AboutInfoScreen() {
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp)
         ) {
-            val yOffset by swapAnimateDpAsState(
+            val yOffset1 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible
             )
 
-            //额外依赖库板块
-            SettingsBackground(
+            //已加载插件板块
+            ChunkLayout(
                 modifier = Modifier
                     .offset {
                         IntOffset(
                             x = 0,
-                            y = yOffset.roundToPx()
+                            y = yOffset1.roundToPx()
                         )
                     },
-                contentPadding = 0.dp
+                title = stringResource(R.string.about_plugin_title)
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
+                val allPlugins = PluginLoader.allPlugins
+                allPlugins.forEachIndexed { index, apkPlugin ->
+                    PluginInfoItem(
+                        apkPlugin = apkPlugin,
+                        modifier = Modifier
+                            .padding(bottom = if (index == allPlugins.lastIndex) 0.dp else 12.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val yOffset2 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 50
+            )
+
+            //额外依赖库板块
+            ChunkLayout(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = yOffset2.roundToPx()
+                        )
+                    },
+                title = stringResource(R.string.about_library_title)
+            ) {
+                libraryData.forEachIndexed { index, info ->
+                    LibraryInfoItem(
+                        info = info,
+                        modifier = Modifier
+                            .padding(bottom = if (index == libraryData.lastIndex) 0.dp else 12.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChunkLayout(
+    modifier: Modifier = Modifier,
+    title: String,
+    content: @Composable () -> Unit
+) {
+    SettingsBackground(
+        modifier = modifier,
+        contentPadding = 0.dp
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.width(width = 8.dp))
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 12.dp)
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PluginInfoItem(
+    apkPlugin: ApkPlugin,
+    modifier: Modifier = Modifier,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = {}
+    ) {
+        val context = LocalContext.current
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxWidth()
+        ) {
+            val model = remember(context) {
+                ImageRequest.Builder(context)
+                    .data(apkPlugin.appIcon)
+                    .build()
+            }
+
+            AsyncImage(
+                modifier = Modifier.size(34.dp),
+                model = model,
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = apkPlugin.appName,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                FlowRow {
                     Text(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        text = stringResource(R.string.about_library_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        text = apkPlugin.packageName,
+                        style = MaterialTheme.typography.labelSmall
                     )
-                    Spacer(modifier = Modifier.width(width = 8.dp))
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 12.dp)
-                    ) {
-                        repeat(libraryData.size) { index ->
-                            val info = libraryData[index]
-                            LibraryInfoItem(
-                                info = info,
-                                modifier = Modifier
-                                    .padding(bottom = if (index == libraryData.size - 1) 0.dp else 12.dp)
-                            )
-                        }
+                    apkPlugin.appVersion.takeIf { it.isNotEmpty() }?.let { appVersion ->
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = appVersion,
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
                 }
             }
