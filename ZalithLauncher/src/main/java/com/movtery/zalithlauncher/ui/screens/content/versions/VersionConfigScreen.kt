@@ -120,7 +120,7 @@ private fun VersionConfigs(
             style = MaterialTheme.typography.labelLarge
         )
 
-        StatefulSwitchLayoutFollowGlobal(
+        StatefulDropdownMenuFollowGlobal(
             currentValue = config.isolationType,
             onValueChange = { type ->
                 if (config.isolationType != type) {
@@ -132,7 +132,7 @@ private fun VersionConfigs(
             summary = stringResource(R.string.versions_config_isolation_summary)
         )
 
-        StatefulSwitchLayoutFollowGlobal(
+        StatefulDropdownMenuFollowGlobal(
             currentValue = config.skipGameIntegrityCheck,
             onValueChange = { type ->
                 if (config.skipGameIntegrityCheck != type) {
