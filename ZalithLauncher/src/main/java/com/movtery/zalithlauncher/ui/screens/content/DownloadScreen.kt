@@ -34,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -122,6 +123,7 @@ private fun TabMenu(
             .padding(start = 8.dp)
             .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .verticalScroll(rememberScrollState()),
+        containerColor = Color.Transparent,
         windowInsets = WindowInsets(0)
     ) {
         Spacer(modifier = Modifier.height(8.dp))
