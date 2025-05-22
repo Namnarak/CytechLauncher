@@ -105,11 +105,12 @@ fun LauncherSettingsScreen() {
                 SwitchSettingsLayout(
                     unit = AllSettings.launcherFullScreen,
                     title = stringResource(R.string.settings_launcher_full_screen_title),
-                    summary = stringResource(R.string.settings_launcher_full_screen_summary)
-                ) {
-                    val activity = context as? FullScreenComponentActivity
-                    activity?.fullScreenViewModel?.triggerRefresh()
-                }
+                    summary = stringResource(R.string.settings_launcher_full_screen_summary),
+                    onCheckedChange = {
+                        val activity = context as? FullScreenComponentActivity
+                        activity?.fullScreenViewModel?.triggerRefresh()
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
