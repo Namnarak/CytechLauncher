@@ -128,7 +128,12 @@ class VersionSettingsLayoutScope {
                     style = MaterialTheme.typography.labelMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
+            }
 
+            Row(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 IconButton(
                     modifier = Modifier.size(34.dp),
                     onClick = { expanded = !expanded }
