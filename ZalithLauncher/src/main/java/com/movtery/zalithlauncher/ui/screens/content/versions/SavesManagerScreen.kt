@@ -71,8 +71,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerOrEqualVer
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -119,7 +119,9 @@ fun SavesManagerScreen() {
             ObjectStates.backToLauncherScreen()
             return@BaseScreen
         }
-        val minecraftVersion = version.getVersionInfo()!!.minecraftVersion
+        val versionInfo = version.getVersionInfo()!!
+        val minecraftVersion = versionInfo.minecraftVersion
+        val quickPlay = versionInfo.quickPlay
         val savesDir = File(version.getGameDir(), "saves")
 
         //触发刷新
@@ -199,6 +201,7 @@ fun SavesManagerScreen() {
                                 .fillMaxWidth()
                                 .weight(1f),
                             savesList = filteredSaves,
+                            quickPlay = quickPlay,
                             minecraftVersion = minecraftVersion,
                             itemColor = itemColor,
                             itemContentColor = itemContentColor,
@@ -313,6 +316,7 @@ private fun SavesActionsHeader(
 private fun SavesList(
     modifier: Modifier = Modifier,
     savesList: List<SaveData>?,
+    quickPlay: VersionInfo.QuickPlay,
     minecraftVersion: String,
     itemColor: Color,
     itemContentColor: Color,
@@ -331,6 +335,7 @@ private fun SavesList(
                             .fillMaxWidth()
                             .padding(vertical = 6.dp),
                         saveData = saveData,
+                        quickPlay = quickPlay,
                         minecraftVersion = minecraftVersion,
                         updateOperation = updateOperation,
                         itemColor = itemColor,
@@ -359,6 +364,7 @@ private fun SavesList(
 private fun SaveItemLayout(
     modifier: Modifier = Modifier,
     saveData: SaveData,
+    quickPlay: VersionInfo.QuickPlay,
     minecraftVersion: String,
     onClick: () -> Unit = {},
     updateOperation: (SavesOperation) -> Unit = {},
@@ -490,8 +496,7 @@ private fun SaveItemLayout(
                     saveValid = saveData.isValid,
                     buttonSize = 38.dp,
                     iconSize = 26.dp,
-                    //1.20+ 快照 23w14a 才开始支持快速启动单人游戏
-                    canQuickPlay = minecraftVersion.isBiggerOrEqualVer("1.20", "23w14a"),
+                    canQuickPlay = quickPlay.isQuickPlaySingleplayer,
                     onQuickPlayClick = {
                         updateOperation(SavesOperation.QuickPlay(saveData))
                     },
