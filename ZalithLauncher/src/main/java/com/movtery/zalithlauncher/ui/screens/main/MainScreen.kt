@@ -199,7 +199,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        shadowElevation = 3.dp
+        tonalElevation = 3.dp
     ) {
         ConstraintLayout {
             val (backButton, title, tasksLayout, download, settings) = createRefs()
