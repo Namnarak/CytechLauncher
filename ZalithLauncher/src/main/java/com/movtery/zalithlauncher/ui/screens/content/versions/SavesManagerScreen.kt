@@ -130,7 +130,7 @@ fun SavesManagerScreen() {
         var allSaves by remember { mutableStateOf<List<SaveData>>(emptyList()) }
         val filteredSaves by remember(allSaves, savesFilter) {
             derivedStateOf {
-                allSaves.filterSaves(minecraftVersion, savesFilter)
+                allSaves.takeIf { it.isNotEmpty() }?.filterSaves(minecraftVersion, savesFilter)
             }
         }
 
@@ -312,31 +312,35 @@ private fun SavesActionsHeader(
 @Composable
 private fun SavesList(
     modifier: Modifier = Modifier,
-    savesList: List<SaveData>,
+    savesList: List<SaveData>?,
     minecraftVersion: String,
     itemColor: Color,
     itemContentColor: Color,
     updateOperation: (SavesOperation) -> Unit
 ) {
-    if (savesList.isNotEmpty()) {
-        LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            items(savesList) { saveData ->
-                SaveItemLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    saveData = saveData,
-                    minecraftVersion = minecraftVersion,
-                    updateOperation = updateOperation,
-                    itemColor = itemColor,
-                    itemContentColor = itemContentColor
-                )
+    savesList?.let { list ->
+        //如果列表是空的，则是由搜索导致的
+        if (list.isNotEmpty()) {
+            LazyColumn(
+                modifier = modifier,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                items(list) { saveData ->
+                    SaveItemLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        saveData = saveData,
+                        minecraftVersion = minecraftVersion,
+                        updateOperation = updateOperation,
+                        itemColor = itemColor,
+                        itemContentColor = itemContentColor
+                    )
+                }
             }
         }
-    } else {
+    } ?: run {
+        //如果为null，则代表本身就没有存档可以展示
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
