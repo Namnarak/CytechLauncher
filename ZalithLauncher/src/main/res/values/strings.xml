@@ -44,6 +44,8 @@
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
+    <string name="launcher_version_debug_warning">You are using a test version of %s! This version may be unstable and is primarily intended for feature testing and early access. It is not recommended for long-term use! If you encounter any issues during testing, please report them to us via GitHub and we will address them as soon as possible.</string>
+    <string name="launcher_version_debug_warning_cant_close">This warning cannot be dismissed</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Dynamic (Android 12+)</string>
     <string name="theme_color_embermire">Embermire</string>
