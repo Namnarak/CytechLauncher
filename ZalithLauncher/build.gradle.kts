@@ -49,9 +49,15 @@ android {
     signingConfigs {
         create("releaseBuild") {
             storeFile = file("zalith_launcher.jks")
-            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt", defaultStorePassword)
+            storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt")
             keyAlias = "movtery_zalith"
-            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt", defaultKeyPassword)
+            keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
+        }
+        create("debugBuild") {
+            storeFile = file("zalith_launcher_debug.jks")
+            storePassword = defaultStorePassword
+            keyAlias = "movtery_zalith_debug"
+            keyPassword = defaultKeyPassword
         }
     }
 
@@ -69,6 +75,11 @@ android {
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("releaseBuild")
+        }
+        debug {
+            isMinifyEnabled = false
+            applicationIdSuffix = ".v2.debug"
+            signingConfig = signingConfigs.getByName("debugBuild")
         }
     }
 
