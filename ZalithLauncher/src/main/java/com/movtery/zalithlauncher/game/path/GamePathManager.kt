@@ -154,6 +154,7 @@ object GamePathManager {
     private fun refreshCurrentPath() {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
+            if (currentPath == item.path) return //避免重复刷新
             currentPath = item.path
             currentPath.createNoMediaFile()
             VersionsManager.refresh()
