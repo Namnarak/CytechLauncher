@@ -22,8 +22,8 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getSystemLanguage
-import com.movtery.zalithlauncher.utils.logging.lError
-import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll

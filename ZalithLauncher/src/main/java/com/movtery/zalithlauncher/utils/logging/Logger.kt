@@ -202,13 +202,27 @@ object Logger : CoroutineScope {
         }
     }
 
+    fun lError(msg: String, t: Throwable? = null) =
+        log(Level.ERROR, findCaller(), msg, t)
+
+    fun lWarning(msg: String, t: Throwable? = null) =
+        log(Level.WARNING, findCaller(), msg, t)
+
+    fun lInfo(msg: String, t: Throwable? = null) =
+        log(Level.INFO, findCaller(), msg, t)
+
+    fun lDebug(msg: String, t: Throwable? = null) =
+        log(Level.DEBUG, findCaller(), msg, t)
+
+    fun lTrace(msg: String, t: Throwable? = null) =
+        log(Level.TRACE, findCaller(), msg, t)
+
     /**
      * 输出日志
      */
-    fun log(level: Level, message: String, throwable: Throwable? = null) {
+    fun log(level: Level, caller: String?, message: String, throwable: Throwable? = null) {
         if (!isInitialized.get()) return
 
-        val caller = findCaller()
         val event = LogEvent.LogMessage(
             time = System.currentTimeMillis(),
             caller = caller,

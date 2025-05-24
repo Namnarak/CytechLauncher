@@ -8,8 +8,8 @@ import android.opengl.EGLConfig
 import android.opengl.GLES20
 import android.os.Process
 import com.google.gson.GsonBuilder
-import com.movtery.zalithlauncher.utils.logging.lDebug
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import java.text.SimpleDateFormat
 import java.time.OffsetDateTime
 import java.time.ZoneId

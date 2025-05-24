@@ -7,7 +7,7 @@ import com.movtery.zalithlauncher.components.AbstractUnpackTask
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.readString
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 
 class UnpackJreTask(
     private val context: Context,

@@ -20,7 +20,7 @@ import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
-import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import org.lwjgl.glfw.CallbackBridge
 import kotlin.math.min
 

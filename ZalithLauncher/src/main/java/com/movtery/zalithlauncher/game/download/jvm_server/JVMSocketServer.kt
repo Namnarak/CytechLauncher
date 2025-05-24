@@ -1,8 +1,8 @@
 package com.movtery.zalithlauncher.game.download.jvm_server
 
-import com.movtery.zalithlauncher.utils.logging.lError
-import com.movtery.zalithlauncher.utils.logging.lInfo
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

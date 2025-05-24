@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.hardware.input.InputManager
 import android.view.InputDevice
-import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 
 object PhysicalMouseChecker {
     /**

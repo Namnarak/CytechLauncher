@@ -7,8 +7,8 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager.getZali
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.getInt
-import com.movtery.zalithlauncher.utils.logging.lError
-import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getStringNotNull
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 
 object FFmpegPluginManager {

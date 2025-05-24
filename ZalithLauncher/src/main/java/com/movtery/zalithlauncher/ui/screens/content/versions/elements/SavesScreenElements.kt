@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.nbt.asBoolean
 import com.movtery.zalithlauncher.utils.nbt.asCompoundTag
 import com.movtery.zalithlauncher.utils.nbt.asInt

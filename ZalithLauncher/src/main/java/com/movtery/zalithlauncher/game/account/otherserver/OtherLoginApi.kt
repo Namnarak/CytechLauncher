@@ -8,8 +8,8 @@ import com.movtery.zalithlauncher.game.account.otherserver.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
-import com.movtery.zalithlauncher.utils.logging.lDebug
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import io.ktor.client.call.body
 import io.ktor.client.request.get

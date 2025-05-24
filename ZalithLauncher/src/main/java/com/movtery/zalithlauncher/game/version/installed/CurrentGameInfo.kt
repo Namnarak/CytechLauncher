@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.game.version.installed
 import com.google.gson.annotations.SerializedName
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap

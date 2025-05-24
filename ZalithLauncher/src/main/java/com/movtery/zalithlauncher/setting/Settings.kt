@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import org.apache.commons.io.FileUtils
 import java.lang.reflect.Type
 import java.util.concurrent.ConcurrentHashMap

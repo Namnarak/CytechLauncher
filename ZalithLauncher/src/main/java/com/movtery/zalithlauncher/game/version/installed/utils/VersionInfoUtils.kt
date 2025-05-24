@@ -5,9 +5,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.utils.logging.lError
-import com.movtery.zalithlauncher.utils.logging.lInfo
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 
 class VersionInfoUtils {
@@ -110,12 +109,8 @@ class VersionInfoUtils {
         }
 
         private fun detectMinecraftAndLoader(versionJson: JsonObject): Pair<String, VersionInfo.LoaderInfo?> {
-            val mcVersion = extractMinecraftVersion(versionJson).also {
-                lInfo("Detected Minecraft version: $it")
-            }
-            val loaderInfo = detectModLoader(versionJson)?.also {
-                lInfo("Detected ModLoader: $it")
-            }
+            val mcVersion = extractMinecraftVersion(versionJson)
+            val loaderInfo = detectModLoader(versionJson)
             return mcVersion to loaderInfo
         }
 

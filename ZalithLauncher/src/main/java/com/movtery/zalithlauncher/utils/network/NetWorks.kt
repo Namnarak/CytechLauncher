@@ -1,6 +1,6 @@
 package com.movtery.zalithlauncher.utils.network
 
-import com.movtery.zalithlauncher.utils.logging.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.delay
 import java.io.IOException

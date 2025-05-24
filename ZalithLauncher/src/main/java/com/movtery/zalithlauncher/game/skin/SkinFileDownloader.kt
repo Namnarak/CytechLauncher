@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.game.skin
 import com.google.gson.JsonObject
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.utils.GSON
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import okhttp3.Request

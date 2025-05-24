@@ -3,8 +3,8 @@ package com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
-import com.movtery.zalithlauncher.utils.logging.lDebug
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException

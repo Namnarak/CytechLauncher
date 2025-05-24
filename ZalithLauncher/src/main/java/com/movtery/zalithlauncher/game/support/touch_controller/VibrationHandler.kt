@@ -2,7 +2,7 @@ package com.movtery.zalithlauncher.game.support.touch_controller
 
 import android.os.VibrationEffect
 import android.os.Vibrator
-import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import top.fifthlight.touchcontroller.proxy.client.LauncherProxyClient
 import top.fifthlight.touchcontroller.proxy.message.VibrateMessage
 

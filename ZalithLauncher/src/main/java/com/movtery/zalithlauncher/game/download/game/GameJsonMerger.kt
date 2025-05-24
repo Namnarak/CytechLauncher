@@ -7,7 +7,7 @@ import com.movtery.zalithlauncher.game.download.game.models.toLaunchForInfo
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.json.merge
 import com.movtery.zalithlauncher.utils.json.safeGetMember
-import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import java.io.File
 

@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
 import com.movtery.zalithlauncher.utils.json.parseToJson
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.stripColorCodes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

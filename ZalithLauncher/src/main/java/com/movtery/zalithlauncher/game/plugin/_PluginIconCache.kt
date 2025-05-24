@@ -5,7 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.image.toBitmap
-import com.movtery.zalithlauncher.utils.logging.lWarning
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import org.apache.commons.io.FileUtils
 import java.io.File
 
