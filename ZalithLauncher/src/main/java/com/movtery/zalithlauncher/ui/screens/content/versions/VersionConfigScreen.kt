@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +42,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayou
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 
@@ -341,7 +341,7 @@ private fun VersionConfig.saveOrShowError(context: Context) {
     runCatching {
         saveWithThrowable()
     }.onFailure { e ->
-        Log.e(VERSION_CONFIG_SCREEN_TAG, "Failed to save version config!", e)
+        lError("Failed to save version config!", e)
         ObjectStates.updateThrowable(
             ObjectStates.ThrowableMessage(
                 title = context.getString(R.string.versions_config_failed_to_save),

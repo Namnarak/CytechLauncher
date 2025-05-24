@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.launch
 
-import android.util.Log
 import androidx.collection.ArrayMap
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.account.Account
@@ -15,6 +14,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
+import com.movtery.zalithlauncher.utils.logging.lWarning
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.toUnicodeEscaped
 import com.movtery.zalithlauncher.utils.string.isLowerTo
@@ -58,7 +58,7 @@ class LaunchArgs(
                         add(saveName)
                     }
                 } else {
-                    Log.w("LaunchArgs", "Quick Play for singleplayer is not supported and has been skipped.")
+                    lWarning("Quick Play for singleplayer is not supported and has been skipped.")
                 }
             } else {
                 version.getServerIp()?.let { serverIp ->
@@ -116,7 +116,7 @@ class LaunchArgs(
                 }
                 configFilePath.writeText(content)
             }.onFailure {
-                Log.w("LaunchArgs", "Failed to write fallback Log4j configuration autonomously!", it)
+                lWarning("Failed to write fallback Log4j configuration autonomously!", it)
             }
         }
         argsList.add("-Dlog4j.configurationFile=${configFilePath.absolutePath}")

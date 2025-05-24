@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.account.microsoft
 
-import android.util.Log
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -14,6 +13,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSProperties
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSRequest
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.utils.logging.lDebug
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -144,7 +144,7 @@ object MicrosoftAuthenticator {
                 handleClientRequestException(e, pollingInterval)
                 pollingInterval = adjustPollingInterval(e, pollingInterval)
             } catch (e: CancellationException) {
-                Log.d("Auth", "Authentication cancelled")
+                lDebug("Authentication cancelled")
                 throw e
             }
             delay(pollingInterval).also {
@@ -159,7 +159,7 @@ object MicrosoftAuthenticator {
         val errorBody = Json.parseToJsonElement(e.response.bodyAsText()).jsonObject
         when (errorBody["error"]?.jsonPrimitive?.content) {
             "authorization_pending" -> Unit /* 正常情况，继续轮询 */
-            "slow_down" -> Log.d("Auth", "Slowing down polling to ${interval + 1000}ms")
+            "slow_down" -> lDebug("Slowing down polling to ${interval + 1000}ms")
             else -> throw e
         }
     }

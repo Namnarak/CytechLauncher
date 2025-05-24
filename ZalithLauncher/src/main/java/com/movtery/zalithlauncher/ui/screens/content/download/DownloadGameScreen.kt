@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.content.download
 
 import android.Manifest
 import android.os.Build
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.EnterTransition
@@ -53,6 +52,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateType
+import com.movtery.zalithlauncher.utils.logging.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -208,7 +208,7 @@ private fun GameInstallOperation(
         }
         is GameInstallOperation.Error -> {
             val th = gameInstallOperation.th
-            Log.e(DOWNLOAD_GAME_SCREEN_TAG, "Failed to download the game!", th)
+            lError("Failed to download the game!", th)
             val message = when (th) {
                 is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

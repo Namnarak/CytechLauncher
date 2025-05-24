@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.game.path
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +9,8 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings.Companion.currentGamePathId
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissions
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,7 +74,7 @@ object GamePathManager {
                 refreshCurrentPath()
             }
 
-            Log.i("GamePathManager", "Loaded ${_gamePathData.value.size} game paths")
+            lInfo("Loaded ${_gamePathData.value.size} game paths")
         }
     }
 
@@ -83,7 +84,7 @@ object GamePathManager {
             runCatching {
                 noMediaFile.createNewFile()
             }.onFailure { e ->
-                Log.e("GamePathManager", "Failed to create .nomedia file in $this", e)
+                lError("Failed to create .nomedia file in $this", e)
             }
         }
     }
@@ -171,9 +172,9 @@ object GamePathManager {
         scope.launch {
             runCatching {
                 gamePathDao.savePath(path)
-                Log.i("GamePathManager", "Saved game path: ${path.path}")
+                lInfo("Saved game path: ${path.path}")
             }.onFailure { e ->
-                Log.e("GamePathManager", "Failed to save game path config!", e)
+                lError("Failed to save game path config!", e)
             }
             reloadPath()
         }

@@ -16,6 +16,8 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
 import com.movtery.zalithlauncher.utils.device.Architecture
+import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.logging.lError
 import java.io.PrintStream
 import java.text.DateFormat
 import java.util.Date
@@ -35,7 +37,7 @@ class ZLApplication : Application() {
             val throwable = if (th is SplashException) th.cause!!
             else th
 
-            Log.e("Application", "An exception occurred: \n${Log.getStackTraceString(throwable)}")
+            lError("An exception occurred", throwable)
 
             runCatching {
                 PrintStream(PathManager.FILE_CRASH_REPORT).use { stream ->
@@ -48,8 +50,7 @@ class ZLApplication : Application() {
                     stream.append(Log.getStackTraceString(throwable))
                 }
             }.onFailure { t ->
-                Log.e("Application", "An exception occurred while saving the crash report: ", t)
-                Log.e("Application", "Crash stack trace: ", throwable)
+                lError("An exception occurred while saving the crash report", t)
             }
 
             showLauncherCrash(this@ZLApplication, throwable, th !is SplashException)
@@ -58,6 +59,8 @@ class ZLApplication : Application() {
 
         super.onCreate()
         runCatching {
+            Logger.initialize(this)
+
             initializeData()
             PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
             DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()

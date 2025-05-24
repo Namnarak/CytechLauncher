@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -82,6 +81,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDia
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -372,7 +372,7 @@ private fun OtherLoginOperation(
                     stringResource(res, statusCode)
                 }
                 else -> {
-                    Log.e("OtherLoginOperation", "An unknown exception was caught!", th)
+                    lError("An unknown exception was caught!", th)
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)
                 }
@@ -726,7 +726,7 @@ private fun AccountOperation(
                     stringResource(res, statusCode)
                 }
                 else -> {
-                    Log.e("AccountOperation", "An unknown exception was caught!", th)
+                    lError("An unknown exception was caught!", th)
                     val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
                     stringResource(R.string.error_unknown, errorMessage)
                 }

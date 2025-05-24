@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
@@ -64,7 +63,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
 
@@ -332,7 +331,7 @@ fun VersionsOperation(
                 context = Dispatchers.IO,
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
-                    Log.e("VersionsOperation.RunTask", "Failed to run task. ${StringUtils.throwableToString(e)}")
+                    lError("Failed to run task.", e)
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(
                             title = errorMessage,

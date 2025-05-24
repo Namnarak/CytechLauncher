@@ -5,7 +5,6 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +20,7 @@ import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import org.lwjgl.glfw.CallbackBridge
 import kotlin.math.min
 
@@ -121,7 +121,7 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
                 else -> min(cutout.width(), cutout.height())
             }
         }.onFailure {
-            Log.i("NOTCH DETECTION", "No notch detected, or the device if in split screen mode")
+            lInfo("No notch detected, or the device if in split screen mode")
             notchSize = -1
         }
     }

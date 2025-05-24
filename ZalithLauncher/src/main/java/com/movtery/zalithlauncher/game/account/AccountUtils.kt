@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
@@ -18,7 +17,7 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.logging.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
@@ -251,7 +250,7 @@ fun addOtherServer(
         },
         onError = { e ->
             onThrowable(e)
-            Log.e("AddOtherServer", "Failed to add other server\n${StringUtils.throwableToString(e)}")
+            lError("Failed to add auth server", e)
         }
     )
 
@@ -297,7 +296,7 @@ fun tryGetFullServerUrl(baseUrl: String): String {
 
         return url.addSlashIfMissing()
     }.getOrElse { e ->
-        Log.e("getFullServerUrl", "Failed to get full server url", e)
+        lError("Failed to get full server url", e)
     }
     return baseUrl
 }

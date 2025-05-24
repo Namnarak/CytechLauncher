@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +55,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
@@ -194,7 +193,7 @@ private fun PickIcon(version: Version, onDone: () -> Unit) {
                         context.copyLocalFile(result, iconFile)
                     },
                     onError = { e ->
-                        Log.e(VERSION_OVERVIEW_SCREEN_TAG, "Failed to import icon!", e)
+                        lError("Failed to import icon!", e)
                         FileUtils.deleteQuietly(iconFile)
                         ObjectStates.updateThrowable(
                             ObjectStates.ThrowableMessage(
@@ -495,7 +494,7 @@ private fun VersionsOperation(
                 context = Dispatchers.IO,
                 onDismiss = { updateOperation(VersionsOperation.None) },
                 onError = { e ->
-                    Log.e("VersionsOperation.RunTask", "Failed to run task. ${StringUtils.throwableToString(e)}")
+                    lError("Failed to run task.", e)
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(
                             title = errorMessage,

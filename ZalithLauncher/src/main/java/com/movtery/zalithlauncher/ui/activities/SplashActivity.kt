@@ -3,7 +3,6 @@ package com.movtery.zalithlauncher.ui.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -23,6 +22,8 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.getSystemLanguage
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -78,11 +79,11 @@ class SplashActivity : BaseComponentActivity() {
         val eulaText: String = runCatching {
             readAssetFile(fileName)
         }.onFailure {
-            Log.e("SplashActivity", "Failed to read $fileName", it)
+            lError("Failed to read $fileName", it)
         }.getOrNull() ?: return null
 
         val newDate = eulaText.getLine(2)?.also {
-            Log.i("SplashActivity", "The content of the date line of the existing EULA has been read: $it")
+            lInfo("The content of the date line of the existing EULA has been read: $it")
         } ?: return null
         if (eulaDate != newDate) {
             eulaDate = newDate
@@ -159,7 +160,7 @@ class SplashActivity : BaseComponentActivity() {
     private fun checkTasksToMain(): Boolean {
         val toMain = checkTasks()
         if (toMain) {
-            Log.i("SplashActivity", "All content that needs to be extracted is already the latest version!")
+            lInfo("All content that needs to be extracted is already the latest version!")
             swapToMain()
         }
         return toMain

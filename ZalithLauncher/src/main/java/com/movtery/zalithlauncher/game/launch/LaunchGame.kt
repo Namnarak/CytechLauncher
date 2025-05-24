@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
-import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -12,6 +11,7 @@ import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.activities.runGame
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
@@ -79,7 +79,7 @@ object LaunchGame {
                             context.getString(res, statusCode)
                         }
                         else -> {
-                            Log.e("LaunchGame", "An unknown exception was caught!", error)
+                            lError("An unknown exception was caught!", error)
                             val errorMessage = error.localizedMessage ?: error.message ?: error::class.qualifiedName ?: "Unknown error"
                             context.getString(R.string.error_unknown, errorMessage)
                         }

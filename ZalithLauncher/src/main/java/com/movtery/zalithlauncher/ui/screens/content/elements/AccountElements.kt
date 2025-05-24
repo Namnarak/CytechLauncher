@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -87,6 +86,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.logging.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
 import java.nio.file.Files
@@ -754,7 +754,7 @@ private fun getAvatarFromAccount(context: Context, account: Account, size: Int):
                 return getAvatar(bitmap, size)
             }
         }.onFailure { e ->
-            Log.e("SkinLoader", "Failed to load avatar from locally!", e)
+            lError("Failed to load avatar from locally!", e)
         }
     }
     return getDefaultAvatar(context, size)

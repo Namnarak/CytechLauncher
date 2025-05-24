@@ -5,7 +5,6 @@ import android.os.Build
 import android.system.ErrnoException
 import android.system.Os
 import android.util.ArrayMap
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.LoggerBridge
@@ -27,8 +26,10 @@ import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
 import com.movtery.zalithlauncher.utils.device.Architecture.is64BitsDevice
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
-import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.logging.lDebug
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.lWarning
 import com.oracle.dalvik.VMLauncher
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
@@ -190,8 +191,8 @@ abstract class Launcher(
     private fun initLdLibraryPath(jreHome: String) {
         val serverFile = File(jreHome).child(dirNameHomeJre, "server", "libjvm.so")
         jvmLibraryPath = "$jreHome/$dirNameHomeJre/" + (if (serverFile.exists()) "server" else "client")
-        Log.d("DynamicLoader", "Base ldLibraryPath: $ldLibraryPath")
-        Log.d("DynamicLoader", "Internal ldLibraryPath: $jvmLibraryPath:$ldLibraryPath")
+        lDebug("Base ldLibraryPath: $ldLibraryPath")
+        lDebug("Internal ldLibraryPath: $jvmLibraryPath:$ldLibraryPath")
         ZLBridge.setLdLibraryPath("$jvmLibraryPath:$ldLibraryPath")
     }
 
@@ -202,7 +203,7 @@ abstract class Launcher(
                     Os.setenv("LD_LIBRARY_PATH", ldLibraryPath, true)
                 }
             } catch (e: ErrnoException) {
-                Log.e("Launcher", StringUtils.throwableToString(e))
+                lError("Failed to locate lib path", e)
             }
             ldLibraryPath
         }
@@ -232,7 +233,7 @@ abstract class Launcher(
             runCatching {
                 Os.setenv(key, value, true)
             }.onFailure {
-                Log.e("Launcher", it.getMessageOrToString())
+                lError("Unable to set environment variable.", it)
             }
         }
     }
@@ -267,7 +268,7 @@ abstract class Launcher(
     private fun dlopenJavaRuntime(jreHome: String) {
         ZLBridge.dlopen(findInLdLibPath("libjli.so"))
         if (!ZLBridge.dlopen("libjvm.so")) {
-            Log.w("DynamicLoader", "Failed to load with no path, trying with full path")
+            lWarning("Failed to load with no path, trying with full path")
             ZLBridge.dlopen("$jvmLibraryPath/libjvm.so")
         }
         ZLBridge.dlopen(findInLdLibPath("libverify.so"))
@@ -332,7 +333,7 @@ abstract class Launcher(
                 val stripped = arg.substringBefore('=')
                 val overridden = userArguments.any { it.startsWith(stripped) }
                 if (overridden) {
-                    Log.i("ArgProcessor", "Arg skipped: $arg")
+                    lInfo("Arg skipped: $arg")
                 }
                 !overridden
             }
@@ -372,7 +373,7 @@ abstract class Launcher(
                             parsedArguments.add(parsedSubstring)
                         }
                     } else {
-                        Log.w("JAVA ARGS PARSER", "Removed improper arguments: $parsedSubstring")
+                        lWarning("Removed improper arguments: $parsedSubstring")
                     }
                 }
             }

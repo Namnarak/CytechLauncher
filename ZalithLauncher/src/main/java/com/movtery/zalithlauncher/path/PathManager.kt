@@ -18,6 +18,7 @@ class PathManager {
         lateinit var DIR_MOUSE_POINTER: File
         lateinit var DIR_CACHE_GAME_DOWNLOADER: File
         lateinit var DIR_CACHE_APP_ICON: File
+        lateinit var DIR_LAUNCHER_LOGS: File
 
         lateinit var FILE_CRASH_REPORT: File
         lateinit var FILE_SETTINGS: File
@@ -37,8 +38,9 @@ class PathManager {
             DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
             DIR_CACHE_GAME_DOWNLOADER = File(DIR_CACHE, "temp_game")
             DIR_CACHE_APP_ICON = File(DIR_CACHE, "app_icons")
+            DIR_LAUNCHER_LOGS = File(DIR_FILES_EXTERNAL, "logs")
 
-            FILE_CRASH_REPORT = File(DIR_FILES_EXTERNAL, "launcher_crash.log")
+            FILE_CRASH_REPORT = File(DIR_LAUNCHER_LOGS, "launcher_crash.log")
             FILE_SETTINGS = File(DIR_FILES_PRIVATE, "settings.json")
             FILE_MINECRAFT_VERSIONS = File(DIR_GAME, "minecraft_versions.json")
 
@@ -53,6 +55,7 @@ class PathManager {
             DIR_MOUSE_POINTER.mkdirs()
             DIR_CACHE_GAME_DOWNLOADER.mkdirs()
             DIR_CACHE_APP_ICON.mkdirs()
+            DIR_LAUNCHER_LOGS.mkdirs()
         }
     }
 }

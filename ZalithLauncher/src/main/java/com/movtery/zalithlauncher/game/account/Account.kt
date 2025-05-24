@@ -1,12 +1,13 @@
 package com.movtery.zalithlauncher.game.account
 
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.movtery.zalithlauncher.game.skin.SkinFileDownloader
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -54,9 +55,9 @@ data class Account(
 
         runCatching {
             SkinFileDownloader().yggdrasil(url, skinFile, profileId)
-            Log.i("Account", "Update skin success")
+            lInfo("Update skin success")
         }.onFailure { e ->
-            Log.e("Account", "Could not update skin", e)
+            lError("Could not update skin", e)
         }
     }
 }

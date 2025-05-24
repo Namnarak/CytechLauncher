@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.game.account.otherserver
 
 import android.content.Context
-import android.util.Log
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -9,6 +8,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
+import com.movtery.zalithlauncher.utils.logging.lError
 import kotlinx.coroutines.Dispatchers
 import java.util.Objects
 
@@ -58,7 +58,7 @@ class OtherLoginHelper(
                 )
             },
             onError = { e ->
-                Log.e("OtherLogin", "An exception was encountered while performing the login task.", e)
+                lError("An exception was encountered while performing the login task.", e)
                 onFailed(e)
             },
             onFinally = onFinally
@@ -160,7 +160,7 @@ class OtherLoginHelper(
                 )
             },
             onError = { e ->
-                Log.e("Other Login", "An exception was encountered while performing the refresh task.", e)
+                lError("An exception was encountered while performing the refresh task.", e)
                 onFailed(e)
             }
         ).apply { updateMessage(R.string.account_other_login_select_role_logging, account.username) }

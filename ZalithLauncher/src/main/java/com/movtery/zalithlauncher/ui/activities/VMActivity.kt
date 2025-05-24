@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Surface
@@ -50,6 +49,8 @@ import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lWarning
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -267,7 +268,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         val width = getDisplayPixels(displayMetrics.widthPixels)
         val height = getDisplayPixels(displayMetrics.heightPixels)
         if (width < 1 || height < 1) {
-            Log.e("VMActivity", "Impossible resolution : $width x $height")
+            lError("Impossible resolution : $width x $height")
             return
         }
         CallbackBridge.windowWidth = width
@@ -275,7 +276,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         mTextureView?.surfaceTexture?.apply {
             setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
         } ?: run {
-            Log.w("VMActivity", "Attempt to refresh size on null surface")
+            lWarning("Attempt to refresh size on null surface")
             return
         }
         CallbackBridge.sendUpdateWindowSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)

@@ -3,8 +3,8 @@ package com.movtery.zalithlauncher.utils.file
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.content.FileProvider
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import com.movtery.zalithlauncher.utils.string.compareChar
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
@@ -24,7 +24,7 @@ fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = true): Boolea
             String(Hex.encodeHex(DigestUtils.sha1(fis)))
         }
     }.getOrElse { e ->
-        Log.i("CompareSHA1", "An exception occurred while reading, returning the default value.", e)
+        lInfo("An exception occurred while reading, returning the default value.", e)
         return default
     }
 

@@ -1,12 +1,14 @@
 package com.movtery.zalithlauncher.game.download.game
 
-import android.util.Log
 import com.google.gson.JsonObject
 import com.movtery.zalithlauncher.game.download.game.models.LibraryComponents
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.json.parseToJson
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
+import com.movtery.zalithlauncher.utils.logging.lWarning
 import java.io.File
 import java.io.IOException
 
@@ -19,11 +21,11 @@ fun GameManifest.isOldVersion(): Boolean = !minecraftArguments.isNullOrEmpty()
 fun String?.getJsonOrNull(tag: String): JsonObject? {
     return this?.let { path ->
         val text: String = File(path).takeIf { it.exists() && it.isFile }?.readText() ?: run {
-            Log.w("_DownloadUtils.Game.getJsonOrNull", "The $tag json file is invalid!")
+            lWarning("The $tag json file is invalid!")
             return@let null
         }
         if (!text.startsWith("{")) {
-            Log.w("_DownloadUtils.Game.getJsonOrNull", "The $tag JSON is invalid, first part of the content: ${text.take(1000)}")
+            lWarning("The $tag JSON is invalid, first part of the content: ${text.take(1000)}")
             return@let null
         }
         text.parseToJson()
@@ -61,9 +63,9 @@ fun copyLibraries(
         try {
             targetFile.ensureParentDirectory()
             file.copyTo(targetFile, overwrite = true)
-            Log.i("CopyLibraries", "copied: ${file.path} -> ${targetFile.path}")
+            lInfo("copied: ${file.path} -> ${targetFile.path}")
         } catch (e: IOException) {
-            Log.e("CopyLibraries", "Failed to copy: ${file.path} -> ${targetFile.path}", e)
+            lError("Failed to copy: ${file.path} -> ${targetFile.path}", e)
         }
         onProgress?.invoke((index + 1).toFloat() / fileCount)
     }

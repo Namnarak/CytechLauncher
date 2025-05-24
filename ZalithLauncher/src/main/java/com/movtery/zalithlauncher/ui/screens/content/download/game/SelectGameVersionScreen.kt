@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.game
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -63,6 +62,8 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCRE
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lWarning
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -200,7 +201,7 @@ fun SelectGameVersionScreen(
                 allVersions = MinecraftVersions.getVersionManifest(forceReload).versions
                 null
             }.getOrElse { e ->
-                Log.w(SELECT_GAME_VERSION_SCREEN_TAG, "Failed to get version manifest!", e)
+                lWarning("Failed to get version manifest!", e)
                 val message: Pair<Int, Array<Any>?> = when(e) {
                     is HttpRequestTimeoutException -> R.string.error_timeout to null
                     is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
@@ -215,7 +216,7 @@ fun SelectGameVersionScreen(
                         res to arrayOf(statusCode)
                     }
                     else -> {
-                        Log.e(SELECT_GAME_VERSION_SCREEN_TAG, "An unknown exception was caught!", e)
+                        lError("An unknown exception was caught!", e)
                         val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                         R.string.error_unknown to arrayOf(errorMessage)
                     }

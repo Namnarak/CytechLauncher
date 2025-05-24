@@ -1,13 +1,14 @@
 package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
-import android.util.Log
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.database.AppDatabase
 import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServerDao
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.logging.lError
+import com.movtery.zalithlauncher.utils.logging.lInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,7 +65,7 @@ object AccountsManager {
 
             refreshCurrentAccountState()
 
-            Log.i("AccountsManager", "Loaded ${_accounts.size} accounts")
+            lInfo("Loaded ${_accounts.size} accounts")
         }
     }
 
@@ -80,7 +81,7 @@ object AccountsManager {
             _authServers.sortWith { o1, o2 -> o1.serverName.compareTo(o2.serverName) }
             _authServersFlow.value = _authServers.toList()
 
-            Log.i("AccountsManager", "Loaded ${_authServers.size} auth servers")
+            lInfo("Loaded ${_authServers.size} auth servers")
         }
     }
 
@@ -154,9 +155,9 @@ object AccountsManager {
     suspend fun suspendSaveAccount(account: Account) {
         runCatching {
             accountDao.saveAccount(account)
-            Log.i("AccountsManager", "Saved account: ${account.username}")
+            lInfo("Saved account: ${account.username}")
         }.onFailure { e ->
-            Log.e("AccountsManager", "Failed to save account: ${account.username}", e)
+            lError("Failed to save account: ${account.username}", e)
         }
         reloadAccounts()
     }
@@ -179,9 +180,9 @@ object AccountsManager {
     suspend fun saveAuthServer(server: AuthServer) {
         runCatching {
             authServerDao.saveServer(server)
-            Log.i("AccountsManager", "Saved auth server: ${server.serverName} -> ${server.baseUrl}")
+            lInfo("Saved auth server: ${server.serverName} -> ${server.baseUrl}")
         }.onFailure { e ->
-            Log.e("AccountsManager", "Failed to save auth server: ${server.serverName}", e)
+            lError("Failed to save auth server: ${server.serverName}", e)
         }
         reloadAuthServers()
     }
