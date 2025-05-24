@@ -11,7 +11,7 @@ class PathManager {
         lateinit var DIR_NATIVE_LIB: String
 
         lateinit var DIR_GAME: File
-        lateinit var DIR_ACCOUNT: File
+        lateinit var DIR_DATA_BASES: File
         lateinit var DIR_ACCOUNT_SKIN: File
         lateinit var DIR_MULTIRT: File
         lateinit var DIR_COMPONENTS: File
@@ -29,9 +29,9 @@ class PathManager {
             DIR_CACHE = context.cacheDir
             DIR_NATIVE_LIB = context.applicationInfo.nativeLibraryDir
 
+            DIR_DATA_BASES = File(DIR_FILES_PRIVATE.parentFile, "databases")
             DIR_GAME = File(DIR_FILES_PRIVATE, "games")
-            DIR_ACCOUNT = File(DIR_GAME, "accounts")
-            DIR_ACCOUNT_SKIN = File(DIR_ACCOUNT, "skins")
+            DIR_ACCOUNT_SKIN = File(DIR_GAME, "account_skins")
             DIR_MULTIRT = File(DIR_GAME, "runtimes")
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
             DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
@@ -47,7 +47,6 @@ class PathManager {
 
         private fun createDirs() {
             DIR_GAME.mkdirs()
-            DIR_ACCOUNT.mkdirs()
             DIR_ACCOUNT_SKIN.mkdirs()
             DIR_MULTIRT.mkdirs()
             DIR_COMPONENTS.mkdirs()

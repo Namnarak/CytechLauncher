@@ -60,7 +60,7 @@ object LaunchGame {
                 context = context,
                 account = account,
                 onSuccess = { acc, _ ->
-                    acc.save()
+                    AccountsManager.suspendSaveAccount(acc)
                 },
                 onFailed = { error ->
                     val message: String = when (error) {

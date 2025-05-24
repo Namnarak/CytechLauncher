@@ -1,45 +1,39 @@
 package com.movtery.zalithlauncher.game.account
 
 import android.util.Log
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.movtery.zalithlauncher.game.skin.SkinFileDownloader
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.utils.CryptoManager
-import com.movtery.zalithlauncher.utils.GSON
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.UUID
 
-class Account(
+@Entity(tableName = "accounts")
+data class Account(
+    /**
+     * 唯一 UUID，标识该账号
+     */
+    @PrimaryKey
+    val uniqueUUID: String = UUID.randomUUID().toString().lowercase(),
     var accessToken: String = "0",
     var clientToken: String = "0",
     var username: String = "Steve",
     var profileId: String = getLocalUUIDWithSkinModel(username, SkinModelType.NONE),
     var refreshToken: String = "0",
-    var xuid: String? = null,
+    var xUid: String? = null,
     var otherBaseUrl: String? = null,
     var otherAccount: String? = null,
     var otherPassword: String? = null,
     var accountType: String? = null,
     var skinModelType: SkinModelType = SkinModelType.ALEX
 ) {
-    /**
-     * 唯一 UUID，标识该账号
-     */
-    val uniqueUUID: String = UUID.randomUUID().toString().lowercase()
-
     val hasSkinFile: Boolean
         get() = getSkinFile().exists()
-
-    fun save() {
-        val accountFile = File(PathManager.DIR_ACCOUNT, uniqueUUID)
-        val rawJson = GSON.toJson(this)
-        val encryptedData = CryptoManager.encrypt(rawJson)
-        accountFile.writeText(encryptedData)
-    }
 
     fun getSkinFile() = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
 

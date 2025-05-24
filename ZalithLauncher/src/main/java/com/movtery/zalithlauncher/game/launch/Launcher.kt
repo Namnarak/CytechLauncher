@@ -313,7 +313,7 @@ abstract class Launcher(
                 "-Dos.name=Linux",
                 "-Dos.version=Android-${Build.VERSION.RELEASE}",
                 "-Dpojav.path.minecraft=${getGameHome()}",
-                "-Dpojav.path.private.account=${PathManager.DIR_ACCOUNT}",
+                "-Dpojav.path.private.account=${PathManager.DIR_DATA_BASES}",
                 "-Duser.timezone=${TimeZone.getDefault().id}",
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
                 "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(windowSize.width, scaleFactor)}",

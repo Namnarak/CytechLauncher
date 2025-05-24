@@ -10,6 +10,8 @@ import android.util.Log
 import com.movtery.zalithlauncher.context.getContextWrapper
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
@@ -56,6 +58,7 @@ class ZLApplication : Application() {
 
         super.onCreate()
         runCatching {
+            initializeData()
             PathManager.DIR_FILES_PRIVATE = getDir("files", MODE_PRIVATE)
             DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
             //Force x86 lib directory for Asus x86 based zenfones
@@ -82,5 +85,10 @@ class ZLApplication : Application() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         refreshContext(this)
+    }
+
+    private fun initializeData() {
+        AccountsManager.initialize(this)
+        GamePathManager.initialize(this)
     }
 }

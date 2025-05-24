@@ -52,7 +52,7 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.path.GamePathItem
+import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
@@ -72,8 +72,8 @@ sealed interface GamePathOperation {
     data object None: GamePathOperation
     data object PathExists: GamePathOperation
     data class AddNewPath(val path: String): GamePathOperation
-    data class RenamePath(val item: GamePathItem): GamePathOperation
-    data class DeletePath(val item: GamePathItem): GamePathOperation
+    data class RenamePath(val item: GamePath): GamePathOperation
+    data class DeletePath(val item: GamePath): GamePathOperation
 }
 
 sealed interface VersionsOperation {
@@ -87,7 +87,7 @@ sealed interface VersionsOperation {
 
 @Composable
 fun GamePathItemLayout(
-    item: GamePathItem,
+    item: GamePath,
     selected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -202,7 +202,7 @@ fun GamePathOperation(
                     initValue = gamePathOperation.item.title,
                     onDismissRequest = { changeState(GamePathOperation.None) },
                     onConfirm = { value ->
-                        GamePathManager.modifyTitle(gamePathOperation.item.id, value)
+                        GamePathManager.modifyTitle(gamePathOperation.item, value)
                         changeState(GamePathOperation.None)
                     }
                 )
@@ -213,7 +213,7 @@ fun GamePathOperation(
                     text = stringResource(R.string.versions_manage_game_path_delete_message),
                     onDismiss = { changeState(GamePathOperation.None) },
                     onConfirm = {
-                        GamePathManager.removePath(gamePathOperation.item.id)
+                        GamePathManager.removePath(gamePathOperation.item)
                         changeState(GamePathOperation.None)
                     }
                 )

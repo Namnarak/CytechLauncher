@@ -77,8 +77,8 @@ import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
+import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager
@@ -121,8 +121,11 @@ sealed interface LocalLoginOperation {
  */
 sealed interface ServerOperation {
     data object None : ServerOperation
+    /** 添加认证服务器对话框 */
     data object AddNew : ServerOperation
-    data class Delete(val serverName: String, val serverIndex: Int) : ServerOperation
+    /** 删除认证服务器对话框 */
+    data class Delete(val server: AuthServer) : ServerOperation
+    /** 添加认证服务器 */
     data class Add(val serverUrl: String) : ServerOperation
     data class OnThrowable(val throwable: Throwable) : ServerOperation
 }
@@ -160,7 +163,7 @@ sealed interface AccountSkinOperation {
 sealed interface OtherLoginOperation {
     data object None : OtherLoginOperation
     /** 账号登陆（输入账号密码Dialog）流程 */
-    data class OnLogin(val server: Server) : OtherLoginOperation
+    data class OnLogin(val server: AuthServer) : OtherLoginOperation
     /** 登陆失败流程 */
     data class OnFailed(val th: Throwable) : OtherLoginOperation
     /** 账号存在多角色的情况，多角色处理流程 */
@@ -252,7 +255,7 @@ fun AccountItem(
     account: Account,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    onSelected: (uniqueUUID: String) -> Unit = {},
+    onSelected: (Account) -> Unit = {},
     onChangeSkin: () -> Unit = {},
     onResetSkin: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
@@ -271,7 +274,7 @@ fun AccountItem(
         shadowElevation = 1.dp,
         onClick = {
             if (selected) return@Surface
-            onSelected(account.uniqueUUID)
+            onSelected(account)
         }
     ) {
         Row(
@@ -284,7 +287,7 @@ fun AccountItem(
                 selected = selected,
                 onClick = {
                     if (selected) return@RadioButton
-                    onSelected(account.uniqueUUID)
+                    onSelected(account)
                 }
             )
             PlayerFace(
@@ -380,7 +383,7 @@ fun LoginItem(
 @Composable
 fun ServerItem(
     modifier: Modifier = Modifier,
-    server: Server,
+    server: AuthServer,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
@@ -540,7 +543,7 @@ fun LocalLoginDialog(
 
 @Composable
 fun OtherServerLoginDialog(
-    server: Server,
+    server: AuthServer,
     onRegisterClick: (url: String) -> Unit = {},
     onDismissRequest: () -> Unit = {},
     onConfirm: (email: String, password: String) -> Unit = { _, _ -> }

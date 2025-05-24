@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
     id("kotlinx-serialization")
     id("stringfog")
 }
@@ -18,7 +19,6 @@ val launcherVersionCode = (project.findProperty("launcher_version_code") as? Str
 val launcherVersionName = project.findProperty("launcher_version_name") as? String ?: error("The \"launcher_version_name\" property is not set in gradle.properties.")
 
 val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
-val defaultCryptoKey = project.findProperty("default_crypto_key") as? String ?: error("The \"default_crypto_key\" property is not set in gradle.properties.")
 val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
 
@@ -166,22 +166,18 @@ fun generateJavaClass(
     sourceOutputDir: File,
     packageName: String,
     className: String,
-    importList: List<String> = emptyList(),
     constantList: List<String>
 ) {
     val outputDir = File(sourceOutputDir, packageName.replace(".", "/"))
     outputDir.mkdirs()
     val javaFile = File(outputDir, "$className.java")
-    val imports = importList.takeIf { it.isNotEmpty() }?.joinToString("\n") { import ->
-        "import $import;"
-    }
     javaFile.writeText(
         """
         |/**
         | * Automatically generated file. DO NOT MODIFY
         | */
         |package $packageName;
-        |${imports?.let { "\n$imports\n" }}
+        |
         |public class $className {
         |${constantList.joinToString("\n") { "\t$it" }}
         |}
@@ -210,14 +206,12 @@ tasks.register("generateInfoDistributor") {
     doLast {
         fun String.toStatement(type: String = "String", variable: String) = "public static final $type $variable = $this;"
 
-        val importList = listOf("com.movtery.zalithlauncher.utils.CryptoManager")
         val constantList = listOf(
             "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt", defaultOAuthClientID)}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
-            "\"${getKeyFromLocal("CRYPTO_KEY", ".crypto_key.txt", defaultCryptoKey)}\"".toStatement(variable = "CRYPTO_KEY"),
             "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME"),
             "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER")
         )
-        generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", importList, constantList)
+        generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", constantList)
     }
 }
 
@@ -272,6 +266,10 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     //Safe
     implementation(libs.stringfog.xor)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.sqlcipher.android)
+    ksp(libs.androidx.room.compiler)
     //Support
     implementation(libs.proxy.client.android)
 }

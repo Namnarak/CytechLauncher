@@ -12,14 +12,11 @@ import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
 import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
+import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
-import com.movtery.zalithlauncher.utils.CryptoManager
-import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -28,11 +25,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.File
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -102,7 +96,7 @@ fun microsoftLogin(
             )
             task.updateMessage(R.string.account_logging_in_saving)
             account.downloadSkin()
-            saveAccount(account)
+            AccountsManager.saveAccount(account)
         },
         onError = { th ->
             when (th) {
@@ -185,7 +179,7 @@ fun microsoftRefresh(
                 this.profileId = newAcc.profileId
                 this.username = newAcc.username
                 this.refreshToken = newAcc.refreshToken
-                this.xuid = newAcc.xuid
+                this.xUid = newAcc.xUid
             }
             onSuccess(account, task)
         },
@@ -225,13 +219,11 @@ fun localLogin(userName: String) {
         username = userName,
         accountType = AccountType.LOCAL.tag
     )
-    saveAccount(account)
+    AccountsManager.saveAccount(account)
 }
 
 fun addOtherServer(
     serverUrl: String,
-    serverConfig: () -> MutableStateFlow<Servers>,
-    serverConfigFile: File,
     onThrowable: (Throwable) -> Unit = {}
 ) {
     val task = Task.runTask(
@@ -242,23 +234,17 @@ fun addOtherServer(
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
-                    val server = Server(
+                    if (AccountsManager.isAuthServerExists(fullServerUrl)) {
+                        //确保服务器不重复
+                        return@runTask
+                    }
+                    val server = AuthServer(
                         serverName = meta.optString("serverName"),
                         baseUrl = fullServerUrl,
                         register = meta.optJSONObject("links")?.optString("register") ?: ""
                     )
-                    if (serverConfig().value.server.any { it.baseUrl == server.baseUrl }) {
-                        //确保服务器不重复
-                        return@runTask
-                    }
-                    serverConfig().update { currentConfig ->
-                        currentConfig.server.add(server)
-                        currentConfig.copy()
-                    }
                     task.updateProgress(0.8f, R.string.account_other_login_saving_server)
-                    val configString = GSON.toJson(serverConfig().value, Servers::class.java)
-                    val text = CryptoManager.encrypt(configString)
-                    serverConfigFile.writeText(text)
+                    AccountsManager.saveAuthServer(server)
                     task.updateProgress(1f, R.string.generic_done)
                 }
             }
@@ -270,17 +256,6 @@ fun addOtherServer(
     )
 
     TaskSystem.submitTask(task)
-}
-
-fun saveAccount(account: Account) {
-    runCatching {
-        account.save()
-        Log.i("SaveAccount", "Saved account: ${account.username}")
-    }.onFailure { e ->
-        Log.e("SaveAccount", "Failed to save account: ${account.username}", e)
-    }
-
-    AccountsManager.reloadAccounts()
 }
 
 /**

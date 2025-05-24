@@ -334,7 +334,7 @@ object MicrosoftAuthenticator {
             this.clientToken = UUID.randomUUID().toString().replace("-", "")
             this.profileId = profileId
             this.refreshToken = refreshToken.ifEmpty { "None" }
-            this.xuid = uhs
+            this.xUid = uhs
         }
     }
 

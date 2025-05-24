@@ -39,15 +39,13 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
         Renderers.init(this)
         //加载插件
         PluginLoader.loadAllPlugins(this, false)
-        //刷新游戏目录
-        GamePathManager.reloadPath()
     }
 
     @CallSuper
     override fun onResume() {
         super.onResume()
         checkStoragePermissions()
-        AccountsManager.reloadAccounts()
+        refreshData()
     }
 
     @CallSuper
@@ -58,6 +56,12 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
 
     override fun onAttachedToWindow() {
         computeNotchSize()
+    }
+
+    private fun refreshData() {
+        AccountsManager.reloadAccounts()
+        AccountsManager.reloadAuthServers()
+        GamePathManager.reloadPath()
     }
 
     private fun checkStoragePermissions() {

@@ -166,7 +166,7 @@ class LaunchArgs(
         verArgMap["auth_access_token"] = account.accessToken
         verArgMap["auth_player_name"] = account.username
         verArgMap["auth_uuid"] = account.profileId.replace("-", "")
-        verArgMap["auth_xuid"] = account.xuid ?: ""
+        verArgMap["auth_xuid"] = account.xUid ?: ""
         verArgMap["assets_root"] = getAssetsHome()
         verArgMap["assets_index_name"] = gameManifest.assets
         verArgMap["game_assets"] = getAssetsHome()

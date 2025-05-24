@@ -7,8 +7,8 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
-import com.movtery.zalithlauncher.game.account.otherserver.models.Servers.Server
 import kotlinx.coroutines.Dispatchers
 import java.util.Objects
 
@@ -25,7 +25,7 @@ class OtherLoginHelper(
     private val onFinally: () -> Unit = {}
 ) {
     constructor(
-        server: Server,
+        server: AuthServer,
         email: String,
         password: String,
         onSuccess: suspend (Account, Task) -> Unit = { _, _ -> },
