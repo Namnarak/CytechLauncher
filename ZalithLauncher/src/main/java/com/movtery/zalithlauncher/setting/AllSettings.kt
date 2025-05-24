@@ -189,6 +189,11 @@ class AllSettings {
          */
         val launcherSwapAnimateType = StringSettingUnit("launcherSwapAnimateType", TransitionAnimationType.BOUNCE.name)
 
+        /**
+         * 启动器日志保留天数
+         */
+        val launcherLogRetentionDays = IntSettingUnit("launcherLogRetentionDays", 7)
+
         //Other
         /**
          * 当前选择的账号

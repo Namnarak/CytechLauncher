@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.utils.logging
 import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -13,13 +14,11 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
-import java.io.OutputStream
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.zip.DeflaterOutputStream
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -30,32 +29,33 @@ object Logger : CoroutineScope {
 
     private lateinit var PACKAGE_PREFIX: String
     private val isInitialized = AtomicBoolean(false)
-    private val channel = Channel<LogEvent>(Channel.UNLIMITED)
+    private val channel = Channel<LogMessage>(Channel.UNLIMITED)
 
-    private var logRetentionDays = 7
-    private var currentLogFile: File? = null
+    private val logRetentionDays = AllSettings.launcherLogRetentionDays.getValue().coerceAtLeast(0)
+
+    /**
+     * 当前的日志文件
+     */
+    var currentLogFile: File? = null
+        private set
     private var logWriter: PrintWriter? = null
     private var inMemoryLogs: ByteArrayOutputStream? = null
 
     /**
      * 初始化日志
-     * @param retentionDays 日志保留天数
      */
-    fun initialize(context: Context, retentionDays: Int = 7) {
+    fun initialize(context: Context) {
         PACKAGE_PREFIX = "${context.packageName}."
 
         if (!isInitialized.compareAndSet(false, true)) return
 
-        logRetentionDays = retentionDays.coerceAtLeast(0)
-
         launch(Dispatchers.IO) {
+            //由于安卓不存在“退出”这种设置
+            //所以清理旧的日志的工作需要放到初始化阶段
+            deleteOldLogs()
             setupLogWriter()
             processEvents()
         }
-
-        Runtime.getRuntime().addShutdownHook(Thread {
-            runBlocking { shutdown() }
-        })
     }
 
     private suspend fun setupLogWriter() = withContext(Dispatchers.IO) {
@@ -63,7 +63,13 @@ object Logger : CoroutineScope {
             currentLogFile = createLogFile()
             logWriter = PrintWriter(currentLogFile!!.writer())
         } catch (e: IOException) {
-            logInternal("Logger.setupLogWriter", Level.WARNING, "Failed to create log file", e)
+            val logMessage = LogMessage(
+                System.currentTimeMillis(),
+                "Logger.setupLogWriter",
+                Level.WARNING,
+                "Failed to create log file", e
+            )
+            runBlocking { channel.send(logMessage) }
             inMemoryLogs = ByteArrayOutputStream(1024 * 1024) // 1MB buffer
             logWriter = PrintWriter(inMemoryLogs!!)
         }
@@ -85,23 +91,16 @@ object Logger : CoroutineScope {
     }
 
     private suspend fun processEvents() = withContext(Dispatchers.IO) {
-        for (event in channel) {
-            when (event) {
-                is LogEvent.LogMessage -> handleLogMessage(event)
-                is LogEvent.ExportLog -> handleExport(event)
-                LogEvent.Shutdown -> {
-                    cleanup()
-                    return@withContext
-                }
-            }
+        for (message in channel) {
+            handleLogMessage(message)
         }
     }
 
-    private fun handleLogMessage(event: LogEvent.LogMessage) {
-        val formatted = formatMessage(event)
+    private fun handleLogMessage(message: LogMessage) {
+        val formatted = formatMessage(message)
 
         //输出到 Logcat
-        when (event.level) {
+        when (message.level) {
             Level.ERROR -> Log.e("AppLog", formatted)
             Level.WARNING -> Log.w("AppLog", formatted)
             Level.INFO -> Log.i("AppLog", formatted)
@@ -111,14 +110,14 @@ object Logger : CoroutineScope {
 
         logWriter?.apply {
             println(formatted)
-            event.throwable?.printStackTrace(this)
+            message.throwable?.printStackTrace(this)
             flush()
         }
     }
 
-    private fun formatMessage(event: LogEvent.LogMessage): String {
-        val time = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(event.time)
-        val caller = event.caller?.let {
+    private fun formatMessage(message: LogMessage): String {
+        val time = SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(message.time)
+        val caller = message.caller?.let {
             if (it.startsWith(PACKAGE_PREFIX)) "~${it.substring(PACKAGE_PREFIX.length)}" else it
         } ?: "Unknown"
 
@@ -126,71 +125,13 @@ object Logger : CoroutineScope {
             append("[$time] [")
             append(caller)
             append("/")
-            append(event.level.name)
+            append(message.level.name)
             append("] ")
-            append(event.message)
+            append(message.message)
         }
     }
 
-    private fun handleExport(event: LogEvent.ExportLog) {
-        try {
-            logWriter?.flush()
-            when {
-                currentLogFile != null -> {
-                    currentLogFile!!.inputStream().use { input ->
-                        event.output.use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                }
-                inMemoryLogs != null -> {
-                    inMemoryLogs!!.writeTo(event.output)
-                }
-            }
-        } catch (e: IOException) {
-            logInternal("Logger.exportLogs", Level.WARNING, "Export failed", e)
-        } finally {
-            event.latch.countDown()
-        }
-    }
-
-    /**
-     * 导出日志
-     */
-    suspend fun exportLogs(output: OutputStream) = withContext(Dispatchers.IO) {
-        val event = LogEvent.ExportLog(output)
-        channel.send(event)
-        event.latch.await()
-    }
-
-    private suspend fun shutdown() {
-        channel.send(LogEvent.Shutdown)
-        (coroutineContext[Job]!!).join()
-    }
-
-    private fun cleanup() {
-        logWriter?.close()
-        performLogRotation()
-        deleteOldLogs()
-    }
-
-    private fun performLogRotation() {
-        currentLogFile?.let { file ->
-            try {
-                val compressedFile = File(file.parent, "${file.name}.zip")
-                file.inputStream().use { input ->
-                    DeflaterOutputStream(compressedFile.outputStream()).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                file.delete()
-            } catch (e: IOException) {
-                logInternal("Logger.compressLogs", Level.WARNING, "Log compression failed", e)
-            }
-        }
-    }
-
-    private fun deleteOldLogs() {
+    private suspend fun deleteOldLogs() = withContext(Dispatchers.IO) {
         PathManager.DIR_LAUNCHER_LOGS.listFiles()?.let { files ->
             val cutoff = System.currentTimeMillis() - logRetentionDays * 86400000L
             files.filter {
@@ -223,7 +164,7 @@ object Logger : CoroutineScope {
     fun log(level: Level, caller: String?, message: String, throwable: Throwable? = null) {
         if (!isInitialized.get()) return
 
-        val event = LogEvent.LogMessage(
+        val logMessage = LogMessage(
             time = System.currentTimeMillis(),
             caller = caller,
             level = level,
@@ -232,7 +173,7 @@ object Logger : CoroutineScope {
         )
 
         launch {
-            channel.send(event)
+            channel.send(logMessage)
         }
     }
 
@@ -248,16 +189,5 @@ object Logger : CoroutineScope {
             val className = it.className.substringAfterLast('.')
             "$className.${it.methodName}"
         }
-    }
-
-    private fun logInternal(caller: String, level: Level, message: String, t: Throwable?) {
-        val event = LogEvent.LogMessage(
-            System.currentTimeMillis(),
-            caller,
-            level,
-            message,
-            t
-        )
-        runBlocking { channel.send(event) }
     }
 }

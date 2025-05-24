@@ -41,6 +41,8 @@
     <string name="generic_go_it">Got it</string>
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
+    <!-- Unit -->
+    <string name="unit_day">day</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
@@ -451,6 +453,10 @@
     <string name="settings_launcher_animate_extent_summary">Adjust the intensity of the launcher animations</string>
     <string name="settings_launcher_swap_animate_type_title">Transition Animation</string>
     <string name="settings_launcher_swap_animate_type_summary">Choose the page transition animation that best suits your preferences</string>
+    <string name="settings_launcher_log_retention_days_title">Log Retention Days</string>
+    <string name="settings_launcher_log_retention_days_summary">Set how many days launcher logs should be retained. Logs older than this will be automatically deleted.</string>
+    <string name="settings_launcher_log_share_title">Share Launcher Logs</string>
+    <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher.</string>
     <!-- About -->
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>

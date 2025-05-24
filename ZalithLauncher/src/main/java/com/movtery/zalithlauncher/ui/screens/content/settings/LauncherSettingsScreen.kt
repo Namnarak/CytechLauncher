@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.os.Build
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -28,11 +31,14 @@ import com.movtery.zalithlauncher.state.getCustomColorFromSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.file.shareFile
+import com.movtery.zalithlauncher.utils.logging.Logger
 
 const val LAUNCHER_SETTINGS_TAG = "LauncherSettingsScreen"
 
@@ -160,6 +166,35 @@ fun LauncherSettingsScreen() {
                     MutableStates.launcherAnimateType = type
                 }
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            val yOffset3 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 100
+            )
+
+            SettingsBackground(
+                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) }
+            ) {
+                SliderSettingsLayout(
+                    unit = AllSettings.launcherLogRetentionDays,
+                    title = stringResource(R.string.settings_launcher_log_retention_days_title),
+                    summary = stringResource(R.string.settings_launcher_log_retention_days_summary),
+                    valueRange = 1f..14f,
+                    steps = 12,
+                    suffix = stringResource(R.string.unit_day)
+                )
+
+                ShareLogLayout(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        Logger.currentLogFile?.let { file ->
+                            shareFile(context, file)
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -191,5 +226,24 @@ private fun CustomColorOperation(
                 showBrightness = false
             )
         }
+    }
+}
+
+@Composable
+private fun ShareLogLayout(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(22.0.dp))
+            .clickable(onClick = onClick)
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        TitleAndSummary(
+            title = stringResource(R.string.settings_launcher_log_share_title),
+            summary = stringResource(R.string.settings_launcher_log_share_summary)
+        )
     }
 }

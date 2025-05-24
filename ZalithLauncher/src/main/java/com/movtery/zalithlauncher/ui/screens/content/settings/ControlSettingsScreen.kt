@@ -11,13 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,6 +52,7 @@ import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
@@ -281,21 +282,14 @@ private fun MousePointerLayout(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clip(shape = RoundedCornerShape(22.0.dp))
                 .clickable { filePicker.launch(arrayOf("image/*")) }
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
         ) {
-            Text(
-                text = stringResource(R.string.settings_control_mouse_pointer_title),
-                style = MaterialTheme.typography.titleSmall
-            )
-            Spacer(
-                modifier = Modifier.height(height = 4.dp)
-            )
-            Text(
-                text = stringResource(R.string.settings_control_mouse_pointer_summary),
-                style = MaterialTheme.typography.labelSmall
+            TitleAndSummary(
+                title = stringResource(R.string.settings_control_mouse_pointer_title),
+                summary = stringResource(R.string.settings_control_mouse_pointer_summary)
             )
         }
 
