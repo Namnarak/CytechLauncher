@@ -61,6 +61,7 @@ We welcome the community to contribute translations for other languages!
 
 * **Turkish** - by Star1xr
 * **Traditional Chinese** - by HongyiHank
+* **Russian** - by warrior-genius
 
 ### 📌 Why Only English and Simplified Chinese?
 
