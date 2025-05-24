@@ -30,7 +30,7 @@ data class Account(
     var otherAccount: String? = null,
     var otherPassword: String? = null,
     var accountType: String? = null,
-    var skinModelType: SkinModelType = SkinModelType.ALEX
+    var skinModelType: SkinModelType = SkinModelType.NONE
 ) {
     val hasSkinFile: Boolean
         get() = getSkinFile().exists()

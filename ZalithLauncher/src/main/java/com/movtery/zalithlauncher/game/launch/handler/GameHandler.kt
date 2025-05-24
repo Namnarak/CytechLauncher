@@ -181,6 +181,8 @@ class GameHandler(
         skinFile: File,
         modelType: SkinModelType
     ): File? = withContext(Dispatchers.IO) {
+        if (!skinFile.exists()) return@withContext null
+
         runCatching {
             val resourcePackFile = File(
                 File(version.getGameDir(), "resourcepacks").ensureDirectory(),
