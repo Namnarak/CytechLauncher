@@ -6,11 +6,14 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.compareChar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -219,5 +222,30 @@ fun ZipFile.extractEntryToFile(entry: ZipEntry, outputFile: File) {
     getInputStream(entry).use { input ->
         outputCanonical.ensureParentDirectory()
         input.copyTo(outputCanonical.outputStream())
+    }
+}
+
+/**
+ * 压缩指定目录内的文件到压缩包
+ * @param outputZipFile 指定压缩包
+ */
+suspend fun zipDirectory(
+    sourceDir: File,
+    outputZipFile: File
+) = withContext(Dispatchers.IO) {
+    if (!sourceDir.exists() || !sourceDir.isDirectory) {
+        throw IllegalArgumentException("Source path must be an existing directory")
+    }
+
+    ZipOutputStream(FileOutputStream(outputZipFile)).use { zipOut ->
+        sourceDir.walkTopDown().filter { it.isFile }.forEach { file ->
+            val entryName = file.relativeTo(sourceDir).path.replace("\\", "/")
+            val zipEntry = ZipEntry(entryName)
+            zipOut.putNextEntry(zipEntry)
+            file.inputStream().use { input ->
+                input.copyTo(zipOut)
+            }
+            zipOut.closeEntry()
+        }
     }
 }

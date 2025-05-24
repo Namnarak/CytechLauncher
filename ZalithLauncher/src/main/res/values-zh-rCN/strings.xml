@@ -457,6 +457,7 @@
     <string name="settings_launcher_log_retention_days_summary">设置启动器的日志保留天数，超过此天数的日志将被自动删除</string>
     <string name="settings_launcher_log_share_title">分享启动器日志</string>
     <string name="settings_launcher_log_share_summary">点击以分享启动器的日志文件，以供开发者定位并修复启动器的问题</string>
+    <string name="settings_launcher_log_share_packing">打包启动器日志文件</string>
     <!--  关于  -->
     <string name="about_plugin_title">已加载的插件</string>
     <string name="about_library_title">额外引入的依赖项目</string>

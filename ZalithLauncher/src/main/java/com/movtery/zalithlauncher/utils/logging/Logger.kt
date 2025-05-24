@@ -33,11 +33,7 @@ object Logger : CoroutineScope {
 
     private val logRetentionDays = AllSettings.launcherLogRetentionDays.getValue().coerceAtLeast(0)
 
-    /**
-     * 当前的日志文件
-     */
-    var currentLogFile: File? = null
-        private set
+    private var currentLogFile: File? = null
     private var logWriter: PrintWriter? = null
     private var inMemoryLogs: ByteArrayOutputStream? = null
 

@@ -23,6 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
@@ -38,7 +41,9 @@ import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.logging.Logger
+import com.movtery.zalithlauncher.utils.file.zipDirectory
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import java.io.File
 
 const val LAUNCHER_SETTINGS_TAG = "LauncherSettingsScreen"
 
@@ -189,9 +194,28 @@ fun LauncherSettingsScreen() {
                 ShareLogLayout(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        Logger.currentLogFile?.let { file ->
-                            shareFile(context, file)
-                        }
+                        TaskSystem.submitTask(
+                            Task.runTask(
+                                id = "ZIP_LOGS",
+                                task = { task ->
+                                    task.updateProgress(-1f, R.string.settings_launcher_log_share_packing)
+                                    val logsFile = File(PathManager.DIR_CACHE, "logs.zip")
+                                    zipDirectory(
+                                        PathManager.DIR_LAUNCHER_LOGS,
+                                        logsFile
+                                    )
+                                    task.updateProgress(1f, null)
+                                    //分享压缩包
+                                    shareFile(
+                                        context = context,
+                                        file = logsFile
+                                    )
+                                },
+                                onError = { e ->
+                                    lError("Failed to package log files.", e)
+                                }
+                            )
+                        )
                     }
                 )
             }
