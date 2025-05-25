@@ -535,39 +535,36 @@ fun VersionItemLayout(
                     )
                 }
                 //版本详细信息
-                FlowRow {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     if (!version.isValid()) {
                         Text(
                             text = stringResource(R.string.versions_manage_invalid),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.labelSmall
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     if (version.getVersionConfig().isIsolation()) {
                         Text(
                             text = stringResource(R.string.versions_manage_isolation_enabled),
                             style = MaterialTheme.typography.labelSmall
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     version.getVersionInfo()?.let { versionInfo ->
                         Text(
                             text = versionInfo.minecraftVersion,
                             style = MaterialTheme.typography.labelSmall,
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                         versionInfo.loaderInfo?.let { loaderInfo ->
                             Text(
                                 text = loaderInfo.name,
                                 style = MaterialTheme.typography.labelSmall
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = loaderInfo.version,
                                 style = MaterialTheme.typography.labelSmall
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
                         }
                     }
                 }

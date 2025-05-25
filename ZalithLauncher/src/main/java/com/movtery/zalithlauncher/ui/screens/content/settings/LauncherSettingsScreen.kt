@@ -2,10 +2,9 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.os.Build
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -67,7 +66,8 @@ fun LauncherSettingsScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+                .padding(all = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val currentColorThemeState = LocalColorThemeState.current
 
@@ -124,7 +124,6 @@ fun LauncherSettingsScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset2 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,
@@ -172,7 +171,6 @@ fun LauncherSettingsScreen() {
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset3 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,

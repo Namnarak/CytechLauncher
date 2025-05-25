@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -120,7 +119,8 @@ fun VersionOverViewScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+                .padding(all = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val yOffset1 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
@@ -134,7 +134,6 @@ fun VersionOverViewScreen() {
                 resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset2 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,
@@ -148,7 +147,6 @@ fun VersionOverViewScreen() {
                 onDelete = { versionsOperation = VersionsOperation.Delete(version) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset3 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,
@@ -230,7 +228,7 @@ private fun VersionInfoLayout(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(all = 8.dp),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             VersionOverviewItem(
                 modifier = Modifier.padding(start = 4.dp).weight(1f),
@@ -239,7 +237,6 @@ private fun VersionInfoLayout(
                 versionSummary = versionSummary,
                 refreshKey = refreshKey
             )
-            Spacer(modifier = Modifier.width(12.dp))
             Row {
                 IconTextButton(
                     onClick = pickIcon,

@@ -1,10 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -66,7 +65,8 @@ fun VersionConfigScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+                .padding(all = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val yOffset1 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
@@ -78,7 +78,6 @@ fun VersionConfigScreen() {
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset2 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,
@@ -90,7 +89,6 @@ fun VersionConfigScreen() {
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
             val yOffset3 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible,

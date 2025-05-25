@@ -11,11 +11,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -269,10 +269,10 @@ private fun TopBar(
                     .clip(shape = MaterialTheme.shapes.large)
                     .clickable { changeExpandedState() }
                     .padding(all = 8.dp)
-                    .width(120.dp)
+                    .width(120.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 LinearProgressIndicator(modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
-                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     modifier = Modifier.size(22.dp),
                     imageVector = Icons.Filled.Task,
@@ -520,7 +520,8 @@ fun TaskItem(
         shadowElevation = 1.dp
     ) {
         Row(
-            modifier = Modifier.padding(all = 8.dp)
+            modifier = Modifier.padding(all = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IconButton(
                 modifier = Modifier
@@ -534,8 +535,6 @@ fun TaskItem(
                     contentDescription = stringResource(R.string.generic_cancel)
                 )
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
 
             Column(
                 modifier = Modifier
@@ -558,14 +557,16 @@ fun TaskItem(
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         LinearProgressIndicator(
                             progress = { taskProgress },
                             modifier = Modifier
                                 .weight(1f)
                                 .align(Alignment.CenterVertically)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "${(taskProgress * 100).toInt()}%",
                             modifier = Modifier.align(Alignment.CenterVertically),

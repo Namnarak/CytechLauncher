@@ -362,15 +362,13 @@ fun LoginItem(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
-            .padding(PaddingValues(horizontal = 4.dp, vertical = 12.dp))
+            .padding(PaddingValues(horizontal = 4.dp, vertical = 12.dp)),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
             modifier = Modifier.size(24.dp),
             imageVector = Icons.Default.Add,
             contentDescription = serverName
-        )
-        Spacer(
-            modifier = Modifier.width(8.dp)
         )
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
@@ -391,7 +389,8 @@ fun ServerItem(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = onClick)
-            .padding(start = 4.dp)
+            .padding(start = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             modifier = Modifier
@@ -399,9 +398,6 @@ fun ServerItem(
                 .align(Alignment.CenterVertically),
             text = server.serverName,
             style = MaterialTheme.typography.labelLarge
-        )
-        Spacer(
-            modifier = Modifier.width(8.dp)
         )
         IconButton(
             onClick = onDeleteClick
@@ -689,13 +685,13 @@ fun SelectSkinModelDialog(
         ) {
             Column(
                 modifier = Modifier.padding(all = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.account_change_skin_select_model_title),
                     style = MaterialTheme.typography.titleMedium
                 )
-                Spacer(modifier = Modifier.size(16.dp))
 
                 Column(
                     modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
@@ -707,11 +703,10 @@ fun SelectSkinModelDialog(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Spacer(modifier = Modifier.size(16.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.SpaceBetween
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
@@ -721,7 +716,6 @@ fun SelectSkinModelDialog(
                     ) {
                         Text(text = stringResource(R.string.account_change_skin_model_steve))
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
@@ -730,7 +724,6 @@ fun SelectSkinModelDialog(
                     ) {
                         Text(text = stringResource(R.string.account_change_skin_model_alex))
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onDismissRequest

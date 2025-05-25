@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content.download.game
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -256,7 +257,8 @@ private fun VersionHeader(
         modifier = modifier.padding(horizontal = 12.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Row {
                 ContentCheckBox(
@@ -288,11 +290,10 @@ private fun VersionHeader(
                 }
             }
 
-            Spacer(modifier = Modifier.width(24.dp))
-
             Row(
                 modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SimpleTextInputField(
                     modifier = Modifier.weight(1f),
@@ -308,8 +309,6 @@ private fun VersionHeader(
                         )
                     }
                 )
-
-                Spacer(modifier = Modifier.width(12.dp))
 
                 IconButton(
                     onClick = onRefreshClick
@@ -403,22 +402,22 @@ private fun VersionItemLayout(
             }
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         text = version.id,
                         style = MaterialTheme.typography.labelLarge
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     LittleTextLabel(
                         text = versionType
                     )
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
 
                 Text(
                     text = formatDate(input = version.releaseTime),
