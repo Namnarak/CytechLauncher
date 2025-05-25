@@ -19,12 +19,18 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils.Companion.checkPermissionsForInit
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import org.lwjgl.glfw.CallbackBridge
 import kotlin.math.min
 
-open class BaseComponentActivity : FullScreenComponentActivity() {
+open class BaseComponentActivity(
+    /** 是否刷新数据 */
+    private val refreshData: Boolean = true,
+    /** 是否忽略刘海屏 */
+    shouldIgnoreNotch: Boolean = AllSettings.launcherFullScreen.getValue()
+) : FullScreenComponentActivity(shouldIgnoreNotch) {
     private var notchSize = -1
 
     @CallSuper
@@ -35,17 +41,21 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
         refreshDisplayMetrics()
         checkStoragePermissions()
 
-        //加载渲染器
-        Renderers.init(this)
-        //加载插件
-        PluginLoader.loadAllPlugins(this, false)
+        if (refreshData) {
+            //加载渲染器
+            Renderers.init(this)
+            //加载插件
+            PluginLoader.loadAllPlugins(this, false)
+        }
     }
 
     @CallSuper
     override fun onResume() {
         super.onResume()
         checkStoragePermissions()
-        refreshData()
+        if (refreshData) {
+            refreshData()
+        }
     }
 
     @CallSuper
@@ -91,7 +101,7 @@ open class BaseComponentActivity : FullScreenComponentActivity() {
             } else { // Removed the clause for devices with unofficial notch support, since it also ruins all devices with virtual nav bars before P
                 windowManager.defaultDisplay.getRealMetrics(displayMetrics)
             }
-            if (!shouldIgnoreNotch()) {
+            if (!shouldIgnoreNotch) {
                 //Remove notch width when it isn't ignored.
                 if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) displayMetrics.heightPixels -= notchSize
                 else displayMetrics.widthPixels -= notchSize

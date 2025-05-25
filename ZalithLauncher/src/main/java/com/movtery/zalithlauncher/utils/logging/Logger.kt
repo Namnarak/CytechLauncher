@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.apache.commons.io.FileUtils
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
@@ -134,7 +135,7 @@ object Logger : CoroutineScope {
                 //过滤出日期超过指定天数的日志文件
                 it.lastModified() < cutoff
             }.forEach {
-                it.delete()
+                FileUtils.deleteQuietly(it)
             }
         }
     }

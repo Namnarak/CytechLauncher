@@ -58,7 +58,9 @@ import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
 
-class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
+class VMActivity : BaseComponentActivity(
+    shouldIgnoreNotch = AllSettings.gameFullScreen.getValue()
+), SurfaceTextureListener {
     companion object {
         const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
         const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
@@ -141,8 +143,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             }
         }
     }
-
-    override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
 
     override fun onResume() {
         super.onResume()

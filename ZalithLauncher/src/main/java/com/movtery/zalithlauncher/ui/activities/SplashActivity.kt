@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 
 @SuppressLint("CustomSplashScreen")
-class SplashActivity : BaseComponentActivity() {
+class SplashActivity : BaseComponentActivity(refreshData = false) {
     private val unpackItems: MutableList<InstallableItem> = ArrayList()
     private var finishedTaskCount = AtomicInteger(0)
 
