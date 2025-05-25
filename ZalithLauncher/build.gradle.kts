@@ -186,22 +186,6 @@ fun generateJavaClass(
     println("Generated Java file: ${javaFile.absolutePath}")
 }
 
-fun copyFile(
-    sourceFile: File,
-    targetDir: File
-) {
-    if (sourceFile.exists()) {
-        targetDir.mkdirs()
-        copy {
-            from(sourceFile)
-            into(targetDir)
-        }
-        println("${sourceFile.name} copied to ${targetDir.path}")
-    } else {
-        println("can't find file ${sourceFile.name}")
-    }
-}
-
 tasks.register("generateInfoDistributor") {
     doLast {
         fun String.toStatement(type: String = "String", variable: String) = "public static final $type $variable = $this;"
@@ -215,18 +199,8 @@ tasks.register("generateInfoDistributor") {
     }
 }
 
-tasks.register("copyEulaFile") {
-    val targetDir = file("src/main/assets")
-
-    doLast {
-        copyFile(File(rootDir, "eula.txt"), targetDir)
-        copyFile(File(rootDir, "eula_zh-cn.txt"), targetDir)
-    }
-}
-
 tasks.named("preBuild") {
     dependsOn("generateInfoDistributor")
-    dependsOn("copyEulaFile")
 }
 
 dependencies {

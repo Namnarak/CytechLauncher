@@ -209,10 +209,5 @@ class AllSettings {
          * 启动器任务菜单是否展开
          */
         val launcherTaskMenuExpanded = BooleanSettingUnit("launcherTaskMenuExpanded", true)
-
-        /**
-         * 启动屏幕最终用户协议上次更新日期
-         */
-        val splashEulaDate = StringSettingUnit("splashEulaDate", "")
     }
 }
