@@ -71,6 +71,7 @@ import androidx.navigation.navArgument
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
@@ -191,7 +192,7 @@ private fun TopBar(
     color: Color,
     changeExpandedState: () -> Unit = {}
 ) {
-    var appTitle by rememberSaveable { mutableStateOf("ZalithLauncher") }
+    var appTitle by rememberSaveable { mutableStateOf(InfoDistributor.LAUNCHER_IDENTIFIER) }
     val currentTag = MutableStates.mainScreenTag
 
     val inLauncherScreen = currentTag == null || currentTag == LAUNCHER_SCREEN_TAG

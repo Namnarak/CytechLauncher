@@ -12,6 +12,7 @@ import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
@@ -41,7 +42,7 @@ class ZLApplication : Application() {
 
             runCatching {
                 PrintStream(PathManager.FILE_CRASH_REPORT).use { stream ->
-                    stream.append("================ ZalithLauncher Crash Report ================\n")
+                    stream.append("================ ${InfoDistributor.LAUNCHER_IDENTIFIER} Crash Report ================\n")
                     stream.append("- Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
                     stream.append("- Device: ${Build.PRODUCT} ${Build.MODEL}\n")
                     stream.append("- Android Version: ${Build.VERSION.RELEASE}\n")

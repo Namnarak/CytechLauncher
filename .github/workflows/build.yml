@@ -7,8 +7,6 @@ on:
         required: true
         type: string
     secrets:
-      CRYPTO_KEY:
-        required: false
       KEY_PASSWORD:
         required: false
       STORE_PASSWORD:
@@ -25,7 +23,6 @@ jobs:
       fail-fast: false
 
     env:
-      CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
       OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
@@ -55,7 +52,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: ZalithLauncher2 ${{ matrix.arch }}
+          name: release apk (${{ matrix.arch }})
           path: ZalithLauncher/build/outputs/apk/release/*.apk
 
       - name: Upload Debug APK for ${{ matrix.arch }}
@@ -63,5 +60,5 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: ZalithLauncher-${{ inputs.variant }}-${{ matrix.arch }}
+          name: debug apk (${{ matrix.arch }})
           path: ZalithLauncher/build/outputs/apk/debug/*.apk

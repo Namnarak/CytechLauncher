@@ -14,6 +14,8 @@ apply(plugin = "stringfog")
 val zalithPackageName = "com.movtery.zalithlauncher"
 val launcherAPPName = project.findProperty("launcher_app_name") as? String ?: error("The \"launcher_app_name\" property is not set in gradle.properties.")
 val launcherName = project.findProperty("launcher_name") as? String ?: error("The \"launcher_name\" property is not set in gradle.properties.")
+val launcherShortName = project.findProperty("launcher_short_name") as? String ?: error("The \"launcher_short_name\" property is not set in gradle.properties.")
+val launcherUrl = project.findProperty("url_home") as? String ?: error("The \"url_home\" property is not set in gradle.properties.")
 
 val launcherVersionCode = (project.findProperty("launcher_version_code") as? String)?.toIntOrNull() ?: error("The \"launcher_version_code\" property is not set as an integer in gradle.properties.")
 val launcherVersionName = project.findProperty("launcher_version_name") as? String ?: error("The \"launcher_version_name\" property is not set in gradle.properties.")
@@ -193,7 +195,9 @@ tasks.register("generateInfoDistributor") {
         val constantList = listOf(
             "\"${getKeyFromLocal("OAUTH_CLIENT_ID", ".oauth_client_id.txt", defaultOAuthClientID)}\"".toStatement(variable = "OAUTH_CLIENT_ID"),
             "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME"),
-            "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER")
+            "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER"),
+            "\"$launcherShortName\"".toStatement(variable = "LAUNCHER_SHORT_NAME"),
+            "\"$launcherUrl\"".toStatement(variable = "URL_HOME")
         )
         generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", constantList)
     }

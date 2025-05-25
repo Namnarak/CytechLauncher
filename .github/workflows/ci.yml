@@ -11,7 +11,6 @@ jobs:
     with:
       variant: Release
     secrets:
-      CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
       OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
