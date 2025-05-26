@@ -185,7 +185,6 @@ fun LauncherSettingsScreen() {
                     title = stringResource(R.string.settings_launcher_log_retention_days_title),
                     summary = stringResource(R.string.settings_launcher_log_retention_days_summary),
                     valueRange = 1f..14f,
-                    steps = 12,
                     suffix = stringResource(R.string.unit_day)
                 )
 
