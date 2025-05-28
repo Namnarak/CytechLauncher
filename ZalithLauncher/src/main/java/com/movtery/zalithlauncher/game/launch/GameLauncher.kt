@@ -16,12 +16,10 @@ import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
-import com.movtery.zalithlauncher.game.path.getLibrariesHome
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
-import com.movtery.zalithlauncher.game.version.download.artifactToPath
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
@@ -30,7 +28,6 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -137,7 +134,6 @@ class GameLauncher(
         val gameDirPath = version.getGameDir()
 
         disableSplash(gameDirPath)
-        val launchClassPath = generateLaunchClassPath(gameManifest)
 
         val launchArgs = LaunchArgs(
             account = account,
@@ -145,7 +141,6 @@ class GameLauncher(
             version = version,
             gameManifest = gameManifest,
             runtime = runtime,
-            launchClassPath = launchClassPath,
             readAssetsFile = { path -> activity.readAssetFile(path) },
             getCacioJavaArgs = { isJava8 ->
                 val size = getWindowSize()
@@ -243,65 +238,6 @@ class GameLauncher(
                 lWarning("Failed to create the configuration directory")
             }
         }
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L572-L592)
-     */
-    private fun generateLaunchClassPath(
-        gameManifest: GameManifest,
-        isClientFirst: Boolean = false
-    ): String {
-        val classpathList = mutableListOf<String>()
-
-        val classpath: Array<String> = generateLibClasspath(gameManifest)
-
-        val clientClass = File(version.getVersionPath(), "${version.getVersionName()}.jar")
-        val clientClasspath: String = clientClass.absolutePath
-
-        if (isClientFirst && clientClass.exists()) {
-            classpathList.add(clientClasspath)
-        }
-        for (jarFile in classpath) {
-            val jarFileObj = File(jarFile)
-            if (!jarFileObj.exists()) {
-                lDebug("Ignored non-exists file: $jarFile")
-                continue
-            }
-            classpathList.add(jarFile)
-        }
-        if (!isClientFirst && clientClass.exists()) {
-            classpathList.add(clientClasspath)
-        }
-
-        return classpathList.joinToString(":")
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L871-L882)
-     */
-    private fun generateLibClasspath(gameManifest: GameManifest): Array<String> {
-        val libDir: MutableList<String> = ArrayList()
-        for (libItem in gameManifest.libraries) {
-            if (!checkRules(libItem.rules)) continue
-            val libArtifactPath: String = artifactToPath(libItem) ?: continue
-            libDir.add(getLibrariesHome() + "/" + libArtifactPath)
-        }
-        return libDir.toTypedArray<String>()
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L815-L823)
-     */
-    private fun checkRules(rules: List<GameManifest.Rule>?): Boolean {
-        if (rules == null) return true // always allow
-
-        for (rule in rules) {
-            if (rule.action.equals("allow") && rule.os != null && rule.os.name.equals("osx")) {
-                return false //disallow
-            }
-        }
-        return true // allow if none match
     }
 
     companion object {

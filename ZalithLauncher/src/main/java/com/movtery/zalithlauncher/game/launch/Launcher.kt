@@ -305,29 +305,43 @@ abstract class Launcher(
 
             val windowSize = getWindowSize()
 
-            val overridableArguments = listOf(
-                "-Djava.home=$runtimeHome",
-                "-Djava.io.tmpdir=${PathManager.DIR_CACHE.absolutePath}",
-                "-Djna.boot.library.path=${PathManager.DIR_NATIVE_LIB}",
-                "-Duser.home=${userHome ?: GamePathManager.getUserHome()}",
-                "-Duser.language=${System.getProperty("user.language")}",
-                "-Dos.name=Linux",
-                "-Dos.version=Android-${Build.VERSION.RELEASE}",
-                "-Dpojav.path.minecraft=${getGameHome()}",
-                "-Dpojav.path.private.account=${PathManager.DIR_DATA_BASES}",
-                "-Duser.timezone=${TimeZone.getDefault().id}",
-                "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dglfwstub.windowWidth=${getDisplayFriendlyRes(windowSize.width, scaleFactor)}",
-                "-Dglfwstub.windowHeight=${getDisplayFriendlyRes(windowSize.height, scaleFactor)}",
-                "-Dglfwstub.initEgl=false",
-                "-Dext.net.resolvPath=$resolvFile",
-                "-Dlog4j2.formatMsgNoLookups=true",
-                "-Dnet.minecraft.clientmodname=${InfoDistributor.LAUNCHER_NAME}",
-                "-Dfml.earlyprogresswindow=false",
-                "-Dloader.disable_forked_guis=true",
-                "-Djdk.lang.Process.launchMechanism=FORK",
-                "-Dsodium.checks.issue2561=false"
-            )
+            val overridableArguments = mutableMapOf<String, String>().apply {
+                put("java.home", runtimeHome)
+                put("java.io.tmpdir", PathManager.DIR_CACHE.absolutePath)
+                put("jna.boot.library.path", PathManager.DIR_NATIVE_LIB)
+                put("user.home", userHome ?: GamePathManager.getUserHome())
+                System.getProperty("user.language")?.let { put("user.language", it) }
+                put("os.name", "Linux")
+                put("os.version", Build.VERSION.RELEASE)
+                put("pojav.path.minecraft", getGameHome())
+                put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
+                put("user.timezone", TimeZone.getDefault().id)
+                put("org.lwjgl.vulkan.libname", "libvulkan.so")
+                put("glfwstub.windowWidth", getDisplayFriendlyRes(windowSize.width, scaleFactor).toString())
+                put("glfwstub.windowHeight", getDisplayFriendlyRes(windowSize.height, scaleFactor).toString())
+                put("glfwstub.initEgl", "false")
+                put("ext.net.resolvPath", resolvFile)
+
+                put("log4j2.formatMsgNoLookups", "true")
+                // Fix RCE vulnerability of log4j2
+                put("java.rmi.server.useCodebaseOnly", "true")
+                put("com.sun.jndi.rmi.object.trustURLCodebase", "false")
+                put("com.sun.jndi.cosnaming.object.trustURLCodebase", "false")
+
+                put("net.minecraft.clientmodname", InfoDistributor.LAUNCHER_NAME)
+
+                // fml
+                put("fml.earlyprogresswindow", "false")
+                put("fml.ignoreInvalidMinecraftCertificates", "true")
+                put("fml.ignorePatchDiscrepancies", "true")
+
+                put("loader.disable_forked_guis", "true")
+                put("jdk.lang.Process.launchMechanism", "FORK")
+
+                put("sodium.checks.issue2561", "false")
+            }.map { entry ->
+                "-D${entry.key}=${entry.value}"
+            }
 
             val additionalArguments = overridableArguments.filter { arg ->
                 val stripped = arg.substringBefore('=')

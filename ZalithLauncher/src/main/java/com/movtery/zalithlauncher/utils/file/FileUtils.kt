@@ -21,7 +21,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
-fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = true): Boolean {
+fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = false): Boolean {
+    if (!file.exists()) return false //文件不存在
+
     val computedSHA = runCatching {
         FileInputStream(file).use { fis ->
             String(Hex.encodeHex(DigestUtils.sha1(fis)))

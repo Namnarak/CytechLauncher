@@ -54,6 +54,11 @@ class Version(
     fun getVersionName(): String = getVersionPath().name
 
     /**
+     * @return 获取客户端 jar 文件
+     */
+    fun getClientJar(): File = File(getVersionPath(), "$versionName.jar")
+
+    /**
      * 设置新的版本名称
      */
     fun setVersionName(versionName: String) {
