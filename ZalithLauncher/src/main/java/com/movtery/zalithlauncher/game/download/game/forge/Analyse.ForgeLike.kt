@@ -111,7 +111,7 @@ private suspend fun analyseNewForge(
             }
 
             installProfile["path"]?.takeIf { it.isJsonPrimitive }?.let { path ->
-                val libraryPath = getLibraryPath(path.asString, tempMinecraftFolder.absolutePath)
+                val libraryPath = getLibraryPath(path.asString)
                 zip.getEntry("maven/$libraryPath")?.let { entry ->
                     val dest = File(tempMinecraftFolder, "libraries/$libraryPath")
                     zip.extractEntryToFile(entry, dest)

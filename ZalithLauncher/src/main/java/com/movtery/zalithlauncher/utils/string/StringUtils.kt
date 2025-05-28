@@ -142,5 +142,9 @@ class StringUtils {
         fun String.stripColorCodes(): String {
             return replace(Regex("§[0-9a-fk-orA-FK-OR]"), "")
         }
+
+        fun String.isEmptyOrBlank(): Boolean = this.isEmpty() || this.isBlank()
+
+        fun String.isNotEmptyOrBlank(): Boolean = !this.isEmptyOrBlank()
     }
 }

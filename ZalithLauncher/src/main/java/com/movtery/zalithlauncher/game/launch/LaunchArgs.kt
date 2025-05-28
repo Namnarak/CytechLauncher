@@ -16,6 +16,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.toUnicodeEscaped
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import java.io.File
@@ -48,7 +49,7 @@ class LaunchArgs(
         argsList.addAll(getMinecraftClientArgs())
 
         version.getVersionInfo()?.let { info ->
-            val playSingle = version.quickPlaySingle?.takeIf { it.isNotEmpty() && it.isNotBlank() }
+            val playSingle = version.quickPlaySingle?.takeIf { it.isNotEmptyOrBlank() }
             if (playSingle != null) { //快速启动单人游戏
                 if (info.quickPlay.isQuickPlaySingleplayer) {
                     //将不受支持的字符转换为Unicode
@@ -195,7 +196,7 @@ class LaunchArgs(
         verArgMap["launcher_name"] = InfoDistributor.LAUNCHER_NAME
         verArgMap["launcher_version"] = BuildConfig.VERSION_NAME
         verArgMap["version_type"] = version.getCustomInfo()
-            .takeIf { it.isNotEmpty() && it.isNotBlank() }
+            .takeIf { it.isNotEmptyOrBlank() }
             ?: gameManifest.type
     }
 

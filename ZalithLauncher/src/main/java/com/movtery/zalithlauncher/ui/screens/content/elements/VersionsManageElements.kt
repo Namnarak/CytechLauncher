@@ -65,6 +65,7 @@ import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import kotlinx.coroutines.Dispatchers
 
 sealed interface GamePathOperation {
@@ -254,7 +255,7 @@ private fun NameEditPathDialog(
         singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = {
-            if (value.isNotEmpty() || value.isNotBlank()) {
+            if (value.isNotEmptyOrBlank()) {
                 onConfirm(value.trim())
             }
         }

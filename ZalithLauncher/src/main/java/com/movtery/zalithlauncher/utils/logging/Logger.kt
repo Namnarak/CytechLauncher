@@ -97,18 +97,37 @@ object Logger : CoroutineScope {
         val formatted = formatMessage(message)
 
         //输出到 Logcat
-        when (message.level) {
-            Level.ERROR -> Log.e("AppLog", formatted)
-            Level.WARNING -> Log.w("AppLog", formatted)
-            Level.INFO -> Log.i("AppLog", formatted)
-            Level.DEBUG -> Log.d("AppLog", formatted)
-            Level.TRACE -> Log.v("AppLog", formatted)
-        }
+        printToLogcat(message.level, formatted)
 
         logWriter?.apply {
             println(formatted)
-            message.throwable?.printStackTrace(this)
+            message.throwable?.also { th ->
+                th.printStackTrace(this@apply)
+                printToLogcat(message.level, th)
+            }
             flush()
+        }
+    }
+
+    private fun printToLogcat(level: Level, message: String) {
+        when (level) {
+            Level.ERROR -> Log.e("AppLog", message)
+            Level.WARNING -> Log.w("AppLog", message)
+            Level.INFO -> Log.i("AppLog", message)
+            Level.DEBUG -> Log.d("AppLog", message)
+            Level.TRACE -> Log.v("AppLog", message)
+        }
+    }
+
+    private fun printToLogcat(level: Level, throwable: Throwable) {
+        val thMessage = Log.getStackTraceString(throwable)
+
+        when (level) {
+            Level.ERROR -> Log.e("AppLog", thMessage)
+            Level.WARNING -> Log.w("AppLog", thMessage)
+            Level.INFO -> Log.i("AppLog", thMessage)
+            Level.DEBUG -> Log.d("AppLog", thMessage)
+            Level.TRACE -> Log.v("AppLog", thMessage)
         }
     }
 

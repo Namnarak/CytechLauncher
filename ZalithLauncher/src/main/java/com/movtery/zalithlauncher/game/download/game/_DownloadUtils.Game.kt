@@ -102,11 +102,11 @@ fun copyVanillaFiles(
 /**
  * 根据提供的原始库名称生成对应的本地路径。
  * @param original 库的原始名称，例如 `groupId:artifactId:version`
- * @param baseFolder 基础文件夹路径，作为文件路径前缀
+ * @param baseFolder 基础文件夹路径，作为文件路径前缀，为 null 则不连接
  */
 fun getLibraryPath(
     original: String,
-    baseFolder: String
+    baseFolder: String? = null
 ): String {
     val components = parseLibraryComponents(original)
 
@@ -125,8 +125,8 @@ fun getLibraryPath(
     val classifierSuffix = if (!components.classifier.isNullOrEmpty()) "-${components.classifier}" else ""
     val jarName = "${components.artifactId}-${components.version}$classifierSuffix.jar"
 
-    return listOf(
-        "$baseFolder/libraries",
+    return listOfNotNull(
+        baseFolder?.let { "$it/libraries" },
         groupIdPath,
         components.artifactId,
         components.version,

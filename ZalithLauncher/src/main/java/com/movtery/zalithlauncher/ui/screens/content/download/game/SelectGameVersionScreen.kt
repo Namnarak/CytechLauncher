@@ -66,6 +66,7 @@ import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
@@ -240,7 +241,7 @@ private fun List<VersionManifest.Version>.filterVersions(
         else -> versionFilter.old && it.type.startsWith("old")
     }
     val versionId = versionFilter.id
-    val id = (versionId.isEmpty() || versionId.isBlank()) || it.id.contains(versionId)
+    val id = (versionId.isEmptyOrBlank()) || it.id.contains(versionId)
     (type && id)
 }
 
