@@ -62,7 +62,7 @@ class DownloadTask(
      */
     private fun verifySha1(): Boolean {
         if (targetFile.exists()) {
-            sha1 ?: return !verifyIntegrity
+            sha1 ?: return true //sha1 不存在，可能目标无法被下载
             if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
                 return true
             } else {

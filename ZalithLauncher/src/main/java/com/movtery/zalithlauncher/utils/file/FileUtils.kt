@@ -150,8 +150,10 @@ fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {
     }
 }
 
-fun ZipFile.readText(entryPath: String): String =
-    getInputStream(getEntry(entryPath))
+fun ZipFile.readText(entryPath: String): String = getEntry(entryPath).readText(this)
+
+fun ZipEntry.readText(zip: ZipFile): String =
+    zip.getInputStream(this)
         .bufferedReader()
         .use {
             it.readText()
