@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -175,7 +176,7 @@ fun MainScreen() {
                 modifier = Modifier
                     .fillMaxHeight()
                     .align(Alignment.CenterStart)
-                    .padding(all = 8.dp)
+                    .padding(all = 6.dp)
             ) {
                 changeTasksExpandedState()
             }
@@ -444,9 +445,10 @@ private fun TaskMenu(
         modifier = modifier
             .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
             .alpha(surfaceAlpha)
-            .padding(all = 4.dp)
+            .padding(all = 6.dp)
             .width(240.dp),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
     ) {
         Column {
             Box(
