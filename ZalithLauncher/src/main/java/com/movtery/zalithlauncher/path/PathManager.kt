@@ -14,6 +14,7 @@ class PathManager {
         lateinit var DIR_DATA_BASES: File
         lateinit var DIR_ACCOUNT_SKIN: File
         lateinit var DIR_MULTIRT: File
+        lateinit var DIR_JNA: File
         lateinit var DIR_COMPONENTS: File
         lateinit var DIR_MOUSE_POINTER: File
         lateinit var DIR_CACHE_GAME_DOWNLOADER: File
@@ -34,6 +35,7 @@ class PathManager {
             DIR_GAME = File(DIR_FILES_PRIVATE, "games")
             DIR_ACCOUNT_SKIN = File(DIR_GAME, "account_skins")
             DIR_MULTIRT = File(DIR_GAME, "runtimes")
+            DIR_JNA = File(DIR_GAME, "jna_dir")
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
             DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
             DIR_CACHE_GAME_DOWNLOADER = File(DIR_CACHE, "temp_game")
@@ -51,6 +53,7 @@ class PathManager {
             DIR_GAME.mkdirs()
             DIR_ACCOUNT_SKIN.mkdirs()
             DIR_MULTIRT.mkdirs()
+            DIR_JNA.mkdirs()
             DIR_COMPONENTS.mkdirs()
             DIR_MOUSE_POINTER.mkdirs()
             DIR_CACHE_GAME_DOWNLOADER.mkdirs()

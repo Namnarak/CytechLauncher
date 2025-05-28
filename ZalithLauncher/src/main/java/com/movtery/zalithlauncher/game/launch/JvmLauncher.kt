@@ -86,13 +86,15 @@ open class JvmLauncher(
         generateLauncherProfiles(jvmLaunchInfo.userHome)
         val (runtime, argList) = getStartupNeeded()
 
+        this.runtime = runtime
+        this.relocateLibPath()
+
         return launchJvm(
             context = context,
             jvmArgs = argList,
             userHome = jvmLaunchInfo.userHome,
             userArgs = AllSettings.jvmArgs.getValue(),
-            getWindowSize = getWindowSize,
-            runtime = runtime
+            getWindowSize = getWindowSize
         )
     }
 

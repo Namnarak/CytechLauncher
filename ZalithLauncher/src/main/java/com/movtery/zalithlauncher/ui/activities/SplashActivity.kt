@@ -15,6 +15,7 @@ import com.movtery.zalithlauncher.components.Components
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.components.UnpackComponentsTask
 import com.movtery.zalithlauncher.components.jre.Jre
+import com.movtery.zalithlauncher.components.jre.UnpackJnaTask
 import com.movtery.zalithlauncher.components.jre.UnpackJreTask
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -82,6 +83,16 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
                     )
                 )
             }
+        }
+        val jnaTask = UnpackJnaTask(this@SplashActivity)
+        if (!jnaTask.isCheckFailed()) {
+            unpackItems.add(
+                InstallableItem(
+                    "JNA",
+                    null,
+                    jnaTask
+                )
+            )
         }
         unpackItems.sort()
     }

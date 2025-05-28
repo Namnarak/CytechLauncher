@@ -135,7 +135,12 @@ class GameLauncher(
 
         disableSplash(gameDirPath)
 
+        //初始化运行环境
+        this.runtime = runtime
+        this.relocateLibPath()
+
         val launchArgs = LaunchArgs(
+            launcher = this,
             account = account,
             gameDirPath = gameDirPath,
             version = version,
@@ -154,8 +159,7 @@ class GameLauncher(
             context = activity,
             jvmArgs = launchArgs,
             userArgs = customArgs,
-            getWindowSize = getWindowSize,
-            runtime = runtime
+            getWindowSize = getWindowSize
         )
     }
 

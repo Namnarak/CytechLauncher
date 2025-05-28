@@ -38,8 +38,17 @@ import java.util.TimeZone
 abstract class Launcher(
     val onExit: (code: Int, isSignal: Boolean) -> Unit
 ) {
+    lateinit var runtime: Runtime
+        protected set
+
+    private val runtimeHome: String by lazy {
+        RuntimesManager.getRuntimeHome(runtime.name).absolutePath
+    }
+
+    var libraryPath: String = ""
+        private set
+
     private var dirNameHomeJre: String = "lib"
-    private var ldLibraryPath: String = ""
     private var jvmLibraryPath: String = ""
 
     abstract suspend fun launch(): Int
@@ -51,13 +60,10 @@ abstract class Launcher(
         jvmArgs: List<String>,
         userHome: String? = null,
         userArgs: String,
-        getWindowSize: () -> IntSize,
-        runtime: Runtime
+        getWindowSize: () -> IntSize
     ): Int {
         ZLNativeInvoker.staticLauncher = this
 
-        val runtimeHome = RuntimesManager.getRuntimeHome(runtime.name).absolutePath
-        relocateLibPath(runtime, runtimeHome)
         initLdLibraryPath(runtimeHome)
 
         LoggerBridge.appendTitle("Env Map")
@@ -155,57 +161,52 @@ abstract class Launcher(
         removeIf { arg: String -> arg.startsWith(argStart) }
     }
 
-    private fun relocateLibPath(runtime: Runtime, jreHome: String) {
+    protected fun relocateLibPath() {
         var jreArchitecture = runtime.arch
         if (Architecture.archAsInt(jreArchitecture) == ARCH_X86) {
             jreArchitecture = "i386/i486/i586"
         }
 
         for (arch in jreArchitecture.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-            val f = File(jreHome, "lib/$arch")
+            val f = File(runtimeHome, "lib/$arch")
             if (f.exists() && f.isDirectory) {
                 dirNameHomeJre = "lib/$arch"
             }
         }
 
         val libName = if (is64BitsDevice) "lib64" else "lib"
-        val ldLibraryPath = java.lang.StringBuilder()
-        if (FFmpegPluginManager.isAvailable) {
-            ldLibraryPath.append(FFmpegPluginManager.libraryPath!!).append(":")
-        }
-        val customRenderer = RendererPluginManager.selectedRendererPlugin
-        if (customRenderer != null) {
-            ldLibraryPath.append(customRenderer.path).append(":")
-        }
-        ldLibraryPath.append(jreHome)
-            .append("/").append(dirNameHomeJre)
-            .append("/jli:").append(jreHome).append("/").append(dirNameHomeJre)
-            .append(":")
-        ldLibraryPath.append("/system/").append(libName).append(":")
-            .append("/vendor/").append(libName).append(":")
-            .append("/vendor/").append(libName).append("/hw:")
-            .append(PathManager.DIR_NATIVE_LIB)
-        this.ldLibraryPath = ldLibraryPath.toString()
+        val path = listOfNotNull(
+            FFmpegPluginManager.takeIf { it.isAvailable }?.libraryPath,
+            RendererPluginManager.selectedRendererPlugin?.path,
+            "$runtimeHome/$dirNameHomeJre/jli",
+            "$runtimeHome/$dirNameHomeJre",
+            "/system/$libName",
+            "/vendor/$libName",
+            "/vendor/$libName/hw",
+            LibPath.JNA.absolutePath,
+            PathManager.DIR_NATIVE_LIB
+        )
+        this.libraryPath = path.joinToString(":")
     }
 
     private fun initLdLibraryPath(jreHome: String) {
         val serverFile = File(jreHome).child(dirNameHomeJre, "server", "libjvm.so")
         jvmLibraryPath = "$jreHome/$dirNameHomeJre/" + (if (serverFile.exists()) "server" else "client")
-        lDebug("Base ldLibraryPath: $ldLibraryPath")
-        lDebug("Internal ldLibraryPath: $jvmLibraryPath:$ldLibraryPath")
-        ZLBridge.setLdLibraryPath("$jvmLibraryPath:$ldLibraryPath")
+        lDebug("Base libraryPath: $libraryPath")
+        lDebug("Internal libraryPath: $jvmLibraryPath:$libraryPath")
+        ZLBridge.setLdLibraryPath("$jvmLibraryPath:$libraryPath")
     }
 
     protected fun findInLdLibPath(libName: String): String {
         val path = Os.getenv("LD_LIBRARY_PATH") ?: run {
             try {
-                if (ldLibraryPath.isNotEmpty()) {
-                    Os.setenv("LD_LIBRARY_PATH", ldLibraryPath, true)
+                if (libraryPath.isNotEmpty()) {
+                    Os.setenv("LD_LIBRARY_PATH", libraryPath, true)
                 }
             } catch (e: ErrnoException) {
                 lError("Failed to locate lib path", e)
             }
-            ldLibraryPath
+            libraryPath
         }
         return path.split(":").find { libPath ->
             val file = File(libPath, libName)
@@ -251,7 +252,7 @@ abstract class Launcher(
             map["JAVA_HOME"] = jreHome
             map["HOME"] = PathManager.DIR_FILES_EXTERNAL.absolutePath
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath
-            map["LD_LIBRARY_PATH"] = ldLibraryPath
+            map["LD_LIBRARY_PATH"] = libraryPath
             map["PATH"] = "$jreHome/bin:${Os.getenv("PATH")}"
             map["AWTSTUB_WIDTH"] = (CallbackBridge.windowWidth.takeIf { it > 0 } ?: CallbackBridge.physicalWidth).toString()
             map["AWTSTUB_HEIGHT"] = (CallbackBridge.windowHeight.takeIf { it > 0 } ?: CallbackBridge.physicalHeight).toString()

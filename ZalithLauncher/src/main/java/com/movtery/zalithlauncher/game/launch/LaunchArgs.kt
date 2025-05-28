@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.utils.string.isLowerTo
 import java.io.File
 
 class LaunchArgs(
+    private val launcher: Launcher,
     private val account: Account,
     private val gameDirPath: File,
     private val version: Version,
@@ -146,7 +147,8 @@ class LaunchArgs(
         varArgMap["classpath_separator"] = ":"
         varArgMap["library_directory"] = getLibrariesHome()
         varArgMap["version_name"] = gameManifest1.id
-        varArgMap["natives_directory"] = PathManager.DIR_NATIVE_LIB
+        varArgMap["natives_directory"] = launcher.libraryPath
+        setLauncherInfo(varArgMap)
 
         val minecraftArgs: MutableList<String> = java.util.ArrayList()
         gameManifest1.arguments?.let { arguments ->

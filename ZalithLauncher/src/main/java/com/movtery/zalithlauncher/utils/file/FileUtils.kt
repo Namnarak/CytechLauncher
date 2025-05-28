@@ -163,7 +163,7 @@ fun ZipEntry.readText(zip: ZipFile): String =
 
 /**
  * 从ZIP文件中提取指定内部路径下的所有条目到输出目录，保持相对路径结构
- * @param internalPath ZIP文件中的路径前缀（类似目录），自动添加结尾斜杠
+ * @param internalPath ZIP文件中的路径前缀（类似目录），留空则解压整个压缩包
  * @param outputDir 目标输出目录（必须为目录）
  * @throws IllegalArgumentException 如果路径不存在或参数无效
  * @throws SecurityException 如果检测到路径穿越攻击
@@ -171,7 +171,11 @@ fun ZipEntry.readText(zip: ZipFile): String =
 fun ZipFile.extractFromZip(internalPath: String, outputDir: File) {
     require(outputDir.isDirectory || outputDir.mkdirs()) { "The output directory does not exist and cannot be created: $outputDir" }
 
-    val prefix = if (internalPath.endsWith("/")) internalPath else "$internalPath/"
+    val prefix = when {
+        internalPath.isEmpty() -> "" //传入空路径以解压整个的压缩包
+        internalPath.endsWith("/") -> internalPath
+        else -> "$internalPath/"
+    }
     val outputDirCanonical = outputDir.canonicalFile
 
     entries()
