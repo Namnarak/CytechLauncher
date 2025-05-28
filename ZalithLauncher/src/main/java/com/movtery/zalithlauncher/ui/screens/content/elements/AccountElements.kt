@@ -73,11 +73,11 @@ import androidx.core.graphics.createBitmap
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
+import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
-import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager

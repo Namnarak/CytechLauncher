@@ -7,8 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountDao
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServerDao
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServerDao
 import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathDao
 

@@ -4,8 +4,8 @@ import android.content.Context
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.database.AppDatabase
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServerDao
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServerDao
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
@@ -55,9 +55,11 @@ object AccountsManager {
             _accounts.clear()
             _accounts.addAll(loadedAccounts)
 
-            _accounts.sortWith { o1, o2 -> o1.username.compareTo(o2.username) }
+            _accounts.sortWith(compareBy<Account>(
+                { it.accountTypePriority() },
+                { it.username },
+            ))
             _accountsFlow.value = _accounts.toList()
-
 
             if (_accounts.isNotEmpty() && !isAccountExists(AllSettings.currentAccount.getValue())) {
                 setCurrentAccount(_accounts[0])
@@ -110,7 +112,7 @@ object AccountsManager {
     ): Task? =
         when {
             account.isNoLoginRequired() -> null
-            account.isOtherLoginAccount() -> {
+            account.isAuthServerAccount() -> {
                 otherLogin(context = context, account = account, onSuccess = onSuccess, onFailed = onFailed, onFinally = onFinally)
             }
             account.isMicrosoftAccount() -> {

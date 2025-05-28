@@ -44,7 +44,7 @@ data class Account(
     suspend fun downloadSkin() = withContext(Dispatchers.IO) {
         when {
             isMicrosoftAccount() -> updateSkin("https://sessionserver.mojang.com")
-            isOtherLoginAccount() -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
+            isAuthServerAccount() -> updateSkin(otherBaseUrl!!.removeSuffix("/") + "/sessionserver/")
             else -> {}
         }
     }

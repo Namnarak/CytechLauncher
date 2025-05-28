@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.game.launch
 import androidx.collection.ArrayMap
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.account.Account
-import com.movtery.zalithlauncher.game.account.isOtherLoginAccount
+import com.movtery.zalithlauncher.game.account.isAuthServerAccount
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.path.getAssetsHome
 import com.movtery.zalithlauncher.game.path.getLibrariesHome
@@ -95,7 +95,7 @@ class LaunchArgs(
     private fun getJavaArgs(): List<String> {
         val argsList: MutableList<String> = ArrayList()
 
-        if (account.isOtherLoginAccount()) {
+        if (account.isAuthServerAccount()) {
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
                 argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
                 argsList.add("-Dnide8auth.client=true")

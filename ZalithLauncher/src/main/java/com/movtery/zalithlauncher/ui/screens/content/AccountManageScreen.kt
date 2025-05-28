@@ -47,14 +47,14 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
+import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
+import com.movtery.zalithlauncher.game.account.auth_server.ResponseException
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoftLogin
-import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
-import com.movtery.zalithlauncher.game.account.otherserver.ResponseException
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.UrlManager
@@ -335,7 +335,7 @@ private fun OtherLoginOperation(
                 onDismissRequest = { updateOperation(OtherLoginOperation.None) },
                 onConfirm = { email, password ->
                     updateOperation(OtherLoginOperation.None)
-                    OtherLoginHelper(
+                    AuthServerHelper(
                         otherLoginOperation.server, email, password,
                         onSuccess = { account, task ->
                             task.updateMessage(R.string.account_logging_in_saving)

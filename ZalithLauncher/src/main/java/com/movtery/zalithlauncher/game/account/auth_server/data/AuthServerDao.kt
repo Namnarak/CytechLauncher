@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.account.otherserver.data
+package com.movtery.zalithlauncher.game.account.auth_server.data
 
 import androidx.room.Dao
 import androidx.room.Delete

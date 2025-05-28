@@ -1,12 +1,12 @@
-package com.movtery.zalithlauncher.game.account.otherserver
+package com.movtery.zalithlauncher.game.account.auth_server
 
 import android.content.Context
 import com.google.gson.Gson
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
-import com.movtery.zalithlauncher.game.account.otherserver.models.AuthRequest
-import com.movtery.zalithlauncher.game.account.otherserver.models.AuthResult
-import com.movtery.zalithlauncher.game.account.otherserver.models.Refresh
+import com.movtery.zalithlauncher.game.account.auth_server.models.AuthRequest
+import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
+import com.movtery.zalithlauncher.game.account.auth_server.models.Refresh
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -28,7 +28,7 @@ import java.io.IOException
 import java.util.Objects
 import java.util.UUID
 
-object OtherLoginApi {
+object AuthServerApi {
     private var baseUrl: String? = null
 
     fun setBaseUrl(baseUrl: String) {
@@ -36,7 +36,7 @@ object OtherLoginApi {
         if (baseUrl.endsWith("/")) {
             url = baseUrl.dropLast(1)
         }
-        OtherLoginApi.baseUrl = url
+        AuthServerApi.baseUrl = url
     }
 
     @Throws(IOException::class)

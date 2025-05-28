@@ -5,13 +5,13 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.account.auth_server.AuthServerApi
+import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
+import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
-import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginApi
-import com.movtery.zalithlauncher.game.account.otherserver.OtherLoginHelper
-import com.movtery.zalithlauncher.game.account.otherserver.data.AuthServer
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
@@ -35,7 +35,7 @@ import java.util.Locale
 import java.util.Objects
 import kotlin.coroutines.CoroutineContext
 
-fun Account.isOtherLoginAccount(): Boolean {
+fun Account.isAuthServerAccount(): Boolean {
     return !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
 }
 
@@ -53,6 +53,14 @@ fun Account?.isNoLoginRequired(): Boolean {
 
 fun Account.isSkinChangeAllowed(): Boolean {
     return isMicrosoftAccount() || isLocalAccount()
+}
+
+fun Account.accountTypePriority(): Int {
+    return when (this.accountType) {
+        AccountType.MICROSOFT.tag -> 0 //微软账号优先
+        null -> Int.MAX_VALUE
+        else -> 1
+    }
 }
 
 private const val MICROSOFT_LOGGING_TASK = "microsoft_logging_task"
@@ -199,7 +207,7 @@ fun otherLogin(
 ): Task? {
     if (TaskSystem.containsTask(account.uniqueUUID)) return null
 
-    return OtherLoginHelper(
+    return AuthServerHelper(
         baseUrl = account.otherBaseUrl!!,
         serverName = account.accountType!!,
         email = account.otherAccount!!,
@@ -231,7 +239,7 @@ fun addOtherServer(
             val fullServerUrl = tryGetFullServerUrl(serverUrl)
             ensureActive()
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
-            OtherLoginApi.getServeInfo(fullServerUrl)?.let { data ->
+            AuthServerApi.getServeInfo(fullServerUrl)?.let { data ->
                 JSONObject(data).optJSONObject("meta")?.let { meta ->
                     if (AccountsManager.isAuthServerExists(fullServerUrl)) {
                         //确保服务器不重复
@@ -263,7 +271,7 @@ fun addOtherServer(
 fun getAccountTypeName(context: Context, account: Account): String {
     return if (account.isMicrosoftAccount()) {
         context.getString(R.string.account_type_microsoft)
-    } else if (account.isOtherLoginAccount()) {
+    } else if (account.isAuthServerAccount()) {
         account.accountType ?: "Unknown"
     } else {
         context.getString(R.string.account_type_local)
