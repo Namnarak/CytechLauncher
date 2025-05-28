@@ -149,16 +149,27 @@ class LaunchArgs(
         varArgMap["natives_directory"] = PathManager.DIR_NATIVE_LIB
 
         val minecraftArgs: MutableList<String> = java.util.ArrayList()
-        gameManifest1.arguments?.let {
-            fun String.addIgnoreListIfHas(): String {
-                if (startsWith("-DignoreList=")) return "$this,${version.getVersionName()}.jar"
-                return this
-            }
-            it.jvm?.forEach { arg ->
-                if (arg is String) {
-                    minecraftArgs.add(arg.addIgnoreListIfHas())
+        gameManifest1.arguments?.let { arguments ->
+            fun Any.processJvmArg(): String? {
+                if (this !is String) return null
+                return when {
+                    startsWith("-DignoreList=") -> "$this,${version.getVersionName()}.jar"
+                    (
+                            contains("-Dio.netty.native.workdir") ||
+                            contains("-Djna.tmpdir") ||
+                            contains("-Dorg.lwjgl.system.SharedLibraryExtractPath")
+                    ) -> {
+                        //使用一个可读的目录
+                        this.replace("\${natives_directory}", PathManager.DIR_CACHE.absolutePath)
+                    }
+                    else -> this
                 }
             }
+            arguments.jvm?.mapNotNull { arg ->
+                arg.processJvmArg()
+            }
+        }?.let { jvmArgs ->
+            minecraftArgs.addAll(jvmArgs)
         }
         return StringUtils.insertJSONValueList(minecraftArgs.toTypedArray<String>(), varArgMap)
     }
