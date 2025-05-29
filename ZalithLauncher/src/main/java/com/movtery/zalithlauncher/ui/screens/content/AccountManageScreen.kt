@@ -53,7 +53,10 @@ import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.localLogin
+import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
+import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
+import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
@@ -711,7 +714,9 @@ private fun AccountOperation(
         }
         is AccountOperation.OnFailed -> {
             val message: String = when (val th = accountOperation.th) {
-                is NotPurchasedMinecraftException -> stringResource(R.string.account_logging_not_purchased_minecraft)
+                is NotPurchasedMinecraftException -> toLocal(context)
+                is MinecraftProfileException -> th.toLocal(context)
+                is XboxLoginException -> th.toLocal(context)
                 is ResponseException -> th.responseMessage
                 is HttpRequestTimeoutException -> stringResource(R.string.error_timeout)
                 is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)

@@ -169,6 +169,17 @@
     <string name="account_logging_in_failed">登录失败</string>
     <string name="account_logging_in_saving">获取玩家皮肤、保存账号信息</string>
     <string name="account_logging_time_out">网络访问超时，请检查网络环境</string>
+    <string name="account_logging_xbox_banned">您的账号因违反 Xbox 社区规范已被封禁，无法使用！</string>
+    <string name="account_logging_xbox_restricted">您的账号目前受到限制，监护人尚未授权您进行在线游戏</string>
+    <string name="account_logging_xbox_unregistered">您的账号尚未创建 Xbox 个人资料，请前往 https://signup.live.com/signup 注册</string>
+    <string name="account_logging_xbox_not_accepted_service">您的账号尚未接受 Xbox 的服务条款</string>
+    <string name="account_logging_xbox_blocked_region">您的账号所在的地区未被 Xbox 授权使用，登录尝试已被拦截</string>
+    <string name="account_logging_xbox_requires_proof_of_age">您的账号需要提供年龄证明，请登录 https://login.live.com/login.srf 提供相关信息</string>
+    <string name="account_logging_xbox_reached_playtime_limit">您的账号已达到游戏时间限制，已被禁止登录</string>
+    <string name="account_logging_xbox_underage">账号的出生日期显示未满 18 岁，必须由成年人添加到家庭中才能继续使用</string>
+    <string name="account_logging_frequent">登录过于频繁，请稍后再试</string>
+    <string name="account_logging_blocked_ip">当前 IP 地址已被禁止登陆</string>
+    <string name="account_logging_profile_not_exists">请先创建 Minecraft 玩家档案，然后再重新登陆！</string>
     <string name="account_logging_not_purchased_minecraft">未检查到 Minecraft 配置信息，请前往 Minecraft 的官方网站购买</string>
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>

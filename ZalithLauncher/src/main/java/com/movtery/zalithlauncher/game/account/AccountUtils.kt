@@ -11,7 +11,10 @@ import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
+import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
+import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
+import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WEB_VIEW_SCREEN_TAG
@@ -108,7 +111,9 @@ fun microsoftLogin(
         onError = { th ->
             when (th) {
                 is HttpRequestTimeoutException -> context.getString(R.string.account_logging_time_out)
-                is NotPurchasedMinecraftException -> context.getString(R.string.account_logging_not_purchased_minecraft)
+                is NotPurchasedMinecraftException -> toLocal(context)
+                is MinecraftProfileException -> th.toLocal(context)
+                is XboxLoginException -> th.toLocal(context)
                 is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
                 is ConnectException -> context.getString(R.string.error_connection_failed)
                 is ResponseException -> {
