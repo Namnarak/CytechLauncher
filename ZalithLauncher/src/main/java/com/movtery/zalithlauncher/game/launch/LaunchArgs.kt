@@ -142,38 +142,46 @@ class LaunchArgs(
 //        }
 
         val varArgMap: MutableMap<String, String> = android.util.ArrayMap()
-        val launchClassPath = generateLaunchClassPath(gameManifest)
-        varArgMap["classpath"] = "${getLWJGL3ClassPath()}:$launchClassPath"
+        val launchClassPath = "${getLWJGL3ClassPath()}:${generateLaunchClassPath(gameManifest)}"
+        var hasClasspath = false //是否已经在jvm参数中包含 ${classpath} 配置
+
         varArgMap["classpath_separator"] = ":"
         varArgMap["library_directory"] = getLibrariesHome()
         varArgMap["version_name"] = gameManifest1.id
         varArgMap["natives_directory"] = launcher.libraryPath
         setLauncherInfo(varArgMap)
 
-        val minecraftArgs: MutableList<String> = java.util.ArrayList()
-        gameManifest1.arguments?.let { arguments ->
-            fun Any.processJvmArg(): String? {
-                if (this !is String) return null
-                return when {
-                    startsWith("-DignoreList=") -> "$this,${version.getVersionName()}.jar"
-                    (
-                            contains("-Dio.netty.native.workdir") ||
-                            contains("-Djna.tmpdir") ||
-                            contains("-Dorg.lwjgl.system.SharedLibraryExtractPath")
-                    ) -> {
-                        //使用一个可读的目录
-                        this.replace("\${natives_directory}", PathManager.DIR_CACHE.absolutePath)
-                    }
-                    else -> this
+        fun Any.processJvmArg(): String? = (this as? String)?.let {
+            when {
+                it.startsWith("-DignoreList=") -> {
+                    "$it,${version.getVersionName()}.jar"
                 }
+                it.contains("-Dio.netty.native.workdir") ||
+                it.contains("-Djna.tmpdir") ||
+                it.contains("-Dorg.lwjgl.system.SharedLibraryExtractPath") -> {
+                    //使用一个可读的目录
+                    it.replace("\${natives_directory}", PathManager.DIR_CACHE.absolutePath)
+                }
+                it == "\${classpath}" -> {
+                    hasClasspath = true
+                    launchClassPath
+                }
+                else -> it
             }
-            arguments.jvm?.mapNotNull { arg ->
-                arg.processJvmArg()
-            }
-        }?.let { jvmArgs ->
-            minecraftArgs.addAll(jvmArgs)
         }
-        return StringUtils.insertJSONValueList(minecraftArgs.toTypedArray<String>(), varArgMap)
+
+        val jvmArgs = gameManifest1.arguments?.jvm
+            ?.mapNotNull { it.processJvmArg() }
+            ?.toTypedArray()
+            ?: emptyArray()
+
+        val replacedArgs = StringUtils.insertJSONValueList(jvmArgs, varArgMap)
+        return if (hasClasspath) {
+            replacedArgs
+        } else {
+            //不包含 ${classpath} 配置，则需要手动添加
+            replacedArgs + arrayOf("-cp", launchClassPath)
+        }
     }
 
     /**

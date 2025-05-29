@@ -313,7 +313,7 @@ abstract class Launcher(
                 put("user.home", userHome ?: GamePathManager.getUserHome())
                 System.getProperty("user.language")?.let { put("user.language", it) }
                 put("os.name", "Linux")
-                put("os.version", Build.VERSION.RELEASE)
+                put("os.version", "Android-${Build.VERSION.RELEASE}")
                 put("pojav.path.minecraft", getGameHome())
                 put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
                 put("user.timezone", TimeZone.getDefault().id)
