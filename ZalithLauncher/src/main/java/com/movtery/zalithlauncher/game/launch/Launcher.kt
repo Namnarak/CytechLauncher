@@ -104,6 +104,8 @@ abstract class Launcher(
             val arg = iterator.next()
             if (arg.startsWith("--accessToken") && iterator.hasNext()) {
                 iterator.next()
+                LoggerBridge.append("JVMArgs: $arg")
+                LoggerBridge.append("JVMArgs: ********************")
                 continue
             }
             LoggerBridge.append("JVMArgs: $arg")
