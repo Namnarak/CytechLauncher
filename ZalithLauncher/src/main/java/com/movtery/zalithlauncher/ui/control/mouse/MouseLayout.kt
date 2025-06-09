@@ -74,6 +74,7 @@ fun VirtualPointerLayout(
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
     mouseSpeed: Int = AllSettings.mouseSpeed.getValue(),
+    requestFocusKey: Any? = null
 ) {
     var screenWidth by remember { mutableFloatStateOf(0f) }
     var screenHeight by remember { mutableFloatStateOf(0f) }
@@ -158,7 +159,8 @@ fun VirtualPointerLayout(
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,
-            inputChange = arrayOf(speedFactor, controlMode)
+            inputChange = arrayOf(speedFactor, controlMode),
+            requestFocusKey = requestFocusKey
         )
     }
 }

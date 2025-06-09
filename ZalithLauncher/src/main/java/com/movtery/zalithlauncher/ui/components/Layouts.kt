@@ -7,7 +7,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -37,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -478,5 +482,23 @@ fun TitleAndSummary(
                 style = MaterialTheme.typography.labelSmall
             )
         }
+    }
+}
+
+@Composable
+fun FocusableBox(
+    modifier: Modifier = Modifier,
+    requestKey: Any? = null
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    Box(
+        modifier = modifier
+            .focusable(enabled = true)
+            .focusRequester(focusRequester)
+    )
+
+    LaunchedEffect(requestKey) {
+        focusRequester.requestFocus()
     }
 }

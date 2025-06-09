@@ -91,7 +91,8 @@ fun MouseControlLayout(
                 controlMode = mouseControlMode,
                 mouseSize = mouseSize.dp,
                 mouseSpeed = mouseSpeed,
-                longPressTimeoutMillis = mouseLongPressDelay.toLong()
+                longPressTimeoutMillis = mouseLongPressDelay.toLong(),
+                requestFocusKey = mode
             )
         }
 
@@ -138,7 +139,8 @@ fun MouseControlLayout(
                 onMouseButton = { button, pressed ->
                     val code = LWJGLCharSender.getMouseButton(button) ?: return@TouchpadLayout
                     CallbackBridge.sendMouseButton(code.toInt(), pressed)
-                }
+                },
+                requestFocusKey = mode
             )
         }
     }
