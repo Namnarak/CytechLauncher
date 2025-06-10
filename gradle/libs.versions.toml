@@ -19,7 +19,7 @@ material = "1.12.0"
 materialColorUtilities = "2.1.1"
 materialIcons = "1.7.8"
 mavenArtifact = "3.9.9"
-navigationCompose = "2.8.9"
+navigation3 = "1.0.0-alpha03" # FIXME: 等待下一个版本（修复主题切换NPE问题）
 okhttp = "4.12.0"
 proxyClientAndroid = "0.0.2"
 room = "2.7.1"
@@ -37,7 +37,8 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons" }
 androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIcons" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

@@ -43,32 +43,33 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation.NavController
+import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
+import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
+import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import kotlinx.serialization.Serializable
 
-const val LAUNCHER_SCREEN_TAG: String = "LauncherScreen"
+@Serializable
+data object LauncherScreenKey: NavKey
 
 @Composable
-fun LauncherScreen(
-    navController: NavController
-) {
+fun LauncherScreen() {
     BaseScreen(
-        screenTag = LAUNCHER_SCREEN_TAG,
-        currentTag = MutableStates.mainScreenTag
+        screenKey = LauncherScreenKey,
+        currentKey = mainScreenKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -84,7 +85,15 @@ fun LauncherScreen(
                     .weight(3f)
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
-                navController = navController
+                toAccountManageScreen = {
+                    mainScreenBackStack.navigateTo(AccountManageScreenKey)
+                },
+                toVersionManageScreen = {
+                    mainScreenBackStack.navigateTo(VersionsManageScreenKey)
+                },
+                toVersionSettingsScreen = {
+                    mainScreenBackStack.navigateTo(VersionSettingsScreenKey)
+                }
             )
         }
     }
@@ -141,7 +150,9 @@ private fun ContentMenu(
 private fun RightMenu(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
-    navController: NavController
+    toAccountManageScreen: () -> Unit = {},
+    toVersionManageScreen: () -> Unit = {},
+    toVersionSettingsScreen: () -> Unit = {}
 ) {
     val xOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
@@ -153,7 +164,8 @@ private fun RightMenu(
     LaunchGameOperation(
         launchGameOperation = launchGameOperation,
         updateOperation = { launchGameOperation = it },
-        navController = navController
+        toAccountManageScreen = toAccountManageScreen,
+        toVersionManageScreen = toVersionManageScreen
     )
 
     Card(
@@ -176,10 +188,9 @@ private fun RightMenu(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                account = account
-            ) {
-                navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
-            }
+                account = account,
+                onClick = toAccountManageScreen
+            )
 
             val skinWarning: (@Composable () -> Unit)? = version?.getVersionInfo()?.let { versionInfo ->
                 account?.let { acc1 ->
@@ -187,9 +198,7 @@ private fun RightMenu(
                     getLocalSkinWarningButton(
                         account = acc1,
                         versionInfo = versionInfo,
-                        swapToAccountScreen = {
-                            navController.navigateTo(ACCOUNT_MANAGE_SCREEN_TAG)
-                        }
+                        swapToAccountScreen = toAccountManageScreen
                     )
                 }
             }
@@ -220,16 +229,14 @@ private fun RightMenu(
                         .height(56.dp)
                         .weight(1f)
                         .padding(8.dp),
-                    swapToVersionManage = {
-                        navController.navigateTo(VERSIONS_MANAGE_SCREEN_TAG)
-                    }
+                    swapToVersionManage = toVersionManageScreen
                 )
                 version?.takeIf { it.isValid() }?.let {
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
                         onClick = {
                             VersionsManager.versionBeingSet = VersionsManager.currentVersion
-                            navController.navigateTo(VERSION_SETTINGS_SCREEN_TAG)
+                            toVersionSettingsScreen()
                         }
                     ) {
                         Icon(

@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
@@ -46,7 +47,6 @@ import com.movtery.zalithlauncher.setting.mouseLongPressDelay
 import com.movtery.zalithlauncher.setting.mouseSize
 import com.movtery.zalithlauncher.setting.mouseSpeed
 import com.movtery.zalithlauncher.setting.physicalMouseMode
-import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -55,22 +55,24 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
-import com.movtery.zalithlauncher.ui.screens.content.SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 
-const val CONTROL_SETTINGS_SCREEN_TAG = "ControlSettingsScreen"
+@Serializable
+data object ControlSettingsScreenKey: NavKey
 
 @Composable
 fun ControlSettingsScreen() {
     BaseScreen(
-        parentScreenTag = SETTINGS_SCREEN_TAG,
-        parentCurrentTag = MutableStates.mainScreenTag,
-        childScreenTag = CONTROL_SETTINGS_SCREEN_TAG,
-        childCurrentTag = MutableStates.settingsScreenTag
+        Triple(SettingsScreenKey, mainScreenKey, false),
+        Triple(ControlSettingsScreenKey, settingsScreenKey, false)
     ) { isVisible ->
         Column(
             modifier = Modifier

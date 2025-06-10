@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.runtime.NavKey
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
@@ -72,8 +73,6 @@ import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.state.MutableStates
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
@@ -82,7 +81,8 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.VERSION_SETTINGS_SCREEN_TAG
+import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SaveData
@@ -93,6 +93,9 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSav
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
+import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
+import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
@@ -102,22 +105,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-const val SAVES_MANAGER_SCREEN_TAG = "SavesManagerScreen"
+@Serializable
+data object SavesManagerScreenKey: NavKey
 
 @Composable
 fun SavesManagerScreen() {
     BaseScreen(
-        parentScreenTag = VERSION_SETTINGS_SCREEN_TAG,
-        parentCurrentTag = MutableStates.mainScreenTag,
-        childScreenTag = SAVES_MANAGER_SCREEN_TAG,
-        childCurrentTag = MutableStates.versionSettingsScreenTag
+        Triple(VersionSettingsScreenKey, mainScreenKey, false),
+        Triple(SavesManagerScreenKey, versionSettScreenKey, false),
     ) { isVisible ->
 
         val version = VersionsManager.versionBeingSet?.takeIf { it.isValid() } ?: run {
-            ObjectStates.backToLauncherScreen()
+            mainScreenBackStack.backToMainScreen()
             return@BaseScreen
         }
         val versionInfo = version.getVersionInfo()!!

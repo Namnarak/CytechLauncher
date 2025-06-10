@@ -6,8 +6,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import kotlinx.serialization.Serializable
 
-const val DOWNLOAD_SHADERS_SCREEN_TAG = "DownloadShadersScreen"
+@Serializable
+data object DownloadShadersScreenKey: NestedNavKey {
+    override fun isLastScreen(): Boolean = true
+}
 
 @Composable
 fun DownloadShadersScreen() {

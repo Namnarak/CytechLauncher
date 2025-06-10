@@ -46,7 +46,7 @@ configure<com.github.megatronking.stringfog.plugin.StringFogExtension> {
 
 android {
     namespace = zalithPackageName
-    compileSdk = 35
+    compileSdk = 36
 
     signingConfigs {
         create("releaseBuild") {
@@ -220,7 +220,8 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.compose.colorpicker)
