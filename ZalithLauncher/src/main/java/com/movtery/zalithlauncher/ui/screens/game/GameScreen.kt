@@ -62,6 +62,8 @@ fun MouseControlLayout(
 ) {
     Box(modifier = modifier) {
         val sensitivityFactor = 1.4 * (1080f / getWindowSize().height)
+        //上次虚拟鼠标的位置
+        val lastVirtualMousePos = remember { object { var value: Offset? = null } }
 
         val mode = ZLBridgeStates.cursorMode
         if (mode == CURSOR_ENABLED) {
@@ -71,10 +73,15 @@ fun MouseControlLayout(
             VirtualPointerLayout(
                 modifier = Modifier.fillMaxSize(),
                 requestPointerCapture = requestPointerCapture,
+                lastMousePosition = lastVirtualMousePos.value,
                 onTap = { position ->
                     CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
                 },
-                onPointerMove = { it.sendPosition() },
+                onPointerMove = { pos ->
+                    pos.sendPosition()
+                    //更新上次虚拟鼠标指针的位置
+                    lastVirtualMousePos.value = pos
+                },
                 onLongPress = {
                     CallbackBridge.putMouseEvent(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), true)
                 },
