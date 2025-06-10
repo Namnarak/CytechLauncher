@@ -449,7 +449,7 @@ private fun ResourcePackIcon(
     }
 
     val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to R.drawable.ic_unknown_icon
+        val default = null to R.drawable.ic_unknown_pack
         val icon = resourcePackInfo.icon
         when {
             icon == null -> default //不存在则使用默认

@@ -75,6 +75,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -403,7 +404,7 @@ private fun SaveItemLayout(
             //存档的封面图标
             SaveIcon(
                 modifier = Modifier
-                    .size(38.dp)
+                    .size(42.dp)
                     .clip(shape = RoundedCornerShape(10.dp)),
                 saveData = saveData
             )
@@ -412,13 +413,33 @@ private fun SaveItemLayout(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .weight(1f),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 val levelName = saveData.levelName
-                MinecraftColorTextNormal(
-                    inputText = (levelName ?: saveData.saveFile.name),
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MinecraftColorTextNormal(
+                        inputText = (levelName ?: saveData.saveFile.name),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1
+                    )
+
+                    saveData.levelMCVersion?.takeIf { it.isNotEmpty() }?.let { levelMCVer ->
+                        if (isCompatible) {
+                            LittleTextLabel(
+                                text = levelMCVer
+                            )
+                        } else {
+                            LittleTextLabel(
+                                text = levelMCVer,
+                                color = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            )
+                        }
+                    }
+                }
 
                 FlowRow(
                     modifier = Modifier.alpha(0.8f),
@@ -430,21 +451,6 @@ private fun SaveItemLayout(
                                 text = stringResource(R.string.generic_file_name, saveData.saveFile.name),
                                 style = MaterialTheme.typography.bodySmall
                             )
-                        }
-
-                        saveData.levelMCVersion?.takeIf { it.isNotEmpty() }?.let { levelMCVer ->
-                            if (isCompatible) {
-                                Text(
-                                    text = levelMCVer,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = levelMCVer,
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
                         }
 
                         //虽然极限模式与 gameMode 是分离开的
@@ -544,7 +550,7 @@ private fun SaveIcon(
     }
 
     val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to R.drawable.ic_unknown_icon
+        val default = null to R.drawable.ic_unknown_save
         val file = iconFile.takeIf { it.exists() && it.isFile }
         when {
             file == null -> default //不存在则使用默认

@@ -181,8 +181,12 @@ fun <E> SimpleListLayout(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    TitleAndSummary(title, summary)
+                    TitleAndSummary(
+                        title = title,
+                        summary = summary
+                    )
                     Text(
+                        modifier = Modifier.alpha(0.7f),
                         text = stringResource(R.string.settings_element_selected, getItemText(selectedItem)),
                         style = MaterialTheme.typography.labelSmall
                     )
@@ -362,7 +366,10 @@ fun SimpleIntSliderLayout(
         Column(
             modifier = Modifier.alpha(alpha = if (enabled) 1f else 0.5f)
         ) {
-            TitleAndSummary(title, summary)
+            TitleAndSummary(
+                title = title,
+                summary = summary
+            )
         }
         SimpleTextSlider(
             modifier = Modifier.fillMaxWidth(),
@@ -449,7 +456,10 @@ fun SwitchLayout(
                 .weight(1f)
                 .padding(end = 16.dp)
         ) {
-            TitleAndSummary(title, summary)
+            TitleAndSummary(
+                title = title,
+                summary = summary
+            )
         }
 
         trailingIcon?.invoke()
@@ -464,9 +474,9 @@ fun SwitchLayout(
 
 @Composable
 fun TitleAndSummary(
-    title: String,
-    summary: String? = null,
     modifier: Modifier = Modifier,
+    title: String,
+    summary: String? = null
 ) {
     Column(
         modifier = modifier,
@@ -478,6 +488,7 @@ fun TitleAndSummary(
         )
         summary?.let { text ->
             Text(
+                modifier = Modifier.alpha(0.7f),
                 text = text,
                 style = MaterialTheme.typography.labelSmall
             )
