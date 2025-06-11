@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -427,7 +428,11 @@ private fun VersionItemLayout(
                 }
 
                 Text(
-                    text = formatDate(input = version.releaseTime),
+                    modifier = Modifier.alpha(0.7f),
+                    text = formatDate(
+                        input = version.releaseTime,
+                        pattern = stringResource(R.string.date_format)
+                    ),
                     style = MaterialTheme.typography.labelMedium
                 )
             }

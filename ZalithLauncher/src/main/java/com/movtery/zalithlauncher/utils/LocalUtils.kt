@@ -13,7 +13,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import java.text.SimpleDateFormat
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -39,7 +38,7 @@ fun formatDate(
  * 格式化时间戳
  */
 fun formatDate(
-    date: ZonedDateTime,
+    input: String,
     pattern: String = "yyyy-MM-dd HH:mm:ss",
     locale: Locale = Locale.getDefault(),
     zoneId: ZoneId = ZoneId.systemDefault()
@@ -47,23 +46,10 @@ fun formatDate(
     val formatter = DateTimeFormatter.ofPattern(pattern)
         .withLocale(locale)
         .withZone(zoneId)
-    return formatter.format(date)
+    return formatter.format(
+        OffsetDateTime.parse(input).toZonedDateTime()
+    )
 }
-
-/**
- * 格式化时间戳
- */
-fun formatDate(
-    input: String,
-    pattern: String = "yyyy-MM-dd HH:mm:ss",
-    locale: Locale = Locale.getDefault(),
-    zoneId: ZoneId = ZoneId.systemDefault()
-) = formatDate(
-    date = OffsetDateTime.parse(input).toZonedDateTime(),
-    pattern = pattern,
-    locale = locale,
-    zoneId = zoneId
-)
 
 fun copyText(label: String?, text: String?, context: Context) {
     val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

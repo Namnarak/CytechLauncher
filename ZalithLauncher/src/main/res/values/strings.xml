@@ -43,6 +43,7 @@
     <string name="generic_file_size">File Size: %s</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
+    <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
@@ -341,6 +342,7 @@
     <string name="saves_manage_info">Save Info</string>
     <string name="saves_manage_only_show_compatible">Only show compatible saves</string>
     <string name="saves_manage_invalid">Invalid save</string>
+    <string name="saves_manage_last_played">Last played: %s</string>
     <string name="saves_manage_gamemode">Game Mode: %s</string>
     <string name="saves_manage_gamemode_survival">Survival Mode</string>
     <string name="saves_manage_gamemode_creative">Creative Mode</string>

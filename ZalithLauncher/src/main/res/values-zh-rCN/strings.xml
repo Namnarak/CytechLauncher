@@ -43,6 +43,7 @@
     <string name="generic_file_size">文件大小：%s</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
+    <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
     <!--  启动器版本  -->
     <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
     <string name="launcher_version_label_beta">公测版本：%s，仅供演示</string>
@@ -341,6 +342,7 @@
     <string name="saves_manage_info">存档信息</string>
     <string name="saves_manage_only_show_compatible">仅显示兼容的存档</string>
     <string name="saves_manage_invalid">无效的存档</string>
+    <string name="saves_manage_last_played">上一次游玩时间：%s</string>
     <string name="saves_manage_gamemode">游戏模式：%s</string>
     <string name="saves_manage_gamemode_survival">生存模式</string>
     <string name="saves_manage_gamemode_creative">创造模式</string>

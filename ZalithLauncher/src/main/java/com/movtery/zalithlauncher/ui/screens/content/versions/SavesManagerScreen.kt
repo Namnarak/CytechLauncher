@@ -101,6 +101,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.file.formatFileSize
+import com.movtery.zalithlauncher.utils.formatDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -109,6 +110,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.util.Date
 
 @Serializable
 data object SavesManagerScreenKey: NavKey
@@ -416,8 +418,7 @@ private fun SaveItemLayout(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 val levelName = saveData.levelName
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MinecraftColorTextNormal(
@@ -426,48 +427,46 @@ private fun SaveItemLayout(
                         maxLines = 1
                     )
 
-                    saveData.levelMCVersion?.takeIf { it.isNotEmpty() }?.let { levelMCVer ->
-                        if (isCompatible) {
-                            LittleTextLabel(
-                                text = levelMCVer
-                            )
-                        } else {
-                            LittleTextLabel(
-                                text = levelMCVer,
-                                color = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError
-                            )
-                        }
-                    }
-                }
-
-                FlowRow(
-                    modifier = Modifier.alpha(0.8f),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
                     if (saveData.isValid) {
-                        if (levelName != null) {
-                            Text(
-                                text = stringResource(R.string.generic_file_name, saveData.saveFile.name),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                        saveData.levelMCVersion?.takeIf { it.isNotEmpty() }?.let { levelMCVer ->
+                            if (isCompatible) {
+                                LittleTextLabel(
+                                    text = levelMCVer
+                                )
+                            } else {
+                                LittleTextLabel(
+                                    text = levelMCVer,
+                                    color = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                )
+                            }
                         }
 
                         //虽然极限模式与 gameMode 是分离开的
                         //不过它可以算作是一种游戏模式，毕竟创建世界时，极限模式就是在游戏模式里面选择的
                         if (saveData.hardcoreMode == true) {
-                            Text(
-                                text = stringResource(R.string.saves_manage_hardcore),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            LittleTextLabel(text = stringResource(R.string.saves_manage_hardcore))
                         } else {
                             saveData.gameMode?.let { gameMode ->
-                                Text(
-                                    text = stringResource(gameMode.nameRes),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                LittleTextLabel(text = stringResource(gameMode.nameRes))
                             }
                         }
+                    }
+                }
+
+                if (saveData.isValid) {
+                    Row(
+                        modifier = Modifier.alpha(0.7f),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        val timeString = formatDate(
+                            date = Date(saveData.lastPlayed),
+                            pattern = stringResource(R.string.date_format)
+                        )
+                        Text(
+                            text = stringResource(R.string.saves_manage_last_played, timeString),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }
