@@ -375,7 +375,7 @@
     <string name="settings_control_mouse_physical_mouse_mode_title">Fiziksel Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">Fiziksel mouse bağlıysa sanal mouse devre dışı olur, sistem mouse\'u kullanılır</string>
     <string name="settings_control_mouse_size_title">Sanal Mouse Boyutu</string>
-    <string name="settings_control_mouse_speed_title">Sanal Mouse Hassasiyeti</string>
+    <string name="settings_control_mouse_sensitivity_title">Sanal Mouse Hassasiyeti</string>
     <string name="settings_control_mouse_control_mode_title">Kontrol Modu</string>
     <string name="settings_control_mouse_control_mode_summary">Sanal mouse\'u kontrol etme şeklini seç: kaydırarak veya tıklayarak</string>
     <string name="settings_control_mouse_control_mode_slide">Kaydırma Kontrolü</string>

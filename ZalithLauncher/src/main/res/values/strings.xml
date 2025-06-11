@@ -437,7 +437,10 @@
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
     <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings > Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
     <string name="settings_control_mouse_size_title">Virtual Mouse Size</string>
-    <string name="settings_control_mouse_speed_title">Virtual Mouse Sensitivity</string>
+    <string name="settings_control_mouse_sensitivity_title">Virtual Mouse Sensitivity</string>
+    <string name="settings_control_mouse_sensitivity_summary">Adjust the movement speed of the virtual mouse in normal mode</string>
+    <string name="settings_control_mouse_capture_sensitivity_title">Captured Mouse Movement Sensitivity</string>
+    <string name="settings_control_mouse_capture_sensitivity_summary">Adjust the sensitivity of mouse movement when captured, such as sensitivity for moving the game view</string>
     <string name="settings_control_mouse_control_mode_title">Control Mode</string>
     <string name="settings_control_mouse_control_mode_summary">Choose the virtual mouse control method: swipe the screen to move the cursor, or tap the screen to specify the cursor position</string>
     <string name="settings_control_mouse_control_mode_slide">Swipe Control</string>

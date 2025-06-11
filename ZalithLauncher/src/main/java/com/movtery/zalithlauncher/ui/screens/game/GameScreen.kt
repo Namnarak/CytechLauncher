@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
@@ -17,15 +16,16 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerModifier
+import com.movtery.zalithlauncher.setting.cursorSensitivity
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.setting.gestureLongPressDelay
 import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
 import com.movtery.zalithlauncher.setting.gestureTapMouseAction
+import com.movtery.zalithlauncher.setting.mouseCaptureSensitivity
 import com.movtery.zalithlauncher.setting.mouseControlMode
 import com.movtery.zalithlauncher.setting.mouseLongPressDelay
 import com.movtery.zalithlauncher.setting.mouseSize
-import com.movtery.zalithlauncher.setting.mouseSpeed
 import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
@@ -35,15 +35,13 @@ import org.lwjgl.glfw.CallbackBridge
 
 @Composable
 fun GameScreen(
-    isTouchProxyEnabled: Boolean,
-    getWindowSize: () -> IntSize
+    isTouchProxyEnabled: Boolean
 ) {
     var enableLog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MouseControlLayout(
             isTouchProxyEnabled = isTouchProxyEnabled,
-            getWindowSize = getWindowSize,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -57,11 +55,9 @@ fun GameScreen(
 @Composable
 fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
-    getWindowSize: () -> IntSize,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
-        val sensitivityFactor = 1.4 * (1080f / getWindowSize().height)
         //上次虚拟鼠标的位置
         val lastVirtualMousePos = remember { object { var value: Offset? = null } }
 
@@ -97,13 +93,14 @@ fun MouseControlLayout(
                 },
                 controlMode = mouseControlMode,
                 mouseSize = mouseSize.dp,
-                mouseSpeed = mouseSpeed,
+                cursorSensitivity = cursorSensitivity,
                 longPressTimeoutMillis = mouseLongPressDelay.toLong(),
                 requestFocusKey = mode
             )
         }
 
         if (mode == CURSOR_DISABLED) {
+            val speedFactor = mouseCaptureSensitivity / 100f
             val tapMouseAction = gestureTapMouseAction.toAction()
             val longPressMouseAction = gestureLongPressMouseAction.toAction()
 
@@ -133,12 +130,16 @@ fun MouseControlLayout(
                     }
                 },
                 onPointerMove = { delta ->
-                    val deltaX = (delta.x * sensitivityFactor).toFloat()
-                    val deltaY = (delta.y * sensitivityFactor).toFloat()
-                    CallbackBridge.sendCursorDelta(deltaX, deltaY)
+                    CallbackBridge.sendCursorDelta(
+                        (delta.x * speedFactor).toFloat(),
+                        (delta.y * speedFactor).toFloat()
+                    )
                 },
                 onMouseMove = { delta ->
-                    CallbackBridge.sendCursorDelta(delta.x, delta.y)
+                    CallbackBridge.sendCursorDelta(
+                        delta.x * speedFactor,
+                        delta.y * speedFactor
+                    )
                 },
                 onMouseScroll = { scroll ->
                     CallbackBridge.sendScroll(scroll.x.toDouble(), scroll.y.toDouble())

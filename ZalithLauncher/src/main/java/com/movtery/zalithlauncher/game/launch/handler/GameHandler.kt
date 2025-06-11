@@ -106,7 +106,7 @@ class GameHandler(
     @SuppressLint("ClickableViewAccessibility")
     @Composable
     override fun getComposableLayout() = @Composable {
-        GameScreen(isTouchProxyEnabled, getWindowSize)
+        GameScreen(isTouchProxyEnabled)
     }
 
     private suspend fun localSkinResourcePack() {

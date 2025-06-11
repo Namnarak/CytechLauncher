@@ -57,7 +57,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * @param onMouseScroll             实体鼠标指针滚轮滑动
  * @param onMouseButton             实体鼠标指针按钮按下反馈
  * @param mouseSize                 指针大小
- * @param mouseSpeed                指针移动速度（滑动模式生效）
+ * @param cursorSensitivity         指针灵敏度（滑动模式生效）
  */
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
@@ -74,10 +74,10 @@ fun VirtualPointerLayout(
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
     mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
-    mouseSpeed: Int = AllSettings.mouseSpeed.getValue(),
+    cursorSensitivity: Int = AllSettings.cursorSensitivity.getValue(),
     requestFocusKey: Any? = null
 ) {
-    val speedFactor = mouseSpeed / 100f
+    val speedFactor = cursorSensitivity / 100f
     var showMousePointer by remember {
         mutableStateOf(
             if (PhysicalMouseChecker.physicalMouseConnected) { //物理鼠标已连接

@@ -36,16 +36,17 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.cursorSensitivity
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.setting.gestureControl
 import com.movtery.zalithlauncher.setting.gestureLongPressDelay
 import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
 import com.movtery.zalithlauncher.setting.gestureTapMouseAction
+import com.movtery.zalithlauncher.setting.mouseCaptureSensitivity
 import com.movtery.zalithlauncher.setting.mouseControlMode
 import com.movtery.zalithlauncher.setting.mouseLongPressDelay
 import com.movtery.zalithlauncher.setting.mouseSize
-import com.movtery.zalithlauncher.setting.mouseSpeed
 import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -141,12 +142,23 @@ fun ControlSettingsScreen() {
                 )
 
                 SliderSettingsLayout(
-                    unit = AllSettings.mouseSpeed,
-                    title = stringResource(R.string.settings_control_mouse_speed_title),
+                    unit = AllSettings.cursorSensitivity,
+                    title = stringResource(R.string.settings_control_mouse_sensitivity_title),
+                    summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
                     valueRange = 25f..300f,
                     suffix = "%",
                     fineTuningControl = true,
-                    onValueChange = { mouseSpeed = it }
+                    onValueChange = { cursorSensitivity = it }
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.mouseCaptureSensitivity,
+                    title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
+                    summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
+                    valueRange = 25f..300f,
+                    suffix = "%",
+                    fineTuningControl = true,
+                    onValueChange = { mouseCaptureSensitivity = it }
                 )
 
                 SliderSettingsLayout(

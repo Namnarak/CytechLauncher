@@ -422,7 +422,7 @@
     <string name="settings_control_mouse_physical_mouse_mode_summary">При подключении физической мыши отключить виртуальный указатель мыши и использовать системный указатель мыши для управления</string>
     <string name="settings_control_mouse_physical_mouse_warning">Если ваше устройство интерпретирует правый клик физической мыши как «Назад» или средний клик как «Домой», вы можете перейти в Настройки системы > Параметры разработчика и включить «Отключить мониторинг разрешений», это, вероятно, решит проблему.</string>
     <string name="settings_control_mouse_size_title">Размер виртуальной мыши</string>
-    <string name="settings_control_mouse_speed_title">Чувствительность виртуальной мыши</string>
+    <string name="settings_control_mouse_sensitivity_title">Чувствительность виртуальной мыши</string>
     <string name="settings_control_mouse_control_mode_title">Режим управления</string>
     <string name="settings_control_mouse_control_mode_summary">Выберите метод управления виртуальной мышью: проведите по экрану для перемещения курсора или коснитесь экрана, чтобы указать позицию курсора</string>
     <string name="settings_control_mouse_control_mode_slide">Управление смахиванием</string>
