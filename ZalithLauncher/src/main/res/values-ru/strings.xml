@@ -454,8 +454,6 @@
     <!-- About -->
     <string name="about_plugin_title">Загруженные плагины</string>
     <string name="about_library_title">Сторонние библиотеки</string>
-    <!-- Permissions -->
-    <string name="permissions_external_storage">%s требует доступ к файлам для правильной работы</string>
     <!-- Url -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>

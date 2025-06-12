@@ -404,8 +404,6 @@
     <string name="settings_launcher_swap_animate_type_summary">Sayfa geçiş animasyonunu seç</string>
     <!-- About -->
     <string name="about_library_title">Üçüncü Parti Kütüphaneler</string>
-    <!-- Permissions -->
-    <string name="permissions_external_storage">%s için dosya erişim izni gerekli</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>

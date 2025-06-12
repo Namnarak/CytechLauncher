@@ -287,6 +287,10 @@
     <string name="versions_manage_game_path_exists_title">游戏目录已存在</string>
     <string name="versions_manage_game_path_exists_message">当前选择的游戏目录与现有的目录冲突，您不能同时管理两个游戏目录！</string>
     <string name="versions_manage_game_path_error_title">操作游戏目录时遇到问题</string>
+    <string name="versions_manage_game_path_storage_permissions">想要将游戏安装到外部存储？请先为启动器开启外部存储权限，否则启动器无法在外部目录安装游戏！</string>
+    <string name="versions_manage_game_path_storage_permissions_sdk30">想要将游戏安装到外部存储？请先为启动器开启“管理设备所有文件”的权限，否则启动器无法在外部目录安装游戏！</string>
+    <string name="versions_manage_game_storage_permissions">想要使用外部游戏路径？请先为启动器开启外部存储权限，否则启动器无法使用外部的游戏文件！</string>
+    <string name="versions_manage_game_storage_permissions_sdk30">想要使用外部游戏路径？请先为启动器开启“管理设备所有文件”的权限，否则启动器无法使用外部的游戏文件！</string>
     <string name="versions_manage_no_versions">没有安装版本</string>
     <string name="versions_manage_install_exists">此名称的版本已经存在！</string>
     <string name="versions_manage_install_cannot_use_mc_name">已选择附加内容，需要确保原版核心的独立性，请勿使用原版名称！</string>
@@ -477,8 +481,6 @@
     <!--  关于  -->
     <string name="about_plugin_title">已加载的插件</string>
     <string name="about_library_title">额外引入的依赖项目</string>
-    <!--  权限  -->
-    <string name="permissions_external_storage">%s 需要管理设备所有文件的权限，否则该功能将无法正常使用</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-cn</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>

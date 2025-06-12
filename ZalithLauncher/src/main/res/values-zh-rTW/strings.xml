@@ -273,6 +273,10 @@
     <string name="versions_manage_game_path_exists_title">遊戲目錄已存在</string>
     <string name="versions_manage_game_path_exists_message">目前選擇的遊戲目錄與現有目錄衝突，您不能同時管理兩個相同的遊戲目錄！</string>
     <string name="versions_manage_game_path_error_title">操作遊戲目錄時發生問題</string>
+    <string name="versions_manage_game_path_storage_permissions">想要將遊戲安裝到外部儲存空間？請先為啟動器開啟外部儲存權限，否則將無法在外部目錄安裝遊戲！</string>
+    <string name="versions_manage_game_path_storage_permissions_sdk30">想要將遊戲安裝到外部儲存空間？請先為啟動器開啟「管理裝置上的所有檔案」權限，否則將無法在外部目錄安裝遊戲！</string>
+    <string name="versions_manage_game_storage_permissions">想要使用外部遊戲路徑？請先為啟動器開啟外部儲存權限，否則將無法使用外部的遊戲檔案！</string>
+    <string name="versions_manage_game_storage_permissions_sdk30">想要使用外部遊戲路徑？請先為啟動器開啟「管理裝置上的所有檔案」權限，否則將無法使用外部的遊戲檔案！</string>
     <string name="versions_manage_no_versions">沒有已安裝的版本</string>
     <string name="versions_manage_install_exists">此名稱的版本已存在！</string>
     <string name="versions_manage_install_cannot_use_mc_name">已選擇附加內容，需確保原版核心的獨立性，請勿使用原版名稱！</string>
@@ -444,8 +448,6 @@
     <!--  關於  -->
     <string name="about_plugin_title">已載入的外掛程式</string>
     <string name="about_library_title">額外引入的相依性項目</string>
-    <!--  權限  -->
-    <string name="permissions_external_storage">%s 需要管理裝置所有檔案的權限，否則此功能將無法正常使用</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-tw</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-tw</string>

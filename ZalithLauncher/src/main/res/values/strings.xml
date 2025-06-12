@@ -287,6 +287,10 @@
     <string name="versions_manage_game_path_exists_title">Folder conflict</string>
     <string name="versions_manage_game_path_exists_message">This folder is already managed. You cannot add duplicates.</string>
     <string name="versions_manage_game_path_error_title">Folder error</string>
+    <string name="versions_manage_game_path_storage_permissions">Want to install the game to external storage? Please enable external storage permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
+    <string name="versions_manage_game_path_storage_permissions_sdk30">Want to install the game to external storage? Please enable "Manage all files on device" permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
+    <string name="versions_manage_game_storage_permissions">Want to use an external game path? Please enable external storage permission for the launcher first, or it won\'t be able to access external game files!</string>
+    <string name="versions_manage_game_storage_permissions_sdk30">Want to use an external game path? Please enable the "Manage all files on device" permission for the launcher first, or it won\'t be able to access external game files!</string>
     <string name="versions_manage_no_versions">No installed versions</string>
     <string name="versions_manage_install_exists">Version name already exists!</string>
     <string name="versions_manage_install_cannot_use_mc_name">Do not use vanilla names for modded versions.</string>
@@ -477,8 +481,6 @@
     <!-- About -->
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
-    <!-- Permissions -->
-    <string name="permissions_external_storage">%s requires file access to function properly</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>

@@ -141,9 +141,14 @@ private fun GamePathLayout(
                                 GamePathManager.saveDefaultPath()
                             } else {
                                 (context as? MainActivity)?.let { activity ->
-                                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                                        GamePathManager.saveCurrentPath(pathItem.id)
-                                    })
+                                    StoragePermissionsUtils.checkPermissions(
+                                        activity = activity,
+                                        message = activity.getString(R.string.versions_manage_game_storage_permissions),
+                                        messageSdk30 = activity.getString(R.string.versions_manage_game_storage_permissions_sdk30),
+                                        hasPermission = {
+                                            GamePathManager.saveCurrentPath(pathItem.id)
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -164,13 +169,18 @@ private fun GamePathLayout(
                 .fillMaxWidth(),
             onClick = {
                 (context as? MainActivity)?.let { activity ->
-                    StoragePermissionsUtils.checkPermissions(activity = activity, hasPermission = {
-                        backStack.navigateToFileSelector(
-                            startPath = Environment.getExternalStorageDirectory().absolutePath,
-                            selectFile = false,
-                            saveKey = VersionsManageScreenKey
-                        )
-                    })
+                    StoragePermissionsUtils.checkPermissions(
+                        activity = activity,
+                        message = activity.getString(R.string.versions_manage_game_path_storage_permissions),
+                        messageSdk30 = activity.getString(R.string.versions_manage_game_path_storage_permissions_sdk30),
+                        hasPermission = {
+                            backStack.navigateToFileSelector(
+                                startPath = Environment.getExternalStorageDirectory().absolutePath,
+                                selectFile = false,
+                                saveKey = VersionsManageScreenKey
+                            )
+                        }
+                    )
                 }
             }
         ) {
@@ -215,7 +225,9 @@ private fun VersionsLayout(
                     VersionsOperation(versionsOperation) { versionsOperation = it }
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier.fillMaxWidth().padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))) {
+                        Column(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))) {
                             Row(
                                 modifier = Modifier
                                     .padding(horizontal = 4.dp)
