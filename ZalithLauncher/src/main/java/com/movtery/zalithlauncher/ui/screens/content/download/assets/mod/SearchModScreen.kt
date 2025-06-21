@@ -10,6 +10,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.curseForgeModLoaderFilters
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFeatures
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.modrinthModModLoaderFilters
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreenKey
@@ -55,6 +56,7 @@ fun SearchModScreen() {
             when (platform) {
                 Platform.MODRINTH -> {
                     ModrinthModCategory.entries.find { it.facetValue() == string }
+                        ?: ModrinthFeatures.entries.find { it.facetValue() == string }
                 }
                 Platform.CURSEFORGE -> {
                     CurseForgeModCategory.entries.find { it.describe() == string }

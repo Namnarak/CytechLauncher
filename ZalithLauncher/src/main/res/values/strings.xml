@@ -238,6 +238,17 @@
     <string name="download_assets_category_configuration_medium">Medium Settings</string>
     <string name="download_assets_category_configuration_high">High Settings</string>
     <string name="download_assets_category_screenshot">Screenshots</string>
+    <!--  Assets Features  -->
+    <string name="download_assets_features_audio">Audio</string>
+    <string name="download_assets_features_blocks">Blocks</string>
+    <string name="download_assets_features_core_shaders">Core Shaders</string>
+    <string name="download_assets_features_entities">Entities</string>
+    <string name="download_assets_features_environment">Environment</string>
+    <string name="download_assets_features_fonts">Fonts</string>
+    <string name="download_assets_features_gui">GUI</string>
+    <string name="download_assets_features_items">Items</string>
+    <string name="download_assets_features_locale">Locale</string>
+    <string name="download_assets_features_models">Models</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>

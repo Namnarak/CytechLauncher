@@ -235,6 +235,17 @@
     <string name="download_assets_category_configuration_medium">中階配置</string>
     <string name="download_assets_category_configuration_high">高階配置</string>
     <string name="download_assets_category_screenshot">截圖</string>
+    <!-- 資源功能 -->
+    <string name="download_assets_features_audio">音訊</string>
+    <string name="download_assets_features_blocks">方塊</string>
+    <string name="download_assets_features_core_shaders">核心著色器</string>
+    <string name="download_assets_features_entities">實體</string>
+    <string name="download_assets_features_environment">環境</string>
+    <string name="download_assets_features_fonts">字型</string>
+    <string name="download_assets_features_gui">圖形介面</string>
+    <string name="download_assets_features_items">物品</string>
+    <string name="download_assets_features_locale">在地化</string>
+    <string name="download_assets_features_models">模型</string>
     <!--  啟動遊戲  -->
     <string name="game_launch_no_version">未選擇遊戲版本！</string>
     <string name="game_launch_no_account">未登入遊戲帳號！</string>

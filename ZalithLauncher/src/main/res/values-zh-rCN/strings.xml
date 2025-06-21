@@ -238,6 +238,17 @@
     <string name="download_assets_category_configuration_medium">中等配置</string>
     <string name="download_assets_category_configuration_high">高等配置</string>
     <string name="download_assets_category_screenshot">截图</string>
+    <!--  资源功能  -->
+    <string name="download_assets_features_audio">音频</string>
+    <string name="download_assets_features_blocks">方块</string>
+    <string name="download_assets_features_core_shaders">核心着色器</string>
+    <string name="download_assets_features_entities">实体</string>
+    <string name="download_assets_features_environment">环境</string>
+    <string name="download_assets_features_fonts">字体</string>
+    <string name="download_assets_features_gui">GUI</string>
+    <string name="download_assets_features_items">物品</string>
+    <string name="download_assets_features_locale">本地化</string>
+    <string name="download_assets_features_models">模型</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登录游戏账号！</string>
