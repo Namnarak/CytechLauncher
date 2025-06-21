@@ -214,12 +214,12 @@ private fun PageController(
     ) {
         Row(
             modifier = Modifier.padding(all = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                text = "${page.pageNumber}/${page.totalPage}"
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = "${page.pageNumber} / ${page.totalPage}",
+                style = MaterialTheme.typography.labelLarge
             )
 
             IconButton(
