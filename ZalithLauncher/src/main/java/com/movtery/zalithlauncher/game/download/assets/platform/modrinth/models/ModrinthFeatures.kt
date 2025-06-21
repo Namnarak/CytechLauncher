@@ -46,4 +46,5 @@ enum class ModrinthFeatures : ModrinthFacet, PlatformFilterCode {
     };
 
     override fun facetName(): String = "features"
+    override fun index(): Int = this.ordinal
 }

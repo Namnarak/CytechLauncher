@@ -29,5 +29,7 @@ enum class PlatformSortField(
     /** 最近更新 */
     UPDATED("3", "updated") {
         override fun getDisplayName(): Int = R.string.download_assets_filter_sort_by_recently_updated
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }

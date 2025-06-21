@@ -108,7 +108,9 @@ enum class CurseForgeModCategory : CurseForgeCategory, PlatformFilterCode {
     LIBRARY {
         override fun describe(): String = "421"
         override fun getDisplayName(): Int = R.string.download_assets_category_library
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -178,7 +180,9 @@ enum class CurseForgeModpackCategory : CurseForgeCategory, PlatformFilterCode {
     EXTRA_LARGE {
         override fun describe(): String = "4482"
         override fun getDisplayName(): Int = R.string.download_assets_category_extra_large
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -236,7 +240,9 @@ enum class CurseForgeResourcePackCategory : CurseForgeCategory, PlatformFilterCo
     X_512 {
         override fun describe(): String = "398"
         override fun getDisplayName(): Int = R.string.download_assets_category_512x
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -270,7 +276,9 @@ enum class CurseForgeSavesCategory : CurseForgeCategory, PlatformFilterCode {
     PUZZLE {
         override fun describe(): String = "252"
         override fun getDisplayName(): Int = R.string.download_assets_category_puzzle
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -288,5 +296,7 @@ enum class CurseForgeShadersCategory : CurseForgeCategory, PlatformFilterCode {
     VANILLA {
         override fun describe(): String = "6555"
         override fun getDisplayName(): Int = R.string.download_assets_category_vanilla
-    }
+    };
+
+    override fun index(): Int = this.ordinal
 }

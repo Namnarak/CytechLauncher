@@ -5,10 +5,12 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 
 interface PlatformFilterCode {
     fun getDisplayName(): Int
+    fun index(): Int
 }
 
 interface PlatformDisplayLabel {
     fun getDisplayName(): String
+    fun index(): Int
 }
 
 enum class PlatformClasses(

@@ -64,6 +64,7 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, PlatformDisplayLabel {
     };
 
     override fun facetName(): String = "categories"
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -147,6 +148,7 @@ enum class ModrinthModCategory : ModrinthFacet, PlatformFilterCode {
     };
 
     override fun facetName(): String = "categories"
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -195,6 +197,7 @@ enum class ModrinthModpackCategory : ModrinthFacet, PlatformFilterCode {
     };
 
     override fun facetName(): String = "categories"
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -223,6 +226,7 @@ enum class ModrinthResourcePackCategory : ModrinthFacet, PlatformFilterCode {
     };
 
     override fun facetName(): String = "categories"
+    override fun index(): Int = this.ordinal
 }
 
 /**
@@ -307,4 +311,5 @@ enum class ModrinthShadersCategory : ModrinthFacet, PlatformFilterCode {
     };
 
     override fun facetName(): String = "categories"
+    override fun index(): Int = this.ordinal
 }

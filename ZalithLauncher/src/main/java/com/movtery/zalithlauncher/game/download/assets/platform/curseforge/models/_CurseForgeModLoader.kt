@@ -34,6 +34,7 @@ enum class CurseForgeModLoader(val code: Int) : PlatformDisplayLabel {
         override fun getDisplayName(): String = ModLoader.NEOFORGE.displayName
     };
 
+    override fun index(): Int = this.ordinal
 
     companion object {
         private val map = entries.associateBy { it.code }

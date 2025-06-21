@@ -294,8 +294,8 @@ private fun ResultList(
                         author = item.author,
                         downloads = item.downloads,
                         follows = item.follows,
-                        modloaders = modloaders,
-                        categories = categories
+                        modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
+                        categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() }
                     )
                 }
                 is CurseForgeData -> {
@@ -315,8 +315,8 @@ private fun ResultList(
                         iconUrl = item.logo.url,
                         author = item.authors[0].name,
                         downloads = item.downloadCount,
-                        modloaders = modloaders,
-                        categories = categories
+                        modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
+                        categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() }
                     )
                 }
             }
@@ -334,8 +334,8 @@ private fun ResultItemLayout(
     author: String? = null,
     downloads: Long = 0L,
     follows: Long? = null,
-    modloaders: Set<PlatformDisplayLabel>? = null,
-    categories: Set<PlatformFilterCode>? = null,
+    modloaders: List<PlatformDisplayLabel>? = null,
+    categories: List<PlatformFilterCode>? = null,
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
