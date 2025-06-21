@@ -106,20 +106,21 @@ fun AboutInfoScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(all = 12.dp)
         ) {
-            item {
-                val yOffset by swapAnimateDpAsState(
-                    targetValue = (-40).dp,
-                    swapIn = isVisible
-                )
-                //已加载插件板块
-                ChunkLayout(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    title = stringResource(R.string.about_plugin_title)
-                ) {
-                    val allPlugins = PluginLoader.allPlugins
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        allPlugins.forEach { apkPlugin ->
-                            PluginInfoItem(apkPlugin = apkPlugin)
+            PluginLoader.allPlugins.takeIf { it.isNotEmpty() }?.let { allPlugins ->
+                item {
+                    val yOffset by swapAnimateDpAsState(
+                        targetValue = (-40).dp,
+                        swapIn = isVisible
+                    )
+                    //已加载插件板块
+                    ChunkLayout(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.about_plugin_title)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            allPlugins.forEach { apkPlugin ->
+                                PluginInfoItem(apkPlugin = apkPlugin)
+                            }
                         }
                     }
                 }
