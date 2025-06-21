@@ -7,6 +7,14 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
 import android.util.Log
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.gif.GifDecoder
+import coil3.memory.MemoryCache
+import coil3.request.CachePolicy
+import coil3.request.crossfade
 import com.movtery.zalithlauncher.context.getContextWrapper
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -19,12 +27,13 @@ import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import okio.Path.Companion.toOkioPath
 import java.io.PrintStream
 import java.text.DateFormat
 import java.util.Date
 import kotlin.properties.Delegates
 
-class ZLApplication : Application() {
+class ZLApplication : Application(), SingletonImageLoader.Factory {
     companion object {
         @JvmStatic
         var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
@@ -89,6 +98,27 @@ class ZLApplication : Application() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         refreshContext(this)
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(context)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(this, 0.1)
+                    .weakReferencesEnabled(true) //弱引用
+                    .build()
+            }
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCache {
+                DiskCache.Builder()
+                    .maxSizePercent(0.03)
+                    .directory(PathManager.DIR_CACHE.toOkioPath())
+                    .build()
+            }
+            .components { add(GifDecoder.Factory()) }
+            .crossfade(true)
+            .build()
     }
 
     private fun initializeData() {

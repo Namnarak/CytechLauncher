@@ -23,6 +23,7 @@ val launcherVersionName = project.findProperty("launcher_version_name") as? Stri
 val defaultOAuthClientID = project.findProperty("oauth_client_id") as? String
 val defaultStorePassword = project.findProperty("default_store_password") as? String ?: error("The \"default_store_password\" property is not set in gradle.properties.")
 val defaultKeyPassword = project.findProperty("default_key_password") as? String ?: error("The \"default_key_password\" property is not set in gradle.properties.")
+val defaultCurseForgeApiKey = project.findProperty("curseforge_api_key") as? String
 
 val generatedZalithDir = file("$buildDir/generated/source/zalith/java")
 
@@ -197,7 +198,8 @@ tasks.register("generateInfoDistributor") {
             "\"$launcherAPPName\"".toStatement(variable = "LAUNCHER_NAME"),
             "\"$launcherName\"".toStatement(variable = "LAUNCHER_IDENTIFIER"),
             "\"$launcherShortName\"".toStatement(variable = "LAUNCHER_SHORT_NAME"),
-            "\"$launcherUrl\"".toStatement(variable = "URL_HOME")
+            "\"$launcherUrl\"".toStatement(variable = "URL_HOME"),
+            "\"${getKeyFromLocal("CURSEFORGE_API_KEY", ".curseforge_api.txt", defaultCurseForgeApiKey)}\"".toStatement(variable = "CURSEFORGE_API")
         )
         generateJavaClass(generatedZalithDir, "$zalithPackageName.info", "InfoDistributor", constantList)
     }
@@ -225,6 +227,7 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
+    implementation(libs.coil.network.ktor3)
     implementation(libs.compose.colorpicker)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
@@ -252,4 +255,10 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     //Support
     implementation(libs.proxy.client.android)
+    //Test
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 }

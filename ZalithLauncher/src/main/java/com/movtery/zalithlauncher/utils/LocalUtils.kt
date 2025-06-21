@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.floor
 
 val GSON = GsonBuilder().setPrettyPrinting().create()
 
@@ -159,4 +160,64 @@ fun killProgress() {
     }.onFailure {
         lError("Could not enable System.exit() method!", it)
     }
+}
+
+fun formatNumberByLocale(context: Context, number: Long): String {
+    val locale = context.resources.configuration.locales.get(0)
+
+    return when {
+        isSimplifiedChinese(locale) || isTraditionalChinese(locale) -> formatChineseNumber(number)
+        else -> formatNonChineseNumber(number)
+    }
+}
+
+private fun isSimplifiedChinese(locale: Locale): Boolean {
+    return locale.language == "zh" && (locale.country == "CN" || locale.script == "Hans")
+}
+
+private fun isTraditionalChinese(locale: Locale): Boolean {
+    return locale.language == "zh" && (
+            locale.country == "TW" || locale.country == "HK" || locale.script == "Hant"
+            )
+}
+
+private fun formatChineseNumber(number: Long): String {
+    return when {
+        number < 10_000 -> number.toString()
+        number < 100_000_000 -> {
+            val value = number / 10_000.0
+            formatWithUnit(value, "万")
+        }
+        else -> {
+            val value = number / 100_000_000.0
+            formatWithUnit(value, "亿")
+        }
+    }
+}
+
+private fun formatNonChineseNumber(number: Long): String {
+    return when {
+        number < 1_000 -> number.toString()
+        number < 1_000_000 -> {
+            val value = number / 1_000.0
+            formatWithUnit(value, "K")
+        }
+        number < 1_000_000_000 -> {
+            val value = number / 1_000_000.0
+            formatWithUnit(value, "M")
+        }
+        else -> {
+            val value = number / 1_000_000_000.0
+            formatWithUnit(value, "B")
+        }
+    }
+}
+
+private fun formatWithUnit(value: Double, unit: String): String {
+    val displayValue = if (value < 10) {
+        String.format(Locale.US, "%.1f", value)
+    } else {
+        floor(value).toInt().toString()
+    }
+    return "$displayValue$unit"
 }
