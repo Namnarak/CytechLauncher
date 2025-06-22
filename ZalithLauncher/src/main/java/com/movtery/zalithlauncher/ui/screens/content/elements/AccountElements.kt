@@ -91,6 +91,7 @@ import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
+import kotlin.math.roundToInt
 
 /**
  * 微软登录的操作状态
@@ -178,7 +179,6 @@ fun AccountAvatar(
     modifier: Modifier = Modifier,
     avatarSize: Int = 64,
     account: Account?,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -204,8 +204,7 @@ fun AccountAvatar(
                         .size(40.dp)
                         .align(Alignment.CenterHorizontally),
                     imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = contentColor
+                    contentDescription = null
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -213,15 +212,13 @@ fun AccountAvatar(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = account?.username ?: stringResource(R.string.account_add_new_account),
                 maxLines = 1,
-                style = MaterialTheme.typography.titleSmall,
-                color = contentColor
+                style = MaterialTheme.typography.titleSmall
             )
             if (account != null) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = getAccountTypeName(context, account),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = contentColor
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
@@ -760,11 +757,11 @@ private fun getDefaultAvatar(context: Context, size: Int): Bitmap {
 }
 
 private fun getAvatar(skin: Bitmap, size: Int): Bitmap {
-    val faceOffset = Math.round(size / 18.0).toFloat()
+    val faceOffset = (size / 18.0).roundToInt().toFloat()
     val scaleFactor = skin.width / 64.0f
-    val faceSize = Math.round(8 * scaleFactor)
+    val faceSize = (8 * scaleFactor).roundToInt()
     val faceBitmap = Bitmap.createBitmap(skin, faceSize, faceSize, faceSize, faceSize, null as Matrix?, false)
-    val hatBitmap = Bitmap.createBitmap(skin, Math.round(40 * scaleFactor), faceSize, faceSize, faceSize, null as Matrix?, false)
+    val hatBitmap = Bitmap.createBitmap(skin, (40 * scaleFactor).roundToInt(), faceSize, faceSize, faceSize, null as Matrix?, false)
     val avatar = createBitmap(size, size)
     val canvas = android.graphics.Canvas(avatar)
     val faceScale = ((size - 2 * faceOffset) / faceSize)

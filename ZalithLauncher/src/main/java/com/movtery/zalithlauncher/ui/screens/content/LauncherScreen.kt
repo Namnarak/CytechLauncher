@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -269,7 +268,6 @@ private fun RightMenu(
 private fun VersionManagerLayout(
     version: Version?,
     modifier: Modifier = Modifier,
-    textColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     swapToVersionManage: () -> Unit = {}
 ) {
     Box(
@@ -305,7 +303,6 @@ private fun VersionManagerLayout(
                         overflow = TextOverflow.Clip,
                         text = stringResource(R.string.versions_manage_no_versions),
                         style = MaterialTheme.typography.labelMedium,
-                        color = textColor,
                         maxLines = 1
                     )
                 } else {
@@ -319,7 +316,6 @@ private fun VersionManagerLayout(
                             overflow = TextOverflow.Clip,
                             text = version.getVersionName(),
                             style = MaterialTheme.typography.labelMedium,
-                            color = textColor,
                             maxLines = 1
                         )
                         if (version.isValid()) {
@@ -328,7 +324,6 @@ private fun VersionManagerLayout(
                                 overflow = TextOverflow.Clip,
                                 text = version.getVersionSummary(),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = textColor,
                                 maxLines = 1
                             )
                         }
