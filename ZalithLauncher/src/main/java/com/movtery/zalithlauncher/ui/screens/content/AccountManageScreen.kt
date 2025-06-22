@@ -498,12 +498,14 @@ private fun AccountsLayout(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 items(accounts) { account ->
+                    var refreshAvatar by remember { mutableStateOf(false) }
                     var accountSkinOperation by remember { mutableStateOf<AccountSkinOperation>(AccountSkinOperation.None) }
                     AccountSkinOperation(
                         account = account,
                         accountSkinOperation = accountSkinOperation,
                         updateOperation = { accountSkinOperation = it },
-                        onAddAuthClicked = onAddAuthClicked
+                        onAddAuthClicked = onAddAuthClicked,
+                        onRefreshAvatar = { refreshAvatar = !refreshAvatar }
                     )
 
                     val skinPicker = rememberLauncherForActivityResult(
@@ -521,6 +523,7 @@ private fun AccountsLayout(
                             .padding(vertical = 6.dp),
                         currentAccount = currentAccount,
                         account = account,
+                        refreshKey = refreshAvatar,
                         onSelected = { acc ->
                             AccountsManager.setCurrentAccount(acc)
                         },
@@ -557,7 +560,8 @@ private fun AccountSkinOperation(
     account: Account,
     accountSkinOperation: AccountSkinOperation,
     updateOperation: (AccountSkinOperation) -> Unit,
-    onAddAuthClicked: () -> Unit = {}
+    onAddAuthClicked: () -> Unit = {},
+    onRefreshAvatar: () -> Unit = {}
 ) {
     val context = LocalContext.current
     when (accountSkinOperation) {
@@ -570,6 +574,7 @@ private fun AccountSkinOperation(
                     task = {
                         context.copyLocalFile(accountSkinOperation.uri, skinFile)
                         AccountsManager.suspendSaveAccount(account)
+                        onRefreshAvatar()
                         //警告用户关于自定义皮肤的一些注意事项
                         updateOperation(AccountSkinOperation.AlertModel)
                     },
@@ -581,6 +586,7 @@ private fun AccountSkinOperation(
                                 message = th.getMessageOrToString()
                             )
                         )
+                        onRefreshAvatar()
                         updateOperation(AccountSkinOperation.None)
                     }
                 )
@@ -671,6 +677,7 @@ private fun AccountSkinOperation(
                             skinModelType = SkinModelType.NONE
                             profileId = getLocalUUIDWithSkinModel(username, skinModelType)
                             AccountsManager.suspendSaveAccount(this)
+                            onRefreshAvatar()
                         }
                     }
                 )

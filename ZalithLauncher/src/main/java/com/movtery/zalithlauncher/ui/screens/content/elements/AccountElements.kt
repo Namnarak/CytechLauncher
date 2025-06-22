@@ -179,6 +179,7 @@ fun AccountAvatar(
     modifier: Modifier = Modifier,
     avatarSize: Int = 64,
     account: Account?,
+    refreshKey: Any? = null,
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -196,7 +197,8 @@ fun AccountAvatar(
                 PlayerFace(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     account = account,
-                    avatarSize = avatarSize
+                    avatarSize = avatarSize,
+                    refreshKey = refreshKey
                 )
             } else {
                 Icon(
@@ -229,10 +231,11 @@ fun AccountAvatar(
 fun PlayerFace(
     modifier: Modifier = Modifier,
     account: Account,
-    avatarSize: Int = 64
+    avatarSize: Int = 64,
+    refreshKey: Any? = null
 ) {
     val context = LocalContext.current
-    val avatarBitmap = remember(account) {
+    val avatarBitmap = remember(account, refreshKey) {
         getAvatarFromAccount(context, account, avatarSize).asImageBitmap()
     }
 
@@ -252,6 +255,7 @@ fun AccountItem(
     account: Account,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    refreshKey: Any? = null,
     onSelected: (Account) -> Unit = {},
     onChangeSkin: () -> Unit = {},
     onResetSkin: () -> Unit = {},
@@ -290,7 +294,8 @@ fun AccountItem(
             PlayerFace(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 account = account,
-                avatarSize = 46
+                avatarSize = 46,
+                refreshKey = refreshKey
             )
             Spacer(modifier = Modifier.width(18.dp))
             Column(
