@@ -559,5 +559,33 @@
     <!-- CustomSkinLoader -->
     <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
     <string name="generic_in_progress">進行中</string>
-    <string name="generic_file_name">檔案名稱:%s</string>
+    <string name="generic_file_name">檔案名稱: %s</string>
+    <string name="generic_file_size">檔案大小: %s</string>
+    <string name="account_logging_xbox_banned">您的帳號因違反 Xbox 社群標準而被封禁，故無法使用</string>
+    <string name="account_logging_xbox_restricted">你的帳戶目前受限。監護人尚未授權你進行線上遊戲。</string>
+    <string name="account_logging_xbox_unregistered">您的帳戶尚未建立 Xbox 個人資料。請前往 https://signup.live.com/signup 註冊。</string>
+    <string name="account_logging_xbox_not_accepted_service">您的帳戶尚未接受 Xbox 服務條款。</string>
+    <string name="account_logging_xbox_blocked_region">您的帳號所在區域未授權使用 Xbox 服務。登入嘗試已被阻止。</string>
+    <string name="account_logging_xbox_requires_proof_of_age">您的帳戶需要年齡證明。請登入 https://login.live.com/login.srf 提供必要資訊。</string>
+    <string name="account_logging_xbox_reached_playtime_limit">您的帳戶已達到遊戲時間限制，並被禁止登入。</string>
+    <string name="account_logging_xbox_underage">帳號上的出生日期顯示使用者未滿 18 歲。監護人必須將此帳戶加入家庭群組才能繼續使用。</string>
+    <string name="account_logging_frequent">登入嘗試太頻繁。請稍後再試。</string>
+    <string name="account_logging_blocked_ip">目前的 IP 位址已被阻止登入。</string>
+    <string name="account_logging_profile_not_exists">請先建立 Minecraft 玩家檔案，然後再嘗試登入！</string>
+    <string name="resource_pack_manage">資源包管理</string>
+    <string name="resource_pack_manage_info">資源包資訊</string>
+    <string name="resource_pack_manage_only_show_valid">只顯示有效的包</string>
+    <string name="resource_pack_manage_invalid">無效的資源包格式</string>
+    <string name="resource_pack_manage_type">資源包類型: %s</string>
+    <string name="resource_pack_manage_type_folder">資料夾</string>
+    <string name="resource_pack_manage_type_zip">ZIP 壓縮檔</string>
+    <string name="resource_pack_manage_formats">格式版本: %s</string>
+    <string name="resource_pack_manage_exists">此資源包名稱已存在</string>
+    <string name="resource_pack_manage_name">資源包名稱</string>
+    <string name="resource_pack_manage_delete_warning">你確定要刪除資源包 %s 嗎? 此動作無法復原</string>
+    <string name="resource_pack_manage_no_packs">當前版本無可用資源包</string>
+    <string name="settings_launcher_animate_extent_title">動畫強度</string>
+    <string name="settings_launcher_animate_extent_summary">調整啟動器的動畫強度</string>
+    <string name="settings_launcher_log_retention_days_title">日誌保留天數</string>
+    <string name="settings_launcher_log_retention_days_summary">設置啟動器日誌應保存多長時間。久於設定值的日誌將被刪除。</string>
 </resources>
