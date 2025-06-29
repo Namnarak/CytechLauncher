@@ -78,28 +78,8 @@
 
 ### ✍️ 如何参与翻译？
 
-如果您希望项目支持您的母语，欢迎通过 Pull Request 的形式提交翻译文件。请按照以下方式操作：
-
-1. **复制默认语言文件**
-   * 由于英文内容由 AI 辅助完成翻译，所以请尽量参考描述最准确的简体中文：
-     [`values-zh-rCN/strings.xml`](./ZalithLauncher/src/main/res/values-zh-rCN/strings.xml)
-2. **创建您的语言资源目录**
-   * 例如：繁体中文为 `values-zh-rTW`，法语为 `values-fr`，日语为 `values-ja` 等。
-3. **翻译内容**
-   * 将 `strings.xml` 中的内容翻译为对应语言，并保留所有 `name` 属性不变。
-4. **提交 Pull Request**
-   * 请在 PR 描述中说明所添加语言，并注明翻译方式（如“人工翻译”）。
-
-### ✅ 翻译建议与注意事项
-
-* 请勿使用机器翻译（如 Google Translate、DeepL 等）直接生成翻译内容。
-* 保持专业用词，遵循平台惯用表达（如 Minecraft 相关术语）
-* 不要翻译标点或键位指令（如“Shift”、“Ctrl”等）
-* 请保持字符串完整性（占位符 `%1$s`、`\n` 等格式务必保留）
-* 请注意，XML 中需要转义特殊字符，如 `<` 需写为 `&lt;`，`&` 需写为`&amp;`。
-   * 转义规则详见：[XML 官方转义规则](https://www.w3.org/TR/xml/#syntax)
-
-感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！
+我们正在使用 Weblate 平台翻译 Zalith Launcher 2，欢迎您前往我们的 [Weblate 项目](https://hosted.weblate.org/projects/zalithlauncher2) 参与翻译！  
+感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！  
 
 
 
