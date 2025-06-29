@@ -9,13 +9,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
-import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerModifier
+import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
+import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.setting.cursorSensitivity
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.setting.gestureControl
@@ -35,14 +37,16 @@ import org.lwjgl.glfw.CallbackBridge
 
 @Composable
 fun GameScreen(
-    isTouchProxyEnabled: Boolean
+    isTouchProxyEnabled: Boolean,
+    onInputAreaRectUpdated: (IntRect?) -> Unit = {},
 ) {
     var enableLog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         MouseControlLayout(
             isTouchProxyEnabled = isTouchProxyEnabled,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            onInputAreaRectUpdated = onInputAreaRectUpdated,
         )
 
         LogBox(
@@ -55,9 +59,17 @@ fun GameScreen(
 @Composable
 fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onInputAreaRectUpdated: (IntRect?) -> Unit = {},
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.then(
+            if (isTouchProxyEnabled) {
+                Modifier.touchControllerTouchModifier()
+                    .touchControllerInputModifier(
+                        onInputAreaRectUpdated = onInputAreaRectUpdated,
+                    )
+            } else Modifier
+        )) {
         //上次虚拟鼠标的位置
         val lastVirtualMousePos = remember { object { var value: Offset? = null } }
 
@@ -105,13 +117,7 @@ fun MouseControlLayout(
             val longPressMouseAction = gestureLongPressMouseAction.toAction()
 
             TouchpadLayout(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(
-                        if (isTouchProxyEnabled) {
-                            Modifier.touchControllerModifier()
-                        } else Modifier
-                    ),
+                modifier = Modifier.fillMaxSize(),
                 longPressTimeoutMillis = gestureLongPressDelay.toLong(),
                 requestPointerCapture = true,
                 onTap = {
