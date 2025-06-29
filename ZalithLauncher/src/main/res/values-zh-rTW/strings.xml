@@ -518,7 +518,7 @@
     <string name="settings_game_log_buffer_flush_interval_summary">設定日誌緩衝區多久刷新一次。刷新太頻繁或太久不刷新都可能影響效能</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">實體滑鼠控制</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">連接實體滑鼠時，是否停用虛擬滑鼠指標，直接使用系統滑鼠指標進行操控</string>
-    <string name="settings_control_mouse_physical_mouse_warning">若您的裝置將實體滑鼠右鍵辨識為「返回」，或中鍵辨識為「回到桌面」，可進入系統設定 > 開發人員選項，開啟「停用權限監控」，應能解決</string>
+    <string name="settings_control_mouse_physical_mouse_warning">若您的裝置將實體滑鼠右鍵辨識為「返回」，或中鍵辨識為「回到桌面」，可進入系統設定 &gt; 開發人員選項，開啟「停用權限監控」，應能解決</string>
     <string name="settings_control_mouse_size_title">虛擬滑鼠大小</string>
     <string name="settings_control_mouse_sensitivity_title">虛擬滑鼠靈敏度</string>
     <string name="settings_control_mouse_sensitivity_summary">調整虛擬滑鼠在一般模式下的移動速度</string>
@@ -558,4 +558,6 @@
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-tw</string>
     <!-- CustomSkinLoader -->
     <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
+    <string name="generic_in_progress">進行中</string>
+    <string name="generic_file_name">檔案名稱:%s</string>
 </resources>
