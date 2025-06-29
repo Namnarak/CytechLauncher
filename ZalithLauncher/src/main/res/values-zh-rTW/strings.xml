@@ -570,7 +570,7 @@
     <string name="account_logging_xbox_reached_playtime_limit">您的帳戶已達到遊戲時間限制，並被禁止登入</string>
     <string name="account_logging_xbox_underage">賬號的出生日期顯示未滿18歲，必須由成年人添加到家庭中才能繼續使用</string>
     <string name="account_logging_frequent">登入嘗試太頻繁，請稍後再試</string>
-    <string name="account_logging_blocked_ip">目前的 IP 位址已被阻止登入</string>
+    <string name="account_logging_blocked_ip">當前的 IP 位址已被阻止登入</string>
     <string name="account_logging_profile_not_exists">請先建立 Minecraft 玩家檔案，然後再嘗試登入！</string>
     <string name="resource_pack_manage">資源包管理</string>
     <string name="resource_pack_manage_info">資源包資訊</string>
