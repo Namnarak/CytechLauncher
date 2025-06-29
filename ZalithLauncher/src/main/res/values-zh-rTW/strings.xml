@@ -568,8 +568,8 @@
     <string name="account_logging_xbox_blocked_region">您的帳號所在區域未授權使用 Xbox 服務。登入嘗試已被阻止。</string>
     <string name="account_logging_xbox_requires_proof_of_age">您的帳戶需要年齡證明。請登入 https://login.live.com/login.srf 提供必要資訊。</string>
     <string name="account_logging_xbox_reached_playtime_limit">您的帳戶已達到遊戲時間限制，並被禁止登入。</string>
-    <string name="account_logging_xbox_underage">帳號上的出生日期顯示使用者未滿 18 歲。監護人必須將此帳戶加入家庭群組才能繼續使用。</string>
-    <string name="account_logging_frequent">登入嘗試太頻繁。請稍後再試。</string>
+    <string name="account_logging_xbox_underage">賬號的出生日期顯示未滿18歲，必須由成年人添加到家庭中才能繼續使用</string>
+    <string name="account_logging_frequent">登入嘗試太頻繁，請稍後再試。</string>
     <string name="account_logging_blocked_ip">目前的 IP 位址已被阻止登入。</string>
     <string name="account_logging_profile_not_exists">請先建立 Minecraft 玩家檔案，然後再嘗試登入！</string>
     <string name="resource_pack_manage">資源包管理</string>
@@ -587,5 +587,5 @@
     <string name="settings_launcher_animate_extent_title">動畫強度</string>
     <string name="settings_launcher_animate_extent_summary">調整啟動器的動畫強度</string>
     <string name="settings_launcher_log_retention_days_title">日誌保留天數</string>
-    <string name="settings_launcher_log_retention_days_summary">設置啟動器日誌應保存多長時間。久於設定值的日誌將被刪除。</string>
+    <string name="settings_launcher_log_retention_days_summary">設置啟動器的日誌保留天數，超過此天數的日誌將被自動刪除</string>
 </resources>
