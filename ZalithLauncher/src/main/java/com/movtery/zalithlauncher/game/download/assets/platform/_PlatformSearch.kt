@@ -13,6 +13,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
 
 suspend fun searchAssets(
@@ -68,11 +69,13 @@ suspend fun searchAssets(
     }.fold(
         onSuccess = onSuccess,
         onFailure = { e ->
-            lError("An exception occurred while searching for assets.", e)
             if (e !is CancellationException) {
+                lError("An exception occurred while searching for assets.", e)
                 val pair = mapExceptionToMessage(e)
                 val state = SearchAssetsState.Error(pair.first, pair.second)
                 onError(state)
+            } else {
+                lWarning("The search task has been cancelled.")
             }
         }
     )
@@ -91,11 +94,13 @@ suspend fun <E> getVersions(
         }
         onSuccess(result)
     }.onFailure { e ->
-        lError("An exception occurred while retrieving the project version.", e)
         if (e !is CancellationException) {
+            lError("An exception occurred while retrieving the project version.", e)
             val pair = mapExceptionToMessage(e)
             val state = DownloadAssetsState.Error<List<E>>(pair.first, pair.second)
             onError(state)
+        } else {
+            lWarning("The version retrieval task has been cancelled.")
         }
     }
 }
@@ -114,11 +119,13 @@ suspend fun <E> getProject(
     }.fold(
         onSuccess = onSuccess,
         onFailure = { e ->
-            lError("An exception occurred while retrieving project information.", e)
             if (e !is CancellationException) {
+                lError("An exception occurred while retrieving project information.", e)
                 val pair = mapExceptionToMessage(e)
                 val state = DownloadAssetsState.Error<E>(pair.first, pair.second)
                 onError(state)
+            } else {
+                lWarning("The project retrieval task has been cancelled.")
             }
         }
     )

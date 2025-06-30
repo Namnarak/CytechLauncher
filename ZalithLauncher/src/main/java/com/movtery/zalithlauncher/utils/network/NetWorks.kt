@@ -12,6 +12,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -74,6 +75,10 @@ suspend fun <T> withRetry(
     while (retryCount < maxRetries) {
         try {
             return block()
+        } catch (e: CancellationException) {
+            //协程被取消时不重试，直接抛出
+            lDebug("$logTag: Cancelled: ${e.message}")
+            throw e
         } catch (e: Exception) {
             lDebug("$logTag: Attempt ${retryCount + 1} failed: ${e.message}")
             lastError = e
