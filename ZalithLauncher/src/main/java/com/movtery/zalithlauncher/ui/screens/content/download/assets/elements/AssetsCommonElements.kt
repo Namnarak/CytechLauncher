@@ -2,14 +2,23 @@ package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,15 +26,18 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
 /**
@@ -75,17 +87,18 @@ fun PlatformIdentifier(
 /**
  * 资源封面网络图标
  * @param iconUrl 图标链接
- * @param triggerRefresh 强制刷新key
  */
 @Composable
 fun AssetsIcon(
     modifier: Modifier = Modifier,
-    iconUrl: String? = null,
-    triggerRefresh: Any? = null
+    iconUrl: String? = null
 ) {
     val context = LocalContext.current
 
-    val imageRequest = remember(iconUrl, triggerRefresh) {
+    //重载key，加载失败后，允许通过这个key重新加载截图
+    var reloadTrigger by remember { mutableStateOf(false) }
+
+    val imageRequest = remember(iconUrl, reloadTrigger) {
         iconUrl?.takeIf { it.isNotBlank() }?.let {
             ImageRequest.Builder(context)
                 .data(it)
@@ -97,13 +110,45 @@ fun AssetsIcon(
         }
     }
 
-    AsyncImage(
+    val painter = rememberAsyncImagePainter(
         model = imageRequest,
-        contentDescription = null,
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Fit,
-        placeholder = painterResource(R.drawable.ic_unknown_icon),
-        error = painterResource(R.drawable.ic_unknown_icon),
-        modifier = modifier
+        placeholder = null,
+        error = painterResource(R.drawable.ic_unknown_icon)
     )
+    val state by painter.state.collectAsState()
+
+    when (state) {
+        AsyncImagePainter.State.Empty -> {
+            Box(modifier = modifier)
+        }
+        is AsyncImagePainter.State.Error -> {
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    onClick = { reloadTrigger = !reloadTrigger }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.download_assets_screenshot_reload)
+                    )
+                }
+            }
+        }
+        is AsyncImagePainter.State.Loading -> {
+            ShimmerBox(
+                modifier = modifier
+            )
+        }
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+    }
 }

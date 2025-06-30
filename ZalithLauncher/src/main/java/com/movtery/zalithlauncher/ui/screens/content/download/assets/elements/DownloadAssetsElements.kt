@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -455,24 +456,30 @@ fun AssetsVersionItemLayout(
                                             style = MaterialTheme.typography.labelLarge
                                         )
                                     }
-                                }
-                                //前置项目列表
-                                items(projects) { (dependency, dependencyProject) ->
-                                    AssetsVersionDependencyItem(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(all = 4.dp),
-                                        project = dependencyProject,
-                                        onClick = {
-                                            onDependencyClicked(dependency)
-                                        }
-                                    )
+                                    //前置项目列表
+                                    items(projects) { (dependency, dependencyProject) ->
+                                        AssetsVersionDependencyItem(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(all = 4.dp),
+                                            project = dependencyProject,
+                                            onClick = {
+                                                onDependencyClicked(dependency)
+                                            }
+                                        )
+                                    }
+                                    item {
+                                        HorizontalDivider(
+                                            modifier = Modifier
+                                                .padding(horizontal = 12.dp)
+                                                .fillMaxWidth(),
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                        )
+                                    }
                                 }
                             }
 
                             items(infoMap.infos) { info ->
-
-
                                 AssetsVersionListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -555,14 +562,14 @@ private fun AssetsVersionDependencyItem(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.medium)
             .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AssetsIcon(
             modifier = Modifier
-                .padding(all = 4.dp)
+                .padding(all = 8.dp)
                 .clip(shape = RoundedCornerShape(10.dp))
-                .size(48.dp),
+                .size(42.dp),
             iconUrl = project.iconUrl
         )
         Column(
@@ -601,7 +608,7 @@ private fun AssetsVersionListItem(
         //直观的版本状态
         Box(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(start = 12.dp, end = 8.dp)
                 .size(34.dp)
                 .clip(shape = CircleShape)
                 .background(info.releaseType.color.copy(alpha = 0.2f)),

@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -396,7 +397,9 @@ private fun ProjectInfo(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             ShimmerBox(
-                                modifier = Modifier.size(72.dp)
+                                modifier = Modifier
+                                    .clip(shape = RoundedCornerShape(10.dp))
+                                    .size(72.dp)
                             )
                             Column(
                                 modifier = Modifier.padding(top = 8.dp),
@@ -438,7 +441,9 @@ private fun ProjectInfo(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AssetsIcon(
-                                modifier = Modifier.size(72.dp),
+                                modifier = Modifier
+                                    .clip(shape = RoundedCornerShape(10.dp))
+                                    .size(72.dp),
                                 iconUrl = info.iconUrl
                             )
                             //标题、简介
