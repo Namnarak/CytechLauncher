@@ -282,9 +282,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
                         )
                     },
                     downloadCount = file.downloadCount,
-                    downloadUrl = downloadUrl.also {
-                        println(it)
-                    },
+                    downloadUrl = downloadUrl,
                     date = file.fileDate,
                     sha1 = sha1?.value,
                     fileSize = file.fileLength

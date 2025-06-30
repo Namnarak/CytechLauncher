@@ -29,13 +29,15 @@ import java.nio.channels.UnresolvedAddressException
  * @param versions 为哪些版本下载
  * @param folder 版本游戏目录下的相对路径
  * @param onFileCopied 文件已成功复制到版本游戏目录后 单独回调
+ * @param onFileCancelled 文件安装已取消 单独回调
  */
 fun downloadSingleForVersions(
     context: Context,
     info: DownloadVersionInfo,
     versions: List<Version>,
     folder: String,
-    onFileCopied: (zip: File, folder: File) -> Unit = { _, _ -> }
+    onFileCopied: suspend (zip: File, folder: File) -> Unit = { _, _ -> },
+    onFileCancelled: (zip: File, folder: File) -> Unit = { _, _ -> }
 ) {
     val cacheFile = File(File(PathManager.DIR_CACHE, "assets"), info.sha1 ?: info.fileName)
 
@@ -69,6 +71,15 @@ fun downloadSingleForVersions(
                 )
             )
         },
+        onCancel = {
+            FileUtils.deleteQuietly(cacheFile)
+            versions.forEach { version ->
+                val targetFolder = File(version.getGameDir(), folder)
+                val targetFile = File(targetFolder, info.fileName)
+                if (targetFile.exists()) FileUtils.deleteQuietly(targetFile)
+                onFileCancelled(targetFile, targetFolder) //文件已取消回调
+            }
+        },
         onFinally = {
             lInfo("Attempting to clear cached resource files.")
             FileUtils.deleteQuietly(cacheFile)
@@ -79,8 +90,9 @@ fun downloadSingleForVersions(
 private fun downloadSingleFile(
     info: DownloadVersionInfo,
     file: File,
-    onDownloaded: (Task) -> Unit,
+    onDownloaded: suspend (Task) -> Unit,
     onError: (Throwable) -> Unit = {},
+    onCancel: () -> Unit = {},
     onFinally: () -> Unit = {}
 ) {
     TaskSystem.submitTask(
@@ -113,6 +125,7 @@ private fun downloadSingleFile(
                 onDownloaded(task)
             },
             onError = onError,
+            onCancel = onCancel,
             onFinally = onFinally
         )
     )

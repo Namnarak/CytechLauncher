@@ -10,7 +10,7 @@ import java.util.zip.ZipFile
 /**
  * 解压存档压缩包
  */
-fun unpackSaveZip(zipFile: File, targetPath: File) {
+suspend fun unpackSaveZip(zipFile: File, targetPath: File) {
     val path = extractLevelPath(zipFile) ?: throw IOException("Unable to locate the level where the level.dat file is stored.")
     lInfo("Found the level of the level.data file: $path")
     ZipFile(zipFile).use { zip ->

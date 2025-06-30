@@ -29,7 +29,12 @@ import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadSav
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadSavesScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.apache.commons.io.FileUtils
+import java.io.File
 
 @Serializable
 data object DownloadSavesScreenKey: NestedNavKey {
@@ -56,13 +61,21 @@ fun DownloadSavesScreen() {
                 context = context,
                 info = info,
                 versions = versions,
-                folder = "saves"
-            ) { file, folder ->
-                unpackSaveZip(
-                    zipFile = file,
-                    targetPath = folder
-                )
-            }
+                folder = "saves",
+                onFileCopied = { file, folder ->
+                    unpackSaveZip(
+                        zipFile = file,
+                        targetPath = folder
+                    )
+                },
+                onFileCancelled = { file, folder ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        FileUtils.deleteQuietly(
+                            File(folder, file.nameWithoutExtension)
+                        )
+                    }
+                }
+            )
         }
     )
 
