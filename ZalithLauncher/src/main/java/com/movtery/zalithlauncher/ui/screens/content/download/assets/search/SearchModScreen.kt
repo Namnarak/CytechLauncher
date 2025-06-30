@@ -27,7 +27,7 @@ fun SearchModScreen(
         screenKey = SearchModScreenKey,
         currentKey = downloadModScreenKey,
         platformClasses = PlatformClasses.MOD,
-        initialPlatform = Platform.CURSEFORGE,
+        initialPlatform = Platform.MODRINTH,
         getCategories = { platform ->
             when (platform) {
                 Platform.CURSEFORGE -> CurseForgeModCategory.entries

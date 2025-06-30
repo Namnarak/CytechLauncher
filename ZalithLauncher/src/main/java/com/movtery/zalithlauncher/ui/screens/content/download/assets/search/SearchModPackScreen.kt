@@ -27,7 +27,7 @@ fun SearchModPackScreen(
         screenKey = SearchModPackScreenKey,
         currentKey = downloadModPackScreenKey,
         platformClasses = PlatformClasses.MOD_PACK,
-        initialPlatform = Platform.CURSEFORGE,
+        initialPlatform = Platform.MODRINTH,
         getCategories = { platform ->
             when (platform) {
                 Platform.CURSEFORGE -> CurseForgeModpackCategory.entries

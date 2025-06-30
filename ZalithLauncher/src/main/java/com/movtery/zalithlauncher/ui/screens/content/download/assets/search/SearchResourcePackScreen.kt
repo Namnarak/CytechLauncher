@@ -25,7 +25,7 @@ fun SearchResourcePackScreen(
         screenKey = SearchResourcePackScreenKey,
         currentKey = downloadResourcePackScreenKey,
         platformClasses = PlatformClasses.RESOURCE_PACK,
-        initialPlatform = Platform.CURSEFORGE,
+        initialPlatform = Platform.MODRINTH,
         getCategories = { platform ->
             when (platform) {
                 Platform.CURSEFORGE -> CurseForgeResourcePackCategory.entries
