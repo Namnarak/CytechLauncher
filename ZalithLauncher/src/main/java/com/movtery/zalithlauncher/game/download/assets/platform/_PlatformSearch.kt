@@ -1,6 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform
 
-import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.mapExceptionToMessage
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithCurseforge
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithModrinth
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchRequest
@@ -10,14 +10,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.Modrint
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFacet
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import kotlinx.coroutines.CancellationException
-import java.net.ConnectException
-import java.net.UnknownHostException
-import java.nio.channels.UnresolvedAddressException
 
 suspend fun searchAssets(
     searchPlatform: Platform,
@@ -70,33 +66,60 @@ suspend fun searchAssets(
             }
         }
     }.fold(
-        onSuccess = { result ->
-            onSuccess(result)
-        },
+        onSuccess = onSuccess,
         onFailure = { e ->
+            lError("An exception occurred while searching for assets.", e)
             if (e !is CancellationException) {
-                onError(mapExceptionToErrorState(e))
+                val pair = mapExceptionToMessage(e)
+                val state = SearchAssetsState.Error(pair.first, pair.second)
+                onError(state)
             }
         }
     )
 }
 
-private fun mapExceptionToErrorState(e: Throwable): SearchAssetsState.Error {
-    return when (e) {
-        is HttpRequestTimeoutException -> SearchAssetsState.Error(R.string.error_timeout)
-        is UnknownHostException, is UnresolvedAddressException ->
-            SearchAssetsState.Error(R.string.error_network_unreachable)
-        is ConnectException -> SearchAssetsState.Error(R.string.error_connection_failed)
-        is ResponseException -> {
-            when (e.response.status) {
-                HttpStatusCode.Unauthorized -> SearchAssetsState.Error(R.string.error_unauthorized)
-                HttpStatusCode.NotFound -> SearchAssetsState.Error(R.string.error_notfound)
-                else -> SearchAssetsState.Error(R.string.error_client_error, arrayOf(e.response.status))
-            }
+suspend fun <E> getVersions(
+    projectID: String,
+    platform: Platform,
+    onSuccess: suspend (List<PlatformVersion>) -> Unit,
+    onError: (DownloadAssetsState<List<E>>) -> Unit
+) {
+    runCatching {
+        val result = when (platform) {
+            Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID)
+            Platform.MODRINTH -> PlatformSearch.getVersionsFromModrinth(projectID)
         }
-        else -> {
-            val errorMessage = e.localizedMessage ?: e::class.simpleName ?: "Unknown error"
-            SearchAssetsState.Error(R.string.error_unknown, arrayOf(errorMessage))
+        onSuccess(result)
+    }.onFailure { e ->
+        lError("An exception occurred while retrieving the project version.", e)
+        if (e !is CancellationException) {
+            val pair = mapExceptionToMessage(e)
+            val state = DownloadAssetsState.Error<List<E>>(pair.first, pair.second)
+            onError(state)
         }
     }
+}
+
+suspend fun getProject(
+    projectID: String,
+    platform: Platform,
+    onSuccess: (PlatformProject) -> Unit,
+    onError: (DownloadAssetsState<PlatformProject>) -> Unit
+) {
+    runCatching {
+        when (platform) {
+            Platform.CURSEFORGE -> PlatformSearch.getProjectFromCurseForge(projectID)
+            Platform.MODRINTH -> PlatformSearch.getProjectFromModrinth(projectID)
+        }
+    }.fold(
+        onSuccess = onSuccess,
+        onFailure = { e ->
+            lError("An exception occurred while retrieving project information.", e)
+            if (e !is CancellationException) {
+                val pair = mapExceptionToMessage(e)
+                val state = DownloadAssetsState.Error<PlatformProject>(pair.first, pair.second)
+                onError(state)
+            }
+        }
+    )
 }

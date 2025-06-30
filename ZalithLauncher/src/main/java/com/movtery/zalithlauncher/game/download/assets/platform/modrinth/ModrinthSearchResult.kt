@@ -2,6 +2,9 @@ package com.movtery.zalithlauncher.game.download.assets.platform.modrinth
 
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.MonetizationStatus
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSide
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthProjectType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -46,7 +49,7 @@ class ModrinthSearchResult(
          * 项目类型 **required**
          */
         @SerialName("project_type")
-        val projectType: ProjectType,
+        val projectType: ModrinthProjectType,
 
         /**
          * 项目简洁字符串标识符 **un-required**
@@ -136,13 +139,13 @@ class ModrinthSearchResult(
          * 项目的客户端支持 **un-required**
          */
         @SerialName("client_side")
-        val clientSide: Side? = null,
+        val clientSide: ModrinthSide? = null,
 
         /**
          * 项目的服务器端支持 **un-required**
          */
         @SerialName("server_side")
-        val serverSide: Side? = null,
+        val serverSide: ModrinthSide? = null,
 
         /**
          * 附加到项目的所有图库图像 **un-required**
@@ -173,47 +176,5 @@ class ModrinthSearchResult(
          */
         @SerialName("monetization_status")
         val monetizationStatus: MonetizationStatus? = null,
-    ) : PlatformSearchData {
-        @Serializable
-        enum class ProjectType {
-            @SerialName("mod")
-            MOD,
-
-            @SerialName("modpack")
-            MODPACK,
-
-            @SerialName("resourcepack")
-            RESOURCEPACK,
-
-            @SerialName("shader")
-            SHADER
-        }
-
-        @Serializable
-        enum class Side {
-            @SerialName("required")
-            REQUIRED,
-
-            @SerialName("optional")
-            OPTIONAL,
-
-            @SerialName("unsupported")
-            UNSUPPORTED,
-
-            @SerialName("unknown")
-            UNKNOWN
-        }
-
-        @Serializable
-        enum class MonetizationStatus {
-            @SerialName("monetized")
-            MONETIZED,
-
-            @SerialName("demonetized")
-            DEMONETIZED,
-
-            @SerialName("force-demonetized")
-            FORCE_DEMONETIZED
-        }
-    }
+    ) : PlatformSearchData
 }

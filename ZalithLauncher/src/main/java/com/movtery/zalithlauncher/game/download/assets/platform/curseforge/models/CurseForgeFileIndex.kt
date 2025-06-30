@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,7 +16,7 @@ class CurseForgeFileIndex(
     val filename: String? = null,
 
     @SerialName("releaseType")
-    val releaseType: CurseForgeFileReleaseType,
+    val releaseType: PlatformReleaseType,
 
     @SerialName("gameVersionTypeId")
     val gameVersionTypeId: Int? = null,

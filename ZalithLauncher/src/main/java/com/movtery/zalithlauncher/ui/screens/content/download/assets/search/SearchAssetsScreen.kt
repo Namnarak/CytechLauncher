@@ -1,20 +1,21 @@
-package com.movtery.zalithlauncher.ui.screens.content.download.assets.mod
+package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -39,48 +40,35 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * @param parentScreenKey 父屏幕Key
- * @param parentCurrentKey 父屏幕当前Key
- * @param screenKey 屏幕的Key
- * @param currentKey 当前的Key
- * @param platformClasses 搜索资源的分类
- * @param searchPlatform 初始搜索平台
- * @param enablePlatform 是否允许更改平台
- * @param onPlatformChange 平台变更回调
- * @param categories 可用的资源类别过滤器
- * @param enableModLoader 是否允许更改模组加载器
- * @param modloaders 可用的模组加载器过滤器
- * @param mapCategories 通过平台获取类别本地化信息
+ * 资源搜索屏幕的 view model
+ * @param initialPlatform 初始设定的平台
+ * @param platformClasses 资源搜索的类型
  */
-@Composable
-fun SearchAssetsScreen(
-    parentScreenKey: NavKey,
-    parentCurrentKey: NavKey?,
-    screenKey: NavKey,
-    currentKey: NavKey?,
-    platformClasses: PlatformClasses,
-    searchPlatform: Platform,
-    enablePlatform: Boolean = true,
-    onPlatformChange: (Platform) -> Unit,
-    categories: List<PlatformFilterCode>,
-    enableModLoader: Boolean = false,
-    modloaders: List<PlatformDisplayLabel> = emptyList(),
-    mapCategories: (Platform, String) -> PlatformFilterCode?,
-) {
-    val coroutineScope = rememberCoroutineScope()
-    var searchResult by remember { mutableStateOf<SearchAssetsState>(SearchAssetsState.Searching) }
-    val pages = remember { mutableStateListOf<AssetsPage?>() }
+private class ScreenViewModel(
+    initialPlatform: Platform,
+    private val platformClasses: PlatformClasses
+): ViewModel() {
+    var searchResult by mutableStateOf<SearchAssetsState>(SearchAssetsState.Searching)
+    val pages = mutableStateListOf<AssetsPage?>()
 
-    var currentSearchJob by remember { mutableStateOf<Job?>(null) }
+    var searchPlatform by mutableStateOf(initialPlatform)
+    var searchFilter by mutableStateOf(PlatformSearchFilter())
 
-    var searchFilter by remember { mutableStateOf<PlatformSearchFilter>(PlatformSearchFilter()) }
-    var reloadTrigger by remember { mutableStateOf(false) }
+    var currentSearchJob: Job? = null
 
-    //自动搜索
-    DisposableEffect(searchPlatform, searchFilter, reloadTrigger) {
+    /**
+     * 更新过滤器时，重置已有结果，重新触发搜索
+     */
+    fun researchWithFilter(filter: PlatformSearchFilter) {
+        pages.clear()
+        searchFilter = filter.copy(index = 0) //重置索引到起始处
+        search()
+    }
+
+    fun search() {
         currentSearchJob?.cancel() //取消上一个搜索
 
-        val searchJob = coroutineScope.launch {
+        val searchJob = viewModelScope.launch {
             searchResult = SearchAssetsState.Searching
             searchAssets(
                 searchPlatform = searchPlatform,
@@ -119,11 +107,72 @@ fun SearchAssetsScreen(
         }
 
         currentSearchJob = searchJob
+    }
 
-        onDispose {
-            //退出时取消
-            searchJob.cancel()
-        }
+    init {
+        //初始化后，执行一次搜索
+        search()
+    }
+
+    override fun onCleared() {
+        currentSearchJob?.cancel()
+    }
+}
+
+@Composable
+private fun rememberSearchAssetsViewModel(
+    navKey: NavKey,
+    initialPlatform: Platform,
+    platformClasses: PlatformClasses
+): ScreenViewModel {
+    return viewModel(
+        key = navKey.toString()
+    ) {
+        ScreenViewModel(initialPlatform, platformClasses)
+    }
+}
+
+/**
+ * @param parentScreenKey 父屏幕Key
+ * @param parentCurrentKey 父屏幕当前Key
+ * @param screenKey 屏幕的Key
+ * @param currentKey 当前的Key
+ * @param platformClasses 搜索资源的分类
+ * @param initialPlatform 初始搜索平台
+ * @param enablePlatform 是否允许更改平台
+ * @param getCategories 根据平台获取可用的资源类别过滤器
+ * @param enableModLoader 是否允许更改模组加载器
+ * @param getModloaders 根据平台获取可用的模组加载器过滤器
+ * @param mapCategories 通过平台获取类别本地化信息
+ * @param swapToDownload 跳转到下载详情页
+ */
+@Composable
+fun SearchAssetsScreen(
+    parentScreenKey: NavKey,
+    parentCurrentKey: NavKey?,
+    screenKey: NavKey,
+    currentKey: NavKey?,
+    platformClasses: PlatformClasses,
+    initialPlatform: Platform,
+    enablePlatform: Boolean = true,
+    getCategories: (Platform) -> List<PlatformFilterCode>,
+    enableModLoader: Boolean = false,
+    getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
+    mapCategories: (Platform, String) -> PlatformFilterCode?,
+    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+) {
+    val viewModel: ScreenViewModel = rememberSearchAssetsViewModel(
+        navKey = screenKey,
+        initialPlatform = initialPlatform,
+        platformClasses = platformClasses
+    )
+
+    //跟随平台自动变更的内容
+    val categories = remember(viewModel.searchPlatform) {
+        getCategories(viewModel.searchPlatform)
+    }
+    val modloaders = remember(viewModel.searchPlatform) {
+        getModloaders(viewModel.searchPlatform)
     }
 
     BaseScreen(
@@ -140,25 +189,27 @@ fun SearchAssetsScreen(
                     .fillMaxHeight()
                     .weight(7f)
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                searchState = searchResult,
+                searchState = viewModel.searchResult,
                 onReload = {
-                    reloadTrigger = !reloadTrigger
+                    viewModel.search()
                 },
                 mapCategories = mapCategories,
                 mapModLoaders = { string ->
                     ModrinthModLoaderCategory.entries.find { it.facetValue() == string }
                 },
+                swapToDownload = swapToDownload,
                 onPreviousPage = { pageNumber ->
                     previousPage(
                         pageNumber = pageNumber,
-                        pages = pages,
-                        index = searchFilter.index,
-                        limit = searchFilter.limit,
+                        pages = viewModel.pages,
+                        index = viewModel.searchFilter.index,
+                        limit = viewModel.searchFilter.limit,
                         onSuccess = { previousPage ->
-                            searchResult = SearchAssetsState.Success(previousPage)
+                            viewModel.searchResult = SearchAssetsState.Success(previousPage)
                         },
                         onSearch = { newIndex ->
-                            searchFilter = searchFilter.copy(index = newIndex)
+                            viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
+                            viewModel.search() //搜索上一页
                         }
                     )
                 },
@@ -166,14 +217,15 @@ fun SearchAssetsScreen(
                     nextPage(
                         pageNumber = pageNumber,
                         isLastPage = isLastPage,
-                        pages = pages,
-                        index = searchFilter.index,
-                        limit = searchFilter.limit,
+                        pages = viewModel.pages,
+                        index = viewModel.searchFilter.index,
+                        limit = viewModel.searchFilter.limit,
                         onSuccess = { nextPage ->
-                            searchResult = SearchAssetsState.Success(nextPage)
+                            viewModel.searchResult = SearchAssetsState.Success(nextPage)
                         },
                         onSearch = { newIndex ->
-                            searchFilter = searchFilter.copy(index = newIndex)
+                            viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
+                            viewModel.search() //搜索下一页
                         }
                     )
                 }
@@ -191,39 +243,45 @@ fun SearchAssetsScreen(
                     .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
                 contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 12.dp),
                 enablePlatform = enablePlatform,
-                searchPlatform = searchPlatform,
+                searchPlatform = viewModel.searchPlatform,
                 onPlatformChange = {
-                    onPlatformChange(it)
-                    pages.clear()
-                    searchFilter = searchFilter.copy(category = null, modloader = null, index = 0)
+                    viewModel.searchPlatform = it
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(category = null, modloader = null)
+                    )
                 },
-                searchName = searchFilter.searchName,
+                searchName = viewModel.searchFilter.searchName,
                 onSearchNameChange = {
-                    pages.clear()
-                    searchFilter = searchFilter.copy(searchName = it, index = 0)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(searchName = it)
+                    )
                 },
-                gameVersion = searchFilter.gameVersion,
+                gameVersion = viewModel.searchFilter.gameVersion,
                 onGameVersionChange = {
-                    pages.clear()
-                    searchFilter = searchFilter.copy(gameVersion = it, index = 0)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(gameVersion = it)
+                    )
                 },
-                sortField = searchFilter.sortField,
+                sortField = viewModel.searchFilter.sortField,
                 onSortFieldChange = {
-                    pages.clear()
-                    searchFilter = searchFilter.copy(sortField = it, index = 0)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(sortField = it)
+                    )
                 },
                 categories = categories,
-                category = searchFilter.category,
+                category = viewModel.searchFilter.category,
                 onCategoryChange = {
-                    pages.clear()
-                    searchFilter = searchFilter.copy(category = it, index = 0)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(category = it)
+                    )
                 },
                 enableModLoader = enableModLoader,
                 modloaders = modloaders,
-                modloader = searchFilter.modloader,
+                modloader = viewModel.searchFilter.modloader,
                 onModLoaderChange = {
-                    pages.clear()
-                    searchFilter = searchFilter.copy(modloader = it, index = 0)
+                    viewModel.researchWithFilter(
+                        viewModel.searchFilter.copy(modloader = it)
+                    )
                 }
             )
         }

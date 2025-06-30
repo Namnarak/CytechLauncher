@@ -1,7 +1,9 @@
 package com.movtery.zalithlauncher.game.download.assets.platform
 
 import com.movtery.zalithlauncher.R
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class PlatformSortField(
     val curseforge: String,
     val modrinth: String

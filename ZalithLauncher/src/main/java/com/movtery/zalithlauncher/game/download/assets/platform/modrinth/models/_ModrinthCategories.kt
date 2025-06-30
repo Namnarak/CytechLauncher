@@ -68,14 +68,9 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, PlatformDisplayLabel {
 }
 
 /**
- * 模组 模组加载器过滤器
+ * 可视化筛选器支持的模组加载器
  */
-val modrinthModModLoaderFilters: List<ModrinthModLoaderCategory> = ModrinthModLoaderCategory.entries
-
-/**
- * 整合包 模组加载器过滤器
- */
-val modrinthModpackModLoaderFilters: List<ModrinthModLoaderCategory> = listOf(
+val modrinthModLoaderFilters: List<ModrinthModLoaderCategory> = listOf(
     ModrinthModLoaderCategory.FABRIC,
     ModrinthModLoaderCategory.FORGE,
     ModrinthModLoaderCategory.NEOFORGE,

@@ -1,10 +1,6 @@
-package com.movtery.zalithlauncher.ui.screens.content.download.assets.mod
+package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -12,7 +8,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.curseForgeModLoaderFilters
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFeatures
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModCategory
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.modrinthModModLoaderFilters
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.modrinthModLoaderFilters
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
@@ -22,36 +18,29 @@ import kotlinx.serialization.Serializable
 data object SearchModScreenKey : NavKey
 
 @Composable
-fun SearchModScreen() {
-    var searchPlatform by remember { mutableStateOf<Platform>(Platform.CURSEFORGE) }
-
-    val categories = remember(searchPlatform) {
-        when (searchPlatform) {
-            Platform.CURSEFORGE -> CurseForgeModCategory.entries
-            Platform.MODRINTH -> ModrinthModCategory.entries
-        }
-    }
-
-    val modLoaderFilters = remember(searchPlatform) {
-        when (searchPlatform) {
-            Platform.CURSEFORGE -> curseForgeModLoaderFilters
-            Platform.MODRINTH -> modrinthModModLoaderFilters
-        }
-    }
-
+fun SearchModScreen(
+    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+) {
     SearchAssetsScreen(
         parentScreenKey = DownloadModScreenKey,
         parentCurrentKey = downloadScreenKey,
         screenKey = SearchModScreenKey,
         currentKey = downloadModScreenKey,
         platformClasses = PlatformClasses.MOD,
-        searchPlatform = searchPlatform,
-        onPlatformChange = {
-            searchPlatform = it
+        initialPlatform = Platform.CURSEFORGE,
+        getCategories = { platform ->
+            when (platform) {
+                Platform.CURSEFORGE -> CurseForgeModCategory.entries
+                Platform.MODRINTH -> ModrinthModCategory.entries
+            }
         },
-        categories = categories,
         enableModLoader = true,
-        modloaders = modLoaderFilters,
+        getModloaders = { platform ->
+            when (platform) {
+                Platform.CURSEFORGE -> curseForgeModLoaderFilters
+                Platform.MODRINTH -> modrinthModLoaderFilters
+            }
+        },
         mapCategories = { platform, string ->
             when (platform) {
                 Platform.MODRINTH -> {
@@ -62,6 +51,7 @@ fun SearchModScreen() {
                     CurseForgeModCategory.entries.find { it.describe() == string }
                 }
             }
-        }
+        },
+        swapToDownload = swapToDownload
     )
 }

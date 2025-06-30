@@ -1,10 +1,6 @@
-package com.movtery.zalithlauncher.ui.screens.content.download.assets.mod
+package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -20,27 +16,22 @@ import kotlinx.serialization.Serializable
 data object SearchResourcePackScreenKey : NavKey
 
 @Composable
-fun SearchResourcePackScreen() {
-    var searchPlatform by remember { mutableStateOf<Platform>(Platform.CURSEFORGE) }
-
-    val categories = remember(searchPlatform) {
-        when (searchPlatform) {
-            Platform.CURSEFORGE -> CurseForgeResourcePackCategory.entries
-            Platform.MODRINTH -> ModrinthResourcePackCategory.entries
-        }
-    }
-
+fun SearchResourcePackScreen(
+    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+) {
     SearchAssetsScreen(
         parentScreenKey = DownloadResourcePackScreenKey,
         parentCurrentKey = downloadScreenKey,
         screenKey = SearchResourcePackScreenKey,
         currentKey = downloadResourcePackScreenKey,
         platformClasses = PlatformClasses.RESOURCE_PACK,
-        searchPlatform = searchPlatform,
-        onPlatformChange = {
-            searchPlatform = it
+        initialPlatform = Platform.CURSEFORGE,
+        getCategories = { platform ->
+            when (platform) {
+                Platform.CURSEFORGE -> CurseForgeResourcePackCategory.entries
+                Platform.MODRINTH -> ModrinthResourcePackCategory.entries
+            }
         },
-        categories = categories,
         mapCategories = { platform, string ->
             when (platform) {
                 Platform.MODRINTH -> {
@@ -51,6 +42,7 @@ fun SearchResourcePackScreen() {
                     CurseForgeResourcePackCategory.entries.find { it.describe() == string }
                 }
             }
-        }
+        },
+        swapToDownload = swapToDownload
     )
 }

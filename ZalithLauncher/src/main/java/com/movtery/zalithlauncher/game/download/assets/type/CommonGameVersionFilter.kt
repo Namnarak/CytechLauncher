@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.game.download.assets.type
 
+import java.util.regex.Pattern
+
 /**
  * 所有支持的资源下载过滤的版本号
  */
@@ -27,3 +29,8 @@ val allGameVersions = listOf(
     "1.1",
     "1.0"
 )
+
+/**
+ * MC 正式版版本匹配
+ */
+val RELEASE_REGEX = Pattern.compile("^\\d+\\.\\d+\\.\\d+$|^\\d+\\.\\d+$")

@@ -44,6 +44,13 @@
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
+    <string name="just_now">刚刚</string>
+    <string name="minutes_ago">%d 分钟前</string>
+    <string name="hours_ago">%d 小时前</string>
+    <string name="months_days_ago">%1$d 个月 %2$d 天前</string>
+    <string name="days_ago">%d 天前</string>
+    <string name="months_ago">%d 个月前</string>
+    <string name="years_ago">%d 年前</string>
     <!--  启动器版本  -->
     <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
     <string name="launcher_version_label_beta">公测版本：%s，仅供演示</string>
@@ -164,6 +171,25 @@
     <string name="download_assets_result_previous_page">上一页</string>
     <string name="download_assets_result_next_page">下一页</string>
     <string name="download_assets_failed_to_get_result">获取搜索结果失败：%s，点击重试</string>
+    <string name="download_assets_failed_to_get_project">获取项目信息失败：%s，点击重试</string>
+    <string name="download_assets_failed_to_get_versions">获取版本列表失败：%s，点击重试</string>
+    <string name="download_assets_show_only_mc_release">仅展示 MC 正式版</string>
+    <string name="download_assets_search_mc_versions">搜索 MC 版本</string>
+    <string name="download_assets_links">相关链接</string>
+    <string name="download_assets_project_link">项目地址</string>
+    <string name="download_assets_source_link">浏览源代码</string>
+    <string name="download_assets_issues_link">反馈问题</string>
+    <string name="download_assets_wiki_link">查看百科</string>
+    <string name="download_assets_screenshot_reload">重新加载</string>
+    <string name="download_assets_release_type_release">正式版</string>
+    <string name="download_assets_release_type_beta">测试版</string>
+    <string name="download_assets_release_type_alpha">内测版</string>
+    <string name="download_assets_no_installed_versions">当前未安装可用的游戏版本，无法决定该资源的目标下载位置，请先安装游戏版本哦！</string>
+    <string name="download_assets_install_assets">下载安装资源</string>
+    <string name="download_assets_install_assets_for_versions">为哪些游戏版本安装？</string>
+    <string name="download_assets_install_progress_downloading">下载安装资源中\n%s\n (%s / %s)</string>
+    <string name="download_assets_install_progress_installing">安装资源中\n%s</string>
+    <string name="download_assets_install_failed">安装资源失败！</string>
     <!-- 资源类别 -->
     <string name="download_assets_category_worldgen">世界元素</string>
     <string name="download_assets_category_biomes">生物群系</string>

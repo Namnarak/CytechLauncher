@@ -12,21 +12,21 @@ import kotlinx.serialization.encoding.Encoder
  * CurseForge 资源搜索类别
  */
 @Serializable(with = CurseForgeClassID.Serializer::class)
-enum class CurseForgeClassID(val classID: Int) {
+enum class CurseForgeClassID(val classID: Int, val slug: String) {
     /** 模组 */
-    MOD(6),
+    MOD(6, "mc-mods"),
 
     /** 整合包 */
-    MOD_PACK(4471),
+    MOD_PACK(4471, "modpacks"),
 
     /** 资源包 */
-    RESOURCE_PACK(12),
+    RESOURCE_PACK(12, "texture-packs"),
 
     /** 存档 */
-    SAVES(17),
+    SAVES(17, "worlds"),
 
     /** 光影包 */
-    SHADERS(6552);
+    SHADERS(6552, "shaders");
 
     companion object {
         private val map = entries.associateBy { it.classID }

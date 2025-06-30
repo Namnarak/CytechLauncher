@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -46,13 +48,13 @@ class CurseForgeFile(
      * 确切的文件名
      */
     @SerialName("fileName")
-    val fileName: String,
+    val fileName: String? = null,
 
     /**
      * 文件的发布类型
      */
     @SerialName("releaseType")
-    val releaseType: CurseForgeFileReleaseType,
+    val releaseType: PlatformReleaseType,
 
     /**
      * 文件的状态
@@ -140,7 +142,7 @@ class CurseForgeFile(
 
     @SerialName("modules")
     val modules: Array<Module>
-) {
+) : PlatformVersion {
     @Serializable
     class Hash(
         @SerialName("value")
@@ -218,4 +220,15 @@ class CurseForgeFile(
         @SerialName("fingerprint")
         val fingerprint: Long
     )
+
+    companion object {
+        fun CurseForgeFile.fixedFileUrl(): String? {
+            return downloadUrl
+                ?: if (fileName != null) {
+                    "https://edge.forgecdn.net/files/${id / 1000}/${id % 1000}/${fileName}"
+                } else {
+                    null
+                }
+        }
+    }
 }

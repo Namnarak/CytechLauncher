@@ -1,10 +1,6 @@
-package com.movtery.zalithlauncher.ui.screens.content.download.assets.mod
+package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -18,21 +14,21 @@ import kotlinx.serialization.Serializable
 data object SearchSavesScreenKey : NavKey
 
 @Composable
-fun SearchSavesScreen() {
-    var searchPlatform by remember { mutableStateOf<Platform>(Platform.CURSEFORGE) }
-
+fun SearchSavesScreen(
+    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+) {
     SearchAssetsScreen(
         parentScreenKey = DownloadSavesScreenKey,
         parentCurrentKey = downloadScreenKey,
         screenKey = SearchSavesScreenKey,
         currentKey = downloadSavesScreenKey,
         platformClasses = PlatformClasses.SAVES,
-        searchPlatform = searchPlatform,
+        initialPlatform = Platform.CURSEFORGE,
         enablePlatform = false,
-        onPlatformChange = {},
-        categories = CurseForgeSavesCategory.entries,
+        getCategories = { CurseForgeSavesCategory.entries },
         mapCategories = { platform, string ->
             CurseForgeSavesCategory.entries.find { it.describe() == string }
-        }
+        },
+        swapToDownload = swapToDownload
     )
 }

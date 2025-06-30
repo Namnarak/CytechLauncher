@@ -84,8 +84,8 @@ fun BaseScreen(
         val v1 = levels1.all { (key, currentKey) ->
             isTagVisible(key, currentKey)
         }
-        val v2 = levels2.all { (key, currentKey, useReferenceEquality) ->
-            isTagVisible(key, currentKey, useReferenceEquality)
+        val v2 = levels2.all { (key, currentKey, useClassEquality) ->
+            isTagVisible(key, currentKey, useClassEquality)
         }
         v1 && v2
     }

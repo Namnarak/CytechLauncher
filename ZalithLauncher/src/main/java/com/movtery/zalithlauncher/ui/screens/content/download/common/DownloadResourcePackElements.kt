@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.mod.SearchResourcePackScreenKey
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchResourcePackScreenKey
 
 /**
  * 下载资源包屏幕堆栈

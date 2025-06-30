@@ -47,6 +47,36 @@ class PlatformSearchJsonTest {
     }
 
     @Test
+    fun testGetProjectFromCurseForge() = runBlocking(Dispatchers.IO) {
+        val result = PlatformSearch.getProjectFromCurseForge("419699")
+        assertNotNull(result)
+        result.let {
+            val data = it.data
+            println("id = ${data.id}")
+            println("classId = ${data.classId}")
+            println("name = ${data.name}")
+            println("categories = ${data.categories.joinToString(",") { it.id.toString() }}")
+        }
+    }
+
+    @Test
+    fun testGetAllVersionsFromCurseForge() = runBlocking(Dispatchers.IO) {
+        val result = PlatformSearch.getAllVersionsFromCurseForge(projectID = "238222")
+        result.forEach { file ->
+            println("id = ${file.id}")
+            println("fileName = ${file.fileName}")
+            println("displayName = ${file.displayName}")
+            println("gameVersions = ${file.gameVersions.joinToString(",")}")
+            println("dependencies = ${file.dependencies.joinToString(",") { it.modId.toString() }}")
+            println("downloadCount = ${file.downloadCount}")
+            println("downloadUrl = ${file.downloadUrl}")
+            println("-----------")
+        }
+    }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
     fun testSearchWithModrinth() = runBlocking(Dispatchers.IO) {
         val request = ModrinthSearchRequest(
             facets = listOf(
@@ -73,6 +103,30 @@ class PlatformSearchJsonTest {
             println("offset = ${r.offset}")
             println("limit = ${r.limit}")
             println("totalHits = ${r.totalHits}")
+        }
+    }
+
+    @Test
+    fun testGetProjectFromModrinth() = runBlocking(Dispatchers.IO) {
+        val result = PlatformSearch.getProjectFromModrinth("TMVdoKxw")
+        println("id = ${result.id}")
+        println("projectType = ${result.projectType}")
+        println("title = ${result.title}")
+        println("categories = ${result.categories.joinToString(",")}")
+    }
+
+    @Test
+    fun testGetVersionsFromProject() = runBlocking(Dispatchers.IO) {
+        val result = PlatformSearch.getVersionsFromModrinth("AANobbMI")
+        result.forEach { version ->
+            println("id = ${version.id}")
+            println("name = ${version.name}")
+            println("versionNumber = ${version.versionNumber}")
+            println("gameVersions = ${version.gameVersions.joinToString(",")}")
+            println("dependencies = ${version.dependencies.joinToString(",") { it.projectId ?: "" }}")
+            println("downloads = ${version.downloads}")
+            println("files = ${version.files.joinToString(",") { it.fileName } }")
+            println("-----------")
         }
     }
 

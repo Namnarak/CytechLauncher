@@ -1,10 +1,6 @@
-package com.movtery.zalithlauncher.ui.screens.content.download.assets.mod
+package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -20,27 +16,22 @@ import kotlinx.serialization.Serializable
 data object SearchShadersScreenKey : NavKey
 
 @Composable
-fun SearchShadersScreen() {
-    var searchPlatform by remember { mutableStateOf<Platform>(Platform.MODRINTH) }
-
-    val categories = remember(searchPlatform) {
-        when (searchPlatform) {
-            Platform.CURSEFORGE -> CurseForgeShadersCategory.entries
-            Platform.MODRINTH -> ModrinthShadersCategory.entries
-        }
-    }
-
+fun SearchShadersScreen(
+    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+) {
     SearchAssetsScreen(
         parentScreenKey = DownloadShadersScreenKey,
         parentCurrentKey = downloadScreenKey,
         screenKey = SearchShadersScreenKey,
         currentKey = downloadShadersScreenKey,
         platformClasses = PlatformClasses.SHADERS,
-        searchPlatform = searchPlatform,
-        onPlatformChange = {
-            searchPlatform = it
+        initialPlatform = Platform.MODRINTH,
+        getCategories = { platform ->
+            when (platform) {
+                Platform.CURSEFORGE -> CurseForgeShadersCategory.entries
+                Platform.MODRINTH -> ModrinthShadersCategory.entries
+            }
         },
-        categories = categories,
         mapCategories = { platform, string ->
             when (platform) {
                 Platform.MODRINTH -> {
@@ -51,6 +42,7 @@ fun SearchShadersScreen() {
                     CurseForgeShadersCategory.entries.find { it.describe() == string }
                 }
             }
-        }
+        },
+        swapToDownload = swapToDownload
     )
 }
