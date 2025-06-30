@@ -85,7 +85,7 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
         }.onFailure {
             val intent = Intent(this, ErrorActivity::class.java).apply {
                 putExtra(ErrorActivity.BUNDLE_THROWABLE, it)
-                setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
             startActivity(intent)
         }
@@ -105,15 +105,15 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder()
-                    .maxSizePercent(this, 0.1)
+                    .maxSizeBytes(20L * 1024 * 1024) // 20MB
                     .weakReferencesEnabled(true) //弱引用
                     .build()
             }
             .diskCachePolicy(CachePolicy.ENABLED)
             .diskCache {
                 DiskCache.Builder()
-                    .maxSizePercent(0.03)
-                    .directory(PathManager.DIR_CACHE.toOkioPath())
+                    .maxSizeBytes(512L * 1024 * 1024) // 512MB
+                    .directory(PathManager.DIR_IMAGE_CACHE.toOkioPath())
                     .build()
             }
             .components { add(GifDecoder.Factory()) }
