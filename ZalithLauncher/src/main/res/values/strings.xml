@@ -175,6 +175,7 @@
     <string name="download_assets_failed_to_get_versions">Failed to retrieve version list: %s. Tap to retry.</string>
     <string name="download_assets_show_only_mc_release">Show Only MC Releases</string>
     <string name="download_assets_search_mc_versions">Search MC Versions</string>
+    <string name="download_assets_dependency_projects">Dependencies</string>
     <string name="download_assets_links">Related Links</string>
     <string name="download_assets_project_link">Project Page</string>
     <string name="download_assets_source_link">View Source Code</string>

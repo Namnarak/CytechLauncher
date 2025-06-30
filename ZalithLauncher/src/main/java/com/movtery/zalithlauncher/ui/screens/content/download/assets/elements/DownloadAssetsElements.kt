@@ -13,15 +13,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Autorenew
@@ -49,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
@@ -57,8 +61,21 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.fixedFileUrl
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
+import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
@@ -66,7 +83,11 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.compareVersion
+import kotlinx.serialization.SerializationException
+import java.io.FileNotFoundException
+import java.io.IOException
 
 sealed interface DownloadAssetsState<T> {
     class Getting<T> : DownloadAssetsState<T>
@@ -100,6 +121,8 @@ class DownloadProjectInfo(
     val iconUrl: String? = null,
     val title: String,
     val summary: String? = null,
+    val author: String? = null,
+    val downloadCount: Long,
     val urls: Urls,
     val screenshots: List<Screenshot> = emptyList()
 ) {
@@ -149,12 +172,19 @@ class DownloadVersionInfo(
     val gameVersion: Array<String>,
     val loaders: List<PlatformDisplayLabel>,
     val releaseType: PlatformReleaseType,
+    val dependencies: List<Dependency>,
     val downloadCount: Long,
     val downloadUrl: String,
     val date: String,
     val sha1: String? = null,
     val fileSize: Long
-)
+) {
+    class Dependency(
+        val platform: Platform,
+        val projectID: String,
+        val type: PlatformDependencyType
+    )
+}
 
 /**
  * 版本、模组加载器 版本信息分组
@@ -162,18 +192,170 @@ class DownloadVersionInfo(
 class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
+    val dependencies: List<DownloadVersionInfo.Dependency>,
     val infos: List<DownloadVersionInfo>
 )
+
+suspend fun List<PlatformVersion>.mapToInfos(
+    currentProjectId: String,
+    also: suspend (DownloadVersionInfo) -> Unit = {}
+): List<DownloadVersionInfo> {
+    return mapNotNull { version ->
+        when (version) {
+            is ModrinthVersion -> {
+                val files = version.files.takeIf { it.isNotEmpty() } ?: run {
+                    lWarning("No file list available, skipping -> ${version.name}")
+                    return@mapNotNull null
+                }
+                val file = files.find { it.primary } ?: files[0] //仅下载主文件
+                DownloadVersionInfo(
+                    platform = Platform.MODRINTH,
+                    displayName = version.name,
+                    fileName = file.fileName,
+                    gameVersion = version.gameVersions,
+                    loaders = version.loaders.mapNotNull { loaderName ->
+                        ModrinthModLoaderCategory.entries.find { it.facetValue() == loaderName }
+                    },
+                    releaseType = version.versionType,
+                    dependencies = version.dependencies.mapNotNull { dependency ->
+                        DownloadVersionInfo.Dependency(
+                            platform = Platform.MODRINTH,
+                            projectID = dependency.projectId ?: return@mapNotNull null,
+                            type = dependency.dependencyType
+                        )
+                    },
+                    downloadCount = version.downloads,
+                    downloadUrl = file.url,
+                    date = version.datePublished,
+                    sha1 = file.hashes.sha1,
+                    fileSize = file.size
+                )
+            }
+            is CurseForgeFile -> {
+                val file = version.takeIf { it.fileName != null && it.fixedFileUrl() != null }
+                // 文件名或者下载链接为空
+                // 单独获取该文件信息
+                    ?: run {
+                        val fileId = version.id.toString()
+                        runCatching {
+                            PlatformSearch.getVersionFromCurseForge(
+                                projectID = currentProjectId,
+                                fileID = fileId
+                            ).data
+                        }.onFailure { e ->
+                            when (e) {
+                                is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: $currentProjectId, $fileId", e)
+                                is IOException, is SerializationException -> lWarning("Unable to fetch the file name projectID=$currentProjectId, fileID=$fileId", e)
+                            }
+                        }.getOrNull() ?: return@mapNotNull null
+                    }
+
+                val downloadUrl = file.fixedFileUrl() ?: run {
+                    lWarning("No download link available, projectID=$currentProjectId, fileID=${file.id}")
+                    return@mapNotNull null
+                }
+
+                val gameVersions = file.gameVersions.filter { gameVersion ->
+                    RELEASE_REGEX.matcher(gameVersion).find()
+                }.toTypedArray()
+
+                val sha1 = file.hashes.find { hash ->
+                    hash.algo == CurseForgeFile.Hash.Algo.SHA1
+                }
+
+                DownloadVersionInfo(
+                    platform = Platform.CURSEFORGE,
+                    displayName = file.displayName,
+                    fileName = file.fileName!!,
+                    gameVersion = gameVersions,
+                    loaders = file.gameVersions.mapNotNull { loaderName ->
+                        CurseForgeModLoader.entries.find {
+                            it.getDisplayName().equals(loaderName, true)
+                        }
+                    },
+                    releaseType = file.releaseType,
+                    dependencies = file.dependencies.map { dependency ->
+                        DownloadVersionInfo.Dependency(
+                            platform = Platform.CURSEFORGE,
+                            projectID = dependency.modId.toString(),
+                            type = dependency.relationType
+                        )
+                    },
+                    downloadCount = file.downloadCount,
+                    downloadUrl = downloadUrl.also {
+                        println(it)
+                    },
+                    date = file.fileDate,
+                    sha1 = sha1?.value,
+                    fileSize = file.fileLength
+                )
+            }
+            else -> error("Unknown version type: $version")
+        }.also {
+            also(it)
+        }
+    }
+}
+
+fun PlatformProject.toInfo(
+    platformClasses: PlatformClasses
+): DownloadProjectInfo {
+    return when (this) {
+        is ModrinthSingleProject -> {
+            DownloadProjectInfo(
+                platform = Platform.MODRINTH,
+                iconUrl = iconUrl,
+                title = title,
+                summary = description,
+                downloadCount = downloads,
+                urls = DownloadProjectInfo.Urls(
+                    projectUrl = "https://modrinth.com/${platformClasses.modrinth!!.facetValue()}/${slug}",
+                    sourceUrl = sourceUrl,
+                    issuesUrl = issuesUrl,
+                    wikiUrl = wikiUrl
+                ),
+                screenshots = gallery.map { gallery ->
+                    DownloadProjectInfo.Screenshot(
+                        imageUrl = gallery.url,
+                        title = gallery.title,
+                        description = gallery.description
+                    )
+                }
+            )
+        }
+        is CurseForgeProject -> {
+            val data = data
+            DownloadProjectInfo(
+                platform = Platform.CURSEFORGE,
+                iconUrl = data.logo.url,
+                title = data.name,
+                summary = data.summary,
+                author = data.authors[0].name,
+                downloadCount = data.downloadCount,
+                urls = DownloadProjectInfo.Urls(
+                    projectUrl = "https://www.curseforge.com/minecraft/${platformClasses.curseforge.slug}/${data.slug}",
+                    sourceUrl = data.links.sourceUrl,
+                    issuesUrl = data.links.issuesUrl,
+                    wikiUrl = data.links.wikiUrl
+                ),
+                screenshots = data.screenshots.map { screenshot ->
+                    DownloadProjectInfo.Screenshot(
+                        imageUrl = screenshot.url,
+                        title = screenshot.title,
+                        description = screenshot.description
+                    )
+                }
+            )
+        }
+        else -> error("Unknown project type: $this")
+    }
+}
 
 fun List<DownloadVersionInfo>.mapWithVersions(): List<VersionInfoMap> {
     val grouped = mutableMapOf<Pair<String, PlatformDisplayLabel?>, MutableList<DownloadVersionInfo>>()
 
     forEach { versionInfo ->
-        val labels = versionInfo.loaders.ifEmpty {
-            listOf(null) //无加载器
-        }
-
-        //为每个游戏版本和模组加载器组合分组
+        val labels = versionInfo.loaders.ifEmpty { listOf(null) }
         versionInfo.gameVersion.forEach { gameVer ->
             labels.forEach { loaderLabel ->
                 grouped.getOrPut(gameVer to loaderLabel) { mutableListOf() } += versionInfo
@@ -182,9 +364,15 @@ fun List<DownloadVersionInfo>.mapWithVersions(): List<VersionInfoMap> {
     }
 
     return grouped.map { (key, infos) ->
+        //去重依赖集合
+        val dependencies = infos
+            .flatMap { it.dependencies }
+            .distinctBy { dep -> Triple(dep.platform, dep.projectID, dep.type) }
+
         VersionInfoMap(
             gameVersion = key.first,
             loader = key.second,
+            dependencies = dependencies,
             infos = infos
         )
     }.sortedByVersionAndLoader()
@@ -214,12 +402,14 @@ private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap
 fun AssetsVersionItemLayout(
     modifier: Modifier = Modifier,
     infoMap: VersionInfoMap,
+    getDependency: (projectId: String) -> DownloadProjectInfo?,
     maxListHeight: Dp = 200.dp,
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
-    onItemClicked: (DownloadVersionInfo) -> Unit = {}
+    onItemClicked: (DownloadVersionInfo) -> Unit = {},
+    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -253,7 +443,38 @@ fun AssetsVersionItemLayout(
                                 .padding(vertical = 4.dp),
                             contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
+                            infoMap.dependencies.takeIf { it.isNotEmpty() }?.let { dependencies ->
+                                val projects = dependencies.mapNotNull { dependency ->
+                                    if (dependency.type == PlatformDependencyType.REQUIRED) {
+                                        getDependency(dependency.projectID)?.let { dependency to it }
+                                    } else null
+                                }
+                                if (projects.isNotEmpty()) {
+                                    item {
+                                        Text(
+                                            modifier = Modifier.padding(horizontal = 8.dp),
+                                            text = stringResource(R.string.download_assets_dependency_projects),
+                                            style = MaterialTheme.typography.labelLarge
+                                        )
+                                    }
+                                }
+                                //前置项目列表
+                                items(projects) { (dependency, dependencyProject) ->
+                                    AssetsVersionDependencyItem(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(all = 4.dp),
+                                        project = dependencyProject,
+                                        onClick = {
+                                            onDependencyClicked(dependency)
+                                        }
+                                    )
+                                }
+                            }
+
                             items(infoMap.infos) { info ->
+
+
                                 AssetsVersionListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -323,6 +544,47 @@ private fun AssetsVersionHeadLayout(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun AssetsVersionDependencyItem(
+    modifier: Modifier = Modifier,
+    project: DownloadProjectInfo,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AssetsIcon(
+            modifier = Modifier
+                .padding(all = 4.dp)
+                .clip(shape = RoundedCornerShape(10.dp))
+                .size(48.dp),
+            iconUrl = project.iconUrl
+        )
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            ProjectTitleHead(
+                platform = project.platform,
+                title = project.title,
+                author = project.author
+            )
+            project.summary?.let { summary ->
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(2.dp))
     }
 }
 

@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import kotlinx.serialization.SerialName
@@ -88,18 +89,6 @@ class ModrinthVersion(
 
         /** 该版本的依赖类型 */
         @SerialName("dependency_type")
-        val dependencyType: DependencyType
+        val dependencyType: PlatformDependencyType
     )
-
-    @Serializable
-    enum class DependencyType {
-        @SerialName("required")
-        REQUIRED,
-        @SerialName("optional")
-        OPTIONAL,
-        @SerialName("incompatible")
-        INCOMPATIBLE,
-        @SerialName("embedded")
-        EMBEDDED
-    }
 }

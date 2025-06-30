@@ -85,10 +85,16 @@ fun DownloadModScreen() {
                     parentScreenKey = DownloadModScreenKey,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadModScreenKey,
-                    key = key
-                ) { info ->
-                    operation = DownloadSingleOperation.SelectVersion(info)
-                }
+                    key = key,
+                    onItemClicked = { info ->
+                        operation = DownloadSingleOperation.SelectVersion(info)
+                    },
+                    onDependencyClicked = { dep ->
+                        downloadModBackStack.navigateTo(
+                            DownloadAssetsScreenKey(dep.platform, dep.projectID, PlatformClasses.MOD)
+                        )
+                    }
+                )
             }
         }
     )

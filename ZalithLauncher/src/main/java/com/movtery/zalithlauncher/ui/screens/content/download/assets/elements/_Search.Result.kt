@@ -333,44 +333,11 @@ private fun ResultItemLayout(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                //标题栏、作者栏、平台标签
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    //标题栏、作者栏
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .basicMarquee(iterations = Int.MAX_VALUE),
-                            text = title,
-                            style = MaterialTheme.typography.titleSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Clip
-                        )
-                        author?.let {
-                            VerticalDivider(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .padding(vertical = 4.dp)
-                            )
-                            Text(
-                                modifier = Modifier.alpha(0.7f),
-                                text = stringResource(R.string.download_assets_result_authors, it),
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1
-                            )
-                        }
-                    }
-                    //平台标签
-                    PlatformIdentifier(platform = platform)
-                }
+                ProjectTitleHead(
+                    platform = platform,
+                    title = title,
+                    author = author
+                )
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -448,5 +415,52 @@ private fun ResultItemLayout(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ProjectTitleHead(
+    modifier: Modifier = Modifier,
+    platform: Platform,
+    title: String,
+    author: String?
+) {
+    //标题栏、作者栏、平台标签
+    Row(
+        modifier = modifier.height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        //标题栏、作者栏
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .basicMarquee(iterations = Int.MAX_VALUE),
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Clip
+            )
+            author?.let {
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(vertical = 4.dp)
+                )
+                Text(
+                    modifier = Modifier.alpha(0.7f),
+                    text = stringResource(R.string.download_assets_result_authors, it),
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1
+                )
+            }
+        }
+        //平台标签
+        PlatformIdentifier(platform = platform)
     }
 }

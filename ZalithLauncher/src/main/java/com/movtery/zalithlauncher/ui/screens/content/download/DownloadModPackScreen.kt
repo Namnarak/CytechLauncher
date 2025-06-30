@@ -16,6 +16,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreenKey
+import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModPackBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModPackScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
@@ -61,10 +62,16 @@ fun DownloadModPackScreen() {
                     parentScreenKey = DownloadModPackScreenKey,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadModPackScreenKey,
-                    key = key
-                ) { info ->
+                    key = key,
+                    onItemClicked = { info ->
 
-                }
+                    },
+                    onDependencyClicked = { dep ->
+                        downloadModBackStack.navigateTo(
+                            DownloadAssetsScreenKey(dep.platform, dep.projectID, PlatformClasses.MOD_PACK)
+                        )
+                    }
+                )
             }
         }
     )

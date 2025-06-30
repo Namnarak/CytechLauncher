@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,16 +46,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.fixedFileUrl
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.getProject
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersions
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
@@ -72,17 +65,15 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ScreenshotItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.VersionInfoMap
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapToInfos
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapWithVersions
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
-import java.io.FileNotFoundException
-import java.io.IOException
 
 @Serializable
 data class DownloadAssetsScreenKey(
@@ -93,10 +84,10 @@ data class DownloadAssetsScreenKey(
 
 private class ScreenViewModel(
     private val platform: Platform,
-    private val projectId: String
+    private val projectId: String,
+    private val classes: PlatformClasses
 ): ViewModel() {
     //版本
-    var currentVersionsJob by mutableStateOf<Job?>(null)
     private var _versionsList by mutableStateOf<List<VersionInfoMap>>(emptyList())
     var versionsResult by mutableStateOf<DownloadAssetsState<List<VersionInfoMap>>>(DownloadAssetsState.Getting())
 
@@ -107,11 +98,9 @@ private class ScreenViewModel(
         showOnlyMCRelease: Boolean = this.showOnlyMCRelease,
         searchMCVersion: String = this.searchMCVersion
     ) {
-        currentVersionsJob?.cancel()
-
         this.showOnlyMCRelease = showOnlyMCRelease
         this.searchMCVersion = searchMCVersion
-        currentVersionsJob = viewModelScope.launch {
+        viewModelScope.launch {
             val infos = _versionsList.filterInfos()
             versionsResult = DownloadAssetsState.Success(infos)
         }
@@ -125,93 +114,20 @@ private class ScreenViewModel(
     }
 
     fun getVersions() {
-        currentVersionsJob?.cancel()
-        currentVersionsJob = viewModelScope.launch {
+        viewModelScope.launch {
             versionsResult = DownloadAssetsState.Getting()
             getVersions(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    val infos: List<DownloadVersionInfo> = result.mapNotNull { version ->
-                        when (version) {
-                            is ModrinthVersion -> {
-                                val files = version.files.takeIf { it.isNotEmpty() } ?: run {
-                                    lWarning("No file list available, skipping -> ${version.name}")
-                                    return@mapNotNull null
-                                }
-                                val file = files.find { it.primary } ?: files[0] //仅下载主文件
-                                DownloadVersionInfo(
-                                    platform = Platform.MODRINTH,
-                                    displayName = version.name,
-                                    fileName = file.fileName,
-                                    gameVersion = version.gameVersions,
-                                    loaders = version.loaders.mapNotNull { loaderName ->
-                                        ModrinthModLoaderCategory.entries.find { it.facetValue() == loaderName }
-                                    },
-                                    releaseType = version.versionType,
-                                    downloadCount = version.downloads,
-                                    downloadUrl = file.url,
-                                    date = version.datePublished,
-                                    sha1 = file.hashes.sha1,
-                                    fileSize = file.size
-                                )
-                            }
-                            is CurseForgeFile -> {
-                                val file = version.takeIf { it.fileName != null && it.fixedFileUrl() != null }
-                                    // 文件名或者下载链接为空
-                                    // 单独获取该文件信息
-                                    ?: run {
-                                        val fileId = version.id.toString()
-                                        runCatching {
-                                            PlatformSearch.getVersionFromCurseForge(
-                                                projectID = projectId,
-                                                fileID = fileId
-                                            ).data
-                                        }.onFailure { e ->
-                                            when (e) {
-                                                is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: $projectId, $fileId", e)
-                                                is IOException, is SerializationException -> lWarning("Unable to fetch the file name projectID=$projectId, fileID=$fileId", e)
-                                            }
-                                        }.getOrNull() ?: return@mapNotNull null
-                                    }
-
-                                val downloadUrl = file.fixedFileUrl() ?: run {
-                                    lWarning("No download link available, projectID=$projectId, fileID=${file.id}")
-                                    return@mapNotNull null
-                                }
-
-                                val gameVersions = file.gameVersions.filter { gameVersion ->
-                                    RELEASE_REGEX.matcher(gameVersion).find()
-                                }.toTypedArray()
-
-                                val sha1 = file.hashes.find { hash ->
-                                    hash.algo == CurseForgeFile.Hash.Algo.SHA1
-                                }
-
-                                DownloadVersionInfo(
-                                    platform = Platform.CURSEFORGE,
-                                    displayName = file.displayName,
-                                    fileName = file.fileName!!,
-                                    gameVersion = gameVersions,
-                                    loaders = file.gameVersions.mapNotNull { loaderName ->
-                                        CurseForgeModLoader.entries.find {
-                                            it.getDisplayName().equals(loaderName, true)
-                                        }
-                                    },
-                                    releaseType = file.releaseType,
-                                    downloadCount = file.downloadCount,
-                                    downloadUrl = downloadUrl.also {
-                                        println(it)
-                                    },
-                                    date = file.fileDate,
-                                    sha1 = sha1?.value,
-                                    fileSize = file.fileLength
-                                )
-                            }
-                            else -> error("Unknown version type: $version")
+                    val infos: List<DownloadVersionInfo> = result.mapToInfos(projectId) { info ->
+                        info.dependencies.forEach { dependency ->
+                            cacheDependencyProject(
+                                platform = dependency.platform,
+                                projectId = dependency.projectID
+                            )
                         }
                     }
-
                     _versionsList = infos.mapWithVersions()
                     versionsResult = DownloadAssetsState.Success(_versionsList.filterInfos())
                 },
@@ -223,22 +139,43 @@ private class ScreenViewModel(
     }
 
     //项目信息
-    var currentProjectJob by mutableStateOf<Job?>(null)
-    var projectResult by mutableStateOf<DownloadAssetsState<PlatformProject>>(DownloadAssetsState.Getting())
+    var projectResult by mutableStateOf<DownloadAssetsState<DownloadProjectInfo>>(DownloadAssetsState.Getting())
 
     fun getProject() {
-        currentProjectJob?.cancel()
-
-        currentProjectJob = viewModelScope.launch {
+        viewModelScope.launch {
             projectResult = DownloadAssetsState.Getting()
             getProject(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    projectResult = DownloadAssetsState.Success(result)
+                    projectResult = DownloadAssetsState.Success(result.toInfo(classes))
                 },
                 onError = {
                     projectResult = it
+                }
+            )
+        }
+    }
+
+    //缓存依赖项目
+    val cachedDependencyProject = mutableStateMapOf<String, DownloadProjectInfo>()
+
+    /**
+     * 缓存依赖项目
+     */
+    private suspend fun cacheDependencyProject(
+        platform: Platform,
+        projectId: String
+    ) {
+        if (!cachedDependencyProject.containsKey(projectId)) {
+            getProject<PlatformProject>(
+                projectID = projectId,
+                platform = platform,
+                onSuccess = { result ->
+                    cachedDependencyProject[projectId] = result.toInfo(classes)
+                },
+                onError = {
+                    cachedDependencyProject.remove(projectId)
                 }
             )
         }
@@ -251,8 +188,7 @@ private class ScreenViewModel(
     }
 
     override fun onCleared() {
-        currentVersionsJob?.cancel()
-        currentProjectJob?.cancel()
+        viewModelScope.cancel()
     }
 }
 
@@ -265,7 +201,8 @@ private fun rememberDownloadAssetsViewModel(
     ) {
         ScreenViewModel(
             platform = key.platform,
-            projectId = key.projectId
+            projectId = key.projectId,
+            classes = key.classes
         )
     }
 }
@@ -281,7 +218,8 @@ fun DownloadAssetsScreen(
     parentCurrentKey: NavKey?,
     currentKey: NavKey?,
     key: DownloadAssetsScreenKey,
-    onItemClicked: (DownloadVersionInfo) -> Unit = {}
+    onItemClicked: (DownloadVersionInfo) -> Unit = {},
+    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
 ) {
     val viewModel: ScreenViewModel = rememberDownloadAssetsViewModel(key)
 
@@ -303,7 +241,8 @@ fun DownloadAssetsScreen(
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                 viewModel = viewModel,
                 onReload = { viewModel.getVersions() },
-                onItemClicked = onItemClicked
+                onItemClicked = onItemClicked,
+                onDependencyClicked = onDependencyClicked
             )
 
             val xOffset by swapAnimateDpAsState(
@@ -319,7 +258,6 @@ fun DownloadAssetsScreen(
                     .padding(end = 12.dp)
                     .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
                 projectResult = viewModel.projectResult,
-                platformClasses = key.classes,
                 onReload = { viewModel.getProject() }
             )
         }
@@ -334,7 +272,8 @@ private fun Versions(
     modifier: Modifier = Modifier,
     viewModel: ScreenViewModel,
     onReload: () -> Unit = {},
-    onItemClicked: (DownloadVersionInfo) -> Unit = {}
+    onItemClicked: (DownloadVersionInfo) -> Unit = {},
+    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
 ) {
     when (val versions = viewModel.versionsResult) {
         is DownloadAssetsState.Getting -> {
@@ -398,7 +337,11 @@ private fun Versions(
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp),
                             infoMap = info,
-                            onItemClicked = onItemClicked
+                            getDependency = { projectId ->
+                                viewModel.cachedDependencyProject[projectId]
+                            },
+                            onItemClicked = onItemClicked,
+                            onDependencyClicked = onDependencyClicked
                         )
                     }
                 }
@@ -428,8 +371,7 @@ private fun Versions(
 @Composable
 private fun ProjectInfo(
     modifier: Modifier = Modifier,
-    projectResult: DownloadAssetsState<PlatformProject>,
-    platformClasses: PlatformClasses,
+    projectResult: DownloadAssetsState<DownloadProjectInfo>,
     onReload: () -> Unit = {}
 ) {
     Card(
@@ -478,53 +420,7 @@ private fun ProjectInfo(
                 }
             }
             is DownloadAssetsState.Success -> {
-                val project = result.result
-                val info = when (project) {
-                    is ModrinthSingleProject -> {
-                        DownloadProjectInfo(
-                            platform = Platform.MODRINTH,
-                            iconUrl = project.iconUrl,
-                            title = project.title,
-                            summary = project.description,
-                            urls = DownloadProjectInfo.Urls(
-                                projectUrl = "https://modrinth.com/${platformClasses.modrinth!!.facetValue()}/${project.slug}",
-                                sourceUrl = project.sourceUrl,
-                                issuesUrl = project.issuesUrl,
-                                wikiUrl = project.wikiUrl
-                            ),
-                            screenshots = project.gallery.map { gallery ->
-                                DownloadProjectInfo.Screenshot(
-                                    imageUrl = gallery.url,
-                                    title = gallery.title,
-                                    description = gallery.description
-                                )
-                            }
-                        )
-                    }
-                    is CurseForgeProject -> {
-                        val data = project.data
-                        DownloadProjectInfo(
-                            platform = Platform.CURSEFORGE,
-                            iconUrl = data.logo.url,
-                            title = data.name,
-                            summary = data.summary,
-                            urls = DownloadProjectInfo.Urls(
-                                projectUrl = "https://www.curseforge.com/minecraft/${platformClasses.curseforge.slug}/${data.slug}",
-                                sourceUrl = data.links.sourceUrl,
-                                issuesUrl = data.links.issuesUrl,
-                                wikiUrl = data.links.wikiUrl
-                            ),
-                            screenshots = data.screenshots.map { screenshot ->
-                                DownloadProjectInfo.Screenshot(
-                                    imageUrl = screenshot.url,
-                                    title = screenshot.title,
-                                    description = screenshot.description
-                                )
-                            }
-                        )
-                    }
-                    else -> error("Unknown project type: $project")
-                }
+                val info = result.result
 
                 LazyColumn(
                     contentPadding = PaddingValues(all = 12.dp),

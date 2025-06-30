@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import kotlinx.serialization.KSerializer
@@ -181,37 +182,8 @@ class CurseForgeFile(
         @SerialName("modId")
         val modId: Int,
         @SerialName("relationType")
-        val relationType: RelationType
-    ) {
-        @Serializable(with = RelationType.Serializer::class)
-        enum class RelationType(val code: Int) {
-            EMBEDDED_LIBRARY(1),
-            OPTIONAL_DEPENDENCY(2),
-            REQUIRED_DEPENDENCY(3),
-            TOOL(4),
-            INCOMPATIBLE(5),
-            INCLUDE(6);
-
-            companion object {
-                private val map = entries.associateBy { it.code }
-                fun fromCode(code: Int): RelationType = map[code] ?: error("Unknown relation type code: $code")
-            }
-
-            object Serializer : KSerializer<RelationType> {
-                override val descriptor: SerialDescriptor =
-                    PrimitiveSerialDescriptor("RelationType", PrimitiveKind.INT)
-
-                override fun deserialize(decoder: Decoder): RelationType {
-                    val code = decoder.decodeInt()
-                    return RelationType.fromCode(code)
-                }
-
-                override fun serialize(encoder: Encoder, value: RelationType) {
-                    encoder.encodeInt(value.code)
-                }
-            }
-        }
-    }
+        val relationType: PlatformDependencyType
+    )
 
     @Serializable
     class Module(

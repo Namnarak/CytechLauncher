@@ -100,11 +100,11 @@ suspend fun <E> getVersions(
     }
 }
 
-suspend fun getProject(
+suspend fun <E> getProject(
     projectID: String,
     platform: Platform,
     onSuccess: (PlatformProject) -> Unit,
-    onError: (DownloadAssetsState<PlatformProject>) -> Unit
+    onError: (DownloadAssetsState<E>) -> Unit
 ) {
     runCatching {
         when (platform) {
@@ -117,7 +117,7 @@ suspend fun getProject(
             lError("An exception occurred while retrieving project information.", e)
             if (e !is CancellationException) {
                 val pair = mapExceptionToMessage(e)
-                val state = DownloadAssetsState.Error<PlatformProject>(pair.first, pair.second)
+                val state = DownloadAssetsState.Error<E>(pair.first, pair.second)
                 onError(state)
             }
         }
