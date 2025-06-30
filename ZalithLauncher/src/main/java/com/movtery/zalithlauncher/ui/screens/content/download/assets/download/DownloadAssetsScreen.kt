@@ -121,6 +121,7 @@ private class ScreenViewModel(
                 platform = platform,
                 onSuccess = { result ->
                     val infos: List<DownloadVersionInfo> = result.mapToInfos(projectId) { info ->
+                        if (classes != PlatformClasses.MOD) return@mapToInfos //暂时仅支持模组获取依赖
                         info.dependencies.forEach { dependency ->
                             cacheDependencyProject(
                                 platform = dependency.platform,
@@ -302,7 +303,9 @@ private fun Versions(
                     }
 
                     SimpleTextInputField(
-                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 12.dp),
                         value = viewModel.searchMCVersion,
                         onValueChange = { viewModel.filterWith(searchMCVersion = it) },
                         color = itemLayoutColor(),
