@@ -24,6 +24,10 @@ Here’s the current roadmap of features and development status:
 * [x] Core launcher framework (themes, animations, settings, etc.)
 * [x] Game launching and rendering
 * [x] Game version download and installation
+* [x] Mod download and automatic installation
+* [x] Resource pack download and automatic installation
+* [x] World save download and installation
+* [x] Shader pack download and automatic installation
 * [x] Control support: virtual mouse pointer / physical mouse & keyboard / gesture control
 * [x] Version management: list, overview, and configuration
 * [x] Customizable game installation directory
@@ -39,10 +43,6 @@ Here’s the current roadmap of features and development status:
     * [ ] Install Fabric with the Fabric API mod
     * [ ] Install Quilt with the Quilted Fabric API mod
 * [ ] Modpack download and automatic installation
-* [ ] Mod download and automatic installation
-* [ ] Resource pack download and automatic installation
-* [ ] World save download and installation
-* [ ] Shader pack download and automatic installation
 * [ ] Content managers: UI for managing mods / shaders
 * [ ] Gamepad control support
 
