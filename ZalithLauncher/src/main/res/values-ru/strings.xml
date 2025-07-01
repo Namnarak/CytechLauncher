@@ -82,7 +82,6 @@
     <!-- Splash Screen -->
     <string name="splash_screen_unpack_desc">Лаунчеру необходимо установить эти файлы для корректной работы Minecraft. Они включены в приложение и должны быть распакованы перед использованием. Нажмите кнопку ниже, чтобы начать распаковку и обновление.</string>
     <string name="splash_screen_installing">Лаунчер распаковывает файлы. После завершения вы автоматически перейдёте на главный экран. Пожалуйста, подождите.</string>
-    <string name="splash_screen_continue">Согласиться</string>
     <string name="splash_screen_agree">Установить</string>
     <!-- Notification -->
     <string name="notification_title">Проверка разрешений на уведомления</string>
@@ -261,9 +260,7 @@
     <string name="multirt_runtime_version_code">Код версии: %s</string>
     <string name="multirt_runtime_version_arch">Архитектура: %s</string>
     <string name="multirt_no_java_8">Java 8 не найдена. Требуется для этой функции.</string>
-    <string name="multirt_no_compatible_multirt">Не найдена совместимая среда Java (требуется Java %d или новее)</string>
     <string name="execute_jar_title">Запустить Jar</string>
-    <string name="execute_jar_incompatible_runtime">Jar несовместим с Java %d</string>
     <!-- Version Management -->
     <string name="versions_manage_game_path_default">Папка игры по умолчанию</string>
     <string name="versions_manage_game_path_add_new">Добавить папку</string>

@@ -82,7 +82,6 @@
     <!--  啟動頁面  -->
     <string name="splash_screen_unpack_desc">啟動器需要安裝這些內容，才能確保 Minecraft 能夠正常啟動。這些內容已包含在應用程式中，需要解壓縮後才能正常使用，點擊下方按鈕，開始解壓縮並更新這些內容。</string>
     <string name="splash_screen_installing">啟動器正在解壓縮這些內容，解壓縮完成後將自動進入主介面，請耐心等候。</string>
-    <string name="splash_screen_continue">同意並繼續</string>
     <string name="splash_screen_agree">同意並安裝</string>
     <!--  通知  -->
     <string name="notification_title">檢查通知權限</string>
@@ -362,9 +361,7 @@
     <string name="multirt_runtime_version_code">版本號：%s</string>
     <string name="multirt_runtime_version_arch">架構：%s</string>
     <string name="multirt_no_java_8">找不到 Java 8，要使用此功能，您必須安裝 Java 8</string>
-    <string name="multirt_no_compatible_multirt">找不到任何相容的 Java 執行環境，需要使用 Java %d 或更新版本</string>
     <string name="execute_jar_title">執行 Jar 檔案</string>
-    <string name="execute_jar_incompatible_runtime">此 Jar 檔案與 Java %d 不相容</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">預設遊戲目錄</string>
     <string name="versions_manage_game_path_add_new">新增遊戲目錄</string>

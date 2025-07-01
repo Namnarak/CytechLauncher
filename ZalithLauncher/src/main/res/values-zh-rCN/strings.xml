@@ -92,7 +92,6 @@
     <!--  启动页面  -->
     <string name="splash_screen_unpack_desc">启动器需要安装这些内容，才能够确保 Minecraft 能够正常启动。这些内容已经包含在应用中，需要解压之后才能正常使用，点击下方按钮，开始解压并更新这些内容。</string>
     <string name="splash_screen_installing">启动器正在解压这些内容，解压完成后将自动进入主界面，请耐心等待。</string>
-    <string name="splash_screen_continue">同意并继续</string>
     <string name="splash_screen_agree">同意并安装</string>
     <!--  通知  -->
     <string name="notification_title">检查通知权限</string>
@@ -181,12 +180,10 @@
     <string name="download_assets_source_link">浏览源代码</string>
     <string name="download_assets_issues_link">反馈问题</string>
     <string name="download_assets_wiki_link">查看百科</string>
-    <string name="download_assets_screenshot_reload">重新加载</string>
     <string name="download_assets_release_type_release">正式版</string>
     <string name="download_assets_release_type_beta">测试版</string>
     <string name="download_assets_release_type_alpha">内测版</string>
     <string name="download_assets_no_installed_versions">当前未安装可用的游戏版本，无法决定该资源的目标下载位置，请先安装游戏版本哦！</string>
-    <string name="download_assets_install_assets">下载安装资源</string>
     <string name="download_assets_install_assets_for_versions">为哪些游戏版本安装？</string>
     <string name="download_assets_install_progress_downloading">下载安装资源中\n%s\n (%s / %s)</string>
     <string name="download_assets_install_progress_installing">安装资源中\n%s</string>
@@ -403,9 +400,7 @@
     <string name="multirt_runtime_version_code">版本号：%s</string>
     <string name="multirt_runtime_version_arch">架构：%s</string>
     <string name="multirt_no_java_8">未找到 Java 8，要使用这个功能，您必须安装 Java 8</string>
-    <string name="multirt_no_compatible_multirt">找不到任何兼容的 Java 运行环境，需要使用 Java %d 或更新版本</string>
     <string name="execute_jar_title">执行 Jar 文件</string>
-    <string name="execute_jar_incompatible_runtime">该 Jar 文件与 Java %d 不兼容</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>

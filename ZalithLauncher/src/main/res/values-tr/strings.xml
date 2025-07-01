@@ -76,7 +76,6 @@
     <!-- Splash Screen -->
     <string name="splash_screen_unpack_desc">Minecraft düzgün çalışsın diye bu dosyaları kur. Uygulama içinde mevcut, önce çıkar.</string>
     <string name="splash_screen_installing">Kurulum yapılıyor. Tamamlanınca ana ekrana geçiş yapılır. Lütfen bekle.</string>
-    <string name="splash_screen_continue">Onayla</string>
     <string name="splash_screen_agree">Kur</string>
     <!--  Notification  -->
     <string name="notification_title">Bildirim İzni Kontrolü</string>
@@ -254,9 +253,7 @@
     <string name="multirt_runtime_version_code">Sürüm kodu: %s</string>
     <string name="multirt_runtime_version_arch">Mimari: %s</string>
     <string name="multirt_no_java_8">Java 8 bulunamadı. Bu özellik için gerekli.</string>
-    <string name="multirt_no_compatible_multirt">Uygun Java çalışma zamanı yok (Java %d veya üstü gerek)</string>
     <string name="execute_jar_title">Jar Çalıştır</string>
-    <string name="execute_jar_incompatible_runtime">Jar, Java %d ile uyumsuz</string>
     <!-- Version Management -->
     <string name="versions_manage_game_path_default">Varsayılan Oyun Klasörü</string>
     <string name="versions_manage_game_path_add_new">Klasör Ekle</string>

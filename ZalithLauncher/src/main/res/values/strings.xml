@@ -92,7 +92,6 @@
     <!-- Splash Screen -->
     <string name="splash_screen_unpack_desc">The launcher needs to install these files to ensure Minecraft runs properly. They are included in the app and must be extracted first. Click the button below to start extraction and update.</string>
     <string name="splash_screen_installing">The launcher is extracting these files. Once done, it will automatically enter the main screen. Please wait patiently.</string>
-    <string name="splash_screen_continue">Agree</string>
     <string name="splash_screen_agree">Install</string>
     <!--  Notification  -->
     <string name="notification_title">Check Notification Permission</string>
@@ -181,12 +180,10 @@
     <string name="download_assets_source_link">View Source Code</string>
     <string name="download_assets_issues_link">Report Issues</string>
     <string name="download_assets_wiki_link">View Wiki</string>
-    <string name="download_assets_screenshot_reload">Reload</string>
     <string name="download_assets_release_type_release">Stable</string>
     <string name="download_assets_release_type_beta">Beta</string>
     <string name="download_assets_release_type_alpha">Alpha</string>
     <string name="download_assets_no_installed_versions">No available game version is currently installed, so the target download location for the asset cannot be determined. Please install a game version first!</string>
-    <string name="download_assets_install_assets">Download and install assets</string>
     <string name="download_assets_install_assets_for_versions">Install for which game versions?</string>
     <string name="download_assets_install_progress_downloading">Downloading and installing assets\n%s\n (%s / %s)</string>
     <string name="download_assets_install_progress_installing">Installing assets\n%s</string>
@@ -403,9 +400,7 @@
     <string name="multirt_runtime_version_code">Version code: %s</string>
     <string name="multirt_runtime_version_arch">Architecture: %s</string>
     <string name="multirt_no_java_8">Java 8 not found. Required for this feature.</string>
-    <string name="multirt_no_compatible_multirt">No compatible Java runtime found (requires Java %d or newer)</string>
     <string name="execute_jar_title">Execute Jar</string>
-    <string name="execute_jar_incompatible_runtime">Jar incompatible with Java %d</string>
     <!-- Version Management -->
     <string name="versions_manage_game_path_default">Default Game Folder</string>
     <string name="versions_manage_game_path_add_new">Add Folder</string>
