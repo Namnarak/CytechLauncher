@@ -465,7 +465,7 @@
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
-    <string name="saves_manage">Save Management</string>
+    <string name="saves_manage">Saves</string>
     <string name="saves_manage_info">Save Info</string>
     <string name="saves_manage_only_show_compatible">Only show compatible saves</string>
     <string name="saves_manage_invalid">Invalid save</string>
@@ -491,7 +491,7 @@
     <string name="saves_manage_quick_play">Quick Play</string>
     <string name="saves_manage_quick_play_disabled">Quick Play (1.20+ only)</string>
     <string name="saves_manage_no_saves">No saves for this version</string>
-    <string name="resource_pack_manage">Resource Pack Management</string>
+    <string name="resource_pack_manage">Resource Packs</string>
     <string name="resource_pack_manage_info">Resource Pack Information</string>
     <string name="resource_pack_manage_only_show_valid">Only show valid packs</string>
     <string name="resource_pack_manage_invalid">Invalid Resource Pack Format</string>
