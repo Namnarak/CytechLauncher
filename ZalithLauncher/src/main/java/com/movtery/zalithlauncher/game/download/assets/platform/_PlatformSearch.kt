@@ -109,7 +109,7 @@ suspend fun <E> getProject(
     projectID: String,
     platform: Platform,
     onSuccess: (PlatformProject) -> Unit,
-    onError: (DownloadAssetsState<E>) -> Unit
+    onError: (DownloadAssetsState<E>, Throwable) -> Unit
 ) {
     runCatching {
         when (platform) {
@@ -123,7 +123,7 @@ suspend fun <E> getProject(
                 lError("An exception occurred while retrieving project information.", e)
                 val pair = mapExceptionToMessage(e)
                 val state = DownloadAssetsState.Error<E>(pair.first, pair.second)
-                onError(state)
+                onError(state, e)
             } else {
                 lWarning("The project retrieval task has been cancelled.")
             }

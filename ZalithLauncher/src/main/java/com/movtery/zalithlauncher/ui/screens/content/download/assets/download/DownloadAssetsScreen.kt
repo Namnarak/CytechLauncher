@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -72,6 +73,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.to
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -152,8 +154,8 @@ private class ScreenViewModel(
                 onSuccess = { result ->
                     projectResult = DownloadAssetsState.Success(result.toInfo(classes))
                 },
-                onError = {
-                    projectResult = it
+                onError = { state, _ ->
+                    projectResult = state
                 }
             )
         }
@@ -161,6 +163,10 @@ private class ScreenViewModel(
 
     //缓存依赖项目
     val cachedDependencyProject = mutableStateMapOf<String, DownloadProjectInfo>()
+    //该依赖项目未找到，但是多个版本同时依赖这个不存在的项目
+    //就会进行很多次无效的访问，非常耗时
+    //需要记录不存在的依赖项目的id，避免下次继续获取
+    val notFoundDependencyProjects = mutableStateListOf<String>()
 
     /**
      * 缓存依赖项目
@@ -169,15 +175,20 @@ private class ScreenViewModel(
         platform: Platform,
         projectId: String
     ) {
-        if (!cachedDependencyProject.containsKey(projectId)) {
+        if (!notFoundDependencyProjects.contains(projectId) && !cachedDependencyProject.containsKey(projectId)) {
             getProject<PlatformProject>(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
                     cachedDependencyProject[projectId] = result.toInfo(classes)
                 },
-                onError = {
-                    cachedDependencyProject.remove(projectId)
+                onError = { _, e ->
+                    if (e is ClientRequestException && e.response.status.value == 404) {
+                        // 404 Not Found
+                        notFoundDependencyProjects.add(projectId)
+                    } else {
+                        cachedDependencyProject.remove(projectId)
+                    }
                 }
             )
         }
