@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -77,10 +76,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
-import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
@@ -402,7 +401,7 @@ fun AssetsVersionItemLayout(
     modifier: Modifier = Modifier,
     infoMap: VersionInfoMap,
     getDependency: (projectId: String) -> DownloadProjectInfo?,
-    maxListHeight: Dp = 200.dp,
+    maxListHeight: Dp = rememberMaxHeight(),
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -700,10 +699,7 @@ fun ScreenshotItemLayout(
 ) {
     val context = LocalContext.current
 
-    //重载key，加载失败后，允许通过这个key重新加载截图
-    var reloadTrigger by remember { mutableStateOf(false) }
-
-    val imageRequest = remember(screenshot, reloadTrigger) {
+    val imageRequest = remember(screenshot) {
         screenshot.imageUrl.takeIf { it.isNotBlank() }?.let {
             ImageRequest.Builder(context)
                 .data(it)
@@ -729,14 +725,7 @@ fun ScreenshotItemLayout(
             AsyncImagePainter.State.Empty -> {
                 //NONE
             }
-            is AsyncImagePainter.State.Error -> {
-                IconTextButton(
-                    onClick = { reloadTrigger = !reloadTrigger },
-                    imageVector = Icons.Default.Refresh,
-                    text = stringResource(R.string.download_assets_screenshot_reload)
-                )
-            }
-            is AsyncImagePainter.State.Loading -> {
+            is AsyncImagePainter.State.Error, is AsyncImagePainter.State.Loading -> {
                 ShimmerBox(
                     modifier = Modifier
                         .fillMaxWidth()

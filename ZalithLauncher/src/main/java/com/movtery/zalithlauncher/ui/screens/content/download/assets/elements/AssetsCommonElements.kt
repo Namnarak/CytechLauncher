@@ -6,19 +6,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +21,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -69,10 +63,8 @@ fun PlatformIdentifier(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Image(
+            Icon(
                 modifier = Modifier.size(iconSize),
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Fit,
                 painter = painterResource(drawable),
                 contentDescription = platform.displayName
             )
@@ -95,10 +87,7 @@ fun AssetsIcon(
 ) {
     val context = LocalContext.current
 
-    //重载key，加载失败后，允许通过这个key重新加载截图
-    var reloadTrigger by remember { mutableStateOf(false) }
-
-    val imageRequest = remember(iconUrl, reloadTrigger) {
+    val imageRequest = remember(iconUrl) {
         iconUrl?.takeIf { it.isNotBlank() }?.let {
             ImageRequest.Builder(context)
                 .data(it)
@@ -121,22 +110,7 @@ fun AssetsIcon(
         AsyncImagePainter.State.Empty -> {
             Box(modifier = modifier)
         }
-        is AsyncImagePainter.State.Error -> {
-            Box(
-                modifier = modifier,
-                contentAlignment = Alignment.Center
-            ) {
-                IconButton(
-                    onClick = { reloadTrigger = !reloadTrigger }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.download_assets_screenshot_reload)
-                    )
-                }
-            }
-        }
-        is AsyncImagePainter.State.Loading -> {
+        is AsyncImagePainter.State.Error, is AsyncImagePainter.State.Loading -> {
             ShimmerBox(
                 modifier = modifier
             )

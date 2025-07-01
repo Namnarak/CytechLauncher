@@ -410,15 +410,15 @@ private fun ProjectInfo(
                                 ShimmerBox(
                                     modifier = Modifier
                                         .fillMaxWidth(0.6f)
-                                        .height(20.dp),
-                                    shape = RoundedCornerShape(4.dp)
+                                        .height(20.dp)
+                                        .clip(RoundedCornerShape(4.dp))
                                 )
                                 //简介
                                 ShimmerBox(
                                     modifier = Modifier
                                         .fillMaxWidth(0.9f)
-                                        .height(16.dp),
-                                    shape = RoundedCornerShape(4.dp)
+                                        .height(16.dp)
+                                        .clip(RoundedCornerShape(4.dp))
                                 )
                             }
                         }

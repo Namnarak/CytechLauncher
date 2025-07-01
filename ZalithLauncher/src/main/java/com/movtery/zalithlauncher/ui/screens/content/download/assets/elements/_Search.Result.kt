@@ -52,7 +52,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.Modrint
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
-import kotlin.collections.forEach
 
 sealed interface SearchAssetsState {
     data object Searching: SearchAssetsState
@@ -318,7 +317,9 @@ private fun ResultItemLayout(
         onClick = onClick
     ) {
         Row(
-            modifier = Modifier.padding(all = 8.dp),
+            modifier = Modifier
+                .padding(all = 8.dp)
+                .height(IntrinsicSize.Min),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             AssetsIcon(
@@ -340,6 +341,7 @@ private fun ResultItemLayout(
                 )
 
                 Row(
+                    modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     //描述
@@ -362,13 +364,13 @@ private fun ResultItemLayout(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(16.dp),
                                 imageVector = Icons.Outlined.Download,
                                 contentDescription = null
                             )
                             Text(
                                 text = formatNumberByLocale(context, downloads),
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelSmall
                             )
                         }
 
@@ -378,13 +380,13 @@ private fun ResultItemLayout(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    modifier = Modifier.size(16.dp),
+                                    modifier = Modifier.size(14.dp),
                                     imageVector = Icons.Outlined.FavoriteBorder,
                                     contentDescription = null
                                 )
                                 Text(
                                     text = formatNumberByLocale(context, it),
-                                    style = MaterialTheme.typography.labelMedium
+                                    style = MaterialTheme.typography.labelSmall
                                 )
                             }
                         }
@@ -400,7 +402,7 @@ private fun ResultItemLayout(
                         it.forEach { modloader ->
                             Text(
                                 text = modloader.getDisplayName(),
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelSmall
                             )
                         }
                     }
@@ -408,7 +410,7 @@ private fun ResultItemLayout(
                         it.forEach { category ->
                             Text(
                                 text = stringResource(category.getDisplayName()),
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelSmall
                             )
                         }
                     }
@@ -450,7 +452,8 @@ fun ProjectTitleHead(
                 VerticalDivider(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
                 Text(
                     modifier = Modifier.alpha(0.7f),

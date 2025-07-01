@@ -54,6 +54,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVer
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 /**
@@ -152,7 +153,7 @@ fun <E> AddonListLayout(
     title: String,
     getItemText: @Composable (E) -> String,
     summary: (@Composable (E) -> Unit)? = null,
-    maxListHeight: Dp = 200.dp,
+    maxListHeight: Dp = rememberMaxHeight(),
     autoCollapse: Boolean = true,
     onValueChange: (E?) -> Unit = {},
     onReload: () -> Unit = {},

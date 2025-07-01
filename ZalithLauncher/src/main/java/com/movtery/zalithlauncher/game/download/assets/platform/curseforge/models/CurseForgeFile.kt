@@ -142,7 +142,7 @@ class CurseForgeFile(
     val fileFingerprint: Long,
 
     @SerialName("modules")
-    val modules: Array<Module>
+    val modules: Array<Module>? = null
 ) : PlatformVersion {
     @Serializable
     class Hash(
