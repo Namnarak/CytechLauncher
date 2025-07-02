@@ -180,13 +180,9 @@ private fun ChoseGameVersionLayout(
             val listState = rememberLazyListState()
 
             LaunchedEffect(Unit) {
-                listState.scrollToItem(
-                    if (selectedVersions.isEmpty()) {
-                        0
-                    } else {
-                        versions.indexOf(selectedVersions[0]).coerceAtLeast(0)
-                    }
-                )
+                versions.indexOf(selectedVersions[0]).takeIf { it != -1 }?.let { index ->
+                    listState.animateScrollToItem(index)
+                }
             }
 
             LazyColumn(

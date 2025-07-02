@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -76,6 +77,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -193,7 +195,8 @@ class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
     val dependencies: List<DownloadVersionInfo.Dependency>,
-    val infos: List<DownloadVersionInfo>
+    val infos: List<DownloadVersionInfo>,
+    val isAdapt: Boolean
 )
 
 suspend fun List<PlatformVersion>.mapToInfos(
@@ -371,7 +374,8 @@ fun List<DownloadVersionInfo>.mapWithVersions(): List<VersionInfoMap> {
             gameVersion = key.first,
             loader = key.second,
             dependencies = dependencies,
-            infos = infos
+            infos = infos,
+            isAdapt = isVersionAdapt(key.first, key.second)
         )
     }.sortedByVersionAndLoader()
 }
@@ -388,6 +392,28 @@ private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap
                 a.loader == null -> 1
                 b.loader == null -> -1
                 else -> a.loader.getDisplayName().compareTo(b.loader.getDisplayName())
+            }
+        }
+    }
+}
+
+/**
+ * 当前资源版本是否与当前选择的游戏版本匹配
+ */
+private fun isVersionAdapt(gameVersion: String, loader: PlatformDisplayLabel?): Boolean {
+    val currentVersion = VersionsManager.currentVersion
+    return if (currentVersion == null) {
+        false //没安装版本，无法判断
+    } else {
+        if (currentVersion.getVersionInfo()?.minecraftVersion != gameVersion) {
+            false //游戏版本不匹配
+        } else {
+            //判断模组加载器匹配情况
+            val loaderInfo = currentVersion.getVersionInfo()?.loaderInfo
+            when {
+                loader == null -> true //资源没有模组加载器信息，直接判定适配
+                loaderInfo == null -> false //资源有模组加载器，但当前版本没有模组加载器信息，不适配
+                else -> loaderInfo.name.equals(loader.getDisplayName(), true)
             }
         }
     }
@@ -422,6 +448,7 @@ fun AssetsVersionItemLayout(
             AssetsVersionHeadLayout(
                 modifier = Modifier.fillMaxWidth(),
                 infoMap = infoMap,
+                isAdapt = infoMap.isAdapt,
                 expanded = expanded,
                 onClick = { expanded = !expanded }
             )
@@ -501,6 +528,7 @@ fun AssetsVersionItemLayout(
 private fun AssetsVersionHeadLayout(
     modifier: Modifier = Modifier,
     infoMap: VersionInfoMap,
+    isAdapt: Boolean,
     expanded: Boolean,
     onClick: () -> Unit = {}
 ) {
@@ -508,7 +536,8 @@ private fun AssetsVersionHeadLayout(
         modifier = modifier
             .clickable(onClick = onClick)
             .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier
@@ -528,6 +557,13 @@ private fun AssetsVersionHeadLayout(
                     shape = MaterialTheme.shapes.small
                 )
             }
+        }
+        if (isAdapt) {
+            Icon(
+                modifier = Modifier.size(18.dp),
+                imageVector = Icons.Filled.Star,
+                contentDescription = null
+            )
         }
         if (!infoMap.infos.isEmpty()) {
             Row(
