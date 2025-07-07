@@ -20,11 +20,11 @@ suspend fun searchAssets(
     searchPlatform: Platform,
     searchFilter: PlatformSearchFilter,
     platformClasses: PlatformClasses,
-    onSuccess: (PlatformSearchResult) -> Unit,
+    onSuccess: suspend (PlatformSearchResult) -> Unit,
     onError: (SearchAssetsState.Error) -> Unit
 ) {
     runCatching {
-        when (searchPlatform) {
+        val result = when (searchPlatform) {
             Platform.CURSEFORGE -> {
                 searchWithCurseforge(
                     request = CurseForgeSearchRequest(
@@ -66,19 +66,17 @@ suspend fun searchAssets(
                 )
             }
         }
-    }.fold(
-        onSuccess = onSuccess,
-        onFailure = { e ->
-            if (e !is CancellationException) {
-                lError("An exception occurred while searching for assets.", e)
-                val pair = mapExceptionToMessage(e)
-                val state = SearchAssetsState.Error(pair.first, pair.second)
-                onError(state)
-            } else {
-                lWarning("The search task has been cancelled.")
-            }
+        onSuccess(result)
+    }.onFailure { e ->
+        if (e !is CancellationException) {
+            lError("An exception occurred while searching for assets.", e)
+            val pair = mapExceptionToMessage(e)
+            val state = SearchAssetsState.Error(pair.first, pair.second)
+            onError(state)
+        } else {
+            lWarning("The search task has been cancelled.")
         }
-    )
+    }
 }
 
 suspend fun <E> getVersions(

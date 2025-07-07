@@ -10,5 +10,5 @@ class McModSearch (
     @SerialName("ids")
     val ids: Set<String>,
     @SerialName("mcmod_type")
-    val mcmod_type: Int
+    val mcmodType: Int
 )

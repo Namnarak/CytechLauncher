@@ -17,7 +17,6 @@ import com.movtery.zalithlauncher.utils.network.httpGet
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.http.Parameters
-import kotlinx.serialization.json.Json
 
 object PlatformSearch {
     /**
@@ -174,12 +173,11 @@ object PlatformSearch {
     suspend fun getMcmodModInfo(
         type: Int,
         ids: Set<String>,
-        mctype: Int
-    ): McModSearchRes = withRetry("PlatformSearch:Mcmod_modinfo") {
-        val obj = McModSearch(type, ids, mctype)
+        mcType: Int
+    ): McModSearchRes = withRetry("PlatformSearch:Mcmod_getModInfo") {
         httpPostJson<McModSearchRes>(
             url = "$COLORMC_API/findmod",
-            body = obj
+            body = McModSearch(type = type, ids = ids, mcmodType = mcType)
         )
     }
 }

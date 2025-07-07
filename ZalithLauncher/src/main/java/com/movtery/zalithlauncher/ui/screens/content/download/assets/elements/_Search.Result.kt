@@ -48,7 +48,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCo
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeData
-import com.movtery.zalithlauncher.game.download.assets.platform.mcmod.models.McModSearchItem
 import com.movtery.zalithlauncher.game.download.assets.platform.mcmod.models.McModSearchRes
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -248,19 +247,11 @@ private fun ResultList(
                             ?.toSet()
                             ?.takeIf { it.isNotEmpty() }
 
-                    var title : String = item.title ?: ""
-                    var text : String = item.description ?: ""
-                    if (mcmod != null && mcmod.res == 100 && mcmod.data?.get(item.projectId) is McModSearchItem) {
-                        val mod = mcmod.data[item.projectId]!!
-                        title = mod.mcmod_name
-                        text = mod.mcmod_text
-                    }
-
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.MODRINTH,
-                        title = title,
-                        description = text,
+                        title = mcmod?.takeIf { it.res == 100 }?.data?.get(item.projectId)?.name ?: item.title ?: "",
+                        description = item.description ?: "",
                         iconUrl = item.iconUrl,
                         author = item.author,
                         downloads = item.downloads,
@@ -281,19 +272,11 @@ private fun ResultList(
                         mapCategories(Platform.CURSEFORGE, it.id.toString())
                     }.toSet().takeIf { it.isNotEmpty() }
 
-                    var title : String = item.name
-                    var text : String = item.summary
-                    if (mcmod != null && mcmod.res == 100 && mcmod.data?.get(item.id.toString()) is McModSearchItem) {
-                        val mod = mcmod.data[item.id.toString()]!!
-                        title = mod.mcmod_name
-                        text = mod.mcmod_text
-                    }
-
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.CURSEFORGE,
-                        title = title,
-                        description = text,
+                        title = mcmod?.takeIf { it.res == 100 }?.data?.get(item.id.toString())?.name ?: item.name,
+                        description = item.summary,
                         iconUrl = item.logo.url,
                         author = item.authors[0].name,
                         downloads = item.downloadCount,

@@ -40,6 +40,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Se
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -70,7 +71,7 @@ private class ScreenViewModel(
         search()
     }
 
-    fun putRes(result: PlatformSearchResult, mcmod:McModSearchRes? = null) {
+    fun putRes(result: PlatformSearchResult, mcmod: McModSearchRes? = null) {
         result.getPageInfo { pageNumber, pageIndex, totalPage, isLastPage ->
             lInfo("Searched page info: {pageNumber: $pageNumber, pageIndex: $pageIndex, totalPage: $totalPage, isLastPage: $isLastPage}")
 
@@ -108,25 +109,25 @@ private class ScreenViewModel(
                 searchFilter = searchFilter,
                 platformClasses = platformClasses,
                 onSuccess = { result ->
-                    val type: Int = when (searchPlatform) {
-                        Platform.MODRINTH -> 1
-                        else -> 0
-                    }
-                    val mctype: Int = when (platformClasses) {
-                        PlatformClasses.MOD -> 0
-                        PlatformClasses.MOD_PACK -> 1
-                        else -> -1
-                    }
+                    when (platformClasses) {
+                        PlatformClasses.MOD, PlatformClasses.MOD_PACK -> {
+                            val locale: Locale = Locale.getDefault()
 
-                    val locale: Locale = Locale.getDefault()
-
-                    if (locale.language.equals("zh") && locale.country.equals("CN")) {
-                        currentSearchJob = viewModelScope.launch {
-                            val res = PlatformSearch.getMcmodModInfo(type, result.getIds(), mctype)
-                            putRes(result, res)
+                            if (locale.language.equals("zh") && locale.country.equals("CN")) {
+                                runCatching {
+                                    val res = PlatformSearch.getMcmodModInfo(
+                                        type = searchPlatform.ordinal,
+                                        ids = result.getIds(),
+                                        mcType = platformClasses.ordinal
+                                    )
+                                    putRes(result, res)
+                                }.onFailure { e ->
+                                    lWarning("Failed to retrieve translation information", e)
+                                    putRes(result)
+                                }
+                            }
                         }
-                    } else {
-                        putRes(result)
+                        else -> putRes(result)
                     }
                 },
                 onError = {

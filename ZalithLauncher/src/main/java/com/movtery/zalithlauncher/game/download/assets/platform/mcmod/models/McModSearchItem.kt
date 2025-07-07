@@ -2,55 +2,54 @@ package com.movtery.zalithlauncher.game.download.assets.platform.mcmod.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.LocalDateTime
 
 @Serializable
-class McModSearchItem(
+data class McModSearchItem(
     @SerialName("mcmod_id")
-    val mcmod_id : Int,
+    val id : Int,
 
     @SerialName("mcmod_icon")
-    val mcmod_icon : String,
+    val icon : String,
 
     @SerialName("mcmod_name")
-    val mcmod_name : String,
+    val name : String,
 
     @SerialName("mcmod_author")
-    val mcmod_author : String,
+    val author : String,
 
     @SerialName("mcmod_text")
-    val mcmod_text : String,
+    val text : String,
 
     @SerialName("mcmod_type")
-    val mcmod_type : Int,
+    val type : Int,
 
     @SerialName("mcmod_mod_type")
-    val mcmod_mod_type : String,
+    val modType : String,
 
     @SerialName("mcmod_mod_subtype")
-    val mcmod_mod_subtype : String,
+    val modSubtype : String,
 
     @SerialName("mcmod_game_version")
-    val mcmod_game_version : String,
+    val gameVersion : String,
 
     @SerialName("mcmod_create_time")
-    val mcmod_create_time : String,
+    val createTime : String,
 
     @SerialName("mcmod_update_time")
-    val mcmod_update_time : String,
+    val updateTime : String,
 
     @SerialName("mcmod_re_time")
-    val mcmod_re_time : String,
+    val reTime : String,
 
     @SerialName("curseforge_url")
-    val curseforge_url : String?,
+    val curseforgeUrl : String?,
 
     @SerialName("curseforge_id")
-    val curseforge_id : String?,
+    val curseforgeId : String?,
 
     @SerialName("modrinth_url")
-    val modrinth_url : String?,
+    val modrinthUrl : String?,
 
     @SerialName("modrinth_id")
-    val modrinth_id : String?
+    val modrinthId : String?
 )
