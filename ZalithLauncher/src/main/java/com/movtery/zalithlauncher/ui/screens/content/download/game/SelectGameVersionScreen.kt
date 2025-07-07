@@ -30,7 +30,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
@@ -73,6 +75,8 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBl
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -85,6 +89,8 @@ data object SelectGameVersionScreenKey: NavKey
 private sealed interface VersionState {
     /** 加载中 */
     data object Loading : VersionState
+    /** 加载完成 */
+    data class None(val versions: List<VersionManifest.Version>) : VersionState
     /** 加载出现异常 */
     data class Failure(val message: Int, val args: Array<Any>? = null) : VersionState {
         override fun equals(other: Any?): Boolean {
@@ -112,103 +118,29 @@ private sealed interface VersionState {
 
 private data class VersionFilter(val release: Boolean, val snapshot: Boolean, val old: Boolean, val id: String = "")
 
-@Composable
-fun SelectGameVersionScreen(
-    onVersionSelect: (String) -> Unit = {}
-) {
-    BaseScreen(
-        levels1 = listOf(
-            Pair(DownloadScreenKey::class.java, mainScreenKey)
-        ),
-        Triple(DownloadGameScreenKey, downloadScreenKey, false),
-        Triple(SelectGameVersionScreenKey, downloadGameScreenKey, false)
-    ) { isVisible ->
-        val yOffset by swapAnimateDpAsState(
-            targetValue = (-40).dp,
-            swapIn = isVisible
-        )
+private class VersionsViewModel(): ViewModel() {
+    var versionState by mutableStateOf<VersionState>(VersionState.Loading)
+        private set
 
-        var reloadTrigger by remember { mutableStateOf(false) }
-        var forceReload by remember { mutableStateOf(false) }
+    //简易版本类型过滤器
+    var versionFilter by mutableStateOf(VersionFilter(release = true, snapshot = false, old = false))
+        private set
 
-        var versionState by remember {
-            mutableStateOf<VersionState?>(VersionState.Loading)
+    private var allVersions by mutableStateOf<List<VersionManifest.Version>>(emptyList())
+
+    fun filterWith(filter: VersionFilter) {
+        versionFilter = filter
+        viewModelScope.launch {
+            versionState = VersionState.None(allVersions.filterVersions(versionFilter))
         }
+    }
 
-        //简易版本类型过滤器
-        var versionFilter by remember { mutableStateOf(VersionFilter(release = true, snapshot = false, old = false)) }
-
-        var allVersions by remember { mutableStateOf<List<VersionManifest.Version>>(emptyList()) }
-        val filteredVersions by remember(allVersions, versionFilter) {
-            derivedStateOf {
-                allVersions.filterVersions(versionFilter)
-            }
-        }
-
-        Card(
-            modifier = Modifier
-                .padding(all = 12.dp)
-                .fillMaxSize()
-                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-            shape = MaterialTheme.shapes.extraLarge
-        ) {
-            when (val state = versionState) {
-                is VersionState.Loading -> {
-                    Box(Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(Modifier.align(Alignment.Center))
-                    }
-                }
-
-                is VersionState.Failure -> {
-                    Box(Modifier.fillMaxSize()) {
-                        val message = if (state.args != null) {
-                            stringResource(state.message, *state.args)
-                        } else {
-                            stringResource(state.message)
-                        }
-
-                        ScalingLabel(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = stringResource(R.string.download_game_failed_to_get_versions, message),
-                            onClick = {
-                                forceReload = true
-                                reloadTrigger = !reloadTrigger
-                            }
-                        )
-                    }
-                }
-
-                else -> {
-                    Column {
-                        VersionHeader(
-                            modifier = Modifier.fillMaxWidth(),
-                            versionFilter = versionFilter,
-                            onVersionFilterChange = { versionFilter = it },
-                            itemContainerColor = itemLayoutColor(),
-                            itemContentColor = MaterialTheme.colorScheme.onSurface,
-                            onRefreshClick = {
-                                forceReload = true
-                                reloadTrigger = !reloadTrigger
-                            }
-                        )
-
-                        VersionList(
-                            modifier = Modifier.weight(1f),
-                            itemContainerColor = itemLayoutColor(),
-                            itemContentColor = MaterialTheme.colorScheme.onSurface,
-                            versions = filteredVersions,
-                            onVersionSelect = onVersionSelect
-                        )
-                    }
-                }
-            }
-        }
-
-        LaunchedEffect(reloadTrigger) {
+    fun refresh(forceReload: Boolean = false) {
+        viewModelScope.launch {
             versionState = VersionState.Loading
             versionState = runCatching {
                 allVersions = MinecraftVersions.getVersionManifest(forceReload).versions
-                null
+                VersionState.None(allVersions.filterVersions(versionFilter))
             }.getOrElse { e ->
                 lWarning("Failed to get version manifest!", e)
                 val message: Pair<Int, Array<Any>?> = when(e) {
@@ -231,6 +163,96 @@ fun SelectGameVersionScreen(
                     }
                 }
                 VersionState.Failure(message.first, message.second)
+            }
+        }
+    }
+
+    init {
+        //初始化后，刷新版本列表
+        refresh()
+    }
+
+    override fun onCleared() {
+        viewModelScope.cancel()
+    }
+}
+
+@Composable
+fun SelectGameVersionScreen(
+    onVersionSelect: (String) -> Unit = {}
+) {
+    val viewModel = viewModel(
+        key = SelectGameVersionScreenKey.toString()
+    ) {
+        VersionsViewModel()
+    }
+
+    BaseScreen(
+        levels1 = listOf(
+            Pair(DownloadScreenKey::class.java, mainScreenKey)
+        ),
+        Triple(DownloadGameScreenKey, downloadScreenKey, false),
+        Triple(SelectGameVersionScreenKey, downloadGameScreenKey, false)
+    ) { isVisible ->
+        val yOffset by swapAnimateDpAsState(
+            targetValue = (-40).dp,
+            swapIn = isVisible
+        )
+
+        Card(
+            modifier = Modifier
+                .padding(all = 12.dp)
+                .fillMaxSize()
+                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            when (val state = viewModel.versionState) {
+                is VersionState.Loading -> {
+                    Box(Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    }
+                }
+
+                is VersionState.Failure -> {
+                    Box(Modifier.fillMaxSize()) {
+                        val message = if (state.args != null) {
+                            stringResource(state.message, *state.args)
+                        } else {
+                            stringResource(state.message)
+                        }
+
+                        ScalingLabel(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = stringResource(R.string.download_game_failed_to_get_versions, message),
+                            onClick = {
+                                viewModel.refresh(true)
+                            }
+                        )
+                    }
+                }
+
+                is VersionState.None -> {
+                    Column {
+                        VersionHeader(
+                            modifier = Modifier.fillMaxWidth(),
+                            versionFilter = viewModel.versionFilter,
+                            onVersionFilterChange = { viewModel.filterWith(it) },
+                            itemContainerColor = itemLayoutColor(),
+                            itemContentColor = MaterialTheme.colorScheme.onSurface,
+                            onRefreshClick = {
+                                viewModel.refresh(true)
+                            }
+                        )
+
+                        VersionList(
+                            modifier = Modifier.weight(1f),
+                            itemContainerColor = itemLayoutColor(),
+                            itemContentColor = MaterialTheme.colorScheme.onSurface,
+                            versions = state.versions,
+                            onVersionSelect = onVersionSelect
+                        )
+                    }
+                }
             }
         }
     }

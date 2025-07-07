@@ -38,6 +38,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
@@ -68,6 +71,8 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -86,13 +91,6 @@ private class AddonList {
     var neoforgeList by mutableStateOf<List<NeoForgeVersion>?>(null)
     var fabricList by mutableStateOf<List<FabricVersion>?>(null)
     var quiltList by mutableStateOf<List<QuiltVersion>?>(null)
-
-    //重新加载
-    var reloadOptiFine by mutableStateOf(false)
-    var reloadForge by mutableStateOf(false)
-    var reloadNeoForge by mutableStateOf(false)
-    var reloadFabric by mutableStateOf(false)
-    var reloadQuilt by mutableStateOf(false)
 }
 
 private class CurrentAddon {
@@ -118,6 +116,119 @@ private class CurrentAddon {
     var incompatibleWithQuilt by mutableStateOf<Set<ModLoader>>(emptySet())
 }
 
+private class AddonsViewModel(
+    private val gameVersion: String
+) : ViewModel() {
+    val addonList = AddonList()
+    val currentAddon = CurrentAddon()
+
+    fun reloadOptiFine() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.optifineState = it }) {
+                OptiFineVersions.fetchOptiFineList()?.filter { it.inherit == gameVersion }
+            }.also {
+                addonList.optifineList = it
+            }
+        }
+    }
+
+    fun reloadForge() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.forgeState = it }) {
+                ForgeVersions.fetchForgeList(gameVersion)
+            }.also {
+                addonList.forgeList = it
+            }
+        }
+    }
+
+    fun reloadNeoForge() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.neoforgeState = it }) {
+                NeoForgeVersions.fetchNeoForgeList()?.filter { it.inherit == gameVersion }
+            }.also {
+                addonList.neoforgeList = it
+            }
+        }
+    }
+
+    fun reloadFabric() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.fabricState = it }) {
+                FabricVersions.fetchFabricLoaderList(gameVersion)
+            }.also {
+                addonList.fabricList = it
+            }
+        }
+    }
+
+    fun reloadQuilt() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.quiltState = it }) {
+                QuiltVersions.fetchQuiltLoaderList(gameVersion)
+            }.also {
+                addonList.quiltList = it
+            }
+        }
+    }
+
+    private suspend fun <T> runWithState(
+        updateState: (AddonState) -> Unit,
+        block: suspend () -> T?
+    ): T? {
+        updateState(AddonState.Loading)
+        return runCatching {
+            block().also {
+                updateState(AddonState.None)
+            }
+        }.onFailure { e ->
+            val state = when (e) {
+                is ResponseTooShortException -> {
+                    //忽略，判定为不可用
+                    AddonState.None
+                }
+                is HttpRequestTimeoutException -> AddonState.Error(R.string.error_timeout)
+                is UnknownHostException, is UnresolvedAddressException -> {
+                    AddonState.Error(R.string.error_network_unreachable)
+                }
+                is ConnectException -> {
+                    AddonState.Error(R.string.error_connection_failed)
+                }
+                is SerializationException -> {
+                    AddonState.Error(R.string.error_parse_failed)
+                }
+                is ResponseException -> {
+                    val statusCode = e.response.status
+                    val res = when (statusCode) {
+                        HttpStatusCode.Unauthorized -> R.string.error_unauthorized
+                        HttpStatusCode.NotFound -> R.string.error_notfound
+                        else -> R.string.error_client_error
+                    }
+                    AddonState.Error(res, arrayOf(statusCode))
+                }
+                else -> {
+                    lError("An unknown exception was caught!", e)
+                    val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
+                    AddonState.Error(R.string.error_unknown, arrayOf(errorMessage))
+                }
+            }
+            updateState(state)
+        }.getOrNull()
+    }
+
+    init {
+        reloadOptiFine()
+        reloadForge()
+        reloadNeoForge()
+        reloadFabric()
+        reloadQuilt()
+    }
+
+    override fun onCleared() {
+        viewModelScope.cancel()
+    }
+}
+
 @Composable
 fun DownloadGameWithAddonScreen(
     key: DownloadGameWithAddonScreenKey,
@@ -125,8 +236,11 @@ fun DownloadGameWithAddonScreen(
 ) {
     val gameVersion = key.gameVersion
 
-    val addonList = AddonList()
-    val currentAddon = CurrentAddon()
+    val viewModel = viewModel(
+        key = key.toString()
+    ) {
+        AddonsViewModel(key.gameVersion)
+    }
 
     BaseScreen(
         levels1 = listOf(
@@ -157,16 +271,16 @@ fun DownloadGameWithAddonScreen(
                 itemContainerColor = itemContainerColor,
                 itemContentColor = itemContentColor,
                 gameVersion = gameVersion,
-                currentAddon = currentAddon,
+                currentAddon = viewModel.currentAddon,
                 onInstall = { customVersionName ->
                     val info = GameDownloadInfo(
                         gameVersion = gameVersion,
                         customVersionName = customVersionName,
-                        optifine = currentAddon.optifineVersion,
-                        forge = currentAddon.forgeVersion,
-                        neoforge = currentAddon.neoforgeVersion,
-                        fabric = currentAddon.fabricVersion,
-                        quilt = currentAddon.quiltVersion
+                        optifine = viewModel.currentAddon.optifineVersion,
+                        forge = viewModel.currentAddon.forgeVersion,
+                        neoforge = viewModel.currentAddon.neoforgeVersion,
+                        fabric = viewModel.currentAddon.fabricVersion,
+                        quilt = viewModel.currentAddon.quiltVersion
                     )
                     onInstall(info)
                 }
@@ -182,42 +296,37 @@ fun DownloadGameWithAddonScreen(
                 val yOffset1 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
                 OptiFineList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
-                    gameVersion = gameVersion,
-                    currentAddon = currentAddon,
-                    addonList = addonList
-                )
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadOptiFine() }
 
                 val yOffset2 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 50)
                 ForgeList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
-                    gameVersion = gameVersion,
-                    currentAddon = currentAddon,
-                    addonList = addonList
-                )
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadForge() }
 
                 val yOffset3 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 100)
                 NeoForgeList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
-                    gameVersion = gameVersion,
-                    currentAddon = currentAddon,
-                    addonList = addonList
-                )
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadNeoForge() }
 
                 val yOffset4 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 150)
                 FabricList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset4.roundToPx()) },
-                    gameVersion = gameVersion,
-                    currentAddon = currentAddon,
-                    addonList = addonList
-                )
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadFabric() }
 
                 val yOffset5 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 200)
                 QuiltList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset5.roundToPx()) },
-                    gameVersion = gameVersion,
-                    currentAddon = currentAddon,
-                    addonList = addonList
-                )
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadQuilt() }
             }
         }
     }
@@ -395,9 +504,9 @@ private fun AutoChangeVersionName(
 @Composable
 private fun OptiFineList(
     modifier: Modifier = Modifier,
-    gameVersion: String,
     currentAddon: CurrentAddon,
-    addonList: AddonList
+    addonList: AddonList,
+    onReload: () -> Unit = {}
 ) {
     val items = addonList.optifineList?.filter { version ->
         //选择 Forge 之后，过滤为当前 OptiFine 列表内能够匹配的版本
@@ -458,24 +567,16 @@ private fun OptiFineList(
         onValueChange = { version ->
             currentAddon.optifineVersion = version
         },
-        onReload = { addonList.reloadOptiFine = !addonList.reloadOptiFine }
+        onReload = onReload
     )
-
-    LaunchedEffect(addonList.reloadOptiFine) {
-        runWithState({ currentAddon.optifineState = it }) {
-            OptiFineVersions.fetchOptiFineList()?.filter { it.inherit == gameVersion }
-        }.also {
-            addonList.optifineList = it
-        }
-    }
 }
 
 @Composable
 private fun ForgeList(
     modifier: Modifier = Modifier,
-    gameVersion: String,
     currentAddon: CurrentAddon,
-    addonList: AddonList
+    addonList: AddonList,
+    onReload: () -> Unit = {}
 ) {
     val items = addonList.forgeList?.filter {
         //选择 OptiFine 之后，根据 OptiFine 需求的 Forge 版本进行过滤
@@ -537,24 +638,16 @@ private fun ForgeList(
         onValueChange = { version ->
             currentAddon.forgeVersion = version
         },
-        onReload = { addonList.reloadForge = !addonList.reloadForge }
+        onReload = onReload
     )
-
-    LaunchedEffect(addonList.reloadForge) {
-        runWithState({ currentAddon.forgeState = it }) {
-            ForgeVersions.fetchForgeList(gameVersion)
-        }.also {
-            addonList.forgeList = it
-        }
-    }
 }
 
 @Composable
 private fun NeoForgeList(
     modifier: Modifier = Modifier,
-    gameVersion: String,
     currentAddon: CurrentAddon,
-    addonList: AddonList
+    addonList: AddonList,
+    onReload: () -> Unit = {}
 ) {
     AddonListLayout(
         modifier = modifier,
@@ -588,24 +681,16 @@ private fun NeoForgeList(
         onValueChange = { version ->
             currentAddon.neoforgeVersion = version
         },
-        onReload = { addonList.reloadNeoForge = !addonList.reloadNeoForge }
+        onReload = onReload
     )
-
-    LaunchedEffect(addonList.reloadNeoForge) {
-        runWithState({ currentAddon.neoforgeState = it }) {
-            NeoForgeVersions.fetchNeoForgeList()?.filter { it.inherit == gameVersion }
-        }.also {
-            addonList.neoforgeList = it
-        }
-    }
 }
 
 @Composable
 private fun FabricList(
     modifier: Modifier = Modifier,
-    gameVersion: String,
     currentAddon: CurrentAddon,
-    addonList: AddonList
+    addonList: AddonList,
+    onReload: () -> Unit = {}
 ) {
     AddonListLayout(
         modifier = modifier,
@@ -639,24 +724,16 @@ private fun FabricList(
         onValueChange = { version ->
             currentAddon.fabricVersion = version
         },
-        onReload = { addonList.reloadFabric = !addonList.reloadFabric }
+        onReload = onReload
     )
-
-    LaunchedEffect(addonList.reloadFabric) {
-        runWithState({ currentAddon.fabricState = it }) {
-            FabricVersions.fetchFabricLoaderList(gameVersion)
-        }.also {
-            addonList.fabricList = it
-        }
-    }
 }
 
 @Composable
 private fun QuiltList(
     modifier: Modifier = Modifier,
-    gameVersion: String,
     currentAddon: CurrentAddon,
-    addonList: AddonList
+    addonList: AddonList,
+    onReload: () -> Unit = {}
 ) {
     AddonListLayout(
         modifier = modifier,
@@ -690,16 +767,8 @@ private fun QuiltList(
         onValueChange =  { version ->
             currentAddon.quiltVersion = version
         },
-        onReload = { addonList.reloadQuilt = !addonList.reloadQuilt }
+        onReload = onReload
     )
-
-    LaunchedEffect(addonList.reloadQuilt) {
-        runWithState({ currentAddon.quiltState = it }) {
-            QuiltVersions.fetchQuiltLoaderList(gameVersion)
-        }.also {
-            addonList.quiltList = it
-        }
-    }
 }
 
 private fun isOptiFineCompatibleWithForge(
@@ -753,48 +822,4 @@ private fun checkForgeCompatibilityError(
         }
         else -> null
     }
-}
-
-private suspend fun <T> runWithState(
-    updateState: (AddonState) -> Unit,
-    block: suspend () -> T?
-): T? {
-    updateState(AddonState.Loading)
-    return runCatching {
-        block().also {
-            updateState(AddonState.None)
-        }
-    }.onFailure { e ->
-        val state = when (e) {
-            is ResponseTooShortException -> {
-                //忽略，判定为不可用
-                AddonState.None
-            }
-            is HttpRequestTimeoutException -> AddonState.Error(R.string.error_timeout)
-            is UnknownHostException, is UnresolvedAddressException -> {
-                AddonState.Error(R.string.error_network_unreachable)
-            }
-            is ConnectException -> {
-                AddonState.Error(R.string.error_connection_failed)
-            }
-            is SerializationException -> {
-                AddonState.Error(R.string.error_parse_failed)
-            }
-            is ResponseException -> {
-                val statusCode = e.response.status
-                val res = when (statusCode) {
-                    HttpStatusCode.Unauthorized -> R.string.error_unauthorized
-                    HttpStatusCode.NotFound -> R.string.error_notfound
-                    else -> R.string.error_client_error
-                }
-                AddonState.Error(res, arrayOf(statusCode))
-            }
-            else -> {
-                lError("An unknown exception was caught!", e)
-                val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
-                AddonState.Error(R.string.error_unknown, arrayOf(errorMessage))
-            }
-        }
-        updateState(state)
-    }.getOrNull()
 }
