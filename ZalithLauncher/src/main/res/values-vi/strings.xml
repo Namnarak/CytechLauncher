@@ -1,3 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">Hủy</string>
+    <string name="generic_confirm">Xác nhận</string>
+    <string name="generic_error">Lỗi</string>
+    <string name="generic_warning">Cản báo</string>
+    <string name="generic_back">Trở lại</string>
+    <string name="generic_refresh">Làm mới</string>
+    <string name="generic_reset">Làm lại?(idfk)</string>
+    <string name="generic_delete">Xoá</string>
+    <string name="generic_rename">Đổi tên</string>
+    <string name="generic_copy">Sao chép</string>
+    <string name="generic_paste">Dán</string>
+    <string name="generic_more">Thêm</string>
+    <string name="generic_setting">Cài đặt</string>
+    <string name="generic_expand">Mở rộng</string>
+    <string name="generic_collapse">Thu gọn</string>
+    <string name="generic_main_menu">Menu chính</string>
+    <string name="generic_download">Tải</string>
+    <string name="generic_done">Xong</string>
+    <string name="generic_open">Mở</string>
+    <string name="generic_close">Đóng</string>
+    <string name="generic_clear">\???</string>
+    <string name="generic_import">Nhập</string>
+    <string name="generic_enable">Bật</string>
+    <string name="generic_disable">Tắt</string>
+    <string name="generic_open_link">Mở trong trình duyệt web</string>
+    <string name="generic_cannot_empty">Nội dung không thể để trống</string>
+    <string name="generic_input_invalid_character">Từ không hợp lệ trong tên: \"%s\"</string>
+    <string name="generic_input_failed_to_number">Đầu vào không thể ?????????</string>
+    <string name="generic_input_too_small">Giá trị không thể nhỏ hơn %s</string>
 </resources>
