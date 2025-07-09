@@ -78,7 +78,7 @@
     <string name="error_timeout">रिक्वेस्ट टाइम आउट हुआ</string>
     <string name="error_network_unreachable">नेटवर्क उपलब्ध नहीं है</string>
     <string name="error_connection_failed">सर्वर से कनेक्ट करने में विफल रहा</string>
-    <string name="error_parse_failed">डेटा पार्स करने में विफल रहा</string>
+    <string name="error_parse_failed">डेटा की व्याख्या करने में विफल रहा</string>
     <string name="error_unauthorized">(%s) अधिकृत नहीं है</string>
     <string name="error_notfound">(%s) संसाधन नहीं मिला</string>
     <string name="error_client_error">(%s) क्लाइंट त्रुटि</string>
@@ -88,4 +88,6 @@
     <string name="splash_screen_agree">इंस्टॉल</string>
     <string name="notification_title">नोटिफिकेशन परमीशन चेक करें</string>
     <string name="notification_request">अनुमति मांगें</string>
+    <string name="notification_ignore">अनदेखा करें</string>
+    <string name="notification_data_jvm_service_message">सही ढंग से इंस्टॉलेशन सुनिश्चित करने के लिए, लॉन्चर को इंस्टॉलर को फोरग्राउंड में चलाना आवश्यक है। हम स्थिरता बनाए रखने के लिए एक फोरग्राउंड सर्विस शुरू करने की कोशिश करेंगे, लेकिन इसके लिए नोटिफिकेशन की अनुमति चाहिए। कृपया नोटिफिकेशन अनुमति चालू करने में हमारी मदद करें। इससे इंस्टॉलेशन में किसी भी रुकावट से बचा जा सकेगा।</string>
 </resources>
