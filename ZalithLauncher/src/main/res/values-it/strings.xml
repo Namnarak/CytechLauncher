@@ -35,5 +35,16 @@
     <string name="generic_file_size">Grandezza del file: %s</string>
     <string name="unit_day">giorno</string>
     <string name="just_now">proprio ora</string>
-    <string name="minutes_ago">%s minuti fa</string>
+    <string name="minutes_ago">%d minuti fa</string>
+    <string name="hours_ago">%d ore fa</string>
+    <string name="months_days_ago">%1$d mese/i e %2$d giorno/i fa</string>
+    <string name="days_ago">%d giorni fa</string>
+    <string name="months_ago">%d mesi fa</string>
+    <string name="years_ago">%d anni fa</string>
+    <string name="launcher_version_label_alpha">Versione Alpha: %s (Solo Demo)</string>
+    <string name="launcher_version_label_beta">Versione Beta: %s (Solo Demo)</string>
+    <string name="launcher_version_debug_warning">Stai utilizzando una versione test %s! Questa versione potrebbe essere instabile ed è infatti intesa principalmente come accesso anticipato per provarne le funzionalità. Non è consigliata per un uso a lungo termine! Se incontri dei problemi durante l’utilizzo, per favore segnalaceli tramite la nostra pagina GitHub e cercheremo di risolverli il prima possibile.</string>
+    <string name="launcher_version_debug_warning_cant_close">Quest’avvertenza non può essere chiusa</string>
+    <string name="theme_color_dynamic">Dinamico (Android 12+)</string>
+    <string name="theme_color_embermire">Embermire</string>
 </resources>
