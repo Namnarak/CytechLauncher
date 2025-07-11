@@ -46,5 +46,23 @@
     <string name="launcher_version_debug_warning">Stai utilizzando una versione test %s! Questa versione potrebbe essere instabile ed è infatti intesa principalmente come accesso anticipato per provarne le funzionalità. Non è consigliata per un uso a lungo termine! Se incontri dei problemi durante l’utilizzo, per favore segnalaceli tramite la nostra pagina GitHub e cercheremo di risolverli il prima possibile.</string>
     <string name="launcher_version_debug_warning_cant_close">Quest’avvertenza non può essere chiusa</string>
     <string name="theme_color_dynamic">Dinamico (Android 12+)</string>
-    <string name="theme_color_embermire">Embermire</string>
+    <string name="theme_color_embermire"></string>
+    <string name="theme_color_picker_title">Seleziona colore</string>
+    <string name="crash_launcher_title">%s ha riscontrato un errore fatale</string>
+    <string name="crash_launcher_message">L’applicazione si è chiusa inaspettatamente. I dettagli dell’errore riportati qua sotto possono aiutare lo sviluppatore a migliorare l’app.</string>
+    <string name="crash_exit_note">"Controlla i log per maggior dettagli. Se il problema persiste, manda il file del log  allo sviluppatore. Evita  di utilizzare degli screenshot in quanto potrebbero mancare certe informazioni."</string>
+    <string name="crash_restart">Riavvia</string>
+    <string name="crash_exit">Esci</string>
+    <string name="error_import_image">Importazione dell’immagine fallita</string>
+    <string name="error_create_dir">Non è stato possibile creare la cartella: %s</string>
+    <string name="error_network_unreachable">Connessione di rete non disponibile</string>
+    <string name="error_connection_failed">Non è stato possibile connettersi al server</string>
+    <string name="error_notfound">(%s) Risorsa non trovata</string>
+    <string name="error_client_error">(%s) Errore del client</string>
+    <string name="error_unknown">Errore sconosciuto: %s</string>
+    <string name="splash_screen_unpack_desc">Il launcher deve scaricare questi file per assicurarsi che Minecraft possa funzionare correttamente. Sono inclusi nell’app e devono prima essere estratti. Premi il pulsante qua sotto per iniziare l’estrazione e aggiornarli.</string>
+    <string name="splash_screen_installing">Il launcher sta estraendo questi file. Quando avrà terminato, entrerà automaticamente nella schermata principale. Attendi.</string>
+    <string name="splash_screen_agree">Installa</string>
+    <string name="notification_request">Richiedi Permesso</string>
+    <string name="notification_ignore">Ignora</string>
 </resources>
