@@ -44,7 +44,7 @@
     <string name="download_category_saves">Salvamentos</string>
     <string name="download_game_type_release">Lançamento</string>
     <string name="download_game_type_snapshot">Versão de teste</string>
-    <string name="download_game_type_old_alpha">Alfa</string>
+    <string name="download_game_type_old_alpha">Alpha</string>
     <string name="download_game_type_old_beta">Beta</string>
     <string name="download_game_addon_available">Disponível</string>
     <string name="download_game_addon_unavailable">Indisponível</string>
@@ -178,6 +178,22 @@
     <string name="notification_title">Verificar permissão de notificação</string>
     <string name="notification_request">Solicitar permissão</string>
     <string name="notification_data_jvm_service_message">Para garantir uma instalação tranquila, o inicializador precisa executar o instalador em primeiro plano. Tentaremos iniciar um serviço em primeiro plano para manter a estabilidade, mas isso requer permissões de notificação. Você poderia nos ajudar a habilitar as permissões de notificação? Isso ajudará a evitar interrupções na instalação!</string>
-    <string name="notification_data_jvm_service_name">Serviço de instalação em segundo plano</string>
-    <string name="notification_data_jvm_service_running">­Instalando o jogo via serviço em primeiro plano</string>
+    <string name="notification_data_jvm_service_name">Serviço de instalação em primeiro plano</string>
+    <string name="notification_data_jvm_service_running">Instalando o jogo via serviço em primeiro plano</string>
+    <string name="unpack_screen_jre8">Ambiente Java 8 (necessário para Minecraft 1.16 e anteriores)</string>
+    <string name="unpack_screen_jre17">Ambiente Java 17 (necessário para Minecraft 1.17+)</string>
+    <string name="unpack_screen_jre21">Ambiente Java 21 (necessário para Minecraft 1.20.5+)</string>
+    <string name="unpack_screen_authlib_injector">Modifica authlib para logins externos.</string>
+    <string name="unpack_screen_cacio">Backend de GUI portátil para OpenJDK.</string>
+    <string name="unpack_screen_lwjgl">Biblioteca de jogos Java leve (necessária para o Minecraft).</string>
+    <string name="unpack_screen_launcher">Componentes essenciais do iniciador.</string>
+    <string name="main_task_menu">Menu de Tarefas</string>
+    <string name="download_category_resource_pack">Pacote de recursos</string>
+    <string name="download_category_shaders">Pacote de Shaders</string>
+    <string name="download_game_failed_to_get_versions">Falha ao obter a versão: %s. Toque para tentar novamente.</string>
+    <string name="download_game_type_old">Versão Antiga</string>
+    <string name="download_game_version_name">Nome da versão</string>
+    <string name="download_game_addon_list_load_error">Falha ao carregar a lista: %s</string>
+    <string name="download_game_addon_incompatible_with">Incompatível com %s</string>
+    <string name="download_game_addon_compatible_with">Compatível com %s</string>
 </resources>
