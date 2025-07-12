@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="generic_cancel">Please can you do the translation to Brazilian Portuguese? We really want this amazing game in Portuguese too.</string>
+    <string name="generic_cancel">Cancelar</string>
     <string name="generic_confirm">Confirmar</string>
     <string name="generic_error">Erro</string>
     <string name="generic_warning">Aviso</string>
@@ -125,4 +125,13 @@
     <string name="account_label_password">Senha</string>
     <string name="files_back_to_parent">Voltar</string>
     <string name="multirt_runtime_provided_by_launcher">Incluso</string>
+    <string name="generic_main_menu">Menu Principal</string>
+    <string name="generic_open_link">Abrir no Navegador</string>
+    <string name="generic_cannot_empty">O conteúdo não pode estar vazio!</string>
+    <string name="generic_input_invalid_character">Caracteres inválidos no nome: \"%s\"</string>
+    <string name="generic_input_failed_to_number">A entrada não pode ser analisada como um número</string>
+    <string name="generic_input_too_small">O valor não pode ser menor que %s</string>
+    <string name="generic_input_too_large">O valor não pode ser maior que %s</string>
+    <string name="generic_unpacking">Descompactando %s</string>
+    <string name="generic_in_progress">Em progresso</string>
 </resources>
