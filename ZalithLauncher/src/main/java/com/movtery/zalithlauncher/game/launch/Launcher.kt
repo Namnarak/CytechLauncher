@@ -20,7 +20,6 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
 import com.movtery.zalithlauncher.utils.device.Architecture.is64BitsDevice
@@ -320,8 +319,8 @@ abstract class Launcher(
                 put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
                 put("user.timezone", TimeZone.getDefault().id)
                 put("org.lwjgl.vulkan.libname", "libvulkan.so")
-                put("glfwstub.windowWidth", getDisplayFriendlyRes(windowSize.width, scaleFactor).toString())
-                put("glfwstub.windowHeight", getDisplayFriendlyRes(windowSize.height, scaleFactor).toString())
+                put("glfwstub.windowWidth", getDisplayFriendlyRes(windowSize.width, AllSettings.resolutionRatio.state / 100f).toString())
+                put("glfwstub.windowHeight", getDisplayFriendlyRes(windowSize.height, AllSettings.resolutionRatio.state / 100f).toString())
                 put("glfwstub.initEgl", "false")
                 put("ext.net.resolvPath", resolvFile)
 

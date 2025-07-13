@@ -18,18 +18,8 @@ import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
-import com.movtery.zalithlauncher.setting.cursorSensitivity
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
-import com.movtery.zalithlauncher.setting.gestureControl
-import com.movtery.zalithlauncher.setting.gestureLongPressDelay
-import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
-import com.movtery.zalithlauncher.setting.gestureTapMouseAction
-import com.movtery.zalithlauncher.setting.mouseCaptureSensitivity
-import com.movtery.zalithlauncher.setting.mouseControlMode
-import com.movtery.zalithlauncher.setting.mouseLongPressDelay
-import com.movtery.zalithlauncher.setting.mouseSize
-import com.movtery.zalithlauncher.setting.physicalMouseMode
-import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
@@ -76,7 +66,7 @@ fun MouseControlLayout(
         val mode = ZLBridgeStates.cursorMode
         if (mode == CURSOR_ENABLED) {
             //非实体鼠标控制 -> 抓取系统指针，使用虚拟鼠标
-            val requestPointerCapture = !physicalMouseMode
+            val requestPointerCapture = !AllSettings.physicalMouseMode.state
 
             VirtualPointerLayout(
                 modifier = Modifier.fillMaxSize(),
@@ -103,35 +93,35 @@ fun MouseControlLayout(
                     val code = LWJGLCharSender.getMouseButton(button) ?: return@VirtualPointerLayout
                     CallbackBridge.sendMouseButton(code.toInt(), pressed)
                 },
-                controlMode = mouseControlMode,
-                mouseSize = mouseSize.dp,
-                cursorSensitivity = cursorSensitivity,
-                longPressTimeoutMillis = mouseLongPressDelay.toLong(),
+                controlMode = AllSettings.mouseControlMode.state,
+                mouseSize = AllSettings.mouseSize.state.dp,
+                cursorSensitivity = AllSettings.cursorSensitivity.state,
+                longPressTimeoutMillis = AllSettings.mouseLongPressDelay.state.toLong(),
                 requestFocusKey = mode
             )
         }
 
         if (mode == CURSOR_DISABLED) {
-            val speedFactor = mouseCaptureSensitivity / 100f
-            val tapMouseAction = gestureTapMouseAction.toAction()
-            val longPressMouseAction = gestureLongPressMouseAction.toAction()
+            val speedFactor = AllSettings.mouseCaptureSensitivity.state / 100f
+            val tapMouseAction = AllSettings.gestureTapMouseAction.state.toAction()
+            val longPressMouseAction = AllSettings.gestureLongPressMouseAction.state.toAction()
 
             TouchpadLayout(
                 modifier = Modifier.fillMaxSize(),
-                longPressTimeoutMillis = gestureLongPressDelay.toLong(),
+                longPressTimeoutMillis = AllSettings.gestureLongPressDelay.state.toLong(),
                 requestPointerCapture = true,
                 onTap = {
-                    if (gestureControl) {
+                    if (AllSettings.gestureControl.state) {
                         CallbackBridge.putMouseEvent(tapMouseAction)
                     }
                 },
                 onLongPress = {
-                    if (gestureControl) {
+                    if (AllSettings.gestureControl.state) {
                         CallbackBridge.putMouseEvent(longPressMouseAction, true)
                     }
                 },
                 onLongPressEnd = {
-                    if (gestureControl) {
+                    if (AllSettings.gestureControl.state) {
                         CallbackBridge.putMouseEvent(longPressMouseAction, false)
                     }
                 },
@@ -165,5 +155,5 @@ private fun Offset.sendPosition() {
 }
 
 private fun Float.sumPosition(): Float {
-    return (this * scaleFactor)
+    return (this * (AllSettings.resolutionRatio.state / 100f))
 }

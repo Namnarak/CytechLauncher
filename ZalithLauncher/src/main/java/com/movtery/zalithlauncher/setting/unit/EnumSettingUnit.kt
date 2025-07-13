@@ -4,7 +4,6 @@ import com.movtery.zalithlauncher.setting.Settings.Manager
 
 /**
  * 枚举设置单元，将枚举保存到设置配置文件中
- * @param getEnum 根据枚举的 `name` 字符串，获取枚举对象
  */
 class EnumSettingUnit<E : Enum<E>>(
     key: String,
@@ -17,4 +16,19 @@ class EnumSettingUnit<E : Enum<E>>(
             cacheValue = it
         }
     }
+
+    init {
+        initState()
+    }
+}
+
+inline fun <reified E : Enum<E>> enumSettingUnit(
+    key: String,
+    defaultValue: E
+): EnumSettingUnit<E> {
+    return EnumSettingUnit(
+        key = key,
+        defaultValue = defaultValue,
+        getEnum = { raw -> enumValues<E>().firstOrNull { it.name == raw } }
+    )
 }

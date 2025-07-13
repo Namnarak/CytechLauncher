@@ -36,18 +36,8 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.cursorSensitivity
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
-import com.movtery.zalithlauncher.setting.gestureControl
-import com.movtery.zalithlauncher.setting.gestureLongPressDelay
-import com.movtery.zalithlauncher.setting.gestureLongPressMouseAction
-import com.movtery.zalithlauncher.setting.gestureTapMouseAction
-import com.movtery.zalithlauncher.setting.mouseCaptureSensitivity
-import com.movtery.zalithlauncher.setting.mouseControlMode
-import com.movtery.zalithlauncher.setting.mouseLongPressDelay
-import com.movtery.zalithlauncher.setting.mouseSize
-import com.movtery.zalithlauncher.setting.physicalMouseMode
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -112,14 +102,11 @@ fun ControlSettingsScreen() {
                                 tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
                             )
                         }
-                    },
-                    onCheckedChange = {
-                        physicalMouseMode = it
                     }
                 )
 
                 MousePointerLayout(
-                    mouseSize = mouseSize
+                    mouseSize = AllSettings.mouseSize.state
                 )
 
                 SliderSettingsLayout(
@@ -127,8 +114,7 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_mouse_size_title),
                     valueRange = 5f..50f,
                     suffix = "Dp",
-                    fineTuningControl = true,
-                    onValueChange = { mouseSize = it }
+                    fineTuningControl = true
                 )
 
                 ListSettingsLayout(
@@ -136,8 +122,7 @@ fun ControlSettingsScreen() {
                     items = MouseControlMode.entries,
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
-                    getItemText = { stringResource(it.nameRes) },
-                    onValueChange = { mouseControlMode = it }
+                    getItemText = { stringResource(it.nameRes) }
                 )
 
                 SliderSettingsLayout(
@@ -146,8 +131,7 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
                     valueRange = 25f..300f,
                     suffix = "%",
-                    fineTuningControl = true,
-                    onValueChange = { cursorSensitivity = it }
+                    fineTuningControl = true
                 )
 
                 SliderSettingsLayout(
@@ -156,8 +140,7 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
                     valueRange = 25f..300f,
                     suffix = "%",
-                    fineTuningControl = true,
-                    onValueChange = { mouseCaptureSensitivity = it }
+                    fineTuningControl = true
                 )
 
                 SliderSettingsLayout(
@@ -166,8 +149,7 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
                     valueRange = 100f..1000f,
                     suffix = "ms",
-                    fineTuningControl = true,
-                    onValueChange = { mouseLongPressDelay = it }
+                    fineTuningControl = true
                 )
             }
 
@@ -189,8 +171,7 @@ fun ControlSettingsScreen() {
                 SwitchSettingsLayout(
                     unit = AllSettings.gestureControl,
                     title = stringResource(R.string.settings_control_gesture_control_title),
-                    summary = stringResource(R.string.settings_control_gesture_control_summary),
-                    onCheckedChange = { gestureControl = it }
+                    summary = stringResource(R.string.settings_control_gesture_control_summary)
                 )
 
                 ListSettingsLayout(
@@ -199,8 +180,7 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_gesture_tap_action_title),
                     summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
                     getItemText = { stringResource(it.nameRes) },
-                    enabled = gestureControl,
-                    onValueChange = { gestureTapMouseAction = it }
+                    enabled = AllSettings.gestureControl.state
                 )
 
                 ListSettingsLayout(
@@ -209,8 +189,7 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_gesture_long_press_action_title),
                     summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
                     getItemText = { stringResource(it.nameRes) },
-                    enabled = gestureControl,
-                    onValueChange = { gestureLongPressMouseAction = it }
+                    enabled = AllSettings.gestureControl.state
                 )
 
                 SliderSettingsLayout(
@@ -219,9 +198,8 @@ fun ControlSettingsScreen() {
                     summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
                     valueRange = 100f..1000f,
                     suffix = "ms",
-                    enabled = gestureControl,
-                    fineTuningControl = true,
-                    onValueChange = { gestureLongPressDelay = it }
+                    enabled = AllSettings.gestureControl.state,
+                    fineTuningControl = true
                 )
             }
         }

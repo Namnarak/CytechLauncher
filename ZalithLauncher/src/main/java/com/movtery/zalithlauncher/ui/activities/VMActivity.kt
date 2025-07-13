@@ -50,7 +50,6 @@ import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
@@ -301,7 +300,7 @@ class VMActivity : BaseComponentActivity(
 
     private fun getDisplayPixels(pixels: Int): Int {
         return when (handler.type) {
-            HandlerType.GAME -> getDisplayFriendlyRes(pixels, scaleFactor)
+            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
             HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
         }
     }

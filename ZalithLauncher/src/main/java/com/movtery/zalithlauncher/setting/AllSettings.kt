@@ -8,9 +8,9 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
-import com.movtery.zalithlauncher.setting.unit.EnumSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.setting.unit.enumSettingUnit
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -132,7 +132,7 @@ class AllSettings {
         /**
          * 虚拟鼠标控制模式
          */
-        val mouseControlMode = EnumSettingUnit<MouseControlMode>("mouseControlMode", MouseControlMode.SLIDE) { MouseControlMode.valueOf(it) }
+        val mouseControlMode = enumSettingUnit("mouseControlMode", MouseControlMode.SLIDE)
 
         /**
          * 鼠标控制长按延迟
@@ -147,12 +147,12 @@ class AllSettings {
         /**
          * 手势控制点击时触发的鼠标按钮
          */
-        val gestureTapMouseAction = EnumSettingUnit<GestureActionType>("gestureTapMouseAction", GestureActionType.MOUSE_RIGHT) { GestureActionType.valueOf(it) }
+        val gestureTapMouseAction = enumSettingUnit("gestureTapMouseAction", GestureActionType.MOUSE_RIGHT)
 
         /**
          * 手势控制长按时触发的鼠标按钮
          */
-        val gestureLongPressMouseAction = EnumSettingUnit<GestureActionType>("gestureLongPressMouseAction", GestureActionType.MOUSE_LEFT) { GestureActionType.valueOf(it) }
+        val gestureLongPressMouseAction = enumSettingUnit("gestureLongPressMouseAction", GestureActionType.MOUSE_LEFT)
 
         /**
          * 手势控制长按延迟
@@ -164,11 +164,11 @@ class AllSettings {
          * 颜色主题色
          * Android 12+ 默认动态主题色
          */
-        val launcherColorTheme = EnumSettingUnit<ColorThemeType>(
+        val launcherColorTheme = enumSettingUnit(
             "launcherColorTheme",
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ColorThemeType.DYNAMIC
             else ColorThemeType.EMBERMIRE
-        ) { ColorThemeType.valueOf(it) }
+        )
 
         /**
          * 自定义颜色主题色
@@ -193,7 +193,7 @@ class AllSettings {
         /**
          * 启动器页面切换动画类型
          */
-        val launcherSwapAnimateType = EnumSettingUnit<TransitionAnimationType>("launcherSwapAnimateType", TransitionAnimationType.BOUNCE) { TransitionAnimationType.valueOf(it) }
+        val launcherSwapAnimateType = enumSettingUnit("launcherSwapAnimateType", TransitionAnimationType.BOUNCE)
 
         /**
          * 启动器日志保留天数

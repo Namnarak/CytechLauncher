@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.setting.unit
 
 import androidx.annotation.CheckResult
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.setting.Settings
 
 abstract class AbstractSettingUnit<V>(
@@ -15,11 +18,22 @@ abstract class AbstractSettingUnit<V>(
     abstract fun getValue(): V
 
     /**
+     * 可观察的状态
+     */
+    var state by mutableStateOf(defaultValue)
+        private set
+
+    protected fun initState() {
+        this.state = getValue()
+    }
+
+    /**
      * @return 存入值，并返回一个设置构建器
      */
     @CheckResult
     fun put(value: V): Settings.Manager.SettingBuilder {
         this.cacheValue = value!!
+        this.state = value
         return Settings.Manager.SettingBuilder().put(this, value)
     }
 
@@ -28,6 +42,7 @@ abstract class AbstractSettingUnit<V>(
      */
     fun reset() {
         this.cacheValue = defaultValue!!
+        this.state = defaultValue
         Settings.Manager.put(this, defaultValue).save()
     }
 }

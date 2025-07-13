@@ -4,11 +4,15 @@ import com.movtery.zalithlauncher.setting.Settings.Manager
 
 class FloatSettingUnit(key: String, defaultValue: Float) : AbstractSettingUnit<Float>(key, defaultValue) {
     override fun getValue(): Float {
-        if (cacheValue != null) return cacheValue!!
+        cacheValue?.let { return it }
         return Manager.getValue(key, defaultValue) {
             it.toFloatOrNull()
         }.also {
             cacheValue = it
         }
+    }
+
+    init {
+        initState()
     }
 }

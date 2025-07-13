@@ -31,7 +31,6 @@ import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SwitchLayout
@@ -105,8 +104,7 @@ fun RendererSettingsScreen() {
                     summary = stringResource(R.string.settings_renderer_resolution_scale_summary),
                     valueRange = 25f..300f,
                     suffix = "%",
-                    fineTuningControl = true,
-                    onValueChange = { scaleFactor = it / 100f }
+                    fineTuningControl = true
                 )
 
                 SwitchSettingsLayout(
