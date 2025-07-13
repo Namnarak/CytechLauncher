@@ -29,7 +29,6 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
-import com.movtery.zalithlauncher.setting.enums.toMouseControlMode
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.file.child
 import java.io.File
@@ -63,7 +62,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
 @Composable
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
-    controlMode: MouseControlMode = AllSettings.mouseControlMode.toMouseControlMode(),
+    controlMode: MouseControlMode = AllSettings.mouseControlMode.getValue(),
     longPressTimeoutMillis: Long = -1L,
     requestPointerCapture: Boolean = true,
     lastMousePosition: Offset? = null,

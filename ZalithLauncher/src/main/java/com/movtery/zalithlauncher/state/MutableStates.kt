@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation3.runtime.NavKey
-import com.movtery.zalithlauncher.utils.animation.getAnimateType
+import com.movtery.zalithlauncher.setting.AllSettings
 
 object MutableStates {
     /**
@@ -15,7 +15,7 @@ object MutableStates {
     /**
      * 状态：启动器页面切换动画类型
      */
-    var launcherAnimateType by mutableStateOf(getAnimateType())
+    var launcherAnimateType by mutableStateOf(AllSettings.launcherSwapAnimateType.getValue())
 }
 
 /**

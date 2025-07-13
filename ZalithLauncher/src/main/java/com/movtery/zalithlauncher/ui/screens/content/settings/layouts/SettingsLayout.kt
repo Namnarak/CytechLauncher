@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
+import com.movtery.zalithlauncher.setting.unit.EnumSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
@@ -102,7 +103,7 @@ class SettingsLayoutScope {
     @Composable
     fun <E: Enum<E>> EnumSettingsLayout(
         modifier: Modifier = Modifier,
-        unit: StringSettingUnit,
+        unit: EnumSettingUnit<E>,
         entries: EnumEntries<E>,
         title: String,
         summary: String? = null,
@@ -134,11 +135,11 @@ class SettingsLayoutScope {
                         val radioText = getRadioText(enum)
                         RadioButton(
                             enabled = getRadioEnable(enum),
-                            selected = value == enum.name,
+                            selected = value == enum,
                             onClick = {
                                 onRadioClick(enum)
-                                if (value == enum.name) return@RadioButton
-                                value = enum.name
+                                if (value == enum) return@RadioButton
+                                value = enum
                                 unit.put(value).save()
                                 onValueChange(enum)
                             }
@@ -184,6 +185,38 @@ class SettingsLayoutScope {
             itemListPadding = itemListPadding,
             onValueChange = { item ->
                 unit.put(getItemId(item)).save()
+                onValueChange(item)
+            }
+        )
+    }
+
+    @Composable
+    fun <E: Enum<E>> ListSettingsLayout(
+        modifier: Modifier = Modifier,
+        unit: EnumSettingUnit<E>,
+        items: List<E>,
+        title: String,
+        summary: String? = null,
+        getItemText: @Composable (E) -> String,
+        getItemSummary: (@Composable (E) -> Unit)? = null,
+        enabled: Boolean = true,
+        itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
+        onValueChange: (E) -> Unit = {}
+    ) {
+        SimpleListLayout(
+            modifier = modifier,
+            items = items,
+            currentId = unit.getValue().name,
+            defaultId = unit.defaultValue.name,
+            title = title,
+            summary = summary,
+            getItemText = getItemText,
+            getItemId = { it.name },
+            getItemSummary = getItemSummary,
+            enabled = enabled,
+            itemListPadding = itemListPadding,
+            onValueChange = { item ->
+                unit.put(item).save()
                 onValueChange(item)
             }
         )

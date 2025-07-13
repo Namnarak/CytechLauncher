@@ -136,7 +136,6 @@ fun ControlSettingsScreen() {
                     items = MouseControlMode.entries,
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
-                    getItemId = { it.name },
                     getItemText = { stringResource(it.nameRes) },
                     onValueChange = { mouseControlMode = it }
                 )
@@ -200,7 +199,6 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_gesture_tap_action_title),
                     summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
                     getItemText = { stringResource(it.nameRes) },
-                    getItemId = { it.name },
                     enabled = gestureControl,
                     onValueChange = { gestureTapMouseAction = it }
                 )
@@ -211,7 +209,6 @@ fun ControlSettingsScreen() {
                     title = stringResource(R.string.settings_control_gesture_long_press_action_title),
                     summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
                     getItemText = { stringResource(it.nameRes) },
-                    getItemId = { it.name },
                     enabled = gestureControl,
                     onValueChange = { gestureLongPressMouseAction = it }
                 )

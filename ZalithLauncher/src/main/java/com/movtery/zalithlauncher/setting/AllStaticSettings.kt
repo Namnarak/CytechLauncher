@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.movtery.zalithlauncher.setting.enums.toGestureButtonType
-import com.movtery.zalithlauncher.setting.enums.toMouseControlMode
 
 /**
  * 缩放因子
@@ -36,7 +34,7 @@ var mouseCaptureSensitivity by mutableIntStateOf(AllSettings.mouseCaptureSensiti
 /**
  * 鼠标控制模式
  */
-var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.toMouseControlMode())
+var mouseControlMode by mutableStateOf(AllSettings.mouseControlMode.getValue())
 
 /**
  * 鼠标长按触发延迟
@@ -51,12 +49,12 @@ var gestureControl by mutableStateOf(AllSettings.gestureControl.getValue())
 /**
  * 手势控制点击时触发的鼠标按钮
  */
-var gestureTapMouseAction by mutableStateOf(AllSettings.gestureTapMouseAction.getValue().toGestureButtonType())
+var gestureTapMouseAction by mutableStateOf(AllSettings.gestureTapMouseAction.getValue())
 
 /**
  * 手势控制长按时触发的鼠标按钮
  */
-var gestureLongPressMouseAction by mutableStateOf(AllSettings.gestureLongPressMouseAction.getValue().toGestureButtonType())
+var gestureLongPressMouseAction by mutableStateOf(AllSettings.gestureLongPressMouseAction.getValue())
 
 /**
  * 手势控制长按触发延迟

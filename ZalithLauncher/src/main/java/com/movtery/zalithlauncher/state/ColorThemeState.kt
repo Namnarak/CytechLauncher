@@ -12,7 +12,7 @@ import kotlin.reflect.KProperty
  * 状态：当前颜色主题状态
  */
 class ColorThemeState {
-    private var currentType by mutableStateOf(getCurrentColorType())
+    private var currentType by mutableStateOf(AllSettings.launcherColorTheme.getValue())
 
     operator fun getValue(nothing: Nothing?, property: KProperty<*>): ColorThemeType {
         return currentType
@@ -26,8 +26,3 @@ class ColorThemeState {
 val LocalColorThemeState = staticCompositionLocalOf<ColorThemeState> {
     error("ColorThemeState not provided!")
 }
-
-private fun getCurrentColorType(): ColorThemeType =
-    ColorThemeType.entries.find {
-        it.name == AllSettings.launcherColorTheme.getValue()
-    } ?: ColorThemeType.EMBERMIRE

@@ -35,14 +35,6 @@ fun getAdjustedDelayMillis(baseDelayMillis: Int): Int {
 }
 
 /**
- * 获取切换动画的类型
- */
-fun getAnimateType(): TransitionAnimationType {
-    val currentValue = AllSettings.launcherSwapAnimateType.getValue()
-    return TransitionAnimationType.entries.find { it.name == currentValue } ?: TransitionAnimationType.BOUNCE
-}
-
-/**
  * 页面切换动画是否关闭
  */
 fun isSwapAnimateClosed() = MutableStates.launcherAnimateType == TransitionAnimationType.CLOSE
@@ -83,8 +75,7 @@ fun <E> getSwapAnimateTween(
 ): FiniteAnimationSpec<E> {
     val adjustedDelayMillis = getAdjustedDelayMillis(delayMillis)
     return if (swapIn) {
-        val type = getAnimateType()
-        when (type) {
+        when (AllSettings.launcherSwapAnimateType.getValue()) {
             TransitionAnimationType.CLOSE -> snap()
             TransitionAnimationType.BOUNCE -> getAnimateTweenBounce(adjustedDelayMillis)
             TransitionAnimationType.JELLY_BOUNCE -> getAnimateTweenJellyBounce(adjustedDelayMillis)
