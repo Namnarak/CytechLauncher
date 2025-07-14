@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.game.plugin.renderer
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.os.Bundle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
@@ -121,8 +122,8 @@ object RendererPluginManager {
                     id = rendererId,
                     displayName = des,
                     summary = context.getString(R.string.settings_renderer_from_plugins, appName),
-                    minMCVer = metaData.getString("minMCVer")?.takeIf { it.isNotEmptyOrBlank() },
-                    maxMCVer = metaData.getString("maxMCVer")?.takeIf { it.isNotEmptyOrBlank() },
+                    minMCVer = metaData.getVersionString("minMCVer"),
+                    maxMCVer = metaData.getVersionString("maxMCVer"),
                     uniqueIdentifier = packageName,
                     glName = renderer[1],
                     eglName = renderer[2].progressEglName(nativeLibraryDir),
@@ -150,4 +151,16 @@ object RendererPluginManager {
     private fun String.progressEglName(libPath: String): String =
         if (startsWith("/")) "$libPath$this"
         else this
+
+    private fun Bundle.getVersionString(key: String): String? {
+        return if (containsKey(key)) {
+            runCatching {
+                when (val o = get(key)) {
+                    is String -> o
+                    is Number -> o.toString()
+                    else -> null
+                }
+            }.getOrNull()?.takeIf { it.isNotEmptyOrBlank() }
+        } else null
+    }
 }
