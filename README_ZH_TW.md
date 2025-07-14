@@ -3,8 +3,7 @@
 [![QQ](https://img.shields.io/badge/QQ-blue)](https://qm.qq.com/q/2MVxS0B29y)
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
 
-[English](README.md)  
-[简体中文](README_ZH_CN.md)
+[English](README.md) | [简体中文](README_ZH_CN.md)
 
 **Zalith Launcher 2** 是一個全新設計、面向 **Android 裝置** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 啟動器。專案使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作為啟動核心，採用 **Jetpack Compose** 與 **Material Design 3** 構建現代化 UI 體驗。  
 我們目前正在搭建自己的官方網站 [zalithlauncher.cn](https://zalithlauncher.cn)  
@@ -42,10 +41,6 @@
 ### 🛠️ 開發中 / 計畫中功能
 
 * [ ] 完整的控制系統（自訂控制佈局，管理控制佈局等）
-* [ ] 遊戲版本下載擴展內容：
-    * [ ] OptiFine 搭配 OptiFabric 與 Fabric 進行安裝
-    * [ ] Fabric 搭配 Fabric API 模組進行安裝
-    * [ ] Quilt 搭配 Quilted Fabric API 模組進行安裝
 * [ ] 整合包下載與自動安裝
 * [ ] 內容管理器：模組 / 光影包 管理介面
 * [ ] 手把控制支援

@@ -3,8 +3,7 @@
 [![QQ](https://img.shields.io/badge/QQ-blue)](https://qm.qq.com/q/2MVxS0B29y)
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
 
-[简体中文](README_ZH_CN.md)  
-[繁體中文](README_ZH_TW.md)
+[简体中文](README_ZH_CN.md) | [繁體中文](README_ZH_TW.md)
 
 **Zalith Launcher 2** is a newly designed launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). The project uses [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine and features a modern UI built with **Jetpack Compose** and **Material Design 3**.
 We are currently building our official website [zalithlauncher.cn](https://zalithlauncher.cn)  
@@ -38,10 +37,6 @@ Here’s the current roadmap of features and development status:
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
-* [ ] Game version download extensions:
-    * [ ] Install OptiFine with OptiFabric and Fabric
-    * [ ] Install Fabric with the Fabric API mod
-    * [ ] Install Quilt with the Quilted Fabric API mod
 * [ ] Modpack download and automatic installation
 * [ ] Content managers: UI for managing mods / shaders
 * [ ] Gamepad control support

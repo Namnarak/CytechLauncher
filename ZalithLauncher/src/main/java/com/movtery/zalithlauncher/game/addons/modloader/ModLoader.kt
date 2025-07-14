@@ -5,5 +5,7 @@ enum class ModLoader(val displayName: String) {
     FORGE("Forge"),
     NEOFORGE("NeoForge"),
     FABRIC("Fabric"),
-    QUILT("Quilt")
+    FABRIC_API("Fabric API"),
+    QUILT("Quilt"),
+    QUILT_API("Quilted Fabric API")
 }

@@ -45,14 +45,17 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
+import com.movtery.zalithlauncher.game.addons.modloader.modlike.ModVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersions
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
@@ -90,7 +93,9 @@ private class AddonList {
     var forgeList by mutableStateOf<List<ForgeVersion>?>(null)
     var neoforgeList by mutableStateOf<List<NeoForgeVersion>?>(null)
     var fabricList by mutableStateOf<List<FabricVersion>?>(null)
+    var fabricAPIList by mutableStateOf<List<ModVersion>?>(null)
     var quiltList by mutableStateOf<List<QuiltVersion>?>(null)
+    var quiltAPIList by mutableStateOf<List<ModVersion>?>(null)
 }
 
 private class CurrentAddon {
@@ -99,21 +104,27 @@ private class CurrentAddon {
     var forgeVersion by mutableStateOf<ForgeVersion?>(null)
     var neoforgeVersion by mutableStateOf<NeoForgeVersion?>(null)
     var fabricVersion by mutableStateOf<FabricVersion?>(null)
+    var fabricAPIVersion by mutableStateOf<ModVersion?>(null)
     var quiltVersion by mutableStateOf<QuiltVersion?>(null)
+    var quiltAPIVersion by mutableStateOf<ModVersion?>(null)
 
     //加载状态
     var optifineState by mutableStateOf<AddonState>(AddonState.None)
     var forgeState by mutableStateOf<AddonState>(AddonState.None)
     var neoforgeState by mutableStateOf<AddonState>(AddonState.None)
     var fabricState by mutableStateOf<AddonState>(AddonState.None)
+    var fabricAPIState by mutableStateOf<AddonState>(AddonState.None)
     var quiltState by mutableStateOf<AddonState>(AddonState.None)
+    var quiltAPIState by mutableStateOf<AddonState>(AddonState.None)
 
     //不兼容列表 利用Set集合不可重复
     var incompatibleWithOptiFine by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithForge by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithNeoForge by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithFabric by mutableStateOf<Set<ModLoader>>(emptySet())
+    var incompatibleWithFabricAPI by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithQuilt by mutableStateOf<Set<ModLoader>>(emptySet())
+    var incompatibleWithQuiltAPI by mutableStateOf<Set<ModLoader>>(emptySet())
 }
 
 private class AddonsViewModel(
@@ -162,12 +173,32 @@ private class AddonsViewModel(
         }
     }
 
+    fun reloadFabricAPI() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.fabricAPIState = it }) {
+                FabricAPIVersions.fetchVersionList(gameVersion)
+            }.also {
+                addonList.fabricAPIList = it
+            }
+        }
+    }
+
     fun reloadQuilt() {
         viewModelScope.launch {
             runWithState({ currentAddon.quiltState = it }) {
                 QuiltVersions.fetchQuiltLoaderList(gameVersion)
             }.also {
                 addonList.quiltList = it
+            }
+        }
+    }
+
+    fun reloadQuiltAPI() {
+        viewModelScope.launch {
+            runWithState({ currentAddon.quiltAPIState = it }) {
+                QuiltAPIVersions.fetchVersionList(gameVersion)
+            }.also {
+                addonList.quiltAPIList = it
             }
         }
     }
@@ -221,7 +252,9 @@ private class AddonsViewModel(
         reloadForge()
         reloadNeoForge()
         reloadFabric()
+        reloadFabricAPI()
         reloadQuilt()
+        reloadQuiltAPI()
     }
 
     override fun onCleared() {
@@ -280,7 +313,9 @@ fun DownloadGameWithAddonScreen(
                         forge = viewModel.currentAddon.forgeVersion,
                         neoforge = viewModel.currentAddon.neoforgeVersion,
                         fabric = viewModel.currentAddon.fabricVersion,
-                        quilt = viewModel.currentAddon.quiltVersion
+                        fabricAPI = viewModel.currentAddon.fabricAPIVersion,
+                        quilt = viewModel.currentAddon.quiltVersion,
+                        quiltAPI = viewModel.currentAddon.quiltAPIVersion
                     )
                     onInstall(info)
                 }
@@ -322,11 +357,25 @@ fun DownloadGameWithAddonScreen(
                 ) { viewModel.reloadFabric() }
 
                 val yOffset5 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 200)
-                QuiltList(
+                FabricAPIList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset5.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
                     addonList = viewModel.addonList
+                ) { viewModel.reloadFabricAPI() }
+
+                val yOffset6 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 250)
+                QuiltList(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset6.roundToPx()) },
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
                 ) { viewModel.reloadQuilt() }
+
+                val yOffset7 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 300)
+                QuiltAPIList(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset7.roundToPx()) },
+                    currentAddon = viewModel.currentAddon,
+                    addonList = viewModel.addonList
+                ) { viewModel.reloadQuiltAPI() }
             }
         }
     }
@@ -534,7 +583,9 @@ private fun OptiFineList(
                 currentAddon.incompatibleWithForge -= ofType
                 currentAddon.incompatibleWithNeoForge -= ofType
                 currentAddon.incompatibleWithFabric -= ofType
+                currentAddon.incompatibleWithFabricAPI -= ofType
                 currentAddon.incompatibleWithQuilt -= ofType
+                currentAddon.incompatibleWithQuiltAPI -= ofType
             } else {
                 val forgeVersion = currentAddon.forgeVersion
                 //检查与 Forge 的兼容性
@@ -558,7 +609,9 @@ private fun OptiFineList(
                 currentAddon.quiltVersion = null
                 currentAddon.incompatibleWithNeoForge += ofType
                 currentAddon.incompatibleWithFabric += ofType
+                currentAddon.incompatibleWithFabricAPI += ofType
                 currentAddon.incompatibleWithQuilt += ofType
+                currentAddon.incompatibleWithQuiltAPI += ofType
             }
         },
         triggerCheckIncompatible = arrayOf(currentAddon.forgeState),
@@ -604,7 +657,9 @@ private fun ForgeList(
                 currentAddon.incompatibleWithOptiFine -= forgeType
                 currentAddon.incompatibleWithNeoForge -= forgeType
                 currentAddon.incompatibleWithFabric -= forgeType
+                currentAddon.incompatibleWithFabricAPI -= forgeType
                 currentAddon.incompatibleWithQuilt -= forgeType
+                currentAddon.incompatibleWithQuiltAPI -= forgeType
             } else {
                 val optiFineVersion = currentAddon.optifineVersion
                 //检查与 OptiFine 的兼容性
@@ -628,7 +683,9 @@ private fun ForgeList(
                 currentAddon.quiltVersion = null
                 currentAddon.incompatibleWithNeoForge += forgeType
                 currentAddon.incompatibleWithFabric += forgeType
+                currentAddon.incompatibleWithFabricAPI += forgeType
                 currentAddon.incompatibleWithQuilt += forgeType
+                currentAddon.incompatibleWithQuiltAPI += forgeType
             }
         },
         triggerCheckIncompatible = arrayOf(currentAddon.optifineState),
@@ -664,7 +721,9 @@ private fun NeoForgeList(
                 currentAddon.incompatibleWithOptiFine -= neoforgeType
                 currentAddon.incompatibleWithForge -= neoforgeType
                 currentAddon.incompatibleWithFabric -= neoforgeType
+                currentAddon.incompatibleWithFabricAPI -= neoforgeType
                 currentAddon.incompatibleWithQuilt -= neoforgeType
+                currentAddon.incompatibleWithQuiltAPI -= neoforgeType
             } else {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
@@ -673,7 +732,9 @@ private fun NeoForgeList(
                 currentAddon.incompatibleWithOptiFine += neoforgeType
                 currentAddon.incompatibleWithForge += neoforgeType
                 currentAddon.incompatibleWithFabric += neoforgeType
+                currentAddon.incompatibleWithFabricAPI += neoforgeType
                 currentAddon.incompatibleWithQuilt += neoforgeType
+                currentAddon.incompatibleWithQuiltAPI += neoforgeType
             }
         },
         getItemText = { it.versionName },
@@ -708,6 +769,7 @@ private fun FabricList(
                 currentAddon.incompatibleWithForge -= fabricType
                 currentAddon.incompatibleWithNeoForge -= fabricType
                 currentAddon.incompatibleWithQuilt -= fabricType
+                currentAddon.incompatibleWithQuiltAPI -= fabricType
             } else {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
@@ -717,12 +779,57 @@ private fun FabricList(
                 currentAddon.incompatibleWithForge += fabricType
                 currentAddon.incompatibleWithNeoForge += fabricType
                 currentAddon.incompatibleWithQuilt += fabricType
+                currentAddon.incompatibleWithQuiltAPI += fabricType
             }
         },
         getItemText = { it.version },
         summary = { FabricLikeSummary(it) },
         onValueChange = { version ->
             currentAddon.fabricVersion = version
+        },
+        onReload = onReload
+    )
+}
+
+@Composable
+private fun FabricAPIList(
+    modifier: Modifier = Modifier,
+    currentAddon: CurrentAddon,
+    addonList: AddonList,
+    onReload: () -> Unit = {}
+) {
+    AddonListLayout(
+        modifier = modifier,
+        state = currentAddon.fabricAPIState,
+        title = ModLoader.FABRIC_API.displayName,
+        iconPainter = painterResource(R.drawable.ic_fabric),
+        items = addonList.fabricAPIList,
+        current = currentAddon.fabricAPIVersion,
+        incompatibleSet = currentAddon.incompatibleWithFabricAPI,
+        checkIncompatible = {
+            val fabricType = listOf(ModLoader.FABRIC_API)
+            val version = currentAddon.fabricAPIVersion
+            if (version == null) {
+                currentAddon.incompatibleWithOptiFine -= fabricType
+                currentAddon.incompatibleWithForge -= fabricType
+                currentAddon.incompatibleWithNeoForge -= fabricType
+                currentAddon.incompatibleWithQuilt -= fabricType
+                currentAddon.incompatibleWithQuiltAPI -= fabricType
+            } else {
+                currentAddon.optifineVersion = null
+                currentAddon.forgeVersion = null
+                currentAddon.neoforgeVersion = null
+                currentAddon.quiltVersion = null
+                currentAddon.incompatibleWithOptiFine += fabricType
+                currentAddon.incompatibleWithForge += fabricType
+                currentAddon.incompatibleWithNeoForge += fabricType
+                currentAddon.incompatibleWithQuilt += fabricType
+                currentAddon.incompatibleWithQuiltAPI += fabricType
+            }
+        },
+        getItemText = { it.displayName },
+        onValueChange = { version ->
+            currentAddon.fabricAPIVersion = version
         },
         onReload = onReload
     )
@@ -751,6 +858,7 @@ private fun QuiltList(
                 currentAddon.incompatibleWithForge -= quiltType
                 currentAddon.incompatibleWithNeoForge -= quiltType
                 currentAddon.incompatibleWithFabric -= quiltType
+                currentAddon.incompatibleWithFabricAPI -= quiltType
             } else {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
@@ -760,12 +868,57 @@ private fun QuiltList(
                 currentAddon.incompatibleWithForge += quiltType
                 currentAddon.incompatibleWithNeoForge += quiltType
                 currentAddon.incompatibleWithFabric += quiltType
+                currentAddon.incompatibleWithFabricAPI += quiltType
             }
         },
         getItemText = { it.version },
         summary = { FabricLikeSummary(it) },
         onValueChange =  { version ->
             currentAddon.quiltVersion = version
+        },
+        onReload = onReload
+    )
+}
+
+@Composable
+private fun QuiltAPIList(
+    modifier: Modifier = Modifier,
+    currentAddon: CurrentAddon,
+    addonList: AddonList,
+    onReload: () -> Unit = {}
+) {
+    AddonListLayout(
+        modifier = modifier,
+        state = currentAddon.quiltAPIState,
+        title = ModLoader.QUILT_API.displayName,
+        iconPainter = painterResource(R.drawable.ic_quilt),
+        items = addonList.quiltAPIList,
+        current = currentAddon.quiltAPIVersion,
+        incompatibleSet = currentAddon.incompatibleWithQuiltAPI,
+        checkIncompatible = {
+            val quiltType = listOf(ModLoader.QUILT_API)
+            val version = currentAddon.quiltAPIVersion
+            if (version == null) {
+                currentAddon.incompatibleWithOptiFine -= quiltType
+                currentAddon.incompatibleWithForge -= quiltType
+                currentAddon.incompatibleWithNeoForge -= quiltType
+                currentAddon.incompatibleWithFabric -= quiltType
+                currentAddon.incompatibleWithFabricAPI -= quiltType
+            } else {
+                currentAddon.optifineVersion = null
+                currentAddon.forgeVersion = null
+                currentAddon.neoforgeVersion = null
+                currentAddon.fabricVersion = null
+                currentAddon.incompatibleWithOptiFine += quiltType
+                currentAddon.incompatibleWithForge += quiltType
+                currentAddon.incompatibleWithNeoForge += quiltType
+                currentAddon.incompatibleWithFabric += quiltType
+                currentAddon.incompatibleWithFabricAPI += quiltType
+            }
+        },
+        getItemText = { it.displayName },
+        onValueChange =  { version ->
+            currentAddon.quiltAPIVersion = version
         },
         onReload = onReload
     )

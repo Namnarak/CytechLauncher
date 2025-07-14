@@ -48,7 +48,7 @@ abstract class FabricLikeVersions(private val baseUrl: String) {
             }.also {
                 cacheLoaders = it
             }
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             lDebug("Client cancelled.")
             null
         } catch (e: Exception) {

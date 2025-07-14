@@ -10,6 +10,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
+import com.movtery.zalithlauncher.game.addons.modloader.modlike.ModVersion
 import com.movtery.zalithlauncher.game.download.game.fabric.getFabricLikeCompleterTask
 import com.movtery.zalithlauncher.game.download.game.fabric.getFabricLikeDownloadTask
 import com.movtery.zalithlauncher.game.download.game.forge.getForgeLikeAnalyseTask
@@ -204,12 +205,34 @@ class GameInstaller(
                     addTask = { tasks.add(it) }
                 )
             }
+            info.fabricAPI?.let { apiVersion ->
+                tasks.add(
+                    GameInstallTask(
+                        context.getString(R.string.download_game_install_base_download_file, ModLoader.FABRIC_API.displayName, info.fabricAPI.displayName),
+                        createModLikeDownloadTask(
+                            tempModsDir = tempModsDir,
+                            modVersion = apiVersion
+                        )
+                    )
+                )
+            }
             info.quilt?.let { quiltVersion ->
                 createFabricLikeTask(
                     fabricLikeVersion = quiltVersion,
                     tempMinecraftDir = tempMinecraftDir,
                     tempFolderName = quiltDir!!.name,
                     addTask = { tasks.add(it) }
+                )
+            }
+            info.quiltAPI?.let { apiVersion ->
+                tasks.add(
+                    GameInstallTask(
+                        context.getString(R.string.download_game_install_base_download_file, ModLoader.QUILT_API.displayName, info.quiltAPI.displayName),
+                        createModLikeDownloadTask(
+                            tempModsDir = tempModsDir,
+                            modVersion = apiVersion
+                        )
+                    )
                 )
             }
 
@@ -446,14 +469,13 @@ class GameInstaller(
 
     private fun createModLikeDownloadTask(
         tempModsDir: File,
-        outputName: String,
-        modDownloadUrl: String
+        modVersion: ModVersion
     ) = Task.runTask(
         id = "Download.Mods",
         task = {
             NetWorkUtils.downloadFileSuspend(
-                url = modDownloadUrl,
-                outputFile = File(tempModsDir, outputName)
+                url = modVersion.file.url,
+                outputFile = File(tempModsDir, modVersion.file.fileName)
             )
         }
     )

@@ -73,6 +73,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.fixedFileUrl
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFile.Companion.getPrimary
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
@@ -206,11 +207,10 @@ suspend fun List<PlatformVersion>.mapToInfos(
     return mapNotNull { version ->
         when (version) {
             is ModrinthVersion -> {
-                val files = version.files.takeIf { it.isNotEmpty() } ?: run {
+                val file = version.files.getPrimary() ?: run {
                     lWarning("No file list available, skipping -> ${version.name}")
                     return@mapNotNull null
-                }
-                val file = files.find { it.primary } ?: files[0] //仅下载主文件
+                } //仅下载主文件
                 DownloadVersionInfo(
                     platform = Platform.MODRINTH,
                     displayName = version.name,
