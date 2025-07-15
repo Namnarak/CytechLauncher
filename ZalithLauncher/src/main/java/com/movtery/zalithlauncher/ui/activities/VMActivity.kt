@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.Surface
@@ -64,9 +63,7 @@ import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
 
-class VMActivity : BaseComponentActivity(
-    shouldIgnoreNotch = AllSettings.gameFullScreen.getValue()
-), SurfaceTextureListener {
+class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     companion object {
         const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
         const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
@@ -74,8 +71,6 @@ class VMActivity : BaseComponentActivity(
         const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
         private var isRunning = false
     }
-    private lateinit var displayMetrics: DisplayMetrics
-
     private var mTextureView: TextureView? = null
 
     private lateinit var launcher: Launcher
@@ -85,7 +80,6 @@ class VMActivity : BaseComponentActivity(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val displayMetrics = getDisplayMetrics()
         //初始化物理鼠标连接检查器
         PhysicalMouseChecker.initChecker(this)
 
@@ -98,6 +92,7 @@ class VMActivity : BaseComponentActivity(
         }
 
         val getWindowSize = {
+            val displayMetrics = getDisplayMetrics()
             IntSize(displayMetrics.widthPixels, displayMetrics.heightPixels)
         }
 
@@ -130,6 +125,8 @@ class VMActivity : BaseComponentActivity(
         } else {
             throw IllegalStateException("Unknown VM launch mode, or the launch mode was not set at all!")
         }
+
+        refreshWindowSize()
 
         window?.apply {
             setBackgroundDrawable(Color.BLACK.toDrawable())
@@ -238,6 +235,8 @@ class VMActivity : BaseComponentActivity(
         }
     }
 
+    override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
+
     @Composable
     private fun Screen(
         content: @Composable () -> Unit = {}
@@ -278,8 +277,8 @@ class VMActivity : BaseComponentActivity(
         }
     }
 
-    private fun refreshSize() {
-        displayMetrics = getDisplayMetrics()
+    private fun refreshWindowSize() {
+        val displayMetrics = getDisplayMetrics()
 
         val width = getDisplayPixels(displayMetrics.widthPixels)
         val height = getDisplayPixels(displayMetrics.heightPixels)
@@ -289,6 +288,10 @@ class VMActivity : BaseComponentActivity(
         }
         CallbackBridge.windowWidth = width
         CallbackBridge.windowHeight = height
+    }
+
+    private fun refreshSize() {
+        refreshWindowSize()
         mTextureView?.surfaceTexture?.apply {
             setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
         } ?: run {
@@ -300,7 +303,7 @@ class VMActivity : BaseComponentActivity(
 
     private fun getDisplayPixels(pixels: Int): Int {
         return when (handler.type) {
-            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
+            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.getValue() / 100f)
             HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
         }
     }

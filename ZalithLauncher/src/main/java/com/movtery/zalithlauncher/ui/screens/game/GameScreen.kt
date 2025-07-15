@@ -155,5 +155,5 @@ private fun Offset.sendPosition() {
 }
 
 private fun Float.sumPosition(): Float {
-    return (this * (AllSettings.resolutionRatio.state / 100f))
+    return (this * (AllSettings.resolutionRatio.getValue() / 100f))
 }
