@@ -196,4 +196,14 @@
     <string name="download_game_addon_list_load_error">Falha ao carregar a lista: %s</string>
     <string name="download_game_addon_incompatible_with">Incompatível com %s</string>
     <string name="download_game_addon_compatible_with">Compatível com %s</string>
+    <string name="download_game_addon_date">Data de lançamento: %s</string>
+    <string name="download_game_addon_recommended">%s Recomendado</string>
+    <string name="download_game_addon_not_installable">Não instalável automaticamente</string>
+    <string name="download_game_install_title">Instalando Jogo</string>
+    <string name="download_game_install_vanilla">Baixando Vanilla %s</string>
+    <string name="download_game_install_base_download_file">Baixando arquivo principal %s%s</string>
+    <string name="download_game_install_base_install">Instalar %s</string>
+    <string name="download_game_install_base_installing">Instalando %s no primeiro plano</string>
+    <string name="download_game_install_optifine_fetch_download_url">Buscar URL de download para o OptiFine %s</string>
+    <string name="download_game_install_forgelike_analyse">Analise bibliotecas para %s</string>
 </resources>
