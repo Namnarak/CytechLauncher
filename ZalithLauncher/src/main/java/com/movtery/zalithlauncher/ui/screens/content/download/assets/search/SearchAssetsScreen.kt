@@ -69,7 +69,7 @@ private class ScreenViewModel(
         search()
     }
 
-    fun putResult(result: PlatformSearchResult) {
+    private fun putResult(result: PlatformSearchResult) {
         //将平台项目搜索结果与 mcmod 信息打包在一起
         val data = when (result) {
             is CurseForgeSearchResult -> result.data.map {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.outlined.ImportContacts
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -78,6 +79,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ma
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
@@ -149,7 +151,7 @@ private class ScreenViewModel(
     }
 
     //项目信息
-    var projectResult by mutableStateOf<DownloadAssetsState<Pair<DownloadProjectInfo, ModTranslations.McMod?>>>(DownloadAssetsState.Getting())
+    var projectResult by mutableStateOf<DownloadAssetsState<Triple<DownloadProjectInfo, ModTranslations, ModTranslations.McMod?>>>(DownloadAssetsState.Getting())
 
     fun getProject() {
         viewModelScope.launch {
@@ -159,16 +161,17 @@ private class ScreenViewModel(
                 platform = platform,
                 onSuccess = { result ->
                     val info = result.toInfo(classes)
+                    val mod = ModTranslations.getTranslationsByRepositoryType(classes)
                     val mcmod = when (result) {
                         is ModrinthSingleProject -> {
-                            ModTranslations.getTranslationsByRepositoryType(classes).getModBySlugId(result.slug)
+                            mod.getModBySlugId(result.slug)
                         }
                         is CurseForgeProject -> {
-                            ModTranslations.getTranslationsByRepositoryType(classes).getModBySlugId(result.data.slug)
+                            mod.getModBySlugId(result.data.slug)
                         }
                         else -> error("Unknown result type $result")
                     }
-                    projectResult = DownloadAssetsState.Success(info to mcmod)
+                    projectResult = DownloadAssetsState.Success(Triple(info, mod, mcmod))
                 },
                 onError = { state, _ ->
                     projectResult = state
@@ -412,7 +415,7 @@ private fun Versions(
 @Composable
 private fun ProjectInfo(
     modifier: Modifier = Modifier,
-    projectResult: DownloadAssetsState<Pair<DownloadProjectInfo, ModTranslations.McMod?>>,
+    projectResult: DownloadAssetsState<Triple<DownloadProjectInfo, ModTranslations, ModTranslations.McMod?>>,
     onReload: () -> Unit = {}
 ) {
     Card(
@@ -463,7 +466,7 @@ private fun ProjectInfo(
                 }
             }
             is DownloadAssetsState.Success -> {
-                val (info, mcmod) = result.result
+                val (info, mod, mcmod) = result.result
 
                 LazyColumn(
                     contentPadding = PaddingValues(all = 12.dp),
@@ -551,6 +554,14 @@ private fun ProjectInfo(
                                         iconSize = 18.dp,
                                         imageVector = Icons.Outlined.ImportContacts,
                                         text = stringResource(R.string.download_assets_wiki_link)
+                                    )
+                                }
+                                mcmod?.takeIf { isChinese() }?.let { mod.getMcmodUrl(it) }?.let { url ->
+                                    IconTextButton(
+                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        iconSize = 18.dp,
+                                        imageVector = Icons.Outlined.Link,
+                                        text = "MC 百科" //品牌名不需要翻译，硬编码
                                     )
                                 }
                             }
