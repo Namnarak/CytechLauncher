@@ -21,16 +21,16 @@ import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.getIds
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.getPageInfo
-import com.movtery.zalithlauncher.game.download.assets.platform.mcmod.models.McModSearchRes
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
+import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
@@ -40,10 +40,8 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Se
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 /**
  * 资源搜索屏幕的 view model
@@ -71,7 +69,18 @@ private class ScreenViewModel(
         search()
     }
 
-    fun putRes(result: PlatformSearchResult, mcmod: McModSearchRes? = null) {
+    fun putResult(result: PlatformSearchResult) {
+        //将平台项目搜索结果与 mcmod 信息打包在一起
+        val data = when (result) {
+            is CurseForgeSearchResult -> result.data.map {
+                it to ModTranslations.getTranslationsByRepositoryType(platformClasses).getModBySlugId(it.slug)
+            }
+            is ModrinthSearchResult -> result.hits.map {
+                it to ModTranslations.getTranslationsByRepositoryType(platformClasses).getModBySlugId(it.slug)
+            }
+            else -> error("Unknown result type $result")
+        }
+
         result.getPageInfo { pageNumber, pageIndex, totalPage, isLastPage ->
             lInfo("Searched page info: {pageNumber: $pageNumber, pageIndex: $pageIndex, totalPage: $totalPage, isLastPage: $isLastPage}")
 
@@ -80,8 +89,7 @@ private class ScreenViewModel(
                 pageIndex = pageIndex,
                 totalPage = totalPage,
                 isLastPage = isLastPage,
-                result = result,
-                mcmod = mcmod
+                data = data
             )
 
             val targetIndex = pageNumber - 1
@@ -109,26 +117,7 @@ private class ScreenViewModel(
                 searchFilter = searchFilter,
                 platformClasses = platformClasses,
                 onSuccess = { result ->
-                    when (platformClasses) {
-                        PlatformClasses.MOD, PlatformClasses.MOD_PACK -> {
-                            val locale: Locale = Locale.getDefault()
-
-                            if (locale.language.equals("zh") && locale.country.equals("CN")) {
-                                runCatching {
-                                    val res = PlatformSearch.getMcmodModInfo(
-                                        type = searchPlatform.ordinal,
-                                        ids = result.getIds(),
-                                        mcType = platformClasses.ordinal
-                                    )
-                                    putRes(result, res)
-                                }.onFailure { e ->
-                                    lWarning("Failed to retrieve translation information", e)
-                                    putRes(result)
-                                }
-                            }
-                        }
-                        else -> putRes(result)
-                    }
+                    putResult(result)
                 },
                 onError = {
                     searchResult = it

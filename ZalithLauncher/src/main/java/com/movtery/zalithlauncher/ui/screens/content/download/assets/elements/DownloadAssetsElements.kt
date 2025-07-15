@@ -77,7 +77,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
-import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox

@@ -46,10 +46,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeData
-import com.movtery.zalithlauncher.game.download.assets.platform.mcmod.models.McModSearchRes
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
+import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
+import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
@@ -102,20 +102,12 @@ fun ResultListLayout(
         }
         is SearchAssetsState.Success -> {
             val page = state.page
-            val result = page.result
-            val mcmod = page.mcmod
-            val data = when (result) {
-                is CurseForgeSearchResult -> result.data
-                is ModrinthSearchResult -> result.hits
-                else -> error("Unknown result type $result")
-            }
 
             Box(modifier = modifier) {
                 ResultList(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 60.dp, bottom = 6.dp),
-                    data = data,
-                    mcmod = mcmod,
+                    data = page.data,
                     mapCategories = mapCategories,
                     mapModLoaders = mapModLoaders,
                     swapToDownload = swapToDownload
@@ -209,8 +201,7 @@ private fun PageController(
 private fun ResultList(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    data: Array<out PlatformSearchData>,
-    mcmod: McModSearchRes?,
+    data: List<Pair<PlatformSearchData, ModTranslations.McMod?>>,
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
     swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
@@ -219,7 +210,7 @@ private fun ResultList(
         modifier = modifier,
         contentPadding = contentPadding
     ) {
-        items(data) { item ->
+        items(data) { (item, mcmod) ->
             val itemModifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp)
@@ -250,7 +241,7 @@ private fun ResultList(
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.MODRINTH,
-                        title = mcmod?.takeIf { it.res == 100 }?.data?.get(item.projectId)?.name ?: item.title ?: "",
+                        title = mcmod.getMcmodTitle(item.title ?: ""),
                         description = item.description ?: "",
                         iconUrl = item.iconUrl,
                         author = item.author,
@@ -275,7 +266,7 @@ private fun ResultList(
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.CURSEFORGE,
-                        title = mcmod?.takeIf { it.res == 100 }?.data?.get(item.id.toString())?.name ?: item.name,
+                        title = mcmod.getMcmodTitle(item.name),
                         description = item.summary,
                         iconUrl = item.logo.url,
                         author = item.authors[0].name,

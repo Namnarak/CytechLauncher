@@ -45,7 +45,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortField
-import com.movtery.zalithlauncher.game.download.assets.type.allGameVersions
+import com.movtery.zalithlauncher.game.download.assets.utils.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween

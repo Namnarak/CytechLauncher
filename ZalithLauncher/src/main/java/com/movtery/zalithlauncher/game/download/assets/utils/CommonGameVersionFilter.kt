@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.download.assets.type
+package com.movtery.zalithlauncher.game.download.assets.utils
 
 import java.util.regex.Pattern
 

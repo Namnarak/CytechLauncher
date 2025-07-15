@@ -284,3 +284,15 @@ private fun formatWithUnit(value: Double, unit: String): String {
     }
     return "$displayValue$unit"
 }
+
+/**
+ * 检查当前环境是否为中文环境
+ */
+fun isChinese(): Boolean = areaChecks("zh")
+
+/**
+ * 地区检查
+ */
+fun areaChecks(area: String): Boolean {
+    return Locale.getDefault().language == area
+}

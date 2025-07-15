@@ -50,9 +50,13 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.getProject
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersions
-import com.movtery.zalithlauncher.game.download.assets.type.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
+import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
+import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -145,7 +149,7 @@ private class ScreenViewModel(
     }
 
     //项目信息
-    var projectResult by mutableStateOf<DownloadAssetsState<DownloadProjectInfo>>(DownloadAssetsState.Getting())
+    var projectResult by mutableStateOf<DownloadAssetsState<Pair<DownloadProjectInfo, ModTranslations.McMod?>>>(DownloadAssetsState.Getting())
 
     fun getProject() {
         viewModelScope.launch {
@@ -154,7 +158,17 @@ private class ScreenViewModel(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    projectResult = DownloadAssetsState.Success(result.toInfo(classes))
+                    val info = result.toInfo(classes)
+                    val mcmod = when (result) {
+                        is ModrinthSingleProject -> {
+                            ModTranslations.getTranslationsByRepositoryType(classes).getModBySlugId(result.slug)
+                        }
+                        is CurseForgeProject -> {
+                            ModTranslations.getTranslationsByRepositoryType(classes).getModBySlugId(result.data.slug)
+                        }
+                        else -> error("Unknown result type $result")
+                    }
+                    projectResult = DownloadAssetsState.Success(info to mcmod)
                 },
                 onError = { state, _ ->
                     projectResult = state
@@ -398,7 +412,7 @@ private fun Versions(
 @Composable
 private fun ProjectInfo(
     modifier: Modifier = Modifier,
-    projectResult: DownloadAssetsState<DownloadProjectInfo>,
+    projectResult: DownloadAssetsState<Pair<DownloadProjectInfo, ModTranslations.McMod?>>,
     onReload: () -> Unit = {}
 ) {
     Card(
@@ -449,7 +463,7 @@ private fun ProjectInfo(
                 }
             }
             is DownloadAssetsState.Success -> {
-                val info = result.result
+                val (info, mcmod) = result.result
 
                 LazyColumn(
                     contentPadding = PaddingValues(all = 12.dp),
@@ -476,7 +490,7 @@ private fun ProjectInfo(
                                 verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Text(
-                                    text = info.title,
+                                    text = mcmod.getMcmodTitle(info.title),
                                     style = MaterialTheme.typography.titleMedium,
                                     textAlign = TextAlign.Center
                                 )
