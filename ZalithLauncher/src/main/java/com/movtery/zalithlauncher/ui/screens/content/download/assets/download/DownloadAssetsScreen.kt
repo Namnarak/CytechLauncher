@@ -140,7 +140,7 @@ private class ScreenViewModel(
                             )
                         }
                     }
-                    _versionsList = infos.mapWithVersions()
+                    _versionsList = infos.mapWithVersions(classes)
                     versionsResult = DownloadAssetsState.Success(_versionsList.filterInfos())
                 },
                 onError = {

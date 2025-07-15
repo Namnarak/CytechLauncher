@@ -352,7 +352,7 @@ fun PlatformProject.toInfo(
     }
 }
 
-fun List<DownloadVersionInfo>.mapWithVersions(): List<VersionInfoMap> {
+fun List<DownloadVersionInfo>.mapWithVersions(classes: PlatformClasses): List<VersionInfoMap> {
     val grouped = mutableMapOf<Pair<String, PlatformDisplayLabel?>, MutableList<DownloadVersionInfo>>()
 
     forEach { versionInfo ->
@@ -375,7 +375,10 @@ fun List<DownloadVersionInfo>.mapWithVersions(): List<VersionInfoMap> {
             loader = key.second,
             dependencies = dependencies,
             infos = infos,
-            isAdapt = isVersionAdapt(key.first, key.second)
+            isAdapt = when (classes) {
+                PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
+                else -> isVersionAdapt(key.first, key.second)
+            }
         )
     }.sortedByVersionAndLoader()
 }
