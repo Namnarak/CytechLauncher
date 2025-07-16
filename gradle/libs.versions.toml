@@ -1,6 +1,6 @@
 [versions]
 agp = "8.9.1"
-bytehook = "1.1.1"
+bytehook = "1.0.10"
 coilCompose = "3.2.0"
 compress = "1.27.1"
 commonsCodec = "1.18.0"
