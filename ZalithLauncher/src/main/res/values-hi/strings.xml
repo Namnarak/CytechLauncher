@@ -107,5 +107,10 @@
     <string name="download_category_resource_pack">रिसोर्स पैक</string>
     <string name="download_category_saves">सेव</string>
     <string name="download_category_shaders">शेडर पैक</string>
-    <string name="download_game_failed_to_get_versions">वर्ज़न लोड नहीं हो पाया: %s. फिर से कोशिश करने के लिए टैप करें</string>
+    <string name="download_game_failed_to_get_versions">वर्ज़न लोड नहीं हो पाया: %s फिर से कोशिश करने के लिए टैप करें</string>
+    <string name="download_game_type_release">उपलब्ध</string>
+    <string name="download_game_type_snapshot">टेस्टिंग वर्ज़न</string>
+    <string name="download_game_type_old">पुराना वर्ज़न</string>
+    <string name="download_game_type_old_alpha">टेस्टिंग चरण</string>
+    <string name="download_game_type_old_beta">बीटा चरण</string>
 </resources>
