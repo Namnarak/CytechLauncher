@@ -102,8 +102,10 @@
     <string name="main_launch_game">गेम शुरू करें</string>
     <string name="main_task_menu">कार्य सूची</string>
     <string name="download_category_game">गेम</string>
-    <string name="download_category_modpack">Modpack</string>
-    <string name="download_category_mod">Mod</string>
-    <string name="download_category_resource_pack">Resource Pack</string>
-    <string name="download_category_saves">Saves</string>
+    <string name="download_category_modpack">मॉड पैक</string>
+    <string name="download_category_mod">मॉड</string>
+    <string name="download_category_resource_pack">रिसोर्स पैक</string>
+    <string name="download_category_saves">सेव</string>
+    <string name="download_category_shaders">शेडर पैक</string>
+    <string name="download_game_failed_to_get_versions">वर्ज़न लोड नहीं हो पाया: %s. फिर से कोशिश करने के लिए टैप करें</string>
 </resources>
