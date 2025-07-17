@@ -5,6 +5,9 @@ import android.content.Context
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
@@ -49,6 +52,8 @@ class GameHandler(
     private val _inputArea = MutableStateFlow<IntRect?>(null)
     override val inputArea = _inputArea.asStateFlow()
 
+    private var isGameRendering by mutableStateOf(false)
+
     override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
@@ -73,6 +78,9 @@ class GameHandler(
     }
 
     override fun onGraphicOutput() {
+        if (!isGameRendering) {
+            isGameRendering = true
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -112,6 +120,8 @@ class GameHandler(
     @Composable
     override fun getComposableLayout() = @Composable {
         GameScreen(
+            version = version,
+            isGameRendering = isGameRendering,
             isTouchProxyEnabled = isTouchProxyEnabled,
             onInputAreaRectUpdated = { _inputArea.value = it },
         )

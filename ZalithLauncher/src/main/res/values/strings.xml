@@ -285,6 +285,9 @@
     <string name="game_button_mouse_left">Left Click</string>
     <string name="game_button_mouse_right">Right Click</string>
     <string name="game_dialog_force_close_message">Are you sure you want to force close and return to the main screen?</string>
+    <string name="game_loading">The game is running, waiting for the game screen to appear</string>
+    <string name="game_loading_version_name">Game Version: %s</string>
+    <string name="game_loading_version_info">Game Info: %s</string>
     <!-- Renderers -->
     <string name="renderer_name_freedreno">Freedreno (Adreno, up to 1.21.4)</string>
     <string name="renderer_name_panfrost">Panfrost (Mali, up to 1.21.4)</string>

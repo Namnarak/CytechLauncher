@@ -76,8 +76,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     private lateinit var launcher: Launcher
     private lateinit var handler: AbstractHandler
 
-    private var isRenderingStarted: Boolean = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //初始化物理鼠标连接检查器
@@ -229,10 +227,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        if (!isRenderingStarted) {
-            isRenderingStarted = true
-            handler.onGraphicOutput()
-        }
+        handler.onGraphicOutput()
     }
 
     override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
