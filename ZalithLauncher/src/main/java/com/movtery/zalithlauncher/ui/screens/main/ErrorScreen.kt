@@ -31,7 +31,9 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 fun ErrorScreen(
     message: String,
     messageBody: String,
+    shareLogs: Boolean = true,
     canRestart: Boolean = true,
+    onShareLogsClick: () -> Unit = {},
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
@@ -69,7 +71,9 @@ fun ErrorScreen(
                     modifier = Modifier
                         .weight(3f)
                         .padding(all = 12.dp),
+                    shareLogs = shareLogs,
                     canRestart = canRestart,
+                    onShareLogsClick = onShareLogsClick,
                     onRestartClick = onRestartClick,
                     onExitClick = onExitClick
                 )
@@ -132,7 +136,9 @@ private fun ErrorContent(
 @Composable
 private fun ActionContext(
     modifier: Modifier = Modifier,
+    shareLogs: Boolean,
     canRestart: Boolean,
+    onShareLogsClick: () -> Unit = {},
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
@@ -144,6 +150,15 @@ private fun ActionContext(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxSize(),
             verticalArrangement = Arrangement.Bottom
         ) {
+            if (shareLogs) {
+                ScalingActionButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onShareLogsClick
+                ) {
+                    Text(text = stringResource(R.string.crash_share_logs))
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
             if (canRestart) {
                 ScalingActionButton(
                     modifier = Modifier.fillMaxWidth(),

@@ -76,6 +76,7 @@
     <string name="crash_exit_message">JVM exited with code %d.</string>
     <string name="crash_singnal_message">JVM aborted due to fatal signal %d.</string>
     <string name="crash_exit_note">Check the logs for details. If you cannot resolve this issue, send the log file to a technical expert. Avoid taking screenshots, as they may lack sufficient information.</string>
+    <string name="crash_share_logs">Share Logs</string>
     <string name="crash_restart">Restart</string>
     <string name="crash_exit">Exit</string>
     <!-- Errors -->

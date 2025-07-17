@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.launch.LogName
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_CAN_RESTART
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_EXIT_TYPE
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_THROWABLE
@@ -19,11 +21,13 @@ import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.EXIT_LAU
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.ErrorScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import com.movtery.zalithlauncher.utils.getSerializableSafely
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.toBoolean
+import java.io.File
 
 class ErrorActivity : BaseComponentActivity(refreshData = false) {
 
@@ -94,6 +98,15 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
             }
         }
 
+        val logFile = when (exitType) {
+            EXIT_JVM -> {
+                File(PathManager.DIR_FILES_EXTERNAL, "${LogName.GAME.fileName}.log")
+            }
+            else -> {
+                PathManager.FILE_CRASH_REPORT
+            }
+        }
+
         val canRestart: Boolean = extras.getBoolean(BUNDLE_CAN_RESTART, true)
 
         setContent {
@@ -102,7 +115,13 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
                     ErrorScreen(
                         message = msg1,
                         messageBody = msg2,
+                        shareLogs = logFile.exists() && logFile.isFile,
                         canRestart = canRestart,
+                        onShareLogsClick = {
+                            if (logFile.exists() && logFile.isFile) {
+                                shareFile(this@ErrorActivity, logFile)
+                            }
+                        },
                         onRestartClick = {
                             startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
                         },
