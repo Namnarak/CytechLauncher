@@ -37,7 +37,6 @@ import com.movtery.zalithlauncher.ui.components.SwitchLayout
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
@@ -47,7 +46,9 @@ import kotlinx.serialization.Serializable
 data object RendererSettingsScreenKey: NavKey
 
 @Composable
-fun RendererSettingsScreen() {
+fun RendererSettingsScreen(
+    mainScreenKey: NavKey?
+) {
     BaseScreen(
         Triple(SettingsScreenKey, mainScreenKey, false),
         Triple(RendererSettingsScreenKey, settingsScreenKey, false)

@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
@@ -36,7 +37,9 @@ data object DownloadResourcePackScreenKey: NestedNavKey {
 }
 
 @Composable
-fun DownloadResourcePackScreen() {
+fun DownloadResourcePackScreen(
+    mainScreenKey: NavKey?
+) {
     val currentKey = downloadResourcePackBackStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
@@ -75,7 +78,7 @@ fun DownloadResourcePackScreen() {
         ),
         entryProvider = entryProvider {
             entry<SearchResourcePackScreenKey> {
-                SearchResourcePackScreen { platform, projectId ->
+                SearchResourcePackScreen(mainScreenKey) { platform, projectId ->
                     downloadResourcePackBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.RESOURCE_PACK)
                     )
@@ -83,6 +86,7 @@ fun DownloadResourcePackScreen() {
             }
             entry<DownloadAssetsScreenKey> { key ->
                 DownloadAssetsScreen(
+                    mainScreenKey = mainScreenKey,
                     parentScreenKey = DownloadResourcePackScreenKey,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadResourcePackScreenKey,

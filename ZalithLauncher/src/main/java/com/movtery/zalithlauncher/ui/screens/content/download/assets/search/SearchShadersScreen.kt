@@ -17,9 +17,11 @@ data object SearchShadersScreenKey : NavKey
 
 @Composable
 fun SearchShadersScreen(
+    mainScreenKey: NavKey?,
     swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
 ) {
     SearchAssetsScreen(
+        mainScreenKey = mainScreenKey,
         parentScreenKey = DownloadShadersScreenKey,
         parentCurrentKey = downloadScreenKey,
         screenKey = SearchShadersScreenKey,

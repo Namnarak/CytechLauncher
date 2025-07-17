@@ -62,7 +62,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
@@ -83,7 +82,9 @@ sealed interface RuntimeOperation {
 }
 
 @Composable
-fun JavaManageScreen() {
+fun JavaManageScreen(
+    mainScreenKey: NavKey?
+) {
     BaseScreen(
         Triple(SettingsScreenKey, mainScreenKey, false),
         Triple(JavaManageScreenKey, settingsScreenKey, false)

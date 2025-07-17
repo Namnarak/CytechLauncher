@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
@@ -36,7 +37,9 @@ data object DownloadShadersScreenKey: NestedNavKey {
 }
 
 @Composable
-fun DownloadShadersScreen() {
+fun DownloadShadersScreen(
+    mainScreenKey: NavKey?
+) {
     val currentKey = downloadShadersBackStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
@@ -75,7 +78,7 @@ fun DownloadShadersScreen() {
         ),
         entryProvider = entryProvider {
             entry<SearchShadersScreenKey> {
-                SearchShadersScreen { platform, projectId ->
+                SearchShadersScreen(mainScreenKey) { platform, projectId ->
                     downloadShadersBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.SHADERS)
                     )
@@ -83,6 +86,7 @@ fun DownloadShadersScreen() {
             }
             entry<DownloadAssetsScreenKey> { key ->
                 DownloadAssetsScreen(
+                    mainScreenKey = mainScreenKey,
                     parentScreenKey = DownloadShadersScreenKey,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadShadersScreenKey,

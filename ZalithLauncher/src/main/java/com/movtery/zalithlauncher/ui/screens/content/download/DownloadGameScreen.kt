@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -60,7 +61,9 @@ data object DownloadGameScreenKey: NestedNavKey {
 }
 
 @Composable
-fun DownloadGameScreen() {
+fun DownloadGameScreen(
+    mainScreenKey: NavKey?
+) {
     val currentKey = downloadGameBackStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
@@ -86,13 +89,13 @@ fun DownloadGameScreen() {
         },
         entryProvider = entryProvider {
             entry<SelectGameVersionScreenKey> {
-                SelectGameVersionScreen { versionString ->
+                SelectGameVersionScreen(mainScreenKey) { versionString ->
                     downloadGameBackStack.navigateTo(DownloadGameWithAddonScreenKey(versionString))
                 }
             }
             entry<DownloadGameWithAddonScreenKey> {
                 val context = LocalContext.current
-                DownloadGameWithAddonScreen(it) { info ->
+                DownloadGameWithAddonScreen(mainScreenKey, it) { info ->
                     if (gameInstallOperation !is GameInstallOperation.None) {
                         //不是带安装状态，拒绝此次安装
                         return@DownloadGameWithAddonScreen

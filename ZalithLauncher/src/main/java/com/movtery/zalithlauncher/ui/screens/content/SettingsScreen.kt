@@ -61,7 +61,6 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsSc
 import com.movtery.zalithlauncher.ui.screens.content.settings.LauncherSettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import kotlinx.serialization.Serializable
@@ -82,7 +81,9 @@ val settingsBackStack = mutableStateListOf<NavKey>(RendererSettingsScreenKey)
 var settingsScreenKey by mutableStateOf<NavKey?>(null)
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    mainScreenKey: NavKey?
+) {
     BaseScreen(
         screenKey = SettingsScreenKey,
         currentKey = mainScreenKey
@@ -96,6 +97,7 @@ fun SettingsScreen() {
             )
             NavigationUI(
                 backStack = settingsBackStack,
+                mainScreenKey = mainScreenKey,
                 modifier = Modifier.fillMaxHeight()
             )
         }
@@ -172,6 +174,7 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     backStack: NavBackStack,
+    mainScreenKey: NavKey?,
     modifier: Modifier = Modifier
 ) {
     val currentKey = backStack.lastOrNull()
@@ -188,13 +191,13 @@ private fun NavigationUI(
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            entry<RendererSettingsScreenKey> { RendererSettingsScreen() }
-            entry<GameSettingsScreenKey> { GameSettingsScreen() }
-            entry<ControlSettingsScreenKey> { ControlSettingsScreen() }
-            entry<LauncherSettingsScreenKey> { LauncherSettingsScreen() }
-            entry<JavaManageScreenKey> { JavaManageScreen() }
-            entry<ControlManageScreenKey> { ControlManageScreen() }
-            entry<AboutInfoScreenKey> { AboutInfoScreen() }
+            entry<RendererSettingsScreenKey> { RendererSettingsScreen(mainScreenKey) }
+            entry<GameSettingsScreenKey> { GameSettingsScreen(mainScreenKey) }
+            entry<ControlSettingsScreenKey> { ControlSettingsScreen(mainScreenKey) }
+            entry<LauncherSettingsScreenKey> { LauncherSettingsScreen(mainScreenKey) }
+            entry<JavaManageScreenKey> { JavaManageScreen(mainScreenKey) }
+            entry<ControlManageScreenKey> { ControlManageScreen(mainScreenKey) }
+            entry<AboutInfoScreenKey> { AboutInfoScreen(mainScreenKey) }
         }
     )
 }

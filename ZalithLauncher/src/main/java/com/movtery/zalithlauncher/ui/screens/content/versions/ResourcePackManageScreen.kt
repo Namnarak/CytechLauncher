@@ -81,7 +81,6 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourceP
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterPacks
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseResourcePack
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
@@ -99,6 +98,7 @@ data object ResourcePackManageScreenKey: NavKey
 
 @Composable
 fun ResourcePackManageScreen(
+    mainScreenKey: NavKey?,
     version: Version
 ) {
     BaseScreen(

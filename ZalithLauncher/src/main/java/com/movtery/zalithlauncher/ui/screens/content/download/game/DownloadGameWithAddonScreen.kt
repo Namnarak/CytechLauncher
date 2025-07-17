@@ -67,7 +67,6 @@ import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -246,6 +245,7 @@ private class AddonsViewModel(
 
 @Composable
 fun DownloadGameWithAddonScreen(
+    mainScreenKey: NavKey?,
     key: DownloadGameWithAddonScreenKey,
     onInstall: (GameDownloadInfo) -> Unit = {}
 ) {

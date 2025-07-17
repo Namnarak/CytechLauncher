@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
-import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -68,8 +67,6 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -93,12 +90,12 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSav
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.formatDate
+import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -114,6 +111,8 @@ data object SavesManagerScreenKey: NavKey
 
 @Composable
 fun SavesManagerScreen(
+    mainScreenKey: NavKey?,
+    launchGameViewModel: LaunchGameViewModel,
     version: Version
 ) {
     BaseScreen(
@@ -170,10 +169,15 @@ fun SavesManagerScreen(
                         }
                     }
                     SaveOperation(
-                        version = version,
                         savesOperation = savesOperation,
                         savesDir = savesDir,
                         updateOperation = { savesOperation = it },
+                        quickPlay = { saveName ->
+                            launchGameViewModel.quickLaunch(
+                                version = version,
+                                saveName = saveName
+                            )
+                        },
                         renameSave = { saveData, newName ->
                             runProgress {
                                 saveData.saveFile.renameTo(File(savesDir, newName))
@@ -754,16 +758,14 @@ private fun SaveOperationMenu(
 
 @Composable
 private fun SaveOperation(
-    version: Version,
     savesOperation: SavesOperation,
     savesDir: File,
     updateOperation: (SavesOperation) -> Unit,
+    quickPlay: (saveName: String) -> Unit,
     renameSave: (SaveData, String) -> Unit,
     backupSave: (SaveData, String) -> Unit,
     deleteSave: (SaveData) -> Unit
 ) {
-    val context = LocalContext.current
-
     when (savesOperation) {
         is SavesOperation.None -> {}
         is SavesOperation.Progress -> {
@@ -771,16 +773,7 @@ private fun SaveOperation(
         }
         is SavesOperation.QuickPlay -> {
             val saveData = savesOperation.saveData
-            AccountsManager.getCurrentAccount() ?: run {
-                Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
-                updateOperation(SavesOperation.None)
-                return
-            }
-            version.apply {
-                offlineAccountLogin = false
-                quickPlaySingle = saveData.saveFile.name
-            }
-            LaunchGame.launchGame(context, version)
+            quickPlay(saveData.saveFile.name)
             updateOperation(SavesOperation.None)
         }
         is SavesOperation.RenameSave -> {

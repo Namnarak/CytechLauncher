@@ -56,9 +56,10 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScree
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
@@ -77,13 +78,15 @@ var versionSettScreenKey by mutableStateOf<NavKey?>(null)
 
 @Composable
 fun VersionSettingsScreen(
+    mainScreenViewModel: MainScreenViewModel,
+    launchGameViewModel: LaunchGameViewModel,
     key: VersionSettingsScreenKey
 ) {
     val backStack = rememberNavBackStack(VersionOverViewScreenKey)
 
     BaseScreen(
         screenKey = key,
-        currentKey = mainScreenKey
+        currentKey = mainScreenViewModel.screenKey
     ) { isVisible ->
 
         Row(modifier = Modifier.fillMaxSize()) {
@@ -95,6 +98,8 @@ fun VersionSettingsScreen(
 
             NavigationUI(
                 modifier = Modifier.fillMaxHeight(),
+                mainScreenViewModel = mainScreenViewModel,
+                launchGameViewModel = launchGameViewModel,
                 backStack = backStack,
                 version = key.version
             )
@@ -169,6 +174,8 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
+    mainScreenViewModel: MainScreenViewModel,
+    launchGameViewModel: LaunchGameViewModel,
     backStack: NavBackStack,
     version: Version,
 ) {
@@ -187,10 +194,10 @@ private fun NavigationUI(
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            entry<VersionOverViewScreenKey> { VersionOverViewScreen(version) }
-            entry<VersionConfigScreenKey> { VersionConfigScreen(version) }
-            entry<SavesManagerScreenKey> { SavesManagerScreen(version) }
-            entry<ResourcePackManageScreenKey> { ResourcePackManageScreen(version) }
+            entry<VersionOverViewScreenKey> { VersionOverViewScreen(mainScreenViewModel, version) }
+            entry<VersionConfigScreenKey> { VersionConfigScreen(mainScreenViewModel.screenKey, version) }
+            entry<SavesManagerScreenKey> { SavesManagerScreen(mainScreenViewModel.screenKey, launchGameViewModel, version) }
+            entry<ResourcePackManageScreenKey> { ResourcePackManageScreen(mainScreenViewModel.screenKey, version) }
         }
     )
 }

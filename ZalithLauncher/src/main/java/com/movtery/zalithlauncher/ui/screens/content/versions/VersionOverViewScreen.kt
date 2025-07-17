@@ -52,14 +52,12 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialo
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
@@ -70,11 +68,12 @@ data object VersionOverViewScreenKey: NavKey
 
 @Composable
 fun VersionOverViewScreen(
+    mainScreenViewModel: MainScreenViewModel,
     version: Version
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+            Pair(VersionSettingsScreenKey::class.java, mainScreenViewModel.screenKey)
         ),
         Triple(VersionOverViewScreenKey, versionSettScreenKey, false)
     ) { isVisible ->
@@ -112,7 +111,7 @@ fun VersionOverViewScreen(
                 versionSummary = version.getVersionSummary()
             },
             onVersionDeleted = {
-                mainScreenBackStack.backToMainScreen()
+                mainScreenViewModel.backToMainScreen()
             }
         )
 

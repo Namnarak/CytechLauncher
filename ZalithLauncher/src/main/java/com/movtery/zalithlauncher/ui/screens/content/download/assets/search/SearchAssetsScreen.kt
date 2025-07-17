@@ -37,7 +37,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.As
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ResultListLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchFilter
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import kotlinx.coroutines.Job
@@ -165,6 +164,7 @@ private fun rememberSearchAssetsViewModel(
  */
 @Composable
 fun SearchAssetsScreen(
+    mainScreenKey: NavKey?,
     parentScreenKey: NavKey,
     parentCurrentKey: NavKey?,
     screenKey: NavKey,

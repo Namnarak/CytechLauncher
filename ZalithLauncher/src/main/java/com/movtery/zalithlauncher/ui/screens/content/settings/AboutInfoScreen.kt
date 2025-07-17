@@ -45,7 +45,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import kotlinx.serialization.Serializable
@@ -96,7 +95,9 @@ private data class LibraryInfo(
 )
 
 @Composable
-fun AboutInfoScreen() {
+fun AboutInfoScreen(
+    mainScreenKey: NavKey?
+) {
     BaseScreen(
         Triple(SettingsScreenKey, mainScreenKey, false),
         Triple(AboutInfoScreenKey, settingsScreenKey, false)

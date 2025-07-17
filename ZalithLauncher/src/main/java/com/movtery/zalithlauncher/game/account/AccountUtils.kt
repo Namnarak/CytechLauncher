@@ -18,12 +18,9 @@ import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
-import com.movtery.zalithlauncher.ui.screens.content.navigateToWeb
-import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
@@ -78,6 +75,9 @@ fun isMicrosoftLogging() = TaskSystem.containsTask(MICROSOFT_LOGGING_TASK)
 
 fun microsoftLogin(
     context: Context,
+    toWeb: (url: String) -> Unit,
+    backToMain: () -> Unit,
+    mainScreenViewModel: MainScreenViewModel,
     updateOperation: (MicrosoftLoginOperation) -> Unit
 ) {
     val task = Task.runTask(
@@ -94,12 +94,12 @@ fun microsoftLogin(
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            mainScreenBackStack.navigateToWeb(deviceCode.verificationUrl)
+            toWeb(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) {
-                !WebViewScreenKey::class.java.isInstance(mainScreenKey)
+                !WebViewScreenKey::class.java.isInstance(mainScreenViewModel.screenKey)
             }
-            mainScreenBackStack.backToMainScreen()
+            backToMain()
             val account = authAsync(
                 AuthType.Access,
                 tokenResponse.refreshToken,

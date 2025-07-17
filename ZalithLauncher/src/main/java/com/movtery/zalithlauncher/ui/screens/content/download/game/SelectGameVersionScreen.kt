@@ -64,7 +64,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
@@ -179,6 +178,7 @@ private class VersionsViewModel(): ViewModel() {
 
 @Composable
 fun SelectGameVersionScreen(
+    mainScreenKey: NavKey?,
     onVersionSelect: (String) -> Unit = {}
 ) {
     val viewModel = viewModel(

@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
@@ -92,15 +93,18 @@ import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.string.ShiftDirection
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    mainScreenViewModel: MainScreenViewModel,
+    launchGameViewModel: LaunchGameViewModel
+) {
     val throwableState by ObjectStates.throwableFlow.collectAsState()
     throwableState?.let { tm ->
         SimpleAlertDialog(
@@ -126,9 +130,10 @@ fun MainScreen() {
                 .fillMaxWidth()
                 .height(40.dp)
                 .zIndex(10f),
+            mainScreenKey = mainScreenViewModel.screenKey,
             taskRunning = tasks.isEmpty(),
             isTasksExpanded = isTaskMenuExpanded,
-            backStack = mainScreenBackStack,
+            backStack = mainScreenViewModel.backStack,
             color = MaterialTheme.colorScheme.surfaceContainer
         ) {
             changeTasksExpandedState()
@@ -140,10 +145,12 @@ fun MainScreen() {
                 .weight(1f)
         ) {
             NavigationUI(
-                backStack = mainScreenBackStack,
+                backStack = mainScreenViewModel.backStack,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surface)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                mainScreenViewModel = mainScreenViewModel,
+                launchGameViewModel = launchGameViewModel
             )
 
             TaskMenu(
@@ -162,6 +169,7 @@ fun MainScreen() {
 
 @Composable
 private fun TopBar(
+    mainScreenKey: NavKey?,
     taskRunning: Boolean,
     isTasksExpanded: Boolean,
     backStack: NavBackStack,
@@ -325,12 +333,14 @@ private fun TopBar(
 @Composable
 private fun NavigationUI(
     backStack: NavBackStack,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mainScreenViewModel: MainScreenViewModel,
+    launchGameViewModel: LaunchGameViewModel
 ) {
     val currentKey = backStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
-        mainScreenKey = currentKey
+        mainScreenViewModel.screenKey = currentKey
     }
 
     NavDisplay(
@@ -342,18 +352,18 @@ private fun NavigationUI(
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            entry<LauncherScreenKey> { LauncherScreen() }
-            entry<SettingsScreenKey> { SettingsScreen() }
-            entry<AccountManageScreenKey> { AccountManageScreen() }
-            entry<WebViewScreenKey> { WebViewScreen(it) }
-            entry<VersionsManageScreenKey> { VersionsManageScreen() }
+            entry<LauncherScreenKey> { LauncherScreen(mainScreenViewModel, launchGameViewModel) }
+            entry<SettingsScreenKey> { SettingsScreen(mainScreenViewModel.screenKey) }
+            entry<AccountManageScreenKey> { AccountManageScreen(mainScreenViewModel) }
+            entry<WebViewScreenKey> { WebViewScreen(mainScreenViewModel.screenKey, it) }
+            entry<VersionsManageScreenKey> { VersionsManageScreen(mainScreenViewModel) }
             entry<FileSelectorScreenKey> {
-                FileSelectorScreen(it) {
+                FileSelectorScreen(mainScreenViewModel.screenKey, it) {
                     backStack.removeLastOrNull()
                 }
             }
-            entry<VersionSettingsScreenKey> { VersionSettingsScreen(it) }
-            entry<DownloadScreenKey> { DownloadScreen(it) }
+            entry<VersionSettingsScreenKey> { VersionSettingsScreen(mainScreenViewModel, launchGameViewModel, it) }
+            entry<DownloadScreenKey> { DownloadScreen(mainScreenViewModel.screenKey, it) }
         }
     )
 }

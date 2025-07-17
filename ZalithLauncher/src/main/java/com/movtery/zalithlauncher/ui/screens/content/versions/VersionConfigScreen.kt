@@ -41,7 +41,6 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayou
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
@@ -53,6 +52,7 @@ data object VersionConfigScreenKey: NavKey
 
 @Composable
 fun VersionConfigScreen(
+    mainScreenKey: NavKey?,
     version: Version
 ) {
     BaseScreen(

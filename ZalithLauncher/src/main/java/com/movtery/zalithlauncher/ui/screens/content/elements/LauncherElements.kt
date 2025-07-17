@@ -35,8 +35,8 @@ import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.isOfflineSkinCompatible
 import com.movtery.zalithlauncher.game.skin.isSkinModelUuidSupported
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
@@ -51,12 +51,25 @@ sealed interface LaunchGameOperation {
     data object NoVersion : LaunchGameOperation
     /** 没有可用账号 */
     data object NoAccount : LaunchGameOperation
+
     /** 当前渲染器不支持选中版本 */
-    data class UnsupportedRenderer(val renderer: RendererInterface): LaunchGameOperation
+    data class UnsupportedRenderer(
+        val renderer: RendererInterface,
+        val version: Version,
+        val quickPlay: String?
+    ): LaunchGameOperation
+
     /** 尝试启动：启动前检查一些东西 */
-    data object TryLaunch : LaunchGameOperation
+    data class TryLaunch(
+        val version: Version?,
+        val quickPlay: String? = null
+    ) : LaunchGameOperation
+
     /** 正式启动 */
-    data object RealLaunch : LaunchGameOperation
+    data class RealLaunch(
+        val version: Version,
+        val quickPlay: String?
+    ) : LaunchGameOperation
 }
 
 @Composable
@@ -178,12 +191,14 @@ fun LaunchGameOperation(
         }
         is LaunchGameOperation.UnsupportedRenderer -> {
             val renderer = launchGameOperation.renderer
+            val version = launchGameOperation.version
+            val quickPlay = launchGameOperation.quickPlay
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_warning),
                 text = stringResource(R.string.renderer_version_unsupported_warning, renderer.getRendererName()),
                 confirmText = stringResource(R.string.generic_anyway),
                 onConfirm = {
-                    updateOperation(LaunchGameOperation.RealLaunch)
+                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
                 },
                 onDismiss = {
                     updateOperation(LaunchGameOperation.None)
@@ -191,10 +206,12 @@ fun LaunchGameOperation(
             )
         }
         is LaunchGameOperation.TryLaunch -> {
-            val version = VersionsManager.currentVersion ?: run {
+            val version = launchGameOperation.version ?: run {
                 updateOperation(LaunchGameOperation.NoVersion)
                 return
             }
+
+            val quickPlay = launchGameOperation.quickPlay
 
             AccountsManager.getCurrentAccount() ?: run {
                 updateOperation(LaunchGameOperation.NoAccount)
@@ -214,21 +231,19 @@ fun LaunchGameOperation(
                 (rendererMaxVer?.let { mcVer.isBiggerTo(it) } ?: false)
 
             if (isUnsupported) {
-                updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer))
+                updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer, version, quickPlay))
                 return
             }
 
             //正式启动游戏
-            updateOperation(LaunchGameOperation.RealLaunch)
+            updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
         }
         is LaunchGameOperation.RealLaunch -> {
-            val version = VersionsManager.currentVersion ?: run {
-                updateOperation(LaunchGameOperation.None)
-                return
-            }
+            val version = launchGameOperation.version
+            val quickPlay = launchGameOperation.quickPlay
             version.apply {
                 offlineAccountLogin = false
-                quickPlaySingle = null //清除快速启动
+                quickPlaySingle = quickPlay
             }
             LaunchGame.launchGame(context, version)
             updateOperation(LaunchGameOperation.None)

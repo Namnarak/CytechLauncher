@@ -48,26 +48,27 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
 data object VersionsManageScreenKey: NavKey
 
 @Composable
-fun VersionsManageScreen() {
+fun VersionsManageScreen(
+    mainScreenViewModel: MainScreenViewModel
+) {
     BaseScreen(
         screenKey = VersionsManageScreenKey,
-        currentKey = mainScreenKey
+        currentKey = mainScreenViewModel.screenKey
     ) { isVisible ->
         Row {
             GamePathLayout(
                 isVisible = isVisible,
-                backStack = mainScreenBackStack,
+                backStack = mainScreenViewModel.backStack,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
@@ -75,7 +76,7 @@ fun VersionsManageScreen() {
 
             VersionsLayout(
                 isVisible = isVisible,
-                backStack = mainScreenBackStack,
+                backStack = mainScreenViewModel.backStack,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
@@ -87,7 +88,7 @@ fun VersionsManageScreen() {
                     }
                 },
                 onInstall = {
-                    mainScreenBackStack.navigateToDownload()
+                    mainScreenViewModel.backStack.navigateToDownload()
                 }
             )
         }

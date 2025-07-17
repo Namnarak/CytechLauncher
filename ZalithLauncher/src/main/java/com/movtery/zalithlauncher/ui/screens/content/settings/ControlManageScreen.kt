@@ -17,7 +17,6 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import kotlinx.serialization.Serializable
 
@@ -25,7 +24,9 @@ import kotlinx.serialization.Serializable
 data object ControlManageScreenKey: NavKey
 
 @Composable
-fun ControlManageScreen() {
+fun ControlManageScreen(
+    mainScreenKey: NavKey?
+) {
     BaseScreen(
         Triple(SettingsScreenKey, mainScreenKey, false),
         Triple(ControlManageScreenKey, settingsScreenKey, false)

@@ -83,11 +83,11 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDi
 import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -101,7 +101,9 @@ import java.nio.channels.UnresolvedAddressException
 data object AccountManageScreenKey: NavKey
 
 @Composable
-fun AccountManageScreen() {
+fun AccountManageScreen(
+    mainScreenViewModel: MainScreenViewModel
+) {
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
     var localLoginOperation by remember { mutableStateOf<LocalLoginOperation>(LocalLoginOperation.None) }
     var otherLoginOperation by remember { mutableStateOf<OtherLoginOperation>(OtherLoginOperation.None) }
@@ -109,7 +111,7 @@ fun AccountManageScreen() {
 
     BaseScreen(
         screenKey = AccountManageScreenKey,
-        currentKey = mainScreenKey
+        currentKey = mainScreenViewModel.screenKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -142,6 +144,7 @@ fun AccountManageScreen() {
     //微软账号操作逻辑
     MicrosoftLoginOperation(
         microsoftLoginOperation = microsoftLoginOperation,
+        mainScreenViewModel = mainScreenViewModel,
         updateOperation = { microsoftLoginOperation = it }
     )
 
@@ -241,6 +244,7 @@ private fun ServerTypeMenu(
  */
 @Composable
 private fun MicrosoftLoginOperation(
+    mainScreenViewModel: MainScreenViewModel,
     microsoftLoginOperation: MicrosoftLoginOperation,
     updateOperation: (MicrosoftLoginOperation) -> Unit = {}
 ) {
@@ -257,6 +261,13 @@ private fun MicrosoftLoginOperation(
         is MicrosoftLoginOperation.RunTask -> {
             microsoftLogin(
                 context = context,
+                toWeb = { url ->
+                    mainScreenViewModel.backStack.navigateToWeb(url)
+                },
+                backToMain = {
+                    mainScreenViewModel.backToMainScreen()
+                },
+                mainScreenViewModel = mainScreenViewModel,
                 updateOperation = { updateOperation(it) }
             )
             updateOperation(MicrosoftLoginOperation.None)

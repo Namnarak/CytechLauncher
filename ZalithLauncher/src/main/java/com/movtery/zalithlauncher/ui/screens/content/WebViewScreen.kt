@@ -25,7 +25,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
@@ -40,7 +39,10 @@ fun NavBackStack.navigateToWeb(webUrl: String) = this.navigateTo(WebViewScreenKe
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebViewScreen(key: WebViewScreenKey) {
+fun WebViewScreen(
+    mainScreenKey: NavKey?,
+    key: WebViewScreenKey
+) {
     BaseScreen(
         screenKey = key,
         currentKey = mainScreenKey,

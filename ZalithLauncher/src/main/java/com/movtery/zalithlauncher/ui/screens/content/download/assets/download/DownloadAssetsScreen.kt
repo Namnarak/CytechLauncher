@@ -77,7 +77,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Ve
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapToInfos
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapWithVersions
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -246,6 +245,7 @@ private fun rememberDownloadAssetsViewModel(
  */
 @Composable
 fun DownloadAssetsScreen(
+    mainScreenKey: NavKey?,
     parentScreenKey: NavKey,
     parentCurrentKey: NavKey?,
     currentKey: NavKey?,

@@ -30,9 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,23 +49,25 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
-import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
 data object LauncherScreenKey: NavKey
 
 @Composable
-fun LauncherScreen() {
+fun LauncherScreen(
+    mainScreenViewModel: MainScreenViewModel,
+    launchGameViewModel: LaunchGameViewModel
+) {
     BaseScreen(
         screenKey = LauncherScreenKey,
-        currentKey = mainScreenKey
+        currentKey = mainScreenViewModel.screenKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -84,15 +83,16 @@ fun LauncherScreen() {
                     .weight(3f)
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
+                launchGameViewModel = launchGameViewModel,
                 toAccountManageScreen = {
-                    mainScreenBackStack.navigateTo(AccountManageScreenKey)
+                    mainScreenViewModel.backStack.navigateTo(AccountManageScreenKey)
                 },
                 toVersionManageScreen = {
-                    mainScreenBackStack.navigateTo(VersionsManageScreenKey)
+                    mainScreenViewModel.backStack.navigateTo(VersionsManageScreenKey)
                 },
                 toVersionSettingsScreen = {
                     VersionsManager.currentVersion?.let { version ->
-                        mainScreenBackStack.navigateTo(VersionSettingsScreenKey(version))
+                        mainScreenViewModel.backStack.navigateTo(VersionSettingsScreenKey(version))
                     }
                 }
             )
@@ -151,6 +151,7 @@ private fun ContentMenu(
 private fun RightMenu(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
+    launchGameViewModel: LaunchGameViewModel,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {},
     toVersionSettingsScreen: () -> Unit = {}
@@ -159,14 +160,6 @@ private fun RightMenu(
         targetValue = 40.dp,
         swapIn = isVisible,
         isHorizontal = true
-    )
-
-    var launchGameOperation by remember { mutableStateOf<LaunchGameOperation>(LaunchGameOperation.None) }
-    LaunchGameOperation(
-        launchGameOperation = launchGameOperation,
-        updateOperation = { launchGameOperation = it },
-        toAccountManageScreen = toAccountManageScreen,
-        toVersionManageScreen = toVersionManageScreen
     )
 
     Card(
@@ -254,7 +247,9 @@ private fun RightMenu(
                     .padding(PaddingValues(horizontal = 12.dp)),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
                 onClick = {
-                    launchGameOperation = LaunchGameOperation.TryLaunch
+                    launchGameViewModel.tryLaunch(
+                        VersionsManager.currentVersion
+                    )
                 },
             ) {
                 Text(text = stringResource(R.string.main_launch_game))

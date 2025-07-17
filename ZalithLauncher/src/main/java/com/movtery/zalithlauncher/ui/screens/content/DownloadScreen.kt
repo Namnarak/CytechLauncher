@@ -61,7 +61,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScr
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -92,7 +91,10 @@ fun NavBackStack.navigateToDownload(targetScreen: NavKey? = null) {
 }
 
 @Composable
-fun DownloadScreen(key: DownloadScreenKey) {
+fun DownloadScreen(
+    mainScreenKey: NavKey?,
+    key: DownloadScreenKey
+) {
     downloadScreenBackStack.clearWith(key.startKey ?: DownloadGameScreenKey)
 
     BaseScreen(
@@ -109,6 +111,7 @@ fun DownloadScreen(key: DownloadScreenKey) {
             )
 
             NavigationUI(
+                mainScreenKey = mainScreenKey,
                 backStack = downloadScreenBackStack,
                 modifier = Modifier.fillMaxHeight()
             )
@@ -184,6 +187,7 @@ private fun TabMenu(
 
 @Composable
 private fun NavigationUI(
+    mainScreenKey: NavKey?,
     backStack: NavBackStack,
     modifier: Modifier = Modifier
 ) {
@@ -201,12 +205,12 @@ private fun NavigationUI(
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            entry<DownloadGameScreenKey> { DownloadGameScreen() }
-            entry<DownloadModPackScreenKey> { DownloadModPackScreen() }
-            entry<DownloadModScreenKey> { DownloadModScreen() }
-            entry<DownloadResourcePackScreenKey> { DownloadResourcePackScreen() }
-            entry<DownloadSavesScreenKey> { DownloadSavesScreen() }
-            entry<DownloadShadersScreenKey> { DownloadShadersScreen() }
+            entry<DownloadGameScreenKey> { DownloadGameScreen(mainScreenKey) }
+            entry<DownloadModPackScreenKey> { DownloadModPackScreen(mainScreenKey) }
+            entry<DownloadModScreenKey> { DownloadModScreen(mainScreenKey) }
+            entry<DownloadResourcePackScreenKey> { DownloadResourcePackScreen(mainScreenKey) }
+            entry<DownloadSavesScreenKey> { DownloadSavesScreen(mainScreenKey) }
+            entry<DownloadShadersScreenKey> { DownloadShadersScreen(mainScreenKey) }
         }
     )
 }

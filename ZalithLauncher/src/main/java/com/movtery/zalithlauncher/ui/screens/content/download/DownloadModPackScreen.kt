@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
@@ -29,7 +30,9 @@ data object DownloadModPackScreenKey: NestedNavKey {
 }
 
 @Composable
-fun DownloadModPackScreen() {
+fun DownloadModPackScreen(
+    mainScreenKey: NavKey?
+) {
     val currentKey = downloadModPackBackStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
@@ -51,7 +54,7 @@ fun DownloadModPackScreen() {
         ),
         entryProvider = entryProvider {
             entry<SearchModPackScreenKey> {
-                SearchModPackScreen { platform, projectId ->
+                SearchModPackScreen(mainScreenKey) { platform, projectId ->
                     downloadModPackBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.MOD_PACK)
                     )
@@ -59,6 +62,7 @@ fun DownloadModPackScreen() {
             }
             entry<DownloadAssetsScreenKey> { key ->
                 DownloadAssetsScreen(
+                    mainScreenKey = mainScreenKey,
                     parentScreenKey = DownloadModPackScreenKey,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadModPackScreenKey,

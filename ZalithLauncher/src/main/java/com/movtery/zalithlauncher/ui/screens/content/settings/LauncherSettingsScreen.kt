@@ -38,7 +38,6 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -58,7 +57,9 @@ private sealed interface CustomColorOperation {
 }
 
 @Composable
-fun LauncherSettingsScreen() {
+fun LauncherSettingsScreen(
+    mainScreenKey: NavKey?
+) {
     val context = LocalContext.current
 
     BaseScreen(
