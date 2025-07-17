@@ -602,6 +602,7 @@
     <string name="download_assets_show_only_mc_release">僅顯示 MC 正式版</string>
     <string name="download_assets_search_mc_versions">搜尋 MC 版本</string>
     <string name="download_assets_dependency_projects">前置依賴</string>
+    <string name="download_assets_optional_projects">可選項目</string>
     <string name="download_assets_links">相關連結</string>
     <string name="download_assets_project_link">項目頁面</string>
     <string name="download_assets_source_link">檢視源代碼</string>

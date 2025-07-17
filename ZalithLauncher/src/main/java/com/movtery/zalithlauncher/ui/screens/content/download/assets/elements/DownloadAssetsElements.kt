@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -196,6 +197,7 @@ class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
     val dependencies: List<DownloadVersionInfo.Dependency>,
+    val optionals: List<DownloadVersionInfo.Dependency>,
     val infos: List<DownloadVersionInfo>,
     val isAdapt: Boolean
 )
@@ -373,7 +375,8 @@ fun List<DownloadVersionInfo>.mapWithVersions(classes: PlatformClasses): List<Ve
         VersionInfoMap(
             gameVersion = key.first,
             loader = key.second,
-            dependencies = dependencies,
+            dependencies = dependencies.filter { it.type == PlatformDependencyType.REQUIRED },
+            optionals = dependencies.filter { it.type == PlatformDependencyType.OPTIONAL },
             infos = infos,
             isAdapt = when (classes) {
                 PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
@@ -472,39 +475,34 @@ fun AssetsVersionItemLayout(
                             contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
                             infoMap.dependencies.takeIf { it.isNotEmpty() }?.let { dependencies ->
-                                val projects = dependencies.mapNotNull { dependency ->
-                                    if (dependency.type == PlatformDependencyType.REQUIRED) {
-                                        getDependency(dependency.projectID)?.let { dependency to it }
-                                    } else null
+                                val required = dependencies.mapNotNull { dependency ->
+                                    getDependency(dependency.projectID)?.let { dependency to it }
                                 }
-                                if (projects.isNotEmpty()) {
-                                    item {
-                                        Text(
-                                            modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = stringResource(R.string.download_assets_dependency_projects),
-                                            style = MaterialTheme.typography.labelLarge
-                                        )
-                                    }
-                                    //前置项目列表
-                                    items(projects) { (dependency, dependencyProject) ->
-                                        AssetsVersionDependencyItem(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(all = 4.dp),
-                                            project = dependencyProject,
-                                            onClick = {
-                                                onDependencyClicked(dependency)
-                                            }
-                                        )
-                                    }
-                                    item {
-                                        HorizontalDivider(
-                                            modifier = Modifier
-                                                .padding(horizontal = 12.dp)
-                                                .fillMaxWidth(),
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                        )
-                                    }
+                                dependencyLayout(
+                                    list = required,
+                                    titleRes = R.string.download_assets_dependency_projects,
+                                    onDependencyClicked = onDependencyClicked
+                                )
+                            }
+                            infoMap.optionals.takeIf { it.isNotEmpty() }?.let { optionals ->
+                                val optional = optionals.mapNotNull { dependency ->
+                                    getDependency(dependency.projectID)?.let { dependency to it }
+                                }
+                                dependencyLayout(
+                                    list = optional,
+                                    titleRes = R.string.download_assets_optional_projects,
+                                    onDependencyClicked = onDependencyClicked
+                                )
+                            }
+                            //分割线
+                            if (infoMap.dependencies.isNotEmpty() || infoMap.optionals.isNotEmpty()) {
+                                item {
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .padding(horizontal = 12.dp)
+                                            .fillMaxWidth(),
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                                    )
                                 }
                             }
 
@@ -523,6 +521,34 @@ fun AssetsVersionItemLayout(
                     }
                 }
             }
+        }
+    }
+}
+
+private fun LazyListScope.dependencyLayout(
+    list: List<Pair<DownloadVersionInfo.Dependency, DownloadProjectInfo>>,
+    titleRes: Int,
+    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
+) {
+    if (list.isNotEmpty()) {
+        item {
+            Text(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                text = stringResource(titleRes),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+        //前置项目列表
+        items(list) { (dependency, dependencyProject) ->
+            AssetsVersionDependencyItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 4.dp),
+                project = dependencyProject,
+                onClick = {
+                    onDependencyClicked(dependency)
+                }
+            )
         }
     }
 }

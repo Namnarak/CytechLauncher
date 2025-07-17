@@ -176,6 +176,7 @@
     <string name="download_assets_show_only_mc_release">仅展示 MC 正式版</string>
     <string name="download_assets_search_mc_versions">搜索 MC 版本</string>
     <string name="download_assets_dependency_projects">依赖前置</string>
+    <string name="download_assets_optional_projects">可选项目</string>
     <string name="download_assets_links">相关链接</string>
     <string name="download_assets_project_link">项目地址</string>
     <string name="download_assets_source_link">浏览源代码</string>
