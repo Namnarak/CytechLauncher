@@ -130,6 +130,7 @@
     <string name="download_game_addon_unavailable">不可用</string>
     <string name="download_game_addon_incompatible_with">与 %s 不兼容</string>
     <string name="download_game_addon_compatible_with">兼容 %s</string>
+    <string name="download_game_addon_request_addon">请先选择 %s 版本</string>
     <string name="download_game_addon_release">正式版</string>
     <string name="download_game_addon_preview">预览版</string>
     <string name="download_game_addon_stable">稳定版</string>

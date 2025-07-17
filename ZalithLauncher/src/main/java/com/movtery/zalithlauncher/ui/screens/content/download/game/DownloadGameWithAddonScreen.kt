@@ -773,9 +773,20 @@ private fun FabricList(
 private fun FabricAPIList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
+    requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.FABRIC.displayName),
     addonList: AddonList,
     onReload: () -> Unit = {}
 ) {
+    val unSelectedFabric = remember(currentAddon.fabricVersion) {
+        when {
+            currentAddon.fabricVersion == null -> {
+                currentAddon.fabricAPIVersion = null
+                requestString
+            }
+            else -> null
+        }
+    }
+
     AddonListLayout(
         modifier = modifier,
         state = currentAddon.fabricAPIState,
@@ -804,6 +815,7 @@ private fun FabricAPIList(
                 currentAddon.incompatibleWithQuiltAPI -= fabricType
             }
         },
+        error = unSelectedFabric,
         getItemText = { it.displayName },
         summary = { ModSummary(it) },
         onValueChange = { version ->
@@ -861,9 +873,20 @@ private fun QuiltList(
 private fun QuiltAPIList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
+    requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.QUILT.displayName),
     addonList: AddonList,
     onReload: () -> Unit = {}
 ) {
+    val unSelectedQuilt = remember(currentAddon.quiltVersion) {
+        when {
+            currentAddon.quiltVersion == null -> {
+                currentAddon.quiltAPIVersion = null
+                requestString
+            }
+            else -> null
+        }
+    }
+
     AddonListLayout(
         modifier = modifier,
         state = currentAddon.quiltAPIState,
@@ -892,6 +915,7 @@ private fun QuiltAPIList(
                 currentAddon.incompatibleWithFabricAPI -= quiltType
             }
         },
+        error = unSelectedQuilt,
         getItemText = { it.displayName },
         summary = { ModSummary(it) },
         onValueChange =  { version ->

@@ -120,6 +120,7 @@
     <string name="download_game_addon_unavailable">不可用</string>
     <string name="download_game_addon_incompatible_with">與 %s 不相容</string>
     <string name="download_game_addon_compatible_with">與 %s 相容</string>
+    <string name="download_game_addon_request_addon">請先選擇 %s 版本</string>
     <string name="download_game_addon_release">正式版</string>
     <string name="download_game_addon_preview">預覽版</string>
     <string name="download_game_addon_stable">穩定版</string>

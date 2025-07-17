@@ -130,6 +130,7 @@
     <string name="download_game_addon_unavailable">Unavailable</string>
     <string name="download_game_addon_incompatible_with">Incompatible with %s</string>
     <string name="download_game_addon_compatible_with">Compatible with %s</string>
+    <string name="download_game_addon_request_addon">Please select the %s version first</string>
     <string name="download_game_addon_release">Release</string>
     <string name="download_game_addon_preview">Preview</string>
     <string name="download_game_addon_stable">Stable</string>
