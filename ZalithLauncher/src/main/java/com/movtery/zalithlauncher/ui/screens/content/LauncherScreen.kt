@@ -91,7 +91,9 @@ fun LauncherScreen() {
                     mainScreenBackStack.navigateTo(VersionsManageScreenKey)
                 },
                 toVersionSettingsScreen = {
-                    mainScreenBackStack.navigateTo(VersionSettingsScreenKey)
+                    VersionsManager.currentVersion?.let { version ->
+                        mainScreenBackStack.navigateTo(VersionSettingsScreenKey(version))
+                    }
                 }
             )
         }
@@ -233,10 +235,7 @@ private fun RightMenu(
                 version?.takeIf { it.isValid() }?.let {
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
-                        onClick = {
-                            VersionsManager.versionBeingSet = VersionsManager.currentVersion
-                            toVersionSettingsScreen()
-                        }
+                        onClick = toVersionSettingsScreen
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Settings,

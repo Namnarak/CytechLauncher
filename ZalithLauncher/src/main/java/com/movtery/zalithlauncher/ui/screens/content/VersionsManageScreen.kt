@@ -278,8 +278,7 @@ private fun VersionsLayout(
                                         }
                                     },
                                     onSettingsClick = {
-                                        VersionsManager.versionBeingSet = version
-                                        backStack.navigateTo(VersionSettingsScreenKey)
+                                        backStack.navigateTo(VersionSettingsScreenKey(version))
                                     },
                                     onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
                                     onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },

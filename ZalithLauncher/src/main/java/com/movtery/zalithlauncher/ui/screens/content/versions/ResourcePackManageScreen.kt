@@ -61,7 +61,7 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
@@ -81,8 +81,6 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourceP
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterPacks
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseResourcePack
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -100,16 +98,15 @@ import java.io.File
 data object ResourcePackManageScreenKey: NavKey
 
 @Composable
-fun ResourcePackManageScreen() {
+fun ResourcePackManageScreen(
+    version: Version
+) {
     BaseScreen(
-        Triple(VersionSettingsScreenKey, mainScreenKey, false),
+        levels1 = listOf(
+            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+        ),
         Triple(ResourcePackManageScreenKey, versionSettScreenKey, false)
     ) { isVisible ->
-
-        val version = VersionsManager.versionBeingSet?.takeIf { it.isValid() } ?: run {
-            mainScreenBackStack.backToMainScreen()
-            return@BaseScreen
-        }
         val resourcePackDir = File(version.getGameDir(), "resourcepacks")
 
         //触发刷新

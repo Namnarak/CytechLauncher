@@ -72,7 +72,6 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -94,8 +93,6 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSav
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -116,16 +113,15 @@ import java.util.Date
 data object SavesManagerScreenKey: NavKey
 
 @Composable
-fun SavesManagerScreen() {
+fun SavesManagerScreen(
+    version: Version
+) {
     BaseScreen(
-        Triple(VersionSettingsScreenKey, mainScreenKey, false),
+        levels1 = listOf(
+            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+        ),
         Triple(SavesManagerScreenKey, versionSettScreenKey, false),
     ) { isVisible ->
-
-        val version = VersionsManager.versionBeingSet?.takeIf { it.isValid() } ?: run {
-            mainScreenBackStack.backToMainScreen()
-            return@BaseScreen
-        }
         val versionInfo = version.getVersionInfo()!!
         val minecraftVersion = versionInfo.minecraftVersion
         val quickPlay = versionInfo.quickPlay

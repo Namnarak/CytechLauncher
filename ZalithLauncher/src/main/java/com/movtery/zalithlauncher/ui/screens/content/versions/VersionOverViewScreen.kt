@@ -69,17 +69,15 @@ import java.io.File
 data object VersionOverViewScreenKey: NavKey
 
 @Composable
-fun VersionOverViewScreen() {
+fun VersionOverViewScreen(
+    version: Version
+) {
     BaseScreen(
-        Triple(VersionSettingsScreenKey, mainScreenKey, false),
+        levels1 = listOf(
+            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+        ),
         Triple(VersionOverViewScreenKey, versionSettScreenKey, false)
     ) { isVisible ->
-
-        val version = VersionsManager.versionBeingSet?.takeIf { it.isValid() } ?: run {
-            mainScreenBackStack.backToMainScreen()
-            return@BaseScreen
-        }
-
         var versionName by remember { mutableStateOf(version.getVersionName()) }
         var versionSummary by remember { mutableStateOf(version.getVersionSummary()) }
         var refreshVersionIcon by remember { mutableIntStateOf(0) }

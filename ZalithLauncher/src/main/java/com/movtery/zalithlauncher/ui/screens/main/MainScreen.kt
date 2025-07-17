@@ -342,7 +342,7 @@ private fun NavigationUI(
                     backStack.removeLastOrNull()
                 }
             }
-            entry<VersionSettingsScreenKey> { VersionSettingsScreen() }
+            entry<VersionSettingsScreenKey> { VersionSettingsScreen(it) }
             entry<DownloadScreenKey> { DownloadScreen(it) }
         }
     )

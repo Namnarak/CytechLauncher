@@ -43,6 +43,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
@@ -58,10 +59,14 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScr
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object VersionSettingsScreenKey: NestedNavKey {
+data class VersionSettingsScreenKey(
+    @Contextual
+    val version: Version
+): NestedNavKey {
     override fun isLastScreen(): Boolean = true
 }
 
@@ -71,11 +76,13 @@ data object VersionSettingsScreenKey: NestedNavKey {
 var versionSettScreenKey by mutableStateOf<NavKey?>(null)
 
 @Composable
-fun VersionSettingsScreen() {
+fun VersionSettingsScreen(
+    key: VersionSettingsScreenKey
+) {
     val backStack = rememberNavBackStack(VersionOverViewScreenKey)
 
     BaseScreen(
-        screenKey = VersionSettingsScreenKey,
+        screenKey = key,
         currentKey = mainScreenKey
     ) { isVisible ->
 
@@ -87,8 +94,9 @@ fun VersionSettingsScreen() {
             )
 
             NavigationUI(
+                modifier = Modifier.fillMaxHeight(),
                 backStack = backStack,
-                modifier = Modifier.fillMaxHeight()
+                version = key.version
             )
         }
     }
@@ -160,8 +168,9 @@ private fun TabMenu(
 
 @Composable
 private fun NavigationUI(
+    modifier: Modifier = Modifier,
     backStack: NavBackStack,
-    modifier: Modifier = Modifier
+    version: Version,
 ) {
     val currentKey = backStack.lastOrNull()
 
@@ -178,10 +187,10 @@ private fun NavigationUI(
             backStack.removeLastOrNull()
         },
         entryProvider = entryProvider {
-            entry<VersionOverViewScreenKey> { VersionOverViewScreen() }
-            entry<VersionConfigScreenKey> { VersionConfigScreen() }
-            entry<SavesManagerScreenKey> { SavesManagerScreen() }
-            entry<ResourcePackManageScreenKey> { ResourcePackManageScreen() }
+            entry<VersionOverViewScreenKey> { VersionOverViewScreen(version) }
+            entry<VersionConfigScreenKey> { VersionConfigScreen(version) }
+            entry<SavesManagerScreenKey> { SavesManagerScreen(version) }
+            entry<ResourcePackManageScreenKey> { ResourcePackManageScreen(version) }
         }
     )
 }

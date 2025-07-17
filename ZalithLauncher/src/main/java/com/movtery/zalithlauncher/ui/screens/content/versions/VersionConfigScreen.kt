@@ -26,8 +26,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
-import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -41,8 +41,6 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayou
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.ui.screens.main.elements.backToMainScreen
-import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenBackStack
 import com.movtery.zalithlauncher.ui.screens.main.elements.mainScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -54,16 +52,16 @@ import kotlinx.serialization.Serializable
 data object VersionConfigScreenKey: NavKey
 
 @Composable
-fun VersionConfigScreen() {
+fun VersionConfigScreen(
+    version: Version
+) {
     BaseScreen(
-        Triple(VersionSettingsScreenKey, mainScreenKey, false),
+        levels1 = listOf(
+            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+        ),
         Triple(VersionConfigScreenKey, versionSettScreenKey, false)
     ) { isVisible ->
-
-        val config = VersionsManager.versionBeingSet?.takeIf { it.isValid() }?.getVersionConfig() ?: run {
-            mainScreenBackStack.backToMainScreen()
-            return@BaseScreen
-        }
+        val config = version.getVersionConfig()
 
         Column(
             modifier = Modifier

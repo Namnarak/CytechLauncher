@@ -43,11 +43,6 @@ object VersionsManager {
     var currentVersion by mutableStateOf<Version?>(null)
         private set
 
-    /**
-     * 当前正在被设置的版本
-     */
-    var versionBeingSet by mutableStateOf<Version?>(null)
-
     private var currentJob: Job? = null
 
     /**
@@ -157,7 +152,6 @@ object VersionsManager {
                 returnVersionByFirst()
             }
         }
-        versionBeingSet = currentVersion
     }
 
     private fun getVersion(name: String?): Version? {
