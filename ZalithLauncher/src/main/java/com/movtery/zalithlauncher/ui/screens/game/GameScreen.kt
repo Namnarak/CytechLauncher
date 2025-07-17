@@ -14,10 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,17 +35,18 @@ import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import org.lwjgl.glfw.CallbackBridge
 
 @Composable
 fun GameScreen(
     version: Version,
     isGameRendering: Boolean,
+    logState: LogState,
+    onLogStateChange: (LogState) -> Unit = {},
     isTouchProxyEnabled: Boolean,
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
 ) {
-    var enableLog by remember { mutableStateOf(false) }
-
     Box(modifier = Modifier.fillMaxSize()) {
         GameInfoBox(
             modifier = Modifier
@@ -65,7 +63,7 @@ fun GameScreen(
         )
 
         LogBox(
-            enableLog = enableLog,
+            enableLog = logState.value,
             modifier = Modifier.fillMaxSize()
         )
     }

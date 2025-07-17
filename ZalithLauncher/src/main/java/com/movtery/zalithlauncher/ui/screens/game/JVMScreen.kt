@@ -26,12 +26,15 @@ import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.input.view.TouchCharInput
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.utils.killProgress
 
 @Composable
-fun JVMScreen() {
+fun JVMScreen(
+    logState: LogState,
+    onLogStateChange: (LogState) -> Unit = {}
+) {
     var forceCloseDialog by remember { mutableStateOf(false) }
-    var enableLog by remember { mutableStateOf(false) }
 
     val charInputRef = remember { mutableStateOf<TouchCharInput?>(null) }
 
@@ -51,7 +54,7 @@ fun JVMScreen() {
         )
 
         LogBox(
-            enableLog = enableLog,
+            enableLog = logState.value,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -62,7 +65,7 @@ fun JVMScreen() {
 
         ButtonsLayout(
             modifier = Modifier
-                .alpha(alpha = if (enableLog) 0.5f else 1f)
+                .alpha(alpha = if (logState.value) 0.5f else 1f)
                 .fillMaxSize()
                 .padding(8.dp),
             changeKeyboard = {
@@ -72,7 +75,7 @@ fun JVMScreen() {
                 forceCloseDialog = true
             },
             changeLogOutput = {
-                enableLog = !enableLog
+                onLogStateChange(logState.next())
             }
         )
 

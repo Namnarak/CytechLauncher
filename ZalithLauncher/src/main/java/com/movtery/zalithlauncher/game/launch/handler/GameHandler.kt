@@ -23,6 +23,8 @@ import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState.Companion.mutableStateOfLog
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive
@@ -54,6 +56,11 @@ class GameHandler(
 
     private var isGameRendering by mutableStateOf(false)
 
+    /**
+     * 日志展示状态
+     */
+    private var logState by mutableStateOfLog()
+
     override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
@@ -80,6 +87,10 @@ class GameHandler(
     override fun onGraphicOutput() {
         if (!isGameRendering) {
             isGameRendering = true
+            //游戏已经开始渲染，如果日志状态为渲染前显示，则在这里关闭日志
+            if (logState == LogState.SHOW_BEFORE_LOADING) {
+                logState = LogState.CLOSE
+            }
         }
     }
 
@@ -122,6 +133,8 @@ class GameHandler(
         GameScreen(
             version = version,
             isGameRendering = isGameRendering,
+            logState = logState,
+            onLogStateChange = { logState = it },
             isTouchProxyEnabled = isTouchProxyEnabled,
             onInputAreaRectUpdated = { _inputArea.value = it },
         )

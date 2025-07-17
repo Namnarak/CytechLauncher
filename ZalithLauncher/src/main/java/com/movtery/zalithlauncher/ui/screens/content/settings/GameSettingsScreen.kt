@@ -137,6 +137,12 @@ fun GameSettingsScreen() {
                         )
                     }
             ) {
+                SwitchSettingsLayout(
+                    unit = AllSettings.showLogAutomatic,
+                    title = stringResource(R.string.settings_game_show_log_automatic_title),
+                    summary = stringResource(R.string.settings_game_show_log_automatic_summary)
+                )
+
                 SliderSettingsLayout(
                     unit = AllSettings.logTextSize,
                     title = stringResource(R.string.settings_game_log_text_size_title),

@@ -561,6 +561,8 @@
     <string name="settings_game_java_memory_summary">Adjust Minecraft\'s memory usage</string>
     <string name="settings_game_jvm_args_title">JVM Arguments</string>
     <string name="settings_game_jvm_args_summary">Additional JVM arguments added when starting the JVM. Modifying these without proper knowledge is not recommended, as it may cause crashes</string>
+    <string name="settings_game_show_log_automatic_title">Automatically Show Logs</string>
+    <string name="settings_game_show_log_automatic_summary">Automatically show logs before the game officially renders the screen</string>
     <string name="settings_game_log_text_size_title">Log Font Size</string>
     <string name="settings_game_log_text_size_summary">Adjust the text size on the log screen</string>
     <string name="settings_game_log_buffer_flush_interval_title">Log Flush Interval</string>

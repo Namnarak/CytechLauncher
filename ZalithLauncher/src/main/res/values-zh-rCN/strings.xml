@@ -561,6 +561,8 @@
     <string name="settings_game_java_memory_summary">控制给 Minecraft 分配多少内存</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>
     <string name="settings_game_jvm_args_summary">启动 JVM 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致崩溃</string>
+    <string name="settings_game_show_log_automatic_title">自动显示日志</string>
+    <string name="settings_game_show_log_automatic_summary">在游戏还未正式渲染画面前，自动显示日志</string>
     <string name="settings_game_log_text_size_title">日志字体大小</string>
     <string name="settings_game_log_text_size_summary">调整日志屏幕上的文字大小</string>
     <string name="settings_game_log_buffer_flush_interval_title">日志刷新间隔</string>

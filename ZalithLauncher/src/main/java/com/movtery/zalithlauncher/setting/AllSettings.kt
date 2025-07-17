@@ -99,6 +99,11 @@ class AllSettings {
         val jvmArgs = StringSettingUnit("jvmArgs", "")
 
         /**
+         * 启动游戏时自动展示日志，直到游戏开始渲染
+         */
+        val showLogAutomatic = BooleanSettingUnit("showLogAutomatic", false)
+
+        /**
          * 日志字体大小
          */
         val logTextSize = IntSettingUnit("logTextSize", 15)
