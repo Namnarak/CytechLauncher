@@ -64,13 +64,13 @@ object RendererPluginManager {
      * 当前渲染器插件是否带有配置项（软件式插件、白名单包名）
      */
     @JvmStatic
-    fun getConfigurablePluginOrNull(rendererUniqueIdentifier: String): RendererPlugin? {
+    fun isConfigurablePlugin(rendererUniqueIdentifier: String): Boolean {
         val renderer = apkRendererPluginList.find { it.uniqueIdentifier == rendererUniqueIdentifier }
-        return renderer?.takeIf { it.packageName in setOf(
-                "com.bzlzhh.plugin.ngg",
-                "com.bzlzhh.plugin.ngg.angleless",
-                "com.fcl.plugin.mobileglues"
-            ) }
+        return renderer?.packageName in setOf(
+            "com.bzlzhh.plugin.ngg",
+            "com.bzlzhh.plugin.ngg.angleless",
+            "com.fcl.plugin.mobileglues"
+        )
     }
 
     /**

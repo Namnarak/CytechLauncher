@@ -38,6 +38,8 @@
     <string name="generic_loading">載入中</string>
     <string name="generic_anyway">仍要使用</string>
     <string name="generic_go_it">我瞭解了</string>
+    <string name="generic_ignore">忽略</string>
+    <string name="generic_authorization">授權</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
@@ -265,6 +267,8 @@
     <string name="renderer_name_panfrost">Panfrost (Mali)</string>
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>
+    <string name="renderer_version_storage_permissions">目前的渲染器 %s 可透過設定檔修改設定，請先為啟動器開啟外部儲存空間權限，否則將無法讀取並載入該渲染器的設定！</string>
+    <string name="renderer_version_storage_permissions_sdk30">目前的渲染器 %s 可透過設定檔修改設定，請先為啟動器開啟「管理所有檔案」的權限，否則將無法讀取並載入該渲染器的設定！</string>
     <!--  帳號  -->
     <string name="account_no_account">找不到可用帳號</string>
     <string name="account_login">登入</string>

@@ -39,6 +39,8 @@
     <string name="generic_in_progress">In Progress</string>
     <string name="generic_anyway">Use Anyway</string>
     <string name="generic_go_it">Got it</string>
+    <string name="generic_ignore">Ignore</string>
+    <string name="generic_authorization">Authorization</string>
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
     <!-- Unit -->
@@ -293,6 +295,8 @@
     <string name="renderer_name_panfrost">Panfrost (Mali, up to 1.21.4)</string>
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>
+    <string name="renderer_version_storage_permissions">The current renderer %s can be configured via a config file. Please enable external storage permission for the launcher first, otherwise it will not be able to read and load the renderer\'s configuration!</string>
+    <string name="renderer_version_storage_permissions_sdk30">The current renderer %s can be configured via a config file. Please enable the "Manage All Files" permission for the launcher first, otherwise it will not be able to read and load the renderer\'s configuration!</string>
     <!-- Accounts -->
     <string name="account_no_account">No accounts available</string>
     <string name="account_login">Login</string>

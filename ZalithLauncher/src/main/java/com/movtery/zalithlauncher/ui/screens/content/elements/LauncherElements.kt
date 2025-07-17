@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.launch.LaunchGame
+import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.skin.SkinModelType
@@ -40,6 +42,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
+import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
@@ -51,6 +54,13 @@ sealed interface LaunchGameOperation {
     data object NoVersion : LaunchGameOperation
     /** 没有可用账号 */
     data object NoAccount : LaunchGameOperation
+
+    /** 渲染器可配置，但需要用到文件管理权限 */
+    data class RendererNoStoragePermission(
+        val renderer: RendererInterface,
+        val version: Version,
+        val quickPlay: String?
+    ) : LaunchGameOperation
 
     /** 当前渲染器不支持选中版本 */
     data class UnsupportedRenderer(
@@ -171,6 +181,7 @@ fun getLocalSkinWarningButton(
 
 @Composable
 fun LaunchGameOperation(
+    activity: Activity,
     launchGameOperation: LaunchGameOperation,
     updateOperation: (LaunchGameOperation) -> Unit,
     toAccountManageScreen: () -> Unit = {},
@@ -187,6 +198,21 @@ fun LaunchGameOperation(
         is LaunchGameOperation.NoAccount -> {
             Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
             toAccountManageScreen()
+            updateOperation(LaunchGameOperation.None)
+        }
+        is LaunchGameOperation.RendererNoStoragePermission -> {
+            val renderer = launchGameOperation.renderer
+            val version = launchGameOperation.version
+            val quickPlay = launchGameOperation.quickPlay
+            StoragePermissionsUtils.checkPermissions(
+                activity = activity,
+                message = activity.getString(R.string.renderer_version_storage_permissions, renderer.getRendererName()),
+                messageSdk30 = activity.getString(R.string.renderer_version_storage_permissions_sdk30, renderer.getRendererName()),
+                onDialogCancel = {
+                    //用户拒绝授权，但仍然允许启动（不过这会导致配置无法读取）
+                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                }
+            )
             updateOperation(LaunchGameOperation.None)
         }
         is LaunchGameOperation.UnsupportedRenderer -> {
@@ -232,6 +258,15 @@ fun LaunchGameOperation(
 
             if (isUnsupported) {
                 updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer, version, quickPlay))
+                return
+            }
+
+            //为可配置的渲染器检查文件管理权限
+            if (
+                !StoragePermissionsUtils.checkPermissions() &&
+                RendererPluginManager.isConfigurablePlugin(version.getRenderer())
+            ) {
+                updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
                 return
             }
 

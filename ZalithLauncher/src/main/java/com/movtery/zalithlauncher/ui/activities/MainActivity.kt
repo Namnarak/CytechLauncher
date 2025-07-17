@@ -47,6 +47,7 @@ class MainActivity : BaseComponentActivity() {
 
                     //启动游戏操作流程
                     LaunchGameOperation(
+                        activity = this@MainActivity,
                         launchGameOperation = launchGameViewModel.launchGameOperation,
                         updateOperation = { launchGameViewModel.updateOperation(it) },
                         toAccountManageScreen = {
