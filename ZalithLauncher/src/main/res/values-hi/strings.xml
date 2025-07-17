@@ -98,5 +98,12 @@
     <string name="unpack_screen_authlib_injector">बाहरी लॉगिन के लिए authlib को संशोधित करना</string>
     <string name="unpack_screen_cacio">OpenJDK के लिए पोर्टेबल GUI बैकएंड</string>
     <string name="unpack_screen_lwjgl">लाइटवेट जावा गेम लाइब्रेरी (Minecraft को चलाने के लिए ज़रूरी है)</string>
-    <string name="unpack_screen_launcher">लॉन्चर के ज़रूरी हिस्से</string>
+    <string name="unpack_screen_launcher">लॉन्चर के ज़रूरी हिस्से है</string>
+    <string name="main_launch_game">गेम शुरू करें</string>
+    <string name="main_task_menu">कार्य सूची</string>
+    <string name="download_category_game">गेम</string>
+    <string name="download_category_modpack">Modpack</string>
+    <string name="download_category_mod">Mod</string>
+    <string name="download_category_resource_pack">Resource Pack</string>
+    <string name="download_category_saves">Saves</string>
 </resources>
