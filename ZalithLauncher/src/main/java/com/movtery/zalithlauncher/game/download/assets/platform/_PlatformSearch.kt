@@ -10,6 +10,8 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.Modrint
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFacet
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
+import com.movtery.zalithlauncher.game.download.assets.utils.localizedModSearchKeywords
+import com.movtery.zalithlauncher.game.download.assets.utils.processChineseSearchResults
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -24,6 +26,8 @@ suspend fun searchAssets(
     onError: (SearchAssetsState.Error) -> Unit
 ) {
     runCatching {
+        val (containsChinese, englishKeywords) = searchFilter.searchName.localizedModSearchKeywords(platformClasses)
+        val query = englishKeywords?.joinToString(" ") ?: searchFilter.searchName
         val result = when (searchPlatform) {
             Platform.CURSEFORGE -> {
                 searchWithCurseforge(
@@ -34,7 +38,7 @@ suspend fun searchAssets(
                                 category as? CurseForgeCategory
                             }
                         ),
-                        searchFilter = searchFilter.searchName,
+                        searchFilter = query,
                         gameVersion = searchFilter.gameVersion,
                         sortField = searchFilter.sortField,
                         modLoader = searchFilter.modloader as? CurseForgeModLoader,
@@ -46,7 +50,7 @@ suspend fun searchAssets(
             Platform.MODRINTH -> {
                 searchWithModrinth(
                     request = ModrinthSearchRequest(
-                        query = searchFilter.searchName,
+                        query = query,
                         facets = listOfNotNull(
                             platformClasses.modrinth!!, //必须为非空处理
                             searchFilter.gameVersion?.let { version ->
@@ -66,7 +70,10 @@ suspend fun searchAssets(
                 )
             }
         }
-        onSuccess(result)
+        onSuccess(
+            if (containsChinese) result.processChineseSearchResults(searchFilter.searchName, platformClasses)
+            else result
+        )
     }.onFailure { e ->
         if (e !is CancellationException) {
             lError("An exception occurred while searching for assets.", e)
