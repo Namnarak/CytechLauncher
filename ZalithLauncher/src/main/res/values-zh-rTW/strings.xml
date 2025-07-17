@@ -594,7 +594,6 @@
     <string name="just_now">現在</string>
     <string name="minutes_ago">%d 分鐘前</string>
     <string name="hours_ago">%d 小時前</string>
-    <string name="months_days_ago">%1$d 個月又 %2$d 天前</string>
     <string name="days_ago">%d 天前</string>
     <string name="months_ago">%d 個月前</string>
     <string name="years_ago">%d 年前</string>
@@ -608,12 +607,10 @@
     <string name="download_assets_source_link">檢視源代碼</string>
     <string name="download_assets_issues_link">回報問題</string>
     <string name="download_assets_wiki_link">檢視 Wiki</string>
-    <string name="download_assets_screenshot_reload">重載</string>
     <string name="download_assets_release_type_release">正式版</string>
     <string name="download_assets_release_type_beta">Beta</string>
     <string name="download_assets_release_type_alpha">Alpha</string>
     <string name="download_assets_no_installed_versions">當前未安裝可用的遊戲版本，無法決定該資源的目標下載位置，請先安裝遊戲版本哦！</string>
-    <string name="download_assets_install_assets">下載並安裝資源</string>
     <string name="download_assets_install_assets_for_versions">為哪個遊戲版本安裝?</string>
     <string name="download_assets_install_progress_downloading">下載並安裝資源\n%s\n (%s / %s)</string>
     <string name="download_assets_install_progress_installing">安裝資源\n%s</string>

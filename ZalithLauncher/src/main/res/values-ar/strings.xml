@@ -46,7 +46,6 @@
     <string name="just_now">الآن فقط</string>
     <string name="minutes_ago">%d minutes ago</string>
     <string name="hours_ago">%d منذ ساعة</string>
-    <string name="months_days_ago">%1$d month(s) and %2$d day(s) ago</string>
     <string name="days_ago">%d منذ يوم</string>
     <string name="months_ago">%d منذ شهر</string>
     <string name="years_ago">%d منذ سنة</string>

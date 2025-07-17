@@ -89,18 +89,7 @@ fun getTimeAgo(
     if (years > 0) return context.getString(R.string.years_ago, years)
 
     val months = ChronoUnit.MONTHS.between(pastZoned, nowZoned)
-    if (months > 0) {
-        //计算剩余天数
-        val days = ChronoUnit.DAYS.between(
-            pastZoned.plusMonths(months),
-            nowZoned
-        )
-        return if (days > 0) {
-            context.getString(R.string.months_days_ago, months, days)
-        } else {
-            context.getString(R.string.months_ago, months)
-        }
-    }
+    if (months > 0) return context.getString(R.string.months_ago, months)
 
     val duration = Duration.between(pastInstant, now)
     val days = duration.toDays()

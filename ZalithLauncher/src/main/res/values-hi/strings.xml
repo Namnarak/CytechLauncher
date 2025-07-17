@@ -46,7 +46,6 @@
     <string name="just_now">अभी अभी</string>
     <string name="minutes_ago">%d मिनट पहले</string>
     <string name="hours_ago">%d घंटे पहले</string>
-    <string name="months_days_ago">%1$d महीने और %2$d दिन पहले</string>
     <string name="days_ago">%d दिन पहले</string>
     <string name="months_ago">%d महीने पहले</string>
     <string name="years_ago">%d साल पहले</string>

@@ -37,7 +37,6 @@
     <string name="just_now">proprio ora</string>
     <string name="minutes_ago">%d minuti fa</string>
     <string name="hours_ago">%d ore fa</string>
-    <string name="months_days_ago">%1$d mese/i e %2$d giorno/i fa</string>
     <string name="days_ago">%d giorni fa</string>
     <string name="months_ago">%d mesi fa</string>
     <string name="years_ago">%d anni fa</string>

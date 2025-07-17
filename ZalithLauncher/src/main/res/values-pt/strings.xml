@@ -142,7 +142,6 @@
     <string name="just_now">agora mesmo</string>
     <string name="minutes_ago">%d minutos atrás</string>
     <string name="hours_ago">%d horas atrás</string>
-    <string name="months_days_ago">%1$d mês(es) e %2$d dia(s) atrás</string>
     <string name="days_ago">%d dias atrás</string>
     <string name="months_ago">%d meses atrás</string>
     <string name="years_ago">%d anos atrás</string>
