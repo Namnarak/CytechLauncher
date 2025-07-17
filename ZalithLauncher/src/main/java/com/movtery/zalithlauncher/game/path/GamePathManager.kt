@@ -70,6 +70,7 @@ object GamePathManager {
 
             if (!checkPermissions()) {
                 currentPath = defaultGamePath
+                saveDefaultPath()
             } else {
                 refreshCurrentPath()
             }
