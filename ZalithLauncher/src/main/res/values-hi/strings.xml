@@ -92,6 +92,11 @@
     <string name="crash_share_logs">लॉग भेजें</string>
     <string name="notification_data_jvm_service_name">इंस्टॉलेशन प्रक्रिया जो फोन में दिख रही है</string>
     <string name="notification_data_jvm_service_running">गेम को अग्रभूमि सेवा के माध्यम से इंस्टॉल किया जा रहा है</string>
-    <string name="unpack_screen_jre8">Java 8 एनवायरनमेंट (Minecraft 1.16 और उससे नीचे के लिए ज़रूरी)</string>
+    <string name="unpack_screen_jre8">Java 8 एनवायरनमेंट (Minecraft 1.16 और उससे नीचे के लिए ज़रूरी है)</string>
     <string name="unpack_screen_jre17">Java 17 एनवायरनमेंट (Minecraft 1.17 और उससे ऊपर के लिए ज़रूरी है)</string>
+    <string name="unpack_screen_jre21">Java 21 एनवायरनमेंट (Minecraft 1.20.5 और उससे ऊपर के लिए ज़रूरी है)</string>
+    <string name="unpack_screen_authlib_injector">बाहरी लॉगिन के लिए authlib को संशोधित करना</string>
+    <string name="unpack_screen_cacio">OpenJDK के लिए पोर्टेबल GUI बैकएंड</string>
+    <string name="unpack_screen_lwjgl">लाइटवेट जावा गेम लाइब्रेरी (Minecraft को चलाने के लिए ज़रूरी है)</string>
+    <string name="unpack_screen_launcher">लॉन्चर के ज़रूरी हिस्से</string>
 </resources>
