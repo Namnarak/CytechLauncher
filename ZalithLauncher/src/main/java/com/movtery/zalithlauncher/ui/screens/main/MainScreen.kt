@@ -84,6 +84,8 @@ import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreenKey
+import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
+import com.movtery.zalithlauncher.ui.screens.content.LicenseScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
@@ -353,7 +355,12 @@ private fun NavigationUI(
         },
         entryProvider = entryProvider {
             entry<LauncherScreenKey> { LauncherScreen(mainScreenViewModel, launchGameViewModel) }
-            entry<SettingsScreenKey> { SettingsScreen(mainScreenViewModel.screenKey) }
+            entry<SettingsScreenKey> {
+                SettingsScreen(mainScreenViewModel.screenKey) { raw ->
+                    backStack.navigateTo(LicenseScreenKey(raw))
+                }
+            }
+            entry<LicenseScreenKey> { LicenseScreen(mainScreenViewModel.screenKey, it) }
             entry<AccountManageScreenKey> { AccountManageScreen(mainScreenViewModel) }
             entry<WebViewScreenKey> { WebViewScreen(mainScreenViewModel.screenKey, it) }
             entry<VersionsManageScreenKey> { VersionsManageScreen(mainScreenViewModel) }

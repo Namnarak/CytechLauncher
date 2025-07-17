@@ -613,6 +613,13 @@
     <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher.</string>
     <string name="settings_launcher_log_share_packing">Package launcher log files</string>
     <!-- About -->
+    <string name="about_acknowledgements_title">Acknowledgements</string>
+    <string name="about_acknowledgements_pojav_text">ZL2 uses the launch backend from PojavLauncher</string>
+    <string name="about_acknowledgements_pcl_text">ZL2 references parts of the implementation from PCL2</string>
+    <string name="about_acknowledgements_fcl_text">ZL2 incorporates code from FCL and references parts of its implementation</string>
+    <string name="about_acknowledgements_hmcl_text">ZL2 incorporates code from HMCL and references parts of its implementation</string>
+    <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
+    <string name="about_acknowledgements_mcmod_text">ZL2 uses Simplified Chinese translations of mods and modpacks from MCMod</string>
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!--  Url  -->

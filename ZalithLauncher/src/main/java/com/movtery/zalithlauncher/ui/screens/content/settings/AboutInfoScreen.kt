@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
+import androidx.compose.material.icons.outlined.Copyright
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -96,7 +100,8 @@ private data class LibraryInfo(
 
 @Composable
 fun AboutInfoScreen(
-    mainScreenKey: NavKey?
+    mainScreenKey: NavKey?,
+    openLicense: (raw: Int) -> Unit
 ) {
     BaseScreen(
         Triple(SettingsScreenKey, mainScreenKey, false),
@@ -107,22 +112,50 @@ fun AboutInfoScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(all = 12.dp)
         ) {
-            PluginLoader.allPlugins.takeIf { it.isNotEmpty() }?.let { allPlugins ->
-                item {
-                    val yOffset by swapAnimateDpAsState(
-                        targetValue = (-40).dp,
-                        swapIn = isVisible
-                    )
-                    //已加载插件板块
-                    ChunkLayout(
-                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                        title = stringResource(R.string.about_plugin_title)
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            allPlugins.forEach { apkPlugin ->
-                                PluginInfoItem(apkPlugin = apkPlugin)
-                            }
-                        }
+            item {
+                val yOffset by swapAnimateDpAsState(
+                    targetValue = (-40).dp,
+                    swapIn = isVisible
+                )
+                ChunkLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    title = stringResource(R.string.about_acknowledgements_title)
+                ) {
+                    val context = LocalContext.current
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_pojav),
+                            title = "PojavLauncher",
+                            text = stringResource(R.string.about_acknowledgements_pojav_text),
+                            openLicense = { openLicense(R.raw.pojav_license) },
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_pcl2),
+                            title = "Plain Craft Launcher 2",
+                            text = stringResource(R.string.about_acknowledgements_pcl_text),
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_fcl),
+                            title = "Fold Craft Launcher",
+                            text = stringResource(R.string.about_acknowledgements_fcl_text),
+                            openLicense = { openLicense(R.raw.fcl_license) },
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/FCL-Team/FoldCraftLauncher") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_hmcl),
+                            title = "Hello Minecraft! Launcher",
+                            text = stringResource(R.string.about_acknowledgements_hmcl_text),
+                            openLicense = { openLicense(R.raw.hmcl_license) },
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/HMCL-dev/HMCL") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_mcmod),
+                            title = stringResource(R.string.about_acknowledgements_mcmod),
+                            text = stringResource(R.string.about_acknowledgements_mcmod_text),
+                            openLink = { NetWorkUtils.openLink(context, "https://www.mcmod.cn/") }
+                        )
                     }
                 }
             }
@@ -141,6 +174,27 @@ fun AboutInfoScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         libraryData.forEach { info ->
                             LibraryInfoItem(info = info)
+                        }
+                    }
+                }
+            }
+
+            PluginLoader.allPlugins.takeIf { it.isNotEmpty() }?.let { allPlugins ->
+                item {
+                    val yOffset by swapAnimateDpAsState(
+                        targetValue = (-40).dp,
+                        swapIn = isVisible,
+                        delayMillis = 100
+                    )
+                    //已加载插件板块
+                    ChunkLayout(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.about_plugin_title)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            allPlugins.forEach { apkPlugin ->
+                                PluginInfoItem(apkPlugin = apkPlugin)
+                            }
                         }
                     }
                 }
@@ -179,6 +233,80 @@ private fun ChunkLayout(
                     .padding(all = 12.dp)
             ) {
                 content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun AcknowledgementsItem(
+    modifier: Modifier = Modifier,
+    icon: Painter,
+    title: String,
+    text: String,
+    openLicense: (() -> Unit)? = null,
+    openLink: (() -> Unit)? = null,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = {}
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier.size(34.dp),
+                painter = icon,
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    modifier = Modifier.alpha(0.7f),
+                    text = text,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Row {
+                openLicense?.let {
+                    IconButton(
+                        onClick = it
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(22.dp),
+                            imageVector = Icons.Outlined.Copyright,
+                            contentDescription = "License"
+                        )
+                    }
+                }
+                openLink?.let {
+                    IconButton(
+                        onClick = it
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Link,
+                            contentDescription = stringResource(R.string.generic_open_link)
+                        )
+                    }
+                }
             }
         }
     }
@@ -235,16 +363,21 @@ private fun PluginInfoItem(
                     text = apkPlugin.appName,
                     style = MaterialTheme.typography.titleSmall
                 )
-                Text(
-                    text = buildString {
-                        append(apkPlugin.packageName)
-                        if (apkPlugin.appVersion.isNotEmpty()) {
-                            append(" • ")
-                            append(apkPlugin.appVersion)
-                        }
-                    },
-                    style = MaterialTheme.typography.labelSmall
-                )
+                Row(
+                    modifier = Modifier.alpha(0.7f),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = apkPlugin.packageName,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    if (apkPlugin.appVersion.isNotEmpty()) {
+                        Text(
+                            text = apkPlugin.appVersion,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
             }
         }
     }
@@ -267,23 +400,29 @@ private fun LibraryInfoItem(
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = info.name,
                     style = MaterialTheme.typography.titleMedium
                 )
-                info.copyrightInfo?.let { copyrightInfo ->
+                Column(
+                    modifier = Modifier.alpha(0.7f)
+                ) {
+                    info.copyrightInfo?.let { copyrightInfo ->
+                        Text(
+                            text = copyrightInfo,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                     Text(
-                        text = copyrightInfo,
+                        text = "Licensed under the ${info.license}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Text(
-                    text = "Licensed under the ${info.license}",
-                    style = MaterialTheme.typography.bodySmall
-                )
             }
             val context = LocalContext.current
             IconButton(

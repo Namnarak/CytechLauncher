@@ -82,7 +82,8 @@ var settingsScreenKey by mutableStateOf<NavKey?>(null)
 
 @Composable
 fun SettingsScreen(
-    mainScreenKey: NavKey?
+    mainScreenKey: NavKey?,
+    openLicenseScreen: (raw: Int) -> Unit
 ) {
     BaseScreen(
         screenKey = SettingsScreenKey,
@@ -98,6 +99,7 @@ fun SettingsScreen(
             NavigationUI(
                 backStack = settingsBackStack,
                 mainScreenKey = mainScreenKey,
+                openLicenseScreen = openLicenseScreen,
                 modifier = Modifier.fillMaxHeight()
             )
         }
@@ -175,6 +177,7 @@ private fun TabMenu(
 private fun NavigationUI(
     backStack: NavBackStack,
     mainScreenKey: NavKey?,
+    openLicenseScreen: (raw: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentKey = backStack.lastOrNull()
@@ -197,7 +200,7 @@ private fun NavigationUI(
             entry<LauncherSettingsScreenKey> { LauncherSettingsScreen(mainScreenKey) }
             entry<JavaManageScreenKey> { JavaManageScreen(mainScreenKey) }
             entry<ControlManageScreenKey> { ControlManageScreen(mainScreenKey) }
-            entry<AboutInfoScreenKey> { AboutInfoScreen(mainScreenKey) }
+            entry<AboutInfoScreenKey> { AboutInfoScreen(mainScreenKey, openLicenseScreen) }
         }
     )
 }
