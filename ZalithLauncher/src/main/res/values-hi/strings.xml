@@ -109,8 +109,21 @@
     <string name="download_category_shaders">शेडर पैक</string>
     <string name="download_game_failed_to_get_versions">वर्ज़न लोड नहीं हो पाया: %s फिर से कोशिश करने के लिए टैप करें</string>
     <string name="download_game_type_release">उपलब्ध</string>
-    <string name="download_game_type_snapshot">टेस्टिंग वर्ज़न</string>
+    <string name="download_game_type_snapshot">स्नैपशॉट</string>
     <string name="download_game_type_old">पुराना वर्ज़न</string>
-    <string name="download_game_type_old_alpha">टेस्टिंग चरण</string>
-    <string name="download_game_type_old_beta">बीटा चरण</string>
+    <string name="download_game_type_old_alpha">अल्फा</string>
+    <string name="download_game_type_old_beta">बीटा</string>
+    <string name="download_game_version_name">वर्ज़न का नाम</string>
+    <string name="download_game_addon_list_load_error">सूची लोड नहीं हो पाई: %s</string>
+    <string name="download_game_addon_available">उपलब्ध</string>
+    <string name="download_game_addon_unavailable">अनुपलब्ध</string>
+    <string name="download_game_addon_incompatible_with">%s के साथ असंगत है</string>
+    <string name="download_game_addon_compatible_with">%s के साथ अनुकूल है</string>
+    <string name="download_game_addon_request_addon">कृपया पहले %s वर्ज़न चुनें</string>
+    <string name="download_game_addon_release">उपलब्ध</string>
+    <string name="download_game_addon_preview">झलक</string>
+    <string name="download_game_addon_stable">स्थिर</string>
+    <string name="download_game_addon_debug">डिबग</string>
+    <string name="download_game_addon_date">उपलब्ध दिनांक: %s</string>
+    <string name="download_game_addon_recommended">%s सुझाया गया</string>
 </resources>
