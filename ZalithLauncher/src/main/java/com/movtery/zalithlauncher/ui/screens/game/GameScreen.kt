@@ -1,9 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.game
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,7 +38,6 @@ import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import org.lwjgl.glfw.CallbackBridge
 
 @Composable
@@ -81,8 +79,8 @@ private fun GameInfoBox(
 ) {
     AnimatedVisibility(
         visible = !isGameRendering,
-        enter = expandVertically(animationSpec = getAnimateTween()),
-        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
+        enter = fadeIn(),
+        exit = fadeOut(),
         modifier = modifier
     ) {
         Card(

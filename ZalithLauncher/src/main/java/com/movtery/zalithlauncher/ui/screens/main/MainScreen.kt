@@ -1,10 +1,13 @@
 package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -169,6 +172,7 @@ private fun TopBar(
     var appTitle by rememberSaveable { mutableStateOf(InfoDistributor.LAUNCHER_IDENTIFIER) }
 
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is LauncherScreenKey
+    val inDownloadScreen = mainScreenKey is DownloadScreenKey
 
     Surface(
         modifier = modifier,
@@ -256,21 +260,27 @@ private fun TopBar(
                 )
             }
 
-            IconButton(
+            AnimatedVisibility(
+                visible = !inDownloadScreen,
+                enter = fadeIn(),
+                exit = fadeOut(),
                 modifier = Modifier
                     .constrainAs(download) {
                         centerVerticallyTo(parent)
                         end.linkTo(settings.start, margin = 4.dp)
                     }
-                    .fillMaxHeight(),
-                onClick = {
-                    backStack.navigateToDownload()
-                }
+                    .fillMaxHeight()
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Download,
-                    contentDescription = stringResource(R.string.generic_download)
-                )
+                IconButton(
+                    onClick = {
+                        backStack.navigateToDownload()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Download,
+                        contentDescription = stringResource(R.string.generic_download)
+                    )
+                }
             }
 
             IconButton(
