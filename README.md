@@ -43,30 +43,6 @@ Here’s the current roadmap of features and development status:
 
 ## 🌐 Language and Translation Support
 
-### Zalith Launcher 2 currently supports the following two languages:
-
-* **English** (default)
-* **Simplified Chinese**
-
-These two languages are **officially maintained by the project and guaranteed for completeness**.
-
-### Community-supported languages for Zalith Launcher 2:
-
-We welcome the community to contribute translations for other languages!
-
-* **Turkish** - by Star1xr
-* **Traditional Chinese** - by HongyiHank
-* **Russian** - by warrior-genius
-
-### 📌 Why Only English and Simplified Chinese?
-
-* The project is **internationally aimed**, so English is used as the default language; however, since the developer is not a native English speaker, the English content relies heavily on AI-assisted translation, which may contain minor inaccuracies.
-   * If you have any objections to the English translation, please provide the line number of the translated content along with your feedback~ [`values/strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
-* The developer [@MovTery](https://github.com/MovTery) is based in China, and can guarantee the quality and completeness of the **Simplified Chinese** translation.
-* Due to resource limitations, the completeness of other language translations cannot be guaranteed at this time and will depend on community contributions.
-
-### ✍️ How to Contribute Translations?
-
 We are using the Weblate platform to translate Zalith Launcher 2. You're welcome to join our [Weblate project](https://hosted.weblate.org/projects/zalithlauncher2) and contribute to the translations!  
 Thank you to every language contributor for helping make Zalith Launcher 2 more multilingual and global!
 

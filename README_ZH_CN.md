@@ -49,32 +49,8 @@
 
 ## 🌐 语言与翻译支持
 
-### Zalith Launcher 2 当前提供以下两种语言支持：
-
-* **英语**（默认）
-* **简体中文**
-
-这两种语言是项目**官方维护并确保完整性**的语言。
-
-### Zalith Launcher 2 社区提供的语言支持：
-
-我们欢迎社区为其他语言贡献翻译！
-
-* **土耳其语** - 作者：Star1xr
-* **繁体中文** - 作者：HongyiHank
-* **俄语** - 作者：warrior-genius
-
-### 📌 为什么只保证英语与简体中文？
-
-* 项目是**面向全球用户**的，因此需要提供默认的英文界面；然而，由于开发者并非母语为英语的人士，主要依靠 AI 辅助翻译完成英文内容，可能存在轻微误差。
-   * 若对英文翻译有异议，请反馈翻译内容所在的行数，并给出您的意见~ [`values/strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
-* 开发者 [@MovTery](https://github.com/MovTery) 是中国开发者，能够保证**简体中文**翻译的质量和完整性。
-* 出于人力限制，其他语言的完整性暂时无法保证，需依赖社区贡献。
-
-### ✍️ 如何参与翻译？
-
 我们正在使用 Weblate 平台翻译 Zalith Launcher 2，欢迎您前往我们的 [Weblate 项目](https://hosted.weblate.org/projects/zalithlauncher2) 参与翻译！  
-感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！  
+感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！
 
 
 
