@@ -89,4 +89,7 @@
     <string name="notification_request">अनुमति मांगें</string>
     <string name="notification_ignore">अनदेखा करें</string>
     <string name="notification_data_jvm_service_message">सही ढंग से इंस्टॉलेशन सुनिश्चित करने के लिए, लॉन्चर को इंस्टॉलर को फोरग्राउंड में चलाना आवश्यक है। हम स्थिरता बनाए रखने के लिए एक फोरग्राउंड सर्विस शुरू करने की कोशिश करेंगे, लेकिन इसके लिए नोटिफिकेशन की अनुमति चाहिए। कृपया नोटिफिकेशन अनुमति चालू करने में हमारी मदद करें। इससे इंस्टॉलेशन में किसी भी रुकावट से बचा जा सकेगा।</string>
+    <string name="crash_share_logs">लॉग भेजें</string>
+    <string name="notification_data_jvm_service_name">इंस्टॉलेशन प्रक्रिया जो फोन में दिख रही है</string>
+    <string name="notification_data_jvm_service_running">गेम को अग्रभूमि सेवा के माध्यम से इंस्टॉल किया जा रहा है।</string>
 </resources>
