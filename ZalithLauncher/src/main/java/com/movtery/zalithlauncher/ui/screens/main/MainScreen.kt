@@ -48,7 +48,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,8 +96,6 @@ import com.movtery.zalithlauncher.ui.screens.content.WebViewScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.string.ShiftDirection
-import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 
@@ -179,8 +176,6 @@ private fun TopBar(
     color: Color,
     changeExpandedState: () -> Unit = {}
 ) {
-    var appTitle by rememberSaveable { mutableStateOf(InfoDistributor.LAUNCHER_IDENTIFIER) }
-
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is LauncherScreenKey
     val inDownloadScreen = mainScreenKey is DownloadScreenKey
 
@@ -229,15 +224,12 @@ private fun TopBar(
             )
 
             Text(
-                text = appTitle,
+                text = InfoDistributor.LAUNCHER_IDENTIFIER,
                 modifier = Modifier
                     .offset { IntOffset(x = appTitleX.roundToPx(), y = 0) }
                     .constrainAs(title) {
                         centerVerticallyTo(parent)
                         start.linkTo(parent.start, margin = 18.dp)
-                    }
-                    .clickable {
-                        appTitle = StringUtils.shiftString(appTitle, ShiftDirection.RIGHT, 1)
                     }
             )
 
