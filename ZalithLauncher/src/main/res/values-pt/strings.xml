@@ -205,4 +205,16 @@
     <string name="download_game_install_base_installing">Instalando %s no primeiro plano</string>
     <string name="download_game_install_optifine_fetch_download_url">Buscar URL de download para o OptiFine %s</string>
     <string name="download_game_install_forgelike_analyse">Analise bibliotecas para %s</string>
+    <string name="generic_ignore">Ignorar</string>
+    <string name="generic_authorization">Autorização</string>
+    <string name="crash_share_logs">Compatilhar Resgistros</string>
+    <string name="download_game_addon_request_addon">Por favor selecione a versão %s primeiro</string>
+    <string name="download_game_install_forgelike_preparing_mapping_file">Preparando o arquivo de mapeamento %s</string>
+    <string name="download_game_install_game_files_progress">Intalar arquivos do jogo</string>
+    <string name="download_install_error_title">Instalação Falhou</string>
+    <string name="download_install_error_message">Uma excessão ocorreu durante a instalação do seu jogo:</string>
+    <string name="download_install_error_cant_fetch_optifine_download_url">Incapaz de encontrar o link de download para o arquivo Optfine principal</string>
+    <string name="download_install_error_jvm_crash">Uma excessão ocorreu durante a instalaçã, código de saída: %s</string>
+    <string name="download_install_error_download_failed">O download de alguns arquivos falharam, possivelmente por conta de problemas de rede.</string>
+    <string name="download_install_success_title">Instalação bem-sucedida</string>
 </resources>
