@@ -1,3 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">Batalkan</string>
+    <string name="generic_back">Kembali</string>
+    <string name="generic_copy">Salin</string>
+    <string name="generic_setting">Pengaturan</string>
+    <string name="generic_open">Buka</string>
+    <string name="generic_paste">Tempel</string>
+    <string name="generic_rename">Ganti nama</string>
+    <string name="generic_delete">Hapus</string>
+    <string name="generic_refresh">Segarkan</string>
+    <string name="generic_close">Tutup</string>
+    <string name="generic_open_link">Buka di Peramban</string>
+    <string name="generic_search">Cari</string>
+    <string name="generic_download">Unduh</string>
+    <string name="generic_main_menu">Menu Utama</string>
+    <string name="generic_ignore">Abaikan</string>
+    <string name="generic_done">Selesai</string>
+    <string name="files_create_dir">Buat Folder</string>
+    <string name="files_back_to_parent">Kembali</string>
+    <string name="files_select_dir">Pilih Folder</string>
+    <string name="versions_config_renderer"></string>
+    <string name="versions_manage_delete_version">Hapus Versi</string>
+    <string name="versions_manage_copy_version">Salin Versi</string>
+    <string name="versions_manage_copy_version_all">Salin Semua Versi</string>
+    <string name="versions_manage_task_error">Operasi versi gagal</string>
+    <string name="versions_overview_crash_report_folder">Lapor Crash</string>
+    <string name="download_assets_release_type_release">Stabil</string>
+    <string name="download_assets_search_mc_versions">Cari Versi MC</string>
+    <string name="download_assets_wiki_link">Lihat Wiki</string>
+    <string name="download_assets_source_link">Lihat Kode Sumber</string>
+    <string name="download_assets_issues_link">Laporkan Masalah</string>
 </resources>
