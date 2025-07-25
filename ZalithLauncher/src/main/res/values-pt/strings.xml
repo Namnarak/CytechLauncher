@@ -217,4 +217,16 @@
     <string name="download_install_error_jvm_crash">Uma excessão ocorreu durante a instalaçã, código de saída: %s</string>
     <string name="download_install_error_download_failed">O download de alguns arquivos falharam, possivelmente por conta de problemas de rede.</string>
     <string name="download_install_success_title">Instalação bem-sucedida</string>
+    <string name="download_assets_filter_search_name">Procurar nome</string>
+    <string name="download_assets_filter_game_version">Versão do jogo</string>
+    <string name="download_assets_filter_modloader">Carregador do mod</string>
+    <string name="download_assets_filter_none">Nenhum selecionado</string>
+    <string name="download_assets_filter_sort_by_total_downloads">Downloads totais</string>
+    <string name="download_assets_filter_sort_by_recently_created">Criado recentemente</string>
+    <string name="download_assets_filter_sort_by_recently_updated">Atualizado recentemente</string>
+    <string name="download_assets_result_authors">Por %s</string>
+    <string name="download_assets_result_previous_page">Página anterior</string>
+    <string name="download_assets_result_next_page">Próxima página</string>
+    <string name="download_assets_failed_to_get_result">Falha ao conseguir resultados da pesquisa: %s. Toque para tentar novamente.</string>
+    <string name="download_assets_category_worldgen">Geração de mundo</string>
 </resources>
