@@ -19,7 +19,6 @@
     <string name="files_create_dir">Buat Folder</string>
     <string name="files_back_to_parent">Kembali</string>
     <string name="files_select_dir">Pilih Folder</string>
-    <string name="versions_config_renderer"></string>
     <string name="versions_manage_delete_version">Hapus Versi</string>
     <string name="versions_manage_copy_version">Salin Versi</string>
     <string name="versions_manage_copy_version_all">Salin Semua Versi</string>
