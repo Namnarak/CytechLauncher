@@ -133,4 +133,6 @@
     <string name="download_game_install_base_install">इंस्टॉल %s</string>
     <string name="download_game_install_base_installing">%s अग्रभूमि में इंस्टॉल हो रहा है</string>
     <string name="download_game_install_optifine_fetch_download_url">OptiFine के लिए डाउनलोड URL प्राप्त करें %s</string>
+    <string name="generic_ignore">अनदेखा करें</string>
+    <string name="generic_authorization">प्रमाणीकरण</string>
 </resources>
