@@ -29,4 +29,16 @@
     <string name="download_assets_wiki_link">Lihat Wiki</string>
     <string name="download_assets_source_link">Lihat Kode Sumber</string>
     <string name="download_assets_issues_link">Laporkan Masalah</string>
+    <string name="generic_reset">Setel Ulang</string>
+    <string name="generic_warning">Peringatan</string>
+    <string name="crash_exit_note">Periksa log untuk detailnya. Kalau kamu nggak bisa menyelesaikan masalah ini, kirim file log-nya ke ahli teknis. Hindari mengambil screenshot, soalnya biasanya kurang cukup informasi.</string>
+    <string name="crash_share_logs">Kirim log</string>
+    <string name="crash_restart">Mulai Ulang</string>
+    <string name="generic_clear">Bersihkan</string>
+    <string name="generic_import">Impor</string>
+    <string name="generic_enable">Aktifkan</string>
+    <string name="generic_disable">Matikan</string>
+    <string name="game_loading">Game sedang berjalan, tunggu hingga layar game muncul</string>
+    <string name="game_launch_no_version">Tidak ada versi game yang dipilih!</string>
+    <string name="game_launch_no_account">Belum ada akun yang login!</string>
 </resources>
