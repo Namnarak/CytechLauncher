@@ -135,19 +135,17 @@ class GameInstaller(
         val tempGameDir = PathManager.DIR_CACHE_GAME_DOWNLOADER
         val tempMinecraftDir = File(tempGameDir, ".minecraft")
         val tempGameVersionsDir = File(tempMinecraftDir, "versions")
-        val tempClientDir by lazy {
-            File(tempGameVersionsDir, info.gameVersion).createDirAndLog()
-        }
+        val tempClientDir = File(tempGameVersionsDir, info.gameVersion)
 
         //ModLoader临时目录
-        val optifineDir = info.optifine?.let { File(tempGameVersionsDir, it.version) }?.createDirAndLog()
-        val forgeDir = info.forge?.let { File(tempGameVersionsDir, "forge-${it.versionName}") }?.createDirAndLog()
-        val neoforgeDir = info.neoforge?.let { File(tempGameVersionsDir, "neoforge-${it.versionName}") }?.createDirAndLog()
-        val fabricDir = info.fabric?.let { File(tempGameVersionsDir, "fabric-loader-${it.version}-${info.gameVersion}") }?.createDirAndLog()
-        val quiltDir = info.quilt?.let { File(tempGameVersionsDir, "quilt-loader-${it.version}-${info.gameVersion}") }?.createDirAndLog()
+        val optifineDir = info.optifine?.let { File(tempGameVersionsDir, it.version) }
+        val forgeDir = info.forge?.let { File(tempGameVersionsDir, "forge-${it.versionName}") }
+        val neoforgeDir = info.neoforge?.let { File(tempGameVersionsDir, "neoforge-${it.versionName}") }
+        val fabricDir = info.fabric?.let { File(tempGameVersionsDir, "fabric-loader-${it.version}-${info.gameVersion}") }
+        val quiltDir = info.quilt?.let { File(tempGameVersionsDir, "quilt-loader-${it.version}-${info.gameVersion}") }
 
         //Mods临时目录
-        val tempModsDir = File(tempGameDir, ".temp_mods").createDirAndLog()
+        val tempModsDir = File(tempGameDir, ".temp_mods")
 
         val tasks: MutableList<GameInstallTask> = mutableListOf()
 
@@ -155,7 +153,20 @@ class GameInstaller(
         tasks.add(
             GameInstallTask(
                 context.getString(R.string.download_install_clear_temp),
-                createClearTempTask()
+                Task.runTask(
+                    id = "Download.Game.ClearTemp",
+                    task = {
+                        clearTempGameDir()
+                        //清理完成缓存目录后，创建新的缓存目录
+                        tempClientDir.createDirAndLog()
+                        optifineDir?.createDirAndLog()
+                        forgeDir?.createDirAndLog()
+                        neoforgeDir?.createDirAndLog()
+                        fabricDir?.createDirAndLog()
+                        quiltDir?.createDirAndLog()
+                        tempModsDir.createDirAndLog()
+                    }
+                )
             )
         )
 
@@ -386,16 +397,6 @@ class GameInstaller(
             }
         }
     }
-
-    /**
-     * 清除临时目录任务
-     */
-    private fun createClearTempTask() = Task.runTask(
-        id = "Download.Game.ClearTemp",
-        task = {
-            clearTempGameDir()
-        }
-    )
 
     /**
      * 获取下载原版 Task

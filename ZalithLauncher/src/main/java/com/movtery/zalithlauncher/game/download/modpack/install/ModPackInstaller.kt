@@ -94,9 +94,8 @@ class ModPackInstaller(
         onError: (Throwable) -> Unit = {}
     ) = withContext(Dispatchers.IO) {
         //临时游戏环境目录
-        val tempModPackDir = PathManager.DIR_CACHE_MODPACK_DOWNLOADER.createDirAndLog()
-        val tempVersionsDir = File(tempModPackDir, "fkVersion").createDirAndLog()
-        File(tempVersionsDir, "mods").createDirAndLog() //创建临时模组目录
+        val tempModPackDir = PathManager.DIR_CACHE_MODPACK_DOWNLOADER
+        val tempVersionsDir = File(tempModPackDir, "fkVersion")
         //整合包安装包文件
         val installerFile = File(tempModPackDir, "installer.zip")
         //icon临时文件
@@ -112,6 +111,10 @@ class ModPackInstaller(
                     id = "Download.ModPack.ClearTemp",
                     task = {
                         clearTempModPackDir()
+                        //清理完成缓存目录后，创建新的缓存目录
+                        tempModPackDir.createDirAndLog()
+                        tempVersionsDir.createDirAndLog()
+                        File(tempVersionsDir, "mods").createDirAndLog() //创建临时模组目录
                     }
                 )
             )
