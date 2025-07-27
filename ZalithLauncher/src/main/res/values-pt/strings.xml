@@ -261,4 +261,10 @@
     <string name="account_add_new_account">Adicionar Conta</string>
     <string name="account_change_skin">Alterar Skin</string>
     <string name="account_change_skin_select_model_title">Escolher Modelo de Skin</string>
+    <string name="account_supporting_microsoft_tip_link_purchase">Comprar Minecraft</string>
+    <string name="account_delete_title">Excluir Conta</string>
+    <string name="account_local_create_account">Criar Conta Offline</string>
+    <string name="files_create_dir">Criar Pasta</string>
+    <string name="files_select_dir">Selecionar Pasta</string>
+    <string name="download_assets_show_only_mc_release">Apenas Versões de Lançamento</string>
 </resources>
