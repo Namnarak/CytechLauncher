@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
@@ -72,7 +73,7 @@ private class GameDownloadViewModel(): ViewModel() {
         context: Context,
         info: GameDownloadInfo
     ) {
-        installer = GameInstaller(context, info).also {
+        installer = GameInstaller(context, info, viewModelScope).also {
             it.installGame(
                 onInstalled = {
                     installer = null

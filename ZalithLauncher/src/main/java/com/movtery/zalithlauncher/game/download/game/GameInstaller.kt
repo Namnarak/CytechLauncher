@@ -38,7 +38,7 @@ import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,14 +52,20 @@ import java.io.File
  * 游戏安装器
  * @param context 用于获取任务描述信息
  * @param info 安装游戏所需要的信息，包括 Minecraft id、自定义版本名称、Addon 列表
+ * @param scope 在有生命周期管理的scope中执行安装任务
  */
 class GameInstaller(
     private val context: Context,
-    private val info: GameDownloadInfo
+    private val info: GameDownloadInfo,
+    private val scope: CoroutineScope
 ) {
-    private val scope = CoroutineScope(Dispatchers.Default)
     private val _tasksFlow: MutableStateFlow<List<GameInstallTask>> = MutableStateFlow(emptyList())
     val tasksFlow: StateFlow<List<GameInstallTask>> = _tasksFlow
+
+    /**
+     * 当前游戏的安装任务
+     */
+    private var job: Job? = null
 
     /**
      * 基础下载器
@@ -89,7 +95,7 @@ class GameInstaller(
             _tasksFlow.update { tasks }
         }
     ) {
-        scope.launch(Dispatchers.IO) {
+        job = scope.launch(Dispatchers.IO) {
             installGameSuspend(
                 onInstalled = {
                     updateTasks(emptyList())
@@ -341,7 +347,7 @@ class GameInstaller(
     }
 
     fun cancelInstall() {
-        scope.cancel()
+        job?.cancel()
         _tasksFlow.update { emptyList() }
 
         clearTargetClient()
@@ -365,14 +371,14 @@ class GameInstaller(
     }
 
     /**
-     * 安装失败、取消安装时，都应该清除目标客户端版本文件夹，和临时游戏目录
+     * 安装失败、取消安装时，都应该清除目标客户端版本文件夹
      */
     private fun clearTargetClient() {
         val dirToDelete = targetClientDir //临时变量
         targetClientDir = null
 
         CoroutineScope(Dispatchers.IO).launch {
-            clearTempGameDir()
+//            clearTempGameDir() 考虑到用户可能操作快，双线程清理同一个文件夹可能导致一些问题
             dirToDelete?.let {
                 //直接清除上一次安装的目标目录
                 FileUtils.deleteQuietly(it)

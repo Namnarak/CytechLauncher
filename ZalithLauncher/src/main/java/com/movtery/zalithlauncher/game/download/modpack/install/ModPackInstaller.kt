@@ -23,7 +23,7 @@ import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,13 +33,23 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
+/**
+ * 整合包安装器
+ * @param info 选中的整合包的版本信息
+ * @param scope 在有生命周期管理的scope中执行安装任务
+ */
 class ModPackInstaller(
-    val context: Context,
-    val info: DownloadVersionInfo
+    private val context: Context,
+    private val info: DownloadVersionInfo,
+    private val scope: CoroutineScope
 ) {
-    private val scope = CoroutineScope(Dispatchers.Default)
     private val _tasksFlow: MutableStateFlow<List<GameInstallTask>> = MutableStateFlow(emptyList())
     val tasksFlow: StateFlow<List<GameInstallTask>> = _tasksFlow
+
+    /**
+     * 当前整合包的安装任务
+     */
+    private var job: Job? = null
 
     /**
      * 整合包文件解析出的信息
@@ -65,14 +75,14 @@ class ModPackInstaller(
             return
         }
 
-        scope.launch {
+        job = scope.launch {
             installModPackSuspend(
                 onInstalled = {
                     _tasksFlow.update { emptyList() }
                     onInstalled()
                 },
                 onError = { th ->
-                    clearTempDir()
+//                    clearTempDir()  考虑到用户可能操作快，双线程清理同一个文件夹可能导致一些问题
                     onError(th)
                 }
             )
@@ -203,7 +213,7 @@ class ModPackInstaller(
         }
 
         //开始安装游戏！
-        gameInstaller = GameInstaller(context, gameDownloadInfo)
+        gameInstaller = GameInstaller(context, gameDownloadInfo, scope)
         gameInstaller!!.installGameSuspend(
             createIsolation = false, //不在这里开启版本隔离，后面单独设置版本
             onInstalled = { targetClientDir ->
@@ -250,18 +260,18 @@ class ModPackInstaller(
      * 取消安装
      */
     fun cancelInstall() {
-        scope.cancel()
+        job?.cancel()
         _tasksFlow.update { emptyList() }
 
         gameInstaller?.cancelInstall()
-        clearTempDir()
+//        clearTempDir() 考虑到用户可能操作快，双线程清理同一个文件夹可能导致一些问题
     }
 
-    private fun clearTempDir() {
-        CoroutineScope(Dispatchers.IO).launch {
-            clearTempModPackDir()
-        }
-    }
+//    private fun clearTempDir() {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            clearTempModPackDir()
+//        }
+//    }
 
     /**
      * 清理临时整合包版本目录

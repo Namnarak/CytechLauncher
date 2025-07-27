@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
@@ -77,7 +78,7 @@ private class ModPackViewModel: ViewModel() {
         context: Context,
         info: DownloadVersionInfo,
     ) {
-        installer = ModPackInstaller(context, info).also {
+        installer = ModPackInstaller(context, info, viewModelScope).also {
             it.installModPack(
                 onInstalled = {
                     installer = null
