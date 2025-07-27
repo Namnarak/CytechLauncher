@@ -168,10 +168,12 @@ class DownloadProjectInfo(
 
 /**
  * 下载资源版本通用详细信息
+ * @param iconUrl 下载整合包时，需要用到的项目icon链接
  */
 class DownloadVersionInfo(
     val platform: Platform,
     val displayName: String,
+    val iconUrl: String? = null,
     val fileName: String,
     val gameVersion: Array<String>,
     val loaders: List<PlatformDisplayLabel>,
@@ -204,6 +206,7 @@ class VersionInfoMap(
 
 suspend fun List<PlatformVersion>.mapToInfos(
     currentProjectId: String,
+    iconUrl: String? = null,
     also: suspend (DownloadVersionInfo) -> Unit = {}
 ): List<DownloadVersionInfo> {
     return mapNotNull { version ->
@@ -216,6 +219,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
                 DownloadVersionInfo(
                     platform = Platform.MODRINTH,
                     displayName = version.name,
+                    iconUrl = iconUrl,
                     fileName = file.fileName,
                     gameVersion = version.gameVersions,
                     loaders = version.loaders.mapNotNull { loaderName ->
@@ -271,6 +275,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
                 DownloadVersionInfo(
                     platform = Platform.CURSEFORGE,
                     displayName = file.displayName,
+                    iconUrl = iconUrl,
                     fileName = file.fileName!!,
                     gameVersion = gameVersions,
                     loaders = file.gameVersions.mapNotNull { loaderName ->

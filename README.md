@@ -23,6 +23,7 @@ Here’s the current roadmap of features and development status:
 * [x] Core launcher framework (themes, animations, settings, etc.)
 * [x] Game launching and rendering
 * [x] Game version download and installation
+* [x] Modpack download and automatic installation
 * [x] Mod download and automatic installation
 * [x] Resource pack download and automatic installation
 * [x] World save download and installation
@@ -37,7 +38,6 @@ Here’s the current roadmap of features and development status:
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
-* [ ] Modpack download and automatic installation
 * [ ] Content managers: UI for managing mods / shaders
 * [ ] Gamepad control support
 

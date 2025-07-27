@@ -53,7 +53,7 @@ sealed interface GameInstallOperation {
 fun GameInstallingDialog(
     title: String,
     tasks: List<GameInstallTask>,
-    onDismissRequest: () -> Unit = {}
+    onCancel: () -> Unit = {}
 ) {
     Dialog(onDismissRequest = {}) {
         Surface(
@@ -92,7 +92,7 @@ fun GameInstallingDialog(
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onDismissRequest
+                    onClick = onCancel
                 ) {
                     Text(text = stringResource(R.string.generic_cancel))
                 }

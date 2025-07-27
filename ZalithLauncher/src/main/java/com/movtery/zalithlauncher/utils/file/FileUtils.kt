@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.compareChar
 import kotlinx.coroutines.CancellationException
@@ -91,11 +92,11 @@ fun checkFilenameValidity(str: String) {
  */
 @Throws(IOException::class)
 fun File.ensureDirectory(): File {
-    if (isFile) throw IOException("Target directory is a file")
+    if (isFile) throw IOException("Target directory is a file, path = $this")
     if (exists()) {
-        if (!canWrite()) throw IOException("Target directory is not writable")
+        if (!canWrite()) throw IOException("Target directory is not writable, path = $this")
     } else {
-        if (!mkdirs()) throw IOException("Unable to create target directory")
+        if (!mkdirs()) throw IOException("Unable to create target directory, path = $this")
     }
     return this
 }
@@ -107,7 +108,7 @@ fun File.ensureDirectory(): File {
  */
 @Throws(IOException::class)
 fun File.ensureParentDirectory(): File {
-    val parentDir: File = parentFile ?: throw IOException("targetFile does not have a parent")
+    val parentDir: File = parentFile ?: throw IOException("targetFile does not have a parent, path = $this")
     parentDir.ensureDirectory()
     return this
 }
@@ -264,5 +265,47 @@ suspend fun zipDirectory(
             }
             zipOut.closeEntry()
         }
+    }
+}
+
+/**
+ * 复制目录下的所有内容到目标目录
+ */
+suspend fun copyDirectoryContents(
+    from: File,
+    to: File,
+    onProgress: ((Float) -> Unit)? = null
+) = withContext(Dispatchers.IO) {
+    val normalizedFrom = from.absoluteFile.normalize()
+    val normalizedTo = to.absoluteFile.normalize()
+
+    val allFiles = mutableListOf<File>()
+
+    normalizedFrom.walkTopDown().forEach { file ->
+        val targetPath = File(normalizedTo, file.relativeTo(normalizedFrom).path)
+        if (file.isDirectory) {
+            targetPath.mkdirs()
+        } else {
+            allFiles.add(file)
+        }
+    }
+
+    val fileCount = allFiles.size
+
+    if (fileCount == 0) {
+        onProgress?.invoke(1.0f)
+        return@withContext
+    }
+
+    allFiles.forEachIndexed { index, file ->
+        val targetFile = File(normalizedTo, file.relativeTo(normalizedFrom).path)
+        try {
+            targetFile.ensureParentDirectory()
+            file.copyTo(targetFile, overwrite = true)
+            lInfo("copied: ${file.path} -> ${targetFile.path}")
+        } catch (e: IOException) {
+            lError("Failed to copy: ${file.path} -> ${targetFile.path}", e)
+        }
+        onProgress?.invoke((index + 1).toFloat() / fileCount)
     }
 }

@@ -24,7 +24,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchShadersScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchShadersScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadShadersBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadShadersScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
@@ -78,7 +77,7 @@ fun DownloadShadersScreen(
         ),
         entryProvider = entryProvider {
             entry<SearchShadersScreenKey> {
-                SearchShadersScreen(mainScreenKey) { platform, projectId ->
+                SearchShadersScreen(mainScreenKey) { platform, projectId, _ ->
                     downloadShadersBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.SHADERS)
                     )
@@ -93,11 +92,6 @@ fun DownloadShadersScreen(
                     key = key,
                     onItemClicked = { info ->
                         operation = DownloadSingleOperation.SelectVersion(info)
-                    },
-                    onDependencyClicked = { dep ->
-                        downloadModBackStack.navigateTo(
-                            DownloadAssetsScreenKey(dep.platform, dep.projectID, PlatformClasses.SHADERS)
-                        )
                     }
                 )
             }

@@ -89,13 +89,16 @@ import kotlinx.serialization.Serializable
 data class DownloadAssetsScreenKey(
     val platform: Platform,
     val projectId: String,
-    val classes: PlatformClasses
+    val classes: PlatformClasses,
+    val iconUrl: String? = null
 ): NavKey
 
 private class ScreenViewModel(
     private val platform: Platform,
     private val projectId: String,
-    private val classes: PlatformClasses
+    private val classes: PlatformClasses,
+    /** 项目icon链接（下载整合包专用） */
+    val iconUrl: String? = null
 ): ViewModel() {
     //版本
     private var _versionsList by mutableStateOf<List<VersionInfoMap>>(emptyList())
@@ -130,7 +133,7 @@ private class ScreenViewModel(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    val infos: List<DownloadVersionInfo> = result.mapToInfos(projectId) { info ->
+                    val infos: List<DownloadVersionInfo> = result.mapToInfos(projectId, iconUrl) { info ->
                         if (classes != PlatformClasses.MOD) return@mapToInfos //暂时仅支持模组获取依赖
                         info.dependencies.forEach { dependency ->
                             cacheDependencyProject(
@@ -233,7 +236,8 @@ private fun rememberDownloadAssetsViewModel(
         ScreenViewModel(
             platform = key.platform,
             projectId = key.projectId,
-            classes = key.classes
+            classes = key.classes,
+            iconUrl = key.iconUrl
         )
     }
 }

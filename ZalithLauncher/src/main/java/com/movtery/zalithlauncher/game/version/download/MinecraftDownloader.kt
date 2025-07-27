@@ -72,7 +72,6 @@ class MinecraftDownloader(
                 }
 
                 if (allDownloadTasks.isNotEmpty()) {
-                    //使用线程池进行下载
                     downloadAll(task, allDownloadTasks, getTaskMessage(R.string.minecraft_download_downloading_game_files, R.string.minecraft_download_verifying_and_repairing_files))
                     if (downloadFailedTasks.isNotEmpty()) {
                         downloadedFileCount.set(0)
@@ -132,7 +131,7 @@ class MinecraftDownloader(
                         formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
                     )
                     delay(100)
-                } catch (e: CancellationException) {
+                } catch (_: CancellationException) {
                     break //取消
                 }
             }

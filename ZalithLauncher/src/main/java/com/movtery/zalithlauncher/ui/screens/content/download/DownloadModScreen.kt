@@ -77,7 +77,7 @@ fun DownloadModScreen(
         ),
         entryProvider = entryProvider {
             entry<SearchModScreenKey> {
-                SearchModScreen(mainScreenKey) { platform, projectId ->
+                SearchModScreen(mainScreenKey) { platform, projectId, _ ->
                     downloadModBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.MOD)
                     )

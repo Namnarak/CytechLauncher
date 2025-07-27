@@ -107,7 +107,7 @@ object OptiFineVersions {
                 )
             }
             versions
-        } catch(e: CancellationException) {
+        } catch(_: CancellationException) {
             lDebug("Client cancelled.")
             null
         } catch (e: Exception) {

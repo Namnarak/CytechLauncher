@@ -97,7 +97,7 @@ fun ResultListLayout(
     onNextPage: (pageNumber: Int, isLastPage: Boolean) -> Unit,
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
-    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+    swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     when (val state = searchState) {
         is SearchAssetsState.Searching -> {
@@ -209,7 +209,7 @@ private fun ResultList(
     data: List<Pair<PlatformSearchData, ModTranslations.McMod?>>,
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
-    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+    swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     LazyColumn(
         modifier = modifier,
@@ -255,7 +255,7 @@ private fun ResultList(
                         modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                         categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                         onClick = {
-                            swapToDownload(Platform.MODRINTH, item.projectId)
+                            swapToDownload(Platform.MODRINTH, item.projectId, item.iconUrl)
                         }
                     )
                 }
@@ -279,7 +279,7 @@ private fun ResultList(
                         modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                         categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                         onClick = {
-                            swapToDownload(Platform.CURSEFORGE, item.id.toString())
+                            swapToDownload(Platform.CURSEFORGE, item.id.toString(), item.logo.url)
                         }
                     )
                 }

@@ -134,6 +134,7 @@
     <string name="download_game_install_title">安裝遊戲中</string>
     <string name="download_game_install_vanilla">下載並安裝原版 %s</string>
     <string name="download_game_install_base_download_file">下載 %s %s 主檔案</string>
+    <string name="download_game_install_base_download_file2">下載 %s 主檔案</string>
     <string name="download_game_install_base_install">安裝 %s</string>
     <string name="download_game_install_base_installing">正在透過前景服務安裝 %s</string>
     <string name="download_game_install_optifine_fetch_download_url">獲取 OptiFine %s 下載連結</string>
@@ -148,6 +149,7 @@
     <string name="download_install_error_download_failed">部分檔案下載失敗，可能是網路問題導致</string>
     <string name="download_install_success_title">安裝成功</string>
     <string name="download_install_success_message">您的遊戲已順利完成安裝！</string>
+    <string name="download_install_clear_temp">清理快取檔案</string>
     <string name="download_assets_filter_search_name">搜尋名稱</string>
     <string name="download_assets_filter_search_platform">目標平台</string>
     <string name="download_assets_filter_game_version">遊戲版本</string>
@@ -164,6 +166,18 @@
     <string name="download_assets_result_previous_page">上一頁</string>
     <string name="download_assets_result_next_page">下一頁</string>
     <string name="download_assets_failed_to_get_result">取得搜尋結果失敗：%s，點擊重試</string>
+    <string name="download_modpack_warning1">在安裝前，您需要了解，大多數整合包是為電腦端製作的，在您嘗試啟動時，很可能會發生崩潰或其他問題，這些通常不是啟動器層面可以解決的問題。</string>
+    <string name="download_modpack_warning2">您需要自行學習相關知識來嘗試解決，或是尋求其他人的協助。</string>
+    <string name="download_modpack_warning3">註：啟動器開發者通常不會處理整合包引起的任何問題。</string>
+    <string name="download_modpack_install_title">正在安裝整合包</string>
+    <string name="download_modpack_install_parse">解析整合包</string>
+    <string name="download_modpack_install_get_mod_url">取得模組下載連結 (%d/%d)</string>
+    <string name="download_modpack_install_overrides">解壓整合包檔案</string>
+    <string name="download_modpack_download">下載整合包所需內容</string>
+    <string name="download_modpack_download_mods">下載所有模組 (%d/%d, %s)</string>
+    <string name="download_modpack_download_mods_retry">重試下載所有模組 (%d/%d, %s)</string>
+    <string name="download_modpack_get_loaders">取得載入器資訊</string>
+    <string name="download_modpack_final_move">正在移動整合包檔案</string>
     <!--  資源類別  -->
     <string name="download_assets_category_worldgen">世界生成</string>
     <string name="download_assets_category_biomes">生物群系</string>

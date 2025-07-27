@@ -25,7 +25,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchSavesScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchSavesScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadSavesBackStack
 import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadSavesScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
@@ -97,7 +96,7 @@ fun DownloadSavesScreen(
         ),
         entryProvider = entryProvider {
             entry<SearchSavesScreenKey> {
-                SearchSavesScreen(mainScreenKey) { platform, projectId ->
+                SearchSavesScreen(mainScreenKey) { platform, projectId, _ ->
                     downloadSavesBackStack.navigateTo(
                         DownloadAssetsScreenKey(platform, projectId, PlatformClasses.SAVES)
                     )
@@ -112,11 +111,6 @@ fun DownloadSavesScreen(
                     key = key,
                     onItemClicked = { info ->
                         operation = DownloadSingleOperation.SelectVersion(info)
-                    },
-                    onDependencyClicked = { dep ->
-                        downloadModBackStack.navigateTo(
-                            DownloadAssetsScreenKey(dep.platform, dep.projectID, PlatformClasses.SAVES)
-                        )
                     }
                 )
             }

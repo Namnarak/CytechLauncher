@@ -176,7 +176,7 @@ fun SearchAssetsScreen(
     enableModLoader: Boolean = false,
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
-    swapToDownload: (Platform, projectId: String) -> Unit = { _, _ -> }
+    swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     val viewModel: ScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,

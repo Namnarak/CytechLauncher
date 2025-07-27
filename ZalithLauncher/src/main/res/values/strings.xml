@@ -143,6 +143,7 @@
     <string name="download_game_install_title">Installing Game</string>
     <string name="download_game_install_vanilla">Downloading Vanilla %s</string>
     <string name="download_game_install_base_download_file">Download %s %s main file</string>
+    <string name="download_game_install_base_download_file2">Download %s main file</string>
     <string name="download_game_install_base_install">Install %s</string>
     <string name="download_game_install_base_installing">Installing %s in the foreground</string>
     <string name="download_game_install_optifine_fetch_download_url">Fetch download URL for OptiFine %s</string>
@@ -157,6 +158,7 @@
     <string name="download_install_error_download_failed">Some files failed to download, possibly due to network issues.</string>
     <string name="download_install_success_title">Installation Successful</string>
     <string name="download_install_success_message">Your game has been successfully installed!</string>
+    <string name="download_install_clear_temp">Clear cache files</string>
     <string name="download_assets_filter_search_name">Search Name</string>
     <string name="download_assets_filter_search_platform">Target Platform</string>
     <string name="download_assets_filter_game_version">Game Version</string>
@@ -192,6 +194,18 @@
     <string name="download_assets_install_progress_downloading">Downloading and installing assets\n%s\n (%s / %s)</string>
     <string name="download_assets_install_progress_installing">Installing assets\n%s</string>
     <string name="download_assets_install_failed">Failed to install assets!</string>
+    <string name="download_modpack_warning1">Before installation, you need to understand that most modpacks are made for PC, and there\'s a high chance of crashes or other issues when you try to launch them. These problems are often beyond what the launcher can resolve.</string>
+    <string name="download_modpack_warning2">You will need to learn the relevant knowledge to try and resolve the issues yourself, or seek help from others.</string>
+    <string name="download_modpack_warning3">Note: The launcher developers typically do not handle issues caused by modpacks.</string>
+    <string name="download_modpack_install_title">Installing modpack</string>
+    <string name="download_modpack_install_parse">Parse modpack</string>
+    <string name="download_modpack_install_get_mod_url">Get mod download link (%d/%d)</string>
+    <string name="download_modpack_install_overrides">Extract modpack files</string>
+    <string name="download_modpack_download">Download required content for modpack</string>
+    <string name="download_modpack_download_mods">Download all mods (%d/%d, %s)</string>
+    <string name="download_modpack_download_mods_retry">Retry downloading all mods (%d/%d, %s)</string>
+    <string name="download_modpack_get_loaders">Retrieve loader information</string>
+    <string name="download_modpack_final_move">Moving modpack files</string>
     <!--  Assets Category  -->
     <string name="download_assets_category_worldgen">World Generation</string>
     <string name="download_assets_category_biomes">Biomes</string>

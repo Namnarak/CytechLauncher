@@ -130,6 +130,44 @@ class NetWorkUtils {
         }
 
         /**
+         * 从多个下载地址中尝试下载
+         * @param urls 要下载的文件链接列表
+         * @param outputFile 要保存的目标文件
+         * @param bufferSize 缓冲区大小
+         * @param sizeCallback 正在下载的大小回调
+         */
+        suspend fun downloadFromMirrorList(
+            urls: List<String>,
+            outputFile: File,
+            bufferSize: Int = 65536,
+            sizeCallback: (Long) -> Unit = {}
+        ) {
+            require(urls.isNotEmpty()) { "URL list must not be empty." }
+
+            var lastException: Exception? = null
+
+            for (url in urls) {
+                lastException = try {
+                    downloadFileSuspend(
+                        url = url,
+                        outputFile = outputFile,
+                        bufferSize = bufferSize,
+                        sizeCallback = sizeCallback
+                    )
+                    return
+                } catch (e: FileNotFoundException) {
+                    e
+                } catch (e: IOException) {
+                    e
+                } catch (e: CancellationException) {
+                    throw e //取消直接抛出
+                }
+            }
+
+            throw IOException("Failed to download file from all mirrors.", lastException)
+        }
+
+        /**
          * 同步获取 URL 返回的字符串内容
          * @param url 要请求的URL地址
          * @return 服务器返回的字符串内容
@@ -144,9 +182,7 @@ class NetWorkUtils {
                         throw IOException("HTTP ${response.code} - ${response.message}")
                     }
 
-                    return@call response.body
-                        ?.use { it.string() }
-                        ?: throw IOException("Empty response body")
+                    return@call response.body.use { it.string() }
                 }
             }
         }

@@ -188,6 +188,11 @@ object VersionsManager {
     fun getVersionIconFile(version: Version) = File(getZalithVersionPath(version), "VersionIcon.png")
 
     /**
+     * @return 通过目录获取 Zalith 启动器版本标识文件夹
+     */
+    fun getVersionIconFile(folder: File) = File(getZalithVersionPath(folder), "VersionIcon.png")
+
+    /**
      * @return 通过名称获取当前版本设置的图标
      */
     fun getVersionIconFile(name: String) = File(getZalithVersionPath(name), "VersionIcon.png")
