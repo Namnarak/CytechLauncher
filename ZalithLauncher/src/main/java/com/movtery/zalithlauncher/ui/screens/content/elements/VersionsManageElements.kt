@@ -1,9 +1,14 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -37,12 +42,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,6 +60,7 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -60,13 +70,17 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
+import com.movtery.zalithlauncher.ui.components.desaturate
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
+import com.movtery.zalithlauncher.utils.animation.getAnimateSpeed
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import kotlinx.coroutines.Dispatchers
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 sealed interface GamePathOperation {
     data object None: GamePathOperation
@@ -83,6 +97,15 @@ sealed interface VersionsOperation {
     data class Delete(val version: Version, val text: String? = null): VersionsOperation
     data class InvalidDelete(val version: Version): VersionsOperation
     data class RunTask(val title: Int, val task: suspend () -> Unit): VersionsOperation
+}
+
+enum class VersionCategory(val textRes: Int) {
+    /** 全部 */
+    ALL(R.string.generic_all),
+    /** 原版 */
+    VANILLA(R.string.versions_manage_category_vanilla),
+    /** 带有模组加载器 */
+    MODLOADER(R.string.versions_manage_category_modloader)
 }
 
 @Composable
@@ -233,6 +256,62 @@ fun GamePathOperation(
                 message = e.getMessageOrToString()
             )
         )
+    }
+}
+
+@Composable
+fun VersionCategoryItem(
+    modifier: Modifier = Modifier,
+    value: VersionCategory,
+    versionsCount: Int,
+    selected: Boolean,
+    shape: Shape = MaterialTheme.shapes.large,
+    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f),
+    style: TextStyle = MaterialTheme.typography.labelMedium,
+    onClick: () -> Unit = {}
+) {
+    val animationProgress by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = tween(durationMillis = getAnimateSpeed(), easing = FastOutSlowInEasing),
+        label = "SelectionAnimation"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+    ) {
+        //背景扩散动画
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .drawWithContent {
+                    val maxRadius = sqrt(size.width.pow(2) + size.height.pow(2)) / 2f
+                    val radius: Float = maxRadius * animationProgress
+
+                    drawCircle(
+                        color = backgroundColor,
+                        radius = radius,
+                        center = Offset(size.width / 2f, size.height / 2f)
+                    )
+                }
+        )
+
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(value.textRes),
+                style = style
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "($versionsCount)",
+                style = style
+            )
+        }
     }
 }
 
@@ -647,7 +726,7 @@ fun CommonVersionInfoLayout(
                     )
                     versionInfo.loaderInfo?.let { loaderInfo ->
                         Text(
-                            text = loaderInfo.name,
+                            text = loaderInfo.loader.displayName,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Text(
@@ -711,14 +790,13 @@ fun VersionIconImage(
 }
 
 private fun getLoaderIconRes(version: Version): Int {
-    val loaderName = version.getVersionInfo()?.loaderInfo?.name?.lowercase() ?: ""
-    return when(loaderName) {
-        "fabric" -> R.drawable.ic_fabric
-        "forge" -> R.drawable.ic_anvil
-        "quilt" -> R.drawable.ic_quilt
-        "neoforge" -> R.drawable.ic_neoforge
-        "optifine" -> R.drawable.ic_optifine
-        "liteloader" -> R.drawable.ic_chicken_old
+    return when(version.getVersionInfo()?.loaderInfo?.loader) {
+        ModLoader.FABRIC -> R.drawable.ic_fabric
+        ModLoader.FORGE -> R.drawable.ic_anvil
+        ModLoader.QUILT -> R.drawable.ic_quilt
+        ModLoader.NEOFORGE -> R.drawable.ic_neoforge
+        ModLoader.OPTIFINE -> R.drawable.ic_optifine
+        ModLoader.LITE_LOADER -> R.drawable.ic_chicken_old
         else -> R.drawable.ic_minecraft
     }
 }

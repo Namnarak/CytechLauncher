@@ -21,12 +21,14 @@ import kotlin.math.min
  * @param versionConfig 独立版本的配置
  * @param versionInfo 版本信息
  * @param isValid 版本的有效性
+ * @param versionType 版本的类型
  */
 class Version(
     private var versionName: String,
     private val versionConfig: VersionConfig,
     private val versionInfo: VersionInfo?,
-    private val isValid: Boolean
+    private val isValid: Boolean,
+    val versionType: VersionType
 ): Parcelable {
     /**
      * 控制是否将当前账号视为离线账号启动游戏
@@ -148,6 +150,7 @@ class Version(
         dest.writeInt(isValid.getInt())
         dest.writeInt(offlineAccountLogin.getInt())
         dest.writeString(quickPlaySingle)
+        dest.writeString(versionType.name)
     }
 
     companion object CREATOR : Parcelable.Creator<Version> {
@@ -158,8 +161,9 @@ class Version(
             val isValid = parcel.readInt().toBoolean()
             val offlineAccount = parcel.readInt().toBoolean()
             val quickPlaySingle = parcel.readString()
+            val versionType = VersionType.valueOf(parcel.readString()!!)
 
-            return Version(versionName, versionConfig, versionInfo, isValid).apply {
+            return Version(versionName, versionConfig, versionInfo, isValid, versionType).apply {
                 offlineAccountLogin = offlineAccount
                 this.quickPlaySingle = quickPlaySingle
             }

@@ -43,6 +43,7 @@
     <string name="generic_authorization">授权</string>
     <string name="generic_file_name">文件名：%s</string>
     <string name="generic_file_size">文件大小：%s</string>
+    <string name="generic_all">全部</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
@@ -436,6 +437,8 @@
     <string name="versions_manage_game_storage_permissions">想要使用外部游戏路径？请先为启动器开启外部存储权限，否则启动器无法使用外部的游戏文件！</string>
     <string name="versions_manage_game_storage_permissions_sdk30">想要使用外部游戏路径？请先为启动器开启“管理设备所有文件”的权限，否则启动器无法使用外部的游戏文件！</string>
     <string name="versions_manage_no_versions">没有安装版本</string>
+    <string name="versions_manage_category_vanilla">原版</string>
+    <string name="versions_manage_category_modloader">可安装模组</string>
     <string name="versions_manage_install_exists">此名称的版本已经存在！</string>
     <string name="versions_manage_install_cannot_use_mc_name">已选择附加内容，需要确保原版核心的独立性，请勿使用原版名称！</string>
     <string name="versions_manage_invalid">该版本无效</string>

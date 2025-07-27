@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.os.Environment
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
@@ -33,6 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
@@ -46,6 +50,8 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
+import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.ui.screens.navigateTo
@@ -57,10 +63,26 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object VersionsManageScreenKey: NavKey
 
+private class ScreenViewModel() : ViewModel() {
+    /** 版本类别分类 */
+    var versionCategory by mutableStateOf(VersionCategory.ALL)
+}
+
+@Composable
+private fun rememberVersionViewModel() : ScreenViewModel {
+    return viewModel(
+        key = VersionsManageScreenKey.toString()
+    ) {
+        ScreenViewModel()
+    }
+}
+
 @Composable
 fun VersionsManageScreen(
     mainScreenViewModel: MainScreenViewModel
 ) {
+    val viewModel = rememberVersionViewModel()
+
     BaseScreen(
         screenKey = VersionsManageScreenKey,
         currentKey = mainScreenViewModel.screenKey
@@ -77,6 +99,8 @@ fun VersionsManageScreen(
             VersionsLayout(
                 isVisible = isVisible,
                 backStack = mainScreenViewModel.backStack,
+                versionCategory = viewModel.versionCategory,
+                onCategoryChange = { viewModel.versionCategory = it },
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
@@ -192,9 +216,11 @@ private fun GamePathLayout(
 
 @Composable
 private fun VersionsLayout(
+    modifier: Modifier = Modifier,
     isVisible: Boolean,
     backStack: NavBackStack,
-    modifier: Modifier = Modifier,
+    versionCategory: VersionCategory,
+    onCategoryChange: (VersionCategory) -> Unit,
     onRefresh: () -> Unit,
     onInstall: () -> Unit
 ) {
@@ -206,100 +232,118 @@ private fun VersionsLayout(
     Card(
         modifier = modifier
             .offset {
-                IntOffset(
-                    x = 0,
-                    y = surfaceYOffset.roundToPx()
-                )
+                IntOffset(x = 0, y = surfaceYOffset.roundToPx())
             },
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        if (VersionsManager.isRefreshing) {
+        if (VersionsManager.isRefreshing) { //版本正在刷新中
             Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         } else {
-            val versions by VersionsManager.versions.collectAsState()
+            val allVersions by VersionsManager.versions.collectAsState()
+            val vanillaVersions by VersionsManager.vanillaVersions.collectAsState()
+            val modloaderVersions by VersionsManager.modloaderVersions.collectAsState()
+            val versions = when (versionCategory) { //在这里使用已经提前分类好的版本列表
+                VersionCategory.ALL -> allVersions
+                VersionCategory.VANILLA -> vanillaVersions
+                VersionCategory.MODLOADER -> modloaderVersions
+            }
 
-            if (versions.isNotEmpty()) {
-                VersionsManager.currentVersion?.let { currentVersion ->
-                    var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
-                    VersionsOperation(versionsOperation) { versionsOperation = it }
+            var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
+            VersionsOperation(versionsOperation) { versionsOperation = it }
 
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Column(modifier = Modifier
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(state = rememberScrollState())
+                        .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconTextButton(
+                        onClick = onRefresh,
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = stringResource(R.string.generic_refresh),
+                        text = stringResource(R.string.generic_refresh),
+                    )
+                    IconTextButton(
+                        onClick = onInstall,
+                        imageVector = Icons.Filled.Download,
+                        contentDescription = stringResource(R.string.versions_manage_install_new),
+                        text = stringResource(R.string.versions_manage_install_new),
+                    )
+                    //版本分类
+                    VersionCategoryItem(
+                        value = VersionCategory.ALL,
+                        versionsCount = allVersions.size,
+                        selected = versionCategory == VersionCategory.ALL,
+                        onClick = { onCategoryChange(VersionCategory.ALL) }
+                    )
+                    VersionCategoryItem(
+                        value = VersionCategory.VANILLA,
+                        versionsCount = vanillaVersions.size,
+                        selected = versionCategory == VersionCategory.VANILLA,
+                        onClick = { onCategoryChange(VersionCategory.VANILLA) }
+                    )
+                    VersionCategoryItem(
+                        value = VersionCategory.MODLOADER,
+                        versionsCount = modloaderVersions.size,
+                        selected = versionCategory == VersionCategory.MODLOADER,
+                        onClick = { onCategoryChange(VersionCategory.MODLOADER) }
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                if (versions.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))) {
-                            Row(
+                            .weight(1f),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        items(versions) { version ->
+                            VersionItemLayout(
+                                version = version,
+                                selected = version == VersionsManager.currentVersion,
                                 modifier = Modifier
-                                    .padding(horizontal = 4.dp)
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconTextButton(
-                                    onClick = onRefresh,
-                                    imageVector = Icons.Filled.Refresh,
-                                    contentDescription = stringResource(R.string.generic_refresh),
-                                    text = stringResource(R.string.generic_refresh),
-                                )
-                                IconTextButton(
-                                    onClick = onInstall,
-                                    imageVector = Icons.Filled.Download,
-                                    contentDescription = stringResource(R.string.versions_manage_install_new),
-                                    text = stringResource(R.string.versions_manage_install_new),
-                                )
-                            }
-                        }
-
-                        HorizontalDivider(
-                            modifier = Modifier
-                                .padding(horizontal = 12.dp)
-                                .fillMaxWidth(),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            items(versions) { version ->
-                                VersionItemLayout(
-                                    version = version,
-                                    selected = version == currentVersion,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 6.dp),
-                                    onSelected = {
-                                        if (version.isValid()) {
-                                            if (version != currentVersion) {
-                                                VersionsManager.saveCurrentVersion(version.getVersionName())
-                                            }
-                                        } else {
-                                            //不允许选择无效版本
-                                            versionsOperation = VersionsOperation.InvalidDelete(version)
-                                        }
-                                    },
-                                    onSettingsClick = {
-                                        backStack.navigateTo(VersionSettingsScreenKey(version))
-                                    },
-                                    onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
-                                    onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
-                                    onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) }
-                                )
-                            }
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                onSelected = {
+                                    if (version.isValid() && version != VersionsManager.currentVersion) {
+                                        VersionsManager.saveCurrentVersion(version.getVersionName())
+                                    } else {
+                                        //不允许选择无效版本
+                                        versionsOperation = VersionsOperation.InvalidDelete(version)
+                                    }
+                                },
+                                onSettingsClick = {
+                                    backStack.navigateTo(VersionSettingsScreenKey(version))
+                                },
+                                onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
+                                onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },
+                                onDeleteClick = { versionsOperation = VersionsOperation.Delete(version) }
+                            )
                         }
                     }
-                }
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    ScalingLabel(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.versions_manage_no_versions),
-                        onClick = {
-                            backStack.navigateToDownload()
-                        }
-                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        ScalingLabel(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = stringResource(R.string.versions_manage_no_versions)
+                        )
+                    }
                 }
             }
         }

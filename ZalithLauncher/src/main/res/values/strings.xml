@@ -43,6 +43,7 @@
     <string name="generic_authorization">Authorization</string>
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
+    <string name="generic_all">All</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
@@ -436,6 +437,8 @@
     <string name="versions_manage_game_storage_permissions">Want to use an external game path? Please enable external storage permission for the launcher first, or it won\'t be able to access external game files!</string>
     <string name="versions_manage_game_storage_permissions_sdk30">Want to use an external game path? Please enable the "Manage all files on device" permission for the launcher first, or it won\'t be able to access external game files!</string>
     <string name="versions_manage_no_versions">No installed versions</string>
+    <string name="versions_manage_category_vanilla">Vanilla</string>
+    <string name="versions_manage_category_modloader">Moddable</string>
     <string name="versions_manage_install_exists">Version name already exists!</string>
     <string name="versions_manage_install_cannot_use_mc_name">Do not use vanilla names for modded versions.</string>
     <string name="versions_manage_invalid">Invalid version</string>

@@ -40,6 +40,7 @@
     <string name="generic_go_it">我瞭解了</string>
     <string name="generic_ignore">忽略</string>
     <string name="generic_authorization">授權</string>
+    <string name="generic_all">全部</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
@@ -397,6 +398,8 @@
     <string name="versions_manage_game_storage_permissions">想要使用外部遊戲路徑？請先為啟動器開啟外部儲存權限，否則將無法使用外部的遊戲檔案！</string>
     <string name="versions_manage_game_storage_permissions_sdk30">想要使用外部遊戲路徑？請先為啟動器開啟「管理裝置上的所有檔案」權限，否則將無法使用外部的遊戲檔案！</string>
     <string name="versions_manage_no_versions">沒有已安裝的版本</string>
+    <string name="versions_manage_category_vanilla">原版</string>
+    <string name="versions_manage_category_modloader">可安裝模組</string>
     <string name="versions_manage_install_exists">此名稱的版本已存在！</string>
     <string name="versions_manage_install_cannot_use_mc_name">已選擇附加內容，需確保原版核心的獨立性，請勿使用原版名稱！</string>
     <string name="versions_manage_invalid">此版本無效</string>

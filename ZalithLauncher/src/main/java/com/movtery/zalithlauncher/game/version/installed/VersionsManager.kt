@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.getVersionsHome
-import com.movtery.zalithlauncher.game.version.installed.favorites.FavoritesVersionUtils
+import com.movtery.zalithlauncher.game.version.installed.VersionType.Companion.getVersionType
 import com.movtery.zalithlauncher.game.version.installed.utils.VersionInfoUtils
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -29,7 +29,11 @@ object VersionsManager {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _versions = MutableStateFlow<List<Version>>(emptyList())
+    private val _vanillaVersions = MutableStateFlow<List<Version>>(emptyList())
+    private val _modloaderVersions = MutableStateFlow<List<Version>>(emptyList())
     val versions: StateFlow<List<Version>> = _versions
+    val vanillaVersions: StateFlow<List<Version>> = _vanillaVersions
+    val modloaderVersions: StateFlow<List<Version>> = _modloaderVersions
 
     /**
      * 当前的游戏信息
@@ -67,6 +71,8 @@ object VersionsManager {
             isRefreshing = true
 
             _versions.update { emptyList() }
+            _vanillaVersions.update { emptyList() }
+            _modloaderVersions.update { emptyList() }
 
             val newVersions = mutableListOf<Version>()
             File(getVersionsHome()).listFiles()?.forEach { versionFile ->
@@ -88,6 +94,8 @@ object VersionsManager {
             }
 
             _versions.update { newVersions.toList() }
+            _vanillaVersions.update { newVersions.filter { ver -> ver.versionType == VersionType.VANILLA } }
+            _modloaderVersions.update { newVersions.filter { ver -> ver.versionType == VersionType.MODLOADERS } }
 
             currentGameInfo = CurrentGameInfo.refreshCurrentInfo()
             refreshCurrentVersion()
@@ -118,7 +126,8 @@ object VersionsManager {
                 versionFile.name,
                 versionConfig,
                 versionInfo,
-                isVersion
+                isVersion,
+                versionInfo.getVersionType()
             )
 
             lInfo(
@@ -246,9 +255,6 @@ object VersionsManager {
         val currentVersionName = currentVersion?.getVersionName()
         //如果当前的版本是即将被重命名的版本，那么就把将要重命名的名字设置为当前版本
         val saveToCurrent = version.getVersionName() == currentVersionName
-
-        //尝试刷新收藏夹内的版本名称
-        FavoritesVersionUtils.renameVersion(version.getVersionName(), name)
 
         val versionFolder = version.getVersionPath()
         val renameFolder = File(getVersionsHome(), name)

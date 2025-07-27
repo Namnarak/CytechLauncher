@@ -424,7 +424,7 @@ private fun isVersionAdapt(gameVersion: String, loader: PlatformDisplayLabel?): 
             when {
                 loader == null -> true //资源没有模组加载器信息，直接判定适配
                 loaderInfo == null -> false //资源有模组加载器，但当前版本没有模组加载器信息，不适配
-                else -> loaderInfo.name.equals(loader.getDisplayName(), true)
+                else -> loaderInfo.loader.displayName.equals(loader.getDisplayName(), true)
             }
         }
     }
