@@ -41,7 +41,7 @@ open class BaseComponentActivity(
 
         if (refreshData) {
             //加载渲染器
-            Renderers.init(this)
+            Renderers.init()
             //加载插件
             PluginLoader.loadAllPlugins(this, false)
         }

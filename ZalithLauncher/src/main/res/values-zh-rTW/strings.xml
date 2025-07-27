@@ -277,8 +277,6 @@
     <string name="game_loading_version_name">遊戲版本：%s</string>
     <string name="game_loading_version_info">遊戲資訊：%s</string>
     <!--  渲染器  -->
-    <string name="renderer_name_freedreno">Freedreno (Adreno)</string>
-    <string name="renderer_name_panfrost">Panfrost (Mali)</string>
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>
     <string name="renderer_version_storage_permissions">目前的渲染器 %s 可透過設定檔修改設定，請先為啟動器開啟外部儲存空間權限，否則將無法讀取並載入該渲染器的設定！</string>

@@ -155,8 +155,6 @@
     <string name="game_button_mouse_right">Правая кнопка мыши</string>
     <string name="game_dialog_force_close_message">Вы уверены, что хотите принудительно закрыть игру и вернуться в главное меню?</string>
     <!-- Renderers -->
-    <string name="renderer_name_freedreno">Freedreno (Adreno, до 1.21.4)</string>
-    <string name="renderer_name_panfrost">Panfrost (Mali, до 1.21.4)</string>
     <string name="renderer_version_support">Поддержка версий MC:</string>
     <string name="renderer_version_unsupported_warning">Текущий рендерер %s не поддерживает эту версию игры. Продолжение использования может вызвать ошибки рендеринга или сбои! Вы уверены, что хотите продолжить?</string>
     <!-- Accounts -->

@@ -148,8 +148,6 @@
     <string name="game_button_mouse_right">Sağ Tık</string>
     <string name="game_dialog_force_close_message">Ana menüye dönmek için oyunu zorla kapat?</string>
     <!-- Renderers -->
-    <string name="renderer_name_freedreno">Freedreno (Adreno, 1.21.4\'e kadar)</string>
-    <string name="renderer_name_panfrost">Panfrost (Mali, 1.21.4\'e kadar)</string>
     <string name="renderer_version_support">MC Sürüm Desteği:</string>
     <string name="renderer_version_unsupported_warning">Şu anki %s işleyicisi bu oyun sürümünü desteklemiyor. Devam etmek hatalara yol açabilir. Devam etmek istiyor musun?</string>
     <!-- Accounts -->

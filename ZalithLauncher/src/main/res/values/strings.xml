@@ -305,8 +305,6 @@
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
     <!-- Renderers -->
-    <string name="renderer_name_freedreno">Freedreno (Adreno, up to 1.21.4)</string>
-    <string name="renderer_name_panfrost">Panfrost (Mali, up to 1.21.4)</string>
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>
     <string name="renderer_version_storage_permissions">The current renderer %s can be configured via a config file. Please enable external storage permission for the launcher first, otherwise it will not be able to read and load the renderer\'s configuration!</string>

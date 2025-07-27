@@ -26,7 +26,7 @@
     <string name="generic_disable">تعطيل</string>
     <string name="generic_open_link">افتح في المتصفح</string>
     <string name="generic_cannot_empty">لا يمكن أن يكون المحتوى فارغًا!</string>
-    <string name="generic_input_invalid_character">لا يمكن أن يكون المحتوى فارغًا! %s</string>
+    <string name="generic_input_invalid_character">يحتوي الاسم على أحرف غير صالحة: \"%s\"</string>
     <string name="generic_input_failed_to_number">لا يمكن تفسير الإدخال كرقم</string>
     <string name="generic_input_too_small">لا يمكن أن تكون القيمة أصغر من %s</string>
     <string name="generic_input_too_large">لا يمكن أن تكون القيمة أكبر من %s</string>

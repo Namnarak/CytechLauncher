@@ -253,8 +253,6 @@
     <string name="game_loading">O jogo está em execução, aguardando a tela do jogo aparecer</string>
     <string name="game_loading_version_name">Versão do Jogo: %s</string>
     <string name="game_loading_version_info">Informações do Jogo: %s</string>
-    <string name="renderer_name_freedreno">Freedreno (Adreno, até a versão 1.21.4)</string>
-    <string name="renderer_name_panfrost">Panfrost (Mali, até a versão 1.21.4)</string>
     <string name="renderer_version_support">Suporte à Versão do MC:</string>
     <string name="renderer_version_unsupported_warning">O renderizador atual %s não é compatível com esta versão do jogo. Continuar a usá-lo pode causar erros de renderização ou falhas! Tem certeza de que deseja continuar?</string>
     <string name="account_no_account">Nenhuma conta disponível</string>
