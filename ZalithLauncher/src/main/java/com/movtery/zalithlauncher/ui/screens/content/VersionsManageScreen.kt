@@ -241,14 +241,11 @@ private fun VersionsLayout(
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         } else {
-            val allVersions by VersionsManager.versions.collectAsState()
-            val vanillaVersions by VersionsManager.vanillaVersions.collectAsState()
-            val modloaderVersions by VersionsManager.modloaderVersions.collectAsState()
-            val versions = when (versionCategory) { //在这里使用已经提前分类好的版本列表
-                VersionCategory.ALL -> allVersions
-                VersionCategory.VANILLA -> vanillaVersions
-                VersionCategory.MODLOADER -> modloaderVersions
-            }
+            val versions by when (versionCategory) { //在这里使用已经提前分类好的版本列表
+                VersionCategory.ALL -> VersionsManager.versions
+                VersionCategory.VANILLA -> VersionsManager.vanillaVersions
+                VersionCategory.MODLOADER -> VersionsManager.modloaderVersions
+            }.collectAsState()
 
             var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
             VersionsOperation(versionsOperation) { versionsOperation = it }
@@ -277,19 +274,19 @@ private fun VersionsLayout(
                     //版本分类
                     VersionCategoryItem(
                         value = VersionCategory.ALL,
-                        versionsCount = allVersions.size,
+                        versionsCount = VersionsManager.allVersionsCount(),
                         selected = versionCategory == VersionCategory.ALL,
                         onClick = { onCategoryChange(VersionCategory.ALL) }
                     )
                     VersionCategoryItem(
                         value = VersionCategory.VANILLA,
-                        versionsCount = vanillaVersions.size,
+                        versionsCount = VersionsManager.vanillaVersionsCount(),
                         selected = versionCategory == VersionCategory.VANILLA,
                         onClick = { onCategoryChange(VersionCategory.VANILLA) }
                     )
                     VersionCategoryItem(
                         value = VersionCategory.MODLOADER,
-                        versionsCount = modloaderVersions.size,
+                        versionsCount = VersionsManager.modloaderVersionsCount(),
                         selected = versionCategory == VersionCategory.MODLOADER,
                         onClick = { onCategoryChange(VersionCategory.MODLOADER) }
                     )

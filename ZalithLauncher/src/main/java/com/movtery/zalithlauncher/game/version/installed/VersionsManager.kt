@@ -35,6 +35,10 @@ object VersionsManager {
     val vanillaVersions: StateFlow<List<Version>> = _vanillaVersions
     val modloaderVersions: StateFlow<List<Version>> = _modloaderVersions
 
+    fun allVersionsCount() = _versions.value.size
+    fun vanillaVersionsCount() = _vanillaVersions.value.size
+    fun modloaderVersionsCount() = _modloaderVersions.value.size
+
     /**
      * 当前的游戏信息
      */

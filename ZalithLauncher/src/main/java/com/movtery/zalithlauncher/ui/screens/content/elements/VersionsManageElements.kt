@@ -1,14 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -42,8 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -70,17 +63,15 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
+import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.desaturate
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
-import com.movtery.zalithlauncher.utils.animation.getAnimateSpeed
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import kotlinx.coroutines.Dispatchers
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 sealed interface GamePathOperation {
     data object None: GamePathOperation
@@ -270,38 +261,9 @@ fun VersionCategoryItem(
     style: TextStyle = MaterialTheme.typography.labelMedium,
     onClick: () -> Unit = {}
 ) {
-    val animationProgress by animateFloatAsState(
-        targetValue = if (selected) 1f else 0f,
-        animationSpec = tween(durationMillis = getAnimateSpeed(), easing = FastOutSlowInEasing),
-        label = "SelectionAnimation"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .clickable(onClick = onClick)
-    ) {
-        //背景扩散动画
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .drawWithContent {
-                    val maxRadius = sqrt(size.width.pow(2) + size.height.pow(2)) / 2f
-                    val radius: Float = maxRadius * animationProgress
-
-                    drawCircle(
-                        color = backgroundColor,
-                        radius = radius,
-                        center = Offset(size.width / 2f, size.height / 2f)
-                    )
-                }
-        )
-
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    TextRailItem(
+        modifier = modifier,
+        text = {
             Text(
                 text = stringResource(value.textRes),
                 style = style
@@ -311,8 +273,12 @@ fun VersionCategoryItem(
                 text = "($versionsCount)",
                 style = style
             )
-        }
-    }
+        },
+        onClick = onClick,
+        selected = selected,
+        shape = shape,
+        backgroundColor = backgroundColor
+    )
 }
 
 @Composable
