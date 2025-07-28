@@ -122,7 +122,6 @@
     <string name="download_game_addon_preview">झलक</string>
     <string name="download_game_addon_stable">स्थिर</string>
     <string name="download_game_addon_debug">डिबग</string>
-    <string name="download_game_addon_date">उपलब्ध दिनांक: %s</string>
     <string name="download_game_addon_recommended">%s सुझाया गया है</string>
     <string name="download_game_addon_not_installable">ऑटो-इंस्टॉल संभव नहीं है</string>
     <string name="download_game_install_title">गेम इंस्टॉल हो रहा है</string>
