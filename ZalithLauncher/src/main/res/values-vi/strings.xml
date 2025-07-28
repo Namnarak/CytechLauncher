@@ -612,4 +612,12 @@
     <string name="settings_launcher_swap_animate_type_title">Hoạt ảnh chuyển tiếp</string>
     <string name="settings_launcher_swap_animate_type_summary">Chọn hiệu ứng chuyển trang phù hợp nhất với sở thích của bạn</string>
     <string name="settings_launcher_log_retention_days_title">Ngày lưu giữ log</string>
+    <string name="generic_all">Tất cả</string>
+    <string name="versions_manage_category_vanilla">Vanilla</string>
+    <string name="versions_manage_category_modloader">Có thể mod</string>
+    <string name="settings_launcher_mirror_modloader_title">Phiên bản Modloader phù hợp</string>
+    <string name="settings_launcher_mirror_file_download_title">Nguồn của File</string>
+    <string name="settings_launcher_mirror_official_first">Ưu tiên nguồn chính thức</string>
+    <string name="settings_launcher_mirror_mirror_first">Ưu tiên Mirror</string>
+    <string name="about_acknowledgements_bangbang93_text">ZL2 sử dụng API nguồn Mirror của BMCL</string>
 </resources>
