@@ -28,9 +28,12 @@ fun NavBackStack.navigateTo(screenKey: NavKey, useClassEquality: Boolean = false
 }
 
 /**
- * 清除所有栈，并假如指定的key
+ * 清除所有栈，并加入指定的key
  */
 fun NavBackStack.clearWith(navKey: NavKey) {
-    clear()
-    add(navKey)
+    //批量替换内容，避免 Nav3 看到空帧
+    this.apply {
+        clear()
+        add(navKey)
+    }
 }

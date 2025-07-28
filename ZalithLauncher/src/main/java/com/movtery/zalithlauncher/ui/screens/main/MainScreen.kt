@@ -337,34 +337,38 @@ private fun NavigationUI(
         mainScreenViewModel.screenKey = currentKey
     }
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        onBack = {
-            val key = backStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            backStack.removeLastOrNull()
-        },
-        entryProvider = entryProvider {
-            entry<LauncherScreenKey> { LauncherScreen(mainScreenViewModel, launchGameViewModel) }
-            entry<SettingsScreenKey> {
-                SettingsScreen(mainScreenViewModel.screenKey) { raw ->
-                    backStack.navigateTo(LicenseScreenKey(raw))
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            onBack = {
+                val key = backStack.lastOrNull()
+                if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
+                backStack.removeLastOrNull()
+            },
+            entryProvider = entryProvider {
+                entry<LauncherScreenKey> { LauncherScreen(mainScreenViewModel, launchGameViewModel) }
+                entry<SettingsScreenKey> {
+                    SettingsScreen(mainScreenViewModel.screenKey) { raw ->
+                        backStack.navigateTo(LicenseScreenKey(raw))
+                    }
                 }
-            }
-            entry<LicenseScreenKey> { LicenseScreen(mainScreenViewModel.screenKey, it) }
-            entry<AccountManageScreenKey> { AccountManageScreen(mainScreenViewModel) }
-            entry<WebViewScreenKey> { WebViewScreen(mainScreenViewModel.screenKey, it) }
-            entry<VersionsManageScreenKey> { VersionsManageScreen(mainScreenViewModel) }
-            entry<FileSelectorScreenKey> {
-                FileSelectorScreen(mainScreenViewModel.screenKey, it) {
-                    backStack.removeLastOrNull()
+                entry<LicenseScreenKey> { LicenseScreen(mainScreenViewModel.screenKey, it) }
+                entry<AccountManageScreenKey> { AccountManageScreen(mainScreenViewModel) }
+                entry<WebViewScreenKey> { WebViewScreen(mainScreenViewModel.screenKey, it) }
+                entry<VersionsManageScreenKey> { VersionsManageScreen(mainScreenViewModel) }
+                entry<FileSelectorScreenKey> {
+                    FileSelectorScreen(mainScreenViewModel.screenKey, it) {
+                        backStack.removeLastOrNull()
+                    }
                 }
+                entry<VersionSettingsScreenKey> { VersionSettingsScreen(mainScreenViewModel, launchGameViewModel, it) }
+                entry<DownloadScreenKey> { DownloadScreen(mainScreenViewModel.screenKey, it) }
             }
-            entry<VersionSettingsScreenKey> { VersionSettingsScreen(mainScreenViewModel, launchGameViewModel, it) }
-            entry<DownloadScreenKey> { DownloadScreen(mainScreenViewModel.screenKey, it) }
-        }
-    )
+        )
+    } else {
+        Box(modifier)
+    }
 }
 
 @Composable
