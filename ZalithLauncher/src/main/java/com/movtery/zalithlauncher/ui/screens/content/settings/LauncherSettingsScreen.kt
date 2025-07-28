@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.state.LocalColorThemeState
 import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
 import com.movtery.zalithlauncher.state.MutableStates
@@ -184,6 +185,20 @@ fun LauncherSettingsScreen(
             SettingsBackground(
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) }
             ) {
+                ListSettingsLayout(
+                    unit = AllSettings.fetchModLoaderSource,
+                    items = MirrorSourceType.entries,
+                    title = stringResource(R.string.settings_launcher_mirror_modloader_title),
+                    getItemText = { stringResource(it.textRes) }
+                )
+
+                ListSettingsLayout(
+                    unit = AllSettings.fileDownloadSource,
+                    items = MirrorSourceType.entries,
+                    title = stringResource(R.string.settings_launcher_mirror_file_download_title),
+                    getItemText = { stringResource(it.textRes) }
+                )
+
                 SliderSettingsLayout(
                     unit = AllSettings.launcherLogRetentionDays,
                     title = stringResource(R.string.settings_launcher_log_retention_days_title),

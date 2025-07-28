@@ -433,16 +433,18 @@ fun OptiFineVersionSummary(
             Text(text = typeText, style = textStyle)
         }
         //发布时间
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                modifier = Modifier.size(iconSize),
-                imageVector = Icons.Outlined.Autorenew,
-                contentDescription = null
-            )
-            Text(text = optifine.releaseDate, style = textStyle)
+        optifine.releaseDate.takeIf { it.isNotEmpty() }?.let { releaseDate ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = Icons.Outlined.Autorenew,
+                    contentDescription = null
+                )
+                Text(text = releaseDate, style = textStyle)
+            }
         }
 
         //兼容状态

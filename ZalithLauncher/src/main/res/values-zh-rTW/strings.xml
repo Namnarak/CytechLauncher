@@ -574,6 +574,7 @@
     <string name="about_acknowledgements_hmcl_text">ZL2 引用了 HMCL 的部分程式碼，並參考其部分實作</string>
     <string name="about_acknowledgements_mcmod">MC 百科（mcmod.cn）</string>
     <string name="about_acknowledgements_mcmod_text">ZL2 使用了來自 MC 百科 的模組與整合包翻譯</string>
+    <string name="about_acknowledgements_bangbang93_text">ZL2 使用了 BMCL API 鏡像來源</string>
     <string name="about_plugin_title">已載入的外掛程式</string>
     <string name="about_library_title">額外引入的相依性項目</string>
     <!--  Url  -->
@@ -614,6 +615,10 @@
     <string name="settings_launcher_log_share_title">分享啟動器日誌</string>
     <string name="settings_launcher_log_share_summary">點擊以分享啟動器的日誌文件，以供開發者定位並修復啟動器的問題</string>
     <string name="settings_launcher_log_share_packing">打包啟動器日誌文件</string>
+    <string name="settings_launcher_mirror_modloader_title">模組載入器版本來源</string>
+    <string name="settings_launcher_mirror_file_download_title">檔案下載來源</string>
+    <string name="settings_launcher_mirror_official_first">優先使用官方來源</string>
+    <string name="settings_launcher_mirror_mirror_first">優先使用鏡像來源</string>
     <string name="just_now">現在</string>
     <string name="minutes_ago">%d 分鐘前</string>
     <string name="hours_ago">%d 小時前</string>

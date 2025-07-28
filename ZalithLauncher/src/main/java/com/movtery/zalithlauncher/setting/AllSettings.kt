@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
+import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
@@ -204,6 +205,16 @@ class AllSettings {
          * 启动器日志保留天数
          */
         val launcherLogRetentionDays = IntSettingUnit("launcherLogRetentionDays", 7)
+
+        /**
+         * 下载版本附加内容镜像源类型
+         */
+        val fetchModLoaderSource = enumSettingUnit("fetchModLoaderSource", MirrorSourceType.OFFICIAL_FIRST)
+
+        /**
+         * 文件下载镜像源类型
+         */
+        val fileDownloadSource = enumSettingUnit("fileDownloadSource", MirrorSourceType.OFFICIAL_FIRST)
 
         //Other
         /**

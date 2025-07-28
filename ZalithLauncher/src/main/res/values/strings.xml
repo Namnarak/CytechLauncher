@@ -624,6 +624,10 @@
     <string name="settings_launcher_log_share_title">Share Launcher Logs</string>
     <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher.</string>
     <string name="settings_launcher_log_share_packing">Package launcher log files</string>
+    <string name="settings_launcher_mirror_modloader_title">Mod Loader Version Source</string>
+    <string name="settings_launcher_mirror_file_download_title">File Download Source</string>
+    <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
+    <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
     <!-- About -->
     <string name="about_acknowledgements_title">Acknowledgements</string>
     <string name="about_acknowledgements_pojav_text">ZL2 uses the launch backend from PojavLauncher</string>
@@ -632,6 +636,7 @@
     <string name="about_acknowledgements_hmcl_text">ZL2 incorporates code from HMCL and references parts of its implementation</string>
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
     <string name="about_acknowledgements_mcmod_text">ZL2 uses Simplified Chinese translations of mods and modpacks from MCMod</string>
+    <string name="about_acknowledgements_bangbang93_text">ZL2 uses the BMCL API mirror source</string>
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!--  Url  -->

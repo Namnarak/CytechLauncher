@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.outlined.Copyright
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -124,17 +126,10 @@ fun AboutInfoScreen(
                     val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         AcknowledgementsItem(
-                            icon = painterResource(R.drawable.ic_pojav),
-                            title = "PojavLauncher",
-                            text = stringResource(R.string.about_acknowledgements_pojav_text),
-                            openLicense = { openLicense(R.raw.pojav_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
-                        )
-                        AcknowledgementsItem(
-                            icon = painterResource(R.drawable.ic_pcl2),
-                            title = "Plain Craft Launcher 2",
-                            text = stringResource(R.string.about_acknowledgements_pcl_text),
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
+                            icon = painterResource(R.drawable.ic_bangbang93),
+                            title = "bangbang93",
+                            text = stringResource(R.string.about_acknowledgements_bangbang93_text),
+                            openLink = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
                         )
                         AcknowledgementsItem(
                             icon = painterResource(R.drawable.ic_fcl),
@@ -155,6 +150,19 @@ fun AboutInfoScreen(
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text),
                             openLink = { NetWorkUtils.openLink(context, "https://www.mcmod.cn/") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_pcl2),
+                            title = "Plain Craft Launcher 2",
+                            text = stringResource(R.string.about_acknowledgements_pcl_text),
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
+                        )
+                        AcknowledgementsItem(
+                            icon = painterResource(R.drawable.ic_pojav),
+                            title = "PojavLauncher",
+                            text = stringResource(R.string.about_acknowledgements_pojav_text),
+                            openLicense = { openLicense(R.raw.pojav_license) },
+                            openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
                         )
                     }
                 }
@@ -259,13 +267,15 @@ private fun AcknowledgementsItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                modifier = Modifier.size(34.dp),
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(shape = RoundedCornerShape(6.dp)),
                 painter = icon,
                 contentDescription = null,
                 contentScale = ContentScale.Fit
@@ -330,7 +340,7 @@ private fun PluginInfoItem(
         val context = LocalContext.current
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .padding(all = 12.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -342,7 +352,9 @@ private fun PluginInfoItem(
                         .build()
                 }
                 AsyncImage(
-                    modifier = Modifier.size(34.dp),
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(shape = RoundedCornerShape(8.dp)),
                     model = model,
                     contentDescription = null,
                     contentScale = ContentScale.Fit

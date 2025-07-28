@@ -131,6 +131,12 @@ private class AddonsViewModel(
 ) : ViewModel() {
     val addonList = AddonList()
     val currentAddon = CurrentAddon()
+    var refreshIcon by mutableStateOf(false)
+        private set
+
+    fun refreshIcon() {
+        refreshIcon = !refreshIcon
+    }
 
     fun reloadOptiFine() = launchAddonReload(
         { currentAddon.optifineState = it },
@@ -285,6 +291,7 @@ fun DownloadGameWithAddonScreen(
                 itemContentColor = itemContentColor,
                 gameVersion = key.gameVersion,
                 currentAddon = viewModel.currentAddon,
+                refreshIcon = viewModel.refreshIcon,
                 onInstall = { customVersionName ->
                     onInstall(
                         GameDownloadInfo(
@@ -313,6 +320,7 @@ fun DownloadGameWithAddonScreen(
                 OptiFineList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadOptiFine() }
 
@@ -320,6 +328,7 @@ fun DownloadGameWithAddonScreen(
                 ForgeList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadForge() }
 
@@ -327,6 +336,7 @@ fun DownloadGameWithAddonScreen(
                 NeoForgeList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadNeoForge() }
 
@@ -334,6 +344,7 @@ fun DownloadGameWithAddonScreen(
                 FabricList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset4.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadFabric() }
 
@@ -341,6 +352,7 @@ fun DownloadGameWithAddonScreen(
                 FabricAPIList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset5.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadFabricAPI() }
 
@@ -348,6 +360,7 @@ fun DownloadGameWithAddonScreen(
                 QuiltList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset6.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadQuilt() }
 
@@ -355,6 +368,7 @@ fun DownloadGameWithAddonScreen(
                 QuiltAPIList(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset7.roundToPx()) },
                     currentAddon = viewModel.currentAddon,
+                    refreshIcon = { viewModel.refreshIcon() },
                     addonList = viewModel.addonList
                 ) { viewModel.reloadQuiltAPI() }
             }
@@ -369,6 +383,7 @@ private fun ScreenHeader(
     itemContentColor: Color,
     gameVersion: String,
     currentAddon: CurrentAddon,
+    refreshIcon: Any? = null,
     onInstall: (String) -> Unit = {}
 ) {
     Column(modifier = modifier) {
@@ -377,7 +392,8 @@ private fun ScreenHeader(
 
             VersionIconPreview(
                 modifier = Modifier.size(28.dp),
-                currentAddon = currentAddon
+                currentAddon = currentAddon,
+                refreshIcon = refreshIcon
             )
 
             var nameValue by remember { mutableStateOf(gameVersion) }
@@ -469,10 +485,11 @@ private fun ScreenHeader(
 
 @Composable
 private fun VersionIconPreview(
+    modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
-    modifier: Modifier = Modifier
+    refreshIcon: Any? = null
 ) {
-    val iconRes = remember(currentAddon) {
+    val iconRes = remember(refreshIcon) {
         when {
             currentAddon.optifineVersion != null && currentAddon.forgeVersion != null -> R.drawable.ic_anvil //OptiFine & Forge 同时选择
             currentAddon.optifineVersion != null -> R.drawable.ic_optifine
@@ -538,6 +555,7 @@ private fun OptiFineList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     val items = remember(addonList.optifineList, currentAddon.forgeVersion) {
@@ -600,6 +618,7 @@ private fun OptiFineList(
         summary = { OptiFineVersionSummary(it) },
         onValueChange = { version ->
             currentAddon.optifineVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -610,6 +629,7 @@ private fun ForgeList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     val items = addonList.forgeList?.filter {
@@ -674,6 +694,7 @@ private fun ForgeList(
         summary = { ForgeVersionSummary(it) },
         onValueChange = { version ->
             currentAddon.forgeVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -684,6 +705,7 @@ private fun NeoForgeList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     AddonListLayout(
@@ -720,6 +742,7 @@ private fun NeoForgeList(
         summary = { NeoForgeSummary(it) },
         onValueChange = { version ->
             currentAddon.neoforgeVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -730,6 +753,7 @@ private fun FabricList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     AddonListLayout(
@@ -764,6 +788,7 @@ private fun FabricList(
         summary = { FabricLikeSummary(it) },
         onValueChange = { version ->
             currentAddon.fabricVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -775,6 +800,7 @@ private fun FabricAPIList(
     currentAddon: CurrentAddon,
     requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.FABRIC.displayName),
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     val unSelectedFabric = remember(currentAddon.fabricVersion) {
@@ -820,6 +846,7 @@ private fun FabricAPIList(
         summary = { ModSummary(it) },
         onValueChange = { version ->
             currentAddon.fabricAPIVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -830,6 +857,7 @@ private fun QuiltList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     AddonListLayout(
@@ -864,6 +892,7 @@ private fun QuiltList(
         summary = { FabricLikeSummary(it) },
         onValueChange =  { version ->
             currentAddon.quiltVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
@@ -875,6 +904,7 @@ private fun QuiltAPIList(
     currentAddon: CurrentAddon,
     requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.QUILT.displayName),
     addonList: AddonList,
+    refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
     val unSelectedQuilt = remember(currentAddon.quiltVersion) {
@@ -920,6 +950,7 @@ private fun QuiltAPIList(
         summary = { ModSummary(it) },
         onValueChange =  { version ->
             currentAddon.quiltAPIVersion = version
+            refreshIcon()
         },
         onReload = onReload
     )
