@@ -265,8 +265,8 @@
     <string name="download_modpack_install_get_mod_url">Đang lấy link tải xuống mod (%1$d/%2$d)</string>
     <string name="download_modpack_install_overrides">Đang giải nén modpack</string>
     <string name="download_modpack_download">Tải những thứ cần thiết cho modpack</string>
-    <string name="download_modpack_download_mods">Tải tất cả mods (%1$d/%2$d, %s)</string>
-    <string name="download_modpack_download_mods_retry">Cố tải lại tất cả mods (%1$d/%2$d, %s)</string>
+    <string name="download_modpack_download_mods">Tải tất cả mods (%1$d/%2$d, %3$s)</string>
+    <string name="download_modpack_download_mods_retry">Cố tải lại tất cả mods (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_get_loaders">Lấy thông tin về bộ nạp</string>
     <string name="download_modpack_final_move">Đang đi chuyển các tệp của modpack</string>
     <string name="download_assets_category_biomes">Biome</string>

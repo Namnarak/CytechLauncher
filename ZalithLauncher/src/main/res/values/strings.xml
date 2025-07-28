@@ -200,8 +200,8 @@
     <string name="download_modpack_install_get_mod_url">Get mod download link (%1$d/%2$d)</string>
     <string name="download_modpack_install_overrides">Extract modpack files</string>
     <string name="download_modpack_download">Download required content for modpack</string>
-    <string name="download_modpack_download_mods">Download all mods (%1$d/%2$d, %s)</string>
-    <string name="download_modpack_download_mods_retry">Retry downloading all mods (%1$d/%2$d, %s)</string>
+    <string name="download_modpack_download_mods">Download all mods (%1$d/%2$d, %3$s)</string>
+    <string name="download_modpack_download_mods_retry">Retry downloading all mods (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_get_loaders">Retrieve loader information</string>
     <string name="download_modpack_final_move">Moving modpack files</string>
     <!--  Assets Category  -->
