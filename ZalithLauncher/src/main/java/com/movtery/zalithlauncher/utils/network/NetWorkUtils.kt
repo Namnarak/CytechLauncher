@@ -22,7 +22,6 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -96,8 +95,8 @@ class NetWorkUtils {
             } catch (e: Exception) {
                 FileUtils.deleteQuietly(outputFile)
                 when (e) {
-                    is CancellationException, is InterruptedIOException -> {
-                        lDebug("download task cancelled. url: $url")
+                    is CancellationException -> {
+                        lDebug("download task cancelled. url: $url", e)
                         return //取消了，不需要抛出异常
                     }
                     is FileNotFoundException -> throw e //目标不存在
@@ -136,7 +135,7 @@ class NetWorkUtils {
          * @param bufferSize 缓冲区大小
          * @param sizeCallback 正在下载的大小回调
          */
-        suspend fun downloadFromMirrorList(
+        fun downloadFromMirrorList(
             urls: List<String>,
             outputFile: File,
             bufferSize: Int = 65536,
@@ -148,7 +147,7 @@ class NetWorkUtils {
 
             for (url in urls) {
                 lastException = try {
-                    downloadFileSuspend(
+                    downloadFileWithHttp(
                         url = url,
                         outputFile = outputFile,
                         bufferSize = bufferSize,
@@ -165,6 +164,29 @@ class NetWorkUtils {
             }
 
             throw IOException("Failed to download file from all mirrors.", lastException)
+        }
+
+        /**
+         * 从多个下载地址中尝试下载
+         * @param urls 要下载的文件链接列表
+         * @param outputFile 要保存的目标文件
+         * @param bufferSize 缓冲区大小
+         * @param sizeCallback 正在下载的大小回调
+         */
+        suspend fun downloadFromMirrorListSuspend(
+            urls: List<String>,
+            outputFile: File,
+            bufferSize: Int = 65536,
+            sizeCallback: (Long) -> Unit = {}
+        ) = withContext(Dispatchers.IO) {
+            runInterruptible {
+                downloadFromMirrorList(
+                    urls = urls,
+                    outputFile = outputFile,
+                    bufferSize = bufferSize,
+                    sizeCallback = sizeCallback
+                )
+            }
         }
 
         /**
@@ -185,6 +207,35 @@ class NetWorkUtils {
                     return@call response.body.use { it.string() }
                 }
             }
+        }
+
+        /**
+         * 同步获取 URL 返回的字符串内容
+         * @param urls 要请求的URL源地址
+         * @return 服务器返回的字符串内容
+         * @throws IllegalArgumentException 当URL无效时
+         * @throws IOException 当网络请求失败或响应解析失败时
+         */
+        @Throws(IOException::class, IllegalArgumentException::class)
+        suspend fun fetchStringFromUrls(urls: List<String>): String = withContext(Dispatchers.IO) {
+            var result: String? = null
+            var succeed = false
+            var lastException: Throwable? = null
+
+            loop@ for (url in urls) {
+                runCatching {
+                    result = fetchStringFromUrl(url)
+                    succeed = true
+                    break@loop
+                }.onFailure {
+                    lDebug("Source $url failed!", it)
+                    lastException = it
+                }
+            }
+
+            if (!succeed || result == null) throw lastException ?: IOException("Failed to retrieve information from the source!")
+
+            result
         }
 
         private fun <T> call(url: String, call: (Call) -> T): T {

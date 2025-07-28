@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.version.download
 
+import com.movtery.zalithlauncher.game.addons.mirror.mapMirrorableUrls
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.compareSHA1
@@ -14,22 +15,6 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 private const val UTILS_LOG_TAG = "Minecraft.DownloaderUtils"
-
-private suspend fun downloadStringAndSave(
-    url: String,
-    targetFile: File
-): String =
-    withContext(Dispatchers.IO) {
-        val string = withRetry(UTILS_LOG_TAG, maxRetries = 1) {
-            NetWorkUtils.fetchStringFromUrl(url)
-        }
-        if (string.isBlank()) {
-            lError("Downloaded string is empty, aborting.")
-            throw IllegalStateException("Downloaded string is empty.")
-        }
-        targetFile.writeText(string)
-        string
-    }
 
 fun <T> String.parseTo(classOfT: Class<T>): T {
     return runCatching {
@@ -48,7 +33,19 @@ suspend fun <T> downloadAndParseJson(
     classOfT: Class<T>
 ): T {
     suspend fun downloadAndParse(): T {
-        val json = downloadStringAndSave(url, targetFile)
+        val json = withContext(Dispatchers.IO) {
+            val string = withRetry(UTILS_LOG_TAG, maxRetries = 1) {
+                NetWorkUtils.fetchStringFromUrls(
+                    url.mapMirrorableUrls()
+                )
+            }
+            if (string.isBlank()) {
+                lError("Downloaded string is empty, aborting.")
+                throw IllegalStateException("Downloaded string is empty.")
+            }
+            targetFile.writeText(string)
+            string
+        }
         return json.parseTo(classOfT)
     }
 

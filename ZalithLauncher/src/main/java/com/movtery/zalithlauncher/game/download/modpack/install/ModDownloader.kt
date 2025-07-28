@@ -64,7 +64,7 @@ class ModDownloader(
                         val urls = file.downloadUrls!!
                         val outputFile = file.outputFile!!
                         runCatching {
-                            NetWorkUtils.downloadFromMirrorList(
+                            NetWorkUtils.downloadFromMirrorListSuspend(
                                 urls = urls,
                                 outputFile = outputFile
                             ) { size ->

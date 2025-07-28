@@ -10,7 +10,7 @@ import java.io.File
 import java.io.FileNotFoundException
 
 class DownloadTask(
-    val url: String,
+    val urls: List<String>,
     private val verifyIntegrity: Boolean,
     private val bufferSize: Int = 32768,
     val targetFile: File,
@@ -31,8 +31,8 @@ class DownloadTask(
 
         runCatching {
             runInterruptible {
-                NetWorkUtils.downloadFileWithHttp(
-                    url = url,
+                NetWorkUtils.downloadFromMirrorList(
+                    urls = urls,
                     outputFile = targetFile,
                     bufferSize = bufferSize
                 ) { size ->
@@ -42,7 +42,7 @@ class DownloadTask(
             downloadedFile()
         }.onFailure { e ->
             if (e is CancellationException) return@onFailure
-            lError("Download failed: ${targetFile.absolutePath}, url: $url", e)
+            lError("Download failed: ${targetFile.absolutePath}\nurls: ${urls.joinToString("\n")}", e)
             if (!isDownloadable && e is FileNotFoundException) throw e
             onDownloadFailed(this)
         }
