@@ -18,7 +18,6 @@
     <string name="generic_main_menu">मुख्य मेनू</string>
     <string name="generic_download">डाउनलोड करें</string>
     <string name="generic_done">पूर्ण हुआ</string>
-    <string name="generic_open">खोलें</string>
     <string name="generic_close">बंद करें</string>
     <string name="generic_clear">साफ़ करें</string>
     <string name="generic_import">आयात करें</string>
@@ -50,7 +49,6 @@
     <string name="months_ago">%d महीने पहले</string>
     <string name="years_ago">%d साल पहले</string>
     <string name="launcher_version_label_alpha">अल्फ़ा संस्करण: %s (केवल डेमो)</string>
-    <string name="launcher_version_label_beta">बीटा संस्करण: %s (केवल डेमो)</string>
     <string name="launcher_version_debug_warning">आप %s का परीक्षण संस्करण उपयोग कर रहे हैं! यह संस्करण अस्थिर हो सकता है और मुख्य रूप से फीचर परीक्षण और प्रारंभिक एक्सेस के लिए बनाया गया है। इसे लंबे समय तक उपयोग करना अनुशंसित नहीं है! यदि परीक्षण के दौरान आपको कोई समस्या आती है, तो कृपया उन्हें GitHub पर रिपोर्ट करें — हम उन्हें जल्द से जल्द ठीक करने का प्रयास करेंगे।</string>
     <string name="launcher_version_debug_warning_cant_close">इस चेतावनी को हटाया नहीं जा सकता</string>
     <string name="theme_color_dynamic">डायनामिक (Android 12+)</string>
@@ -129,7 +127,7 @@
     <string name="download_game_addon_not_installable">ऑटो-इंस्टॉल संभव नहीं है</string>
     <string name="download_game_install_title">गेम इंस्टॉल हो रहा है</string>
     <string name="download_game_install_vanilla">Vanilla डाउनलोड हो रहा है %s</string>
-    <string name="download_game_install_base_download_file">डाउनलोड %s %s मुख्य फ़ाइल</string>
+    <string name="download_game_install_base_download_file">डाउनलोड %1$s %2$s मुख्य फ़ाइल</string>
     <string name="download_game_install_base_install">इंस्टॉल %s</string>
     <string name="download_game_install_base_installing">%s अग्रभूमि में इंस्टॉल हो रहा है</string>
     <string name="download_game_install_optifine_fetch_download_url">OptiFine के लिए डाउनलोड URL प्राप्त करें %s</string>

@@ -18,7 +18,6 @@
     <string name="generic_main_menu">القائمة الرئيسية</string>
     <string name="generic_download">تنزيل</string>
     <string name="generic_done">تم</string>
-    <string name="generic_open">فتح</string>
     <string name="generic_close">إغلاق</string>
     <string name="generic_clear">مسح</string>
     <string name="generic_import">استيراد</string>
@@ -50,7 +49,6 @@
     <string name="months_ago">%d منذ شهر</string>
     <string name="years_ago">%d منذ سنة</string>
     <string name="launcher_version_label_alpha">الإصدار ألفا: %s (النسخة التجريبية فقط)</string>
-    <string name="launcher_version_label_beta">الإصدار التجريبي: %s (النسخة التجريبية فقط)</string>
     <string name="launcher_version_debug_warning">أنت تستخدم نسخة تجريبية من %s! قد تكون هذه النسخة غير مستقرة وتهدف بشكل أساسي لاختبار الميزات والوصول المبكر. لا يُنصح باستخدامها لفترات طويلة! إذا واجهت أي مشاكل أثناء الاختبار، يرجى الإبلاغ عنها لنا عبر GitHub وسنعمل على معالجتها بأسرع وقت ممكن.</string>
     <string name="launcher_version_debug_warning_cant_close">لا يمكن تجاهل هذا التحذير</string>
     <string name="theme_color_dynamic">ديناميكي (أندرويد 12 فما فوق)</string>

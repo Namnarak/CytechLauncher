@@ -17,7 +17,6 @@
     <string name="generic_collapse">Retrair</string>
     <string name="generic_download">Baixar</string>
     <string name="generic_done">Pronto</string>
-    <string name="generic_open">Abrir</string>
     <string name="generic_close">Fechar</string>
     <string name="generic_clear">Limpar</string>
     <string name="generic_import">Importar</string>
@@ -146,7 +145,6 @@
     <string name="months_ago">%d meses atrás</string>
     <string name="years_ago">%d anos atrás</string>
     <string name="launcher_version_label_alpha">Versão Alpha: %s (somente demonstração)</string>
-    <string name="launcher_version_label_beta">Versão Beta: %s (somente demonstração)</string>
     <string name="launcher_version_debug_warning">Você está usando uma versão de teste de %s! Esta versão pode ser instável e destina-se principalmente a testes de recursos e acesso antecipado. Não é recomendada para uso a longo prazo! Se encontrar algum problema durante os testes, informe-nos via GitHub e resolveremos o problema o mais breve possível.</string>
     <string name="launcher_version_debug_warning_cant_close">Este aviso não pode ser ignorado</string>
     <string name="theme_color_dynamic">Dinâmico (Android 12+)</string>
@@ -195,12 +193,11 @@
     <string name="download_game_addon_list_load_error">Falha ao carregar a lista: %s</string>
     <string name="download_game_addon_incompatible_with">Incompatível com %s</string>
     <string name="download_game_addon_compatible_with">Compatível com %s</string>
-    <string name="download_game_addon_date">Data de lançamento: %s</string>
     <string name="download_game_addon_recommended">%s Recomendado</string>
     <string name="download_game_addon_not_installable">Não instalável automaticamente</string>
     <string name="download_game_install_title">Instalando Jogo</string>
     <string name="download_game_install_vanilla">Baixando Vanilla %s</string>
-    <string name="download_game_install_base_download_file">Baixando arquivo principal %s%s</string>
+    <string name="download_game_install_base_download_file">Baixando arquivo principal %1$s %2$s</string>
     <string name="download_game_install_base_install">Instalar %s</string>
     <string name="download_game_install_base_installing">Instalando %s no primeiro plano</string>
     <string name="download_game_install_optifine_fetch_download_url">Buscar URL de download para o OptiFine %s</string>

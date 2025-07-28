@@ -18,7 +18,6 @@
     <string name="generic_main_menu">Main Menu</string>
     <string name="generic_download">Download</string>
     <string name="generic_done">Done</string>
-    <string name="generic_open">Open</string>
     <string name="generic_close">Close</string>
     <string name="generic_clear">Clear</string>
     <string name="generic_import">Import</string>
@@ -55,7 +54,6 @@
     <string name="years_ago">%d years ago</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
-    <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
     <string name="launcher_version_debug_warning">You are using a test version of %s! This version may be unstable and is primarily intended for feature testing and early access. It is not recommended for long-term use! If you encounter any issues during testing, please report them to us via GitHub and we will address them as soon as possible.</string>
     <string name="launcher_version_debug_warning_cant_close">This warning cannot be dismissed</string>
     <!-- Themes -->
@@ -138,12 +136,11 @@
     <string name="download_game_addon_preview">Preview</string>
     <string name="download_game_addon_stable">Stable</string>
     <string name="download_game_addon_debug">Debug</string>
-    <string name="download_game_addon_date">Release Date: %s</string>
     <string name="download_game_addon_recommended">%s Recommended</string>
     <string name="download_game_addon_not_installable">Not installable automatically</string>
     <string name="download_game_install_title">Installing Game</string>
     <string name="download_game_install_vanilla">Downloading Vanilla %s</string>
-    <string name="download_game_install_base_download_file">Download %s %s main file</string>
+    <string name="download_game_install_base_download_file">Download %1$s %2$s main file</string>
     <string name="download_game_install_base_download_file2">Download %s main file</string>
     <string name="download_game_install_base_install">Install %s</string>
     <string name="download_game_install_base_installing">Installing %s in the foreground</string>
@@ -192,7 +189,7 @@
     <string name="download_assets_release_type_alpha">Alpha</string>
     <string name="download_assets_no_installed_versions">No available game version is currently installed, so the target download location for the asset cannot be determined. Please install a game version first!</string>
     <string name="download_assets_install_assets_for_versions">Install for which game versions?</string>
-    <string name="download_assets_install_progress_downloading">Downloading and installing assets\n%s\n (%s / %s)</string>
+    <string name="download_assets_install_progress_downloading">Downloading and installing assets\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">Installing assets\n%s</string>
     <string name="download_assets_install_failed">Failed to install assets!</string>
     <string name="download_modpack_warning1">Before installation, you need to understand that most modpacks are made for PC, and there\'s a high chance of crashes or other issues when you try to launch them. These problems are often beyond what the launcher can resolve.</string>
@@ -200,11 +197,11 @@
     <string name="download_modpack_warning3">Note: The launcher developers typically do not handle issues caused by modpacks.</string>
     <string name="download_modpack_install_title">Installing modpack</string>
     <string name="download_modpack_install_parse">Parse modpack</string>
-    <string name="download_modpack_install_get_mod_url">Get mod download link (%d/%d)</string>
+    <string name="download_modpack_install_get_mod_url">Get mod download link (%1$d/%2$d)</string>
     <string name="download_modpack_install_overrides">Extract modpack files</string>
     <string name="download_modpack_download">Download required content for modpack</string>
-    <string name="download_modpack_download_mods">Download all mods (%d/%d, %s)</string>
-    <string name="download_modpack_download_mods_retry">Retry downloading all mods (%d/%d, %s)</string>
+    <string name="download_modpack_download_mods">Download all mods (%1$d/%2$d, %s)</string>
+    <string name="download_modpack_download_mods_retry">Retry downloading all mods (%1$d/%2$d, %s)</string>
     <string name="download_modpack_get_loaders">Retrieve loader information</string>
     <string name="download_modpack_final_move">Moving modpack files</string>
     <!--  Assets Category  -->
@@ -276,10 +273,10 @@
     <string name="download_assets_category_pbr">PBR</string>
     <string name="download_assets_category_reflections">Reflections</string>
     <string name="download_assets_category_shadows">Shadows</string>
-    <string name="download_assets_category_configuration_potato">Potato Settings</string>
-    <string name="download_assets_category_configuration_low">Low Settings</string>
-    <string name="download_assets_category_configuration_medium">Medium Settings</string>
-    <string name="download_assets_category_configuration_high">High Settings</string>
+    <string name="download_assets_category_configuration_potato">Potato</string>
+    <string name="download_assets_category_configuration_low">Low</string>
+    <string name="download_assets_category_configuration_medium">Medium</string>
+    <string name="download_assets_category_configuration_high">High</string>
     <string name="download_assets_category_screenshot">Screenshots</string>
     <!--  Assets Features  -->
     <string name="download_assets_features_audio">Audio</string>
@@ -530,10 +527,10 @@
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>
-    <string name="minecraft_download_downloading_game_files">Downloading files \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_verifying_and_repairing_files">Verifying files \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_downloading_game_files">Downloading files \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_verifying_and_repairing_files">Verifying files \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">Download failed</string>
     <string name="minecraft_download_failed_retried">Retries exhausted. Some files failed to download.</string>
     <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required library files. It is recommended to reinstall the game.</string>

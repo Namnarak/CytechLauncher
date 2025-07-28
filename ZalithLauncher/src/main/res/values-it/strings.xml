@@ -15,7 +15,6 @@
     <string name="generic_main_menu">Menu principale</string>
     <string name="generic_download">Scarica</string>
     <string name="generic_done">Fatto</string>
-    <string name="generic_open">Apri</string>
     <string name="generic_close">Chiudi</string>
     <string name="generic_clear">Svuota</string>
     <string name="generic_import">Importa</string>
@@ -41,7 +40,6 @@
     <string name="months_ago">%d mesi fa</string>
     <string name="years_ago">%d anni fa</string>
     <string name="launcher_version_label_alpha">Versione Alpha: %s (Solo Demo)</string>
-    <string name="launcher_version_label_beta">Versione Beta: %s (Solo Demo)</string>
     <string name="launcher_version_debug_warning">Stai utilizzando una versione test %s! Questa versione potrebbe essere instabile ed è infatti intesa principalmente come accesso anticipato per provarne le funzionalità. Non è consigliata per un uso a lungo termine! Se incontri dei problemi durante l’utilizzo, per favore segnalaceli tramite la nostra pagina GitHub e cercheremo di risolverli il prima possibile.</string>
     <string name="launcher_version_debug_warning_cant_close">Quest’avvertenza non può essere chiusa</string>
     <string name="theme_color_dynamic">Dinamico (Android 12+)</string>

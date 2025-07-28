@@ -18,7 +18,6 @@
     <string name="generic_main_menu">主選單</string>
     <string name="generic_download">下載</string>
     <string name="generic_done">完成</string>
-    <string name="generic_open">開啟</string>
     <string name="generic_close">關閉</string>
     <string name="generic_clear">清除</string>
     <string name="generic_import">匯入</string>
@@ -46,7 +45,6 @@
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
     <!--  啟動器版本  -->
     <string name="launcher_version_label_alpha">Alpha 版：%s，僅供演示</string>
-    <string name="launcher_version_label_beta">Beta 版：%s，僅供演示</string>
     <string name="launcher_version_debug_warning">您正在使用 %s 的測試版本！此版本可能不穩定，主要用於功能測試與搶先體驗，不建議長期使用！如果您在測試過程中發現任何問題，請透過 GitHub 回報給我們，我們會儘快處理！</string>
     <string name="launcher_version_debug_warning_cant_close">此警告無法關閉</string>
     <!--  主題  -->
@@ -129,12 +127,11 @@
     <string name="download_game_addon_preview">預覽版</string>
     <string name="download_game_addon_stable">穩定版</string>
     <string name="download_game_addon_debug">測試版</string>
-    <string name="download_game_addon_date">發布時間：%s</string>
     <string name="download_game_addon_recommended">%s 官方推薦</string>
     <string name="download_game_addon_not_installable">不支援自動安裝</string>
     <string name="download_game_install_title">安裝遊戲中</string>
     <string name="download_game_install_vanilla">下載並安裝原版 %s</string>
-    <string name="download_game_install_base_download_file">下載 %s %s 主檔案</string>
+    <string name="download_game_install_base_download_file">下載 %1$s %2$s 主檔案</string>
     <string name="download_game_install_base_download_file2">下載 %s 主檔案</string>
     <string name="download_game_install_base_install">安裝 %s</string>
     <string name="download_game_install_base_installing">正在透過前景服務安裝 %s</string>
@@ -172,11 +169,11 @@
     <string name="download_modpack_warning3">註：啟動器開發者通常不會處理整合包引起的任何問題。</string>
     <string name="download_modpack_install_title">正在安裝整合包</string>
     <string name="download_modpack_install_parse">解析整合包</string>
-    <string name="download_modpack_install_get_mod_url">取得模組下載連結 (%d/%d)</string>
+    <string name="download_modpack_install_get_mod_url">取得模組下載連結 (%1$d/%2$d)</string>
     <string name="download_modpack_install_overrides">解壓整合包檔案</string>
     <string name="download_modpack_download">下載整合包所需內容</string>
-    <string name="download_modpack_download_mods">下載所有模組 (%d/%d, %s)</string>
-    <string name="download_modpack_download_mods_retry">重試下載所有模組 (%d/%d, %s)</string>
+    <string name="download_modpack_download_mods">下載所有模組 (%1$d/%2$d, %s)</string>
+    <string name="download_modpack_download_mods_retry">重試下載所有模組 (%1$d/%2$d, %s)</string>
     <string name="download_modpack_get_loaders">取得載入器資訊</string>
     <string name="download_modpack_final_move">正在移動整合包檔案</string>
     <!--  資源類別  -->
@@ -479,10 +476,10 @@
     <!--  遊戲  -->
     <string name="minecraft_download_stat_download_task">統計下載任務</string>
     <string name="minecraft_download_stat_verify_task">統計驗證任務</string>
-    <string name="minecraft_download_downloading_game_files">下載遊戲檔案中 \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_verifying_and_repairing_files">驗證並補齊遊戲檔案中 \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_downloading_files">重試下載遊戲檔案中 \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_verifying_files">重試驗證並補齊遊戲檔案中 \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_downloading_game_files">下載遊戲檔案中 \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_verifying_and_repairing_files">驗證並補齊遊戲檔案中 \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_downloading_files">重試下載遊戲檔案中 \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_verifying_files">重試驗證並補齊遊戲檔案中 \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">下載 Minecraft 過程中發生異常</string>
     <string name="minecraft_download_failed_retried">在此之前，啟動器已嘗試重試一次，但仍有任務下載失敗</string>
     <string name="minecraft_download_failed_notfound">部分依賴檔案無法下載，如果多次嘗試仍失敗，可能是遊戲缺少必要的函式庫檔案，建議重新安裝遊戲</string>
@@ -639,7 +636,7 @@
     <string name="download_assets_release_type_alpha">Alpha</string>
     <string name="download_assets_no_installed_versions">當前未安裝可用的遊戲版本，無法決定該資源的目標下載位置，請先安裝遊戲版本哦！</string>
     <string name="download_assets_install_assets_for_versions">為哪個遊戲版本安裝?</string>
-    <string name="download_assets_install_progress_downloading">下載並安裝資源\n%s\n (%s / %s)</string>
+    <string name="download_assets_install_progress_downloading">下載並安裝資源\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">安裝資源\n%s</string>
     <string name="download_assets_install_failed">安裝資源失敗!</string>
 </resources>

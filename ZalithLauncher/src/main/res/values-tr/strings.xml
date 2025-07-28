@@ -18,7 +18,6 @@
     <string name="generic_main_menu">Ana Menü</string>
     <string name="generic_download">İndir</string>
     <string name="generic_done">Tamamlandı</string>
-    <string name="generic_open">Aç</string>
     <string name="generic_close">Kapat</string>
     <string name="generic_clear">Temizle</string>
     <string name="generic_import">İçe Aktar</string>
@@ -39,7 +38,6 @@
     <string name="generic_anyway">Yine de Kullan</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Sürüm: %s (Demo)</string>
-    <string name="launcher_version_label_beta">Beta Sürüm: %s (Demo)</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Dinamik (Android 12+)</string>
     <string name="theme_color_embermire">Embermire</string>
@@ -117,12 +115,11 @@
     <string name="download_game_addon_preview">Önizleme</string>
     <string name="download_game_addon_stable">Stabil</string>
     <string name="download_game_addon_debug">Hata Ayıkla</string>
-    <string name="download_game_addon_date">Çıkış Tarihi: %s</string>
     <string name="download_game_addon_recommended">%s Önerilir</string>
     <string name="download_game_addon_not_installable">Otomatik kurulum desteklenmiyor</string>
     <string name="download_game_install_title">Oyun Kuruluyor</string>
     <string name="download_game_install_vanilla">Vanilla %s İndiriliyor</string>
-    <string name="download_game_install_base_download_file">%s %s ana dosya indiriliyor</string>
+    <string name="download_game_install_base_download_file">%1$s %2$s ana dosya indiriliyor</string>
     <string name="download_game_install_base_install">%s Kur</string>
     <string name="download_game_install_base_installing">%s ön planda kuruluyor</string>
     <string name="download_game_install_optifine_fetch_download_url">OptiFine %s indirme bağlantısı alınıyor</string>
@@ -314,10 +311,10 @@
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">İndirmeler hazırlanıyor</string>
     <string name="minecraft_download_stat_verify_task">Doğrulamalar hazırlanıyor</string>
-    <string name="minecraft_download_downloading_game_files">Dosyalar indiriliyor \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_verifying_and_repairing_files">Dosyalar doğrulanıyor \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_downloading_files">İndirme tekrar deneniyor \n(%d/%d, %s/%s)</string>
-    <string name="minecraft_download_progress_retry_verifying_files">Doğrulama tekrar deneniyor \n(%d/%d, %s/%s)</string>
+    <string name="minecraft_download_downloading_game_files">Dosyalar indiriliyor \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_verifying_and_repairing_files">Dosyalar doğrulanıyor \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_downloading_files">İndirme tekrar deneniyor \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_verifying_files">Doğrulama tekrar deneniyor \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">İndirme başarısız</string>
     <string name="minecraft_download_failed_retried">Deneme bitti. Bazı dosyalar indirilemedi.</string>
     <!-- Settings -->
@@ -450,7 +447,7 @@
     <string name="download_assets_release_type_alpha">Alpha</string>
     <string name="download_assets_no_installed_versions">Şu anda yüklü bir oyun sürümü bulunmadığından, varlığın hedef indirme konumu belirlenemiyor. Lütfen önce bir oyun sürümü yükleyin!</string>
     <string name="download_assets_install_assets_for_versions">Hangi oyun sürümleri için kurulum yapmalıyım?</string>
-    <string name="download_assets_install_progress_downloading">Varlıklar indiriliyor ve yükleniyor\n%s\n(%s / %s)</string>
+    <string name="download_assets_install_progress_downloading">Varlıklar indiriliyor ve yükleniyor\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">Varlıklar yükleniyor\n%s</string>
     <string name="download_assets_install_failed">Varlıklar yüklenemedi!</string>
     <string name="download_assets_category_worldgen">Dünya Nesli</string>
