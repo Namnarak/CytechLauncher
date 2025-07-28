@@ -44,7 +44,8 @@ suspend fun searchAssets(
                         modLoader = searchFilter.modloader as? CurseForgeModLoader,
                         index = searchFilter.index,
                         pageSize = searchFilter.limit
-                    )
+                    ),
+                    retry = 1 //只尝试一次
                 )
             }
             Platform.MODRINTH -> {
@@ -66,7 +67,8 @@ suspend fun searchAssets(
                         index = searchFilter.sortField,
                         offset = searchFilter.index,
                         limit = searchFilter.limit
-                    )
+                    ),
+                    retry = 1 //只尝试一次
                 )
             }
         }

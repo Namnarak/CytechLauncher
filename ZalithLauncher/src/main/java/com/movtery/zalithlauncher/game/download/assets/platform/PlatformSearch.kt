@@ -35,8 +35,9 @@ object PlatformSearch {
      */
     suspend fun searchWithCurseforge(
         request: CurseForgeSearchRequest,
-        apiKey: String = InfoDistributor.CURSEFORGE_API
-    ): CurseForgeSearchResult = withRetry("PlatformSearch:CurseForge_search") {
+        apiKey: String = InfoDistributor.CURSEFORGE_API,
+        retry: Int = 3
+    ): CurseForgeSearchResult = withRetry("PlatformSearch:CurseForge_search", maxRetries = retry) {
         httpGet(
             url = "$CURSEFORGE_API/mods/search",
             headers = listOf("x-api-key" to apiKey),
@@ -50,8 +51,9 @@ object PlatformSearch {
      */
     suspend fun getProjectFromCurseForge(
         projectID: String,
-        apiKey: String = InfoDistributor.CURSEFORGE_API
-    ): CurseForgeProject = withRetry("PlatformSearch:CurseForge_getProject") {
+        apiKey: String = InfoDistributor.CURSEFORGE_API,
+        retry: Int = 3
+    ): CurseForgeProject = withRetry("PlatformSearch:CurseForge_getProject", maxRetries = retry) {
         httpGet(
             url = "$CURSEFORGE_API/mods/$projectID",
             headers = listOf("x-api-key" to apiKey)
@@ -68,8 +70,9 @@ object PlatformSearch {
         projectID: String,
         apiKey: String = InfoDistributor.CURSEFORGE_API,
         index: Int = 0,
-        pageSize: Int = 100
-    ): CurseForgeVersions = withRetry("PlatformSearch:CurseForge_getVersions") {
+        pageSize: Int = 100,
+        retry: Int = 3
+    ): CurseForgeVersions = withRetry("PlatformSearch:CurseForge_getVersions", maxRetries = retry) {
         httpGet(
             url = "$CURSEFORGE_API/mods/$projectID/files",
             headers = listOf("x-api-key" to apiKey),
@@ -89,7 +92,8 @@ object PlatformSearch {
     suspend fun getAllVersionsFromCurseForge(
         projectID: String,
         apiKey: String = InfoDistributor.CURSEFORGE_API,
-        pageSize: Int = 100
+        pageSize: Int = 100,
+        retry: Int = 3
     ): List<CurseForgeFile> {
         val allFiles = mutableListOf<CurseForgeFile>()
         var index = 0
@@ -99,7 +103,8 @@ object PlatformSearch {
                 projectID = projectID,
                 apiKey = apiKey,
                 index = index,
-                pageSize = pageSize
+                pageSize = pageSize,
+                retry
             )
             val files = response.data
             allFiles.addAll(files)
@@ -119,8 +124,9 @@ object PlatformSearch {
     suspend fun getVersionFromCurseForge(
         projectID: String,
         fileID: String,
-        apiKey: String = InfoDistributor.CURSEFORGE_API
-    ): CurseForgeVersion = withRetry("PlatformSearch:CurseForge_getVersion") {
+        apiKey: String = InfoDistributor.CURSEFORGE_API,
+        retry: Int = 3
+    ): CurseForgeVersion = withRetry("PlatformSearch:CurseForge_getVersion", maxRetries = retry) {
         httpGet(
             url = "$CURSEFORGE_API/mods/$projectID/files/$fileID",
             headers = listOf("x-api-key" to apiKey)
@@ -132,8 +138,9 @@ object PlatformSearch {
      * @param request 搜索请求
      */
     suspend fun searchWithModrinth(
-        request: ModrinthSearchRequest
-    ): ModrinthSearchResult = withRetry("PlatformSearch:Modrinth_search") {
+        request: ModrinthSearchRequest,
+        retry: Int = 3
+    ): ModrinthSearchResult = withRetry("PlatformSearch:Modrinth_search", maxRetries = retry) {
         httpGet(
             url = "$MODRINTH_API/search",
             parameters = request.toParameters()
@@ -144,8 +151,9 @@ object PlatformSearch {
      * 在 Modrinth 平台获取项目详细信息
      */
     suspend fun getProjectFromModrinth(
-        projectID: String
-    ): ModrinthSingleProject = withRetry("PlatformSearch:Modrinth_getProject") {
+        projectID: String,
+        retry: Int = 3
+    ): ModrinthSingleProject = withRetry("PlatformSearch:Modrinth_getProject", maxRetries = retry) {
         httpGet(
             url = "$MODRINTH_API/project/$projectID"
         )
@@ -155,8 +163,9 @@ object PlatformSearch {
      * 获取 Modrinth 项目的所有版本
      */
     suspend fun getVersionsFromModrinth(
-        projectID: String
-    ): List<ModrinthVersion> = withRetry("PlatformSearch:Modrinth_getVersions") {
+        projectID: String,
+        retry: Int = 3
+    ): List<ModrinthVersion> = withRetry("PlatformSearch:Modrinth_getVersions", maxRetries = retry) {
         httpGet(
             url = "$MODRINTH_API/project/$projectID/version"
         )
