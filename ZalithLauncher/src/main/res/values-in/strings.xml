@@ -56,6 +56,12 @@
     <string name="splash_screen_agree">Pasang</string>
     <string name="settings_renderer_vulkan_driver_system_title">Gunakan Sistem Vulkan Driver</string>
     <string name="settings_tab_info_about">Tentang</string>
-    <string name="generic_error">Kesalahan</string>
+    <string name="generic_error">Error</string>
     <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
+    <string name="generic_cannot_empty">Konten tidak boleh kosong!</string>
+    <string name="generic_file_size">Ukuran File: %s</string>
+    <string name="generic_file_name">Nama File: %s</string>
+    <string name="versions_config_renderer">Renderer</string>
+    <string name="versions_manage_game_path_delete_title">Hapus Folder Game</string>
+    <string name="versions_manage_game_path_add_new">Tambahkan Folder</string>
 </resources>
