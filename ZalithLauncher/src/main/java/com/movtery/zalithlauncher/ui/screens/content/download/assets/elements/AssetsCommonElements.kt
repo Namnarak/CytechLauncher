@@ -47,11 +47,6 @@ fun PlatformIdentifier(
     shape: Shape = MaterialTheme.shapes.large,
     textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
 ) {
-    val drawable = when (platform) {
-        Platform.CURSEFORGE -> R.drawable.ic_curseforge
-        Platform.MODRINTH -> R.drawable.ic_modrinth
-    }
-
     Surface(
         modifier = modifier,
         color = color,
@@ -65,7 +60,7 @@ fun PlatformIdentifier(
         ) {
             Icon(
                 modifier = Modifier.size(iconSize),
-                painter = painterResource(drawable),
+                painter = painterResource(platform.getDrawable()),
                 contentDescription = platform.displayName
             )
             Text(
@@ -74,6 +69,14 @@ fun PlatformIdentifier(
             )
         }
     }
+}
+
+/**
+ * 获取平台的LOGO
+ */
+fun Platform.getDrawable() = when (this) {
+    Platform.CURSEFORGE -> R.drawable.ic_curseforge
+    Platform.MODRINTH -> R.drawable.ic_modrinth
 }
 
 /**
