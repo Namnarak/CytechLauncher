@@ -46,25 +46,23 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
-import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
-
-@Serializable
-data object ControlSettingsScreenKey: NavKey
 
 @Composable
 fun ControlSettingsScreen(
+    key: NestedNavKey.Settings,
+    settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?
 ) {
     BaseScreen(
-        Triple(SettingsScreenKey, mainScreenKey, false),
-        Triple(ControlSettingsScreenKey, settingsScreenKey, false)
+        Triple(key, mainScreenKey, false),
+        Triple(NormalNavKey.Settings.Control, settingsScreenKey, false)
     ) { isVisible ->
         Column(
             modifier = Modifier

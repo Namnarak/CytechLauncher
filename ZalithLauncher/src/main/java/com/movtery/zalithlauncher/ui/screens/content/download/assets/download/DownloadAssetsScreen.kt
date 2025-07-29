@@ -65,7 +65,8 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsVersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
@@ -83,15 +84,6 @@ import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class DownloadAssetsScreenKey(
-    val platform: Platform,
-    val projectId: String,
-    val classes: PlatformClasses,
-    val iconUrl: String? = null
-): NavKey
 
 private class ScreenViewModel(
     private val platform: Platform,
@@ -228,7 +220,7 @@ private class ScreenViewModel(
 
 @Composable
 private fun rememberDownloadAssetsViewModel(
-    key: DownloadAssetsScreenKey
+    key: NormalNavKey.DownloadAssets
 ): ScreenViewModel {
     return viewModel(
         key = key.toString()
@@ -253,7 +245,7 @@ fun DownloadAssetsScreen(
     parentScreenKey: NavKey,
     parentCurrentKey: NavKey?,
     currentKey: NavKey?,
-    key: DownloadAssetsScreenKey,
+    key: NormalNavKey.DownloadAssets,
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
     onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
 ) {
@@ -261,8 +253,8 @@ fun DownloadAssetsScreen(
 
     BaseScreen(
         levels1 = listOf(
-            Pair(DownloadScreenKey::class.java, mainScreenKey),
-            Pair(DownloadAssetsScreenKey::class.java, currentKey)
+            Pair(NestedNavKey.Download::class.java, mainScreenKey),
+            Pair(NormalNavKey.DownloadAssets::class.java, currentKey)
         ),
         Triple(parentScreenKey, parentCurrentKey, false)
     ) { isVisible ->

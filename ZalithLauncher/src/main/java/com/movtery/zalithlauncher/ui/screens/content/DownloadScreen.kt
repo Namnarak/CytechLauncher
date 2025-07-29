@@ -28,9 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -48,92 +45,85 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModPackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModPackScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadResourcePackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadResourcePackScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadSavesScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadSavesScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class DownloadScreenKey(
-    val startKey: NavKey? = null
-): NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadScreenBackStack.size <= 1
-}
-
-/**
- * 下载屏幕堆栈
- */
-val downloadScreenBackStack = mutableStateListOf<NavKey>()
-
-/**
- * 状态：下载屏幕的标签
- */
-var downloadScreenKey by mutableStateOf<NavKey?>(null)
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 /**
  * 导航至DownloadScreen
  */
-fun NavBackStack.navigateToDownload(targetScreen: NavKey? = null) {
-    this.navigateTo(DownloadScreenKey(targetScreen), true)
+fun ScreenBackStackViewModel.navigateToDownload(targetScreen: NavKey? = null) {
+    downloadBackStack.clearWith(targetScreen ?: NestedNavKey.DownloadGame(downloadGameBackStack))
+    mainScreenBackStack.navigateTo(
+        screenKey = NestedNavKey.Download(backStack = downloadBackStack),
+        useClassEquality = true
+    )
 }
 
 @Composable
 fun DownloadScreen(
-    mainScreenKey: NavKey?,
-    key: DownloadScreenKey
+    key: NestedNavKey.Download,
+    backScreenViewModel: ScreenBackStackViewModel
 ) {
-    downloadScreenBackStack.clearWith(key.startKey ?: DownloadGameScreenKey)
-
     BaseScreen(
         screenKey = key,
-        currentKey = mainScreenKey,
+        currentKey = backScreenViewModel.mainScreenKey,
         useClassEquality = true
     ) { isVisible: Boolean ->
-
         Row(modifier = Modifier.fillMaxSize()) {
             TabMenu(
+                modifier = Modifier.fillMaxHeight(),
                 isVisible = isVisible,
-                backStack = downloadScreenBackStack,
-                modifier = Modifier.fillMaxHeight()
+                backStack = key.backStack,
+                downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                gameBackStack = backScreenViewModel.downloadGameBackStack,
+                modpackBackStack = backScreenViewModel.downloadModPackBackStack,
+                modBackStack = backScreenViewModel.downloadModBackStack,
+                resourcePackBackStack = backScreenViewModel.downloadResourcePackBackStack,
+                savesBackStack = backScreenViewModel.downloadSavesBackStack,
+                shadersBackStack = backScreenViewModel.downloadShadersBackStack
             )
 
             NavigationUI(
-                mainScreenKey = mainScreenKey,
-                backStack = downloadScreenBackStack,
+                key = key,
+                backScreenViewModel = backScreenViewModel,
                 modifier = Modifier.fillMaxHeight()
             )
         }
     }
 }
 
-private val downloadsList = listOf(
-    CategoryItem(DownloadGameScreenKey, { CategoryIcon(Icons.Outlined.SportsEsports, R.string.download_category_game) }, R.string.download_category_game),
-    CategoryItem(DownloadModPackScreenKey, { CategoryIcon(R.drawable.ic_package_2, R.string.download_category_modpack) }, R.string.download_category_modpack),
-    CategoryItem(DownloadModScreenKey, { CategoryIcon(Icons.Outlined.Extension, R.string.download_category_mod) }, R.string.download_category_mod, division = true),
-    CategoryItem(DownloadResourcePackScreenKey, { CategoryIcon(Icons.Outlined.Image, R.string.download_category_resource_pack) }, R.string.download_category_resource_pack),
-    CategoryItem(DownloadSavesScreenKey, { CategoryIcon(Icons.Outlined.Public, R.string.download_category_saves) }, R.string.download_category_saves),
-    CategoryItem(DownloadShadersScreenKey, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.download_category_shaders) }, R.string.download_category_shaders),
-)
-
 @Composable
 private fun TabMenu(
+    modifier: Modifier = Modifier,
     isVisible: Boolean,
     backStack: NavBackStack,
-    modifier: Modifier = Modifier
+    downloadScreenKey: NavKey?,
+    gameBackStack: NavBackStack,
+    modpackBackStack: NavBackStack,
+    modBackStack: NavBackStack,
+    resourcePackBackStack: NavBackStack,
+    savesBackStack: NavBackStack,
+    shadersBackStack: NavBackStack
 ) {
+    val downloadsList = listOf(
+        CategoryItem(NestedNavKey.DownloadGame(gameBackStack), { CategoryIcon(Icons.Outlined.SportsEsports, R.string.download_category_game) }, R.string.download_category_game),
+        CategoryItem(NestedNavKey.DownloadModPack(modpackBackStack), { CategoryIcon(R.drawable.ic_package_2, R.string.download_category_modpack) }, R.string.download_category_modpack),
+        CategoryItem(NestedNavKey.DownloadMod(modBackStack), { CategoryIcon(Icons.Outlined.Extension, R.string.download_category_mod) }, R.string.download_category_mod, division = true),
+        CategoryItem(NestedNavKey.DownloadResourcePack(resourcePackBackStack), { CategoryIcon(Icons.Outlined.Image, R.string.download_category_resource_pack) }, R.string.download_category_resource_pack),
+        CategoryItem(NestedNavKey.DownloadSaves(savesBackStack), { CategoryIcon(Icons.Outlined.Public, R.string.download_category_saves) }, R.string.download_category_saves),
+        CategoryItem(NestedNavKey.DownloadShaders(shadersBackStack), { CategoryIcon(Icons.Outlined.Lightbulb, R.string.download_category_shaders) }, R.string.download_category_shaders),
+    )
+
     val xOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
         swapIn = isVisible,
@@ -162,7 +152,7 @@ private fun TabMenu(
             }
 
             NavigationRailItem(
-                selected = downloadScreenKey === item.key,
+                selected = downloadScreenKey == item.key,
                 onClick = {
                     backStack.navigateOnce(item.key)
                 },
@@ -187,30 +177,89 @@ private fun TabMenu(
 
 @Composable
 private fun NavigationUI(
-    mainScreenKey: NavKey?,
-    backStack: NavBackStack,
+    key: NestedNavKey.Download,
+    backScreenViewModel: ScreenBackStackViewModel,
     modifier: Modifier = Modifier
 ) {
-    val currentKey = backStack.lastOrNull()
-    LaunchedEffect(currentKey) {
-        downloadScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        backScreenViewModel.downloadScreenKey = stackTopKey
     }
 
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
         onBack = {
-            val key = backStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            backStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryProvider = entryProvider {
-            entry<DownloadGameScreenKey> { DownloadGameScreen(mainScreenKey) }
-            entry<DownloadModPackScreenKey> { DownloadModPackScreen(mainScreenKey) }
-            entry<DownloadModScreenKey> { DownloadModScreen(mainScreenKey) }
-            entry<DownloadResourcePackScreenKey> { DownloadResourcePackScreen(mainScreenKey) }
-            entry<DownloadSavesScreenKey> { DownloadSavesScreen(mainScreenKey) }
-            entry<DownloadShadersScreenKey> { DownloadShadersScreen(mainScreenKey) }
+            entry<NestedNavKey.DownloadGame> { key ->
+                DownloadGameScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadGameScreenKey = backScreenViewModel.downloadGameScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadGameScreenKey = newKey
+                    }
+                )
+            }
+            entry<NestedNavKey.DownloadModPack> { key ->
+                DownloadModPackScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadModPackScreenKey = backScreenViewModel.downloadModPackScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadModPackScreenKey = newKey
+                    }
+                )
+            }
+            entry<NestedNavKey.DownloadMod> { key ->
+                DownloadModScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadModScreenKey = backScreenViewModel.downloadModScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadModScreenKey = newKey
+                    }
+                )
+            }
+            entry<NestedNavKey.DownloadResourcePack> { key ->
+                DownloadResourcePackScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadResourcePackScreenKey = newKey
+                    }
+                )
+            }
+            entry<NestedNavKey.DownloadSaves> { key ->
+                DownloadSavesScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadSavesScreenKey = backScreenViewModel.downloadSavesScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadSavesScreenKey = newKey
+                    }
+                )
+            }
+            entry<NestedNavKey.DownloadShaders> { key ->
+                DownloadShadersScreen(
+                    key = key,
+                    mainScreenKey = backScreenViewModel.mainScreenKey,
+                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                    downloadShadersScreenKey = backScreenViewModel.downloadShadersScreenKey,
+                    onCurrentKeyChange = { newKey ->
+                        backScreenViewModel.downloadShadersScreenKey = newKey
+                    }
+                )
+            }
         }
     )
 }

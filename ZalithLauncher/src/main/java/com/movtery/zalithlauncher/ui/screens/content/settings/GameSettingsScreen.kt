@@ -19,23 +19,21 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils.getMaxMemoryForSettings
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object GameSettingsScreenKey: NavKey
 
 @Composable
 fun GameSettingsScreen(
+    key: NestedNavKey.Settings,
+    settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?
 ) {
     BaseScreen(
-        Triple(SettingsScreenKey, mainScreenKey, false),
-        Triple(GameSettingsScreenKey, settingsScreenKey, false)
+        Triple(key, mainScreenKey, false),
+        Triple(NormalNavKey.Settings.Game, settingsScreenKey, false)
     ) { isVisible ->
         Column(
             modifier = Modifier

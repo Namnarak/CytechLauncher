@@ -61,9 +61,8 @@ import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
@@ -76,13 +75,9 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
-
-@Serializable
-data object SelectGameVersionScreenKey: NavKey
 
 /** 版本列表加载状态 */
 private sealed interface VersionState {
@@ -179,20 +174,22 @@ private class VersionsViewModel(): ViewModel() {
 @Composable
 fun SelectGameVersionScreen(
     mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadGameScreenKey: NavKey?,
     onVersionSelect: (String) -> Unit = {}
 ) {
     val viewModel = viewModel(
-        key = SelectGameVersionScreenKey.toString()
+        key = NormalNavKey.DownloadGame.SelectGameVersion.toString()
     ) {
         VersionsViewModel()
     }
 
     BaseScreen(
         levels1 = listOf(
-            Pair(DownloadScreenKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.Download::class.java, mainScreenKey),
+            Pair(NestedNavKey.DownloadGame::class.java, downloadScreenKey)
         ),
-        Triple(DownloadGameScreenKey, downloadScreenKey, false),
-        Triple(SelectGameVersionScreenKey, downloadGameScreenKey, false)
+        Triple(NormalNavKey.DownloadGame.SelectGameVersion, downloadGameScreenKey, false)
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

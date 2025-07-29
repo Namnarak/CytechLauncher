@@ -11,20 +11,19 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
-import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreenKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 class MainActivity : BaseComponentActivity() {
     /**
-     * 主屏幕堆栈管理ViewModel
+     * 屏幕堆栈管理ViewModel
      */
-    private val mainScreenViewModel: MainScreenViewModel by viewModels()
+    private val screenBackStackModel: ScreenBackStackViewModel by viewModels()
 
     /**
      * 启动游戏ViewModel
@@ -41,7 +40,7 @@ class MainActivity : BaseComponentActivity() {
             ZalithLauncherTheme {
                 Box {
                     MainScreen(
-                        mainScreenViewModel = mainScreenViewModel,
+                        screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel
                     )
 
@@ -51,10 +50,10 @@ class MainActivity : BaseComponentActivity() {
                         launchGameOperation = launchGameViewModel.launchGameOperation,
                         updateOperation = { launchGameViewModel.updateOperation(it) },
                         toAccountManageScreen = {
-                            mainScreenViewModel.backStack.navigateTo(AccountManageScreenKey)
+                            screenBackStackModel.mainScreenBackStack.navigateTo(NormalNavKey.AccountManager)
                         },
                         toVersionManageScreen = {
-                            mainScreenViewModel.backStack.navigateTo(VersionsManageScreenKey)
+                            screenBackStackModel.mainScreenBackStack.navigateTo(NormalNavKey.VersionsManager)
                         }
                     )
 

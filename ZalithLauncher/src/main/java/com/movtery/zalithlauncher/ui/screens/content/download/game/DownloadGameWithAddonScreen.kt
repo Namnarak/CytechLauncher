@@ -63,9 +63,8 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -75,16 +74,10 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
-
-@Serializable
-data class DownloadGameWithAddonScreenKey(
-    val gameVersion: String
-) : NavKey
 
 private class AddonList {
     //版本列表
@@ -252,7 +245,9 @@ private class AddonsViewModel(
 @Composable
 fun DownloadGameWithAddonScreen(
     mainScreenKey: NavKey?,
-    key: DownloadGameWithAddonScreenKey,
+    downloadScreenKey: NavKey?,
+    downloadGameScreenKey: NavKey?,
+    key: NormalNavKey.DownloadGame.Addons,
     onInstall: (GameDownloadInfo) -> Unit = {}
 ) {
     val viewModel = viewModel(
@@ -262,11 +257,11 @@ fun DownloadGameWithAddonScreen(
     }
 
     BaseScreen(
-        levels1 = listOf(
-            Pair(DownloadScreenKey::class.java, mainScreenKey),
-            Pair(DownloadGameWithAddonScreenKey::class.java, downloadGameScreenKey)
-        ),
-        Triple(DownloadGameScreenKey, downloadScreenKey, false),
+        listOf(
+            Pair(NestedNavKey.Download::class.java, mainScreenKey),
+            Pair(NestedNavKey.DownloadGame::class.java, downloadScreenKey),
+            Pair(NormalNavKey.DownloadGame.Addons::class.java, downloadGameScreenKey)
+        )
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

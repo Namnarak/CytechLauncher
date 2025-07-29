@@ -19,30 +19,25 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchShadersScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchShadersScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadShadersBackStack
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadShadersScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object DownloadShadersScreenKey: NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadShadersBackStack.size <= 1
-}
+import com.movtery.zalithlauncher.ui.screens.onBack
 
 @Composable
 fun DownloadShadersScreen(
-    mainScreenKey: NavKey?
+    key: NestedNavKey.DownloadShaders,
+    mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadShadersScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit
 ) {
-    val currentKey = downloadShadersBackStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        downloadShadersScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     val context = LocalContext.current
@@ -63,12 +58,10 @@ fun DownloadShadersScreen(
     )
 
     NavDisplay(
-        backStack = downloadShadersBackStack,
+        backStack = backStack,
         modifier = Modifier.fillMaxSize(),
         onBack = {
-            val key = downloadShadersBackStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            downloadShadersBackStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryDecorators = listOf(
             rememberSceneSetupNavEntryDecorator(),
@@ -76,20 +69,25 @@ fun DownloadShadersScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<SearchShadersScreenKey> {
-                SearchShadersScreen(mainScreenKey) { platform, projectId, _ ->
-                    downloadShadersBackStack.navigateTo(
-                        DownloadAssetsScreenKey(platform, projectId, PlatformClasses.SHADERS)
+            entry<NormalNavKey.SearchShaders> {
+                SearchShadersScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadShadersScreenKey = key,
+                    downloadShadersScreenCurrentKey = downloadShadersScreenKey
+                ) { platform, projectId, _ ->
+                    backStack.navigateTo(
+                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.SHADERS)
                     )
                 }
             }
-            entry<DownloadAssetsScreenKey> { key ->
+            entry<NormalNavKey.DownloadAssets> { assetsKey ->
                 DownloadAssetsScreen(
                     mainScreenKey = mainScreenKey,
-                    parentScreenKey = DownloadShadersScreenKey,
+                    parentScreenKey = key,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadShadersScreenKey,
-                    key = key,
+                    key = assetsKey,
                     onItemClicked = { info ->
                         operation = DownloadSingleOperation.SelectVersion(info)
                     }

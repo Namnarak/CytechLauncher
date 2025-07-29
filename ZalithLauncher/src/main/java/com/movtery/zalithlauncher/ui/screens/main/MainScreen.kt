@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
@@ -68,40 +67,35 @@ import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
-import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.DownloadScreen
-import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
-import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
-import com.movtery.zalithlauncher.ui.screens.content.LauncherScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
-import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
-import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
-import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
-import com.movtery.zalithlauncher.ui.screens.content.WebViewScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun MainScreen(
-    mainScreenViewModel: MainScreenViewModel,
+    screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel
 ) {
     val throwableState by ObjectStates.throwableFlow.collectAsState()
@@ -124,16 +118,34 @@ fun MainScreen(
             AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
         }
 
+        /** 回到主页面通用函数 */
+        val toMainScreen: () -> Unit = {
+            screenBackStackModel.mainScreenBackStack.clearWith(NormalNavKey.LauncherMain)
+        }
+
         TopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp)
                 .zIndex(10f),
-            mainScreenKey = mainScreenViewModel.screenKey,
+            mainScreenKey = screenBackStackModel.mainScreenKey,
             taskRunning = tasks.isEmpty(),
             isTasksExpanded = isTaskMenuExpanded,
-            backStack = mainScreenViewModel.backStack,
-            color = MaterialTheme.colorScheme.surfaceContainer
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            onScreenBack = {
+                screenBackStackModel.mainScreenBackStack.removeFirstOrNull()
+            },
+            toMainScreen = toMainScreen,
+            toSettingsScreen = {
+                screenBackStackModel.mainScreenBackStack.navigateTo(
+                    NestedNavKey.Settings(
+                        screenBackStackModel.settingsBackStack
+                    )
+                )
+            },
+            toDownloadScreen = {
+                screenBackStackModel.navigateToDownload()
+            }
         ) {
             changeTasksExpandedState()
         }
@@ -144,11 +156,11 @@ fun MainScreen(
                 .weight(1f)
         ) {
             NavigationUI(
-                backStack = mainScreenViewModel.backStack,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.surface),
-                mainScreenViewModel = mainScreenViewModel,
+                screenBackStackModel = screenBackStackModel,
+                toMainScreen = toMainScreen,
                 launchGameViewModel = launchGameViewModel
             )
 
@@ -171,13 +183,16 @@ private fun TopBar(
     mainScreenKey: NavKey?,
     taskRunning: Boolean,
     isTasksExpanded: Boolean,
-    backStack: NavBackStack,
     modifier: Modifier = Modifier,
     color: Color,
+    onScreenBack: () -> Unit,
+    toMainScreen: () -> Unit,
+    toSettingsScreen: () -> Unit,
+    toDownloadScreen: () -> Unit,
     changeExpandedState: () -> Unit = {}
 ) {
-    val inLauncherScreen = mainScreenKey == null || mainScreenKey is LauncherScreenKey
-    val inDownloadScreen = mainScreenKey is DownloadScreenKey
+    val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
+    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
 
     Surface(
         modifier = modifier,
@@ -206,7 +221,7 @@ private fun TopBar(
                     if (!inLauncherScreen) {
                         //不在主屏幕时才允许返回
                         backDispatcher?.onBackPressed() ?: run {
-                            backStack.removeFirstOrNull()
+                            onScreenBack()
                         }
                     }
                 }
@@ -274,9 +289,7 @@ private fun TopBar(
                     .fillMaxHeight()
             ) {
                 IconButton(
-                    onClick = {
-                        backStack.navigateToDownload()
-                    }
+                    onClick = toDownloadScreen
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Download,
@@ -294,9 +307,9 @@ private fun TopBar(
                     .fillMaxHeight(),
                 onClick = {
                     if (inLauncherScreen) {
-                        backStack.navigateTo(SettingsScreenKey)
+                        toSettingsScreen()
                     } else {
-                        backStack.clearWith(LauncherScreenKey)
+                        toMainScreen()
                     }
                 }
             ) {
@@ -305,7 +318,7 @@ private fun TopBar(
                     label = "SettingsIconCrossfade",
                     animationSpec = getAnimateTween()
                 ) { key ->
-                    val isLauncherScreen = key === LauncherScreenKey
+                    val isLauncherScreen = key === NormalNavKey.LauncherMain
                     Icon(
                         imageVector = if (isLauncherScreen) {
                             Icons.Filled.Settings
@@ -326,44 +339,101 @@ private fun TopBar(
 
 @Composable
 private fun NavigationUI(
-    backStack: NavBackStack,
     modifier: Modifier = Modifier,
-    mainScreenViewModel: MainScreenViewModel,
+    screenBackStackModel: ScreenBackStackViewModel,
+    toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel
 ) {
+    val backStack = screenBackStackModel.mainScreenBackStack
     val currentKey = backStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
-        mainScreenViewModel.screenKey = currentKey
+        screenBackStackModel.mainScreenKey = currentKey
     }
 
     if (backStack.isNotEmpty()) {
+        /** 导航至版本详细信息屏幕 */
+        val navigateToVersions: (Version) -> Unit = { version ->
+            screenBackStackModel.versionsBackStack.clearWith(NormalNavKey.Versions.OverView)
+            screenBackStackModel.mainScreenBackStack.navigateTo(
+                screenKey = NestedNavKey.Versions(
+                    backStack = screenBackStackModel.versionsBackStack,
+                    version = version
+                ),
+                useClassEquality = true
+            )
+        }
+
         NavDisplay(
             backStack = backStack,
             modifier = modifier,
             onBack = {
-                val key = backStack.lastOrNull()
-                if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-                backStack.removeLastOrNull()
+                onBack(backStack)
             },
             entryProvider = entryProvider {
-                entry<LauncherScreenKey> { LauncherScreen(mainScreenViewModel, launchGameViewModel) }
-                entry<SettingsScreenKey> {
-                    SettingsScreen(mainScreenViewModel.screenKey) { raw ->
+                entry<NormalNavKey.LauncherMain> {
+                    LauncherScreen(
+                        backStackViewModel = screenBackStackModel,
+                        navigateToVersions = navigateToVersions,
+                        launchGameViewModel = launchGameViewModel
+                    )
+                }
+                entry<NestedNavKey.Settings> { key ->
+                    SettingsScreen(
+                        key = key,
+                        backStackViewModel = screenBackStackModel
+                    ) { raw ->
                         backStack.navigateTo(LicenseScreenKey(raw))
                     }
                 }
-                entry<LicenseScreenKey> { LicenseScreen(mainScreenViewModel.screenKey, it) }
-                entry<AccountManageScreenKey> { AccountManageScreen(mainScreenViewModel) }
-                entry<WebViewScreenKey> { WebViewScreen(mainScreenViewModel.screenKey, it) }
-                entry<VersionsManageScreenKey> { VersionsManageScreen(mainScreenViewModel) }
-                entry<FileSelectorScreenKey> {
-                    FileSelectorScreen(mainScreenViewModel.screenKey, it) {
+                entry<LicenseScreenKey> { key ->
+                    LicenseScreen(
+                        key = key,
+                        backStackViewModel = screenBackStackModel
+                    )
+                }
+                entry<NormalNavKey.AccountManager> {
+                    AccountManageScreen(
+                        backStackViewModel = screenBackStackModel,
+                        backToMainScreen = {
+                            screenBackStackModel.mainScreenBackStack.clearWith(NormalNavKey.LauncherMain)
+                        }
+                    )
+                }
+                entry<NormalNavKey.WebScreen> { key ->
+                    WebViewScreen(
+                        key = key,
+                        backStackViewModel = screenBackStackModel
+                    )
+                }
+                entry<NormalNavKey.VersionsManager> {
+                    VersionsManageScreen(
+                        backScreenViewModel = screenBackStackModel,
+                        navigateToVersions = navigateToVersions
+                    )
+                }
+                entry<NormalNavKey.FileSelector> { key ->
+                    FileSelectorScreen(
+                        key = key,
+                        backScreenViewModel = screenBackStackModel
+                    ) {
                         backStack.removeLastOrNull()
                     }
                 }
-                entry<VersionSettingsScreenKey> { VersionSettingsScreen(mainScreenViewModel, launchGameViewModel, it) }
-                entry<DownloadScreenKey> { DownloadScreen(mainScreenViewModel.screenKey, it) }
+                entry<NestedNavKey.Versions> { key ->
+                    VersionSettingsScreen(
+                        key = key,
+                        backScreenViewModel = screenBackStackModel,
+                        backToMainScreen = toMainScreen,
+                        launchGameViewModel = launchGameViewModel
+                    )
+                }
+                entry<NestedNavKey.Download> { key ->
+                    DownloadScreen(
+                        key = key,
+                        backScreenViewModel = screenBackStackModel
+                    )
+                }
             }
         )
     } else {

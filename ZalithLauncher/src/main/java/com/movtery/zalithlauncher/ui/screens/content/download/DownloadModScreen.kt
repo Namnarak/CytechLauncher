@@ -19,30 +19,25 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModBackStack
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object DownloadModScreenKey: NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadModBackStack.size <= 1
-}
+import com.movtery.zalithlauncher.ui.screens.onBack
 
 @Composable
 fun DownloadModScreen(
-    mainScreenKey: NavKey?
+    key: NestedNavKey.DownloadMod,
+    mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadModScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit
 ) {
-    val currentKey = downloadModBackStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        downloadModScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     val context = LocalContext.current
@@ -63,12 +58,10 @@ fun DownloadModScreen(
     )
 
     NavDisplay(
-        backStack = downloadModBackStack,
+        backStack = backStack,
         modifier = Modifier.fillMaxSize(),
         onBack = {
-            val key = downloadModBackStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            downloadModBackStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryDecorators = listOf(
             rememberSceneSetupNavEntryDecorator(),
@@ -76,26 +69,31 @@ fun DownloadModScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<SearchModScreenKey> {
-                SearchModScreen(mainScreenKey) { platform, projectId, _ ->
-                    downloadModBackStack.navigateTo(
-                        DownloadAssetsScreenKey(platform, projectId, PlatformClasses.MOD)
+            entry<NormalNavKey.SearchMod> {
+                SearchModScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadModScreenKey = key,
+                    downloadModScreenCurrentKey = downloadModScreenKey
+                ) { platform, projectId, _ ->
+                    backStack.navigateTo(
+                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
                     )
                 }
             }
-            entry<DownloadAssetsScreenKey> { key ->
+            entry<NormalNavKey.DownloadAssets> { assetsKey ->
                 DownloadAssetsScreen(
                     mainScreenKey = mainScreenKey,
-                    parentScreenKey = DownloadModScreenKey,
+                    parentScreenKey = key,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadModScreenKey,
-                    key = key,
+                    key = assetsKey,
                     onItemClicked = { info ->
                         operation = DownloadSingleOperation.SelectVersion(info)
                     },
                     onDependencyClicked = { dep ->
-                        downloadModBackStack.navigateTo(
-                            DownloadAssetsScreenKey(dep.platform, dep.projectID, PlatformClasses.MOD)
+                        backStack.navigateTo(
+                            NormalNavKey.DownloadAssets(dep.platform, dep.projectID, PlatformClasses.MOD)
                         )
                     }
                 )

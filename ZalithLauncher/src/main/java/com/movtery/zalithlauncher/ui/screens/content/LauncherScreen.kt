@@ -39,7 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -48,26 +47,24 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object LauncherScreenKey: NavKey
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun LauncherScreen(
-    mainScreenViewModel: MainScreenViewModel,
+    backStackViewModel: ScreenBackStackViewModel,
+    navigateToVersions: (Version) -> Unit,
     launchGameViewModel: LaunchGameViewModel
 ) {
     BaseScreen(
-        screenKey = LauncherScreenKey,
-        currentKey = mainScreenViewModel.screenKey
+        screenKey = NormalNavKey.LauncherMain,
+        currentKey = backStackViewModel.mainScreenKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -85,14 +82,14 @@ fun LauncherScreen(
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
                 launchGameViewModel = launchGameViewModel,
                 toAccountManageScreen = {
-                    mainScreenViewModel.backStack.navigateTo(AccountManageScreenKey)
+                    backStackViewModel.mainScreenBackStack.navigateTo(NormalNavKey.AccountManager)
                 },
                 toVersionManageScreen = {
-                    mainScreenViewModel.backStack.navigateTo(VersionsManageScreenKey)
+                    backStackViewModel.mainScreenBackStack.navigateTo(NormalNavKey.VersionsManager)
                 },
                 toVersionSettingsScreen = {
                     VersionsManager.currentVersion?.let { version ->
-                        mainScreenViewModel.backStack.navigateTo(VersionSettingsScreenKey(version))
+                        navigateToVersions(version)
                     }
                 }
             )

@@ -124,6 +124,7 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
                         },
                         onRestartClick = {
                             startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
+                            finish()
                         },
                         onExitClick = { finish() }
                     )

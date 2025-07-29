@@ -78,8 +78,8 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SaveData
@@ -101,25 +101,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.Date
 
-@Serializable
-data object SavesManagerScreenKey: NavKey
-
 @Composable
 fun SavesManagerScreen(
     mainScreenKey: NavKey?,
+    versionsScreenKey: NavKey?,
     launchGameViewModel: LaunchGameViewModel,
     version: Version
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.Versions::class.java, mainScreenKey)
         ),
-        Triple(SavesManagerScreenKey, versionSettScreenKey, false),
+        Triple(NormalNavKey.Versions.SavesManager, versionsScreenKey, false),
     ) { isVisible ->
         val versionInfo = version.getVersionInfo()!!
         val minecraftVersion = versionInfo.minecraftVersion

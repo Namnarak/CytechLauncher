@@ -70,8 +70,8 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackFilter
@@ -89,23 +89,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 import java.io.File
-
-@Serializable
-data object ResourcePackManageScreenKey: NavKey
 
 @Composable
 fun ResourcePackManageScreen(
     mainScreenKey: NavKey?,
+    versionsScreenKey: NavKey?,
     version: Version
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.Versions::class.java, mainScreenKey)
         ),
-        Triple(ResourcePackManageScreenKey, versionSettScreenKey, false)
+        Triple(NormalNavKey.Versions.ResourcePackManager, versionsScreenKey, false)
     ) { isVisible ->
         val resourcePackDir = File(version.getGameDir(), "resourcepacks")
 

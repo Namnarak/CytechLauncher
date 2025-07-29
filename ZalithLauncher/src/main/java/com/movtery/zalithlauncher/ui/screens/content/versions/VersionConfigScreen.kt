@@ -36,30 +36,27 @@ import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
-import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
-import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object VersionConfigScreenKey: NavKey
 
 @Composable
 fun VersionConfigScreen(
     mainScreenKey: NavKey?,
+    versionsScreenKey: NavKey?,
     version: Version
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(VersionSettingsScreenKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.Versions::class.java, mainScreenKey)
         ),
-        Triple(VersionConfigScreenKey, versionSettScreenKey, false)
+        Triple(NormalNavKey.Versions.Config, versionsScreenKey, false)
     ) { isVisible ->
         val config = version.getVersionConfig()
 

@@ -32,7 +32,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.screens.content.DownloadScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ResultListLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
@@ -194,7 +194,7 @@ fun SearchAssetsScreen(
 
     BaseScreen(
         levels1 = listOf(
-            Pair(DownloadScreenKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.Download::class.java, mainScreenKey)
         ),
         Triple(parentScreenKey, parentCurrentKey, false),
         Triple(screenKey, currentKey, false)

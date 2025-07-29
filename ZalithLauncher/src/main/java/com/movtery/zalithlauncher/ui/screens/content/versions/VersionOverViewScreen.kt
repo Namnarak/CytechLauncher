@@ -47,35 +47,32 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
-import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
-import com.movtery.zalithlauncher.ui.screens.content.versionSettScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.Serializable
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-@Serializable
-data object VersionOverViewScreenKey: NavKey
-
 @Composable
 fun VersionOverViewScreen(
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenKey: NavKey?,
+    versionsScreenKey: NavKey?,
+    backToMainScreen: () -> Unit,
     version: Version
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(VersionSettingsScreenKey::class.java, mainScreenViewModel.screenKey)
+            Pair(NestedNavKey.Versions::class.java, mainScreenKey)
         ),
-        Triple(VersionOverViewScreenKey, versionSettScreenKey, false)
+        Triple(NormalNavKey.Versions.OverView, versionsScreenKey, false)
     ) { isVisible ->
         var versionName by remember { mutableStateOf(version.getVersionName()) }
         var versionSummary by remember { mutableStateOf(version.getVersionSummary()) }
@@ -110,9 +107,7 @@ fun VersionOverViewScreen(
                 }
                 versionSummary = version.getVersionSummary()
             },
-            onVersionDeleted = {
-                mainScreenViewModel.backToMainScreen()
-            }
+            onVersionDeleted = backToMainScreen
         )
 
         Column(

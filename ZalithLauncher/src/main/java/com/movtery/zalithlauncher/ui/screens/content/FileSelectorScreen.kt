@@ -40,21 +40,15 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.sortWithFileName
-import kotlinx.serialization.Serializable
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import java.io.File
-
-@Serializable
-data class FileSelectorScreenKey(
-    val startPath: String,
-    val selectFile: Boolean,
-    val saveKey: NavKey
-): NavKey
 
 /**
  * 导航至FileSelectorScreen
@@ -63,12 +57,15 @@ fun NavBackStack.navigateToFileSelector(
     startPath: String,
     selectFile: Boolean,
     saveKey: NavKey
-) = this.navigateTo(FileSelectorScreenKey(startPath, selectFile, saveKey), true)
+) = this.navigateTo(
+    screenKey = NormalNavKey.FileSelector(startPath, selectFile, saveKey),
+    useClassEquality = true
+)
 
 @Composable
 fun FileSelectorScreen(
-    mainScreenKey: NavKey?,
-    key: FileSelectorScreenKey,
+    key: NormalNavKey.FileSelector,
+    backScreenViewModel: ScreenBackStackViewModel,
     back: () -> Unit
 ) {
     val startPath1 = File(key.startPath)
@@ -76,7 +73,7 @@ fun FileSelectorScreen(
 
     BaseScreen(
         screenKey = key,
-        currentKey = mainScreenKey,
+        currentKey = backScreenViewModel.mainScreenKey,
         useClassEquality = true
     ) { isVisible ->
         Column(

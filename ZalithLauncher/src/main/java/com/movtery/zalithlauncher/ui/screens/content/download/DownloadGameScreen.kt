@@ -38,28 +38,20 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVersionScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVersionScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.game.downloadGameBackStack
-import com.movtery.zalithlauncher.ui.screens.content.download.game.downloadGameScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
-
-@Serializable
-data object DownloadGameScreenKey: NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadGameBackStack.size <= 1
-}
 
 private class GameDownloadViewModel(): ViewModel() {
     var installOperation by mutableStateOf<GameInstallOperation>(GameInstallOperation.None)
@@ -99,9 +91,11 @@ private class GameDownloadViewModel(): ViewModel() {
 }
 
 @Composable
-private fun rememberGameDownloadViewModel(): GameDownloadViewModel {
+private fun rememberGameDownloadViewModel(
+    key: NestedNavKey.DownloadGame
+): GameDownloadViewModel {
     return viewModel(
-        key = DownloadGameScreenKey.toString()
+        key = key.toString()
     ) {
         GameDownloadViewModel()
     }
@@ -109,15 +103,19 @@ private fun rememberGameDownloadViewModel(): GameDownloadViewModel {
 
 @Composable
 fun DownloadGameScreen(
-    mainScreenKey: NavKey?
+    key: NestedNavKey.DownloadGame,
+    mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadGameScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit,
 ) {
-    val viewModel: GameDownloadViewModel = rememberGameDownloadViewModel()
+    val viewModel: GameDownloadViewModel = rememberGameDownloadViewModel(key)
 
     val context = LocalContext.current
-    val currentKey = downloadGameBackStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        downloadGameScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     GameInstallOperation(
@@ -133,22 +131,31 @@ fun DownloadGameScreen(
     )
 
     NavDisplay(
-        backStack = downloadGameBackStack,
+        backStack = backStack,
         modifier = Modifier.fillMaxSize(),
         onBack = {
-            val key = downloadGameBackStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            downloadGameBackStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryProvider = entryProvider {
-            entry<SelectGameVersionScreenKey> {
-                SelectGameVersionScreen(mainScreenKey) { versionString ->
-                    downloadGameBackStack.navigateTo(DownloadGameWithAddonScreenKey(versionString))
+            entry<NormalNavKey.DownloadGame.SelectGameVersion> {
+                SelectGameVersionScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadGameScreenKey = downloadGameScreenKey
+                ) { versionString ->
+                    backStack.navigateTo(
+                        NormalNavKey.DownloadGame.Addons(versionString)
+                    )
                 }
             }
-            entry<DownloadGameWithAddonScreenKey> {
+            entry<NormalNavKey.DownloadGame.Addons> { key ->
                 val context = LocalContext.current
-                DownloadGameWithAddonScreen(mainScreenKey, it) { info ->
+                DownloadGameWithAddonScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadGameScreenKey = downloadGameScreenKey,
+                    key = key
+                ) { info ->
                     if (viewModel.installOperation !is GameInstallOperation.None) {
                         //不是待安装状态，拒绝此次安装
                         return@DownloadGameWithAddonScreen

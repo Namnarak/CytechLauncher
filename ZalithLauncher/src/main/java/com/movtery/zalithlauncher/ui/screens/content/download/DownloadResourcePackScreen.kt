@@ -19,30 +19,25 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchResourcePackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchResourcePackScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadResourcePackBackStack
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadResourcePackScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object DownloadResourcePackScreenKey: NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadResourcePackBackStack.size <= 1
-}
+import com.movtery.zalithlauncher.ui.screens.onBack
 
 @Composable
 fun DownloadResourcePackScreen(
-    mainScreenKey: NavKey?
+    key: NestedNavKey.DownloadResourcePack,
+    mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadResourcePackScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit
 ) {
-    val currentKey = downloadResourcePackBackStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        downloadResourcePackScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     val context = LocalContext.current
@@ -63,12 +58,10 @@ fun DownloadResourcePackScreen(
     )
 
     NavDisplay(
-        backStack = downloadResourcePackBackStack,
+        backStack = backStack,
         modifier = Modifier.fillMaxSize(),
         onBack = {
-            val key = downloadResourcePackBackStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            downloadResourcePackBackStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryDecorators = listOf(
             rememberSceneSetupNavEntryDecorator(),
@@ -76,20 +69,25 @@ fun DownloadResourcePackScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<SearchResourcePackScreenKey> {
-                SearchResourcePackScreen(mainScreenKey) { platform, projectId, _ ->
-                    downloadResourcePackBackStack.navigateTo(
-                        DownloadAssetsScreenKey(platform, projectId, PlatformClasses.RESOURCE_PACK)
+            entry<NormalNavKey.SearchResourcePack> {
+                SearchResourcePackScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadResourcePackScreenKey = key,
+                    downloadResourcePackScreenCurrentKey = downloadResourcePackScreenKey
+                ) { platform, projectId, _ ->
+                    backStack.navigateTo(
+                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.RESOURCE_PACK)
                     )
                 }
             }
-            entry<DownloadAssetsScreenKey> { key ->
+            entry<NormalNavKey.DownloadAssets> { assetsKey ->
                 DownloadAssetsScreen(
                     mainScreenKey = mainScreenKey,
-                    parentScreenKey = DownloadResourcePackScreenKey,
+                    parentScreenKey = key,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadResourcePackScreenKey,
-                    key = key,
+                    key = assetsKey,
                     onItemClicked = { info ->
                         operation = DownloadSingleOperation.SelectVersion(info)
                     }

@@ -7,25 +7,22 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeShadersCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFeatures
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthShadersCategory
-import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadShadersScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object SearchShadersScreenKey : NavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 
 @Composable
 fun SearchShadersScreen(
     mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadShadersScreenKey: NavKey,
+    downloadShadersScreenCurrentKey: NavKey?,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     SearchAssetsScreen(
         mainScreenKey = mainScreenKey,
-        parentScreenKey = DownloadShadersScreenKey,
+        parentScreenKey = downloadShadersScreenKey,
         parentCurrentKey = downloadScreenKey,
-        screenKey = SearchShadersScreenKey,
-        currentKey = downloadShadersScreenKey,
+        screenKey = NormalNavKey.SearchShaders,
+        currentKey = downloadShadersScreenCurrentKey,
         platformClasses = PlatformClasses.SHADERS,
         initialPlatform = Platform.MODRINTH,
         getCategories = { platform ->

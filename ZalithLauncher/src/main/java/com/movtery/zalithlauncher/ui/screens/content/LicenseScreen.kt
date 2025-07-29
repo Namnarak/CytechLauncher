@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -35,8 +36,8 @@ data class LicenseScreenKey(
 
 @Composable
 fun LicenseScreen(
-    mainScreenKey: NavKey?,
-    key: LicenseScreenKey
+    key: LicenseScreenKey,
+    backStackViewModel: ScreenBackStackViewModel
 ) {
     val context = LocalContext.current
     var licenseState by remember { mutableStateOf(LicenseState.LOADING) }
@@ -51,7 +52,7 @@ fun LicenseScreen(
 
     BaseScreen(
         screenKey = key,
-        currentKey = mainScreenKey
+        currentKey = backStackViewModel.mainScreenKey
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

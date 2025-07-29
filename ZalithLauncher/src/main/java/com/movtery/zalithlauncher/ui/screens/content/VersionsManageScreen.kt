@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
@@ -48,20 +48,16 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object VersionsManageScreenKey: NavKey
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 private class ScreenViewModel() : ViewModel() {
     /** 版本类别分类 */
@@ -71,7 +67,7 @@ private class ScreenViewModel() : ViewModel() {
 @Composable
 private fun rememberVersionViewModel() : ScreenViewModel {
     return viewModel(
-        key = VersionsManageScreenKey.toString()
+        key = NormalNavKey.VersionsManager.toString()
     ) {
         ScreenViewModel()
     }
@@ -79,18 +75,19 @@ private fun rememberVersionViewModel() : ScreenViewModel {
 
 @Composable
 fun VersionsManageScreen(
-    mainScreenViewModel: MainScreenViewModel
+    backScreenViewModel: ScreenBackStackViewModel,
+    navigateToVersions: (Version) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
 
     BaseScreen(
-        screenKey = VersionsManageScreenKey,
-        currentKey = mainScreenViewModel.screenKey
+        screenKey = NormalNavKey.VersionsManager,
+        currentKey = backScreenViewModel.mainScreenKey
     ) { isVisible ->
         Row {
             GamePathLayout(
                 isVisible = isVisible,
-                backStack = mainScreenViewModel.backStack,
+                backStack = backScreenViewModel.mainScreenBackStack,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
@@ -98,9 +95,9 @@ fun VersionsManageScreen(
 
             VersionsLayout(
                 isVisible = isVisible,
-                backStack = mainScreenViewModel.backStack,
                 versionCategory = viewModel.versionCategory,
                 onCategoryChange = { viewModel.versionCategory = it },
+                navigateToVersions = navigateToVersions,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(7.5f)
@@ -112,7 +109,7 @@ fun VersionsManageScreen(
                     }
                 },
                 onInstall = {
-                    mainScreenViewModel.backStack.navigateToDownload()
+                    backScreenViewModel.navigateToDownload()
                 }
             )
         }
@@ -133,7 +130,7 @@ private fun GamePathLayout(
 
     var gamePathOperation by remember { mutableStateOf<GamePathOperation>(GamePathOperation.None) }
     MutableStates.filePathSelector?.let {
-        if (it.saveKey === VersionsManageScreenKey) {
+        if (it.saveKey === NormalNavKey.VersionsManager) {
             gamePathOperation = GamePathOperation.AddNewPath(it.path)
             MutableStates.filePathSelector = null
         }
@@ -202,7 +199,7 @@ private fun GamePathLayout(
                             backStack.navigateToFileSelector(
                                 startPath = Environment.getExternalStorageDirectory().absolutePath,
                                 selectFile = false,
-                                saveKey = VersionsManageScreenKey
+                                saveKey = NormalNavKey.VersionsManager
                             )
                         }
                     )
@@ -218,9 +215,9 @@ private fun GamePathLayout(
 private fun VersionsLayout(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
-    backStack: NavBackStack,
     versionCategory: VersionCategory,
     onCategoryChange: (VersionCategory) -> Unit,
+    navigateToVersions: (Version) -> Unit,
     onRefresh: () -> Unit,
     onInstall: () -> Unit
 ) {
@@ -322,7 +319,7 @@ private fun VersionsLayout(
                                     }
                                 },
                                 onSettingsClick = {
-                                    backStack.navigateTo(VersionSettingsScreenKey(version))
+                                    navigateToVersions(version)
                                 },
                                 onRenameClick = { versionsOperation = VersionsOperation.Rename(version) },
                                 onCopyClick = { versionsOperation = VersionsOperation.Copy(version) },

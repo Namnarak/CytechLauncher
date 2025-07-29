@@ -36,20 +36,16 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
-import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.file.zipDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import kotlinx.serialization.Serializable
 import java.io.File
-
-@Serializable
-data object LauncherSettingsScreenKey: NavKey
 
 private sealed interface CustomColorOperation {
     data object None : CustomColorOperation
@@ -59,13 +55,15 @@ private sealed interface CustomColorOperation {
 
 @Composable
 fun LauncherSettingsScreen(
+    key: NestedNavKey.Settings,
+    settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?
 ) {
     val context = LocalContext.current
 
     BaseScreen(
-        Triple(SettingsScreenKey, mainScreenKey, false),
-        Triple(LauncherSettingsScreenKey, settingsScreenKey, false)
+        Triple(key, mainScreenKey, false),
+        Triple(NormalNavKey.Settings.Launcher, settingsScreenKey, false)
     ) { isVisible ->
         Column(
             modifier = Modifier

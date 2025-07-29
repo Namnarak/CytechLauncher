@@ -41,30 +41,21 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.common.ModPackInstallOperation
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModPackBackStack
-import com.movtery.zalithlauncher.ui.screens.content.download.common.downloadModPackScreenKey
-import com.movtery.zalithlauncher.ui.screens.content.downloadScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
+import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
-
-@Serializable
-data object DownloadModPackScreenKey: NestedNavKey {
-    override fun isLastScreen(): Boolean = downloadModPackBackStack.size <= 1
-}
 
 private class ModPackViewModel: ViewModel() {
     var installOperation by mutableStateOf<ModPackInstallOperation>(ModPackInstallOperation.None)
@@ -104,9 +95,11 @@ private class ModPackViewModel: ViewModel() {
 }
 
 @Composable
-private fun rememberModPackViewModel(): ModPackViewModel {
+private fun rememberModPackViewModel(
+    key: NestedNavKey.DownloadModPack
+): ModPackViewModel {
     return viewModel(
-        key = DownloadModPackScreenKey.toString()
+        key = key.toString()
     ) {
         ModPackViewModel()
     }
@@ -114,15 +107,19 @@ private fun rememberModPackViewModel(): ModPackViewModel {
 
 @Composable
 fun DownloadModPackScreen(
-    mainScreenKey: NavKey?
+    key: NestedNavKey.DownloadModPack,
+    mainScreenKey: NavKey?,
+    downloadScreenKey: NavKey?,
+    downloadModPackScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit
 ) {
-    val viewModel: ModPackViewModel = rememberModPackViewModel()
+    val viewModel: ModPackViewModel = rememberModPackViewModel(key)
 
     val context = LocalContext.current
-    val currentKey = downloadModPackBackStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        downloadModPackScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     ModPackInstallOperation(
@@ -138,12 +135,10 @@ fun DownloadModPackScreen(
     )
 
     NavDisplay(
-        backStack = downloadModPackBackStack,
+        backStack = backStack,
         modifier = Modifier.fillMaxSize(),
         onBack = {
-            val key = downloadModPackBackStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            downloadModPackBackStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryDecorators = listOf(
             rememberSceneSetupNavEntryDecorator(),
@@ -151,20 +146,25 @@ fun DownloadModPackScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = entryProvider {
-            entry<SearchModPackScreenKey> {
-                SearchModPackScreen(mainScreenKey) { platform, projectId, iconUrl ->
-                    downloadModPackBackStack.navigateTo(
-                        DownloadAssetsScreenKey(platform, projectId, PlatformClasses.MOD_PACK, iconUrl)
+            entry<NormalNavKey.SearchModPack> {
+                SearchModPackScreen(
+                    mainScreenKey = mainScreenKey,
+                    downloadScreenKey = downloadScreenKey,
+                    downloadModPackScreenKey = key,
+                    downloadModPackScreenCurrentKey = downloadModPackScreenKey
+                ) { platform, projectId, iconUrl ->
+                    backStack.navigateTo(
+                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD_PACK, iconUrl)
                     )
                 }
             }
-            entry<DownloadAssetsScreenKey> { key ->
+            entry<NormalNavKey.DownloadAssets> { assetsKey ->
                 DownloadAssetsScreen(
                     mainScreenKey = mainScreenKey,
-                    parentScreenKey = DownloadModPackScreenKey,
+                    parentScreenKey = key,
                     parentCurrentKey = downloadScreenKey,
                     currentKey = downloadModPackScreenKey,
-                    key = key,
+                    key = assetsKey,
                     onItemClicked = { info ->
                         if (viewModel.installOperation !is ModPackInstallOperation.None) {
                             //不是待安装状态，拒绝此次安装

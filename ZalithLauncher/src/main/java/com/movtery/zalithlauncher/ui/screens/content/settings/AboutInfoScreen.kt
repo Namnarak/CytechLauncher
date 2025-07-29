@@ -48,15 +48,11 @@ import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.content.SettingsScreenKey
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.content.settingsScreenKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object AboutInfoScreenKey: NavKey
 
 private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
 private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
@@ -102,12 +98,14 @@ private data class LibraryInfo(
 
 @Composable
 fun AboutInfoScreen(
+    key: NestedNavKey.Settings,
+    settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
     openLicense: (raw: Int) -> Unit
 ) {
     BaseScreen(
-        Triple(SettingsScreenKey, mainScreenKey, false),
-        Triple(AboutInfoScreenKey, settingsScreenKey, false)
+        Triple(key, mainScreenKey, false),
+        Triple(NormalNavKey.Settings.AboutInfo, settingsScreenKey, false)
     ) { isVisible ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

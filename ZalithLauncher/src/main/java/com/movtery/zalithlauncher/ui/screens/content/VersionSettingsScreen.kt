@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,67 +41,58 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.versions.ResourcePackManageScreen
-import com.movtery.zalithlauncher.ui.screens.content.versions.ResourcePackManageScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.SavesManagerScreen
-import com.movtery.zalithlauncher.ui.screens.content.versions.SavesManagerScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
-import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
-import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreenKey
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
+import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
-import com.movtery.zalithlauncher.viewmodel.MainScreenViewModel
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class VersionSettingsScreenKey(
-    @Contextual
-    val version: Version
-): NestedNavKey {
-    override fun isLastScreen(): Boolean = true
-}
-
-/**
- * 状态：版本设置屏幕的标签
- */
-var versionSettScreenKey by mutableStateOf<NavKey?>(null)
+import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun VersionSettingsScreen(
-    mainScreenViewModel: MainScreenViewModel,
-    launchGameViewModel: LaunchGameViewModel,
-    key: VersionSettingsScreenKey
+    key: NestedNavKey.Versions,
+    backScreenViewModel: ScreenBackStackViewModel,
+    backToMainScreen: () -> Unit,
+    launchGameViewModel: LaunchGameViewModel
 ) {
-    val backStack = rememberNavBackStack(VersionOverViewScreenKey)
+    /** 版本详细设置屏幕的标签 */
+    var versionsScreenKey by remember(key) {
+        mutableStateOf<NavKey?>(null)
+    }
 
     BaseScreen(
         screenKey = key,
-        currentKey = mainScreenViewModel.screenKey
+        currentKey = backScreenViewModel.mainScreenKey
     ) { isVisible ->
-
         Row(modifier = Modifier.fillMaxSize()) {
             TabMenu(
                 isVisible = isVisible,
-                backStack = backStack,
+                backStack = backScreenViewModel.versionsBackStack,
+                versionsScreenKey = versionsScreenKey,
                 modifier = Modifier.fillMaxHeight()
             )
 
             NavigationUI(
                 modifier = Modifier.fillMaxHeight(),
-                mainScreenViewModel = mainScreenViewModel,
+                key = key,
+                mainScreenKey = backScreenViewModel.mainScreenKey,
+                versionsScreenKey = versionsScreenKey,
+                onCurrentKeyChange = { newKey ->
+                    versionsScreenKey = newKey
+                },
+                backToMainScreen = backToMainScreen,
                 launchGameViewModel = launchGameViewModel,
-                backStack = backStack,
                 version = key.version
             )
         }
@@ -108,16 +100,17 @@ fun VersionSettingsScreen(
 }
 
 private val settingItems = listOf(
-    CategoryItem(VersionOverViewScreenKey, { CategoryIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
-    CategoryItem(VersionConfigScreenKey, { CategoryIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config),
-    CategoryItem(SavesManagerScreenKey, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage, division = true),
-    CategoryItem(ResourcePackManageScreenKey, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage)
+    CategoryItem(NormalNavKey.Versions.OverView, { CategoryIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
+    CategoryItem(NormalNavKey.Versions.Config, { CategoryIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config),
+    CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage, division = true),
+    CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage)
 )
 
 @Composable
 private fun TabMenu(
     isVisible: Boolean,
     backStack: NavBackStack,
+    versionsScreenKey: NavKey?,
     modifier: Modifier = Modifier
 ) {
     val xOffset by swapAnimateDpAsState(
@@ -148,7 +141,7 @@ private fun TabMenu(
             }
 
             NavigationRailItem(
-                selected = versionSettScreenKey === item.key,
+                selected = versionsScreenKey === item.key,
                 onClick = {
                     backStack.navigateOnce(item.key)
                 },
@@ -174,30 +167,57 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
-    mainScreenViewModel: MainScreenViewModel,
+    key: NestedNavKey.Versions,
+    mainScreenKey: NavKey?,
+    versionsScreenKey: NavKey?,
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
-    backStack: NavBackStack,
     version: Version,
 ) {
-    val currentKey = backStack.lastOrNull()
-
-    LaunchedEffect(currentKey) {
-        versionSettScreenKey = currentKey
+    val backStack = key.backStack
+    val stackTopKey = backStack.lastOrNull()
+    LaunchedEffect(stackTopKey) {
+        onCurrentKeyChange(stackTopKey)
     }
 
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
         onBack = {
-            val key = backStack.lastOrNull()
-            if (key is NestedNavKey && !key.isLastScreen()) return@NavDisplay
-            backStack.removeLastOrNull()
+            onBack(backStack)
         },
         entryProvider = entryProvider {
-            entry<VersionOverViewScreenKey> { VersionOverViewScreen(mainScreenViewModel, version) }
-            entry<VersionConfigScreenKey> { VersionConfigScreen(mainScreenViewModel.screenKey, version) }
-            entry<SavesManagerScreenKey> { SavesManagerScreen(mainScreenViewModel.screenKey, launchGameViewModel, version) }
-            entry<ResourcePackManageScreenKey> { ResourcePackManageScreen(mainScreenViewModel.screenKey, version) }
+            entry<NormalNavKey.Versions.OverView> {
+                VersionOverViewScreen(
+                    mainScreenKey = mainScreenKey,
+                    versionsScreenKey = versionsScreenKey,
+                    backToMainScreen = backToMainScreen,
+                    version = version
+                )
+            }
+            entry<NormalNavKey.Versions.Config> {
+                VersionConfigScreen(
+                    mainScreenKey = mainScreenKey,
+                    versionsScreenKey = versionsScreenKey,
+                    version = version
+                )
+            }
+            entry<NormalNavKey.Versions.SavesManager> {
+                SavesManagerScreen(
+                    mainScreenKey = mainScreenKey,
+                    versionsScreenKey = versionsScreenKey,
+                    launchGameViewModel = launchGameViewModel,
+                    version = version
+                )
+            }
+            entry<NormalNavKey.Versions.ResourcePackManager> {
+                ResourcePackManageScreen(
+                    mainScreenKey = mainScreenKey,
+                    versionsScreenKey = versionsScreenKey,
+                    version = version
+                )
+            }
         }
     )
 }
