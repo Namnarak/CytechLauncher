@@ -264,4 +264,5 @@
     <string name="files_create_dir">Criar Pasta</string>
     <string name="files_select_dir">Selecionar Pasta</string>
     <string name="download_assets_show_only_mc_release">Apenas Versões de Lançamento</string>
+    <string name="download_modpack_install_title">Instalando modpack</string>
 </resources>
