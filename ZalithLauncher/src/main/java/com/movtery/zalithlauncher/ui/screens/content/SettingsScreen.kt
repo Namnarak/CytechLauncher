@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,10 +35,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -173,34 +177,43 @@ private fun NavigationUI(
         onCurrentKeyChange(stackTopKey)
     }
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        onBack = {
-            onBack(backStack)
-        },
-        entryProvider = entryProvider {
-            entry<NormalNavKey.Settings.Renderer> {
-                RendererSettingsScreen(key, settingsScreenKey, mainScreenKey)
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            onBack = {
+                onBack(backStack)
+            },
+            entryDecorators = listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<NormalNavKey.Settings.Renderer> {
+                    RendererSettingsScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.Game> {
+                    GameSettingsScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.Control> {
+                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.Launcher> {
+                    LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.JavaManager> {
+                    JavaManageScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.ControlManager> {
+                    ControlManageScreen(key, settingsScreenKey, mainScreenKey)
+                }
+                entry<NormalNavKey.Settings.AboutInfo> {
+                    AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen)
+                }
             }
-            entry<NormalNavKey.Settings.Game> {
-                GameSettingsScreen(key, settingsScreenKey, mainScreenKey)
-            }
-            entry<NormalNavKey.Settings.Control> {
-                ControlSettingsScreen(key, settingsScreenKey, mainScreenKey)
-            }
-            entry<NormalNavKey.Settings.Launcher> {
-                LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey)
-            }
-            entry<NormalNavKey.Settings.JavaManager> {
-                JavaManageScreen(key, settingsScreenKey, mainScreenKey)
-            }
-            entry<NormalNavKey.Settings.ControlManager> {
-                ControlManageScreen(key, settingsScreenKey, mainScreenKey)
-            }
-            entry<NormalNavKey.Settings.AboutInfo> {
-                AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen)
-            }
-        }
-    )
+        )
+    } else {
+        Box(modifier)
+    }
 }

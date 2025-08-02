@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.download
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,47 +58,51 @@ fun DownloadModScreen(
         }
     )
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = Modifier.fillMaxSize(),
-        onBack = {
-            onBack(backStack)
-        },
-        entryDecorators = listOf(
-            rememberSceneSetupNavEntryDecorator(),
-            rememberSavedStateNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<NormalNavKey.SearchMod> {
-                SearchModScreen(
-                    mainScreenKey = mainScreenKey,
-                    downloadScreenKey = downloadScreenKey,
-                    downloadModScreenKey = key,
-                    downloadModScreenCurrentKey = downloadModScreenKey
-                ) { platform, projectId, _ ->
-                    backStack.navigateTo(
-                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize(),
+            onBack = {
+                onBack(backStack)
+            },
+            entryDecorators = listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<NormalNavKey.SearchMod> {
+                    SearchModScreen(
+                        mainScreenKey = mainScreenKey,
+                        downloadScreenKey = downloadScreenKey,
+                        downloadModScreenKey = key,
+                        downloadModScreenCurrentKey = downloadModScreenKey
+                    ) { platform, projectId, _ ->
+                        backStack.navigateTo(
+                            NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
+                        )
+                    }
+                }
+                entry<NormalNavKey.DownloadAssets> { assetsKey ->
+                    DownloadAssetsScreen(
+                        mainScreenKey = mainScreenKey,
+                        parentScreenKey = key,
+                        parentCurrentKey = downloadScreenKey,
+                        currentKey = downloadModScreenKey,
+                        key = assetsKey,
+                        onItemClicked = { info ->
+                            operation = DownloadSingleOperation.SelectVersion(info)
+                        },
+                        onDependencyClicked = { dep ->
+                            backStack.navigateTo(
+                                NormalNavKey.DownloadAssets(dep.platform, dep.projectID, PlatformClasses.MOD)
+                            )
+                        }
                     )
                 }
             }
-            entry<NormalNavKey.DownloadAssets> { assetsKey ->
-                DownloadAssetsScreen(
-                    mainScreenKey = mainScreenKey,
-                    parentScreenKey = key,
-                    parentCurrentKey = downloadScreenKey,
-                    currentKey = downloadModScreenKey,
-                    key = assetsKey,
-                    onItemClicked = { info ->
-                        operation = DownloadSingleOperation.SelectVersion(info)
-                    },
-                    onDependencyClicked = { dep ->
-                        backStack.navigateTo(
-                            NormalNavKey.DownloadAssets(dep.platform, dep.projectID, PlatformClasses.MOD)
-                        )
-                    }
-                )
-            }
-        }
-    )
+        )
+    } else {
+        Box(Modifier.fillMaxSize())
+    }
 }

@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content.download
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -134,53 +135,57 @@ fun DownloadModPackScreen(
         }
     )
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = Modifier.fillMaxSize(),
-        onBack = {
-            onBack(backStack)
-        },
-        entryDecorators = listOf(
-            rememberSceneSetupNavEntryDecorator(),
-            rememberSavedStateNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<NormalNavKey.SearchModPack> {
-                SearchModPackScreen(
-                    mainScreenKey = mainScreenKey,
-                    downloadScreenKey = downloadScreenKey,
-                    downloadModPackScreenKey = key,
-                    downloadModPackScreenCurrentKey = downloadModPackScreenKey
-                ) { platform, projectId, iconUrl ->
-                    backStack.navigateTo(
-                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD_PACK, iconUrl)
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize(),
+            onBack = {
+                onBack(backStack)
+            },
+            entryDecorators = listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<NormalNavKey.SearchModPack> {
+                    SearchModPackScreen(
+                        mainScreenKey = mainScreenKey,
+                        downloadScreenKey = downloadScreenKey,
+                        downloadModPackScreenKey = key,
+                        downloadModPackScreenCurrentKey = downloadModPackScreenKey
+                    ) { platform, projectId, iconUrl ->
+                        backStack.navigateTo(
+                            NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD_PACK, iconUrl)
+                        )
+                    }
+                }
+                entry<NormalNavKey.DownloadAssets> { assetsKey ->
+                    DownloadAssetsScreen(
+                        mainScreenKey = mainScreenKey,
+                        parentScreenKey = key,
+                        parentCurrentKey = downloadScreenKey,
+                        currentKey = downloadModPackScreenKey,
+                        key = assetsKey,
+                        onItemClicked = { info ->
+                            if (viewModel.installOperation !is ModPackInstallOperation.None) {
+                                //不是待安装状态，拒绝此次安装
+                                return@DownloadAssetsScreen
+                            }
+                            viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
+                                //警告通知权限
+                                ModPackInstallOperation.WarningForNotification(info)
+                            } else {
+                                ModPackInstallOperation.Warning(info)
+                            }
+                        }
                     )
                 }
             }
-            entry<NormalNavKey.DownloadAssets> { assetsKey ->
-                DownloadAssetsScreen(
-                    mainScreenKey = mainScreenKey,
-                    parentScreenKey = key,
-                    parentCurrentKey = downloadScreenKey,
-                    currentKey = downloadModPackScreenKey,
-                    key = assetsKey,
-                    onItemClicked = { info ->
-                        if (viewModel.installOperation !is ModPackInstallOperation.None) {
-                            //不是待安装状态，拒绝此次安装
-                            return@DownloadAssetsScreen
-                        }
-                        viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
-                            //警告通知权限
-                            ModPackInstallOperation.WarningForNotification(info)
-                        } else {
-                            ModPackInstallOperation.Warning(info)
-                        }
-                    }
-                )
-            }
-        }
-    )
+        )
+    } else {
+        Box(Modifier.fillMaxSize())
+    }
 }
 
 @Composable

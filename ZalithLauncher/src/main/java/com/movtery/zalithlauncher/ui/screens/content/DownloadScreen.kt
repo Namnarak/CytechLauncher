@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,11 +36,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -187,79 +191,88 @@ private fun NavigationUI(
         backScreenViewModel.downloadScreenKey = stackTopKey
     }
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        onBack = {
-            onBack(backStack)
-        },
-        entryProvider = entryProvider {
-            entry<NestedNavKey.DownloadGame> { key ->
-                DownloadGameScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadGameScreenKey = backScreenViewModel.downloadGameScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadGameScreenKey = newKey
-                    }
-                )
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            onBack = {
+                onBack(backStack)
+            },
+            entryDecorators = listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<NestedNavKey.DownloadGame> { key ->
+                    DownloadGameScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadGameScreenKey = backScreenViewModel.downloadGameScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadGameScreenKey = newKey
+                        }
+                    )
+                }
+                entry<NestedNavKey.DownloadModPack> { key ->
+                    DownloadModPackScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadModPackScreenKey = backScreenViewModel.downloadModPackScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadModPackScreenKey = newKey
+                        }
+                    )
+                }
+                entry<NestedNavKey.DownloadMod> { key ->
+                    DownloadModScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadModScreenKey = backScreenViewModel.downloadModScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadModScreenKey = newKey
+                        }
+                    )
+                }
+                entry<NestedNavKey.DownloadResourcePack> { key ->
+                    DownloadResourcePackScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadResourcePackScreenKey = newKey
+                        }
+                    )
+                }
+                entry<NestedNavKey.DownloadSaves> { key ->
+                    DownloadSavesScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadSavesScreenKey = backScreenViewModel.downloadSavesScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadSavesScreenKey = newKey
+                        }
+                    )
+                }
+                entry<NestedNavKey.DownloadShaders> { key ->
+                    DownloadShadersScreen(
+                        key = key,
+                        mainScreenKey = backScreenViewModel.mainScreenKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
+                        downloadShadersScreenKey = backScreenViewModel.downloadShadersScreenKey,
+                        onCurrentKeyChange = { newKey ->
+                            backScreenViewModel.downloadShadersScreenKey = newKey
+                        }
+                    )
+                }
             }
-            entry<NestedNavKey.DownloadModPack> { key ->
-                DownloadModPackScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadModPackScreenKey = backScreenViewModel.downloadModPackScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadModPackScreenKey = newKey
-                    }
-                )
-            }
-            entry<NestedNavKey.DownloadMod> { key ->
-                DownloadModScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadModScreenKey = backScreenViewModel.downloadModScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadModScreenKey = newKey
-                    }
-                )
-            }
-            entry<NestedNavKey.DownloadResourcePack> { key ->
-                DownloadResourcePackScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadResourcePackScreenKey = newKey
-                    }
-                )
-            }
-            entry<NestedNavKey.DownloadSaves> { key ->
-                DownloadSavesScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadSavesScreenKey = backScreenViewModel.downloadSavesScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadSavesScreenKey = newKey
-                    }
-                )
-            }
-            entry<NestedNavKey.DownloadShaders> { key ->
-                DownloadShadersScreen(
-                    key = key,
-                    mainScreenKey = backScreenViewModel.mainScreenKey,
-                    downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                    downloadShadersScreenKey = backScreenViewModel.downloadShadersScreenKey,
-                    onCurrentKeyChange = { newKey ->
-                        backScreenViewModel.downloadShadersScreenKey = newKey
-                    }
-                )
-            }
-        }
-    )
+        )
+    } else {
+        Box(modifier)
+    }
 }

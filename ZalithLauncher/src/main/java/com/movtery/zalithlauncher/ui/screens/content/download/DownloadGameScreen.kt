@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content.download
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -22,10 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
@@ -130,46 +134,55 @@ fun DownloadGameScreen(
         }
     )
 
-    NavDisplay(
-        backStack = backStack,
-        modifier = Modifier.fillMaxSize(),
-        onBack = {
-            onBack(backStack)
-        },
-        entryProvider = entryProvider {
-            entry<NormalNavKey.DownloadGame.SelectGameVersion> {
-                SelectGameVersionScreen(
-                    mainScreenKey = mainScreenKey,
-                    downloadScreenKey = downloadScreenKey,
-                    downloadGameScreenKey = downloadGameScreenKey
-                ) { versionString ->
-                    backStack.navigateTo(
-                        NormalNavKey.DownloadGame.Addons(versionString)
-                    )
-                }
-            }
-            entry<NormalNavKey.DownloadGame.Addons> { key ->
-                val context = LocalContext.current
-                DownloadGameWithAddonScreen(
-                    mainScreenKey = mainScreenKey,
-                    downloadScreenKey = downloadScreenKey,
-                    downloadGameScreenKey = downloadGameScreenKey,
-                    key = key
-                ) { info ->
-                    if (viewModel.installOperation !is GameInstallOperation.None) {
-                        //不是待安装状态，拒绝此次安装
-                        return@DownloadGameWithAddonScreen
-                    }
-                    viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
-                        //警告通知权限
-                        GameInstallOperation.WarningForNotification(info)
-                    } else {
-                        GameInstallOperation.Install(info)
+    if (backStack.isNotEmpty()) {
+        NavDisplay(
+            backStack = backStack,
+            modifier = Modifier.fillMaxSize(),
+            onBack = {
+                onBack(backStack)
+            },
+            entryDecorators = listOf(
+                rememberSceneSetupNavEntryDecorator(),
+                rememberSavedStateNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<NormalNavKey.DownloadGame.SelectGameVersion> {
+                    SelectGameVersionScreen(
+                        mainScreenKey = mainScreenKey,
+                        downloadScreenKey = downloadScreenKey,
+                        downloadGameScreenKey = downloadGameScreenKey
+                    ) { versionString ->
+                        backStack.navigateTo(
+                            NormalNavKey.DownloadGame.Addons(versionString)
+                        )
                     }
                 }
+                entry<NormalNavKey.DownloadGame.Addons> { key ->
+                    val context = LocalContext.current
+                    DownloadGameWithAddonScreen(
+                        mainScreenKey = mainScreenKey,
+                        downloadScreenKey = downloadScreenKey,
+                        downloadGameScreenKey = downloadGameScreenKey,
+                        key = key
+                    ) { info ->
+                        if (viewModel.installOperation !is GameInstallOperation.None) {
+                            //不是待安装状态，拒绝此次安装
+                            return@DownloadGameWithAddonScreen
+                        }
+                        viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
+                            //警告通知权限
+                            GameInstallOperation.WarningForNotification(info)
+                        } else {
+                            GameInstallOperation.Install(info)
+                        }
+                    }
+                }
             }
-        }
-    )
+        )
+    } else {
+        Box(Modifier.fillMaxSize())
+    }
 }
 
 @Composable
