@@ -265,4 +265,9 @@
     <string name="files_select_dir">Selecionar Pasta</string>
     <string name="download_assets_show_only_mc_release">Apenas Versões de Lançamento</string>
     <string name="download_modpack_install_title">Instalando modpack</string>
+    <string name="versions_manage_no_versions">Nenhuma versão instalada</string>
+    <string name="settings_renderer_global_renderer_title">Renderizador Global</string>
+    <string name="settings_renderer_global_renderer_summary">O renderizador global padrão usa uma camada de tradução de biblioteca dinâmica para garantir que o jogo funcione suavemente em dispositivos móveis</string>
+    <string name="settings_renderer_resolution_scale_title">Escala de Resolução</string>
+    <string name="settings_renderer_resolution_scale_summary">Valores mais baixos melhoram o desempenho, valores mais altos aumentam a qualidade gráfica. Ajuste de acordo com suas necessidades.</string>
 </resources>
