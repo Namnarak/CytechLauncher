@@ -23,20 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class LicenseScreenKey(
-    val raw: Int
-): NavKey
 
 @Composable
 fun LicenseScreen(
-    key: LicenseScreenKey,
+    key: NormalNavKey.License,
     backStackViewModel: ScreenBackStackViewModel
 ) {
     val context = LocalContext.current

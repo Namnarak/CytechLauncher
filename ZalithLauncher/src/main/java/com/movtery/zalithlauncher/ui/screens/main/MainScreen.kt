@@ -84,7 +84,6 @@ import com.movtery.zalithlauncher.ui.screens.content.DownloadScreen
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
-import com.movtery.zalithlauncher.ui.screens.content.LicenseScreenKey
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
@@ -391,10 +390,10 @@ private fun NavigationUI(
                         key = key,
                         backStackViewModel = screenBackStackModel
                     ) { raw ->
-                        backStack.navigateTo(LicenseScreenKey(raw))
+                        backStack.navigateTo(NormalNavKey.License(raw))
                     }
                 }
-                entry<LicenseScreenKey> { key ->
+                entry<NormalNavKey.License> { key ->
                     LicenseScreen(
                         key = key,
                         backStackViewModel = screenBackStackModel
