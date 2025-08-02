@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
@@ -32,6 +35,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,8 +44,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -92,6 +99,9 @@ sealed interface SearchAssetsState {
 fun ResultListLayout(
     modifier: Modifier = Modifier,
     searchState: SearchAssetsState,
+    controllerHeight: Dp = 54.dp,
+    controllerMinScale: Float = 0.9f,
+    controllerMinAlpha: Float = 0.8f,
     onReload: () -> Unit = {},
     onPreviousPage: (pageNumber: Int) -> Unit,
     onNextPage: (pageNumber: Int, isLastPage: Boolean) -> Unit,
@@ -108,9 +118,26 @@ fun ResultListLayout(
         is SearchAssetsState.Success -> {
             val page = state.page
 
+            val listState = rememberLazyListState()
+            val maxCollapsePx = with(LocalDensity.current) { controllerHeight.toPx() }
+
+            //计算缩放比例，滑动偏移限制在0 ~ maxCollapsePx之间
+            val fraction by remember {
+                derivedStateOf {
+                    val index = listState.firstVisibleItemIndex
+                    val offset = listState.firstVisibleItemScrollOffset.toFloat()
+
+                    when {
+                        index > 0 -> 1f
+                        else -> (offset.coerceIn(0f, maxCollapsePx) / maxCollapsePx)
+                    }
+                }
+            }
+
             Box(modifier = modifier) {
                 ResultList(
                     modifier = Modifier.fillMaxSize(),
+                    state = listState,
                     contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 60.dp, bottom = 6.dp),
                     data = page.data,
                     mapCategories = mapCategories,
@@ -118,19 +145,33 @@ fun ResultListLayout(
                     swapToDownload = swapToDownload
                 )
 
-                PageController(
+                val targetScale = 1f - (1f - controllerMinScale) * fraction
+                val animatedScale by animateFloatAsState(targetScale)
+                val targetAlpha = 1f - (1f - controllerMinAlpha) * fraction
+                val animatedAlpha by animateFloatAsState(targetAlpha)
+
+                Row(
                     modifier = Modifier
-                        .height(54.dp)
+                        .height(controllerHeight)
                         .align(Alignment.TopEnd)
-                        .padding(top = 12.dp, end = 12.dp),
-                    page = page,
-                    onPreviousPage = {
-                        onPreviousPage(page.pageNumber)
-                    },
-                    onNextPage = {
-                        onNextPage(page.pageNumber, page.isLastPage)
-                    }
-                )
+                        .padding(top = 12.dp, end = 12.dp)
+                        .alpha(animatedAlpha)
+                        .graphicsLayer {
+                            scaleX = animatedScale
+                            scaleY = animatedScale
+                            transformOrigin = TransformOrigin(1f, 0f)
+                        }
+                ) {
+                    PageController(
+                        page = page,
+                        onPreviousPage = {
+                            onPreviousPage(page.pageNumber)
+                        },
+                        onNextPage = {
+                            onNextPage(page.pageNumber, page.isLastPage)
+                        }
+                    )
+                }
             }
         }
         is SearchAssetsState.Error -> {
@@ -205,6 +246,7 @@ private fun PageController(
 @Composable
 private fun ResultList(
     modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(),
     data: List<Pair<PlatformSearchData, ModTranslations.McMod?>>,
     mapCategories: (Platform, String) -> PlatformFilterCode?,
@@ -213,6 +255,7 @@ private fun ResultList(
 ) {
     LazyColumn(
         modifier = modifier,
+        state = state,
         contentPadding = contentPadding
     ) {
         items(data) { (item, mcmod) ->
