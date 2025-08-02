@@ -198,11 +198,6 @@ private fun NavigationUI(
             onBack = {
                 onBack(backStack)
             },
-            entryDecorators = listOf(
-                rememberSceneSetupNavEntryDecorator(),
-                rememberSavedStateNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
             entryProvider = entryProvider {
                 entry<NestedNavKey.DownloadGame> { key ->
                     DownloadGameScreen(
