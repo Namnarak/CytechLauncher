@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.outlined.Copyright
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.HorizontalDivider
@@ -139,7 +138,7 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.ic_movtery),
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
-                            buttonText = stringResource(R.string.about_launcher_sponsor),
+                            buttonText = stringResource(R.string.about_sponsor),
                             onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_SUPPORT) }
                         )
                     }
@@ -158,11 +157,12 @@ fun AboutInfoScreen(
                 ) {
                     val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        LinkIconItem(
+                        ButtonIconItem(
                             icon = painterResource(R.drawable.ic_bangbang93),
                             title = "bangbang93",
                             text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
+                            buttonText = stringResource(R.string.about_sponsor),
+                            onButtonClick = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.ic_fcl),
@@ -182,7 +182,7 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.ic_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, "https://www.mcmod.cn/") }
+                            openLink = { NetWorkUtils.openLink(context, UrlManager.URL_MCMOD) }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.ic_pcl2),
@@ -501,11 +501,13 @@ private fun LibraryInfoItem(
         shadowElevation = 1.dp,
         onClick = {}
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+        ) {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -535,7 +537,7 @@ private fun LibraryInfoItem(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Launch,
+                    imageVector = Icons.Outlined.Link,
                     contentDescription = null
                 )
             }

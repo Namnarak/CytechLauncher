@@ -18,6 +18,7 @@
 package com.movtery.zalithlauncher.game.download.assets.utils
 
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlin.math.max
 
@@ -28,11 +29,10 @@ import kotlin.math.max
  */
 enum class ModTranslations(private val resourceName: String) {
     MOD("/assets/mod_data.txt") {
-        override fun getMcmodUrl(mcMod: McMod): String = "https://www.mcmod.cn/class/${mcMod.mcmod}.html"
+        override fun getMcmodUrl(mcMod: McMod): String = "${UrlManager.URL_MCMOD}class/${mcMod.mcmod}.html"
     },
     MODPACK("/assets/modpack_data.txt") {
-        override fun getMcmodUrl(mcMod: McMod): String =
-            "https://www.mcmod.cn/modpack/${mcMod.mcmod}.html"
+        override fun getMcmodUrl(mcMod: McMod): String = "${UrlManager.URL_MCMOD}modpack/${mcMod.mcmod}.html"
     },
     EMPTY("") {
         override fun getMcmodUrl(mcMod: McMod): String = ""
