@@ -629,14 +629,20 @@
     <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
     <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
     <!-- About -->
+    <string name="about_launcher_title">About Launcher</string>
+    <string name="about_launcher_version">Launcher Version: %s</string>
+    <string name="about_launcher_author_movtery_title">MovTery</string>
+    <string name="about_launcher_author_movtery_text">Author of %s</string>
+    <string name="about_launcher_project_link">Project Link</string>
+    <string name="about_launcher_sponsor">Sponsorship Support</string>
     <string name="about_acknowledgements_title">Acknowledgements</string>
-    <string name="about_acknowledgements_pojav_text">ZL2 uses the launch backend from PojavLauncher</string>
-    <string name="about_acknowledgements_pcl_text">ZL2 references parts of the implementation from PCL2</string>
-    <string name="about_acknowledgements_fcl_text">ZL2 incorporates code from FCL and references parts of its implementation</string>
-    <string name="about_acknowledgements_hmcl_text">ZL2 incorporates code from HMCL and references parts of its implementation</string>
+    <string name="about_acknowledgements_pojav_text">%s uses the launch backend from PojavLauncher</string>
+    <string name="about_acknowledgements_pcl_text">%s references parts of the implementation from PCL2</string>
+    <string name="about_acknowledgements_fcl_text">%s incorporates code from FCL and references parts of its implementation</string>
+    <string name="about_acknowledgements_hmcl_text">%s incorporates code from HMCL and references parts of its implementation</string>
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
-    <string name="about_acknowledgements_mcmod_text">ZL2 uses Simplified Chinese translations of mods and modpacks from MCMod</string>
-    <string name="about_acknowledgements_bangbang93_text">ZL2 uses the BMCL API mirror source</string>
+    <string name="about_acknowledgements_mcmod_text">%s uses Simplified Chinese translations of mods and modpacks from MCMod</string>
+    <string name="about_acknowledgements_bangbang93_text">%s uses the BMCL API mirror source</string>
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!--  Url  -->

@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,10 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
+import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.appCacheIcon
+import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -119,46 +123,77 @@ fun AboutInfoScreen(
                 )
                 ChunkLayout(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    title = stringResource(R.string.about_launcher_title)
+                ) {
+                    val context = LocalContext.current
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ButtonIconItem(
+                            icon = painterResource(R.drawable.ic_launcher),
+                            title = InfoDistributor.LAUNCHER_NAME,
+                            text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
+                            buttonText = stringResource(R.string.about_launcher_project_link),
+                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_PROJECT) }
+                        )
+
+                        ButtonIconItem(
+                            icon = painterResource(R.drawable.ic_movtery),
+                            title = stringResource(R.string.about_launcher_author_movtery_title),
+                            text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
+                            buttonText = stringResource(R.string.about_launcher_sponsor),
+                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_SUPPORT) }
+                        )
+                    }
+                }
+            }
+
+            item {
+                val yOffset by swapAnimateDpAsState(
+                    targetValue = (-40).dp,
+                    swapIn = isVisible,
+                    delayMillis = 50
+                )
+                ChunkLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_acknowledgements_title)
                 ) {
                     val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_bangbang93),
                             title = "bangbang93",
-                            text = stringResource(R.string.about_acknowledgements_bangbang93_text),
+                            text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLink = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
                         )
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_fcl),
                             title = "Fold Craft Launcher",
-                            text = stringResource(R.string.about_acknowledgements_fcl_text),
+                            text = stringResource(R.string.about_acknowledgements_fcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.fcl_license) },
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/FCL-Team/FoldCraftLauncher") }
                         )
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_hmcl),
                             title = "Hello Minecraft! Launcher",
-                            text = stringResource(R.string.about_acknowledgements_hmcl_text),
+                            text = stringResource(R.string.about_acknowledgements_hmcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.hmcl_license) },
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/HMCL-dev/HMCL") }
                         )
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
-                            text = stringResource(R.string.about_acknowledgements_mcmod_text),
+                            text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLink = { NetWorkUtils.openLink(context, "https://www.mcmod.cn/") }
                         )
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_pcl2),
                             title = "Plain Craft Launcher 2",
-                            text = stringResource(R.string.about_acknowledgements_pcl_text),
+                            text = stringResource(R.string.about_acknowledgements_pcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
                         )
-                        AcknowledgementsItem(
+                        LinkIconItem(
                             icon = painterResource(R.drawable.ic_pojav),
                             title = "PojavLauncher",
-                            text = stringResource(R.string.about_acknowledgements_pojav_text),
+                            text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.pojav_license) },
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
                         )
@@ -170,7 +205,7 @@ fun AboutInfoScreen(
                 val yOffset by swapAnimateDpAsState(
                     targetValue = (-40).dp,
                     swapIn = isVisible,
-                    delayMillis = 50
+                    delayMillis = 100
                 )
                 //额外依赖库板块
                 ChunkLayout(
@@ -190,7 +225,7 @@ fun AboutInfoScreen(
                     val yOffset by swapAnimateDpAsState(
                         targetValue = (-40).dp,
                         swapIn = isVisible,
-                        delayMillis = 100
+                        delayMillis = 150
                     )
                     //已加载插件板块
                     ChunkLayout(
@@ -245,7 +280,7 @@ private fun ChunkLayout(
 }
 
 @Composable
-private fun AcknowledgementsItem(
+private fun LinkIconItem(
     modifier: Modifier = Modifier,
     icon: Painter,
     title: String,
@@ -315,6 +350,64 @@ private fun AcknowledgementsItem(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ButtonIconItem(
+    modifier: Modifier = Modifier,
+    icon: Painter,
+    title: String,
+    text: String,
+    buttonText: String,
+    onButtonClick: () -> Unit,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = {}
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(shape = RoundedCornerShape(6.dp)),
+                painter = icon,
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    modifier = Modifier.alpha(0.7f),
+                    text = text,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            OutlinedButton(
+                onClick = onButtonClick
+            ) {
+                Text(text = buttonText)
             }
         }
     }

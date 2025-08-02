@@ -242,12 +242,12 @@
     <string name="settings_launcher_log_share_summary">Nhấn để chia sẻ log, để các nhà phát triển có thể tìm và sửa lỗi của trình khới chạy.</string>
     <string name="settings_launcher_log_share_packing">Log của trình cài đặt gói</string>
     <string name="about_acknowledgements_title">Lời cảm ơn</string>
-    <string name="about_acknowledgements_pojav_text">ZL2 đã sử dụng phần phía sau của Pojavlauncher</string>
-    <string name="about_acknowledgements_pcl_text">ZL2 đã tham khảo một số cách đã được sử dụng trong PCL2</string>
-    <string name="about_acknowledgements_fcl_text">ZL2 sử dụng code của FCL và tham chiếu một số phần của nó</string>
-    <string name="about_acknowledgements_hmcl_text">ZL2 sử dụng code của HCML và tham chiếu một số phần của nó</string>
+    <string name="about_acknowledgements_pojav_text">%s đã sử dụng phần phía sau của Pojavlauncher</string>
+    <string name="about_acknowledgements_pcl_text">%s đã tham khảo một số cách đã được sử dụng trong PCL2</string>
+    <string name="about_acknowledgements_fcl_text">%s sử dụng code của FCL và tham chiếu một số phần của nó</string>
+    <string name="about_acknowledgements_hmcl_text">%s sử dụng code của HCML và tham chiếu một số phần của nó</string>
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
-    <string name="about_acknowledgements_mcmod_text">ZL2 sử dụng những dịch thuật của mods và modpacks ra tiếng Trung của MCMod</string>
+    <string name="about_acknowledgements_mcmod_text">%s sử dụng những dịch thuật của mods và modpacks ra tiếng Trung của MCMod</string>
     <string name="about_plugin_title">Plugins đã load</string>
     <string name="about_library_title">Thư viện bên thứ ba</string>
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
@@ -619,5 +619,5 @@
     <string name="settings_launcher_mirror_file_download_title">Nguồn của File</string>
     <string name="settings_launcher_mirror_official_first">Ưu tiên nguồn chính thức</string>
     <string name="settings_launcher_mirror_mirror_first">Ưu tiên Mirror</string>
-    <string name="about_acknowledgements_bangbang93_text">ZL2 sử dụng API nguồn Mirror của BMCL</string>
+    <string name="about_acknowledgements_bangbang93_text">%s sử dụng API nguồn Mirror của BMCL</string>
 </resources>
