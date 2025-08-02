@@ -162,12 +162,7 @@ fun LauncherSettingsScreen(
                     entries = TransitionAnimationType.entries,
                     getRadioEnable = { true },
                     getRadioText = { enum ->
-                        when (enum) {
-                            TransitionAnimationType.CLOSE -> stringResource(R.string.generic_close)
-                            TransitionAnimationType.BOUNCE -> stringResource(R.string.animate_type_bounce)
-                            TransitionAnimationType.JELLY_BOUNCE -> stringResource(R.string.animate_type_jelly_bounce)
-                            TransitionAnimationType.SLICE_IN -> stringResource(R.string.animate_type_slice_in)
-                        }
+                        stringResource(enum.textRes)
                     }
                 ) { type ->
                     MutableStates.launcherAnimateType = type

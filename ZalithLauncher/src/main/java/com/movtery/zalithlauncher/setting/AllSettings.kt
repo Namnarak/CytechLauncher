@@ -199,7 +199,7 @@ class AllSettings {
         /**
          * 启动器页面切换动画类型
          */
-        val launcherSwapAnimateType = enumSettingUnit("launcherSwapAnimateType", TransitionAnimationType.BOUNCE)
+        val launcherSwapAnimateType = enumSettingUnit("launcherSwapAnimateType", TransitionAnimationType.JELLY_BOUNCE)
 
         /**
          * 启动器日志保留天数
