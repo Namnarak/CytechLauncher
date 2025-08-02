@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
  * @param initialPlatform 初始设定的平台
  * @param platformClasses 资源搜索的类型
  */
-private class ScreenViewModel(
+private class SearchScreenViewModel(
     initialPlatform: Platform,
     private val platformClasses: PlatformClasses
 ): ViewModel() {
@@ -140,11 +140,11 @@ private fun rememberSearchAssetsViewModel(
     navKey: NavKey,
     initialPlatform: Platform,
     platformClasses: PlatformClasses
-): ScreenViewModel {
+): SearchScreenViewModel {
     return viewModel(
         key = navKey.toString()
     ) {
-        ScreenViewModel(initialPlatform, platformClasses)
+        SearchScreenViewModel(initialPlatform, platformClasses)
     }
 }
 
@@ -178,7 +178,7 @@ fun SearchAssetsScreen(
     mapCategories: (Platform, String) -> PlatformFilterCode?,
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
-    val viewModel: ScreenViewModel = rememberSearchAssetsViewModel(
+    val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
         initialPlatform = initialPlatform,
         platformClasses = platformClasses

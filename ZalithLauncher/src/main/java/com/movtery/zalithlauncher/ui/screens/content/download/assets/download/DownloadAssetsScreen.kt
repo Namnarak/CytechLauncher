@@ -85,7 +85,7 @@ import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
-private class ScreenViewModel(
+private class DownloadScreenViewModel(
     private val platform: Platform,
     private val projectId: String,
     private val classes: PlatformClasses,
@@ -221,11 +221,11 @@ private class ScreenViewModel(
 @Composable
 private fun rememberDownloadAssetsViewModel(
     key: NormalNavKey.DownloadAssets
-): ScreenViewModel {
+): DownloadScreenViewModel {
     return viewModel(
         key = key.toString()
     ) {
-        ScreenViewModel(
+        DownloadScreenViewModel(
             platform = key.platform,
             projectId = key.projectId,
             classes = key.classes,
@@ -249,7 +249,7 @@ fun DownloadAssetsScreen(
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
     onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
 ) {
-    val viewModel: ScreenViewModel = rememberDownloadAssetsViewModel(key)
+    val viewModel: DownloadScreenViewModel = rememberDownloadAssetsViewModel(key)
 
     BaseScreen(
         levels1 = listOf(
@@ -298,7 +298,7 @@ fun DownloadAssetsScreen(
 @Composable
 private fun Versions(
     modifier: Modifier = Modifier,
-    viewModel: ScreenViewModel,
+    viewModel: DownloadScreenViewModel,
     onReload: () -> Unit = {},
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
     onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}

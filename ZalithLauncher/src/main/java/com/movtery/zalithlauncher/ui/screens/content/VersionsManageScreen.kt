@@ -59,17 +59,17 @@ import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
-private class ScreenViewModel() : ViewModel() {
+private class VersionsScreenViewModel() : ViewModel() {
     /** 版本类别分类 */
     var versionCategory by mutableStateOf(VersionCategory.ALL)
 }
 
 @Composable
-private fun rememberVersionViewModel() : ScreenViewModel {
+private fun rememberVersionViewModel() : VersionsScreenViewModel {
     return viewModel(
         key = NormalNavKey.VersionsManager.toString()
     ) {
-        ScreenViewModel()
+        VersionsScreenViewModel()
     }
 }
 
