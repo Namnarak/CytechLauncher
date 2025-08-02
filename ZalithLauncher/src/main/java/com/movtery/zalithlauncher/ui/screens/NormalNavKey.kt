@@ -84,5 +84,5 @@ sealed interface NormalNavKey : NavKey {
     /** 协议展示屏幕 */
     @Serializable data class License(
         val raw: Int
-    ): NavKey
+    ): NormalNavKey
 }
