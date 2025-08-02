@@ -73,6 +73,7 @@ fun TouchpadLayout(
                 coroutineScope {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
+                        down.consume()
                         if (down.type != PointerType.Touch) {
                             //过滤掉不是触摸的类型
                             return@awaitEachGesture
