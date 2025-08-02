@@ -522,8 +522,8 @@ private fun ProjectInfo(
                                         onClick = { NetWorkUtils.openLink(context, url) },
                                         iconSize = 18.dp,
                                         painter = when (info.platform) {
-                                            Platform.CURSEFORGE -> painterResource(R.drawable.ic_curseforge)
-                                            Platform.MODRINTH -> painterResource(R.drawable.ic_modrinth)
+                                            Platform.CURSEFORGE -> painterResource(R.drawable.img_platform_curseforge)
+                                            Platform.MODRINTH -> painterResource(R.drawable.img_platform_modrinth)
                                         },
                                         text = stringResource(R.string.download_assets_project_link)
                                     )

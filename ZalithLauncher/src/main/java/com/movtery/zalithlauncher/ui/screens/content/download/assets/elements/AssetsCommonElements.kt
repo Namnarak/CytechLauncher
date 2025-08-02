@@ -75,8 +75,8 @@ fun PlatformIdentifier(
  * 获取平台的LOGO
  */
 fun Platform.getDrawable() = when (this) {
-    Platform.CURSEFORGE -> R.drawable.ic_curseforge
-    Platform.MODRINTH -> R.drawable.ic_modrinth
+    Platform.CURSEFORGE -> R.drawable.img_platform_curseforge
+    Platform.MODRINTH -> R.drawable.img_platform_modrinth
 }
 
 /**

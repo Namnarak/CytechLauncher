@@ -722,7 +722,7 @@ fun VersionIconImage(
 
     val (model, fallbackRes) = remember(version, refreshKey, context) {
         when {
-            version == null -> null to R.drawable.ic_minecraft
+            version == null -> null to R.drawable.img_minecraft
             else -> {
                 val iconFile = VersionsManager.getVersionIconFile(version)
                 if (iconFile.exists()) {
@@ -747,7 +747,7 @@ fun VersionIconImage(
         )
     } else {
         Image(
-            painter = painterResource(id = fallbackRes ?: R.drawable.ic_minecraft),
+            painter = painterResource(id = fallbackRes ?: R.drawable.img_minecraft),
             modifier = modifier,
             contentScale = ContentScale.Inside,
             contentDescription = null
@@ -757,12 +757,12 @@ fun VersionIconImage(
 
 private fun getLoaderIconRes(version: Version): Int {
     return when(version.getVersionInfo()?.loaderInfo?.loader) {
-        ModLoader.FABRIC -> R.drawable.ic_fabric
-        ModLoader.FORGE -> R.drawable.ic_anvil
-        ModLoader.QUILT -> R.drawable.ic_quilt
-        ModLoader.NEOFORGE -> R.drawable.ic_neoforge
-        ModLoader.OPTIFINE -> R.drawable.ic_optifine
-        ModLoader.LITE_LOADER -> R.drawable.ic_chicken_old
-        else -> R.drawable.ic_minecraft
+        ModLoader.FABRIC -> R.drawable.img_loader_fabric
+        ModLoader.FORGE -> R.drawable.img_anvil
+        ModLoader.QUILT -> R.drawable.img_loader_quilt
+        ModLoader.NEOFORGE -> R.drawable.img_loader_neoforge
+        ModLoader.OPTIFINE -> R.drawable.img_loader_optifine
+        ModLoader.LITE_LOADER -> R.drawable.img_chicken_old
+        else -> R.drawable.img_minecraft
     }
 }

@@ -135,7 +135,7 @@ fun AboutInfoScreen(
                         )
 
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.ic_movtery),
+                            icon = painterResource(R.drawable.img_movtery),
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
@@ -158,40 +158,40 @@ fun AboutInfoScreen(
                     val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.ic_bangbang93),
+                            icon = painterResource(R.drawable.img_bangbang93),
                             title = "bangbang93",
                             text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
                             onButtonClick = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
                         )
                         LinkIconItem(
-                            icon = painterResource(R.drawable.ic_fcl),
+                            icon = painterResource(R.drawable.img_launcher_fcl),
                             title = "Fold Craft Launcher",
                             text = stringResource(R.string.about_acknowledgements_fcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.fcl_license) },
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/FCL-Team/FoldCraftLauncher") }
                         )
                         LinkIconItem(
-                            icon = painterResource(R.drawable.ic_hmcl),
+                            icon = painterResource(R.drawable.img_launcher_hmcl),
                             title = "Hello Minecraft! Launcher",
                             text = stringResource(R.string.about_acknowledgements_hmcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.hmcl_license) },
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/HMCL-dev/HMCL") }
                         )
                         LinkIconItem(
-                            icon = painterResource(R.drawable.ic_mcmod),
+                            icon = painterResource(R.drawable.img_platform_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLink = { NetWorkUtils.openLink(context, UrlManager.URL_MCMOD) }
                         )
                         LinkIconItem(
-                            icon = painterResource(R.drawable.ic_pcl2),
+                            icon = painterResource(R.drawable.img_launcher_pcl2),
                             title = "Plain Craft Launcher 2",
                             text = stringResource(R.string.about_acknowledgements_pcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
                         )
                         LinkIconItem(
-                            icon = painterResource(R.drawable.ic_pojav),
+                            icon = painterResource(R.drawable.img_launcher_pojav),
                             title = "PojavLauncher",
                             text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.pojav_license) },

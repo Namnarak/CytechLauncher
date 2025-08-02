@@ -478,28 +478,28 @@ private fun getVersionComponents(
     return when (version.type) {
         "release" -> {
             Triple(
-                painterResource(R.drawable.ic_minecraft),
+                painterResource(R.drawable.img_minecraft),
                 stringResource(R.string.download_game_type_release),
                 stringResource(R.string.url_wiki_minecraft_game_release, version.id)
             )
         }
         "snapshot" -> {
             Triple(
-                painterResource(R.drawable.ic_command_block),
+                painterResource(R.drawable.img_command_block),
                 stringResource(R.string.download_game_type_snapshot),
                 stringResource(R.string.url_wiki_minecraft_game_snapshot, version.id)
             )
         }
         "old_beta" -> {
             Triple(
-                painterResource(R.drawable.ic_old_cobblestone),
+                painterResource(R.drawable.img_old_cobblestone),
                 stringResource(R.string.download_game_type_old_beta),
                 null
             )
         }
         "old_alpha" -> {
             Triple(
-                painterResource(R.drawable.ic_old_grass_block),
+                painterResource(R.drawable.img_old_grass_block),
                 stringResource(R.string.download_game_type_old_alpha),
                 null
             )

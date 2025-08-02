@@ -186,7 +186,7 @@ fun MousePointer(
     val imageModifier = modifier.size(mouseSize)
 
     val (model, defaultRes) = remember(mouseFile, triggerRefresh, context) {
-        val default = null to R.drawable.ic_mouse_pointer
+        val default = null to R.drawable.img_mouse_pointer
         when {
             mouseFile == null -> default
             else -> {

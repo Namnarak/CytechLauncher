@@ -486,13 +486,13 @@ private fun VersionIconPreview(
 ) {
     val iconRes = remember(refreshIcon) {
         when {
-            currentAddon.optifineVersion != null && currentAddon.forgeVersion != null -> R.drawable.ic_anvil //OptiFine & Forge 同时选择
-            currentAddon.optifineVersion != null -> R.drawable.ic_optifine
-            currentAddon.forgeVersion != null -> R.drawable.ic_anvil
-            currentAddon.neoforgeVersion != null -> R.drawable.ic_neoforge
-            currentAddon.fabricVersion != null -> R.drawable.ic_fabric
-            currentAddon.quiltVersion != null -> R.drawable.ic_quilt
-            else -> R.drawable.ic_minecraft
+            currentAddon.optifineVersion != null && currentAddon.forgeVersion != null -> R.drawable.img_anvil //OptiFine & Forge 同时选择
+            currentAddon.optifineVersion != null -> R.drawable.img_loader_optifine
+            currentAddon.forgeVersion != null -> R.drawable.img_anvil
+            currentAddon.neoforgeVersion != null -> R.drawable.img_loader_neoforge
+            currentAddon.fabricVersion != null -> R.drawable.img_loader_fabric
+            currentAddon.quiltVersion != null -> R.drawable.img_loader_quilt
+            else -> R.drawable.img_minecraft
         }
     }
 
@@ -567,7 +567,7 @@ private fun OptiFineList(
         modifier = modifier,
         state = currentAddon.optifineState,
         title = ModLoader.OPTIFINE.displayName,
-        iconPainter = painterResource(R.drawable.ic_optifine),
+        iconPainter = painterResource(R.drawable.img_loader_optifine),
         items = items,
         current = currentAddon.optifineVersion,
         incompatibleSet = currentAddon.incompatibleWithOptiFine,
@@ -642,7 +642,7 @@ private fun ForgeList(
         modifier = modifier,
         state = currentAddon.forgeState,
         title = ModLoader.FORGE.displayName,
-        iconPainter = painterResource(R.drawable.ic_anvil),
+        iconPainter = painterResource(R.drawable.img_anvil),
         items = items,
         current = currentAddon.forgeVersion,
         incompatibleSet = currentAddon.incompatibleWithForge,
@@ -707,7 +707,7 @@ private fun NeoForgeList(
         modifier = modifier,
         state = currentAddon.neoforgeState,
         title = ModLoader.NEOFORGE.displayName,
-        iconPainter = painterResource(R.drawable.ic_neoforge),
+        iconPainter = painterResource(R.drawable.img_loader_neoforge),
         items = addonList.neoforgeList,
         current = currentAddon.neoforgeVersion,
         incompatibleSet = currentAddon.incompatibleWithNeoForge,
@@ -755,7 +755,7 @@ private fun FabricList(
         modifier = modifier,
         state = currentAddon.fabricState,
         title = ModLoader.FABRIC.displayName,
-        iconPainter = painterResource(R.drawable.ic_fabric),
+        iconPainter = painterResource(R.drawable.img_loader_fabric),
         items = addonList.fabricList,
         current = currentAddon.fabricVersion,
         incompatibleSet = currentAddon.incompatibleWithFabric,
@@ -812,7 +812,7 @@ private fun FabricAPIList(
         modifier = modifier,
         state = currentAddon.fabricAPIState,
         title = ModLoader.FABRIC_API.displayName,
-        iconPainter = painterResource(R.drawable.ic_fabric),
+        iconPainter = painterResource(R.drawable.img_loader_fabric),
         items = addonList.fabricAPIList,
         current = currentAddon.fabricAPIVersion,
         incompatibleSet = currentAddon.incompatibleWithFabricAPI,
@@ -859,7 +859,7 @@ private fun QuiltList(
         modifier = modifier,
         state = currentAddon.quiltState,
         title = ModLoader.QUILT.displayName,
-        iconPainter = painterResource(R.drawable.ic_quilt),
+        iconPainter = painterResource(R.drawable.img_loader_quilt),
         items = addonList.quiltList,
         current = currentAddon.quiltVersion,
         incompatibleSet = currentAddon.incompatibleWithQuilt,
@@ -916,7 +916,7 @@ private fun QuiltAPIList(
         modifier = modifier,
         state = currentAddon.quiltAPIState,
         title = ModLoader.QUILT_API.displayName,
-        iconPainter = painterResource(R.drawable.ic_quilt),
+        iconPainter = painterResource(R.drawable.img_loader_quilt),
         items = addonList.quiltAPIList,
         current = currentAddon.quiltAPIVersion,
         incompatibleSet = currentAddon.incompatibleWithQuiltAPI,
