@@ -19,6 +19,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
@@ -53,7 +54,7 @@ fun DownloadModScreen(
                 context = context,
                 info = info,
                 versions = versions,
-                folder = "mods"
+                folder = VersionFolders.MOD.folderName
             )
         }
     )

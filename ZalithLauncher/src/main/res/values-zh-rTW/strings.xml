@@ -614,6 +614,11 @@
     <string name="resource_pack_manage_name">資源包名稱</string>
     <string name="resource_pack_manage_delete_warning">你確定要刪除資源包 %s 嗎? 此動作無法復原</string>
     <string name="resource_pack_manage_no_packs">當前版本無可用資源包</string>
+    <string name="shader_pack_manage">光影包管理</string>
+    <string name="shader_pack_manage_exists">該名稱的光影包已經存在</string>
+    <string name="shader_pack_manage_name">光影包名稱</string>
+    <string name="shader_pack_manage_delete_warning">您確定要刪除光影包 %s 嗎？此操作無法復原！</string>
+    <string name="shader_pack_manage_no_packs">當前版本無可用光影包</string>
     <string name="settings_launcher_animate_extent_title">動畫強度</string>
     <string name="settings_launcher_animate_extent_summary">調整啟動器的動畫強度</string>
     <string name="settings_launcher_log_retention_days_title">日誌保留天數</string>

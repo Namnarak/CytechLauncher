@@ -494,7 +494,6 @@ fun ProjectTitleHead(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 maxLines = 1,
-                overflow = TextOverflow.Clip
             )
             author?.let {
                 VerticalDivider(

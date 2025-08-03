@@ -13,6 +13,7 @@ import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstallTask
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
@@ -114,7 +115,7 @@ class ModPackInstaller(
                         //清理完成缓存目录后，创建新的缓存目录
                         tempModPackDir.createDirAndLog()
                         tempVersionsDir.createDirAndLog()
-                        File(tempVersionsDir, "mods").createDirAndLog() //创建临时模组目录
+                        File(tempVersionsDir, VersionFolders.MOD.folderName).createDirAndLog() //创建临时模组目录
                     }
                 )
             )

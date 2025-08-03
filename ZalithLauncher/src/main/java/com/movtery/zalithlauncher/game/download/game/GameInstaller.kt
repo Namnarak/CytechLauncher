@@ -28,6 +28,7 @@ import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
@@ -578,7 +579,7 @@ class GameInstaller(
 
             //复制Mods
             tempModsDir.listFiles()?.let {
-                val targetModsDir = File(targetClientDir, "mods")
+                val targetModsDir = File(targetClientDir, VersionFolders.MOD.folderName)
                 it.forEach { modFile ->
                     modFile.copyTo(File(targetModsDir, modFile.name))
                 }

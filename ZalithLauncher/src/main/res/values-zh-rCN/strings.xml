@@ -524,6 +524,11 @@
     <string name="resource_pack_manage_name">资源包名称</string>
     <string name="resource_pack_manage_delete_warning">您确定要删除资源包 %s 吗？该操作不可撤销！</string>
     <string name="resource_pack_manage_no_packs">当前版本还没有资源包</string>
+    <string name="shader_pack_manage">光影包管理</string>
+    <string name="shader_pack_manage_exists">该名称的光影包已经存在</string>
+    <string name="shader_pack_manage_name">光影包名称</string>
+    <string name="shader_pack_manage_delete_warning">您确定要删除光影包 %s 吗？该操作不可撤销！</string>
+    <string name="shader_pack_manage_no_packs">当前版本还没有光影包</string>
     <!--  游戏  -->
     <string name="minecraft_download_stat_download_task">统计下载任务</string>
     <string name="minecraft_download_stat_verify_task">统计验证任务</string>

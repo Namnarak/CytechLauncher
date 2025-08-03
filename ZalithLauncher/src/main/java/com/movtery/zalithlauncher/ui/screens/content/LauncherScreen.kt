@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -291,7 +290,6 @@ private fun VersionManagerLayout(
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
                             .basicMarquee(iterations = Int.MAX_VALUE),
-                        overflow = TextOverflow.Clip,
                         text = stringResource(R.string.versions_manage_no_versions),
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1
@@ -304,7 +302,6 @@ private fun VersionManagerLayout(
                     ) {
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                            overflow = TextOverflow.Clip,
                             text = version.getVersionName(),
                             style = MaterialTheme.typography.labelMedium,
                             maxLines = 1
@@ -312,7 +309,6 @@ private fun VersionManagerLayout(
                         if (version.isValid()) {
                             Text(
                                 modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                                overflow = TextOverflow.Clip,
                                 text = version.getVersionSummary(),
                                 style = MaterialTheme.typography.labelSmall,
                                 maxLines = 1

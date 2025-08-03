@@ -16,13 +16,6 @@ import net.querz.nbt.tag.CompoundTag
 import org.apache.commons.io.FileUtils
 import java.io.File
 
-/** 存档加载状态 */
-sealed interface SavesState {
-    data object None : SavesState
-    /** 正在加载所有存档 */
-    data object Loading : SavesState
-}
-
 sealed interface SavesOperation {
     data object None : SavesOperation
     /** 执行任务中 */

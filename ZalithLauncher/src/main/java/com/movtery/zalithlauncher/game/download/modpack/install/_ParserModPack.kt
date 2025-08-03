@@ -9,6 +9,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.getGameVersion
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
@@ -58,7 +59,7 @@ private suspend fun curseforge(
         val manifestString = zip.readText("manifest.json")
         val manifest = GSON.fromJson(manifestString, CurseForgeManifest::class.java)
 
-        val modsFolder = File(targetFolder, "mods")
+        val modsFolder = File(targetFolder, VersionFolders.MOD.folderName)
 
         //获取全部需要下载的模组文件
         val totalCount = manifest.files.size

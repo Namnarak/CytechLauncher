@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.versions.ResourcePackManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.SavesManagerScreen
+import com.movtery.zalithlauncher.ui.screens.content.versions.ShadersManagerScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
@@ -107,7 +108,8 @@ private val settingItems = listOf(
     CategoryItem(NormalNavKey.Versions.OverView, { CategoryIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
     CategoryItem(NormalNavKey.Versions.Config, { CategoryIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config),
     CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage, division = true),
-    CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage)
+    CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
+    CategoryItem(NormalNavKey.Versions.ShadersManager, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.shader_pack_manage) }, R.string.shader_pack_manage)
 )
 
 @Composable
@@ -156,7 +158,6 @@ private fun TabMenu(
                     Text(
                         modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                         text = stringResource(item.textRes),
-                        overflow = TextOverflow.Clip,
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
@@ -223,6 +224,13 @@ private fun NavigationUI(
                 }
                 entry<NormalNavKey.Versions.ResourcePackManager> {
                     ResourcePackManageScreen(
+                        mainScreenKey = mainScreenKey,
+                        versionsScreenKey = versionsScreenKey,
+                        version = version
+                    )
+                }
+                entry<NormalNavKey.Versions.ShadersManager> {
+                    ShadersManagerScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version

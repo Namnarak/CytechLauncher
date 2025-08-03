@@ -22,6 +22,13 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 
+/** 加载状态 */
+sealed interface LoadingState {
+    data object None : LoadingState
+    /** 正在加载 */
+    data object Loading : LoadingState
+}
+
 /**
  * Minecraft 的 `§` 颜色占位符，参考 [Minecraft Wiki](https://zh.minecraft.wiki/w/%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BB%A3%E7%A0%81#%E9%A2%9C%E8%89%B2%E4%BB%A3%E7%A0%81)
  */
@@ -64,18 +71,21 @@ val MINECRAFT_COLOR_FORMAT = mapOf(
  */
 @Composable
 fun MinecraftColorTextNormal(
+    modifier: Modifier = Modifier,
     inputText: String,
     style: TextStyle,
     maxLines: Int = Int.MAX_VALUE
 ) {
     if (inputText.contains("§")) {
         MinecraftColorText(
+            modifier = modifier,
             inputText = inputText,
             fontSize = style.fontSize,
             maxLines = maxLines
         )
     } else {
         Text(
+            modifier = modifier,
             text = inputText,
             style = style,
             maxLines = maxLines
@@ -89,6 +99,7 @@ fun MinecraftColorTextNormal(
  */
 @Composable
 fun MinecraftColorText(
+    modifier: Modifier = Modifier,
     inputText: String,
     fontSize: TextUnit = TextUnit.Unspecified,
     maxLines: Int = Int.MAX_VALUE
@@ -100,7 +111,7 @@ fun MinecraftColorText(
     val offsetFactor = 1f / 16f
     val offsetDp = with(density) { (fontSize.toPx() * offsetFactor).toDp() }
 
-    Row {
+    Row(modifier = modifier) {
         segments.forEach { (text, style) ->
             Box {
                 //背景层

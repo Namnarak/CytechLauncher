@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -150,7 +149,6 @@ private fun TabMenu(
                     Text(
                         modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                         text = stringResource(item.textRes),
-                        overflow = TextOverflow.Clip,
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )

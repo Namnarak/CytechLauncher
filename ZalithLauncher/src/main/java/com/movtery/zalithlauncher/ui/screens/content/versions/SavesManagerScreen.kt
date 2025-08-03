@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,7 @@ import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
@@ -81,11 +83,11 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SaveData
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesOperation
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSaves
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
@@ -121,7 +123,7 @@ fun SavesManagerScreen(
         val versionInfo = version.getVersionInfo()!!
         val minecraftVersion = versionInfo.minecraftVersion
         val quickPlay = versionInfo.quickPlay
-        val savesDir = File(version.getGameDir(), "saves")
+        val savesDir = File(version.getGameDir(), VersionFolders.SAVES.folderName)
 
         //触发刷新
         var refreshTrigger by remember { mutableStateOf(false) }
@@ -135,7 +137,7 @@ fun SavesManagerScreen(
             }
         }
 
-        var savesState by remember { mutableStateOf<SavesState>(SavesState.Loading) }
+        var savesState by remember { mutableStateOf<LoadingState>(LoadingState.Loading) }
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -152,7 +154,7 @@ fun SavesManagerScreen(
             val operationScope = rememberCoroutineScope()
 
             when (savesState) {
-                is SavesState.None -> {
+                is LoadingState.None -> {
                     val itemColor = itemLayoutColor()
                     val itemContentColor = MaterialTheme.colorScheme.onSurface
 
@@ -218,7 +220,7 @@ fun SavesManagerScreen(
                         )
                     }
                 }
-                is SavesState.Loading -> {
+                is LoadingState.Loading -> {
                     Box(Modifier.fillMaxSize()) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
@@ -227,7 +229,7 @@ fun SavesManagerScreen(
         }
 
         LaunchedEffect(refreshTrigger) {
-            savesState = SavesState.Loading
+            savesState = LoadingState.Loading
 
             withContext(Dispatchers.IO) {
                 val tempList = mutableListOf<SaveData>()
@@ -249,7 +251,7 @@ fun SavesManagerScreen(
                 allSaves = tempList.sortedBy { it.saveFile.name }
             }
 
-            savesState = SavesState.None
+            savesState = LoadingState.None
         }
     }
 }
@@ -307,9 +309,7 @@ private fun SavesActionsHeader(
         }
 
         HorizontalDivider(
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -419,6 +419,7 @@ private fun SaveItemLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MinecraftColorTextNormal(
+                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                         inputText = (levelName ?: saveData.saveFile.name),
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1
@@ -660,7 +661,7 @@ private fun SaveOperationMenu(
     onQuickPlayClick: () -> Unit = {},
     onRenameClick: () -> Unit = {},
     onBackupClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
     Row {
         var menuExpanded by remember { mutableStateOf(false) }

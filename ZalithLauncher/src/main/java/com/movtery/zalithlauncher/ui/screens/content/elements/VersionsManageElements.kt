@@ -46,7 +46,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
@@ -119,14 +118,12 @@ fun GamePathItemLayout(
             ) {
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    overflow = TextOverflow.Clip,
                     text = if (notDefault) item.title else stringResource(R.string.versions_manage_game_path_default),
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1
                 )
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    overflow = TextOverflow.Clip,
                     text = item.path,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1
@@ -653,7 +650,6 @@ fun CommonVersionInfoLayout(
             //版本名称
             Text(
                 modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                overflow = TextOverflow.Clip,
                 maxLines = 1,
                 text = version.getVersionName(),
                 style = MaterialTheme.typography.labelLarge
@@ -662,7 +658,6 @@ fun CommonVersionInfoLayout(
             if (version.isValid() && version.isSummaryValid()) {
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    overflow = TextOverflow.Clip,
                     maxLines = 1,
                     text = version.getVersionSummary(),
                     style = MaterialTheme.typography.labelLarge

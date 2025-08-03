@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,23 +14,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,12 +39,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -57,31 +49,22 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
-import coil3.ImageLoader
-import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
-import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackFilter
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackInfo
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackOperation
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterPacks
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseResourcePack
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ShaderOperation
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ShaderPackInfo
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterShaders
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -95,7 +78,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 @Composable
-fun ResourcePackManageScreen(
+fun ShadersManagerScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     version: Version
@@ -104,23 +87,22 @@ fun ResourcePackManageScreen(
         levels1 = listOf(
             Pair(NestedNavKey.Versions::class.java, mainScreenKey)
         ),
-        Triple(NormalNavKey.Versions.ResourcePackManager, versionsScreenKey, false)
+        Triple(NormalNavKey.Versions.ShadersManager, versionsScreenKey, false),
     ) { isVisible ->
-        val resourcePackDir = File(version.getGameDir(), VersionFolders.RESOURCE_PACK.folderName)
+        val shadersDir = File(version.getGameDir(), VersionFolders.SHADERS.folderName)
 
         //触发刷新
         var refreshTrigger by remember { mutableStateOf(false) }
-        //简易名称过滤器
-        var packFilter by remember { mutableStateOf(ResourcePackFilter(false, "")) }
+        var nameFilter by remember { mutableStateOf("") }
 
-        var allPacks by remember { mutableStateOf<List<ResourcePackInfo>>(emptyList()) }
-        val filteredPacks by remember(allPacks, packFilter) {
+        var allShaders by remember { mutableStateOf<List<ShaderPackInfo>>(emptyList()) }
+        val filteredShaders by remember(allShaders, nameFilter) {
             derivedStateOf {
-                allPacks.takeIf { it.isNotEmpty() }?.filterPacks(packFilter)
+                allShaders.takeIf { it.isNotEmpty() }?.filterShaders(nameFilter)
             }
         }
 
-        var packState by remember { mutableStateOf<LoadingState>(LoadingState.None) }
+        var shadersState by remember { mutableStateOf<LoadingState>(LoadingState.None) }
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -136,66 +118,62 @@ fun ResourcePackManageScreen(
         ) {
             val operationScope = rememberCoroutineScope()
 
-            when (packState) {
-                is LoadingState.None -> {
+            when (shadersState) {
+                LoadingState.None -> {
                     val itemColor = itemLayoutColor()
                     val itemContentColor = MaterialTheme.colorScheme.onSurface
 
-                    var resourcePackOperation by remember { mutableStateOf<ResourcePackOperation>(ResourcePackOperation.None) }
+                    var shaderOperation by remember { mutableStateOf<ShaderOperation>(ShaderOperation.None) }
                     fun runProgress(task: () -> Unit) {
                         operationScope.launch(Dispatchers.IO) {
-                            resourcePackOperation = ResourcePackOperation.Progress
+                            shaderOperation = ShaderOperation.Progress
                             task()
-                            resourcePackOperation = ResourcePackOperation.None
+                            shaderOperation = ShaderOperation.None
                             refreshTrigger = !refreshTrigger
                         }
                     }
-                    ResourcePackOperation(
-                        resourcePackDir = resourcePackDir,
-                        resourcePackOperation = resourcePackOperation,
-                        updateOperation = { resourcePackOperation = it },
-                        onRename = { newName, packInfo ->
+                    ShaderOperation(
+                        shaderOperation = shaderOperation,
+                        updateOperation = { shaderOperation = it },
+                        shadersDir = shadersDir,
+                        renameShaderPack = { info, newName ->
                             runProgress {
-                                val extension = if (packInfo.file.isFile) {
-                                    ".${packInfo.file.extension}"
-                                } else ""
-                                packInfo.file.renameTo(File(resourcePackDir, "$newName$extension"))
+                                val file = info.file
+                                file.renameTo(File(shadersDir, "$newName.${file.extension}"))
                             }
                         },
-                        onDelete = { packInfo ->
+                        deleteShaderPack = { info ->
                             runProgress {
-                                FileUtils.deleteQuietly(packInfo.file)
+                                FileUtils.deleteQuietly(info.file)
                             }
                         }
                     )
 
                     Column {
-                        ResourcePackHeader(
+                        ShadersActionsHeader(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
                             inputFieldColor = itemColor,
                             inputFieldContentColor = itemContentColor,
-                            packFilter = packFilter,
-                            changePackFilter = { packFilter = it },
-                            onRefresh = {
-                                refreshTrigger = !refreshTrigger
-                            }
+                            nameFilter = nameFilter,
+                            onNameFilterChange = { nameFilter = it },
+                            refresh = { refreshTrigger = !refreshTrigger }
                         )
 
-                        ResourcePackList(
+                        ShadersList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            packList = filteredPacks,
+                            shadersList = filteredShaders,
                             itemColor = itemColor,
                             itemContentColor = itemContentColor,
-                            updateOperation = { resourcePackOperation = it }
+                            updateOperation = { shaderOperation = it }
                         )
                     }
                 }
-                is LoadingState.Loading -> {
+                LoadingState.Loading -> {
                     Box(Modifier.fillMaxSize()) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
                     }
@@ -204,61 +182,52 @@ fun ResourcePackManageScreen(
         }
 
         LaunchedEffect(refreshTrigger) {
-            packState = LoadingState.Loading
+            shadersState = LoadingState.Loading
 
             withContext(Dispatchers.IO) {
-                val tempList = mutableListOf<ResourcePackInfo>()
                 try {
-                    resourcePackDir.listFiles()?.forEach { file ->
-                        parseResourcePack(file)?.let {
-                            ensureActive()
-                            tempList.add(it)
-                        }
-                    }
+                    allShaders = shadersDir.listFiles()?.filter {
+                        //光影包只能是后缀为.zip的压缩包
+                        it.isFile && it.extension.equals("zip", true)
+                    }?.map { file ->
+                        ensureActive()
+                        ShaderPackInfo(
+                            file = file,
+                            fileSize = FileUtils.sizeOf(file)
+                        )
+                    } ?: emptyList()
                 } catch (_: CancellationException) {
                     return@withContext
                 }
-                allPacks = tempList.sortedBy { it.rawName }
             }
 
-            packState = LoadingState.None
+            shadersState = LoadingState.None
         }
     }
 }
 
 @Composable
-private fun ResourcePackHeader(
-    modifier: Modifier = Modifier,
+private fun ShadersActionsHeader(
+    modifier: Modifier,
     inputFieldColor: Color,
     inputFieldContentColor: Color,
-    packFilter: ResourcePackFilter,
-    changePackFilter: (ResourcePackFilter) -> Unit,
-    onRefresh: () -> Unit = {}
+    nameFilter: String,
+    onNameFilterChange: (String) -> Unit = {},
+    refresh: () -> Unit = {}
 ) {
     Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            ContentCheckBox(
-                checked = packFilter.onlyShowValid,
-                onCheckedChange = { changePackFilter(packFilter.copy(onlyShowValid = it)) }
-            ) {
-                Text(
-                    text = stringResource(R.string.resource_pack_manage_only_show_valid),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-
+        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SimpleTextInputField(
-                    modifier = Modifier.weight(1f),
-                    value = packFilter.filterName,
-                    onValueChange = { changePackFilter(packFilter.copy(filterName = it)) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    value = nameFilter,
+                    onValueChange = { onNameFilterChange(it) },
                     hint = {
                         Text(
                             text = stringResource(R.string.generic_search),
@@ -271,7 +240,7 @@ private fun ResourcePackHeader(
                 )
 
                 IconButton(
-                    onClick = onRefresh
+                    onClick = refresh
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -289,54 +258,53 @@ private fun ResourcePackHeader(
 }
 
 @Composable
-private fun ResourcePackList(
+private fun ShadersList(
     modifier: Modifier = Modifier,
-    packList: List<ResourcePackInfo>?,
+    shadersList: List<ShaderPackInfo>?,
     itemColor: Color,
     itemContentColor: Color,
-    updateOperation: (ResourcePackOperation) -> Unit
+    updateOperation: (ShaderOperation) -> Unit
 ) {
-    packList?.let { list ->
+    shadersList?.let { list ->
         //如果列表是空的，则是由搜索导致的
         if (list.isNotEmpty()) {
             LazyColumn(
                 modifier = modifier,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                items(list) { pack ->
-                    ResourcePackItemLayout(
+                items(list) { info ->
+                    ShaderPackItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp),
-                        resourcePackInfo = pack,
+                        shaderPackInfo = info,
+                        updateOperation = updateOperation,
                         itemColor = itemColor,
-                        itemContentColor = itemContentColor,
-                        updateOperation = updateOperation
+                        itemContentColor = itemContentColor
                     )
                 }
             }
         }
     } ?: run {
-        //如果为null，则代表本身就没有资源包可以展示
+        //如果为null，则代表本身就没有光影包可以展示
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.resource_pack_manage_no_packs)
+                text = stringResource(R.string.shader_pack_manage_no_packs)
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ResourcePackItemLayout(
+private fun ShaderPackItem(
     modifier: Modifier = Modifier,
-    resourcePackInfo: ResourcePackInfo,
+    shaderPackInfo: ShaderPackInfo,
     onClick: () -> Unit = {},
+    updateOperation: (ShaderOperation) -> Unit,
     itemColor: Color,
     itemContentColor: Color,
-    shadowElevation: Dp = 1.dp,
-    updateOperation: (ResourcePackOperation) -> Unit
+    shadowElevation: Dp = 1.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -355,30 +323,27 @@ private fun ResourcePackItemLayout(
             modifier = Modifier.padding(all = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ResourcePackIcon(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(shape = RoundedCornerShape(10.dp)),
-                resourcePackInfo = resourcePackInfo
-            )
-
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .weight(1f),
             ) {
-                MinecraftColorTextNormal(
+                //文件名称
+                Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                    inputText = resourcePackInfo.displayName,
+                    text = shaderPackInfo.file.name,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1
                 )
-                resourcePackInfo.description?.let { description ->
-                    MinecraftColorTextNormal(
-                        inputText = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 2
-                    )
-                }
+                //文件大小
+                Text(
+                    modifier = Modifier.alpha(0.7f),
+                    text = stringResource(
+                        R.string.generic_file_size,
+                        formatFileSize(shaderPackInfo.fileSize)
+                    ),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
             Row(
@@ -386,43 +351,14 @@ private fun ResourcePackItemLayout(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (resourcePackInfo.isValid) {
-                    //详细信息展示
-                    TooltipIconButton(
-                        modifier = Modifier.size(38.dp),
-                        tooltip = {
-                            RichTooltip(
-                                modifier = Modifier.padding(all = 3.dp),
-                                title = { Text(text = stringResource(R.string.resource_pack_manage_info)) },
-                                shadowElevation = 3.dp
-                            ) {
-                                ResourcePackInfoTooltip(resourcePackInfo)
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = stringResource(R.string.saves_manage_info)
-                        )
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.resource_pack_manage_invalid),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-
-                //更多操作
-                ResourcePackOperationMenu(
-                    resourcePackInfo = resourcePackInfo,
+                ShadersOperationMenu(
                     buttonSize = 38.dp,
                     iconSize = 26.dp,
                     onRenameClick = {
-                        updateOperation(ResourcePackOperation.RenamePack(resourcePackInfo))
+                        updateOperation(ShaderOperation.Rename(shaderPackInfo))
                     },
                     onDeleteClick = {
-                        updateOperation(ResourcePackOperation.DeletePack(resourcePackInfo))
+                        updateOperation(ShaderOperation.Delete(shaderPackInfo))
                     }
                 )
             }
@@ -431,56 +367,7 @@ private fun ResourcePackItemLayout(
 }
 
 @Composable
-private fun ResourcePackIcon(
-    modifier: Modifier = Modifier,
-    triggerRefresh: Any? = null,
-    resourcePackInfo: ResourcePackInfo
-) {
-    val context = LocalContext.current
-
-    val imageLoader = remember(triggerRefresh, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
-    }
-
-    val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to R.drawable.ic_unknown_pack
-        val icon = resourcePackInfo.icon
-        when {
-            icon == null -> default //不存在则使用默认
-            else -> {
-                val model = ImageRequest.Builder(context)
-                    .data(icon)
-                    .build()
-                model to null
-            }
-        }
-    }
-
-    if (model != null) {
-        AsyncImage(
-            model = model,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
-    } else {
-        Image(
-            painter = painterResource(id = defaultRes!!),
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-private fun ResourcePackOperationMenu(
-    resourcePackInfo: ResourcePackInfo,
+private fun ShadersOperationMenu(
     buttonSize: Dp,
     iconSize: Dp = buttonSize,
     onRenameClick: () -> Unit = {},
@@ -507,10 +394,7 @@ private fun ResourcePackOperationMenu(
             onDismissRequest = { menuExpanded = false }
         ) {
             DropdownMenuItem(
-                enabled = resourcePackInfo.isValid,
-                text = {
-                    Text(text = stringResource(R.string.generic_rename))
-                },
+                text = { Text(text = stringResource(R.string.generic_rename)) },
                 leadingIcon = {
                     Icon(
                         modifier = Modifier.size(20.dp),
@@ -524,9 +408,7 @@ private fun ResourcePackOperationMenu(
                 }
             )
             DropdownMenuItem(
-                text = {
-                    Text(text = stringResource(R.string.generic_delete))
-                },
+                text = { Text(text = stringResource(R.string.generic_delete)) },
                 leadingIcon = {
                     Icon(
                         modifier = Modifier.size(20.dp),
@@ -544,81 +426,53 @@ private fun ResourcePackOperationMenu(
 }
 
 @Composable
-private fun ResourcePackOperation(
-    resourcePackDir: File,
-    resourcePackOperation: ResourcePackOperation,
-    updateOperation: (ResourcePackOperation) -> Unit,
-    onRename: (String, ResourcePackInfo) -> Unit,
-    onDelete: (ResourcePackInfo) -> Unit
+private fun ShaderOperation(
+    shaderOperation: ShaderOperation,
+    updateOperation: (ShaderOperation) -> Unit,
+    shadersDir: File,
+    renameShaderPack: (ShaderPackInfo, String) -> Unit,
+    deleteShaderPack: (ShaderPackInfo) -> Unit
 ) {
-    when (resourcePackOperation) {
-        is ResourcePackOperation.None -> {}
-        is ResourcePackOperation.Progress -> {
+    when (shaderOperation) {
+        is ShaderOperation.None -> {}
+        is ShaderOperation.Progress -> {
             ProgressDialog()
         }
-        is ResourcePackOperation.RenamePack -> {
-            val packInfo = resourcePackOperation.packInfo
+        is ShaderOperation.Rename -> {
+            val info = shaderOperation.info
             FileNameInputDialog(
-                initValue = packInfo.displayName,
+                initValue = info.file.nameWithoutExtension,
                 existsCheck = { value ->
-                    val fileName = if (packInfo.file.isDirectory) {
-                        value //文件夹类型，不做扩展名处理
-                    } else {
-                        "$value.${packInfo.file.extension}"
-                    }
-
-                    if (File(resourcePackDir, fileName).exists()) {
-                        stringResource(R.string.resource_pack_manage_exists)
+                    if (File(shadersDir, "$value.${info.file.extension}").exists()) {
+                        stringResource(R.string.shader_pack_manage_exists)
                     } else {
                         null
                     }
                 },
                 title = stringResource(R.string.generic_rename),
-                label = stringResource(R.string.resource_pack_manage_name),
+                label = stringResource(R.string.shader_pack_manage_name),
                 onDismissRequest = {
-                    updateOperation(ResourcePackOperation.None)
+                    updateOperation(ShaderOperation.None)
                 },
-                onConfirm = { value ->
-                    onRename(value, packInfo)
+                onConfirm = { newName ->
+                    renameShaderPack(info, newName)
+                    updateOperation(ShaderOperation.None)
                 }
             )
         }
-        is ResourcePackOperation.DeletePack -> {
-            val packInfo = resourcePackOperation.packInfo
+        is ShaderOperation.Delete -> {
+            val info = shaderOperation.info
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_warning),
-                text = stringResource(R.string.resource_pack_manage_delete_warning, packInfo.file.name),
+                text = stringResource(R.string.shader_pack_manage_delete_warning, info.file.name),
                 onDismiss = {
-                    updateOperation(ResourcePackOperation.None)
+                    updateOperation(ShaderOperation.None)
                 },
                 onConfirm = {
-                    onDelete(packInfo)
-                    updateOperation(ResourcePackOperation.None)
+                    deleteShaderPack(info)
+                    updateOperation(ShaderOperation.None)
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun ResourcePackInfoTooltip(
-    resourcePackInfo: ResourcePackInfo
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = stringResource(
-                R.string.resource_pack_manage_type,
-                if (resourcePackInfo.file.isDirectory) {
-                    stringResource(R.string.resource_pack_manage_type_folder)
-                } else {
-                    stringResource(R.string.resource_pack_manage_type_zip)
-                }
-            )
-        )
-        Text(text = stringResource(R.string.generic_file_name, resourcePackInfo.file.name))
-        Text(text = stringResource(R.string.generic_file_size, formatFileSize(resourcePackInfo.fileSize)))
-        resourcePackInfo.packFormat?.let { packFormat ->
-            Text(text = stringResource(R.string.resource_pack_manage_formats, packFormat.toString()))
         }
     }
 }

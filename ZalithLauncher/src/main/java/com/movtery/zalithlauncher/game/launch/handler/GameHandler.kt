@@ -21,6 +21,7 @@ import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -216,7 +217,7 @@ class GameHandler(
 
         runCatching {
             val resourcePackFile = File(
-                File(version.getGameDir(), "resourcepacks").ensureDirectory(),
+                File(version.getGameDir(), VersionFolders.RESOURCE_PACK.folderName).ensureDirectory(),
                 "ZLSkin-pack.zip"
             )
             if (resourcePackFile.exists() && !resourcePackFile.delete()) throw IOException("Cannot clear an existing skin pack!")

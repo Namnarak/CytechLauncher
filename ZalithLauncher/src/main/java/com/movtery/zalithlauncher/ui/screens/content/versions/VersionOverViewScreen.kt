@@ -40,6 +40,7 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -336,7 +337,7 @@ private fun VersionQuickActions(
                 }
                 OutlinedButton(
                     modifier = Modifier.padding(end = 12.dp),
-                    onClick = { accessFolder("saves") }
+                    onClick = { accessFolder(VersionFolders.SAVES.folderName) }
                 ) {
                     Text(
                         text = stringResource(R.string.versions_overview_saves_folder)
@@ -344,7 +345,7 @@ private fun VersionQuickActions(
                 }
                 OutlinedButton(
                     modifier = Modifier.padding(end = 12.dp),
-                    onClick = { accessFolder("resourcepacks") }
+                    onClick = { accessFolder(VersionFolders.RESOURCE_PACK.folderName) }
                 ) {
                     Text(
                         text = stringResource(R.string.versions_overview_resource_pack_folder)
@@ -352,7 +353,7 @@ private fun VersionQuickActions(
                 }
                 OutlinedButton(
                     modifier = Modifier.padding(end = 12.dp),
-                    onClick = { accessFolder("shaderpacks") }
+                    onClick = { accessFolder(VersionFolders.SHADERS.folderName) }
                 ) {
                     Text(
                         text = stringResource(R.string.versions_overview_shaders_pack_folder)
