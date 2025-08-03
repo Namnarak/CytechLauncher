@@ -523,6 +523,7 @@ class GameInstaller(
         task = {
             NetWorkUtils.downloadFileSuspend(
                 url = modVersion.file.url,
+                sha1 = modVersion.file.hashes.sha1,
                 outputFile = File(tempModsDir, modVersion.file.fileName)
             )
         }

@@ -33,6 +33,7 @@ class DownloadTask(
             runInterruptible {
                 NetWorkUtils.downloadFromMirrorList(
                     urls = urls,
+                    sha1 = sha1,
                     outputFile = targetFile,
                     bufferSize = bufferSize
                 ) { size ->

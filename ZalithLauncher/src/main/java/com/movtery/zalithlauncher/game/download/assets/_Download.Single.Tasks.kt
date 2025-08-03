@@ -115,6 +115,7 @@ private fun downloadSingleFile(
 
                 NetWorkUtils.downloadFileSuspend(
                     url = info.downloadUrl,
+                    sha1 = info.sha1,
                     outputFile = file.ensureParentDirectory(),
                     sizeCallback = { size ->
                         downloadedSize += size

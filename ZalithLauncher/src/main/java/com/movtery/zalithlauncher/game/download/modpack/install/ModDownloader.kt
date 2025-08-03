@@ -66,6 +66,7 @@ class ModDownloader(
                         runCatching {
                             NetWorkUtils.downloadFromMirrorListSuspend(
                                 urls = urls,
+                                sha1 = file.sha1,
                                 outputFile = outputFile
                             ) { size ->
                                 downloadedFileSize.addAndGet(size)

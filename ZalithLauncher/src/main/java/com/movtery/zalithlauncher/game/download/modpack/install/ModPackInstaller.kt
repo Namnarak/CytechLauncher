@@ -134,6 +134,7 @@ class ModPackInstaller(
                         }
                         NetWorkUtils.downloadFileSuspend(
                             url = info.downloadUrl,
+                            sha1 = info.sha1,
                             outputFile = installerFile,
                             sizeCallback = { size ->
                                 downloadedSize += size
@@ -254,7 +255,6 @@ class ModPackInstaller(
             },
             onError = onError,
             updateTasks = { gameTasks ->
-                lInfo("Test: Updated tasks, ${gameTasks.joinToString(", ")}")
                 _tasksFlow.update { gameTasks }
             }
         )

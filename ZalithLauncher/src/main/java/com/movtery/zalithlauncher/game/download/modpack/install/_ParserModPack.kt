@@ -137,7 +137,8 @@ private suspend fun modrinth(
             if (manifestFile.env.client == "unsupported") return@mapNotNull null
             ModFile(
                 outputFile = File(targetFolder, manifestFile.path),
-                downloadUrls = manifestFile.downloads.toList()
+                downloadUrls = manifestFile.downloads.toList(),
+                sha1 = manifestFile.hashes.sha1
             )
         }
 

@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
+import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import kotlinx.coroutines.CancellationException
@@ -47,60 +48,96 @@ class NetWorkUtils {
          * @param url 要下载的文件URL
          * @param outputFile 要保存的目标文件
          * @param bufferSize 缓冲区大小
+         * @param sha1 文件SHA1验证值
          * @param sizeCallback 正在下载的大小回调
          */
         fun downloadFileWithHttp(
             url: String,
             outputFile: File,
             bufferSize: Int = 65536,
+            sha1: String? = null,
             sizeCallback: (Long) -> Unit = {}
         ) {
-            outputFile.ensureParentDirectory()
+            val maxAttempts = if (sha1 != null) 2 else 1
+            var attempt = 0
+            var totalReportedBytes = 0L
 
-            val conn = URL(url).openConnection() as HttpURLConnection
+            while (true) {
+                attempt++
+                //本次尝试中已回调的大小
+                var attemptReportedBytes = 0L
 
-            conn.apply {
-                readTimeout = UrlManager.TIME_OUT.first
-                connectTimeout = UrlManager.TIME_OUT.first
-                useCaches = true
-                setRequestProperty("User-Agent", "Mozilla/5.0/$URL_USER_AGENT")
-            }
+                try {
+                    outputFile.ensureParentDirectory()
 
-            try {
-                conn.connect()
-                if (conn.responseCode !in 200..299) {
-                    if (conn.responseCode == 404) throw FileNotFoundException("HTTP ${conn.responseCode} - ${conn.responseMessage}")
-                    throw IOException("HTTP ${conn.responseCode} - ${conn.responseMessage}")
-                }
+                    val conn = URL(url).openConnection() as HttpURLConnection
 
-                val contentLength = conn.contentLengthLong
-                val buffer = ByteArray(bufferSize)
+                    conn.apply {
+                        readTimeout = UrlManager.TIME_OUT.first
+                        connectTimeout = UrlManager.TIME_OUT.first
+                        useCaches = true
+                        setRequestProperty("User-Agent", "Mozilla/5.0/$URL_USER_AGENT")
+                    }
 
-                conn.inputStream.use { inputStream ->
-                    BufferedOutputStream(FileOutputStream(outputFile)).use { fos ->
-                        var totalBytesRead = 0L
-                        var bytesRead: Int
+                    conn.connect()
+                    if (conn.responseCode !in 200..299) {
+                        if (conn.responseCode == 404) throw FileNotFoundException("HTTP ${conn.responseCode} - ${conn.responseMessage}")
+                        throw IOException("HTTP ${conn.responseCode} - ${conn.responseMessage}")
+                    }
 
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fos.write(buffer, 0, bytesRead)
-                            totalBytesRead += bytesRead
-                            sizeCallback(bytesRead.toLong())
-                        }
+                    val contentLength = conn.contentLengthLong
+                    val buffer = ByteArray(bufferSize)
 
-                        if (contentLength != -1L && totalBytesRead != contentLength) {
-                            throw IOException("Download incomplete. Expected $contentLength bytes, received $totalBytesRead bytes.")
+                    conn.inputStream.use { inputStream ->
+                        BufferedOutputStream(FileOutputStream(outputFile)).use { fos ->
+                            var totalBytesRead = 0L
+                            var bytesRead: Int
+
+                            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                fos.write(buffer, 0, bytesRead)
+                                totalBytesRead += bytesRead
+
+                                sizeCallback(bytesRead.toLong())
+                                attemptReportedBytes += bytesRead
+                                totalReportedBytes += bytesRead
+                            }
+
+                            if (contentLength != -1L && totalBytesRead != contentLength) {
+                                throw IOException("Download incomplete. Expected $contentLength bytes, received $totalBytesRead bytes.")
+                            }
                         }
                     }
-                }
-            } catch (e: Exception) {
-                FileUtils.deleteQuietly(outputFile)
-                when (e) {
-                    is CancellationException -> {
-                        lDebug("download task cancelled. url: $url", e)
-                        return //取消了，不需要抛出异常
+
+                    sha1?.let {
+                        if (!compareSHA1(outputFile, it)) {
+                            throw IOException("SHA1 verification failed for $url")
+                        }
                     }
-                    is FileNotFoundException -> throw e //目标不存在
-                    else -> throw IOException("Download failed: $url", e)
+
+                    return //下载并验证成功
+                } catch (e: Exception) {
+                    FileUtils.deleteQuietly(outputFile)
+
+                    if (attemptReportedBytes > 0) {
+                        //回退本次尝试的下载量
+                        sizeCallback(-attemptReportedBytes)
+                        totalReportedBytes -= attemptReportedBytes
+                    }
+
+                    when (e) {
+                        is CancellationException -> {
+                            lDebug("Download task cancelled. url: $url", e)
+                            return //取消了，不需要抛出异常
+                        }
+                        is FileNotFoundException -> {
+                            if (attempt >= maxAttempts) throw e  //目标不存在
+                        }
+                        else -> {
+                            if (attempt >= maxAttempts) {
+                                throw IOException("Download failed after $maxAttempts attempts: $url", e)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -110,12 +147,14 @@ class NetWorkUtils {
          * @param url 要下载的文件URL
          * @param outputFile 要保存的目标文件
          * @param bufferSize 缓冲区大小
+         * @param sha1 文件SHA1验证值
          * @param sizeCallback 正在下载的大小回调
          */
         suspend fun downloadFileSuspend(
             url: String,
             outputFile: File,
             bufferSize: Int = 65536,
+            sha1: String? = null,
             sizeCallback: (Long) -> Unit = {}
         ) = withContext(Dispatchers.IO) {
             runInterruptible {
@@ -123,6 +162,7 @@ class NetWorkUtils {
                     url = url,
                     outputFile = outputFile,
                     bufferSize = bufferSize,
+                    sha1 = sha1,
                     sizeCallback = sizeCallback
                 )
             }
@@ -133,37 +173,77 @@ class NetWorkUtils {
          * @param urls 要下载的文件链接列表
          * @param outputFile 要保存的目标文件
          * @param bufferSize 缓冲区大小
+         * @param sha1 文件SHA1验证值
          * @param sizeCallback 正在下载的大小回调
          */
         fun downloadFromMirrorList(
             urls: List<String>,
             outputFile: File,
             bufferSize: Int = 65536,
+            sha1: String? = null,
             sizeCallback: (Long) -> Unit = {}
         ) {
             require(urls.isNotEmpty()) { "URL list must not be empty." }
 
+            val errors = mutableListOf<Exception>()
             var lastException: Exception? = null
+            var totalReportedBytes = 0L
 
             for (url in urls) {
-                lastException = try {
-                    downloadFileWithHttp(
-                        url = url,
-                        outputFile = outputFile,
-                        bufferSize = bufferSize,
-                        sizeCallback = sizeCallback
-                    )
-                    return
-                } catch (e: FileNotFoundException) {
-                    e
-                } catch (e: IOException) {
-                    e
-                } catch (e: CancellationException) {
-                    throw e //取消直接抛出
+                var attempt = 0
+                val maxAttempts = if (sha1 != null) 2 else 1
+
+                while (attempt < maxAttempts) {
+                    attempt++
+                    //本次镜像尝试中已回调的大小
+                    var mirrorAttemptReported = 0L
+
+                    try {
+                        val mirrorCallback = { bytes: Long ->
+                            if (bytes > 0) {
+                                mirrorAttemptReported += bytes
+                                totalReportedBytes += bytes
+                            }
+                            sizeCallback(bytes)
+                        }
+
+                        downloadFileWithHttp(
+                            url = url,
+                            outputFile = outputFile,
+                            bufferSize = bufferSize,
+                            sha1 = sha1,
+                            sizeCallback = mirrorCallback
+                        )
+                        return //下载成功
+                    } catch (e: Exception) {
+                        FileUtils.deleteQuietly(outputFile)
+                        lastException = e
+
+                        if (mirrorAttemptReported > 0) {
+                            //回退本次镜像尝试的下载量
+                            sizeCallback(-mirrorAttemptReported)
+                            totalReportedBytes -= mirrorAttemptReported
+                        }
+
+                        when (e) {
+                            is CancellationException -> throw e
+                            is FileNotFoundException -> {
+                                errors.add(e)
+                                break
+                            }
+                            else -> {
+                                errors.add(e)
+                            }
+                        }
+                    }
                 }
             }
 
-            throw IOException("Failed to download file from all mirrors.", lastException)
+            throw IOException("Failed to download file from all mirrors (${errors.size} errors)", lastException).apply {
+                errors.forEachIndexed { i, e ->
+                    addSuppressed(Exception("Mirror error #${i + 1}: ${e.message}"))
+                }
+            }
         }
 
         /**
@@ -171,12 +251,14 @@ class NetWorkUtils {
          * @param urls 要下载的文件链接列表
          * @param outputFile 要保存的目标文件
          * @param bufferSize 缓冲区大小
+         * @param sha1 文件SHA1验证值
          * @param sizeCallback 正在下载的大小回调
          */
         suspend fun downloadFromMirrorListSuspend(
             urls: List<String>,
             outputFile: File,
             bufferSize: Int = 65536,
+            sha1: String? = null,
             sizeCallback: (Long) -> Unit = {}
         ) = withContext(Dispatchers.IO) {
             runInterruptible {
@@ -184,6 +266,7 @@ class NetWorkUtils {
                     urls = urls,
                     outputFile = outputFile,
                     bufferSize = bufferSize,
+                    sha1 = sha1,
                     sizeCallback = sizeCallback
                 )
             }
