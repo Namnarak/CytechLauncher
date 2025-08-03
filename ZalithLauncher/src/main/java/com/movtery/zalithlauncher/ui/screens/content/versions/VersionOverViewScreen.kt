@@ -75,7 +75,6 @@ fun VersionOverViewScreen(
         ),
         Triple(NormalNavKey.Versions.OverView, versionsScreenKey, false)
     ) { isVisible ->
-        var versionName by remember { mutableStateOf(version.getVersionName()) }
         var versionSummary by remember { mutableStateOf(version.getVersionSummary()) }
         var refreshVersionIcon by remember { mutableIntStateOf(0) }
 
@@ -97,10 +96,7 @@ fun VersionOverViewScreen(
                 refreshVersionIcon++
                 iconFileExists = iconFile.exists()
             },
-            setVersionName = { value ->
-                version.setVersionName(value)
-                versionName = value
-            },
+            onVersionRefreshed = backToMainScreen,
             setVersionSummary = { value ->
                 version.getVersionConfig().apply {
                     this.versionSummary = value
@@ -125,7 +121,7 @@ fun VersionOverViewScreen(
 
             VersionInfoLayout(
                 modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
-                version, versionName, versionSummary, iconFileExists, refreshVersionIcon,
+                version, versionSummary, iconFileExists, refreshVersionIcon,
                 pickIcon = { versionsOperation = VersionsOperation.PickIcon(version) },
                 resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
             )
@@ -211,7 +207,6 @@ private fun PickIcon(version: Version, onDone: () -> Unit) {
 private fun VersionInfoLayout(
     modifier: Modifier = Modifier,
     version: Version,
-    versionName: String,
     versionSummary: String,
     iconFileExists: Boolean,
     refreshKey: Any? = null,
@@ -229,7 +224,6 @@ private fun VersionInfoLayout(
             VersionOverviewItem(
                 modifier = Modifier.padding(start = 4.dp).weight(1f),
                 version = version,
-                versionName = versionName,
                 versionSummary = versionSummary,
                 refreshKey = refreshKey
             )
@@ -408,7 +402,7 @@ private fun VersionsOperation(
     updateOperation: (VersionsOperation) -> Unit,
     onIconPicked: () -> Unit = {},
     resetIcon: () -> Unit = {},
-    setVersionName: (String) -> Unit = {},
+    onVersionRefreshed: () -> Unit = {},
     setVersionSummary: (String) -> Unit = {},
     onVersionDeleted: () -> Unit = {}
 ) {
@@ -436,7 +430,7 @@ private fun VersionsOperation(
                             title = R.string.versions_manage_rename_version,
                             task = {
                                 VersionsManager.renameVersion(versionsOperation.version, it)
-                                setVersionName(it)
+                                onVersionRefreshed()
                             }
                         )
                     )

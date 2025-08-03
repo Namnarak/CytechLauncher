@@ -321,7 +321,6 @@ fun VersionsOperation(
                             title = R.string.versions_manage_rename_version,
                             task = {
                                 VersionsManager.renameVersion(versionsOperation.version, it)
-                                VersionsManager.refresh()
                             }
                         )
                     )

@@ -281,12 +281,12 @@ object VersionsManager {
 
         FileUtils.deleteQuietly(versionFolder)
 
-        version.setVersionName(name)
-
         if (saveToCurrent) {
             //设置并刷新当前版本
             saveCurrentVersion(name)
         }
+
+        refresh()
     }
 
     /**
