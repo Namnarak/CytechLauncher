@@ -72,8 +72,16 @@ private suspend fun curseforge(
                                 projectID = manifestFile.projectID.toString(),
                                 fileID = manifestFile.fileID.toString()
                             ).data
+                            //获取项目
+                            val project = PlatformSearch.getProjectFromCurseForge(
+                                projectID = manifestFile.projectID.toString()
+                            ).data
+                            //通过项目类型指定目标下载目录
+                            val folder = project.classId?.folderName?.let { folderName ->
+                                File(targetFolder, folderName)
+                            } ?: modsFolder
                             ModFile(
-                                outputFile = File(modsFolder, version.fileName!!),
+                                outputFile = File(folder, version.fileName!!),
                                 downloadUrls = listOf(version.downloadUrl!!)
                             )
                         }.onFailure { e ->
