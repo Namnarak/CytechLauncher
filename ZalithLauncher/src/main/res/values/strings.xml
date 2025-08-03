@@ -486,6 +486,13 @@
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
+    <string name="mods_manage">Mods</string>
+    <string name="mods_manage_info">Mod Information</string>
+    <string name="mods_manage_authors">Mod Authors:</string>
+    <string name="mods_manage_description">Mod Description:</string>
+    <string name="mods_manage_version">Mod Version: %s</string>
+    <string name="mods_manage_delete_warning">Are you sure you want to delete the mod %s? This action cannot be undone!</string>
+    <string name="mods_manage_no_mods">No mods for this version</string>
     <string name="saves_manage">Saves</string>
     <string name="saves_manage_info">Save Info</string>
     <string name="saves_manage_only_show_compatible">Only show compatible saves</string>

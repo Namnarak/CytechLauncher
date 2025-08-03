@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,9 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -57,10 +53,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
-import coil3.ImageLoader
-import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
@@ -74,6 +66,7 @@ import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
@@ -355,11 +348,12 @@ private fun ResourcePackItemLayout(
             modifier = Modifier.padding(all = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ResourcePackIcon(
+            ByteArrayIcon(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(shape = RoundedCornerShape(10.dp)),
-                resourcePackInfo = resourcePackInfo
+                triggerRefresh = resourcePackInfo,
+                icon = resourcePackInfo.icon
             )
 
             Column(
@@ -427,54 +421,6 @@ private fun ResourcePackItemLayout(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ResourcePackIcon(
-    modifier: Modifier = Modifier,
-    triggerRefresh: Any? = null,
-    resourcePackInfo: ResourcePackInfo
-) {
-    val context = LocalContext.current
-
-    val imageLoader = remember(triggerRefresh, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
-    }
-
-    val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to R.drawable.ic_unknown_pack
-        val icon = resourcePackInfo.icon
-        when {
-            icon == null -> default //不存在则使用默认
-            else -> {
-                val model = ImageRequest.Builder(context)
-                    .data(icon)
-                    .build()
-                model to null
-            }
-        }
-    }
-
-    if (model != null) {
-        AsyncImage(
-            model = model,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
-    } else {
-        Image(
-            painter = painterResource(id = defaultRes!!),
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
     }
 }
 

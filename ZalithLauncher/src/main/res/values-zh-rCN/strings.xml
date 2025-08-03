@@ -486,6 +486,13 @@
     <string name="versions_config_follow_global_if_blank">留白则跟随全局设置</string>
     <string name="versions_config_disable_if_blank">留白则不使用此功能</string>
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
+    <string name="mods_manage">模组管理</string>
+    <string name="mods_manage_info">模组信息</string>
+    <string name="mods_manage_authors">模组作者：</string>
+    <string name="mods_manage_description">模组描述：</string>
+    <string name="mods_manage_version">模组版本：%s</string>
+    <string name="mods_manage_delete_warning">您确定要删除模组 %s 吗？该操作不可撤销！</string>
+    <string name="mods_manage_no_mods">当前版本还没有模组</string>
     <string name="saves_manage">存档管理</string>
     <string name="saves_manage_info">存档信息</string>
     <string name="saves_manage_only_show_compatible">仅显示兼容的存档</string>

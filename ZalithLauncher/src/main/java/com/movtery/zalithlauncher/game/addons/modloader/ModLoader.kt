@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.game.addons.modloader
 
 enum class ModLoader(val displayName: String) {
+    UNKNOWN(""),
     OPTIFINE("OptiFine"),
     FORGE("Forge"),
     NEOFORGE("NeoForge"),

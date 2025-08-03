@@ -28,6 +28,7 @@ proxyClientAndroid = "0.0.5"
 room = "2.7.2"
 stringfog-gradlePlugin = "5.2.0"
 stringfog-xor = "5.0.0"
+toml4j = "0.7.2"
 xz = "1.10"
 sqlcipher = "4.9.0"
 junit = "4.13.2"
@@ -82,6 +83,7 @@ proxy-client-android = { module = "top.fifthlight.touchcontroller:proxy-client-a
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
 stringfog-gradle-plugin = { module = "com.github.megatronking.stringfog:gradle-plugin", version.ref = "stringfog-gradlePlugin" }
 stringfog-xor = { module = "com.github.megatronking.stringfog:xor", version.ref = "stringfog-xor" }
+toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 xz = { module = "org.tukaani:xz", version.ref = "xz" }
 
 [plugins]

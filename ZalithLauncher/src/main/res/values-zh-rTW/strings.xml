@@ -447,6 +447,13 @@
     <string name="versions_config_follow_global_if_blank">留白則跟隨全域設定</string>
     <string name="versions_config_disable_if_blank">留白則不使用此功能</string>
     <string name="versions_config_failed_to_save">儲存版本組態時發生異常</string>
+    <string name="mods_manage">模組管理</string>
+    <string name="mods_manage_info">模組資訊</string>
+    <string name="mods_manage_authors">模組作者：</string>
+    <string name="mods_manage_description">模組描述：</string>
+    <string name="mods_manage_version">模組版本：%s</string>
+    <string name="mods_manage_delete_warning">您確定要刪除模組 %s 嗎？該操作不可撤銷！</string>
+    <string name="mods_manage_no_mods">目前版本尚無模組</string>
     <string name="saves_manage">存檔管理</string>
     <string name="saves_manage_info">存檔資訊</string>
     <string name="saves_manage_only_show_compatible">僅顯示相容的存檔</string>

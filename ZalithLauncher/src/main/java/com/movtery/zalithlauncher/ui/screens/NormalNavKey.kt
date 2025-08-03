@@ -48,6 +48,8 @@ sealed interface NormalNavKey : NavKey {
         @Serializable data object OverView : Versions
         /** 版本配置屏幕 */
         @Serializable data object Config : Versions
+        /** 模组管理屏幕 */
+        @Serializable data object ModsManager : Versions
         /** 存档管理屏幕 */
         @Serializable data object SavesManager : Versions
         /** 资源包管理屏幕 */

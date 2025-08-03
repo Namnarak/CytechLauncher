@@ -21,7 +21,7 @@ data class ShaderPackInfo(
 )
 
 /**
- * 简易过滤器，过滤特定的存档
+ * 简易过滤器，过滤特定的光影包
  */
 fun List<ShaderPackInfo>.filterShaders(
     nameFilter: String

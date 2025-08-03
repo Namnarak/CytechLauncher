@@ -33,12 +33,11 @@ Here’s the current roadmap of features and development status:
 * [x] Customizable game installation directory
 * [x] Account system: Microsoft OAuth login, offline accounts, and authentication server support
 * [x] Java runtime management
-* [x] Content managers: UI for managing saves / resource packs / shaders
+* [x] Content managers: UI for managing saves / resource packs / shaders / mods
 
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
-* [ ] Content managers: UI for managing mods
 * [ ] Gamepad control support
 
 ## 🌐 Language and Translation Support
