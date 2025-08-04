@@ -1,15 +1,32 @@
 package com.movtery.zalithlauncher.game.download.assets.utils
 
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.string.StringUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.containsChinese
 import kotlin.math.max
 
 private const val CONTAIN_CHINESE_WEIGHT = 10
+
+/**
+ * 根据平台获取模组翻译信息
+ */
+fun PlatformProject.getMcMod(
+    classes: PlatformClasses
+): ModTranslations.McMod? {
+    val translations = ModTranslations.getTranslationsByRepositoryType(classes)
+    return when (this) {
+        is ModrinthSingleProject -> translations.getModBySlugId(slug)
+        is CurseForgeProject -> translations.getModBySlugId(data.slug)
+        else -> error("Unknown project type: $this")
+    }
+}
 
 /**
  * 获取 mcmod 模组翻译标题，若当前环境非中文环境，则返回原始模组名称

@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.download.assets.platform
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFingerprintsMatches
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeVersions
@@ -12,8 +13,15 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.network.httpGet
+import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.withRetry
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.Parameters
+import org.apache.commons.codec.digest.MurmurHash2
+import org.jackhuang.hmcl.util.DigestUtils
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.nio.file.Files
 
 object PlatformSearch {
     /**
@@ -133,6 +141,33 @@ object PlatformSearch {
         )
     }
 
+    suspend fun getVersionByLocalFileFromCurseForge(
+        file: File,
+        apiKey: String = InfoDistributor.CURSEFORGE_API,
+        retry: Int = 1
+    ): CurseForgeFingerprintsMatches = withRetry("PlatformSearch:CurseForge_getVersionByLocalFile", maxRetries = retry) {
+        val baos = ByteArrayOutputStream()
+        Files.newInputStream(file.toPath()).use { stream ->
+            val buf = ByteArray(1024)
+            var bytesRead: Int
+            while (stream.read(buf).also { bytesRead = it } != -1) {
+                for (i in 0 until bytesRead) {
+                    val b = buf[i]
+                    if (b.toInt() !in listOf(0x9, 0xa, 0xd, 0x20)) {
+                        baos.write(b.toInt())
+                    }
+                }
+            }
+        }
+        val hash = Integer.toUnsignedLong(MurmurHash2.hash32(baos.toByteArray(), baos.size(), 1))
+
+        httpPostJson(
+            url = "$CURSEFORGE_API/fingerprints",
+            headers = listOf("x-api-key" to apiKey),
+            body = mapOf("fingerprints" to listOf(hash))
+        )
+    }
+
     /**
      * 向 Modrinth 平台发送搜索请求
      * @param request 搜索请求
@@ -169,5 +204,23 @@ object PlatformSearch {
         httpGet(
             url = "$MODRINTH_API/project/$projectID/version"
         )
+    }
+
+    suspend fun getVersionByLocalFileFromModrinth(
+        file: File,
+        retry: Int = 1
+    ): ModrinthVersion? = withRetry("PlatformSearch:Modrinth_getVersionByLocalFile", maxRetries = retry) {
+        try {
+            val sha1 = DigestUtils.digestToString("SHA-1", file.toPath())
+
+            httpGet(
+                url = "$MODRINTH_API/version_file/$sha1",
+                parameters = Parameters.build {
+                    append("algorithm", "sha1")
+                }
+            )
+        } catch (_: ClientRequestException) {
+            return@withRetry null
+        }
     }
 }

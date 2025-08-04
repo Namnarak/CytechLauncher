@@ -122,6 +122,7 @@ sealed interface DownloadAssetsState<T> {
  * 下载资源项目通用详细信息
  */
 class DownloadProjectInfo(
+    val id: String,
     val platform: Platform,
     val iconUrl: String? = null,
     val title: String,
@@ -308,6 +309,7 @@ fun PlatformProject.toInfo(
     return when (this) {
         is ModrinthSingleProject -> {
             DownloadProjectInfo(
+                id = id,
                 platform = Platform.MODRINTH,
                 iconUrl = iconUrl,
                 title = title,
@@ -331,6 +333,7 @@ fun PlatformProject.toInfo(
         is CurseForgeProject -> {
             val data = data
             DownloadProjectInfo(
+                id = data.id.toString(),
                 platform = Platform.CURSEFORGE,
                 iconUrl = data.logo.url,
                 title = data.name,

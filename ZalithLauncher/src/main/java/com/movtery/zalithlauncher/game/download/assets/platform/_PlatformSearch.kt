@@ -5,10 +5,12 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.s
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithModrinth
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFacet
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
 import com.movtery.zalithlauncher.game.download.assets.utils.localizedModSearchKeywords
 import com.movtery.zalithlauncher.game.download.assets.utils.processChineseSearchResults
@@ -17,6 +19,9 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Se
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 suspend fun searchAssets(
     searchPlatform: Platform,
@@ -136,4 +141,30 @@ suspend fun <E> getProject(
             }
         }
     )
+}
+
+suspend fun getProjectByVersion(
+    version: PlatformVersion
+): PlatformProject = withContext(Dispatchers.IO) {
+    when (version) {
+        is ModrinthVersion -> PlatformSearch.getProjectFromModrinth(projectID = version.projectId)
+        is CurseForgeFile -> PlatformSearch.getProjectFromCurseForge(projectID = version.modId.toString())
+        else -> error("Unknown version type: $version")
+    }
+}
+
+suspend fun getVersionByLocalFile(
+    file: File
+): PlatformVersion? = withContext(Dispatchers.IO) {
+    runCatching {
+        PlatformSearch.getVersionByLocalFileFromModrinth(file)
+    }.getOrNull()?.let { return@withContext it }
+
+    runCatching {
+        PlatformSearch.getVersionByLocalFileFromCurseForge(file).data.exactMatches?.takeIf {
+            it.isNotEmpty()
+        }?.let { exactMatches ->
+            exactMatches[0].file
+        }
+    }.getOrNull()
 }

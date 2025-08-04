@@ -3,7 +3,9 @@ package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
+import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 
@@ -46,11 +48,13 @@ fun ModsOperation(
 /**
  * 根据名称，筛选模组
  */
-fun List<LocalMod>.filterMods(
+fun List<RemoteMod>.filterMods(
     nameFilter: String
 ) = this.filter { mod ->
     nameFilter.isEmpty() || (
-            mod.file.name.contains(nameFilter, true) ||
-                    mod.name.contains(nameFilter, true)
-            )
+            mod.localMod.file.name.contains(nameFilter, true) ||
+            mod.localMod.name.contains(nameFilter, true) ||
+            mod.projectInfo?.title?.contains(nameFilter, true) == true ||
+            mod.mcMod?.getMcmodTitle(mod.localMod.name)?.contains(nameFilter, true) == true
+    )
 }

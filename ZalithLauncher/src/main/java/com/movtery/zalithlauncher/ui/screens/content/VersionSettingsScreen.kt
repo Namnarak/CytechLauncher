@@ -48,6 +48,7 @@ import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -61,6 +62,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.ShadersManagerScre
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -93,7 +95,7 @@ fun VersionSettingsScreen(
             NavigationUI(
                 modifier = Modifier.fillMaxHeight(),
                 key = key,
-                mainScreenKey = backScreenViewModel.mainScreenKey,
+                backScreenViewModel = backScreenViewModel,
                 versionsScreenKey = versionsScreenKey,
                 onCurrentKeyChange = { newKey ->
                     versionsScreenKey = newKey
@@ -176,13 +178,15 @@ private fun TabMenu(
 private fun NavigationUI(
     modifier: Modifier = Modifier,
     key: NestedNavKey.Versions,
-    mainScreenKey: NavKey?,
+    backScreenViewModel: ScreenBackStackViewModel,
     versionsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
 ) {
+    val mainScreenKey = backScreenViewModel.mainScreenKey
+
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
     LaunchedEffect(stackTopKey) {
@@ -222,7 +226,17 @@ private fun NavigationUI(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version
-                    )
+                    ) { projectId, platform ->
+                        backScreenViewModel.navigateToDownload(
+                            targetScreen = NestedNavKey.DownloadMod(
+                                backStack = backScreenViewModel.downloadModBackStack.also { stack ->
+                                    stack.navigateTo(
+                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
+                                    )
+                                }
+                            )
+                        )
+                    }
                 }
                 entry<NormalNavKey.Versions.SavesManager> {
                     SavesManagerScreen(

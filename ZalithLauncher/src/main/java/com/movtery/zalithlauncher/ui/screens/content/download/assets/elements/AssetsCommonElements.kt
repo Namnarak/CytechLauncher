@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -86,7 +87,8 @@ fun Platform.getDrawable() = when (this) {
 @Composable
 fun AssetsIcon(
     modifier: Modifier = Modifier,
-    iconUrl: String? = null
+    iconUrl: String? = null,
+    colorFilter: ColorFilter? = null
 ) {
     val context = LocalContext.current
 
@@ -124,7 +126,8 @@ fun AssetsIcon(
                 contentDescription = null,
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Fit,
-                modifier = modifier
+                modifier = modifier,
+                colorFilter = colorFilter
             )
         }
     }

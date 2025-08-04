@@ -35,11 +35,11 @@ class AllModReader(val modsDir: File) {
      * 异步读取所有模组文件
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun readAllMods(): List<LocalMod> = withContext(Dispatchers.IO) {
+    suspend fun readAllMods(): List<RemoteMod> = withContext(Dispatchers.IO) {
         //扫描文件，封装任务
         scanFiles()
 
-        val results = mutableListOf<LocalMod>()
+        val results = mutableListOf<RemoteMod>()
         val taskChannel = Channel<ReadTask>(Channel.UNLIMITED)
 
         val workers = List(PARALLELISM) {
@@ -58,11 +58,11 @@ class AllModReader(val modsDir: File) {
 
         workers.forEach { it.join() }
 
-        return@withContext results.sortedBy { it.name }
+        return@withContext results.sortedBy { it.localMod.file.name }
     }
 
     class ReadTask(private val file: File) {
-        suspend fun execute(): LocalMod {
+        suspend fun execute(): RemoteMod {
             try {
                 coroutineContext.ensureActive()
 
@@ -74,7 +74,9 @@ class AllModReader(val modsDir: File) {
 
                 return READERS[extension]?.firstNotNullOfOrNull { reader ->
                     runCatching {
-                        reader.fromLocal(file)
+                        RemoteMod(
+                            localMod = reader.fromLocal(file)
+                        )
                     }.getOrNull()
                     //返回null，继续使用下一个解析器
                 } ?: throw IllegalArgumentException("No matching reader for extension: $extension")
@@ -83,7 +85,9 @@ class AllModReader(val modsDir: File) {
                     is CancellationException -> throw e
                     else -> {
                         lWarning("Failed to read mod: $file", e)
-                        return LocalMod.createNotMod(file)
+                        return RemoteMod(
+                            localMod = LocalMod.createNotMod(file)
+                        )
                     }
                 }
             }
