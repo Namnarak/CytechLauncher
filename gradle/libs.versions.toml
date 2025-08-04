@@ -2,7 +2,7 @@
 agp = "8.9.1"
 bytehook = "1.0.10"
 coilCompose = "3.3.0"
-compress = "1.27.1"
+compress = "1.28.0"
 commonsCodec = "1.19.0"
 commonsIo = "2.20.0"
 constraintlayoutCompose = "1.1.1"

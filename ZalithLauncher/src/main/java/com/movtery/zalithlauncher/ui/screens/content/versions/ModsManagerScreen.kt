@@ -59,10 +59,10 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
+import com.movtery.zalithlauncher.game.version.mod.AllModReader
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isEnabled
-import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -80,6 +80,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
@@ -98,6 +99,7 @@ fun ModsManagerScreen(
         Triple(NormalNavKey.Versions.ModsManager, versionsScreenKey, false),
     ) { isVisible ->
         val modsDir = File(version.getGameDir(), VersionFolders.MOD.folderName)
+        val modReader = remember(modsDir) { AllModReader(modsDir) }
 
         //触发刷新
         var refreshTrigger by remember { mutableStateOf(false) }
@@ -196,7 +198,11 @@ fun ModsManagerScreen(
 
         LaunchedEffect(refreshTrigger) {
             modsState = LoadingState.Loading
-            allMods = ModMetadataReader.readAllMods(modsDir)
+            try {
+                allMods = modReader.readAllMods()
+            } catch (_: CancellationException) {
+                //已取消
+            }
             modsState = LoadingState.None
         }
     }

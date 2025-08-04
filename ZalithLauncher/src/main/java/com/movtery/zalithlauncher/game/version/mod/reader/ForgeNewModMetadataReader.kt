@@ -7,12 +7,16 @@ import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.ForgeNewModMetadata
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
 import java.util.jar.Attributes
 import java.util.jar.Manifest
-import java.util.zip.ZipFile
+import java.util.zip.ZipException
+import java.util.zip.ZipFile as JDKZipFile
 
 /**
  * [Reference HMCL](https://github.com/HMCL-dev/HMCL/blob/4650287/HMCLCore/src/main/java/org/jackhuang/hmcl/mod/modinfo/ForgeNewModMetadata.java)
@@ -21,36 +25,42 @@ object ForgeNewModMetadataReader : ModMetadataReader {
     private const val ACC_FORGE = 0x01
     private const val ACC_NEO_FORGED = 0x02
 
-    override fun fromLocal(modFile: File): LocalMod {
-        ZipFile(modFile).use { zip ->
-            //尝试 Forge
-            runCatching {
-                readFromToml(
-                    zip,
-                    "META-INF/mods.toml",
-                    ACC_FORGE or ACC_NEO_FORGED,
-                    ModLoader.FORGE,
-                    modFile
-                )
-            }.onSuccess { return it }
+    override suspend fun fromLocal(modFile: File): LocalMod = withContext(Dispatchers.IO) {
+        try {
+            JDKZipFile(modFile).use { zip ->
+                //尝试 Forge
+                runCatching {
+                    readFromToml(
+                        zip = zip,
+                        tomlPath = "META-INF/mods.toml",
+                        loaderACC = ACC_FORGE or ACC_NEO_FORGED,
+                        defaultLoader = ModLoader.FORGE,
+                        modFile = modFile
+                    )
+                }.onSuccess { return@withContext it }
 
-            //尝试 NeoForge
-            runCatching {
-                readFromToml(
-                    zip,
-                    "META-INF/neoforge.mods.toml",
-                    ACC_NEO_FORGED,
-                    ModLoader.NEOFORGE,
-                    modFile
-                )
-            }.onSuccess { return it }
+                //尝试 NeoForge
+                runCatching {
+                    readFromToml(
+                        zip = zip,
+                        tomlPath = "META-INF/neoforge.mods.toml",
+                        loaderACC = ACC_NEO_FORGED,
+                        defaultLoader = ModLoader.NEOFORGE,
+                        modFile = modFile
+                    )
+                }.onSuccess { return@withContext it }
 
-            throw IOException("File $modFile is not a Forge 1.13+ or NeoForge mod.")
+                throw RuntimeException("File $modFile is not a Forge 1.13+ or NeoForge mod.")
+            }
+        } catch (_: ZipException) {
+            return@withContext readWithApacheZip(modFile)
+        } catch (_: IOException) {
+            return@withContext readWithApacheZip(modFile)
         }
     }
 
     private fun readFromToml(
-        zip: ZipFile,
+        zip: JDKZipFile,
         tomlPath: String,
         loaderACC: Int,
         defaultLoader: ModLoader,
@@ -92,7 +102,93 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         }
     }
 
-    private fun readVersion(zip: ZipFile, modFile: File): String? {
+    private fun readVersion(zip: JDKZipFile, modFile: File): String? {
+        val manifestEntry = zip.getEntry("META-INF/MANIFEST.MF") ?: return null
+
+        return try {
+            zip.getInputStream(manifestEntry).use { stream ->
+                Manifest(stream).mainAttributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION)
+            }
+        } catch (e: Exception) {
+            lWarning("Failed to parse MANIFEST.MF in file $modFile", e)
+            null
+        }
+    }
+
+    private fun readWithApacheZip(modFile: File): LocalMod {
+        val zipFile = ZipFile.builder()
+            .setFile(modFile)
+            .get()
+
+        zipFile.use { zip ->
+            runCatching {
+                readFromTomlApache(
+                    zip,
+                    "META-INF/mods.toml",
+                    ACC_FORGE or ACC_NEO_FORGED,
+                    ModLoader.FORGE,
+                    modFile
+                )
+            }.onSuccess { return it }
+
+            runCatching {
+                readFromTomlApache(
+                    zip,
+                    "META-INF/neoforge.mods.toml",
+                    ACC_NEO_FORGED,
+                    ModLoader.NEOFORGE,
+                    modFile
+                )
+            }.onSuccess { return it }
+
+            throw IOException("File $modFile is not a Forge 1.13+ or NeoForge mod.")
+        }
+    }
+
+    private fun readFromTomlApache(
+        zip: ZipFile,
+        tomlPath: String,
+        loaderACC: Int,
+        defaultLoader: ModLoader,
+        modFile: File
+    ): LocalMod {
+        val tomlEntry = zip.getEntry(tomlPath) ?: throw IOException("TOML file $tomlPath not found")
+
+        zip.getInputStream(tomlEntry).bufferedReader().use { reader ->
+            val toml = Toml().read(reader.readText())
+            val tomlMap = toml.toMap() as MutableMap<String, Any?>
+
+            fixAuthorsField(tomlMap)
+
+            val json = GSON.toJsonTree(tomlMap)
+            val metadata = GSON.fromJson(json, ForgeNewModMetadata::class.java)
+                ?: throw IOException("Failed to parse TOML metadata, file = $modFile")
+
+            if (metadata.mods.isEmpty()) {
+                throw IOException("Mod $modFile `$tomlPath` is malformed")
+            }
+
+            val mod = metadata.mods[0]
+            val jarVersion = readVersionApache(zip, modFile)
+            val resolvedVersion = mod.version.replace("\${file.jarVersion}", jarVersion ?: "")
+            val loaderType = analyzeLoader(toml, mod.modId, loaderACC, defaultLoader)
+            val icon = zip.tryGetIcon(metadata.logoFile)
+
+            return LocalMod(
+                modFile = modFile,
+                fileSize = FileUtils.sizeOf(modFile),
+                id = mod.modId,
+                loader = loaderType,
+                name = mod.displayName,
+                description = mod.description,
+                version = resolvedVersion,
+                authors = mod.authors ?: emptyList(),
+                icon = icon
+            )
+        }
+    }
+
+    private fun readVersionApache(zip: ZipFile, modFile: File): String? {
         val manifestEntry = zip.getEntry("META-INF/MANIFEST.MF") ?: return null
 
         return try {
@@ -150,6 +246,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                 val modDepsArray = depsTable?.getTables(modID)
                 modDepsArray?.map { it.toMap() as Map<String, Any> }
             }
+
             else -> {
                 depsArray.map { it.toMap() as Map<String, Any> }
             }
