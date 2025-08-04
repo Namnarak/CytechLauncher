@@ -72,6 +72,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.fixedFileUrl
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.getSHA1
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFile.Companion.getPrimary
@@ -268,10 +269,6 @@ suspend fun List<PlatformVersion>.mapToInfos(
                     RELEASE_REGEX.matcher(gameVersion).find()
                 }.toTypedArray()
 
-                val sha1 = file.hashes.find { hash ->
-                    hash.algo == CurseForgeFile.Hash.Algo.SHA1
-                }
-
                 DownloadVersionInfo(
                     platform = Platform.CURSEFORGE,
                     displayName = file.displayName,
@@ -294,7 +291,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
                     downloadCount = file.downloadCount,
                     downloadUrl = downloadUrl,
                     date = file.fileDate,
-                    sha1 = sha1?.value,
+                    sha1 = file.getSHA1(),
                     fileSize = file.fileLength
                 )
             }
