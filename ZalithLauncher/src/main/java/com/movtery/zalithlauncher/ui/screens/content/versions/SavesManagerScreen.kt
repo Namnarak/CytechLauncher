@@ -41,7 +41,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +61,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
@@ -100,12 +102,88 @@ import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.Date
+
+private class SavesManageViewModel(
+    val minecraftVersion: String,
+    val savesDir: File
+) : ViewModel() {
+    var savesFilter by mutableStateOf(SavesFilter(onlyShowCompatible = false, saveName = ""))
+        private set
+
+    var allSaves by mutableStateOf<List<SaveData>>(emptyList())
+        private set
+    var filteredSaves by mutableStateOf<List<SaveData>?>(null)
+        private set
+
+    var savesState by mutableStateOf<LoadingState>(LoadingState.Loading)
+        private set
+
+    private var job: Job? = null
+
+    fun refresh() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            savesState = LoadingState.Loading
+
+            withContext(Dispatchers.IO) {
+                val tempList = mutableListOf<SaveData>()
+                savesDir.listFiles()?.filter { it.isDirectory }?.takeIf { it.isNotEmpty() }?.let { dirs ->
+                    try {
+                        dirs.forEach { dir ->
+                            ensureActive()
+                            //解析存档 level.dat，读取必要数据
+                            val data = parseLevelDatFile(
+                                saveFile = dir,
+                                levelDatFile = File(dir, "level.dat")
+                            )
+                            tempList.add(data)
+                        }
+                    } catch (_: CancellationException) {
+                        return@withContext
+                    }
+                }
+                allSaves = tempList.sortedBy { it.saveFile.name }
+                filterSaves()
+            }
+
+            savesState = LoadingState.None
+        }
+    }
+
+    init {
+        refresh()
+    }
+
+    fun updateFilter(filter: SavesFilter) {
+        this.savesFilter = filter
+        filterSaves()
+    }
+
+    private fun filterSaves() {
+        filteredSaves = allSaves.takeIf { it.isNotEmpty() }?.filterSaves(minecraftVersion, savesFilter)
+    }
+}
+
+@Composable
+private fun rememberSavesManageViewModel(
+    minecraftVersion: String,
+    savesDir: File,
+    version: Version
+) = viewModel(
+    key = version.toString()
+) {
+    SavesManageViewModel(
+        minecraftVersion = minecraftVersion,
+        savesDir = savesDir
+    )
+}
 
 @Composable
 fun SavesManagerScreen(
@@ -125,19 +203,7 @@ fun SavesManagerScreen(
         val quickPlay = versionInfo.quickPlay
         val savesDir = File(version.getGameDir(), VersionFolders.SAVES.folderName)
 
-        //触发刷新
-        var refreshTrigger by remember { mutableStateOf(false) }
-        //简易存档过滤器
-        var savesFilter by remember { mutableStateOf(SavesFilter(onlyShowCompatible = false, saveName = "")) }
-
-        var allSaves by remember { mutableStateOf<List<SaveData>>(emptyList()) }
-        val filteredSaves by remember(allSaves, savesFilter) {
-            derivedStateOf {
-                allSaves.takeIf { it.isNotEmpty() }?.filterSaves(minecraftVersion, savesFilter)
-            }
-        }
-
-        var savesState by remember { mutableStateOf<LoadingState>(LoadingState.Loading) }
+        val viewModel = rememberSavesManageViewModel(minecraftVersion, savesDir, version)
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -153,7 +219,7 @@ fun SavesManagerScreen(
         ) {
             val operationScope = rememberCoroutineScope()
 
-            when (savesState) {
+            when (viewModel.savesState) {
                 is LoadingState.None -> {
                     val itemColor = itemLayoutColor()
                     val itemContentColor = MaterialTheme.colorScheme.onSurface
@@ -164,7 +230,7 @@ fun SavesManagerScreen(
                             savesOperation = SavesOperation.Progress
                             task()
                             savesOperation = SavesOperation.None
-                            refreshTrigger = !refreshTrigger
+                            viewModel.refresh()
                         }
                     }
                     SaveOperation(
@@ -202,16 +268,16 @@ fun SavesManagerScreen(
                                 .fillMaxWidth(),
                             inputFieldColor = itemColor,
                             inputFieldContentColor = itemContentColor,
-                            savesFilter = savesFilter,
-                            onSavesFilterChange = { savesFilter = it },
-                            refreshSaves = { refreshTrigger = !refreshTrigger }
+                            savesFilter = viewModel.savesFilter,
+                            onSavesFilterChange = { viewModel.updateFilter(it) },
+                            refreshSaves = { viewModel.refresh() }
                         )
 
                         SavesList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            savesList = filteredSaves,
+                            savesList = viewModel.filteredSaves,
                             quickPlay = quickPlay,
                             minecraftVersion = minecraftVersion,
                             itemColor = itemColor,
@@ -226,32 +292,6 @@ fun SavesManagerScreen(
                     }
                 }
             }
-        }
-
-        LaunchedEffect(refreshTrigger) {
-            savesState = LoadingState.Loading
-
-            withContext(Dispatchers.IO) {
-                val tempList = mutableListOf<SaveData>()
-                savesDir.listFiles()?.filter { it.isDirectory }?.takeIf { it.isNotEmpty() }?.let { dirs ->
-                    try {
-                        dirs.forEach { dir ->
-                            ensureActive()
-                            //解析存档 level.dat，读取必要数据
-                            val data = parseLevelDatFile(
-                                saveFile = dir,
-                                levelDatFile = File(dir, "level.dat")
-                            )
-                            tempList.add(data)
-                        }
-                    } catch (_: CancellationException) {
-                        return@withContext
-                    }
-                }
-                allSaves = tempList.sortedBy { it.saveFile.name }
-            }
-
-            savesState = LoadingState.None
         }
     }
 }

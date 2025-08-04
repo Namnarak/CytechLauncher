@@ -31,7 +31,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +47,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -77,6 +79,69 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
+private class ShadersManageViewModel(
+    val shadersDir: File
+) : ViewModel() {
+    var nameFilter by mutableStateOf("")
+
+    var allShaders by mutableStateOf<List<ShaderPackInfo>>(emptyList())
+        private set
+    var filteredShaders by mutableStateOf<List<ShaderPackInfo>?>(null)
+        private set
+
+    var shadersState by mutableStateOf<LoadingState>(LoadingState.None)
+        private set
+
+    fun refresh() {
+        viewModelScope.launch {
+            shadersState = LoadingState.Loading
+
+            withContext(Dispatchers.IO) {
+                try {
+                    allShaders = shadersDir.listFiles()?.filter {
+                        //光影包只能是后缀为.zip的压缩包
+                        it.isFile && it.extension.equals("zip", true)
+                    }?.map { file ->
+                        ensureActive()
+                        ShaderPackInfo(
+                            file = file,
+                            fileSize = FileUtils.sizeOf(file)
+                        )
+                    } ?: emptyList()
+                    filterShaders()
+                } catch (_: CancellationException) {
+                    return@withContext
+                }
+            }
+
+            shadersState = LoadingState.None
+        }
+    }
+
+    init {
+        refresh()
+    }
+
+    fun updateFilter(name: String) {
+        this.nameFilter = name
+        filterShaders()
+    }
+
+    private fun filterShaders() {
+        filteredShaders = allShaders.takeIf { it.isNotEmpty() }?.filterShaders(nameFilter)
+    }
+}
+
+@Composable
+private fun rememberShadersManageViewModel(
+    shadersDir: File,
+    version: Version
+) = viewModel(
+    key = version.toString()
+) {
+    ShadersManageViewModel(shadersDir)
+}
+
 @Composable
 fun ShadersManagerScreen(
     mainScreenKey: NavKey?,
@@ -91,18 +156,7 @@ fun ShadersManagerScreen(
     ) { isVisible ->
         val shadersDir = File(version.getGameDir(), VersionFolders.SHADERS.folderName)
 
-        //触发刷新
-        var refreshTrigger by remember { mutableStateOf(false) }
-        var nameFilter by remember { mutableStateOf("") }
-
-        var allShaders by remember { mutableStateOf<List<ShaderPackInfo>>(emptyList()) }
-        val filteredShaders by remember(allShaders, nameFilter) {
-            derivedStateOf {
-                allShaders.takeIf { it.isNotEmpty() }?.filterShaders(nameFilter)
-            }
-        }
-
-        var shadersState by remember { mutableStateOf<LoadingState>(LoadingState.None) }
+        val viewModel = rememberShadersManageViewModel(shadersDir, version)
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -118,7 +172,7 @@ fun ShadersManagerScreen(
         ) {
             val operationScope = rememberCoroutineScope()
 
-            when (shadersState) {
+            when (viewModel.shadersState) {
                 LoadingState.None -> {
                     val itemColor = itemLayoutColor()
                     val itemContentColor = MaterialTheme.colorScheme.onSurface
@@ -129,7 +183,7 @@ fun ShadersManagerScreen(
                             shaderOperation = ShaderOperation.Progress
                             task()
                             shaderOperation = ShaderOperation.None
-                            refreshTrigger = !refreshTrigger
+                            viewModel.refresh()
                         }
                     }
                     ShaderOperation(
@@ -157,16 +211,16 @@ fun ShadersManagerScreen(
                                 .fillMaxWidth(),
                             inputFieldColor = itemColor,
                             inputFieldContentColor = itemContentColor,
-                            nameFilter = nameFilter,
-                            onNameFilterChange = { nameFilter = it },
-                            refresh = { refreshTrigger = !refreshTrigger }
+                            nameFilter = viewModel.nameFilter,
+                            onNameFilterChange = { viewModel.updateFilter(it) },
+                            refresh = { viewModel.refresh() }
                         )
 
                         ShadersList(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            shadersList = filteredShaders,
+                            shadersList = viewModel.filteredShaders,
                             itemColor = itemColor,
                             itemContentColor = itemContentColor,
                             updateOperation = { shaderOperation = it }
@@ -179,29 +233,6 @@ fun ShadersManagerScreen(
                     }
                 }
             }
-        }
-
-        LaunchedEffect(refreshTrigger) {
-            shadersState = LoadingState.Loading
-
-            withContext(Dispatchers.IO) {
-                try {
-                    allShaders = shadersDir.listFiles()?.filter {
-                        //光影包只能是后缀为.zip的压缩包
-                        it.isFile && it.extension.equals("zip", true)
-                    }?.map { file ->
-                        ensureActive()
-                        ShaderPackInfo(
-                            file = file,
-                            fileSize = FileUtils.sizeOf(file)
-                        )
-                    } ?: emptyList()
-                } catch (_: CancellationException) {
-                    return@withContext
-                }
-            }
-
-            shadersState = LoadingState.None
         }
     }
 }

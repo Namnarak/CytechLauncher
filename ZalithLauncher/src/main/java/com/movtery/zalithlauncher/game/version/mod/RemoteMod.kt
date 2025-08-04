@@ -11,16 +11,10 @@ import com.movtery.zalithlauncher.game.download.assets.utils.getMcMod
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import kotlin.coroutines.cancellation.CancellationException
 
 class RemoteMod(
     val localMod: LocalMod
 ) {
-    /**
-     * 是否已经尝试搜索过
-     */
-    var searched = false
-
     /**
      * 项目信息
      */
@@ -34,23 +28,18 @@ class RemoteMod(
         private set
 
     suspend fun search() {
-        if (!searched) {
-            try {
-                val version = getVersionByLocalFile(localMod.file)
-                projectInfo = if (version != null) {
-                    runCatching {
-                        val project = getProjectByVersion(version)
-                        mcMod = project.getMcMod(PlatformClasses.MOD)
-                        project.toInfo(PlatformClasses.MOD)
-                    }.onFailure {
-                        lWarning("Failed to get project! mod = ${localMod.file.name}", it)
-                    }.getOrNull()
-                } else {
-                    null
-                }
-                searched = true
-            } catch (_: CancellationException) {
-                searched = false
+        if (projectInfo == null) {
+            val version = getVersionByLocalFile(localMod.file)
+            projectInfo = if (version != null) {
+                runCatching {
+                    val project = getProjectByVersion(version)
+                    mcMod = project.getMcMod(PlatformClasses.MOD)
+                    project.toInfo(PlatformClasses.MOD)
+                }.onFailure {
+                    lWarning("Failed to get project! mod = ${localMod.file.name}", it)
+                }.getOrNull()
+            } else {
+                null
             }
         }
     }

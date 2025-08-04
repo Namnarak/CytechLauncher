@@ -141,11 +141,11 @@ private class ModsManageViewModel(
 
 @Composable
 private fun rememberModsManageViewModel(
-    modsDir: File
+    version: Version
 ) = viewModel(
-    key = modsDir.toString()
+    key = version.toString()
 ) {
-    ModsManageViewModel(modsDir)
+    ModsManageViewModel(File(version.getGameDir(), VersionFolders.MOD.folderName))
 }
 
 @Composable
@@ -161,8 +161,7 @@ fun ModsManagerScreen(
         ),
         Triple(NormalNavKey.Versions.ModsManager, versionsScreenKey, false)
     ) { isVisible ->
-        val modsDir = File(version.getGameDir(), VersionFolders.MOD.folderName)
-        val viewModel = rememberModsManageViewModel(modsDir)
+        val viewModel = rememberModsManageViewModel(version)
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

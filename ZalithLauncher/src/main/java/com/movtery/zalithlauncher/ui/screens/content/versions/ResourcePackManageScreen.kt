@@ -35,7 +35,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +51,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -87,6 +89,68 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
+private class ResourcePackManageViewModel(
+    val resourcePackDir: File
+) : ViewModel() {
+    var packFilter by mutableStateOf(ResourcePackFilter(false, ""))
+        private set
+
+    var allPacks by mutableStateOf<List<ResourcePackInfo>>(emptyList())
+        private set
+    var filteredPacks by mutableStateOf<List<ResourcePackInfo>?>(null)
+        private set
+
+    var packState by mutableStateOf<LoadingState>(LoadingState.None)
+        private set
+
+    fun refresh() {
+        viewModelScope.launch {
+            packState = LoadingState.Loading
+
+            withContext(Dispatchers.IO) {
+                val tempList = mutableListOf<ResourcePackInfo>()
+                try {
+                    resourcePackDir.listFiles()?.forEach { file ->
+                        parseResourcePack(file)?.let {
+                            ensureActive()
+                            tempList.add(it)
+                        }
+                    }
+                    filterPacks()
+                } catch (_: CancellationException) {
+                    return@withContext
+                }
+                allPacks = tempList.sortedBy { it.rawName }
+            }
+
+            packState = LoadingState.None
+        }
+    }
+
+    init {
+        refresh()
+    }
+
+    fun updateFilter(filter: ResourcePackFilter) {
+        this.packFilter = filter
+        filterPacks()
+    }
+
+    private fun filterPacks() {
+        filteredPacks = allPacks.takeIf { it.isNotEmpty() }?.filterPacks(packFilter)
+    }
+}
+
+@Composable
+private fun rememberResourcePackManageViewModel(
+    resourcePackDir: File,
+    version: Version
+) = viewModel(
+    key = version.toString()
+) {
+    ResourcePackManageViewModel(resourcePackDir)
+}
+
 @Composable
 fun ResourcePackManageScreen(
     mainScreenKey: NavKey?,
@@ -101,19 +165,7 @@ fun ResourcePackManageScreen(
     ) { isVisible ->
         val resourcePackDir = File(version.getGameDir(), VersionFolders.RESOURCE_PACK.folderName)
 
-        //触发刷新
-        var refreshTrigger by remember { mutableStateOf(false) }
-        //简易名称过滤器
-        var packFilter by remember { mutableStateOf(ResourcePackFilter(false, "")) }
-
-        var allPacks by remember { mutableStateOf<List<ResourcePackInfo>>(emptyList()) }
-        val filteredPacks by remember(allPacks, packFilter) {
-            derivedStateOf {
-                allPacks.takeIf { it.isNotEmpty() }?.filterPacks(packFilter)
-            }
-        }
-
-        var packState by remember { mutableStateOf<LoadingState>(LoadingState.None) }
+        val viewModel = rememberResourcePackManageViewModel(resourcePackDir, version)
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -129,7 +181,7 @@ fun ResourcePackManageScreen(
         ) {
             val operationScope = rememberCoroutineScope()
 
-            when (packState) {
+            when (viewModel.packState) {
                 is LoadingState.None -> {
                     val itemColor = itemLayoutColor()
                     val itemContentColor = MaterialTheme.colorScheme.onSurface
@@ -140,7 +192,7 @@ fun ResourcePackManageScreen(
                             resourcePackOperation = ResourcePackOperation.Progress
                             task()
                             resourcePackOperation = ResourcePackOperation.None
-                            refreshTrigger = !refreshTrigger
+                            viewModel.refresh()
                         }
                     }
                     ResourcePackOperation(
@@ -170,10 +222,10 @@ fun ResourcePackManageScreen(
                                 .fillMaxWidth(),
                             inputFieldColor = itemColor,
                             inputFieldContentColor = itemContentColor,
-                            packFilter = packFilter,
-                            changePackFilter = { packFilter = it },
+                            packFilter = viewModel.packFilter,
+                            changePackFilter = { viewModel.updateFilter(it) },
                             onRefresh = {
-                                refreshTrigger = !refreshTrigger
+                                viewModel.refresh()
                             }
                         )
 
@@ -181,7 +233,7 @@ fun ResourcePackManageScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            packList = filteredPacks,
+                            packList = viewModel.filteredPacks,
                             itemColor = itemColor,
                             itemContentColor = itemContentColor,
                             updateOperation = { resourcePackOperation = it }
@@ -194,27 +246,6 @@ fun ResourcePackManageScreen(
                     }
                 }
             }
-        }
-
-        LaunchedEffect(refreshTrigger) {
-            packState = LoadingState.Loading
-
-            withContext(Dispatchers.IO) {
-                val tempList = mutableListOf<ResourcePackInfo>()
-                try {
-                    resourcePackDir.listFiles()?.forEach { file ->
-                        parseResourcePack(file)?.let {
-                            ensureActive()
-                            tempList.add(it)
-                        }
-                    }
-                } catch (_: CancellationException) {
-                    return@withContext
-                }
-                allPacks = tempList.sortedBy { it.rawName }
-            }
-
-            packState = LoadingState.None
         }
     }
 }
