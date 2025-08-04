@@ -5,6 +5,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.ForgeNewModMetadata
+import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -59,8 +60,13 @@ object ForgeNewModMetadataReader : ModMetadataReader {
 
         zip.getInputStream(tomlEntry).bufferedReader().use { reader ->
             val toml = Toml().read(reader.readText())
-            val metadata = toml.to(ForgeNewModMetadata::class.java)
-                ?: throw IOException("Failed to parse TOML metadata")
+            val tomlMap = toml.toMap() as MutableMap<String, Any?>
+
+            fixAuthorsField(tomlMap)
+
+            val json = GSON.toJsonTree(tomlMap)
+            val metadata = GSON.fromJson(json, ForgeNewModMetadata::class.java)
+                ?: throw IOException("Failed to parse TOML metadata, file = $modFile")
 
             if (metadata.mods.isEmpty()) {
                 throw IOException("Mod $modFile `$tomlPath` is malformed")
@@ -80,7 +86,7 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                 name = mod.displayName,
                 description = mod.description,
                 version = resolvedVersion,
-                authors = parseAuthors(mod.authors),
+                authors = mod.authors ?: emptyList(),
                 icon = icon
             )
         }
@@ -96,6 +102,24 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         } catch (e: Exception) {
             lWarning("Failed to parse MANIFEST.MF in file $modFile", e)
             null
+        }
+    }
+
+    /**
+     * 修复作者列表
+     * 有的模组作者名称只是单个字符串；
+     * 有的模组则是作者名称列表
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun fixAuthorsField(map: MutableMap<String, Any?>) {
+        val mods = map["mods"] as? List<MutableMap<String, Any?>> ?: return
+        for (mod in mods) {
+            val authors = mod["authors"]
+            when (authors) {
+                is String -> mod["authors"] = parseAuthors(authors)
+                is List<*> -> {}
+                else -> mod["authors"] = emptyList<String>()
+            }
         }
     }
 
@@ -116,9 +140,20 @@ object ForgeNewModMetadataReader : ModMetadataReader {
         loaderACC: Int,
         defaultLoader: ModLoader
     ): ModLoader {
-        @Suppress("UNCHECKED_CAST")
-        val dependencies = toml.getList<Map<String, Any>>("dependencies.$modID")
-            ?: toml.getList("dependencies") //兼容旧格式
+        val depsArray = runCatching {
+            toml.getTables("dependencies")
+        }.getOrNull()
+
+        val dependencies: List<Map<String, Any>>? = when (depsArray) {
+            null -> { //尝试 dependencies.{modID}
+                val depsTable = toml.getTable("dependencies")
+                val modDepsArray = depsTable?.getTables(modID)
+                modDepsArray?.map { it.toMap() as Map<String, Any> }
+            }
+            else -> {
+                depsArray.map { it.toMap() as Map<String, Any> }
+            }
+        }
 
         fun checkLoaderACC(current: Int, target: Int, res: ModLoader): ModLoader {
             return if (target and current != 0) res else throw IOException("Mismatched loader")

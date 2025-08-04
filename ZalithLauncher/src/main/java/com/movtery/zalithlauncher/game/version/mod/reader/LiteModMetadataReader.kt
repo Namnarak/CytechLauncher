@@ -32,7 +32,7 @@ object LiteModMetadataReader : ModMetadataReader {
                     id = metadata.name,
                     loader = ModLoader.LITE_LOADER,
                     name = metadata.name,
-                    description = metadata.description ?: "",
+                    description = metadata.description,
                     version = metadata.version,
                     authors = parseAuthors(metadata.author),
                     icon = null //LiteLoader 通常没有图标

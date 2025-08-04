@@ -13,7 +13,7 @@ data class ForgeNewModMetadata(
         val displayName: String,
         val side: String? = null,
         val displayURL: String? = null,
-        val authors: String? = null,
-        val description: String
+        val authors: List<String>? = null,
+        val description: String? = null
     )
 }

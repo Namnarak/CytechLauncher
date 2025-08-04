@@ -43,7 +43,7 @@ object FabricModMetadataReader : ModMetadataReader {
                     id = metadata.id,
                     loader = ModLoader.FABRIC,
                     name = metadata.name,
-                    description = metadata.description ?: "",
+                    description = metadata.description,
                     version = metadata.version,
                     authors = authors,
                     icon = icon

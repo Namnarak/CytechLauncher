@@ -29,10 +29,10 @@ class LocalMod(
     val name: String,
 
     /** 模组描述 */
-    val description: String,
+    val description: String? = null,
 
     /** 模组版本 */
-    val version: String,
+    val version: String? = null,
 
     /** 模组的作者列表 */
     val authors: List<String>,
@@ -110,8 +110,8 @@ class LocalMod(
             id = "",
             loader = ModLoader.UNKNOWN,
             name = file.name,
-            description = "",
-            version = "",
+            description = null,
+            version = null,
             authors = emptyList(),
             icon = null,
             notMod = true

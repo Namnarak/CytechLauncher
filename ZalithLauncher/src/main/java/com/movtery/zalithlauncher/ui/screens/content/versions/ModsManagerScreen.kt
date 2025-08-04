@@ -79,13 +79,9 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
@@ -200,37 +196,7 @@ fun ModsManagerScreen(
 
         LaunchedEffect(refreshTrigger) {
             modsState = LoadingState.Loading
-
-            withContext(Dispatchers.IO) {
-                try {
-                    val mods = modsDir.listFiles()?.filter { it.isFile }?.map { file ->
-                        ensureActive()
-                        try {
-                            val readers = ModMetadataReader.READERS
-                            val extension = if (file.isDisabled()) {
-                                File(file.nameWithoutExtension).extension
-                            } else {
-                                file.extension
-                            }
-                            readers[extension]?.forEach { reader ->
-                                try {
-                                    return@map reader.fromLocal(file)
-                                } catch (_: Exception) {
-                                    //继续使用下一个解析器
-                                }
-                            }
-                            throw IllegalArgumentException("File $file is not a mod file.")
-                        } catch (e: Exception) {
-                            lWarning("Failed to read mod: $file", e)
-                            return@map LocalMod.createNotMod(file)
-                        }
-                    } ?: emptyList()
-                    allMods = mods.sortedBy { it.name }
-                } catch (_: CancellationException) {
-                    return@withContext
-                }
-            }
-
+            allMods = ModMetadataReader.readAllMods(modsDir)
             modsState = LoadingState.None
         }
     }
@@ -497,12 +463,12 @@ private fun ModInfoTooltip(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
     ) {
-        //文件名
-        Text(text = stringResource(R.string.generic_file_name, mod.file.name))
         //文件大小
         Text(text = stringResource(R.string.generic_file_size, formatFileSize(mod.fileSize)))
         //模组版本
-        Text(text = stringResource(R.string.mods_manage_version, mod.version))
+        mod.version?.let { version ->
+            Text(text = stringResource(R.string.mods_manage_version, version))
+        }
         //作者
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -518,7 +484,7 @@ private fun ModInfoTooltip(
             }
         }
         //模组描述
-        mod.description.takeIf { it.isNotEmptyOrBlank() }?.let { description ->
+        mod.description?.takeIf { it.isNotEmptyOrBlank() }?.let { description ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {

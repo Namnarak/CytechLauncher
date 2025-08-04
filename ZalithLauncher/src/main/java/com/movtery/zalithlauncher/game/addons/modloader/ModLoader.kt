@@ -9,5 +9,6 @@ enum class ModLoader(val displayName: String) {
     FABRIC_API("Fabric API"),
     QUILT("Quilt"),
     QUILT_API("Quilted Fabric API"),
-    LITE_LOADER("LiteLoader")
+    LITE_LOADER("LiteLoader"),
+    PACK("Pack")
 }
