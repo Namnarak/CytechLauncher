@@ -620,4 +620,22 @@
     <string name="settings_launcher_mirror_official_first">Ưu tiên nguồn chính thức</string>
     <string name="settings_launcher_mirror_mirror_first">Ưu tiên Mirror</string>
     <string name="about_acknowledgements_bangbang93_text">%s sử dụng API nguồn Mirror của BMCL</string>
+    <string name="mods_manage">Mod</string>
+    <string name="mods_manage_info">Thông tin Mod</string>
+    <string name="mods_manage_authors">Tác giả của mod:</string>
+    <string name="mods_manage_description">Miêu tả mod:</string>
+    <string name="mods_manage_version">Phiên bản mod: %s</string>
+    <string name="mods_manage_delete_warning">Bạn có muốn xoá mod %s? Hành động này sẽ không thể hoàn tác!</string>
+    <string name="mods_manage_no_mods">Không có mod cho phiên bản này</string>
+    <string name="shader_pack_manage">Gói shader</string>
+    <string name="shader_pack_manage_exists">Một gói shader với tên này đã tồn tại.</string>
+    <string name="shader_pack_manage_name">Tên gói shader</string>
+    <string name="shader_pack_manage_delete_warning">Bạn có muốn xoá gói shader %s? Hành động này sẽ không thể được hoàn tác!</string>
+    <string name="shader_pack_manage_no_packs">Không có gói shader cho phiên bản này</string>
+    <string name="about_launcher_title">Thông tin Launcher</string>
+    <string name="about_launcher_version">Phiên bản launcher: %s</string>
+    <string name="about_launcher_author_movtery_title">MovTery</string>
+    <string name="about_launcher_author_movtery_text">Tác giả của %s</string>
+    <string name="about_launcher_project_link">Link dự án</string>
+    <string name="about_sponsor">Hỗ trợ tài trợ</string>
 </resources>
