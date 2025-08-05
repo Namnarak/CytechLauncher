@@ -154,7 +154,7 @@ fun ResultListLayout(
                     modifier = Modifier
                         .height(controllerHeight)
                         .align(Alignment.TopEnd)
-                        .padding(top = 12.dp, end = 12.dp)
+                        .padding(top = 12.dp, end = 6.dp)
                         .alpha(animatedAlpha)
                         .graphicsLayer {
                             scaleX = animatedScale
@@ -163,6 +163,7 @@ fun ResultListLayout(
                         }
                 ) {
                     PageController(
+                        modifier = Modifier.padding(end = 6.dp),
                         page = page,
                         onPreviousPage = {
                             onPreviousPage(page.pageNumber)
