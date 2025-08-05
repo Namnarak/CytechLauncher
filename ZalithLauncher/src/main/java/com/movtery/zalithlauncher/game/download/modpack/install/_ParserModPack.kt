@@ -144,7 +144,7 @@ private suspend fun modrinth(
         //获取所有需要下载的模组文件
         val files = manifest.files.mapNotNull { manifestFile ->
             //客户端不支持
-            if (manifestFile.env.client == "unsupported") return@mapNotNull null
+            if (manifestFile.env?.client == "unsupported") return@mapNotNull null
             ModFile(
                 outputFile = File(targetFolder, manifestFile.path),
                 downloadUrls = manifestFile.downloads.toList(),

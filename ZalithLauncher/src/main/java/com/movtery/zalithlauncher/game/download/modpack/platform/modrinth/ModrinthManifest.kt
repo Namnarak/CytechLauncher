@@ -5,6 +5,7 @@ class ModrinthManifest(
     val formatVersion: Int,
     val versionId: String,
     val name: String,
+    /** optional */
     val summary: String? = null,
     val files: Array<ManifestFile>,
     val dependencies: Map<String, String>
@@ -12,7 +13,8 @@ class ModrinthManifest(
     class ManifestFile(
         val path: String,
         val hashes: Hashes,
-        val env: Env,
+        /** optional */
+        val env: Env? = null,
         val downloads: Array<String>,
         val fileSize: Long
     ) {
