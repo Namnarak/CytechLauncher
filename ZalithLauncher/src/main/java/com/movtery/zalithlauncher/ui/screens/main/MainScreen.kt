@@ -305,11 +305,10 @@ private fun TopBar(
                     }
                 ) {
                     Crossfade(
-                        targetState = mainScreenKey,
+                        targetState = inLauncherScreen,
                         label = "SettingsIconCrossfade",
                         animationSpec = getAnimateTween()
-                    ) { key ->
-                        val isLauncherScreen = key === NormalNavKey.LauncherMain
+                    ) { isLauncherScreen ->
                         Icon(
                             imageVector = if (isLauncherScreen) {
                                 Icons.Filled.Settings
