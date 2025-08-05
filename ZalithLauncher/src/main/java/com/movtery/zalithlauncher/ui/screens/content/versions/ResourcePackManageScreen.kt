@@ -146,7 +146,7 @@ private fun rememberResourcePackManageViewModel(
     resourcePackDir: File,
     version: Version
 ) = viewModel(
-    key = version.toString()
+    key = version.toString() + "_" + VersionFolders.RESOURCE_PACK.folderName
 ) {
     ResourcePackManageViewModel(resourcePackDir)
 }

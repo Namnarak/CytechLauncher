@@ -1,6 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,18 +13,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Checkbox
@@ -78,7 +87,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
@@ -142,10 +150,13 @@ private class ModsManageViewModel(
 @Composable
 private fun rememberModsManageViewModel(
     version: Version
-) = viewModel(
-    key = version.toString()
-) {
-    ModsManageViewModel(File(version.getGameDir(), VersionFolders.MOD.folderName))
+): ModsManageViewModel {
+    val folderName = VersionFolders.MOD.folderName
+    return viewModel(
+        key = version.toString() + "_" + folderName
+    ) {
+        ModsManageViewModel(File(version.getGameDir(), folderName))
+    }
 }
 
 @Composable
@@ -372,8 +383,8 @@ private fun ModItemLayout(
     val projectInfo = mod.projectInfo
 
     LaunchedEffect(mod) {
-        //尝试搜索该模组文件在平台上所属的项目
-        mod.search()
+        //尝试加载该模组文件在平台上所属的项目
+        mod.load()
     }
 
     Surface(
@@ -390,27 +401,78 @@ private fun ModItemLayout(
         ) {
             //模组的封面图标
             ModIcon(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(shape = RoundedCornerShape(10.dp)),
-                mod = mod
+                modifier = Modifier.clip(shape = RoundedCornerShape(10.dp)),
+                mod = mod,
+                iconSize = 48.dp
             )
 
             //模组简要信息
-            Column(
+            Crossfade(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                if (projectInfo == null) {
-                    LocalModSimpleInfo(mod = mod.localMod)
-                } else {
-                    RemoteModSimpleInfo(
-                        localMod = mod.localMod,
-                        projectInfo = projectInfo,
-                        remoteMod = mod
-                    )
+                //在本地是否为未知文件
+                targetState = mod.localMod.notMod && projectInfo == null,
+                label = "ModItemInfoCrossfade"
+            ) { isUnknown ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    val localMod = mod.localMod
+                    when {
+                        isUnknown -> {
+                            //非模组，只展示文件名称
+                            Text(
+                                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                                text = localMod.file.name,
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1
+                            )
+                            if (localMod.loader != ModLoader.UNKNOWN) {
+                                LittleTextLabel(
+                                    text = localMod.loader.displayName,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            }
+                        }
+                        else -> {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val displayTitle = if (projectInfo != null) {
+                                    val title = projectInfo.title
+                                    mod.mcMod?.getMcmodTitle(title) ?: title
+                                } else {
+                                    localMod.name
+                                }
+                                Text(
+                                    modifier = Modifier
+                                        .weight(1f, fill = false)
+                                        .basicMarquee(iterations = Int.MAX_VALUE)
+                                        .animateContentSize(),
+                                    text = displayTitle,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 1
+                                )
+                                if (localMod.loader != ModLoader.UNKNOWN) {
+                                    LittleTextLabel(
+                                        text = localMod.loader.displayName,
+                                        shape = MaterialTheme.shapes.small
+                                    )
+                                }
+                            }
+
+                            Text(
+                                modifier = Modifier
+                                    .alpha(0.7f)
+                                    .basicMarquee(iterations = Int.MAX_VALUE),
+                                text = stringResource(R.string.generic_file_name, localMod.file.name),
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1
+                            )
+                        }
+                    }
                 }
             }
 
@@ -419,6 +481,16 @@ private fun ModItemLayout(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (mod.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .alpha(0.7f),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+
                 //启用/禁用
                 Checkbox(
                     checked = mod.localMod.file.isEnabled(),
@@ -464,114 +536,55 @@ private fun ModItemLayout(
 @Composable
 private fun ModIcon(
     modifier: Modifier = Modifier,
-    mod: RemoteMod
+    mod: RemoteMod,
+    iconSize: Dp,
+    disableContainerSize: Dp = 28.dp
 ) {
-    val colorMatrix = remember(mod, mod.localMod.file) { ColorMatrix() }
-    colorMatrix.setToSaturation(
-        if (mod.localMod.file.isDisabled()) 0f
-        else 1f
-    )
-
-    val projectInfo = mod.projectInfo
-    if (projectInfo == null) {
-        ByteArrayIcon(
-            modifier = modifier,
-            triggerRefresh = mod,
-            icon = mod.localMod.icon,
-            colorFilter = ColorFilter.colorMatrix(colorMatrix)
+    Box(modifier = modifier) {
+        val colorMatrix = remember(mod, mod.localMod.file) { ColorMatrix() }
+        colorMatrix.setToSaturation(
+            if (mod.localMod.file.isDisabled()) 0f
+            else 1f
         )
-    } else {
-        AssetsIcon(
-            modifier = modifier,
-            iconUrl = projectInfo.iconUrl,
-            colorFilter = ColorFilter.colorMatrix(colorMatrix)
-        )
-    }
-}
 
-@Composable
-private fun LocalModSimpleInfo(
-    mod: LocalMod
-) {
-    if (!mod.notMod) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        val projectInfo = mod.projectInfo
+        if (projectInfo == null) {
+            ByteArrayIcon(
+                modifier = Modifier.size(iconSize),
+                triggerRefresh = mod,
+                icon = mod.localMod.icon,
+                colorFilter = ColorFilter.colorMatrix(colorMatrix)
+            )
+        } else {
+            AssetsIcon(
+                modifier = Modifier.size(iconSize),
+                iconUrl = projectInfo.iconUrl,
+                colorFilter = ColorFilter.colorMatrix(colorMatrix)
+            )
+        }
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.Center),
+            visible = mod.localMod.file.isDisabled(),
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            Text(
+            Surface(
                 modifier = Modifier
-                    .weight(1f, fill = false)
-                    .basicMarquee(iterations = Int.MAX_VALUE),
-                text = mod.name,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 1
-            )
-            LittleTextLabel(
-                text = mod.loader.displayName,
-                shape = MaterialTheme.shapes.small
-            )
-        }
-
-        Text(
-            modifier = Modifier
-                .alpha(0.7f)
-                .basicMarquee(iterations = Int.MAX_VALUE),
-            text = stringResource(R.string.generic_file_name, mod.file.name),
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1
-        )
-    } else {
-        //非模组，只展示文件名称
-        Text(
-            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-            text = mod.file.name,
-            style = MaterialTheme.typography.titleSmall,
-            maxLines = 1
-        )
-        if (mod.loader != ModLoader.UNKNOWN) {
-            LittleTextLabel(
-                text = mod.loader.displayName,
-                shape = MaterialTheme.shapes.small
-            )
+                    .padding(all = 4.dp)
+                    .size(disableContainerSize),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                shape = CircleShape,
+                shadowElevation = 4.dp
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Block,
+                    contentDescription = null
+                )
+            }
         }
     }
-}
-
-@Composable
-private fun RemoteModSimpleInfo(
-    localMod: LocalMod,
-    projectInfo: DownloadProjectInfo,
-    remoteMod: RemoteMod
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val title = projectInfo.title
-        Text(
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .basicMarquee(iterations = Int.MAX_VALUE),
-            text = remoteMod.mcMod?.getMcmodTitle(title) ?: title,
-            style = MaterialTheme.typography.titleSmall,
-            maxLines = 1
-        )
-        if (localMod.loader != ModLoader.UNKNOWN) {
-            LittleTextLabel(
-                text = localMod.loader.displayName,
-                shape = MaterialTheme.shapes.small
-            )
-        }
-    }
-
-    Text(
-        modifier = Modifier
-            .alpha(0.7f)
-            .basicMarquee(iterations = Int.MAX_VALUE),
-        text = stringResource(R.string.generic_file_name, localMod.file.name),
-        style = MaterialTheme.typography.bodySmall,
-        maxLines = 1
-    )
 }
 
 @Composable

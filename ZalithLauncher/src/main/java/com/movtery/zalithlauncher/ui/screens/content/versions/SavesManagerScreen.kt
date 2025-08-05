@@ -177,7 +177,7 @@ private fun rememberSavesManageViewModel(
     savesDir: File,
     version: Version
 ) = viewModel(
-    key = version.toString()
+    key = version.toString() + "_" + VersionFolders.SAVES.folderName
 ) {
     SavesManageViewModel(
         minecraftVersion = minecraftVersion,

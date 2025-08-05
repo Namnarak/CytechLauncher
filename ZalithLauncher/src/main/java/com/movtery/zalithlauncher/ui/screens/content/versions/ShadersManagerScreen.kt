@@ -137,7 +137,7 @@ private fun rememberShadersManageViewModel(
     shadersDir: File,
     version: Version
 ) = viewModel(
-    key = version.toString()
+    key = version.toString() + "_" + VersionFolders.SHADERS.folderName
 ) {
     ShadersManageViewModel(shadersDir)
 }
