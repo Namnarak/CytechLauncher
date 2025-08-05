@@ -37,26 +37,28 @@ class RemoteMod(
         private set
 
     suspend fun load() {
-        withContext(Dispatchers.IO) {
-            runCatching {
-                if (projectInfo == null) {
-                    isLoading = true
+        if (projectInfo != null) return
+
+        isLoading = true
+        try {
+            withContext(Dispatchers.IO) {
+                runCatching {
                     val version = getVersionByLocalFile(localMod.file)
                     ensureActive()
 
-                    projectInfo = if (version != null) {
-                        runCatching {
-                            val project = getProjectByVersion(version)
+                    version?.let { ver ->
+                        getProjectByVersion(ver).let { project ->
                             mcMod = project.getMcMod(PlatformClasses.MOD)
                             project.toInfo(PlatformClasses.MOD)
-                        }.onFailure {
-                            lWarning("Failed to get project! mod = ${localMod.file.name}", it)
-                        }.getOrNull()
-                    } else {
-                        null
+                        }
                     }
+                }.onSuccess { info ->
+                    projectInfo = info
+                }.onFailure { e ->
+                    lWarning("Failed to load project info for mod: ${localMod.file.name}", e)
                 }
             }
+        } finally {
             isLoading = false
         }
     }
