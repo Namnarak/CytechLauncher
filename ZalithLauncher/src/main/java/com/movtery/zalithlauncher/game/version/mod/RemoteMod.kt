@@ -1,11 +1,18 @@
 package com.movtery.zalithlauncher.game.version.mod
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.getProjectByVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionByLocalFile
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcMod
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo
@@ -23,6 +30,11 @@ class RemoteMod(
      */
     var isLoading by mutableStateOf(false)
         private set
+
+    /**
+     * 远端设置的加载器列表
+     */
+    var remoteLoaders = mutableStateListOf<PlatformDisplayLabel>()
 
     /**
      * 项目信息
@@ -47,6 +59,7 @@ class RemoteMod(
                     ensureActive()
 
                     version?.let { ver ->
+                        updateLoaders(ver)
                         getProjectByVersion(ver).let { project ->
                             mcMod = project.getMcMod(PlatformClasses.MOD)
                             project.toInfo(PlatformClasses.MOD)
@@ -60,6 +73,30 @@ class RemoteMod(
             }
         } finally {
             isLoading = false
+        }
+    }
+
+    private fun updateLoaders(
+        version: PlatformVersion
+    ) {
+        remoteLoaders.clear()
+        when (version) {
+            is ModrinthVersion -> {
+                remoteLoaders.addAll(
+                    version.loaders.mapNotNull { loaderName ->
+                        ModrinthModLoaderCategory.entries.find { it.facetValue() == loaderName }
+                    }
+                )
+            }
+            is CurseForgeFile -> {
+                remoteLoaders.addAll(
+                    version.gameVersions.mapNotNull { loaderName ->
+                        CurseForgeModLoader.entries.find {
+                            it.getDisplayName().equals(loaderName, true)
+                        }
+                    }
+                )
+            }
         }
     }
 }

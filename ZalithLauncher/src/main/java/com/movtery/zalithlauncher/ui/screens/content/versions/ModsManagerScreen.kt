@@ -455,11 +455,25 @@ private fun ModItemLayout(
                                     style = MaterialTheme.typography.titleSmall,
                                     maxLines = 1
                                 )
-                                if (localMod.loader != ModLoader.UNKNOWN) {
-                                    LittleTextLabel(
-                                        text = localMod.loader.displayName,
-                                        shape = MaterialTheme.shapes.small
-                                    )
+                                Row(
+                                    modifier = Modifier
+                                        .basicMarquee(iterations = Int.MAX_VALUE)
+                                        .animateContentSize(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    if (mod.remoteLoaders.isNotEmpty()) {
+                                        mod.remoteLoaders.forEach { loader ->
+                                            LittleTextLabel(
+                                                text = loader.getDisplayName(),
+                                                shape = MaterialTheme.shapes.small
+                                            )
+                                        }
+                                    } else if (localMod.loader != ModLoader.UNKNOWN) {
+                                        LittleTextLabel(
+                                            text = localMod.loader.displayName,
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                    }
                                 }
                             }
 
