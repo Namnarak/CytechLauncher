@@ -30,7 +30,7 @@ fun TextRailItem(
     onClick: () -> Unit,
     selected: Boolean,
     shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f),
+    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f)
 ) {
     val animationProgress by animateFloatAsState(
         targetValue = if (selected) 1f else 0f,

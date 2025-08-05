@@ -6,8 +6,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -199,7 +198,7 @@ private fun TopBar(
         tonalElevation = 3.dp
     ) {
         ConstraintLayout {
-            val (backButton, title, tasksLayout, download, settings) = createRefs()
+            val (backButton, title, endButtons) = createRefs()
 
             val backButtonX by animateDpAsState(
                 targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
@@ -247,89 +246,83 @@ private fun TopBar(
                     }
             )
 
-            val taskLayoutY by animateDpAsState(
-                targetValue = if (isTasksExpanded || taskRunning) (-50).dp else 0.dp,
-                animationSpec = getAnimateTween()
-            )
-
             Row(
                 modifier = Modifier
-                    .constrainAs(tasksLayout) {
+                    .constrainAs(endButtons) {
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
-                        end.linkTo(download.start, margin = 8.dp)
-                    }
-                    .offset { IntOffset(x = 0, y = taskLayoutY.roundToPx()) }
-                    .clip(shape = MaterialTheme.shapes.large)
-                    .clickable { changeExpandedState() }
-                    .padding(all = 8.dp)
-                    .width(120.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                LinearProgressIndicator(modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically))
-                Icon(
-                    modifier = Modifier.size(22.dp),
-                    imageVector = Icons.Filled.Task,
-                    contentDescription = stringResource(R.string.main_task_menu)
-                )
-            }
-
-            AnimatedVisibility(
-                visible = !inDownloadScreen,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .constrainAs(download) {
-                        centerVerticallyTo(parent)
-                        end.linkTo(settings.start, margin = 4.dp)
-                    }
-                    .fillMaxHeight()
-            ) {
-                IconButton(
-                    onClick = toDownloadScreen
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Download,
-                        contentDescription = stringResource(R.string.generic_download)
-                    )
-                }
-            }
-
-            IconButton(
-                modifier = Modifier
-                    .constrainAs(settings) {
-                        centerVerticallyTo(parent)
                         end.linkTo(parent.end, margin = 12.dp)
                     }
-                    .fillMaxHeight(),
-                onClick = {
-                    if (inLauncherScreen) {
-                        toSettingsScreen()
-                    } else {
-                        toMainScreen()
+            ) {
+                val taskLayoutY by animateDpAsState(
+                    targetValue = if (isTasksExpanded || taskRunning) (-50).dp else 0.dp,
+                    animationSpec = getAnimateTween()
+                )
+
+                Row(
+                    modifier = Modifier
+                        .offset { IntOffset(x = 0, y = taskLayoutY.roundToPx()) }
+                        .clip(shape = MaterialTheme.shapes.large)
+                        .clickable { changeExpandedState() }
+                        .padding(all = 8.dp)
+                        .width(120.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    LinearProgressIndicator(modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically))
+                    Icon(
+                        modifier = Modifier.size(22.dp),
+                        imageVector = Icons.Filled.Task,
+                        contentDescription = stringResource(R.string.main_task_menu)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                AnimatedVisibility(
+                    visible = !inDownloadScreen,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    IconButton(
+                        onClick = toDownloadScreen
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Download,
+                            contentDescription = stringResource(R.string.generic_download)
+                        )
                     }
                 }
-            ) {
-                Crossfade(
-                    targetState = mainScreenKey,
-                    label = "SettingsIconCrossfade",
-                    animationSpec = getAnimateTween()
-                ) { key ->
-                    val isLauncherScreen = key === NormalNavKey.LauncherMain
-                    Icon(
-                        imageVector = if (isLauncherScreen) {
-                            Icons.Filled.Settings
+
+                IconButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    onClick = {
+                        if (inLauncherScreen) {
+                            toSettingsScreen()
                         } else {
-                            Icons.Filled.Home
-                        },
-                        contentDescription = if (isLauncherScreen) {
-                            stringResource(R.string.generic_setting)
-                        } else {
-                            stringResource(R.string.generic_main_menu)
+                            toMainScreen()
                         }
-                    )
+                    }
+                ) {
+                    Crossfade(
+                        targetState = mainScreenKey,
+                        label = "SettingsIconCrossfade",
+                        animationSpec = getAnimateTween()
+                    ) { key ->
+                        val isLauncherScreen = key === NormalNavKey.LauncherMain
+                        Icon(
+                            imageVector = if (isLauncherScreen) {
+                                Icons.Filled.Settings
+                            } else {
+                                Icons.Filled.Home
+                            },
+                            contentDescription = if (isLauncherScreen) {
+                                stringResource(R.string.generic_setting)
+                            } else {
+                                stringResource(R.string.generic_main_menu)
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
@@ -23,12 +24,14 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -254,22 +257,31 @@ fun VersionCategoryItem(
     versionsCount: Int,
     selected: Boolean,
     shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f),
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.desaturate(0.5f),
+    selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = MaterialTheme.typography.labelMedium,
     onClick: () -> Unit = {}
 ) {
     TextRailItem(
         modifier = modifier,
         text = {
-            Text(
-                text = stringResource(value.textRes),
-                style = style
+            val contentColor by animateColorAsState(
+                targetValue = if (selected) selectedContentColor else unselectedContentColor
             )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "($versionsCount)",
-                style = style
-            )
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor
+            ) {
+                Text(
+                    text = stringResource(value.textRes),
+                    style = style
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "($versionsCount)",
+                    style = style
+                )
+            }
         },
         onClick = onClick,
         selected = selected,
