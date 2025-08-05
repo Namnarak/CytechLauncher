@@ -40,7 +40,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
@@ -141,7 +140,9 @@ fun AccountManageScreen(
 
     //微软账号操作逻辑
     MicrosoftLoginOperation(
-        mainScreenKey = backStackViewModel.mainScreenKey,
+        checkIfInWebScreen = {
+            backStackViewModel.mainScreenKey is NormalNavKey.WebScreen
+        },
         navigateToWeb = { url ->
             backStackViewModel.mainScreenBackStack.navigateToWeb(url)
         },
@@ -246,7 +247,7 @@ private fun ServerTypeMenu(
  */
 @Composable
 private fun MicrosoftLoginOperation(
-    mainScreenKey: NavKey?,
+    checkIfInWebScreen: () -> Boolean,
     navigateToWeb: (url: String) -> Unit,
     backToMainScreen: () -> Unit,
     microsoftLoginOperation: MicrosoftLoginOperation,
@@ -267,7 +268,7 @@ private fun MicrosoftLoginOperation(
                 context = context,
                 toWeb = navigateToWeb,
                 backToMain = backToMainScreen,
-                mainScreenKey = mainScreenKey,
+                checkIfInWebScreen = checkIfInWebScreen,
                 updateOperation = { updateOperation(it) }
             )
             updateOperation(MicrosoftLoginOperation.None)

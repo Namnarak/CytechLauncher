@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
 import android.widget.Toast
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -17,7 +16,6 @@ import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftEx
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -77,7 +75,7 @@ fun microsoftLogin(
     context: Context,
     toWeb: (url: String) -> Unit,
     backToMain: () -> Unit,
-    mainScreenKey: NavKey?,
+    checkIfInWebScreen: () -> Boolean,
     updateOperation: (MicrosoftLoginOperation) -> Unit
 ) {
     val task = Task.runTask(
@@ -97,7 +95,7 @@ fun microsoftLogin(
             toWeb(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
             val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) {
-                !NormalNavKey.WebScreen::class.java.isInstance(mainScreenKey)
+                !checkIfInWebScreen()
             }
             backToMain()
             val account = authAsync(
