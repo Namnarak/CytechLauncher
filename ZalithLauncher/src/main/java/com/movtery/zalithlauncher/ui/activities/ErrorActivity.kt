@@ -82,19 +82,27 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
 
         val exitType = extras.getString(BUNDLE_EXIT_TYPE, EXIT_LAUNCHER)
 
-        val (msg1, msg2) = when (exitType) {
+        val errorMessage = when (exitType) {
             EXIT_JVM -> {
                 val jvmCrash = extras.getParcelableSafely(BUNDLE_JVM_CRASH, JvmCrash::class.java) ?: return runFinish()
                 val messageResId = if (jvmCrash.isSignal) R.string.crash_singnal_message else R.string.crash_exit_message
-                val msg1 = getString(messageResId, jvmCrash.code)
-                val msg2 = getString(R.string.crash_exit_note)
-                msg1 to msg2
+                val message = getString(messageResId, jvmCrash.code)
+                val messageBody = getString(R.string.crash_exit_note)
+                ErrorMessage(
+                    message = message,
+                    messageBody = messageBody,
+                    crashType = CrashType.GAME_CRASH
+                )
             }
             else -> {
                 val throwable = extras.getSerializableSafely(BUNDLE_THROWABLE, Throwable::class.java) ?: return runFinish()
-                val msg1 = getString(R.string.crash_launcher_message)
-                val msg2 = StringUtils.throwableToString(throwable)
-                msg1 to msg2
+                val message = getString(R.string.crash_launcher_message)
+                val messageBody = StringUtils.throwableToString(throwable)
+                ErrorMessage(
+                    message = message,
+                    messageBody = messageBody,
+                    crashType = CrashType.LAUNCHER_CRASH
+                )
             }
         }
 
@@ -113,8 +121,9 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
             ZalithLauncherTheme {
                 Box {
                     ErrorScreen(
-                        message = msg1,
-                        messageBody = msg2,
+                        crashType = errorMessage.crashType,
+                        message = errorMessage.message,
+                        messageBody = errorMessage.messageBody,
                         shareLogs = logFile.exists() && logFile.isFile,
                         canRestart = canRestart,
                         onShareLogsClick = {
@@ -137,6 +146,27 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
             }
         }
     }
+
+    private data class ErrorMessage(
+        val message: String,
+        val messageBody: String,
+        val crashType: CrashType
+    )
+}
+
+/**
+ * 崩溃类型
+ */
+enum class CrashType(val textRes: Int) {
+    /**
+     * 启动器崩溃
+     */
+    LAUNCHER_CRASH(R.string.crash_type_launcher),
+
+    /**
+     * 游戏运行崩溃
+     */
+    GAME_CRASH(R.string.crash_type_game)
 }
 
 /**

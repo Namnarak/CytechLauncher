@@ -25,10 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.ui.activities.CrashType
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 
 @Composable
 fun ErrorScreen(
+    crashType: CrashType,
     message: String,
     messageBody: String,
     shareLogs: Boolean = true,
@@ -45,7 +47,9 @@ fun ErrorScreen(
                 .fillMaxWidth()
                 .height(40.dp)
                 .zIndex(10f),
-            color = MaterialTheme.colorScheme.surfaceContainer
+            crashType = crashType,
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
 
         Box(
@@ -71,6 +75,7 @@ fun ErrorScreen(
                     modifier = Modifier
                         .weight(3f)
                         .padding(all = 12.dp),
+                    crashType = crashType,
                     shareLogs = shareLogs,
                     canRestart = canRestart,
                     onShareLogsClick = onShareLogsClick,
@@ -85,20 +90,29 @@ fun ErrorScreen(
 @Composable
 private fun TopBar(
     modifier: Modifier = Modifier,
-    color: Color
+    crashType: CrashType,
+    color: Color,
+    contentColor: Color
 ) {
     Surface(
         modifier = modifier,
         color = color,
+        contentColor = contentColor,
         tonalElevation = 3.dp
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
+            val text = when (crashType) {
+                //在启动器崩溃的时候，显示一个较为严重的标题
+                CrashType.LAUNCHER_CRASH -> stringResource(R.string.crash_launcher_title, InfoDistributor.LAUNCHER_NAME)
+                //游戏运行崩溃了，大概和启动器关系不大，仅展示应用标题
+                CrashType.GAME_CRASH -> InfoDistributor.LAUNCHER_NAME
+            }
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.crash_launcher_title, InfoDistributor.LAUNCHER_NAME)
+                text = text
             )
         }
     }
@@ -118,7 +132,7 @@ private fun ErrorContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp),
+                .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
@@ -136,6 +150,7 @@ private fun ErrorContent(
 @Composable
 private fun ActionContext(
     modifier: Modifier = Modifier,
+    crashType: CrashType,
     shareLogs: Boolean,
     canRestart: Boolean,
     onShareLogsClick: () -> Unit = {},
@@ -147,7 +162,22 @@ private fun ActionContext(
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxSize(),
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.Top
+        ) {
+            Text(
+                text = stringResource(
+                    R.string.crash_type,
+                    stringResource(crashType.textRes)
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
             if (shareLogs) {

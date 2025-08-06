@@ -76,6 +76,9 @@
     <string name="crash_exit_message">JVM 以代码 %d 退出。</string>
     <string name="crash_singnal_message">JVM 因致命信号 %d 而中止。</string>
     <string name="crash_exit_note">具体原因请查看日志文件。如果您无法自己解决这个问题，请将日志文件发送给具有相关技术能力的人，他们可以帮助您排查并修复问题。请不要截图当前画面，截图可能无法提供足够的信息来解决问题。</string>
+    <string name="crash_type">崩溃类型：%s</string>
+    <string name="crash_type_launcher">启动器崩溃</string>
+    <string name="crash_type_game">游戏运行崩溃</string>
     <string name="crash_share_logs">分享日志</string>
     <string name="crash_restart">重启应用</string>
     <string name="crash_exit">退出应用</string>

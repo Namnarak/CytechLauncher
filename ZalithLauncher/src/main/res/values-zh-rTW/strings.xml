@@ -67,6 +67,9 @@
     <string name="crash_exit_message">JVM 以代碼 %d 退出。</string>
     <string name="crash_singnal_message">JVM 因致命訊號 %d 而中止。</string>
     <string name="crash_exit_note">具體原因請查看日誌檔案。如果您無法自行解決此問題，請將日誌檔案傳送給具備相關技術能力的人員，他們可以協助您排查並修復問題。請不要擷取目前畫面，擷圖可能無法提供足夠的資訊來解決問題。</string>
+    <string name="crash_type">崩潰類型：%s</string>
+    <string name="crash_type_launcher">啟動器崩潰</string>
+    <string name="crash_type_game">遊戲執行崩潰</string>
     <string name="crash_share_logs">分享日誌</string>
     <string name="crash_restart">重新啟動應用程式</string>
     <string name="crash_exit">退出應用程式</string>
