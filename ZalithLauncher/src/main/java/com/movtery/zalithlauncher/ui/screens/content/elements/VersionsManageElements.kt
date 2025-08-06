@@ -748,14 +748,14 @@ fun VersionIconImage(
             model = model,
             imageLoader = imageLoader,
             modifier = modifier,
-            contentScale = ContentScale.Inside,
+            contentScale = ContentScale.Fit,
             contentDescription = null
         )
     } else {
         Image(
             painter = painterResource(id = fallbackRes ?: R.drawable.img_minecraft),
             modifier = modifier,
-            contentScale = ContentScale.Inside,
+            contentScale = ContentScale.Fit,
             contentDescription = null
         )
     }
