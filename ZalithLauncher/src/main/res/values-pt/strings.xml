@@ -119,7 +119,7 @@
     <string name="game_button_input">Entrada</string>
     <string name="account_login">Entrar</string>
     <string name="account_type_microsoft">Microsoft</string>
-    <string name="account_type_local">Desconectado</string>
+    <string name="account_type_local">Offline</string>
     <string name="account_label_username">Nome de usuário</string>
     <string name="account_label_password">Senha</string>
     <string name="files_back_to_parent">Voltar</string>
