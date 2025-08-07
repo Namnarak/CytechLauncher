@@ -270,4 +270,12 @@
     <string name="settings_renderer_global_renderer_summary">O renderizador global padrão usa uma camada de tradução de biblioteca dinâmica para garantir que o jogo funcione suavemente em dispositivos móveis</string>
     <string name="settings_renderer_resolution_scale_title">Escala de Resolução</string>
     <string name="settings_renderer_resolution_scale_summary">Valores mais baixos melhoram o desempenho, valores mais altos aumentam a qualidade gráfica. Ajuste de acordo com suas necessidades.</string>
+    <string name="generic_all">Todos</string>
+    <string name="crash_type">Tipo de Crash:%s</string>
+    <string name="crash_type_launcher">Crash do Launcher</string>
+    <string name="crash_type_game">Crash do Jogo</string>
+    <string name="download_game_install_base_download_file2">Baixe o arquivo principal de %s</string>
+    <string name="download_install_clear_temp">Limpar arquivos no cache</string>
+    <string name="download_assets_filter_search_platform">Plataforma Desejada</string>
+    <string name="download_assets_failed_to_get_project">Falha ao recuperar informação do projeto: %s. Aperte para tentar de novo.</string>
 </resources>
