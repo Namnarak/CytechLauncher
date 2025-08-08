@@ -19,7 +19,6 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TouchableButton
 import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
@@ -102,12 +101,8 @@ private fun SimpleMouseControlLayout(
     sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
-    //非实体鼠标控制 -> 抓取系统指针，使用虚拟鼠标
-    val requestPointerCapture = !AllSettings.physicalMouseMode.state
-
     VirtualPointerLayout(
         modifier = modifier,
-        requestPointerCapture = requestPointerCapture,
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },

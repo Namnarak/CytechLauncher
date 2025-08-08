@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.control.mouse
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,13 +57,12 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * @param mouseSize                 指针大小
  * @param cursorSensitivity         指针灵敏度（滑动模式生效）
  */
-@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
     controlMode: MouseControlMode = AllSettings.mouseControlMode.getValue(),
-    longPressTimeoutMillis: Long = -1L,
-    requestPointerCapture: Boolean = true,
+    longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
+    requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     lastMousePosition: Offset? = null,
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
