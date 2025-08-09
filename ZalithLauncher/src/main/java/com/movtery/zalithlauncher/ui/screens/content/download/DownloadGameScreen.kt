@@ -39,6 +39,7 @@ import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -263,7 +264,7 @@ private fun GameInstallOperation(
                 },
                 confirmButton = {
                     Button(onClick = dismiss) {
-                        Text(text = stringResource(R.string.generic_confirm))
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
                     }
                 }
             )

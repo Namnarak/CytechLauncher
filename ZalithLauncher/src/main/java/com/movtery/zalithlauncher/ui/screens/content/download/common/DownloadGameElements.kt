@@ -34,6 +34,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstallTask
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 /** 游戏安装状态操作 */
@@ -94,7 +95,7 @@ fun GameInstallingDialog(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onCancel
                 ) {
-                    Text(text = stringResource(R.string.generic_cancel))
+                    MarqueeText(text = stringResource(R.string.generic_cancel))
                 }
             }
         }

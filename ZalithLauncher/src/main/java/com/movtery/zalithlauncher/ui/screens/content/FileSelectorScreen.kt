@@ -37,6 +37,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.FilePathSelectorData
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -208,19 +209,19 @@ private fun LeftActionMenu(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = backToParent
             ) {
-                Text(text = stringResource(R.string.files_back_to_parent))
+                MarqueeText(text = stringResource(R.string.files_back_to_parent))
             }
             ScalingActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = createDir
             ) {
-                Text(text = stringResource(R.string.files_create_dir))
+                MarqueeText(text = stringResource(R.string.files_create_dir))
             }
             ScalingActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = selectDir
             ) {
-                Text(text = stringResource(R.string.files_select_dir))
+                MarqueeText(text = stringResource(R.string.files_select_dir))
             }
         }
     }

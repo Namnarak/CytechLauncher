@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -88,6 +89,18 @@ fun ScalingActionButton(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content
+    )
+}
+
+@Composable
+fun MarqueeText(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Text(
+        modifier = modifier.basicMarquee(Int.MAX_VALUE),
+        text = text,
+        maxLines = 1
     )
 }
 

@@ -75,12 +75,12 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text(text = confirmText)
+                MarqueeText(text = confirmText)
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text(text = dismissText)
+                MarqueeText(text = dismissText)
             }
         }
     )
@@ -115,7 +115,7 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text(text = confirmText)
+                MarqueeText(text = confirmText)
             }
         }
     )
@@ -146,12 +146,12 @@ fun SimpleAlertDialog(
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text(text = confirmText)
+                MarqueeText(text = confirmText)
             }
         },
         dismissButton = {
             Button(onClick = onCancel) {
-                Text(text = dismissText)
+                MarqueeText(text = dismissText)
             }
         }
     )
@@ -233,13 +233,13 @@ fun SimpleEditDialog(
                         modifier = Modifier.weight(1f),
                         onClick = onDismissRequest
                     ) {
-                        Text(text = stringResource(R.string.generic_cancel))
+                        MarqueeText(text = stringResource(R.string.generic_cancel))
                     }
                     Button(
                         modifier = Modifier.weight(1f),
                         onClick = onConfirm
                     ) {
-                        Text(text = stringResource(R.string.generic_confirm))
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
                     }
                 }
             }
@@ -363,7 +363,7 @@ fun <T> SimpleListDialog(
                             }
                         }
                     ) {
-                        Text(stringResource(R.string.generic_confirm))
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
                     }
                 }
             }

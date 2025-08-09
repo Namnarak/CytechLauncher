@@ -45,6 +45,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
@@ -248,7 +249,7 @@ private fun RightMenu(
                     )
                 },
             ) {
-                Text(text = stringResource(R.string.main_launch_game))
+                MarqueeText(text = stringResource(R.string.main_launch_game))
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.zIndex
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.activities.CrashType
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 
 @Composable
@@ -185,7 +186,7 @@ private fun ActionContext(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onShareLogsClick
                 ) {
-                    Text(text = stringResource(R.string.crash_share_logs))
+                    MarqueeText(text = stringResource(R.string.crash_share_logs))
                 }
                 Spacer(modifier = Modifier.height(4.dp))
             }
@@ -194,7 +195,7 @@ private fun ActionContext(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onRestartClick
                 ) {
-                    Text(text = stringResource(R.string.crash_restart))
+                    MarqueeText(text = stringResource(R.string.crash_restart))
                 }
                 Spacer(modifier = Modifier.height(4.dp))
             }
@@ -202,7 +203,7 @@ private fun ActionContext(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onExitClick
             ) {
-                Text(text = stringResource(R.string.crash_exit))
+                MarqueeText(text = stringResource(R.string.crash_exit))
             }
         }
     }

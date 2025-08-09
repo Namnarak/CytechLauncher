@@ -64,6 +64,7 @@ import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -234,9 +235,7 @@ private fun ServerTypeMenu(
                     .fillMaxWidth(),
                 onClick = { updateServerOperation(ServerOperation.AddNew) }
             ) {
-                Text(
-                    text = stringResource(R.string.account_add_new_server_button)
-                )
+                MarqueeText(text = stringResource(R.string.account_add_new_server_button))
             }
         }
     }
@@ -666,7 +665,7 @@ private fun AccountSkinOperation(
                             updateOperation(AccountSkinOperation.None)
                         }
                     ) {
-                        Text(text = stringResource(R.string.generic_go_it))
+                        MarqueeText(text = stringResource(R.string.generic_go_it))
                     }
                 }
             )
