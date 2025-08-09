@@ -24,7 +24,7 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.install.unpackSaveZip
+import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchSavesScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
