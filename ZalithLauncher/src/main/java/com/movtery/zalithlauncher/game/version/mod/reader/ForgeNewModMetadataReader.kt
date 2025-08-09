@@ -6,6 +6,7 @@ import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.ForgeNewModMetadata
 import com.movtery.zalithlauncher.utils.GSON
+import com.movtery.zalithlauncher.utils.file.UnpackZipException
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,7 +16,6 @@ import java.io.File
 import java.io.IOException
 import java.util.jar.Attributes
 import java.util.jar.Manifest
-import java.util.zip.ZipException
 import java.util.zip.ZipFile as JDKZipFile
 
 /**
@@ -50,12 +50,11 @@ object ForgeNewModMetadataReader : ModMetadataReader {
                     )
                 }.onSuccess { return@withContext it }
 
-                throw RuntimeException("File $modFile is not a Forge 1.13+ or NeoForge mod.")
+                throw UnpackZipException("File $modFile is not a Forge 1.13+ or NeoForge mod.")
             }
-        } catch (_: ZipException) {
-            return@withContext readWithApacheZip(modFile)
-        } catch (_: IOException) {
-            return@withContext readWithApacheZip(modFile)
+        } catch (e: Exception) {
+            if (e !is UnpackZipException) return@withContext readWithApacheZip(modFile)
+            else throw e
         }
     }
 

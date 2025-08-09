@@ -6,13 +6,13 @@ import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.FabricModMetadata
 import com.movtery.zalithlauncher.utils.GSON
+import com.movtery.zalithlauncher.utils.file.UnpackZipException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.IOException
-import java.util.zip.ZipException
 import java.util.zip.ZipFile as JDKZipFile
 
 /**
@@ -30,13 +30,12 @@ object FabricModMetadataReader : ModMetadataReader {
                         return@withContext parseFabricModMetadata(zip, modFile, reader.readText())
                     }
                 } catch (e: Exception) {
-                    throw RuntimeException(e)
+                    throw UnpackZipException(e)
                 }
             }
-        } catch (_: ZipException) {
-            return@withContext readWithApacheZip(modFile)
-        } catch (_: IOException) {
-            return@withContext readWithApacheZip(modFile)
+        } catch (e: Exception) {
+            if (e !is UnpackZipException) return@withContext readWithApacheZip(modFile)
+            else throw e
         }
     }
 
