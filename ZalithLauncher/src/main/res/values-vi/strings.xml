@@ -638,4 +638,7 @@
     <string name="about_launcher_author_movtery_text">Tác giả của %s</string>
     <string name="about_launcher_project_link">Link dự án</string>
     <string name="about_sponsor">Hỗ trợ tài trợ</string>
+    <string name="crash_type">Loại crash: %s</string>
+    <string name="crash_type_launcher">Launcher đã bị Crash</string>
+    <string name="crash_type_game">Game bị crash</string>
 </resources>
