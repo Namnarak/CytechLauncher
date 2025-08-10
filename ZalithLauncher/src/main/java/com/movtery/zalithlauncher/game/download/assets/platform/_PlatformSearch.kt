@@ -20,6 +20,9 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -153,18 +156,45 @@ suspend fun getProjectByVersion(
     }
 }
 
-suspend fun getVersionByLocalFile(
-    file: File
-): PlatformVersion? = withContext(Dispatchers.IO) {
-    runCatching {
-        PlatformSearch.getVersionByLocalFileFromModrinth(file)
-    }.getOrNull()?.let { return@withContext it }
+suspend fun getVersionByLocalFile(file: File): PlatformVersion? = coroutineScope {
+    val modrinthDeferred = async(Dispatchers.IO) {
+        runCatching {
+            PlatformSearch.getVersionByLocalFileFromModrinth(file)
+        }.getOrNull()
+    }
 
-    runCatching {
-        PlatformSearch.getVersionByLocalFileFromCurseForge(file).data.exactMatches?.takeIf {
-            it.isNotEmpty()
-        }?.let { exactMatches ->
-            exactMatches[0].file
+    val curseForgeDeferred = async(Dispatchers.IO) {
+        runCatching {
+            PlatformSearch.getVersionByLocalFileFromCurseForge(file)
+                .data.exactMatches
+                ?.takeIf { it.isNotEmpty() }
+                ?.firstOrNull()
+                ?.file
+        }.getOrNull()
+    }
+
+    val result = select {
+        modrinthDeferred.onAwait { result ->
+            if (result != null) {
+                curseForgeDeferred.cancel()
+                result
+            } else {
+                null
+            }
         }
-    }.getOrNull()
+        curseForgeDeferred.onAwait { result ->
+            if (result != null) {
+                modrinthDeferred.cancel()
+                result
+            } else {
+                null
+            }
+        }
+    }
+
+    result ?: run {
+        if (!modrinthDeferred.isCompleted) modrinthDeferred.await()
+        else if (!curseForgeDeferred.isCompleted) curseForgeDeferred.await()
+        else null
+    }
 }
