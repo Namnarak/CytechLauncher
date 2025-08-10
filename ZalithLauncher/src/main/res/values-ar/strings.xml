@@ -91,4 +91,7 @@
     <string name="download_category_modpack">حزمه التعديل:(حزمه مودات)</string>
     <string name="download_category_mod">تعديل(مود)</string>
     <string name="download_category_resource_pack">حزمة الموارد(ريسوس باك)</string>
+    <string name="generic_authorization">إذن</string>
+    <string name="generic_all">كل</string>
+    <string name="theme_color_verdant_field">الشفق اخضر</string>
 </resources>
