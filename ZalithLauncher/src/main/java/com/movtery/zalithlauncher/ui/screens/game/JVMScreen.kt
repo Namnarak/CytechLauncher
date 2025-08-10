@@ -21,8 +21,8 @@ import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TouchableButton
-import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
-import com.movtery.zalithlauncher.ui.control.input.view.TouchCharInput
+import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -35,11 +35,12 @@ fun JVMScreen(
 ) {
     var forceCloseDialog by remember { mutableStateOf(false) }
 
-    val charInputRef = remember { mutableStateOf<TouchCharInput?>(null) }
+    var textInputMode by remember { mutableStateOf(TextInputMode.DISABLE) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         SimpleMouseControlLayout(
             modifier = Modifier.fillMaxSize(),
+            textInputMode = textInputMode,
             sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
             sendMouseCodePress = { code, pressed ->
                 ZLBridge.sendMousePress(code, pressed)
@@ -57,18 +58,13 @@ fun JVMScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        TouchCharInput(
-            characterSender = AWTCharSender,
-            onViewReady = { charInputRef.value = it }
-        )
-
         ButtonsLayout(
             modifier = Modifier
                 .alpha(alpha = if (logState.value) 0.5f else 1f)
                 .fillMaxSize()
                 .padding(8.dp),
             changeKeyboard = {
-                charInputRef.value?.switchKeyboardState()
+                textInputMode = textInputMode.switch()
             },
             forceCloseClick = {
                 forceCloseDialog = true
@@ -96,13 +92,14 @@ fun JVMScreen(
 @Composable
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
+    textInputMode: TextInputMode,
     sendMousePress: () -> Unit = {},
     sendMouseCodePress: (Int, Boolean) -> Unit = { _, _ -> },
     sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
     VirtualPointerLayout(
-        modifier = modifier,
+        modifier = modifier.textInputHandler(mode = textInputMode, sender = AWTCharSender),
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },

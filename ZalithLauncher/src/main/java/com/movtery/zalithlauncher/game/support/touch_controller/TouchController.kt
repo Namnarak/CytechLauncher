@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.core.content.getSystemService
 import androidx.core.view.inputmethod.EditorInfoCompat
-import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy.proxyClient
 import kotlinx.coroutines.CancellationException
@@ -517,11 +516,7 @@ private class TouchControllerInputConnection(
             }
             updateState(TextInputState::doDelete)
         } else {
-            EfficientAndroidLWJGLKeycode.getIndexByKey(event.keyCode)
-                .takeIf { it >= 0 }
-                ?.let { index ->
-                    EfficientAndroidLWJGLKeycode.execKey(event, index)
-                }
+            LWJGLCharSender.sendOther(event)
         }
         return true
     }
