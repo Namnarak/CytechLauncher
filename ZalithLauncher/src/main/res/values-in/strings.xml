@@ -64,4 +64,6 @@
     <string name="versions_config_renderer">Renderer</string>
     <string name="versions_manage_game_path_delete_title">Hapus Folder Game</string>
     <string name="versions_manage_game_path_add_new">Tambahkan Folder</string>
+    <string name="generic_all">Semua</string>
+    <string name="minutes_ago">%d menit yang lalu</string>
 </resources>
