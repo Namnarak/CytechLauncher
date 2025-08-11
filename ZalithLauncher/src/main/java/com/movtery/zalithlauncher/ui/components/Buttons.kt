@@ -95,11 +95,13 @@ fun ScalingActionButton(
 @Composable
 fun MarqueeText(
     modifier: Modifier = Modifier,
-    text: String
+    text: String,
+    style: TextStyle = LocalTextStyle.current
 ) {
     Text(
         modifier = modifier.basicMarquee(Int.MAX_VALUE),
         text = text,
+        style = style,
         maxLines = 1
     )
 }

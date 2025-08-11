@@ -91,6 +91,7 @@ class SettingsLayoutScope {
             suffix = suffix,
             onValueChange = {
                 value = it
+                unit.updateState(it)
                 onValueChange(value)
             },
             onValueChangeFinished = { unit.put(value).save() },

@@ -49,7 +49,7 @@ typealias CursorMode = Int
 fun SwitchableMouseLayout(
     modifier: Modifier = Modifier,
     cursorMode: CursorMode,
-    controlMode: MouseControlMode = AllSettings.mouseControlMode.getValue(),
+    controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     onMouseTap: (Offset) -> Unit = {},
@@ -62,7 +62,7 @@ fun SwitchableMouseLayout(
     onCapturedMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
-    mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
+    mouseSize: Dp = AllSettings.mouseSize.state.dp,
     cursorSensitivity: Int = AllSettings.cursorSensitivity.state
 ) {
     val windowSize = LocalWindowInfo.current.containerSize
@@ -230,7 +230,6 @@ fun SwitchableMouseLayout(
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,
-            inputChange = arrayOf<Any>(speedFactor, controlMode),
             requestFocusKey = cursorMode
         )
     }

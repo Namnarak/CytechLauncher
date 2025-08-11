@@ -38,6 +38,13 @@ abstract class AbstractSettingUnit<V>(
     }
 
     /**
+     * @return **仅更新状态**，不保存值
+     */
+    fun updateState(value: V) {
+        this.state = value
+    }
+
+    /**
      * 重置当前设置单元为默认值
      */
     fun reset() {
