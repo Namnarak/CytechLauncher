@@ -140,7 +140,7 @@ fun RendererSettingsScreen(
 
                     fun change(value1: Boolean) {
                         value = value1
-                        AllSettings.zinkPreferSystemDriver.put(value).save()
+                        AllSettings.zinkPreferSystemDriver.save(value)
                     }
 
                     SwitchLayout(

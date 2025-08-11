@@ -56,7 +56,7 @@ class SettingsLayoutScope {
             checked = checked,
             onCheckedChange = { value ->
                 checked = value
-                unit.put(checked).save()
+                unit.save(checked)
                 onCheckedChange(checked)
             },
             modifier = modifier,
@@ -94,7 +94,7 @@ class SettingsLayoutScope {
                 unit.updateState(it)
                 onValueChange(value)
             },
-            onValueChangeFinished = { unit.put(value).save() },
+            onValueChangeFinished = { unit.save(value) },
             enabled = enabled,
             fineTuningControl = fineTuningControl
         )
@@ -141,7 +141,7 @@ class SettingsLayoutScope {
                                 onRadioClick(enum)
                                 if (value == enum) return@RadioButton
                                 value = enum
-                                unit.put(value).save()
+                                unit.save(value)
                                 onValueChange(enum)
                             }
                         )
@@ -185,7 +185,7 @@ class SettingsLayoutScope {
             enabled = enabled,
             itemListPadding = itemListPadding,
             onValueChange = { item ->
-                unit.put(getItemId(item)).save()
+                unit.save(getItemId(item))
                 onValueChange(item)
             }
         )
@@ -217,7 +217,7 @@ class SettingsLayoutScope {
             enabled = enabled,
             itemListPadding = itemListPadding,
             onValueChange = { item ->
-                unit.put(item).save()
+                unit.save(item)
                 onValueChange(item)
             }
         )
@@ -239,7 +239,7 @@ class SettingsLayoutScope {
             title = title,
             summary = summary,
             onValueChange = { value ->
-                unit.put(value).save()
+                unit.save(value)
                 onValueChange(value)
             },
             label = {

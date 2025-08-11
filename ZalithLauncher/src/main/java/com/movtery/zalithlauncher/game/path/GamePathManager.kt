@@ -149,7 +149,7 @@ object GamePathManager {
 
     private fun saveCurrentPathUncheck(id: String) {
         if (currentGamePathId.getValue() == id) return
-        currentGamePathId.put(id).save()
+        currentGamePathId.save(id)
         refreshCurrentPath()
     }
 

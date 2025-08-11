@@ -249,6 +249,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.toml4j)
     implementation(libs.maven.artifact)
+    implementation(libs.mmkv)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     //Safe
     implementation(libs.stringfog.xor)

@@ -94,7 +94,7 @@ fun GameMenuSubscreen(
                     modifier = itemCommonModifier,
                     text = stringResource(R.string.game_menu_option_switch_fps),
                     switch = AllSettings.showFPS.state,
-                    onSwitch = { AllSettings.showFPS.put(it).save() }
+                    onSwitch = { AllSettings.showFPS.save(it) }
                 )
             }
 
@@ -110,7 +110,7 @@ fun GameMenuSubscreen(
                     value = AllSettings.mouseSize.state,
                     valueRange = 5f..50f,
                     onValueChange = { AllSettings.mouseSize.updateState(it) },
-                    onValueChangeFinished = { AllSettings.mouseSize.put(it).save() },
+                    onValueChangeFinished = { AllSettings.mouseSize.save(it) },
                     suffix = "Dp"
                 )
             }
@@ -122,7 +122,7 @@ fun GameMenuSubscreen(
                     value = AllSettings.cursorSensitivity.state,
                     valueRange = 25f..300f,
                     onValueChange = { AllSettings.cursorSensitivity.updateState(it) },
-                    onValueChangeFinished = { AllSettings.cursorSensitivity.put(it).save() },
+                    onValueChangeFinished = { AllSettings.cursorSensitivity.save(it) },
                     suffix = "%"
                 )
             }
@@ -134,7 +134,7 @@ fun GameMenuSubscreen(
                     value = AllSettings.mouseCaptureSensitivity.state,
                     valueRange = 25f..300f,
                     onValueChange = { AllSettings.mouseCaptureSensitivity.updateState(it) },
-                    onValueChangeFinished = { AllSettings.mouseCaptureSensitivity.put(it).save() },
+                    onValueChangeFinished = { AllSettings.mouseCaptureSensitivity.save(it) },
                     suffix = "%"
                 )
             }
@@ -146,7 +146,7 @@ fun GameMenuSubscreen(
                     value = AllSettings.mouseLongPressDelay.state,
                     valueRange = 100f..1000f,
                     onValueChange = { AllSettings.mouseLongPressDelay.updateState(it) },
-                    onValueChangeFinished = { AllSettings.mouseLongPressDelay.put(it).save() },
+                    onValueChangeFinished = { AllSettings.mouseLongPressDelay.save(it) },
                     suffix = "ms"
                 )
             }
@@ -157,7 +157,7 @@ fun GameMenuSubscreen(
                     title = stringResource(R.string.settings_control_mouse_control_mode_title),
                     items = MouseControlMode.entries,
                     currentItem = AllSettings.mouseControlMode.state,
-                    onItemChange = { AllSettings.mouseControlMode.put(it).save() },
+                    onItemChange = { AllSettings.mouseControlMode.save(it) },
                     getItemText = { stringResource(it.nameRes) }
                 )
             }
@@ -172,7 +172,7 @@ fun GameMenuSubscreen(
                     modifier = itemCommonModifier,
                     text = stringResource(R.string.settings_control_gesture_control_title),
                     switch = AllSettings.gestureControl.state,
-                    onSwitch = { AllSettings.gestureControl.put(it).save() }
+                    onSwitch = { AllSettings.gestureControl.save(it) }
                 )
             }
             //点击触发的操作类型
@@ -182,7 +182,7 @@ fun GameMenuSubscreen(
                     title = stringResource(R.string.settings_control_gesture_tap_action_title),
                     items = GestureActionType.entries,
                     currentItem = AllSettings.gestureTapMouseAction.state,
-                    onItemChange = { AllSettings.gestureTapMouseAction.put(it).save() },
+                    onItemChange = { AllSettings.gestureTapMouseAction.save(it) },
                     getItemText = { stringResource(it.nameRes) },
                     enabled = AllSettings.gestureControl.state
                 )
@@ -194,7 +194,7 @@ fun GameMenuSubscreen(
                     title = stringResource(R.string.settings_control_gesture_long_press_action_title),
                     items = GestureActionType.entries,
                     currentItem = AllSettings.gestureLongPressMouseAction.state,
-                    onItemChange = { AllSettings.gestureLongPressMouseAction.put(it).save() },
+                    onItemChange = { AllSettings.gestureLongPressMouseAction.save(it) },
                     getItemText = { stringResource(it.nameRes) },
                     enabled = AllSettings.gestureControl.state
                 )
@@ -208,7 +208,7 @@ fun GameMenuSubscreen(
                     valueRange = 100f..1000f,
                     enabled = AllSettings.gestureControl.state,
                     onValueChange = { AllSettings.gestureLongPressDelay.updateState(it) },
-                    onValueChangeFinished = { AllSettings.gestureLongPressDelay.put(it).save() },
+                    onValueChangeFinished = { AllSettings.gestureLongPressDelay.save(it) },
                     suffix = "ms"
                 )
             }

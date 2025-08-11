@@ -113,7 +113,7 @@ fun MainScreen(
 
         fun changeTasksExpandedState() {
             isTaskMenuExpanded = !isTaskMenuExpanded
-            AllSettings.launcherTaskMenuExpanded.put(isTaskMenuExpanded).save()
+            AllSettings.launcherTaskMenuExpanded.save(isTaskMenuExpanded)
         }
 
         /** 回到主页面通用函数 */

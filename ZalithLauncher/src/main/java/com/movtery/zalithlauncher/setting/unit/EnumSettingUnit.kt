@@ -1,6 +1,6 @@
 package com.movtery.zalithlauncher.setting.unit
 
-import com.movtery.zalithlauncher.setting.Settings.Manager
+import com.movtery.zalithlauncher.setting.launcherMMKV
 
 /**
  * 枚举设置单元，将枚举保存到设置配置文件中
@@ -11,14 +11,13 @@ class EnumSettingUnit<E : Enum<E>>(
     private val getEnum: (String) -> E?
 ) : AbstractSettingUnit<E>(key, defaultValue) {
     override fun getValue(): E {
-        cacheValue?.let { return it }
-        return Manager.getValue(key, defaultValue, getEnum).also {
-            cacheValue = it
-        }
+        val valueString: String = launcherMMKV().getString(key, defaultValue.name)!!
+        return (getEnum(valueString) ?: defaultValue)
+            .also { state = it }
     }
 
-    init {
-        initState()
+    override fun saveValue(v: E) {
+        launcherMMKV().putString(key, v.name).apply()
     }
 }
 

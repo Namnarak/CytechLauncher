@@ -22,11 +22,13 @@ import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.loadAllSettings
 import com.movtery.zalithlauncher.ui.activities.ErrorActivity
 import com.movtery.zalithlauncher.ui.activities.showLauncherCrash
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.tencent.mmkv.MMKV
 import okio.Path.Companion.toOkioPath
 import java.io.PrintStream
 import java.text.DateFormat
@@ -69,6 +71,9 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
 
         super.onCreate()
         runCatching {
+            MMKV.initialize(this)
+            loadAllSettings(this)
+
             Logger.initialize(this)
 
             initializeData()

@@ -1,18 +1,14 @@
 package com.movtery.zalithlauncher.setting.unit
 
-import com.movtery.zalithlauncher.setting.Settings.Manager
+import com.movtery.zalithlauncher.setting.launcherMMKV
 
 class BooleanSettingUnit(key: String, defaultValue: Boolean) : AbstractSettingUnit<Boolean>(key, defaultValue) {
     override fun getValue(): Boolean {
-        cacheValue?.let { return it }
-        return Manager.getValue(key, defaultValue) {
-            it.toBoolean()
-        }.also {
-            cacheValue = it
-        }
+        return launcherMMKV().getBoolean(key, defaultValue)
+            .also { state = it }
     }
 
-    init {
-        initState()
+    override fun saveValue(v: Boolean) {
+        launcherMMKV().putBoolean(key, v).apply()
     }
 }

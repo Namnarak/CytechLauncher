@@ -1,18 +1,14 @@
 package com.movtery.zalithlauncher.setting.unit
 
-import com.movtery.zalithlauncher.setting.Settings.Manager
+import com.movtery.zalithlauncher.setting.launcherMMKV
 
 class FloatSettingUnit(key: String, defaultValue: Float) : AbstractSettingUnit<Float>(key, defaultValue) {
     override fun getValue(): Float {
-        cacheValue?.let { return it }
-        return Manager.getValue(key, defaultValue) {
-            it.toFloatOrNull()
-        }.also {
-            cacheValue = it
-        }
+        return launcherMMKV().getFloat(key, defaultValue)
+            .also { state = it }
     }
 
-    init {
-        initState()
+    override fun saveValue(v: Float) {
+        launcherMMKV().putFloat(key, v).apply()
     }
 }

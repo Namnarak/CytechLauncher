@@ -24,7 +24,7 @@ class CustomColorThemeState {
     }
 
     fun saveValue() {
-        AllSettings.launcherCustomColor.put(currentColor.toArgb()).save()
+        AllSettings.launcherCustomColor.save(currentColor.toArgb())
     }
 }
 
