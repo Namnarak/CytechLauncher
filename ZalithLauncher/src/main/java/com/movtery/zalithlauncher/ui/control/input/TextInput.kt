@@ -36,19 +36,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun Modifier.textInputHandler(
     mode: TextInputMode,
-    sender: CharacterSenderStrategy
+    sender: CharacterSenderStrategy,
+    onCloseInputMethod: () -> Unit = {}
 ): Modifier {
     val textMode by rememberUpdatedState(mode)
-    return this then TextInputModifier(sender, textMode)
+    val onCloseInputMethod1 by rememberUpdatedState(onCloseInputMethod)
+    return this then TextInputModifier(sender, textMode, onCloseInputMethod1)
 }
 
 private data class TextInputModifier(
     private val sender: CharacterSenderStrategy,
-    private val textMode: TextInputMode
+    private val textMode: TextInputMode,
+    private val onCloseInputMethod: () -> Unit = {}
 ) : ModifierNodeElement<TextInputNode>() {
-    override fun create() = TextInputNode(sender, textMode)
+    override fun create() = TextInputNode(sender, textMode, onCloseInputMethod)
     override fun update(node: TextInputNode) {
-        node.update(sender, textMode)
+        node.update(sender, textMode, onCloseInputMethod)
     }
     override fun InspectorInfo.inspectableProperties() {
         name = "simulatorTextInputCore"
@@ -66,7 +69,8 @@ private data class TextInputModifier(
  */
 private class TextInputNode(
     private var sender: CharacterSenderStrategy,
-    private var textInputMode: TextInputMode
+    private var textInputMode: TextInputMode,
+    private var onCloseInputMethod: () -> Unit
 ) : Modifier.Node(), PlatformTextInputModifierNode {
     private var session: Job? = null
     private val fakeCursorRect = IntRect(100, 500, 100, 550)
@@ -119,9 +123,11 @@ private class TextInputNode(
      */
     fun update(
         sender: CharacterSenderStrategy,
-        textInputMode: TextInputMode
+        textInputMode: TextInputMode,
+        onCloseInputMethod: () -> Unit
     ) {
         this.sender = sender
+        this.onCloseInputMethod = onCloseInputMethod
         if (this.textInputMode != textInputMode) {
             this.textInputMode = textInputMode
             stopInput()
@@ -151,7 +157,10 @@ private class TextInputNode(
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action != KeyEvent.ACTION_DOWN) return true
             when (event.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> sender.sendEnter()
+                KeyEvent.KEYCODE_ENTER -> {
+                    sender.sendEnter()
+                    onCloseInputMethod()
+                }
                 KeyEvent.KEYCODE_DEL -> sender.sendBackspace()
                 KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
                 KeyEvent.KEYCODE_DPAD_RIGHT -> sender.sendRight()
@@ -193,7 +202,14 @@ private class TextInputNode(
         override fun commitCompletion(p0: CompletionInfo?): Boolean = false
         override fun commitContent(p0: InputContentInfo, p1: Int, p2: Bundle?): Boolean = false
         override fun commitCorrection(p0: CorrectionInfo?): Boolean = false
-        override fun performEditorAction(p0: Int): Boolean = false
+
+        override fun performEditorAction(editorAction: Int): Boolean {
+            //用户点击了编辑器的操作按钮（可以视为用户按下回车）
+            sender.sendEnter()
+            onCloseInputMethod()
+            return true
+        }
+
         override fun performContextMenuAction(p0: Int): Boolean = false
         override fun performPrivateCommand(p0: String?, p1: Bundle?): Boolean = false
         override fun reportFullscreenMode(p0: Boolean): Boolean = true

@@ -45,6 +45,7 @@ fun JVMScreen(
         SimpleMouseControlLayout(
             modifier = Modifier.fillMaxSize(),
             textInputMode = textInputMode,
+            onCloseInputMethod = { textInputMode = TextInputMode.DISABLE },
             sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
             sendMouseCodePress = { code, pressed ->
                 ZLBridge.sendMousePress(code, pressed)
@@ -84,13 +85,19 @@ fun JVMScreen(
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
     textInputMode: TextInputMode,
+    onCloseInputMethod: () -> Unit = {},
     sendMousePress: () -> Unit = {},
     sendMouseCodePress: (Int, Boolean) -> Unit = { _, _ -> },
     sendMouseLongPress: (Boolean) -> Unit = {},
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
 ) {
     VirtualPointerLayout(
-        modifier = modifier.textInputHandler(mode = textInputMode, sender = AWTCharSender),
+        modifier = modifier
+            .textInputHandler(
+                mode = textInputMode,
+                sender = AWTCharSender,
+                onCloseInputMethod = onCloseInputMethod
+            ),
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },

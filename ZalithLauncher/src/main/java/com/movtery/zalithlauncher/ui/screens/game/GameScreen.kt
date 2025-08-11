@@ -79,7 +79,8 @@ fun GameScreen(
             isTouchProxyEnabled = isTouchProxyEnabled,
             modifier = Modifier.fillMaxSize(),
             onInputAreaRectUpdated = onInputAreaRectUpdated,
-            textInputMode = textInputMode
+            textInputMode = textInputMode,
+            onCloseInputMethod = { textInputMode = TextInputMode.DISABLE }
         )
 
         LogBox(
@@ -158,7 +159,8 @@ private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
     modifier: Modifier = Modifier,
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
-    textInputMode: TextInputMode
+    textInputMode: TextInputMode,
+    onCloseInputMethod: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -171,7 +173,11 @@ private fun MouseControlLayout(
                         )
                 } else Modifier
             )
-            .textInputHandler(mode = textInputMode, sender = LWJGLCharSender)
+            .textInputHandler(
+                mode = textInputMode,
+                sender = LWJGLCharSender,
+                onCloseInputMethod = onCloseInputMethod
+            )
     ) {
 
         val capturedSpeedFactor = AllSettings.mouseCaptureSensitivity.state / 100f
