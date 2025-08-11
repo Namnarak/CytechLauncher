@@ -39,6 +39,11 @@ fun Modifier.textInputHandler(
     sender: CharacterSenderStrategy,
     onCloseInputMethod: () -> Unit = {}
 ): Modifier {
+    OnKeyboardClosed {
+        if (mode == TextInputMode.ENABLE) {
+            onCloseInputMethod()
+        }
+    }
     val textMode by rememberUpdatedState(mode)
     val onCloseInputMethod1 by rememberUpdatedState(onCloseInputMethod)
     return this then TextInputModifier(sender, textMode, onCloseInputMethod1)
