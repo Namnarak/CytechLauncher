@@ -231,5 +231,10 @@ class AllSettings {
          * 启动器任务菜单是否展开
          */
         val launcherTaskMenuExpanded = BooleanSettingUnit("launcherTaskMenuExpanded", true)
+
+        /**
+         * 在游戏菜单悬浮窗上显示帧率
+         */
+        val showFPS = BooleanSettingUnit("showFPS", true)
     }
 }

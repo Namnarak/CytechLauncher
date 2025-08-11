@@ -14,6 +14,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,7 +33,13 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerT
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
+import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
+import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
+import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
+import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import org.lwjgl.glfw.CallbackBridge
@@ -43,6 +53,19 @@ fun GameScreen(
     isTouchProxyEnabled: Boolean,
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
 ) {
+    //游戏菜单状态
+    var gameMenuState by remember { mutableStateOf(MenuState.NONE) }
+
+    //游戏菜单
+    var forceCloseState by remember { mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None) }
+    var textInputMode by remember { mutableStateOf(TextInputMode.DISABLE) }
+
+    ForceCloseOperation(
+        operation = forceCloseState,
+        onChange = { forceCloseState = it },
+        text = stringResource(R.string.game_menu_option_force_close_text)
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
         GameInfoBox(
             modifier = Modifier
@@ -56,11 +79,27 @@ fun GameScreen(
             isTouchProxyEnabled = isTouchProxyEnabled,
             modifier = Modifier.fillMaxSize(),
             onInputAreaRectUpdated = onInputAreaRectUpdated,
+            textInputMode = textInputMode
         )
 
         LogBox(
             enableLog = logState.value,
             modifier = Modifier.fillMaxSize()
+        )
+
+        GameMenuSubscreen(
+            state = gameMenuState,
+            closeScreen = { gameMenuState = MenuState.HIDE },
+            onForceClose = { forceCloseState = ForceCloseOperation.Show },
+            onSwitchLog = { onLogStateChange(logState.next()) },
+            onInputMethod = { textInputMode = textInputMode.switch() }
+        )
+
+        DraggableGameBall(
+            showGameFps = AllSettings.showFPS.state,
+            onClick = {
+                gameMenuState = gameMenuState.next()
+            }
         )
     }
 }
@@ -119,16 +158,21 @@ private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
     modifier: Modifier = Modifier,
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
+    textInputMode: TextInputMode
 ) {
-    Box(modifier = modifier.then(
-            if (isTouchProxyEnabled) {
-                Modifier
-                    .touchControllerTouchModifier()
-                    .touchControllerInputModifier(
-                        onInputAreaRectUpdated = onInputAreaRectUpdated,
-                    )
-            } else Modifier
-        )) {
+    Box(
+        modifier = modifier
+            .then(
+                if (isTouchProxyEnabled) {
+                    Modifier
+                        .touchControllerTouchModifier()
+                        .touchControllerInputModifier(
+                            onInputAreaRectUpdated = onInputAreaRectUpdated,
+                        )
+                } else Modifier
+            )
+            .textInputHandler(mode = textInputMode, sender = LWJGLCharSender)
+    ) {
 
         val capturedSpeedFactor = AllSettings.mouseCaptureSensitivity.state / 100f
         val capturedTapMouseAction = AllSettings.gestureTapMouseAction.state.toAction()

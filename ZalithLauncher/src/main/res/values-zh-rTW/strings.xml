@@ -277,6 +277,11 @@
     <string name="game_loading">遊戲正在執行，等待遊戲畫面出現中</string>
     <string name="game_loading_version_name">遊戲版本：%s</string>
     <string name="game_loading_version_info">遊戲資訊：%s</string>
+    <string name="game_menu_title">遊戲選單</string>
+    <string name="game_menu_option_force_close_text">強制關閉正在執行的遊戲可能會導致存檔損壞或設定無法儲存，除非特殊情況請避免此操作</string>
+    <string name="game_menu_option_switch_log">日誌輸出</string>
+    <string name="game_menu_option_input_method">切換輸入法</string>
+    <string name="game_menu_option_switch_fps">幀率顯示</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>

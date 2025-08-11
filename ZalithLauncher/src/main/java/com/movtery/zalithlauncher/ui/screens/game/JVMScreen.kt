@@ -19,23 +19,27 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
-import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TouchableButton
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
+import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
-import com.movtery.zalithlauncher.utils.killProgress
 
 @Composable
 fun JVMScreen(
     logState: LogState,
     onLogStateChange: (LogState) -> Unit = {}
 ) {
-    var forceCloseDialog by remember { mutableStateOf(false) }
-
+    var forceCloseState by remember { mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None) }
     var textInputMode by remember { mutableStateOf(TextInputMode.DISABLE) }
+
+    ForceCloseOperation(
+        operation = forceCloseState,
+        onChange = { forceCloseState = it },
+        text = stringResource(R.string.game_dialog_force_close_message)
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         SimpleMouseControlLayout(
@@ -67,25 +71,12 @@ fun JVMScreen(
                 textInputMode = textInputMode.switch()
             },
             forceCloseClick = {
-                forceCloseDialog = true
+                forceCloseState = ForceCloseOperation.Show
             },
             changeLogOutput = {
                 onLogStateChange(logState.next())
             }
         )
-
-        if (forceCloseDialog) {
-            SimpleAlertDialog(
-                title = stringResource(R.string.game_button_force_close),
-                text = stringResource(R.string.game_dialog_force_close_message),
-                onConfirm = {
-                    killProgress()
-                },
-                onDismiss = {
-                    forceCloseDialog = false
-                }
-            )
-        }
     }
 }
 

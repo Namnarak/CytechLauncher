@@ -305,6 +305,11 @@
     <string name="game_loading">The game is running, waiting for the game screen to appear</string>
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
+    <string name="game_menu_title">Game Menu</string>
+    <string name="game_menu_option_force_close_text">Forcing the currently running game to close may cause save data corruption or prevent settings from being saved. Avoid this action unless necessary.</string>
+    <string name="game_menu_option_switch_log">Log Output</string>
+    <string name="game_menu_option_input_method">Switch Input Method</string>
+    <string name="game_menu_option_switch_fps">FPS Display</string>
     <!-- Renderers -->
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>

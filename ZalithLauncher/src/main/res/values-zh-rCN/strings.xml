@@ -305,6 +305,11 @@
     <string name="game_loading">游戏正在运行，等待游戏画面出现中</string>
     <string name="game_loading_version_name">游戏版本：%s</string>
     <string name="game_loading_version_info">游戏信息：%s</string>
+    <string name="game_menu_title">游戏菜单</string>
+    <string name="game_menu_option_force_close_text">强制关闭正在运行的游戏可能导致存档损坏或设置无法保存，除特殊情况外请避免此操作</string>
+    <string name="game_menu_option_switch_log">日志输出</string>
+    <string name="game_menu_option_input_method">切换输入法</string>
+    <string name="game_menu_option_switch_fps">帧率显示</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支持：</string>
     <string name="renderer_version_unsupported_warning">当前渲染器 %s 不支持该游戏版本，继续使用可能导致渲染错误或游戏崩溃！您确定要无视风险坚持访问吗？</string>
