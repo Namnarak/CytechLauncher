@@ -11,7 +11,8 @@ class ModProject(
     val id: String,
     val platform: Platform,
     val iconUrl: String? = null,
-    val title: String
+    val title: String,
+    val slug: String
 ): Parcelable {
     override fun describeContents(): Int = 0
 
@@ -20,6 +21,7 @@ class ModProject(
         dest.writeParcelable(platform, flags)
         dest.writeString(iconUrl)
         dest.writeString(title)
+        dest.writeString(slug)
     }
 
     companion object CREATOR : Parcelable.Creator<ModProject> {
@@ -28,11 +30,13 @@ class ModProject(
             val platform = parcel.readParcelable<Platform>(Platform::class.java.classLoader)!!
             val iconUrl = parcel.readString()
             val title = parcel.readString()!!
+            val slug = parcel.readString()!!
             return ModProject(
                 id = id,
                 platform = platform,
                 iconUrl = iconUrl,
-                title = title
+                title = title,
+                slug = slug
             )
         }
 

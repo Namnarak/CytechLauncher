@@ -124,6 +124,7 @@ sealed interface DownloadAssetsState<T> {
 class DownloadProjectInfo(
     val id: String,
     val platform: Platform,
+    val slug: String,
     val iconUrl: String? = null,
     val title: String,
     val summary: String? = null,
@@ -311,6 +312,7 @@ fun PlatformProject.toInfo(
             DownloadProjectInfo(
                 id = id,
                 platform = Platform.MODRINTH,
+                slug = slug,
                 iconUrl = iconUrl,
                 title = title,
                 summary = description,
@@ -335,6 +337,7 @@ fun PlatformProject.toInfo(
             DownloadProjectInfo(
                 id = data.id.toString(),
                 platform = Platform.CURSEFORGE,
+                slug = data.slug,
                 iconUrl = data.logo.url,
                 title = data.name,
                 summary = data.summary,

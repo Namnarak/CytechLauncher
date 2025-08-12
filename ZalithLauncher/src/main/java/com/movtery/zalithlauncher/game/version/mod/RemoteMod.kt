@@ -77,6 +77,7 @@ class RemoteMod(
 
                     if (loadFromCache && modProjectCache.containsKey(sha1)) {
                         modProjectCache.decodeParcelable(sha1, ModProject::class.java)?.let { project ->
+                            mcMod = ModTranslations.getTranslationsByRepositoryType(PlatformClasses.MOD).getModBySlugId(project.slug)
                             return@runCatching project
                         }
                     }
@@ -93,7 +94,8 @@ class RemoteMod(
                                     id = info.id,
                                     platform = info.platform,
                                     iconUrl = info.iconUrl,
-                                    title = info.title
+                                    title = info.title,
+                                    slug = info.slug
                                 )
                             }.also { project ->
                                 modProjectCache.encode(sha1, project, MMKV.ExpireInDay)

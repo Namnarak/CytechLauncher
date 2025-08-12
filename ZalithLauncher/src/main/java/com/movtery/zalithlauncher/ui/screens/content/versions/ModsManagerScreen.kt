@@ -102,7 +102,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -203,7 +202,7 @@ private class ModsManageViewModel(
     fun loadMod(mod: RemoteMod, loadFromCache: Boolean = true) {
         //强制刷新：直接加入队列头部并清除旧任务
         if (!loadFromCache) {
-            runBlocking {
+            doInScope {
                 queueMutex.withLock {
                     loadQueue.removeAll { it.first == mod }
                     loadQueue.addFirst(mod to false) //加入队头优先执行
@@ -217,7 +216,7 @@ private class ModsManageViewModel(
         if (modsToLoad.contains(mod)) return
 
         modsToLoad.add(mod)
-        runBlocking {
+        doInScope {
             queueMutex.withLock {
                 val canJoin = loadQueue.size <= (initialQueueSize / 2)
                 if (canJoin || loadQueue.none { it.first == mod }) {
