@@ -8,6 +8,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ProjectTypeFacet
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
+import com.movtery.zalithlauncher.utils.file.calculateFileSha1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertNotNull
@@ -151,7 +152,7 @@ class PlatformSearchJsonTest {
         )
         files.forEach { file ->
             val result = PlatformSearch.getVersionByLocalFileFromModrinth(
-                file = File(file)
+                sha1 = calculateFileSha1(File(file))
             )
             println(result.toString())
         }

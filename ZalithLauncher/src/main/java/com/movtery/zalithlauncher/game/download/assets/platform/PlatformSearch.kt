@@ -12,16 +12,13 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.Modrint
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.utils.file.MurmurHash2Incremental
 import com.movtery.zalithlauncher.utils.network.httpGet
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.Parameters
-import org.apache.commons.codec.digest.MurmurHash2
-import org.jackhuang.hmcl.util.DigestUtils
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.file.Files
 
 object PlatformSearch {
     /**
@@ -146,21 +143,7 @@ object PlatformSearch {
         apiKey: String = InfoDistributor.CURSEFORGE_API,
         retry: Int = 1
     ): CurseForgeFingerprintsMatches = withRetry("PlatformSearch:CurseForge_getVersionByLocalFile", maxRetries = retry) {
-        val baos = ByteArrayOutputStream()
-        Files.newInputStream(file.toPath()).use { stream ->
-            val buf = ByteArray(1024)
-            var bytesRead: Int
-            while (stream.read(buf).also { bytesRead = it } != -1) {
-                for (i in 0 until bytesRead) {
-                    val b = buf[i]
-                    if (b.toInt() !in listOf(0x9, 0xa, 0xd, 0x20)) {
-                        baos.write(b.toInt())
-                    }
-                }
-            }
-        }
-        val hash = Integer.toUnsignedLong(MurmurHash2.hash32(baos.toByteArray(), baos.size(), 1))
-
+        val hash = MurmurHash2Incremental.computeHash(file, byteToSkip = listOf(0x9, 0xa, 0xd, 0x20))
         httpPostJson(
             url = "$CURSEFORGE_API/fingerprints",
             headers = listOf("x-api-key" to apiKey),
@@ -207,12 +190,10 @@ object PlatformSearch {
     }
 
     suspend fun getVersionByLocalFileFromModrinth(
-        file: File,
+        sha1: String,
         retry: Int = 1
     ): ModrinthVersion? = withRetry("PlatformSearch:Modrinth_getVersionByLocalFile", maxRetries = retry) {
         try {
-            val sha1 = DigestUtils.digestToString("SHA-1", file.toPath())
-
             httpGet(
                 url = "$MODRINTH_API/version_file/$sha1",
                 parameters = Parameters.build {

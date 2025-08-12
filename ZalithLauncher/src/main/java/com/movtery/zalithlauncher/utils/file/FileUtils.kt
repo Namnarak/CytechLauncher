@@ -21,6 +21,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -39,6 +40,22 @@ fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = false): Boole
     }
 
     return sourceSHA?.equals(computedSHA, ignoreCase = true) ?: default
+}
+
+suspend fun calculateFileSha1(file: File): String = withContext(Dispatchers.IO) {
+    require(file.exists()) { "File does not exist: ${file.absolutePath}" }
+    require(file.isFile) { "Path is not a file: ${file.absolutePath}" }
+
+    val digest = MessageDigest.getInstance("SHA-1")
+    file.inputStream().use { stream ->
+        val buffer = ByteArray(8192)
+        var bytesRead: Int
+        while (stream.read(buffer).also { bytesRead = it } != -1) {
+            ensureActive()
+            digest.update(buffer, 0, bytesRead)
+        }
+    }
+    digest.digest().joinToString("") { "%02x".format(it) }
 }
 
 @SuppressLint("DefaultLocale")

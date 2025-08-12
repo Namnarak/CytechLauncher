@@ -47,7 +47,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,9 +98,18 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyO
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.util.LinkedList
 
 private class ModsManageViewModel(
     modsDir: File
@@ -114,6 +122,13 @@ private class ModsManageViewModel(
         private set
     var filteredMods by mutableStateOf<List<RemoteMod>?>(null)
         private set
+
+    /** 作为标记，记录哪些模组已被加载 */
+    private val modsToLoad = mutableListOf<RemoteMod>()
+    private val loadQueue = LinkedList<Pair<RemoteMod, Boolean>>()
+    private val semaphore = Semaphore(8) //一次最多允许同时加载8个模组
+    private var initialQueueSize = 0
+    private val queueMutex = Mutex()
 
     var modsState by mutableStateOf<LoadingState>(LoadingState.None)
 
@@ -135,6 +150,7 @@ private class ModsManageViewModel(
 
     init {
         refresh()
+        startQueueProcessor()
     }
 
     fun updateFilter(name: String) {
@@ -144,6 +160,80 @@ private class ModsManageViewModel(
 
     private fun filterMods() {
         filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter)
+    }
+
+    /** 在ViewModel的生命周期协程内调用 */
+    fun doInScope(block: suspend () -> Unit) {
+        viewModelScope.launch {
+            block()
+        }
+    }
+
+    private fun startQueueProcessor() {
+        viewModelScope.launch {
+            while (true) {
+                try {
+                    ensureActive()
+                } catch (_: Exception) {
+                    break //取消
+                }
+
+                val task = queueMutex.withLock {
+                    loadQueue.poll()
+                } ?: run {
+                    delay(100)
+                    continue
+                }
+
+                val (mod, loadFromCache) = task
+                semaphore.acquire()
+
+                launch {
+                    try {
+                        mod.load(loadFromCache)
+                    } finally {
+                        semaphore.release()
+                    }
+                }
+            }
+        }
+    }
+
+    /** 加载模组远端信息 */
+    fun loadMod(mod: RemoteMod, loadFromCache: Boolean = true) {
+        //强制刷新：直接加入队列头部并清除旧任务
+        if (!loadFromCache) {
+            runBlocking {
+                queueMutex.withLock {
+                    loadQueue.removeAll { it.first == mod }
+                    loadQueue.addFirst(mod to false) //加入队头优先执行
+                }
+            }
+            if (modsToLoad.contains(mod)) return //已在加载列表
+            modsToLoad.add(mod)
+            return
+        }
+
+        if (modsToLoad.contains(mod)) return
+
+        modsToLoad.add(mod)
+        runBlocking {
+            queueMutex.withLock {
+                val canJoin = loadQueue.size <= (initialQueueSize / 2)
+                if (canJoin || loadQueue.none { it.first == mod }) {
+                    loadQueue.add(mod to true)
+                    modsToLoad.add(mod)
+                    //若当前是新一轮任务，更新初始队列总数
+                    if (initialQueueSize == 0 || canJoin) {
+                        initialQueueSize = loadQueue.size
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        viewModelScope.cancel()
     }
 }
 
@@ -186,8 +276,6 @@ fun ModsManagerScreen(
                 .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
             paddingValues = PaddingValues()
         ) {
-            val operationScope = rememberCoroutineScope()
-
             when (viewModel.modsState) {
                 LoadingState.None -> {
                     val itemColor = itemLayoutColor()
@@ -195,11 +283,13 @@ fun ModsManagerScreen(
 
                     var modsOperation by remember { mutableStateOf<ModsOperation>(ModsOperation.None) }
                     fun runProgress(task: () -> Unit) {
-                        operationScope.launch(Dispatchers.IO) {
-                            modsOperation = ModsOperation.Progress
-                            task()
-                            modsOperation = ModsOperation.None
-                            viewModel.refresh()
+                        viewModel.doInScope {
+                            withContext(Dispatchers.IO) {
+                                modsOperation = ModsOperation.Progress
+                                task()
+                                modsOperation = ModsOperation.None
+                                viewModel.refresh()
+                            }
                         }
                     }
                     ModsOperation(
@@ -230,14 +320,21 @@ fun ModsManagerScreen(
                                 .fillMaxWidth()
                                 .weight(1f),
                             modsList = viewModel.filteredMods,
+                            onLoad = { mod ->
+                                viewModel.loadMod(mod)
+                            },
                             onEnable = { mod ->
-                                operationScope.launch(Dispatchers.IO) {
-                                    mod.localMod.enable()
+                                viewModel.doInScope {
+                                    withContext(Dispatchers.IO) {
+                                        mod.localMod.enable()
+                                    }
                                 }
                             },
                             onDisable = { mod ->
-                                operationScope.launch(Dispatchers.IO) {
-                                    mod.localMod.disable()
+                                viewModel.doInScope {
+                                    withContext(Dispatchers.IO) {
+                                        mod.localMod.disable()
+                                    }
                                 }
                             },
                             onSwapMoreInfo = onSwapMoreInfo,
@@ -314,6 +411,7 @@ private fun ModsActionsHeader(
 private fun ModsList(
     modifier: Modifier = Modifier,
     modsList: List<RemoteMod>?,
+    onLoad: (RemoteMod) -> Unit,
     onEnable: (RemoteMod) -> Unit,
     onDisable: (RemoteMod) -> Unit,
     onSwapMoreInfo: (id: String, Platform) -> Unit,
@@ -334,6 +432,9 @@ private fun ModsList(
                             .fillMaxWidth()
                             .padding(vertical = 6.dp),
                         mod = mod,
+                        onLoad = {
+                            onLoad(mod)
+                        },
                         onEnable = {
                             onEnable(mod)
                         },
@@ -366,6 +467,7 @@ private fun ModsList(
 private fun ModItemLayout(
     modifier: Modifier = Modifier,
     mod: RemoteMod,
+    onLoad: () -> Unit = {},
     onClick: () -> Unit = {},
     onEnable: () -> Unit,
     onDisable: () -> Unit,
@@ -384,7 +486,7 @@ private fun ModItemLayout(
 
     LaunchedEffect(mod) {
         //尝试加载该模组文件在平台上所属的项目
-        mod.load()
+        onLoad()
     }
 
     Surface(
@@ -461,8 +563,9 @@ private fun ModItemLayout(
                                         .animateContentSize(),
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    if (mod.remoteLoaders.isNotEmpty()) {
-                                        mod.remoteLoaders.forEach { loader ->
+                                    val remoteLoaders = mod.remoteLoaders
+                                    if (remoteLoaders != null && remoteLoaders.loaders.isNotEmpty()) {
+                                        remoteLoaders.loaders.forEach { loader ->
                                             LittleTextLabel(
                                                 text = loader.getDisplayName(),
                                                 shape = MaterialTheme.shapes.small

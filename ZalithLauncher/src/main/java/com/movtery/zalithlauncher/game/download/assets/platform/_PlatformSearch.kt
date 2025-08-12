@@ -156,10 +156,10 @@ suspend fun getProjectByVersion(
     }
 }
 
-suspend fun getVersionByLocalFile(file: File): PlatformVersion? = coroutineScope {
+suspend fun getVersionByLocalFile(file: File, sha1: String): PlatformVersion? = coroutineScope {
     val modrinthDeferred = async(Dispatchers.IO) {
         runCatching {
-            PlatformSearch.getVersionByLocalFileFromModrinth(file)
+            PlatformSearch.getVersionByLocalFileFromModrinth(sha1)
         }.getOrNull()
     }
 
