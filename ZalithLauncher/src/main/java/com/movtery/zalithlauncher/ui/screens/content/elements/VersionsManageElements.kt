@@ -60,7 +60,6 @@ import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
@@ -73,6 +72,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 
 sealed interface GamePathOperation {
@@ -193,7 +193,8 @@ fun GamePathItemLayout(
 @Composable
 fun GamePathOperation(
     gamePathOperation: GamePathOperation,
-    changeState: (GamePathOperation) -> Unit
+    changeState: (GamePathOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     runCatching {
         when(gamePathOperation) {
@@ -241,8 +242,8 @@ fun GamePathOperation(
             }
         }
     }.onFailure { e ->
-        ObjectStates.updateThrowable(
-            ObjectStates.ThrowableMessage(
+        summitError(
+            ErrorViewModel.ThrowableMessage(
                 title = stringResource(R.string.versions_manage_game_path_error_title),
                 message = e.getMessageOrToString()
             )
@@ -319,7 +320,8 @@ private fun NameEditPathDialog(
 @Composable
 fun VersionsOperation(
     versionsOperation: VersionsOperation,
-    updateVersionsOperation: (VersionsOperation) -> Unit
+    updateVersionsOperation: (VersionsOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when(versionsOperation) {
         is VersionsOperation.None -> {}
@@ -386,8 +388,8 @@ fun VersionsOperation(
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
                     lError("Failed to run task.", e)
-                    ObjectStates.updateThrowable(
-                        ObjectStates.ThrowableMessage(
+                    summitError(
+                        ErrorViewModel.ThrowableMessage(
                             title = errorMessage,
                             message = e.getMessageOrToString()
                         )

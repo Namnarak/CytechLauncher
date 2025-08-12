@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 
 @Composable
 fun DownloadModScreen(
@@ -34,7 +35,8 @@ fun DownloadModScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadModScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -54,7 +56,8 @@ fun DownloadModScreen(
                 context = context,
                 info = info,
                 versions = versions,
-                folder = VersionFolders.MOD.folderName
+                folder = VersionFolders.MOD.folderName,
+                summitError = summitError
             )
         }
     )

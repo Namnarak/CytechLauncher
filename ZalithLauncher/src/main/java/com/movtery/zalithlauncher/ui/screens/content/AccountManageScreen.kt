@@ -61,7 +61,6 @@ import com.movtery.zalithlauncher.game.account.microsoftLogin
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.UrlManager
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -88,6 +87,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
@@ -100,7 +100,8 @@ import java.nio.channels.UnresolvedAddressException
 @Composable
 fun AccountManageScreen(
     backStackViewModel: ScreenBackStackViewModel,
-    backToMainScreen: () -> Unit
+    backToMainScreen: () -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
     var localLoginOperation by remember { mutableStateOf<LocalLoginOperation>(LocalLoginOperation.None) }
@@ -131,6 +132,7 @@ fun AccountManageScreen(
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
                     .weight(7.5f),
+                summitError = summitError,
                 onAddAuthClicked = {
                     //打开添加认证服务器的对话框
                     serverOperation = ServerOperation.AddNew
@@ -149,7 +151,8 @@ fun AccountManageScreen(
         },
         backToMainScreen = backToMainScreen,
         microsoftLoginOperation = microsoftLoginOperation,
-        updateOperation = { microsoftLoginOperation = it }
+        updateOperation = { microsoftLoginOperation = it },
+        summitError = summitError
     )
 
     //离线账号操作逻辑
@@ -161,13 +164,15 @@ fun AccountManageScreen(
     //外置账号操作逻辑
     OtherLoginOperation(
         otherLoginOperation = otherLoginOperation,
-        updateOperation = { otherLoginOperation = it }
+        updateOperation = { otherLoginOperation = it },
+        summitError = summitError
     )
 
     //外置服务器操作逻辑
     ServerTypeOperation(
         serverOperation = serverOperation,
-        updateServerOperation = { serverOperation = it }
+        updateServerOperation = { serverOperation = it },
+        summitError = summitError
     )
 }
 
@@ -250,7 +255,8 @@ private fun MicrosoftLoginOperation(
     navigateToWeb: (url: String) -> Unit,
     backToMainScreen: () -> Unit,
     microsoftLoginOperation: MicrosoftLoginOperation,
-    updateOperation: (MicrosoftLoginOperation) -> Unit = {}
+    updateOperation: (MicrosoftLoginOperation) -> Unit = {},
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -268,7 +274,8 @@ private fun MicrosoftLoginOperation(
                 toWeb = navigateToWeb,
                 backToMain = backToMainScreen,
                 checkIfInWebScreen = checkIfInWebScreen,
-                updateOperation = { updateOperation(it) }
+                updateOperation = { updateOperation(it) },
+                summitError = summitError
             )
             updateOperation(MicrosoftLoginOperation.None)
         }
@@ -337,7 +344,8 @@ private fun LocalLoginOperation(
 @Composable
 private fun OtherLoginOperation(
     otherLoginOperation: OtherLoginOperation,
-    updateOperation: (OtherLoginOperation) -> Unit = {}
+    updateOperation: (OtherLoginOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
     when (otherLoginOperation) {
@@ -395,8 +403,8 @@ private fun OtherLoginOperation(
                 }
             }
 
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
+            summitError(
+                ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
                     message = message
                 )
@@ -418,7 +426,8 @@ private fun OtherLoginOperation(
 @Composable
 private fun ServerTypeOperation(
     serverOperation: ServerOperation,
-    updateServerOperation: (ServerOperation) -> Unit
+    updateServerOperation: (ServerOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when (serverOperation) {
         is ServerOperation.AddNew -> {
@@ -460,8 +469,8 @@ private fun ServerTypeOperation(
             )
         }
         is ServerOperation.OnThrowable -> {
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
+            summitError(
+                ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_other_login_adding_failure),
                     message = serverOperation.throwable.getMessageOrToString()
                 )
@@ -476,6 +485,7 @@ private fun ServerTypeOperation(
 private fun AccountsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit = {}
 ) {
     val yOffset by swapAnimateDpAsState(
@@ -498,7 +508,8 @@ private fun AccountsLayout(
         var accountOperation by remember { mutableStateOf<AccountOperation>(AccountOperation.None) }
         AccountOperation(
             accountOperation = accountOperation,
-            updateAccountOperation = { accountOperation = it }
+            updateAccountOperation = { accountOperation = it },
+            summitError = summitError
         )
 
         if (accounts.isNotEmpty()) {
@@ -515,6 +526,7 @@ private fun AccountsLayout(
                         account = account,
                         accountSkinOperation = accountSkinOperation,
                         updateOperation = { accountSkinOperation = it },
+                        summitError = summitError,
                         onAddAuthClicked = onAddAuthClicked,
                         onRefreshAvatar = { refreshAvatar = !refreshAvatar }
                     )
@@ -571,6 +583,7 @@ private fun AccountSkinOperation(
     account: Account,
     accountSkinOperation: AccountSkinOperation,
     updateOperation: (AccountSkinOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit = {},
     onRefreshAvatar: () -> Unit = {}
 ) {
@@ -591,8 +604,8 @@ private fun AccountSkinOperation(
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(skinFile)
-                        ObjectStates.updateThrowable(
-                            ObjectStates.ThrowableMessage(
+                        summitError(
+                            ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = th.getMessageOrToString()
                             )
@@ -701,7 +714,8 @@ private fun AccountSkinOperation(
 @Composable
 private fun AccountOperation(
     accountOperation: AccountOperation,
-    updateAccountOperation: (AccountOperation) -> Unit
+    updateAccountOperation: (AccountOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
     when (accountOperation) {
@@ -757,8 +771,8 @@ private fun AccountOperation(
                     stringResource(R.string.error_unknown, errorMessage)
                 }
             }
-            ObjectStates.updateThrowable(
-                ObjectStates.ThrowableMessage(
+            summitError(
+                ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
                     message = message
                 )

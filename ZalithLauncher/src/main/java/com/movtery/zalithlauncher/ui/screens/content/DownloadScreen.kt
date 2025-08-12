@@ -56,6 +56,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 /**
@@ -72,7 +73,8 @@ fun ScreenBackStackViewModel.navigateToDownload(targetScreen: NavKey? = null) {
 @Composable
 fun DownloadScreen(
     key: NestedNavKey.Download,
-    backScreenViewModel: ScreenBackStackViewModel
+    backScreenViewModel: ScreenBackStackViewModel,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         screenKey = key,
@@ -96,6 +98,7 @@ fun DownloadScreen(
             NavigationUI(
                 key = key,
                 backScreenViewModel = backScreenViewModel,
+                summitError = summitError,
                 modifier = Modifier.fillMaxHeight()
             )
         }
@@ -178,6 +181,7 @@ private fun TabMenu(
 private fun NavigationUI(
     key: NestedNavKey.Download,
     backScreenViewModel: ScreenBackStackViewModel,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val backStack = key.backStack
@@ -224,7 +228,8 @@ private fun NavigationUI(
                         downloadModScreenKey = backScreenViewModel.downloadModScreenKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadModScreenKey = newKey
-                        }
+                        },
+                        summitError = summitError
                     )
                 }
                 entry<NestedNavKey.DownloadResourcePack> { key ->
@@ -235,7 +240,8 @@ private fun NavigationUI(
                         downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreenKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadResourcePackScreenKey = newKey
-                        }
+                        },
+                        summitError = summitError
                     )
                 }
                 entry<NestedNavKey.DownloadSaves> { key ->
@@ -246,7 +252,8 @@ private fun NavigationUI(
                         downloadSavesScreenKey = backScreenViewModel.downloadSavesScreenKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadSavesScreenKey = newKey
-                        }
+                        },
+                        summitError = summitError
                     )
                 }
                 entry<NestedNavKey.DownloadShaders> { key ->
@@ -257,7 +264,8 @@ private fun NavigationUI(
                         downloadShadersScreenKey = backScreenViewModel.downloadShadersScreenKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadShadersScreenKey = newKey
-                        }
+                        },
+                        summitError = summitError
                     )
                 }
             }

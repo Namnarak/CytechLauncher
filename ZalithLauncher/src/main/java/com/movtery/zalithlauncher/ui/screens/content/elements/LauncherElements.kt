@@ -46,6 +46,7 @@ import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.launch
 
 sealed interface LaunchGameOperation {
@@ -184,6 +185,7 @@ fun LaunchGameOperation(
     activity: Activity,
     launchGameOperation: LaunchGameOperation,
     updateOperation: (LaunchGameOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {}
 ) {
@@ -280,7 +282,7 @@ fun LaunchGameOperation(
                 offlineAccountLogin = false
                 quickPlaySingle = quickPlay
             }
-            LaunchGame.launchGame(context, version)
+            LaunchGame.launchGame(context, version, summitError)
             updateOperation(LaunchGameOperation.None)
         }
     }

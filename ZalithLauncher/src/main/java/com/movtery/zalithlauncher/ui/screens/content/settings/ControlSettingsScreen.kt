@@ -38,7 +38,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -51,6 +50,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
 
@@ -58,7 +58,8 @@ import org.apache.commons.io.FileUtils
 fun ControlSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
-    mainScreenKey: NavKey?
+    mainScreenKey: NavKey?,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -105,7 +106,8 @@ fun ControlSettingsScreen(
                 )
 
                 MousePointerLayout(
-                    mouseSize = AllSettings.mouseSize.state
+                    mouseSize = AllSettings.mouseSize.state,
+                    summitError = summitError
                 )
 
                 SliderSettingsLayout(
@@ -213,7 +215,8 @@ private sealed interface MousePointerOperation {
 
 @Composable
 private fun MousePointerLayout(
-    mouseSize: Int
+    mouseSize: Int,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -252,8 +255,8 @@ private fun MousePointerLayout(
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(mousePointerFile)
-                        ObjectStates.updateThrowable(
-                            ObjectStates.ThrowableMessage(
+                        summitError(
+                            ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = th.getMessageOrToString()
                             )

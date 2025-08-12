@@ -18,16 +18,17 @@ import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
+import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadSingleOperation
-import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchSavesScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +41,8 @@ fun DownloadSavesScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadSavesScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -73,7 +75,8 @@ fun DownloadSavesScreen(
                             File(folder, file.nameWithoutExtension)
                         )
                     }
-                }
+                },
+                summitError = summitError
             )
         }
     )

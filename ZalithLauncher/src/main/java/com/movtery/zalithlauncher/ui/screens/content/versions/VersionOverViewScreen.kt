@@ -42,7 +42,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -58,6 +57,7 @@ import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -67,7 +67,8 @@ fun VersionOverViewScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     backToMainScreen: () -> Unit,
-    version: Version
+    version: Version,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         levels1 = listOf(
@@ -85,6 +86,7 @@ fun VersionOverViewScreen(
         VersionsOperation(
             versionsOperation = versionsOperation,
             updateOperation = { versionsOperation = it },
+            summitError = summitError,
             onIconPicked = {
                 refreshVersionIcon++
                 iconFileExists = VersionsManager.getVersionIconFile(version).exists()
@@ -152,8 +154,8 @@ fun VersionOverViewScreen(
                     runCatching {
                         folder.ensureDirectory()
                     }.onFailure { e ->
-                        ObjectStates.updateThrowable(
-                            ObjectStates.ThrowableMessage(
+                        summitError(
+                            ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_create_dir, folder.absolutePath),
                                 message = e.getMessageOrToString()
                             )
@@ -168,7 +170,11 @@ fun VersionOverViewScreen(
 }
 
 @Composable
-private fun PickIcon(version: Version, onDone: () -> Unit) {
+private fun PickIcon(
+    version: Version,
+    onDone: () -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+) {
     val context = LocalContext.current
 
     val iconFile = VersionsManager.getVersionIconFile(version)
@@ -185,8 +191,8 @@ private fun PickIcon(version: Version, onDone: () -> Unit) {
                     onError = { e ->
                         lError("Failed to import icon!", e)
                         FileUtils.deleteQuietly(iconFile)
-                        ObjectStates.updateThrowable(
-                            ObjectStates.ThrowableMessage(
+                        summitError(
+                            ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = e.getMessageOrToString()
                             )
@@ -400,6 +406,7 @@ sealed interface VersionsOperation {
 private fun VersionsOperation(
     versionsOperation: VersionsOperation,
     updateOperation: (VersionsOperation) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onIconPicked: () -> Unit = {},
     resetIcon: () -> Unit = {},
     onVersionRefreshed: () -> Unit = {},
@@ -409,7 +416,11 @@ private fun VersionsOperation(
     when(versionsOperation) {
         is VersionsOperation.None -> {}
         is VersionsOperation.PickIcon -> {
-            PickIcon(version = versionsOperation.version, onDone = onIconPicked)
+            PickIcon(
+                version = versionsOperation.version,
+                onDone = onIconPicked,
+                summitError = summitError
+            )
         }
         is VersionsOperation.ResetIconAlert -> {
             SimpleAlertDialog(
@@ -482,8 +493,8 @@ private fun VersionsOperation(
                 onDismiss = { updateOperation(VersionsOperation.None) },
                 onError = { e ->
                     lError("Failed to run task.", e)
-                    ObjectStates.updateThrowable(
-                        ObjectStates.ThrowableMessage(
+                    summitError(
+                        ErrorViewModel.ThrowableMessage(
                             title = errorMessage,
                             message = e.getMessageOrToString()
                         )

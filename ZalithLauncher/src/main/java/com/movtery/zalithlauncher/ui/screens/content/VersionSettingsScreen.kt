@@ -62,6 +62,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
@@ -70,7 +71,8 @@ fun VersionSettingsScreen(
     key: NestedNavKey.Versions,
     backScreenViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
-    launchGameViewModel: LaunchGameViewModel
+    launchGameViewModel: LaunchGameViewModel,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     /** 版本详细设置屏幕的标签 */
     var versionsScreenKey by remember(key) {
@@ -99,7 +101,8 @@ fun VersionSettingsScreen(
                 },
                 backToMainScreen = backToMainScreen,
                 launchGameViewModel = launchGameViewModel,
-                version = key.version
+                version = key.version,
+                summitError = summitError
             )
         }
     }
@@ -181,6 +184,7 @@ private fun NavigationUI(
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val mainScreenKey = backScreenViewModel.mainScreenKey
 
@@ -203,14 +207,16 @@ private fun NavigationUI(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         backToMainScreen = backToMainScreen,
-                        version = version
+                        version = version,
+                        summitError = summitError
                     )
                 }
                 entry<NormalNavKey.Versions.Config> {
                     VersionConfigScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
-                        version = version
+                        version = version,
+                        summitError = summitError
                     )
                 }
                 entry(NormalNavKey.Versions.ModsManager) {

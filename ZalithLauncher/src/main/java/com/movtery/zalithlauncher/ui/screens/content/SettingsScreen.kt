@@ -57,13 +57,15 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsSc
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun SettingsScreen(
     key: NestedNavKey.Settings,
     backStackViewModel: ScreenBackStackViewModel,
-    openLicenseScreen: (raw: Int) -> Unit
+    openLicenseScreen: (raw: Int) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         screenKey = key,
@@ -87,6 +89,7 @@ fun SettingsScreen(
                     backStackViewModel.settingsScreenKey = newKey
                 },
                 openLicenseScreen = openLicenseScreen,
+                summitError = summitError,
                 modifier = Modifier.fillMaxHeight()
             )
         }
@@ -167,6 +170,7 @@ private fun NavigationUI(
     settingsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
     openLicenseScreen: (raw: Int) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val backStack = key.backStack
@@ -195,13 +199,13 @@ private fun NavigationUI(
                     GameSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.Control> {
-                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey)
+                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey, summitError)
                 }
                 entry<NormalNavKey.Settings.Launcher> {
                     LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.JavaManager> {
-                    JavaManageScreen(key, settingsScreenKey, mainScreenKey)
+                    JavaManageScreen(key, settingsScreenKey, mainScreenKey, summitError)
                 }
                 entry<NormalNavKey.Settings.ControlManager> {
                     ControlManageScreen(key, settingsScreenKey, mainScreenKey)

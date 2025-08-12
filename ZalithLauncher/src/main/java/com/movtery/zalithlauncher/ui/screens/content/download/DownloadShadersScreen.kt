@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchShadersScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 
 @Composable
 fun DownloadShadersScreen(
@@ -34,7 +35,8 @@ fun DownloadShadersScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadShadersScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -54,7 +56,8 @@ fun DownloadShadersScreen(
                 context = context,
                 info = info,
                 versions = versions,
-                folder = VersionFolders.SHADERS.folderName
+                folder = VersionFolders.SHADERS.folderName,
+                summitError = summitError
             )
         }
     )

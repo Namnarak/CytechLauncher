@@ -29,7 +29,6 @@ import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.ObjectStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
@@ -45,12 +44,14 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 
 @Composable
 fun VersionConfigScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
-    version: Version
+    version: Version,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         levels1 = listOf(
@@ -74,7 +75,8 @@ fun VersionConfigScreen(
 
             VersionConfigs(
                 config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) }
+                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
+                summitError = summitError
             )
 
             val yOffset2 by swapAnimateDpAsState(
@@ -85,7 +87,8 @@ fun VersionConfigScreen(
 
             GameConfigs(
                 config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) }
+                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
+                summitError = summitError
             )
 
             val yOffset3 by swapAnimateDpAsState(
@@ -96,7 +99,8 @@ fun VersionConfigScreen(
 
             SupportConfigs(
                 config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) }
+                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
+                summitError = summitError
             )
         }
     }
@@ -105,6 +109,7 @@ fun VersionConfigScreen(
 @Composable
 private fun VersionConfigs(
     config: VersionConfig,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -122,7 +127,7 @@ private fun VersionConfigs(
             onValueChange = { type ->
                 if (config.isolationType != type) {
                     config.isolationType = type
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             title = stringResource(R.string.versions_config_isolation_title),
@@ -134,7 +139,7 @@ private fun VersionConfigs(
             onValueChange = { type ->
                 if (config.skipGameIntegrityCheck != type) {
                     config.skipGameIntegrityCheck = type
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
@@ -158,7 +163,7 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.renderer != item.id) {
                     config.renderer = item.id
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             }
         )
@@ -180,7 +185,7 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.driver != item.id) {
                     config.driver = item.id
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             }
         )
@@ -190,6 +195,7 @@ private fun VersionConfigs(
 @Composable
 private fun GameConfigs(
     config: VersionConfig,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -211,7 +217,7 @@ private fun GameConfigs(
             onValueChange = { item ->
                 if (config.javaRuntime != item.id) {
                     config.javaRuntime = item.id
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             }
         )
@@ -224,7 +230,7 @@ private fun GameConfigs(
             summary = stringResource(R.string.settings_game_java_memory_summary),
             suffix = "MB",
             onValueChange = { config.ramAllocation = it },
-            onValueChangeFinished = { config.saveOrShowError(context) }
+            onValueChangeFinished = { config.saveOrShowError(context, summitError) }
         )
 
         TextInputLayout(
@@ -234,7 +240,7 @@ private fun GameConfigs(
             onValueChange = { value ->
                 if (config.customInfo != value) {
                     config.customInfo = value
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             label = {
@@ -249,7 +255,7 @@ private fun GameConfigs(
             onValueChange = { value ->
                 if (config.jvmArgs != value) {
                     config.jvmArgs = value
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             label = {
@@ -265,7 +271,7 @@ private fun GameConfigs(
             onValueChange = { value ->
                 if (config.serverIp != value) {
                     config.serverIp = value
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             label = {
@@ -278,6 +284,7 @@ private fun GameConfigs(
 @Composable
 private fun SupportConfigs(
     config: VersionConfig,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -298,7 +305,7 @@ private fun SupportConfigs(
                 enableTouchProxy = value
                 if (config.enableTouchProxy != value) {
                     config.enableTouchProxy = value
-                    config.saveOrShowError(context)
+                    config.saveOrShowError(context, summitError)
                 }
             },
             title = stringResource(R.string.versions_config_enable_touch_proxy_title),
@@ -317,7 +324,7 @@ private fun SupportConfigs(
                 config.touchVibrateDuration = touchVibrateDuration
             },
             onValueChangeFinished = {
-                config.saveOrShowError(context)
+                config.saveOrShowError(context, summitError)
             },
             suffix = "ms",
             fineTuningControl = true
@@ -334,13 +341,16 @@ private fun <E> getIDList(list: List<E>, toIDItem: (E) -> IDItem): List<IDItem> 
     }
 }
 
-private fun VersionConfig.saveOrShowError(context: Context) {
+private fun VersionConfig.saveOrShowError(
+    context: Context,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+) {
     runCatching {
         saveWithThrowable()
     }.onFailure { e ->
         lError("Failed to save version config!", e)
-        ObjectStates.updateThrowable(
-            ObjectStates.ThrowableMessage(
+        summitError(
+            ErrorViewModel.ThrowableMessage(
                 title = context.getString(R.string.versions_config_failed_to_save),
                 message = e.getMessageOrToString()
             )

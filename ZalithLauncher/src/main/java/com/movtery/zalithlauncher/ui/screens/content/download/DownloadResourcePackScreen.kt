@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchResourcePackScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 
 @Composable
 fun DownloadResourcePackScreen(
@@ -34,7 +35,8 @@ fun DownloadResourcePackScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadResourcePackScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -54,7 +56,8 @@ fun DownloadResourcePackScreen(
                 context = context,
                 info = info,
                 versions = versions,
-                folder = VersionFolders.RESOURCE_PACK.folderName
+                folder = VersionFolders.RESOURCE_PACK.folderName,
+                summitError = summitError
             )
         }
     )

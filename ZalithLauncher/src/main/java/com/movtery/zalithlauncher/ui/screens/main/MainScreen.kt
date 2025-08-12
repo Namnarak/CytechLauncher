@@ -66,8 +66,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.ObjectStates
-import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -85,22 +83,16 @@ import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
-    launchGameViewModel: LaunchGameViewModel
+    launchGameViewModel: LaunchGameViewModel,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val throwableState by ObjectStates.throwableFlow.collectAsState()
-    throwableState?.let { tm ->
-        SimpleAlertDialog(
-            title = tm.title,
-            text = tm.message,
-        ) { ObjectStates.updateThrowable(null) }
-    }
-
     Column(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -155,7 +147,8 @@ fun MainScreen(
                     .background(color = MaterialTheme.colorScheme.surface),
                 screenBackStackModel = screenBackStackModel,
                 toMainScreen = toMainScreen,
-                launchGameViewModel = launchGameViewModel
+                launchGameViewModel = launchGameViewModel,
+                summitError = summitError
             )
 
             TaskMenu(
@@ -329,7 +322,8 @@ private fun NavigationUI(
     modifier: Modifier = Modifier,
     screenBackStackModel: ScreenBackStackViewModel,
     toMainScreen: () -> Unit,
-    launchGameViewModel: LaunchGameViewModel
+    launchGameViewModel: LaunchGameViewModel,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreenBackStack
     val currentKey = backStack.lastOrNull()
@@ -368,10 +362,12 @@ private fun NavigationUI(
                 entry<NestedNavKey.Settings> { key ->
                     SettingsScreen(
                         key = key,
-                        backStackViewModel = screenBackStackModel
-                    ) { raw ->
-                        backStack.navigateTo(NormalNavKey.License(raw))
-                    }
+                        backStackViewModel = screenBackStackModel,
+                        openLicenseScreen = { raw ->
+                            backStack.navigateTo(NormalNavKey.License(raw))
+                        },
+                        summitError = summitError
+                    )
                 }
                 entry<NormalNavKey.License> { key ->
                     LicenseScreen(
@@ -384,7 +380,8 @@ private fun NavigationUI(
                         backStackViewModel = screenBackStackModel,
                         backToMainScreen = {
                             screenBackStackModel.mainScreenBackStack.clearWith(NormalNavKey.LauncherMain)
-                        }
+                        },
+                        summitError = summitError
                     )
                 }
                 entry<NormalNavKey.WebScreen> { key ->
@@ -396,7 +393,8 @@ private fun NavigationUI(
                 entry<NormalNavKey.VersionsManager> {
                     VersionsManageScreen(
                         backScreenViewModel = screenBackStackModel,
-                        navigateToVersions = navigateToVersions
+                        navigateToVersions = navigateToVersions,
+                        summitError = summitError
                     )
                 }
                 entry<NormalNavKey.FileSelector> { key ->
@@ -412,13 +410,15 @@ private fun NavigationUI(
                         key = key,
                         backScreenViewModel = screenBackStackModel,
                         backToMainScreen = toMainScreen,
-                        launchGameViewModel = launchGameViewModel
+                        launchGameViewModel = launchGameViewModel,
+                        summitError = summitError
                     )
                 }
                 entry<NestedNavKey.Download> { key ->
                     DownloadScreen(
                         key = key,
-                        backScreenViewModel = screenBackStackModel
+                        backScreenViewModel = screenBackStackModel,
+                        summitError = summitError
                     )
                 }
             }

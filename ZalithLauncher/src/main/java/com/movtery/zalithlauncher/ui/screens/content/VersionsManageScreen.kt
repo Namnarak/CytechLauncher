@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 private class VersionsScreenViewModel() : ViewModel() {
@@ -76,7 +77,8 @@ private fun rememberVersionViewModel() : VersionsScreenViewModel {
 @Composable
 fun VersionsManageScreen(
     backScreenViewModel: ScreenBackStackViewModel,
-    navigateToVersions: (Version) -> Unit
+    navigateToVersions: (Version) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
 
@@ -88,6 +90,7 @@ fun VersionsManageScreen(
             GamePathLayout(
                 isVisible = isVisible,
                 backStack = backScreenViewModel.mainScreenBackStack,
+                summitError = summitError,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
@@ -103,6 +106,7 @@ fun VersionsManageScreen(
                     .weight(7.5f)
                     .padding(vertical = 12.dp)
                     .padding(end = 12.dp),
+                summitError = summitError,
                 onRefresh = {
                     if (!VersionsManager.isRefreshing) {
                         VersionsManager.refresh()
@@ -120,6 +124,7 @@ fun VersionsManageScreen(
 private fun GamePathLayout(
     isVisible: Boolean,
     backStack: NavBackStack,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
@@ -137,7 +142,8 @@ private fun GamePathLayout(
     }
     GamePathOperation(
         gamePathOperation = gamePathOperation,
-        changeState = { gamePathOperation = it }
+        changeState = { gamePathOperation = it },
+        summitError = summitError
     )
 
     Column(
@@ -218,6 +224,7 @@ private fun VersionsLayout(
     versionCategory: VersionCategory,
     onCategoryChange: (VersionCategory) -> Unit,
     navigateToVersions: (Version) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onRefresh: () -> Unit,
     onInstall: () -> Unit
 ) {
@@ -245,7 +252,11 @@ private fun VersionsLayout(
             }.collectAsState()
 
             var versionsOperation by remember { mutableStateOf<VersionsOperation>(VersionsOperation.None) }
-            VersionsOperation(versionsOperation) { versionsOperation = it }
+            VersionsOperation(
+                versionsOperation = versionsOperation,
+                updateVersionsOperation = { versionsOperation = it },
+                summitError = summitError
+            )
 
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
