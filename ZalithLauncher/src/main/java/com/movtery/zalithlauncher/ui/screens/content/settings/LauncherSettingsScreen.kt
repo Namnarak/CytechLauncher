@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -28,10 +30,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
-import com.movtery.zalithlauncher.state.LocalColorThemeState
-import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
-import com.movtery.zalithlauncher.state.MutableStates
-import com.movtery.zalithlauncher.state.getCustomColorFromSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
@@ -72,8 +70,6 @@ fun LauncherSettingsScreen(
                 .padding(all = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            val currentColorThemeState = LocalColorThemeState.current
-
             val yOffset1 by swapAnimateDpAsState(
                 targetValue = (-40).dp,
                 swapIn = isVisible
@@ -112,9 +108,7 @@ fun LauncherSettingsScreen(
                     onRadioClick = { enum ->
                         if (enum == ColorThemeType.CUSTOM) customColorOperation = CustomColorOperation.Dialog
                     }
-                ) { type ->
-                    currentColorThemeState.updateValue(type)
-                }
+                )
 
                 SwitchSettingsLayout(
                     unit = AllSettings.launcherFullScreen,
@@ -164,9 +158,7 @@ fun LauncherSettingsScreen(
                     getRadioText = { enum ->
                         stringResource(enum.textRes)
                     }
-                ) { type ->
-                    MutableStates.launcherAnimateType = type
-                }
+                )
             }
 
             val yOffset3 by swapAnimateDpAsState(
@@ -240,19 +232,14 @@ private fun CustomColorOperation(
     when (customColorOperation) {
         is CustomColorOperation.None -> {}
         is CustomColorOperation.Dialog -> {
-            val customColorTheme = LocalCustomColorThemeState.current
             ColorPickerDialog(
-                initialColor = getCustomColorFromSettings(),
+                initialColor = Color(AllSettings.launcherCustomColor.getValue()),
                 realTimeUpdate = false,
-                onColorChanged = { color ->
-                    customColorTheme.updateValue(color)
-                },
                 onDismissRequest = {
                     updateOperation(CustomColorOperation.None)
                 },
                 onConfirm = { color ->
-                    customColorTheme.updateValue(color)
-                    customColorTheme.saveValue()
+                    AllSettings.launcherCustomColor.save(color.toArgb())
                     updateOperation(CustomColorOperation.None)
                 },
                 showAlpha = false,

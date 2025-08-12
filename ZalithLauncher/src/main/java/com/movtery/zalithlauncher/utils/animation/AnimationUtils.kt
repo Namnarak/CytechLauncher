@@ -12,7 +12,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.state.MutableStates
 
 /**
  * 获取动画的持续时长
@@ -38,7 +37,7 @@ fun getAdjustedDelayMillis(baseDelayMillis: Int): Int {
 /**
  * 页面切换动画是否关闭
  */
-fun isSwapAnimateClosed() = MutableStates.launcherAnimateType == TransitionAnimationType.CLOSE
+fun isSwapAnimateClosed() = AllSettings.launcherSwapAnimateType.state == TransitionAnimationType.CLOSE
 
 fun <E> getAnimateTween(
     delayMillis: Int = 0

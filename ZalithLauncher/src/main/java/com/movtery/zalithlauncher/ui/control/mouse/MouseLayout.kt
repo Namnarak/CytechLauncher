@@ -60,7 +60,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
 @Composable
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
-    controlMode: MouseControlMode = AllSettings.mouseControlMode.getValue(),
+    controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     lastMousePosition: Offset? = null,
@@ -70,8 +70,8 @@ fun VirtualPointerLayout(
     onPointerMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
-    mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
-    cursorSensitivity: Int = AllSettings.cursorSensitivity.getValue(),
+    mouseSize: Dp = AllSettings.mouseSize.state.dp,
+    cursorSensitivity: Int = AllSettings.cursorSensitivity.state,
     requestFocusKey: Any? = null
 ) {
     val speedFactor = cursorSensitivity / 100f
@@ -167,7 +167,7 @@ fun VirtualPointerLayout(
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
-    mouseSize: Dp = AllSettings.mouseSize.getValue().dp,
+    mouseSize: Dp = AllSettings.mouseSize.state.dp,
     mouseFile: File?,
     centerIcon: Boolean = false,
     triggerRefresh: Any? = null

@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,14 +49,11 @@ class SettingsLayoutScope {
         onCheckedChange: (Boolean) -> Unit = {},
         trailingIcon: @Composable (() -> Unit)? = null
     ) {
-        var checked by rememberSaveable { mutableStateOf(unit.getValue()) }
-
         SwitchLayout(
-            checked = checked,
+            checked = unit.state,
             onCheckedChange = { value ->
-                checked = value
-                unit.save(checked)
-                onCheckedChange(checked)
+                unit.save(value)
+                onCheckedChange(value)
             },
             modifier = modifier,
             title = title,
@@ -83,7 +79,7 @@ class SettingsLayoutScope {
 
         SimpleIntSliderLayout(
             modifier = modifier,
-            value = value,
+            value = unit.state,
             title = title,
             summary = summary,
             valueRange = valueRange,
@@ -92,7 +88,7 @@ class SettingsLayoutScope {
             onValueChange = {
                 value = it
                 unit.updateState(it)
-                onValueChange(value)
+                onValueChange(it)
             },
             onValueChangeFinished = { unit.save(value) },
             enabled = enabled,
@@ -113,8 +109,6 @@ class SettingsLayoutScope {
         onRadioClick: (E) -> Unit = {},
         onValueChange: (E) -> Unit = {}
     ) {
-        var value by rememberSaveable { mutableStateOf(unit.getValue()) }
-
         Column(
             modifier = modifier
                 .fillMaxWidth()
@@ -136,12 +130,11 @@ class SettingsLayoutScope {
                         val radioText = getRadioText(enum)
                         RadioButton(
                             enabled = getRadioEnable(enum),
-                            selected = value == enum,
+                            selected = unit.state == enum,
                             onClick = {
                                 onRadioClick(enum)
-                                if (value == enum) return@RadioButton
-                                value = enum
-                                unit.save(value)
+                                if (unit.state == enum) return@RadioButton
+                                unit.save(enum)
                                 onValueChange(enum)
                             }
                         )
@@ -175,7 +168,7 @@ class SettingsLayoutScope {
         SimpleListLayout(
             modifier = modifier,
             items = items,
-            currentId = unit.getValue(),
+            currentId = unit.state,
             defaultId = unit.defaultValue,
             title = title,
             summary = summary,
@@ -207,7 +200,7 @@ class SettingsLayoutScope {
         SimpleListLayout(
             modifier = modifier,
             items = items,
-            currentId = unit.getValue().name,
+            currentId = unit.state.name,
             defaultId = unit.defaultValue.name,
             title = title,
             summary = summary,

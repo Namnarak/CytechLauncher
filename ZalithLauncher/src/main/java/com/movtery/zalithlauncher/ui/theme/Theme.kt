@@ -13,7 +13,6 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -23,10 +22,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.utilities.Hct
 import com.google.android.material.color.utilities.Scheme
-import com.movtery.zalithlauncher.state.ColorThemeState
-import com.movtery.zalithlauncher.state.CustomColorThemeState
-import com.movtery.zalithlauncher.state.LocalColorThemeState
-import com.movtery.zalithlauncher.state.LocalCustomColorThemeState
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 private val embermireLight = lightColorScheme(
@@ -725,58 +721,57 @@ fun ZalithLauncherTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorThemeState = remember { ColorThemeState() }
-    val customColorThemeState = remember { CustomColorThemeState() }
+    val colorTheme = AllSettings.launcherColorTheme.state
+    val customColorInt = AllSettings.launcherCustomColor.state
 
-    CompositionLocalProvider(
-        LocalColorThemeState provides colorThemeState,
-        LocalCustomColorThemeState provides customColorThemeState
-    ) {
-        val currentColorTheme by LocalColorThemeState.current
-        val currentCustomColor by LocalCustomColorThemeState.current
+    val colorTheme1 by rememberUpdatedState(colorTheme)
+    val customColor by rememberUpdatedState(
+        remember(customColorInt) {
+            Color(customColorInt)
+        }
+    )
 
-        val context = LocalContext.current
+    val context = LocalContext.current
 
-        val targetColorScheme by rememberUpdatedState(
-            remember(context, darkTheme, currentColorTheme, currentCustomColor) {
-                when {
-                    dynamicColor && currentColorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-                    }
+    val targetColorScheme by rememberUpdatedState(
+        remember(context, darkTheme, colorTheme1, customColor) {
+            when {
+                dynamicColor && colorTheme1 == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                    if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+                }
 
-                    darkTheme -> when (currentColorTheme) {
-                        ColorThemeType.EMBERMIRE -> embermireDark
-                        ColorThemeType.VELVET_ROSE -> velvetRoseDark
-                        ColorThemeType.MISTWAVE -> mistwaveDark
-                        ColorThemeType.GLACIER -> glacierDark
-                        ColorThemeType.VERDANTFIELD -> verdantFieldDark
-                        ColorThemeType.URBAN_ASH -> urbanAshDark
-                        ColorThemeType.VERDANT_DAWN -> verdantDawnDark
-                        ColorThemeType.CUSTOM -> customDark(currentCustomColor)
-                        else -> embermireDark
-                    }
+                darkTheme -> when (colorTheme1) {
+                    ColorThemeType.EMBERMIRE -> embermireDark
+                    ColorThemeType.VELVET_ROSE -> velvetRoseDark
+                    ColorThemeType.MISTWAVE -> mistwaveDark
+                    ColorThemeType.GLACIER -> glacierDark
+                    ColorThemeType.VERDANTFIELD -> verdantFieldDark
+                    ColorThemeType.URBAN_ASH -> urbanAshDark
+                    ColorThemeType.VERDANT_DAWN -> verdantDawnDark
+                    ColorThemeType.CUSTOM -> customDark(customColor)
+                    else -> embermireDark
+                }
 
-                    else -> when (currentColorTheme) {
-                        ColorThemeType.EMBERMIRE -> embermireLight
-                        ColorThemeType.VELVET_ROSE -> velvetRoseLight
-                        ColorThemeType.MISTWAVE -> mistwaveLight
-                        ColorThemeType.GLACIER -> glacierLight
-                        ColorThemeType.VERDANTFIELD -> verdantFieldLight
-                        ColorThemeType.URBAN_ASH -> urbanAshLight
-                        ColorThemeType.VERDANT_DAWN -> verdantDawnLight
-                        ColorThemeType.CUSTOM -> customLight(currentCustomColor)
-                        else -> embermireLight
-                    }
+                else -> when (colorTheme1) {
+                    ColorThemeType.EMBERMIRE -> embermireLight
+                    ColorThemeType.VELVET_ROSE -> velvetRoseLight
+                    ColorThemeType.MISTWAVE -> mistwaveLight
+                    ColorThemeType.GLACIER -> glacierLight
+                    ColorThemeType.VERDANTFIELD -> verdantFieldLight
+                    ColorThemeType.URBAN_ASH -> urbanAshLight
+                    ColorThemeType.VERDANT_DAWN -> verdantDawnLight
+                    ColorThemeType.CUSTOM -> customLight(customColor)
+                    else -> embermireLight
                 }
             }
-        )
+        }
+    )
 
-        val animatedColorScheme = animateColorScheme(targetColorScheme)
+    val animatedColorScheme = animateColorScheme(targetColorScheme)
 
-        MaterialTheme(
-            colorScheme = animatedColorScheme,
-            typography = AppTypography,
-            content = content
-        )
-    }
+    MaterialTheme(
+        colorScheme = animatedColorScheme,
+        typography = AppTypography,
+        content = content
+    )
 }
