@@ -6,11 +6,17 @@ import android.content.Context
 import android.opengl.EGL14
 import android.opengl.EGLConfig
 import android.opengl.GLES20
+import android.os.Build
 import android.os.Process
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import java.io.File
+import java.io.PrintStream
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.Instant
@@ -284,4 +290,25 @@ fun isChinese(): Boolean = areaChecks("zh")
  */
 fun areaChecks(area: String): Boolean {
     return Locale.getDefault().language == area
+}
+
+/**
+ * 将崩溃报告写入指定文件
+ */
+fun writeCrashFile(
+    file: File,
+    throwable: Throwable,
+    onFailure: (Throwable) -> Unit
+) {
+    runCatching {
+        PrintStream(file).use { stream ->
+            stream.append("================ ${InfoDistributor.LAUNCHER_IDENTIFIER} Crash Report ================\n")
+            stream.append("- Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
+            stream.append("- Device: ${Build.PRODUCT} ${Build.MODEL}\n")
+            stream.append("- Android Version: ${Build.VERSION.RELEASE}\n")
+            stream.append("- Launcher Version: test\n")
+            stream.append("===================== Crash Stack Trace =====================\n")
+            stream.append(Log.getStackTraceString(throwable))
+        }
+    }.onFailure(onFailure)
 }

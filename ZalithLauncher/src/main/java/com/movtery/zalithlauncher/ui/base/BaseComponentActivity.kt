@@ -68,7 +68,15 @@ open class BaseComponentActivity(
         computeNotchSize()
     }
 
-    override fun shouldIgnoreNotch(): Boolean = AllSettings.launcherFullScreen.getValue()
+    override fun shouldIgnoreNotch(): Boolean {
+        runCatching {
+            return AllSettings.launcherFullScreen.getValue()
+        }
+        //AllSettings初始化出现异常（MMKV在Application未正常初始化）
+        //不出意外应该正在展示FatalErrorActivity，忽略并关闭当前Activity
+        finish()
+        return false
+    }
 
     private fun refreshData() {
         AccountsManager.reloadAccounts()

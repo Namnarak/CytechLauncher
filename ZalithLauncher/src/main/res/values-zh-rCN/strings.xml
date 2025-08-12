@@ -82,6 +82,8 @@
     <string name="crash_share_logs">分享日志</string>
     <string name="crash_restart">重启应用</string>
     <string name="crash_exit">退出应用</string>
+    <string name="crash_launch_crash_title">应用启动失败</string>
+    <string name="crash_launch_crash_message">启动器在启动的过程中遇到了严重的问题崩溃了</string>
     <!--  错误  -->
     <string name="error_import_image">导入图片时出现问题</string>
     <string name="error_create_dir">无法创建文件夹：%s</string>
