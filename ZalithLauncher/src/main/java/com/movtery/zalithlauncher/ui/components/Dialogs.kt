@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -183,47 +184,19 @@ fun SimpleEditDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    extraBody?.let {
-                        it.invoke()
-                        Spacer(modifier = Modifier.size(8.dp))
-                    }
-
-                    val focusManager = LocalFocusManager.current
-
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = value,
-                        onValueChange = { onValueChange(it) },
-                        label = label,
-                        isError = isError,
-                        supportingText = supportingText,
-                        singleLine = singleLine,
-                        maxLines = maxLines,
-                        keyboardOptions = keyboardOptions.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus(true)
-                                onConfirm()
-                            }
-                        ),
-                        shape = MaterialTheme.shapes.large
-                    )
-                    extraContent?.invoke()
-                }
+                simpleEditDialogBody(
+                    title = title,
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = label,
+                    isError = isError,
+                    supportingText = supportingText,
+                    singleLine = singleLine,
+                    maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
+                    extraBody = extraBody,
+                    extraContent = extraContent
+                ).invoke(this)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -244,6 +217,114 @@ fun SimpleEditDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SimpleEditDialog(
+    title: String,
+    value: String,
+    onValueChange: (newValue: String) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = false,
+    maxLines: Int = 3,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    extraBody: @Composable (() -> Unit)? = null,
+    extraContent: @Composable (() -> Unit)? = null,
+    onConfirm: () -> Unit = {},
+) {
+    Dialog(onDismissRequest = {}) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                simpleEditDialogBody(
+                    title = title,
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = label,
+                    isError = isError,
+                    supportingText = supportingText,
+                    singleLine = singleLine,
+                    maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
+                    extraBody = extraBody,
+                    extraContent = extraContent
+                ).invoke(this)
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onConfirm
+                ) {
+                    MarqueeText(text = stringResource(R.string.generic_confirm))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun simpleEditDialogBody(
+    title: String,
+    value: String,
+    onValueChange: (newValue: String) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
+    singleLine: Boolean = false,
+    maxLines: Int = 3,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    extraBody: @Composable (() -> Unit)? = null,
+    extraContent: @Composable (() -> Unit)? = null,
+    onConfirm: () -> Unit = {}
+): @Composable ColumnScope.() -> Unit = {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium
+    )
+
+    Column(
+        modifier = Modifier
+            .weight(1f, fill = false)
+            .verticalScroll(rememberScrollState())
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        extraBody?.let {
+            it.invoke()
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+
+        val focusManager = LocalFocusManager.current
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = value,
+            onValueChange = { onValueChange(it) },
+            label = label,
+            isError = isError,
+            supportingText = supportingText,
+            singleLine = singleLine,
+            maxLines = maxLines,
+            keyboardOptions = keyboardOptions.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    focusManager.clearFocus(true)
+                    onConfirm()
+                }
+            ),
+            shape = MaterialTheme.shapes.large
+        )
+        extraContent?.invoke()
     }
 }
 

@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +36,7 @@ import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
+import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInstaller
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
@@ -42,6 +44,7 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
@@ -49,18 +52,43 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.common.ModPackInstallOperation
+import com.movtery.zalithlauncher.ui.screens.content.download.common.VersionNameOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 
 private class ModPackViewModel: ViewModel() {
     var installOperation by mutableStateOf<ModPackInstallOperation>(ModPackInstallOperation.None)
+    var versionNameOperation by mutableStateOf<VersionNameOperation>(VersionNameOperation.None)
+
+    //等待用户输入版本名称相关
+    private var versionNameContinuation: (Continuation<String>)? = null
+    suspend fun waitForVersionName(modPackInfo: ModPackInfo): String {
+        return suspendCancellableCoroutine { cont ->
+            versionNameContinuation = cont
+            versionNameOperation = VersionNameOperation.Waiting(modPackInfo)
+        }
+    }
+
+    /**
+     * 用户确认输入版本名称
+     */
+    fun confirmVersionName(name: String) {
+        //恢复continuation
+        versionNameContinuation?.resume(name)
+        versionNameContinuation = null
+        versionNameOperation = VersionNameOperation.None
+    }
 
     /**
      * 整合包安装器
@@ -71,7 +99,12 @@ private class ModPackViewModel: ViewModel() {
         context: Context,
         info: DownloadVersionInfo,
     ) {
-        installer = ModPackInstaller(context, info, viewModelScope).also {
+        installer = ModPackInstaller(
+            context = context,
+            info = info,
+            scope = viewModelScope,
+            waitForVersionName = ::waitForVersionName
+        ).also {
             it.installModPack(
                 onInstalled = {
                     installer = null
@@ -133,6 +166,13 @@ fun DownloadModPackScreen(
         },
         onCancel = {
             viewModel.cancel()
+        }
+    )
+
+    VersionNameOperation(
+        operation = viewModel.versionNameOperation,
+        confirmVersionName = { name ->
+            viewModel.confirmVersionName(name)
         }
     )
 
@@ -299,6 +339,46 @@ private fun ModPackInstallOperation(
             ) {
                 updateOperation(ModPackInstallOperation.None)
             }
+        }
+    }
+}
+
+@Composable
+private fun VersionNameOperation(
+    operation: VersionNameOperation,
+    confirmVersionName: (String) -> Unit
+) {
+    when (operation) {
+        is VersionNameOperation.None -> {}
+        is VersionNameOperation.Waiting -> {
+            val modpackInfo = operation.info
+            var name by remember { mutableStateOf(modpackInfo.name) }
+            var errorMessage by remember { mutableStateOf("") }
+
+            val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
+                errorMessage = message
+            } || VersionsManager.validateVersionName(name, null) { message ->
+                errorMessage = message
+            }
+
+            SimpleEditDialog(
+                title = stringResource(R.string.download_install_input_version_name_title),
+                value = name,
+                onValueChange = { name = it },
+                isError = isError,
+                supportingText = {
+                    when {
+                        name.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
+                        isError -> Text(text = errorMessage)
+                    }
+                },
+                singleLine = true,
+                onConfirm = {
+                    if (!isError) {
+                        confirmVersionName(name)
+                    }
+                }
+            )
         }
     }
 }

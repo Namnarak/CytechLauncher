@@ -38,11 +38,13 @@ import java.io.File
  * 整合包安装器
  * @param info 选中的整合包的版本信息
  * @param scope 在有生命周期管理的scope中执行安装任务
+ * @param waitForVersionName 等待用户输入版本名称
  */
 class ModPackInstaller(
     private val context: Context,
     private val info: DownloadVersionInfo,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val waitForVersionName: suspend (ModPackInfo) -> String
 ) {
     private val _tasksFlow: MutableStateFlow<List<GameInstallTask>> = MutableStateFlow(emptyList())
     val tasksFlow: StateFlow<List<GameInstallTask>> = _tasksFlow
@@ -56,6 +58,11 @@ class ModPackInstaller(
      * 整合包文件解析出的信息
      */
     private lateinit var modpackInfo: ModPackInfo
+
+    /**
+     * 用户指定的预安装版本名称
+     */
+    private lateinit var targetVersionName: String
 
     /**
      * 即将下载的游戏版本的信息
@@ -167,6 +174,20 @@ class ModPackInstaller(
                             targetFolder = tempVersionsDir,
                             task = task
                         )
+                    }
+                )
+            )
+        )
+
+        //等待用户输入预安装版本名称
+        tasks.add(
+            GameInstallTask(
+                title = context.getString(R.string.download_install_input_version_name),
+                task = Task.runTask(
+                    id = "Download.ModPack.WaitUserForVersionName",
+                    task = { task ->
+                        task.updateProgress(-1f)
+                        targetVersionName = waitForVersionName(modpackInfo)
                     }
                 )
             )
@@ -297,7 +318,7 @@ class ModPackInstaller(
 
             var gameInfo = GameDownloadInfo(
                 gameVersion = gameVersion,
-                customVersionName = modpackInfo.name
+                customVersionName = targetVersionName
             )
 
             //匹配目标加载器版本，获取详细版本信息
