@@ -403,11 +403,11 @@
     <string name="generic_ignore">Görmezden gelmek</string>
     <string name="generic_authorization">Yetkilendirme</string>
     <string name="generic_file_name">Dosya adı:%s</string>
-    <string name="generic_file_size">Dosya boyutu: %s</string>
+    <string name="generic_file_size">Dosya boyutu:%s</string>
     <string name="unit_day">Gün</string>
     <string name="just_now">Şu anda</string>
     <string name="minutes_ago">%d dakika önce</string>
-    <string name="hours_ago">%d saat sonra</string>
+    <string name="hours_ago">%d saat önce</string>
     <string name="days_ago">%d gün önce</string>
     <string name="months_ago">%d hafta önce</string>
     <string name="years_ago">%d yıl önce</string>
