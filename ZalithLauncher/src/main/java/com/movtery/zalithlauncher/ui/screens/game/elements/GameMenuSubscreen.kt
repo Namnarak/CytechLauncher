@@ -102,6 +102,16 @@ fun GameMenuSubscreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            //隐藏虚拟鼠标
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.settings_control_mouse_hide_title),
+                    switch = AllSettings.hideMouse.state,
+                    onSwitch = { AllSettings.hideMouse.save(it) },
+                    enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK
+                )
+            }
             //虚拟鼠标大小
             item {
                 MenuSliderLayout(

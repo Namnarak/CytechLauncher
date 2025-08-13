@@ -32,6 +32,7 @@ typealias CursorMode = Int
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
+ * @param hideMouseInClickMode      是否在鼠标为点击控制模式时，隐藏鼠标指针
  * @param onMouseTap                点击回调
  * @param onCapturedTap             抓取模式点击回调，参数是触摸点在控件内的绝对坐标
  * @param onLongPress               长按开始回调
@@ -52,6 +53,7 @@ fun SwitchableMouseLayout(
     controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
+    hideMouseInClickMode: Boolean = AllSettings.hideMouse.state,
     onMouseTap: (Offset) -> Unit = {},
     onCapturedTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
@@ -95,8 +97,19 @@ fun SwitchableMouseLayout(
     fun updateMousePointer(show: Boolean) {
         showMousePointer = show
     }
-    LaunchedEffect(cursorMode) {
-        updateMousePointer(cursorMode == CURSOR_ENABLED && !isPhysicalMouseShowed)
+    LaunchedEffect(cursorMode, hideMouseInClickMode) {
+        updateMousePointer(
+            show = if (cursorMode == CURSOR_ENABLED) {
+                when {
+                    //物理鼠标已连接：是否为抓获控制模式
+                    PhysicalMouseChecker.physicalMouseConnected -> requestPointerCapture
+                    //点击控制模式：由隐藏虚拟鼠标设置决定
+                    controlMode == MouseControlMode.CLICK -> !hideMouseInClickMode
+                    //滑动控制始终显示
+                    else -> controlMode == MouseControlMode.SLIDE
+                }
+            } else false
+        )
     }
 
     val requestPointerCapture1 by remember(isCaptured) {
@@ -153,6 +166,7 @@ fun SwitchableMouseLayout(
                     CURSOR_ENABLED -> {
                         onMouseTap(
                             if (controlMode == MouseControlMode.CLICK) {
+                                updateMousePointer(!isCaptured && !hideMouseInClickMode)
                                 //当前手指的绝对坐标
                                 pointerPosition = fingerPos
                                 fingerPos
@@ -184,20 +198,20 @@ fun SwitchableMouseLayout(
                 }
             },
             onPointerMove = { offset ->
-                //非捕获模式将无视实体鼠标，强制显示鼠标指针
-                updateMousePointer(!isCaptured)
-
                 when (cursorMode) {
                     CURSOR_DISABLED -> {
+                        updateMousePointer(false)
                         onCapturedMove(offset)
                     }
                     CURSOR_ENABLED -> {
                         pointerPosition = if (controlMode == MouseControlMode.SLIDE) {
+                            updateMousePointer(true)
                             Offset(
                                 x = (pointerPosition.x + offset.x * speedFactor).coerceIn(0f, screenWidth),
                                 y = (pointerPosition.y + offset.y * speedFactor).coerceIn(0f, screenHeight)
                             )
                         } else {
+                            updateMousePointer(!hideMouseInClickMode)
                             //当前手指的绝对坐标
                             offset
                         }

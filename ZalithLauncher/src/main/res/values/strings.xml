@@ -609,6 +609,8 @@
     <string name="settings_control_mouse_physical_mouse_mode_title">Physical Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
     <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings > Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
+    <string name="settings_control_mouse_hide_title">Hide Virtual Mouse</string>
+    <string name="settings_control_mouse_hide_summary">In some situations, you may want to hide the virtual mouse; this setting does not affect physical mouse control or swipe control</string>
     <string name="settings_control_mouse_size_title">Virtual Mouse Size</string>
     <string name="settings_control_mouse_sensitivity_title">Virtual Mouse Sensitivity</string>
     <string name="settings_control_mouse_sensitivity_summary">Adjust the movement speed of the virtual mouse in normal mode</string>

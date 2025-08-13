@@ -46,6 +46,7 @@ class SettingsLayoutScope {
         unit: BooleanSettingUnit,
         title: String,
         summary: String? = null,
+        enabled: Boolean = true,
         onCheckedChange: (Boolean) -> Unit = {},
         trailingIcon: @Composable (() -> Unit)? = null
     ) {
@@ -58,6 +59,7 @@ class SettingsLayoutScope {
             modifier = modifier,
             title = title,
             summary = summary,
+            enabled = enabled,
             trailingIcon = trailingIcon
         )
     }

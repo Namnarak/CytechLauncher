@@ -116,6 +116,11 @@ object AllSettings : SettingsRegistry() {
     val physicalMouseMode = boolSetting("physicalMouseMode", true)
 
     /**
+     * 隐藏虚拟鼠标
+     */
+    val hideMouse = boolSetting("hideMouse", false)
+
+    /**
      * 虚拟鼠标大小（Dp）
      */
     val mouseSize = intSetting("mouseSize", 24)

@@ -105,6 +105,13 @@ fun ControlSettingsScreen(
                     }
                 )
 
+                SwitchSettingsLayout(
+                    unit = AllSettings.hideMouse,
+                    title = stringResource(R.string.settings_control_mouse_hide_title),
+                    summary = stringResource(R.string.settings_control_mouse_hide_summary),
+                    enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
+                )
+
                 MousePointerLayout(
                     mouseSize = AllSettings.mouseSize.state,
                     summitError = summitError
