@@ -167,7 +167,7 @@ fun VirtualPointerLayout(
                     onPointerMove(pointerPosition)
                 } else {
                     //非鼠标抓取模式
-                    updateMousePointer(true)
+                    updateMousePointer(false)
                     pointerPosition = offset
                     onPointerMove(pointerPosition)
                 }

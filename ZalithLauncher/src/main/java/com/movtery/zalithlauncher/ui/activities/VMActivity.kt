@@ -15,6 +15,7 @@ import android.view.TextureView.SurfaceTextureListener
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +57,7 @@ import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -71,6 +73,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
         private var isRunning = false
     }
+    private val eventViewModel: EventViewModel by viewModels()
+
     private var mTextureView: TextureView? = null
 
     private lateinit var launcher: Launcher
@@ -140,7 +144,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         setContent {
             ZalithLauncherTheme {
-                Screen(content = handler.getComposableLayout())
+                Screen(content = handler.getComposableLayout(eventViewModel))
             }
         }
     }
@@ -183,6 +187,13 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val code = AllSettings.physicalKeyImeCode.state
+        if (code != null && event.keyCode == code) {
+            //用户按下了绑定呼出输入法的按键
+            //向Compose端发送事件，调出输入法
+            eventViewModel.sendEvent(EventViewModel.Event.ShowIme)
+            return true
+        }
         event.device?.let {
             val source = event.source
             if (source and InputDevice.SOURCE_MOUSE_RELATIVE == InputDevice.SOURCE_MOUSE_RELATIVE ||

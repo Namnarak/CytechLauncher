@@ -551,6 +551,10 @@
     <string name="settings_game_log_text_size_summary">調整日誌畫面上的文字大小</string>
     <string name="settings_game_log_buffer_flush_interval_title">日誌刷新間隔</string>
     <string name="settings_game_log_buffer_flush_interval_summary">設定日誌緩衝區多久刷新一次。刷新太頻繁或太久不刷新都可能影響效能</string>
+    <string name="settings_control_physical_key_bind_ime_title">實體鍵盤呼叫輸入法</string>
+    <string name="settings_control_physical_key_bind_ime_summary">點擊綁定按鍵，用於在遊戲內呼叫輸入法</string>
+    <string name="settings_control_physical_key_bind_ime_bound">已綁定按鍵：%s</string>
+    <string name="settings_control_physical_key_bind_ime_un_bind">未綁定</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">實體滑鼠控制</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">連接實體滑鼠時，是否停用虛擬滑鼠指標，直接使用系統滑鼠指標進行操控</string>
     <string name="settings_control_mouse_physical_mouse_warning">若您的裝置將實體滑鼠右鍵辨識為「返回」，或中鍵辨識為「回到桌面」，可進入系統設定 &gt; 開發人員選項，開啟「停用權限監控」，應能解決</string>
@@ -675,4 +679,6 @@
     <string name="download_assets_install_progress_downloading">下載並安裝資源\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">安裝資源\n%s</string>
     <string name="download_assets_install_failed">安裝資源失敗!</string>
+    <string name="control_keyboard_bind_title">綁定按鍵</string>
+    <string name="control_keyboard_bind_summary">請在您的鍵盤上按下想要綁定的按鍵</string>
 </resources>

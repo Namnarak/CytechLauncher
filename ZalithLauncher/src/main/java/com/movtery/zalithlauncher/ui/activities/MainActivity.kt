@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.ui.activities
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
@@ -21,7 +23,9 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperatio
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.launch
@@ -42,6 +46,16 @@ class MainActivity : BaseComponentActivity() {
      */
     private val errorViewModel: ErrorViewModel by viewModels()
 
+    /**
+     * 与Compose交互的事件ViewModel
+     */
+    val eventViewModel: EventViewModel by viewModels()
+
+    /**
+     * 是否开启捕获按键模式
+     */
+    private var isCaptureKey = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,6 +74,25 @@ class MainActivity : BaseComponentActivity() {
                             dialog.dismiss()
                         }.setCancelable(false)
                         .show()
+                }
+            }
+        }
+
+        //事件处理
+        lifecycleScope.launch {
+            eventViewModel.events.collect { event ->
+                when (event) {
+                    is EventViewModel.Event.Key.StartKeyCapture -> {
+                        lInfo("Start key capture!")
+                        isCaptureKey = true
+                    }
+                    is EventViewModel.Event.Key.StopKeyCapture -> {
+                        lInfo("Stop key capture!")
+                        isCaptureKey = false
+                    }
+                    else -> {
+                        //忽略
+                    }
                 }
             }
         }
@@ -106,5 +139,15 @@ class MainActivity : BaseComponentActivity() {
         if (VersionsManager.versions.value.isEmpty()) {
             VersionsManager.refresh()
         }
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (isCaptureKey) {
+            lInfo("Capture key event: $event")
+            eventViewModel.sendEvent(EventViewModel.Event.Key.OnKeyDown(event))
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 }

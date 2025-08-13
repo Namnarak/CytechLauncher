@@ -17,6 +17,7 @@ import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.ui.screens.game.JVMScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,10 +96,11 @@ class JVMHandler(
     }
 
     @Composable
-    override fun getComposableLayout() = @Composable {
+    override fun getComposableLayout(eventViewModel: EventViewModel): @Composable (() -> Unit) = @Composable {
         JVMScreen(
             logState = logState,
-            onLogStateChange = { logState = it }
+            onLogStateChange = { logState = it },
+            eventViewModel = eventViewModel
         )
     }
 }

@@ -116,6 +116,11 @@ object AllSettings : SettingsRegistry() {
     val physicalMouseMode = boolSetting("physicalMouseMode", true)
 
     /**
+     * 按键键值，按下按键呼出输入法
+     */
+    val physicalKeyImeCode = intSetting("physicalKeyImeCode", null)
+
+    /**
      * 隐藏虚拟鼠标
      */
     val hideMouse = boolSetting("hideMouse", false)

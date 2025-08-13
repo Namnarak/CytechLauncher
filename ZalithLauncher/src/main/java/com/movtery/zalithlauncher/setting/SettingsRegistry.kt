@@ -5,6 +5,7 @@ import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.FloatSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.LongSettingUnit
+import com.movtery.zalithlauncher.setting.unit.NullableIntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.setting.unit.enumSettingUnit
 
@@ -18,6 +19,9 @@ abstract class SettingsRegistry {
 
     protected fun intSetting(key: String, def: Int) =
         IntSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected fun intSetting(key: String, def: Int?) =
+        NullableIntSettingUnit(key, def).also { refreshableList.add(it) }
 
     protected fun floatSetting(key: String, def: Float) =
         FloatSettingUnit(key, def).also { refreshableList.add(it) }

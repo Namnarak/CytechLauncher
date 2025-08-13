@@ -30,6 +30,7 @@ import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -130,7 +131,7 @@ class GameHandler(
 
     @SuppressLint("ClickableViewAccessibility")
     @Composable
-    override fun getComposableLayout() = @Composable {
+    override fun getComposableLayout(eventViewModel: EventViewModel): @Composable (() -> Unit) = @Composable {
         GameScreen(
             version = version,
             isGameRendering = isGameRendering,
@@ -138,6 +139,7 @@ class GameHandler(
             onLogStateChange = { logState = it },
             isTouchProxyEnabled = isTouchProxyEnabled,
             onInputAreaRectUpdated = { _inputArea.value = it },
+            eventViewModel = eventViewModel
         )
     }
 

@@ -9,6 +9,7 @@ import android.opengl.GLES20
 import android.os.Build
 import android.os.Process
 import android.util.Log
+import android.view.KeyEvent
 import com.google.gson.GsonBuilder
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
@@ -311,4 +312,95 @@ fun writeCrashFile(
             stream.append(Log.getStackTraceString(throwable))
         }
     }.onFailure(onFailure)
+}
+
+fun formatKeyCode(code: Int): String {
+    val rawString = KeyEvent.keyCodeToString(code)
+
+    fun formatAsReadableText(input: String): String {
+        return input.split("_")
+            .joinToString(" ") { word ->
+                when (word) {
+                    //保留常见缩写的大写
+                    "UI", "TV", "API", "NFC", "GPS" -> word
+                    else -> word.lowercase()
+                        .replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }
+                }
+            }
+    }
+
+    return when {
+        rawString.startsWith("KEYCODE_") -> {
+            val s1 = rawString.removePrefix("KEYCODE_")
+            when (s1) {
+                "DEL" -> "Backspace"
+                "FORWARD_DEL" -> "Delete"
+                "GRAVE" -> "`"
+                "MINUS" -> "-"
+                "EQUALS" -> "="
+                "LEFT_BRACKET" -> "["
+                "RIGHT_BRACKET" -> "]"
+                "BACKSLASH" -> "\\"
+                "SEMICOLON" -> ";"
+                "APOSTROPHE" -> "'"
+                "COMMA" -> ","
+                "PERIOD" -> "."
+                "SLASH" -> "/"
+                "NUMPAD_0" -> "Numpad 0"
+                "NUMPAD_1" -> "Numpad 1"
+                "NUMPAD_2" -> "Numpad 2"
+                "NUMPAD_3" -> "Numpad 3"
+                "NUMPAD_4" -> "Numpad 4"
+                "NUMPAD_5" -> "Numpad 5"
+                "NUMPAD_6" -> "Numpad 6"
+                "NUMPAD_7" -> "Numpad 7"
+                "NUMPAD_8" -> "Numpad 8"
+                "NUMPAD_9" -> "Numpad 9"
+                "NUMPAD_DIVIDE" -> "Numpad /"
+                "NUMPAD_MULTIPLY" -> "Numpad *"
+                "NUMPAD_SUBTRACT" -> "Numpad -"
+                "NUMPAD_ADD" -> "Numpad +"
+                "NUMPAD_DOT" -> "Numpad ."
+                "NUMPAD_COMMA" -> "Numpad ,"
+                "NUMPAD_ENTER" -> "Numpad Enter"
+                "NUMPAD_EQUALS" -> "Numpad ="
+                "NUMPAD_LEFT_PAREN" -> "Numpad ("
+                "NUMPAD_RIGHT_PAREN" -> "Numpad )"
+                "CTRL_LEFT" -> "Left Ctrl"
+                "CTRL_RIGHT" -> "Right Ctrl"
+                "SHIFT_LEFT" -> "Left Shift"
+                "SHIFT_RIGHT" -> "Right Shift"
+                "ALT_LEFT" -> "Left Alt"
+                "ALT_RIGHT" -> "Right Alt"
+                "META_LEFT" -> "Left Meta"
+                "META_RIGHT" -> "Right Meta"
+                "CAPS_LOCK" -> "Caps Lock"
+                "SCROLL_LOCK" -> "Scroll Lock"
+                "NUM_LOCK" -> "Num Lock"
+                "PAGE_UP" -> "Page Up"
+                "PAGE_DOWN" -> "Page Down"
+                "MEDIA_PLAY_PAUSE" -> "Play/Pause"
+                "MEDIA_STOP" -> "Stop"
+                else -> null
+            } ?: formatAsReadableText(s1)
+        }
+
+        //未知按键
+        rawString.startsWith("0x") -> "Key ${rawString.uppercase()}"
+
+        else -> {
+            val prefix = when {
+                rawString.startsWith("FLAG_") -> "FLAG_"
+                rawString.startsWith("ACTION_") -> "ACTION_"
+                rawString.startsWith("META_") -> "META_"
+                else -> null
+            }
+
+            prefix?.let {
+                formatAsReadableText(rawString.removePrefix(it))
+            } ?: formatAsReadableText(rawString)
+        }
+    }
 }

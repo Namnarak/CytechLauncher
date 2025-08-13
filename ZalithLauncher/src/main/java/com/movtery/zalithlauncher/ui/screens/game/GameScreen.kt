@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +43,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import kotlinx.coroutines.flow.filterIsInstance
 import org.lwjgl.glfw.CallbackBridge
 
 @Composable
@@ -52,6 +55,7 @@ fun GameScreen(
     onLogStateChange: (LogState) -> Unit = {},
     isTouchProxyEnabled: Boolean,
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
+    eventViewModel: EventViewModel
 ) {
     //游戏菜单状态
     var gameMenuState by remember { mutableStateOf(MenuState.NONE) }
@@ -102,6 +106,14 @@ fun GameScreen(
                 gameMenuState = gameMenuState.next()
             }
         )
+    }
+
+    LaunchedEffect(Unit) {
+        eventViewModel.events
+            .filterIsInstance<EventViewModel.Event.ShowIme>()
+            .collect {
+                textInputMode = TextInputMode.ENABLE
+            }
     }
 }
 

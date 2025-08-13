@@ -606,6 +606,10 @@
     <string name="settings_game_log_text_size_summary">Adjust the text size on the log screen</string>
     <string name="settings_game_log_buffer_flush_interval_title">Log Flush Interval</string>
     <string name="settings_game_log_buffer_flush_interval_summary">Set how often the log buffer refreshes. Refreshing too frequently or too infrequently may affect performance</string>
+    <string name="settings_control_physical_key_bind_ime_title">Physical Keyboard Input Method Invocation</string>
+    <string name="settings_control_physical_key_bind_ime_summary">Click to bind a key for invoking the input method during gameplay</string>
+    <string name="settings_control_physical_key_bind_ime_bound">Bound key: %s</string>
+    <string name="settings_control_physical_key_bind_ime_un_bind">Not bound</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">Physical Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
     <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings > Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
@@ -653,6 +657,9 @@
     <string name="settings_launcher_mirror_file_download_title">File Download Source</string>
     <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
     <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
+    <!--  Control  -->
+    <string name="control_keyboard_bind_title">Bind Key</string>
+    <string name="control_keyboard_bind_summary">Press the key you want to bind on your keyboard</string>
     <!-- About -->
     <string name="about_launcher_title">About Launcher</string>
     <string name="about_launcher_version">Launcher Version: %s</string>
