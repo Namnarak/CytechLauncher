@@ -49,13 +49,23 @@ class RemoteMod(
     var mcMod: ModTranslations.McMod? by mutableStateOf(null)
         private set
 
-    private var isLoaded: Boolean = false
+    /**
+     * 是否已经加载过
+     */
+    var isLoaded: Boolean = false
+        private set
 
     /**
      * @param loadFromCache 是否从缓存中加载
      */
     suspend fun load(loadFromCache: Boolean) {
-        if (isLoaded) return
+        if (loadFromCache && isLoaded) return
+
+        if (!loadFromCache) {
+            remoteLoaders = null
+            projectInfo = null
+            mcMod = null
+        }
 
         isLoading = true
 
@@ -78,7 +88,9 @@ class RemoteMod(
                     if (loadFromCache && modProjectCache.containsKey(sha1)) {
                         modProjectCache.decodeParcelable(sha1, ModProject::class.java)?.let { project ->
                             mcMod = ModTranslations.getTranslationsByRepositoryType(PlatformClasses.MOD).getModBySlugId(project.slug)
-                            return@runCatching project
+                            return@runCatching project.also {
+                                isLoaded = true
+                            }
                         }
                     }
 
@@ -103,8 +115,9 @@ class RemoteMod(
                         }
                     }
                 }.onSuccess { info ->
-                    projectInfo = info
-                    isLoaded = true
+                    projectInfo = info.also {
+                        isLoaded = true
+                    }
                 }.onFailure { e ->
                     if (e is CancellationException) return@onFailure
                     lWarning("Failed to load project info for mod: ${file.name}", e)

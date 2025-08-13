@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -326,6 +327,9 @@ fun ModsManagerScreen(
                             onLoad = { mod ->
                                 viewModel.loadMod(mod)
                             },
+                            onForceRefresh = { mod ->
+                                viewModel.loadMod(mod, loadFromCache = false)
+                            },
                             onEnable = { mod ->
                                 viewModel.doInScope {
                                     withContext(Dispatchers.IO) {
@@ -420,6 +424,7 @@ private fun ModsList(
     modifier: Modifier = Modifier,
     modsList: List<RemoteMod>?,
     onLoad: (RemoteMod) -> Unit,
+    onForceRefresh: (RemoteMod) -> Unit,
     onEnable: (RemoteMod) -> Unit,
     onDisable: (RemoteMod) -> Unit,
     onSwapMoreInfo: (id: String, Platform) -> Unit,
@@ -442,6 +447,9 @@ private fun ModsList(
                         mod = mod,
                         onLoad = {
                             onLoad(mod)
+                        },
+                        onForceRefresh = {
+                            onForceRefresh(mod)
                         },
                         onEnable = {
                             onEnable(mod)
@@ -476,6 +484,7 @@ private fun ModItemLayout(
     modifier: Modifier = Modifier,
     mod: RemoteMod,
     onLoad: () -> Unit = {},
+    onForceRefresh: () -> Unit = {},
     onClick: () -> Unit = {},
     onEnable: () -> Unit,
     onDisable: () -> Unit,
@@ -614,6 +623,16 @@ private fun ModItemLayout(
                         strokeWidth = 2.dp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
+                } else if (mod.isLoaded) {
+                    IconButton(
+                        modifier = Modifier.size(38.dp),
+                        onClick = onForceRefresh
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = stringResource(R.string.generic_refresh)
+                        )
+                    }
                 }
 
                 //启用/禁用
