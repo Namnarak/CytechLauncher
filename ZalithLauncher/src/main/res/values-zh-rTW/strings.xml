@@ -459,6 +459,7 @@
     <string name="versions_config_follow_global_if_blank">留白則跟隨全域設定</string>
     <string name="versions_config_disable_if_blank">留白則不使用此功能</string>
     <string name="versions_config_failed_to_save">儲存版本組態時發生異常</string>
+    <string name="manage_only_show_valid">可用的</string>
     <string name="mods_manage">模組管理</string>
     <string name="mods_manage_info">模組資訊</string>
     <string name="mods_manage_authors">模組作者：</string>
@@ -468,7 +469,6 @@
     <string name="mods_manage_no_mods">目前版本尚無模組</string>
     <string name="saves_manage">存檔管理</string>
     <string name="saves_manage_info">存檔資訊</string>
-    <string name="saves_manage_only_show_compatible">僅顯示相容的存檔</string>
     <string name="saves_manage_invalid">無效的存檔</string>
     <string name="saves_manage_last_played">上一次遊玩時間：%s</string>
     <string name="saves_manage_gamemode">遊戲模式：%s</string>
@@ -623,7 +623,6 @@
     <string name="account_logging_profile_not_exists">請先建立 Minecraft 玩家檔案，然後再嘗試登入！</string>
     <string name="resource_pack_manage">資源包管理</string>
     <string name="resource_pack_manage_info">資源包資訊</string>
-    <string name="resource_pack_manage_only_show_valid">只顯示有效的包</string>
     <string name="resource_pack_manage_invalid">無效的資源包格式</string>
     <string name="resource_pack_manage_type">資源包類型: %s</string>
     <string name="resource_pack_manage_type_folder">資料夾</string>

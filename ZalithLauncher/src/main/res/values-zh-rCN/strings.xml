@@ -498,6 +498,7 @@
     <string name="versions_config_follow_global_if_blank">留白则跟随全局设置</string>
     <string name="versions_config_disable_if_blank">留白则不使用此功能</string>
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
+    <string name="manage_only_show_valid">可用的</string>
     <string name="mods_manage">模组管理</string>
     <string name="mods_manage_info">模组信息</string>
     <string name="mods_manage_authors">模组作者：</string>
@@ -507,7 +508,6 @@
     <string name="mods_manage_no_mods">当前版本还没有模组</string>
     <string name="saves_manage">存档管理</string>
     <string name="saves_manage_info">存档信息</string>
-    <string name="saves_manage_only_show_compatible">仅显示兼容的存档</string>
     <string name="saves_manage_invalid">无效的存档</string>
     <string name="saves_manage_last_played">上一次游玩时间：%s</string>
     <string name="saves_manage_gamemode">游戏模式：%s</string>
@@ -533,7 +533,6 @@
     <string name="saves_manage_no_saves">当前版本还没有存档</string>
     <string name="resource_pack_manage">资源包管理</string>
     <string name="resource_pack_manage_info">资源包信息</string>
-    <string name="resource_pack_manage_only_show_valid">仅展示有效资源包</string>
     <string name="resource_pack_manage_invalid">资源包格式无效</string>
     <string name="resource_pack_manage_type">资源包类型：%s</string>
     <string name="resource_pack_manage_type_folder">文件夹</string>

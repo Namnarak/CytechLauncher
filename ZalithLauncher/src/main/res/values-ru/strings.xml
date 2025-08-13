@@ -318,7 +318,6 @@
     <string name="versions_config_failed_to_save">Не удалось сохранить конфигурацию</string>
     <string name="saves_manage">Управление сохранениями</string>
     <string name="saves_manage_info">Информация о сохранении</string>
-    <string name="saves_manage_only_show_compatible">Показывать только совместимые сохранения</string>
     <string name="saves_manage_invalid">Недопустимое сохранение</string>
     <string name="saves_manage_gamemode">Режим игры: %s</string>
     <string name="saves_manage_gamemode_survival">Режим выживания</string>
@@ -343,7 +342,6 @@
     <string name="saves_manage_no_saves">Нет сохранений для этой версии</string>
     <string name="resource_pack_manage">Управление ресурс-паками</string>
     <string name="resource_pack_manage_info">Информация о ресурс-паке</string>
-    <string name="resource_pack_manage_only_show_valid">Показывать только действительные пакеты</string>
     <string name="resource_pack_manage_invalid">Недопустимый формат ресурс-пака</string>
     <string name="resource_pack_manage_type">Тип ресурс-пака: %s</string>
     <string name="resource_pack_manage_type_folder">Папка</string>

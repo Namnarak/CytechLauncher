@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
@@ -78,6 +79,7 @@ import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isEnabled
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -253,6 +255,7 @@ fun ModsManagerScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     version: Version,
+    swapToDownload: () -> Unit = {},
     onSwapMoreInfo: (id: String, Platform) -> Unit
 ) {
     BaseScreen(
@@ -311,6 +314,7 @@ fun ModsManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it) },
+                            swapToDownload = swapToDownload,
                             refresh = { viewModel.refresh() }
                         )
 
@@ -362,40 +366,45 @@ private fun ModsActionsHeader(
     inputFieldContentColor: Color,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit = {},
+    swapToDownload: () -> Unit = {},
     refresh: () -> Unit = {}
 ) {
     Column(modifier = modifier) {
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SimpleTextInputField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp),
-                    value = nameFilter,
-                    onValueChange = { onNameFilterChange(it) },
-                    hint = {
-                        Text(
-                            text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
-                        )
-                    },
-                    color = inputFieldColor,
-                    contentColor = inputFieldContentColor,
-                    singleLine = true
-                )
-
-                IconButton(
-                    onClick = refresh
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SimpleTextInputField(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp),
+                value = nameFilter,
+                onValueChange = { onNameFilterChange(it) },
+                hint = {
+                    Text(
+                        text = stringResource(R.string.generic_search),
+                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
                     )
-                }
+                },
+                color = inputFieldColor,
+                contentColor = inputFieldContentColor,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            IconTextButton(
+                onClick = swapToDownload,
+                imageVector = Icons.Default.Download,
+                text = stringResource(R.string.generic_download)
+            )
+
+            IconButton(
+                onClick = refresh
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.generic_refresh)
+                )
             }
         }
 

@@ -7,15 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Refresh
@@ -55,6 +58,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -146,7 +150,8 @@ private fun rememberShadersManageViewModel(
 fun ShadersManagerScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
-    version: Version
+    version: Version,
+    swapToDownload: () -> Unit = {}
 ) {
     BaseScreen(
         levels1 = listOf(
@@ -213,6 +218,7 @@ fun ShadersManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it) },
+                            swapToDownload = swapToDownload,
                             refresh = { viewModel.refresh() }
                         )
 
@@ -244,40 +250,45 @@ private fun ShadersActionsHeader(
     inputFieldContentColor: Color,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit = {},
+    swapToDownload: () -> Unit = {},
     refresh: () -> Unit = {}
 ) {
     Column(modifier = modifier) {
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SimpleTextInputField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp),
-                    value = nameFilter,
-                    onValueChange = { onNameFilterChange(it) },
-                    hint = {
-                        Text(
-                            text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
-                        )
-                    },
-                    color = inputFieldColor,
-                    contentColor = inputFieldContentColor,
-                    singleLine = true
-                )
-
-                IconButton(
-                    onClick = refresh
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SimpleTextInputField(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp),
+                value = nameFilter,
+                onValueChange = { onNameFilterChange(it) },
+                hint = {
+                    Text(
+                        text = stringResource(R.string.generic_search),
+                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
                     )
-                }
+                },
+                color = inputFieldColor,
+                contentColor = inputFieldContentColor,
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            IconTextButton(
+                onClick = swapToDownload,
+                imageVector = Icons.Default.Download,
+                text = stringResource(R.string.generic_download)
+            )
+
+            IconButton(
+                onClick = refresh
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.generic_refresh)
+                )
             }
         }
 

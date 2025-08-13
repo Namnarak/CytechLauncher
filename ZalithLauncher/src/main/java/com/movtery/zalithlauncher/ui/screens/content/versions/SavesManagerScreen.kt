@@ -10,16 +10,19 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
@@ -75,6 +78,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -190,7 +194,8 @@ fun SavesManagerScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     launchGameViewModel: LaunchGameViewModel,
-    version: Version
+    version: Version,
+    swapToDownload: () -> Unit = {}
 ) {
     BaseScreen(
         levels1 = listOf(
@@ -270,6 +275,7 @@ fun SavesManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             savesFilter = viewModel.savesFilter,
                             onSavesFilterChange = { viewModel.updateFilter(it) },
+                            swapToDownload = swapToDownload,
                             refreshSaves = { viewModel.refresh() }
                         )
 
@@ -303,48 +309,55 @@ private fun SavesActionsHeader(
     inputFieldContentColor: Color,
     savesFilter: SavesFilter,
     onSavesFilterChange: (SavesFilter) -> Unit = {},
+    swapToDownload: () -> Unit = {},
     refreshSaves: () -> Unit = {}
 ) {
     Column(modifier = modifier) {
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SimpleTextInputField(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp),
+                value = savesFilter.saveName,
+                onValueChange = { onSavesFilterChange(savesFilter.copy(saveName = it)) },
+                hint = {
+                    Text(
+                        text = stringResource(R.string.generic_search),
+                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                    )
+                },
+                color = inputFieldColor,
+                contentColor = inputFieldContentColor,
+                singleLine = true
+            )
+
             ContentCheckBox(
                 checked = savesFilter.onlyShowCompatible,
                 onCheckedChange = { onSavesFilterChange(savesFilter.copy(onlyShowCompatible = it)) }
             ) {
                 Text(
-                    text = stringResource(R.string.saves_manage_only_show_compatible),
+                    text = stringResource(R.string.manage_only_show_valid),
                     style = MaterialTheme.typography.labelMedium
                 )
             }
 
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                SimpleTextInputField(
-                    modifier = Modifier.weight(1f),
-                    value = savesFilter.saveName,
-                    onValueChange = { onSavesFilterChange(savesFilter.copy(saveName = it)) },
-                    hint = {
-                        Text(
-                            text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
-                        )
-                    },
-                    color = inputFieldColor,
-                    contentColor = inputFieldContentColor,
-                    singleLine = true
-                )
+            Spacer(modifier = Modifier.width(12.dp))
 
-                IconButton(
-                    onClick = refreshSaves
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh)
-                    )
-                }
+            IconTextButton(
+                onClick = swapToDownload,
+                imageVector = Icons.Default.Download,
+                text = stringResource(R.string.generic_download)
+            )
+
+            IconButton(
+                onClick = refreshSaves
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.generic_refresh)
+                )
             }
         }
 

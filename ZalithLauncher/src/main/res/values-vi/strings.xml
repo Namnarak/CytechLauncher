@@ -482,7 +482,6 @@
     <string name="versions_config_failed_to_save">Không lưu được cấu hình</string>
     <string name="saves_manage">Lưu</string>
     <string name="saves_manage_info">Lưu thông tin</string>
-    <string name="saves_manage_only_show_compatible">Chỉ hiển thị các bản lưu tương thích</string>
     <string name="saves_manage_invalid">Lưu không hợp lệ</string>
     <string name="saves_manage_last_played">Lần chơi cuối: %s</string>
     <string name="saves_manage_gamemode">Chế độ trò chơi: %s</string>
@@ -508,7 +507,6 @@
     <string name="saves_manage_no_saves">Không có bản lưu nào cho phiên bản này</string>
     <string name="resource_pack_manage">Gói tài nguyên</string>
     <string name="resource_pack_manage_info">Thông tin về gói tài nguyên</string>
-    <string name="resource_pack_manage_only_show_valid">Chỉ hiển thị các gói hợp lệ</string>
     <string name="resource_pack_manage_invalid">Định dạng gói tài nguyên không hợp lệ</string>
     <string name="resource_pack_manage_type">Loại gói tài nguyên: %s</string>
     <string name="resource_pack_manage_type_folder">Thư mục</string>

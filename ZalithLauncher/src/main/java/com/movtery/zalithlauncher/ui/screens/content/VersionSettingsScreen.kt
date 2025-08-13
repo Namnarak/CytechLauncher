@@ -223,18 +223,26 @@ private fun NavigationUI(
                     ModsManagerScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
-                        version = version
-                    ) { projectId, platform ->
-                        backScreenViewModel.navigateToDownload(
-                            targetScreen = NestedNavKey.DownloadMod(
-                                backStack = backScreenViewModel.downloadModBackStack.also { stack ->
-                                    stack.navigateTo(
-                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
-                                    )
-                                }
+                        version = version,
+                        swapToDownload = {
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = NestedNavKey.DownloadMod(
+                                    backStack = backScreenViewModel.downloadModBackStack
+                                )
                             )
-                        )
-                    }
+                        },
+                        onSwapMoreInfo = { projectId, platform ->
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = NestedNavKey.DownloadMod(
+                                    backStack = backScreenViewModel.downloadModBackStack.also { stack ->
+                                        stack.navigateTo(
+                                            NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
+                                        )
+                                    }
+                                )
+                            )
+                        }
+                    )
                 }
                 entry<NormalNavKey.Versions.SavesManager> {
                     SavesManagerScreen(
@@ -242,21 +250,39 @@ private fun NavigationUI(
                         versionsScreenKey = versionsScreenKey,
                         launchGameViewModel = launchGameViewModel,
                         version = version
-                    )
+                    ) {
+                        backScreenViewModel.navigateToDownload(
+                            targetScreen = NestedNavKey.DownloadSaves(
+                                backStack = backScreenViewModel.downloadSavesBackStack
+                            )
+                        )
+                    }
                 }
                 entry<NormalNavKey.Versions.ResourcePackManager> {
                     ResourcePackManageScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version
-                    )
+                    ) {
+                        backScreenViewModel.navigateToDownload(
+                            targetScreen = NestedNavKey.DownloadResourcePack(
+                                backStack = backScreenViewModel.downloadResourcePackBackStack
+                            )
+                        )
+                    }
                 }
                 entry<NormalNavKey.Versions.ShadersManager> {
                     ShadersManagerScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version
-                    )
+                    ) {
+                        backScreenViewModel.navigateToDownload(
+                            targetScreen = NestedNavKey.DownloadShaders(
+                                backStack = backScreenViewModel.downloadShadersBackStack
+                            )
+                        )
+                    }
                 }
             }
         )
