@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -267,6 +268,7 @@ private fun PhysicalKeyImeTrigger(
                 .clickable { changeOperation(PhysicalKeyOperation.Bind) }
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
+                .animateContentSize()
         ) Column@{
             TitleAndSummary(
                 title = stringResource(R.string.settings_control_physical_key_bind_ime_title),
