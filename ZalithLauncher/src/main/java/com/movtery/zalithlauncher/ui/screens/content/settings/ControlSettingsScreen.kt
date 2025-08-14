@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,6 +51,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
+import com.movtery.zalithlauncher.ui.components.infiniteShimmer
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -147,8 +147,11 @@ fun ControlSettingsScreen(
                     enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
                 )
 
+                var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
                 MousePointerLayout(
                     mouseSize = AllSettings.mouseSize.state,
+                    mouseOperation = mouseOperation,
+                    changeOperation = { mouseOperation = it },
                     summitError = summitError
                 )
 
@@ -306,7 +309,12 @@ private fun PhysicalKeyImeTrigger(
                     ) {
                         LittleTextLabel(text = stringResource(R.string.control_keyboard_bind_title))
                         MarqueeText(
-                            modifier = Modifier.weight(1f).alpha(0.7f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .infiniteShimmer(
+                                    initialValue = 0.5f,
+                                    targetValue = 1f
+                                ),
                             text = stringResource(R.string.control_keyboard_bind_summary),
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -354,13 +362,14 @@ private sealed interface MousePointerOperation {
 @Composable
 private fun MousePointerLayout(
     mouseSize: Int,
+    mouseOperation: MousePointerOperation,
+    changeOperation: (MousePointerOperation) -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
     var triggerState by remember { mutableIntStateOf(0) }
 
-    var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
     when (mouseOperation) {
         is MousePointerOperation.None -> {}
         is MousePointerOperation.Reset -> {
@@ -369,14 +378,14 @@ private fun MousePointerLayout(
                 text = stringResource(R.string.settings_control_mouse_pointer_reset_message),
                 onConfirm = {
                     FileUtils.deleteQuietly(mousePointerFile)
-                    mouseOperation = MousePointerOperation.Refresh
+                    changeOperation(MousePointerOperation.Refresh)
                 },
-                onDismiss = { mouseOperation = MousePointerOperation.None }
+                onDismiss = { changeOperation(MousePointerOperation.None) }
             )
         }
         is MousePointerOperation.Refresh -> {
             triggerState++
-            mouseOperation = MousePointerOperation.None
+            changeOperation(MousePointerOperation.None)
         }
     }
 
@@ -389,7 +398,7 @@ private fun MousePointerLayout(
                     dispatcher = Dispatchers.IO,
                     task = {
                         context.copyLocalFile(result, mousePointerFile)
-                        mouseOperation = MousePointerOperation.Refresh
+                        changeOperation(MousePointerOperation.Refresh)
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(mousePointerFile)
@@ -439,7 +448,7 @@ private fun MousePointerLayout(
             if (mouseExists) {
                 IconTextButton(
                     onClick = {
-                        mouseOperation = MousePointerOperation.Reset
+                        changeOperation(MousePointerOperation.Reset)
                     },
                     imageVector = Icons.Default.RestartAlt,
                     contentDescription = stringResource(R.string.generic_reset),
