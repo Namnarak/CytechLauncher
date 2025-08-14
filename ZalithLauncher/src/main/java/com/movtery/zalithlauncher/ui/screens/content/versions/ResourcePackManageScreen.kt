@@ -108,6 +108,7 @@ private class ResourcePackManageViewModel(
         private set
 
     fun refresh() {
+        println("Test: refreshing")
         viewModelScope.launch {
             packState = LoadingState.Loading
 
@@ -120,11 +121,11 @@ private class ResourcePackManageViewModel(
                             tempList.add(it)
                         }
                     }
-                    filterPacks()
                 } catch (_: CancellationException) {
                     return@withContext
                 }
                 allPacks = tempList.sortedBy { it.rawName }
+                filterPacks()
             }
 
             packState = LoadingState.None

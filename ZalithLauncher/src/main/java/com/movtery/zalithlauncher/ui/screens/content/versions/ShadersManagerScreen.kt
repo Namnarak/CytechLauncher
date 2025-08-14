@@ -102,7 +102,7 @@ private class ShadersManageViewModel(
 
             withContext(Dispatchers.IO) {
                 try {
-                    allShaders = shadersDir.listFiles()?.filter {
+                    val list = shadersDir.listFiles()?.filter {
                         //光影包只能是后缀为.zip的压缩包
                         it.isFile && it.extension.equals("zip", true)
                     }?.map { file ->
@@ -112,6 +112,7 @@ private class ShadersManageViewModel(
                             fileSize = FileUtils.sizeOf(file)
                         )
                     } ?: emptyList()
+                    allShaders = list.sortedBy { it.file.name }
                     filterShaders()
                 } catch (_: CancellationException) {
                     return@withContext
