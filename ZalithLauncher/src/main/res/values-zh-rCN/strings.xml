@@ -680,6 +680,4 @@
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-cn</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>
-    <!--  仅限中国，中国地区访问 Modrinth 可能会不方便，所以使用 mcmod 中文百科平台，其他语言请使用 Modrinth 或者 CurseForge  -->
-    <string name="url_mod_custom_skin_loader">https://www.mcmod.cn/class/883.html</string>
 </resources>

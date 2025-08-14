@@ -447,7 +447,6 @@
     <!-- Url -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>
-    <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
     <string name="generic_ignore">Игнорировать</string>
     <string name="generic_authorization">Авторизация</string>
     <string name="unit_day">День</string>

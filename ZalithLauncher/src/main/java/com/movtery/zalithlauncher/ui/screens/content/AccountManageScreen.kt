@@ -58,6 +58,8 @@ import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftEx
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.game.account.microsoftLogin
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.UrlManager
@@ -69,6 +71,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
@@ -83,6 +86,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDi
 import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
+import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -136,6 +140,17 @@ fun AccountManageScreen(
                 onAddAuthClicked = {
                     //打开添加认证服务器的对话框
                     serverOperation = ServerOperation.AddNew
+                },
+                swapToDownloadScreen = { projectId, platform, classes ->
+                    backStackViewModel.navigateToDownload(
+                        targetScreen = NestedNavKey.DownloadMod(
+                            backStack = backStackViewModel.downloadModBackStack.also { stack ->
+                                stack.navigateTo(
+                                    NormalNavKey.DownloadAssets(platform, projectId, classes)
+                                )
+                            }
+                        )
+                    )
                 }
             )
         }
@@ -486,7 +501,8 @@ private fun AccountsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    onAddAuthClicked: () -> Unit = {}
+    onAddAuthClicked: () -> Unit = {},
+    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
 ) {
     val yOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
@@ -528,7 +544,8 @@ private fun AccountsLayout(
                         updateOperation = { accountSkinOperation = it },
                         summitError = summitError,
                         onAddAuthClicked = onAddAuthClicked,
-                        onRefreshAvatar = { refreshAvatar = !refreshAvatar }
+                        onRefreshAvatar = { refreshAvatar = !refreshAvatar },
+                        swapToDownloadScreen = swapToDownloadScreen
                     )
 
                     val skinPicker = rememberLauncherForActivityResult(
@@ -585,7 +602,8 @@ private fun AccountSkinOperation(
     updateOperation: (AccountSkinOperation) -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit = {},
-    onRefreshAvatar: () -> Unit = {}
+    onRefreshAvatar: () -> Unit = {},
+    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
     when (accountSkinOperation) {
@@ -663,7 +681,7 @@ private fun AccountSkinOperation(
                         )
                         IconTextButton(
                             onClick = {
-                                NetWorkUtils.openLink(context, context.getString(R.string.url_mod_custom_skin_loader))
+                                swapToDownloadScreen("idMHQ4n2", Platform.MODRINTH, PlatformClasses.MOD)
                                 updateOperation(AccountSkinOperation.None)
                             },
                             imageVector = Icons.Outlined.Checkroom,

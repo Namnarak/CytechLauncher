@@ -611,8 +611,6 @@
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-tw</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-tw</string>
-    <!-- CustomSkinLoader -->
-    <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
     <string name="generic_in_progress">進行中</string>
     <string name="generic_file_name">檔案名稱: %s</string>
     <string name="generic_file_size">檔案大小: %s</string>

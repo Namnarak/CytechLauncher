@@ -94,7 +94,6 @@
     <string name="notification_data_jvm_service_running">Tải game bằng trình tải ở tiền cảnh</string>
     <string name="unpack_screen_jre8">Java 8 (bắt buộc cho Minecraft 1.16 và các phiên bản thấp hơn)</string>
     <string name="unpack_screen_jre17">Java 17 (cần cho Minecraft 1.17+)</string>
-    <string name="url_mod_custom_skin_loader">https://modrinth.com/mod/customskinloader</string>
     <string name="unpack_screen_jre21">Java 21 (cần cho Minecraft 1.20.5+)</string>
     <string name="unpack_screen_authlib_injector">Sửa đổi authlib cho những đăng nhập của bên thứ ba.</string>
     <string name="unpack_screen_cacio">GUI ẩn cho OpenJDK.</string>

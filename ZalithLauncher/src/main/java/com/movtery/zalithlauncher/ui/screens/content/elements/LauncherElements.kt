@@ -30,6 +30,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
@@ -43,7 +45,6 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -89,10 +90,9 @@ fun getLocalSkinWarningButton(
     modifier: Modifier = Modifier,
     account: Account,
     versionInfo: VersionInfo,
-    swapToAccountScreen: () -> Unit = {}
+    swapToAccountScreen: () -> Unit = {},
+    swapToDownloadScreen: (id: String, Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
 ): (@Composable () -> Unit)? {
-    val context = LocalContext.current
-
     val warningIcon = @Composable {
         Icon(
             imageVector = Icons.Default.Warning,
@@ -149,7 +149,7 @@ fun getLocalSkinWarningButton(
                             )
                             IconTextButton(
                                 onClick = {
-                                    NetWorkUtils.openLink(context, context.getString(R.string.url_mod_custom_skin_loader))
+                                    swapToDownloadScreen("idMHQ4n2", Platform.MODRINTH, PlatformClasses.MOD)
                                     tooltipState.dismiss()
                                 },
                                 imageVector = Icons.Outlined.Checkroom,
