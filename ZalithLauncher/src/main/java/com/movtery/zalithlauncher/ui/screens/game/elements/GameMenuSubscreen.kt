@@ -31,6 +31,7 @@ fun GameMenuSubscreen(
     closeScreen: () -> Unit,
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
+    onRefreshWindowSize: () -> Unit,
     onInputMethod: () -> Unit
 ) {
     MenuSubscreen(
@@ -95,6 +96,24 @@ fun GameMenuSubscreen(
                     text = stringResource(R.string.game_menu_option_switch_fps),
                     switch = AllSettings.showFPS.state,
                     onSwitch = { AllSettings.showFPS.save(it) }
+                )
+            }
+            //游戏窗口分辨率
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.settings_renderer_resolution_scale_title),
+                    value = AllSettings.resolutionRatio.state,
+                    valueRange = 25f..300f,
+                    onValueChange = { value ->
+                        AllSettings.resolutionRatio.updateState(value)
+                        onRefreshWindowSize()
+                    },
+                    onValueChangeFinished = { value ->
+                        AllSettings.resolutionRatio.save(value)
+                        onRefreshWindowSize()
+                    },
+                    suffix = "%",
                 )
             }
 

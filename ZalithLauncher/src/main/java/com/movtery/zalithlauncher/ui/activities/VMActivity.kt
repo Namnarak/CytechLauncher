@@ -142,6 +142,18 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
         LoggerBridge.start(logFile.absolutePath)
 
+        lifecycleScope.launch {
+            //开始接收事件
+            eventViewModel.events.collect { event ->
+                when (event) {
+                    is EventViewModel.Event.Game.RefreshSize -> {
+                        refreshSize()
+                    }
+                    else -> { /* Ignore */ }
+                }
+            }
+        }
+
         setContent {
             ZalithLauncherTheme {
                 Screen(content = handler.getComposableLayout(eventViewModel))
@@ -191,7 +203,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         if (code != null && event.keyCode == code) {
             //用户按下了绑定呼出输入法的按键
             //向Compose端发送事件，调出输入法
-            eventViewModel.sendEvent(EventViewModel.Event.ShowIme)
+            eventViewModel.sendEvent(EventViewModel.Event.Game.ShowIme)
             return true
         }
         event.device?.let {
@@ -309,7 +321,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     private fun getDisplayPixels(pixels: Int): Int {
         return when (handler.type) {
-            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.getValue() / 100f)
+            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
             HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
         }
     }

@@ -22,10 +22,18 @@ class EventViewModel : ViewModel() {
 
     sealed interface Event {
         sealed interface Key : Event {
+            /** 让MainActivity开始按键捕获 */
             data object StartKeyCapture : Key
+            /** 让MainActivity停止按键捕获 */
             data object StopKeyCapture : Key
+            /** 由MainActivity发送的按键捕获结果 */
             data class OnKeyDown(val key: KeyEvent) : Key
         }
-        data object ShowIme : Event
+        sealed interface Game : Event {
+            /** 呼出IME */
+            data object ShowIme : Event
+            /** 刷新游戏画面分辨率 */
+            data object RefreshSize : Event
+        }
     }
 }

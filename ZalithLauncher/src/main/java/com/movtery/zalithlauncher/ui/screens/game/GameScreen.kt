@@ -97,6 +97,7 @@ fun GameScreen(
             closeScreen = { gameMenuState = MenuState.HIDE },
             onForceClose = { forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
+            onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { textInputMode = textInputMode.switch() }
         )
 
@@ -110,7 +111,7 @@ fun GameScreen(
 
     LaunchedEffect(Unit) {
         eventViewModel.events
-            .filterIsInstance<EventViewModel.Event.ShowIme>()
+            .filterIsInstance<EventViewModel.Event.Game.ShowIme>()
             .collect {
                 textInputMode = TextInputMode.ENABLE
             }
@@ -248,5 +249,5 @@ private fun Offset.sendPosition() {
 }
 
 private fun Float.sumPosition(): Float {
-    return (this * (AllSettings.resolutionRatio.getValue() / 100f))
+    return (this * (AllSettings.resolutionRatio.state / 100f))
 }

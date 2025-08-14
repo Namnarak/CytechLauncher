@@ -86,7 +86,7 @@ fun JVMScreen(
 
     LaunchedEffect(Unit) {
         eventViewModel.events
-            .filterIsInstance<EventViewModel.Event.ShowIme>()
+            .filterIsInstance<EventViewModel.Event.Game.ShowIme>()
             .collect {
                 textInputMode = TextInputMode.ENABLE
             }
