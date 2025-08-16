@@ -134,7 +134,7 @@ fun AboutInfoScreen(
                     val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.ic_launcher),
+                            icon = painterResource(R.drawable.img_launcher),
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
                             buttonText = stringResource(R.string.about_launcher_project_link),
