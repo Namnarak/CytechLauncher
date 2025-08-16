@@ -278,4 +278,21 @@
     <string name="download_install_clear_temp">Limpar arquivos no cache</string>
     <string name="download_assets_filter_search_platform">Plataforma Desejada</string>
     <string name="download_assets_failed_to_get_project">Falha ao recuperar informação do projeto: %s. Aperte para tentar de novo.</string>
+    <string name="crash_launch_crash_message">O launcher encontrou sérios problemas e travou durante a inicialização</string>
+    <string name="download_install_input_version_name">Esperando a versão do nome de usuário</string>
+    <string name="download_install_input_version_name_title">Coloque o nome da versão pré instalada</string>
+    <string name="download_assets_search_mc_versions">Procurando versão do MC</string>
+    <string name="download_assets_optional_projects">Projetos opcionais</string>
+    <string name="download_assets_install_assets_for_versions">Instalar para quais versões do jogo?</string>
+    <string name="download_modpack_warning1">Antes da instalação, você precisa entender que a maioria dos modpacks são feitos para PC e há uma grande chance de travamentos ou outros problemas ao tentar iniciá-los. Esses problemas geralmente estão além do que se imagina.</string>
+    <string name="download_modpack_warning2">Você precisará adquirir o conhecimento relevante para tentar resolver os problemas sozinho ou buscar ajuda de outras pessoas.</string>
+    <string name="download_modpack_warning3">Observação: os desenvolvedores do inicializador normalmente não lidam com problemas causados por modpacks.</string>
+    <string name="download_modpack_install_parse">Analisar modpack</string>
+    <string name="download_modpack_install_get_mod_url">Obter link para download do mod (%1$d/%2$d)</string>
+    <string name="download_modpack_install_overrides">Extrair arquivos do modpack</string>
+    <string name="download_modpack_download">Baixe o conteúdo necessário para o modpack</string>
+    <string name="download_modpack_download_mods">Baixar todos os mods (%1$d/%2$d, %3$s)</string>
+    <string name="download_modpack_download_mods_retry">Tente baixar novamente todos os mods (%1$d/%2$d, %3$s)</string>
+    <string name="download_modpack_get_loaders">Recuperar informações do carregador</string>
+    <string name="download_modpack_final_move">Movendo arquivos do modpack</string>
 </resources>
