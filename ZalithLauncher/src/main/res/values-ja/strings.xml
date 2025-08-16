@@ -403,4 +403,9 @@
     <string name="download_modpack_get_loaders">ローダー情報を取得</string>
     <string name="download_modpack_warning2">問題を自分で解決するには関連する知識を学ぶか、他の人に助けてもらう必要があります。</string>
     <string name="download_modpack_warning3">注意: ランチャー開発者は通常モッドパックによって引き起こされる問題を処理しません。</string>
+    <string name="about_acknowledgements_fcl_text">%s はFCLのコードを組み込みその実装の一部を参照しています</string>
+    <string name="about_acknowledgements_hmcl_text">%s はHMCLのコードを組み込みその実装の一部を参照しています</string>
+    <string name="control_keyboard_bind_summary">キーボードで割り当てたいキーを入力</string>
+    <string name="settings_launcher_log_share_title">ランチャーログを共有</string>
+    <string name="settings_launcher_animate_speed_title">アニメーションの速度</string>
 </resources>
