@@ -240,7 +240,7 @@
     <string name="generic_cannot_empty">コンテンツは空にできません！</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
-    <string name="about_acknowledgements_pojav_text">%s はPojavランチャーの起動バックエンドを使用しています</string>
+    <string name="about_acknowledgements_pojav_text">%s はPojavLauncherの起動バックエンドを使用しています</string>
     <string name="about_acknowledgements_pcl_text">%s はPCL2のコードの一部を参照しています</string>
     <string name="settings_launcher_full_screen_title">全画面モード</string>
     <string name="settings_control_gesture_trigger_mouse_left">左クリック</string>
@@ -408,4 +408,14 @@
     <string name="control_keyboard_bind_summary">キーボードで割り当てたいキーを入力</string>
     <string name="settings_launcher_log_share_title">ランチャーログを共有</string>
     <string name="settings_launcher_animate_speed_title">アニメーションの速度</string>
+    <string name="settings_launcher_log_share_summary">タップしてランチャーのログファイルを共有すれば、開発者がランチャーの問題を特定して修正できます。</string>
+    <string name="settings_game_auto_pick_java_runtime_title">Javaの自動選択</string>
+    <string name="settings_renderer_vulkan_driver_system_title">システムVulkanドライバーを使用</string>
+    <string name="settings_renderer_full_screen_title">ゲームの全画面モード</string>
+    <string name="settings_renderer_full_screen_summary">ノッチやパンチホールなどの安全領域を無視して、全画面モードにします</string>
+    <string name="shader_pack_manage_name">シェーダーパックの名前</string>
+    <string name="resource_pack_manage_name">リソースパックの名前</string>
+    <string name="resource_pack_manage_delete_warning">リソースパック %s を削除しますか？この操作はもとに戻せません！</string>
+    <string name="resource_pack_manage_no_packs">現在のバージョンで利用可能なリソースパックはありません</string>
+    <string name="resource_pack_manage_type">リソースパックの種類: %s</string>
 </resources>
