@@ -492,4 +492,5 @@
     <string name="download_assets_category_worldgen">Генерация мира</string>
     <string name="download_assets_category_biomes">Биомы</string>
     <string name="download_assets_category_dimensions">Размеры</string>
+    <string name="generic_all">все</string>
 </resources>
