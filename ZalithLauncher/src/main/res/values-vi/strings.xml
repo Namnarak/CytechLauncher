@@ -638,4 +638,22 @@
     <string name="crash_type">Loại crash: %s</string>
     <string name="crash_type_launcher">Launcher đã bị Crash</string>
     <string name="crash_type_game">Game bị crash</string>
+    <string name="crash_launch_crash_title">App không thể khởi chạy</string>
+    <string name="crash_launch_crash_message">Launcher đã gặp phải một lỗi nghiêm trọng, và đã bị crash</string>
+    <string name="download_install_input_version_name">Đang chờ người dùng để nhập tên phiên bản</string>
+    <string name="download_install_input_version_name_title">Nhập tên phiên bản đã được trả xuống</string>
+    <string name="game_menu_title">Menu Game</string>
+    <string name="game_menu_option_force_close_text">Việc buộc đóng trò chơi đang chạy có thể gây hỏng dữ liệu đã lưu hoặc ngăn không cho lưu cài đặt. Tránh thực hiện thao tác này trừ khi cần thiết.</string>
+    <string name="game_menu_option_switch_log">Đầu ra nhật ký</string>
+    <string name="game_menu_option_input_method">Đổi cách nhập khác</string>
+    <string name="game_menu_option_switch_fps">Hiển thị FPS</string>
+    <string name="manage_only_show_valid">Có sẵn</string>
+    <string name="settings_control_physical_key_bind_ime_title">Gọi phương thức nhập liệu bàn phím vật lý</string>
+    <string name="settings_control_physical_key_bind_ime_summary">Nhấp để liên kết phím để gọi phương thức nhập liệu trong khi chơi trò chơi</string>
+    <string name="settings_control_physical_key_bind_ime_bound">Phím : %s</string>
+    <string name="settings_control_physical_key_bind_ime_un_bind">Chưa được đặt</string>
+    <string name="settings_control_mouse_hide_title">Ẩn chuột ảo</string>
+    <string name="settings_control_mouse_hide_summary">Trong một số trường hợp, bạn có thể muốn ẩn chuột ảo; cài đặt này không ảnh hưởng đến việc điều khiển chuột vật lý hoặc điều khiển vuốt</string>
+    <string name="control_keyboard_bind_title">Nhập</string>
+    <string name="control_keyboard_bind_summary">Nhấn phím bạn muốn liên kết trên bàn phím của bạn</string>
 </resources>
