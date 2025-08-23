@@ -17,7 +17,7 @@
     <string name="generic_disable">無効</string>
     <string name="generic_open_link">ブラウザで開く</string>
     <string name="generic_close">閉じる</string>
-    <string name="generic_follow_global">グローバル</string>
+    <string name="generic_follow_global">グローバルに従う</string>
     <string name="generic_custom">カスタム</string>
     <string name="generic_search">検索</string>
     <string name="generic_loading">読み込み中</string>
@@ -78,7 +78,7 @@
     <string name="crash_launcher_message">アプリケーションが予期せずクラッシュしました。以下のエラー情報は、開発者がアプリの改善に役立てます。</string>
     <string name="crash_exit_message">JVMがコード %d で終了しました。</string>
     <string name="crash_singnal_message">致命的なシグナル %d のためJVMが終了しました。</string>
-    <string name="crash_exit_note">詳細はログを確認してください。この問題を解決できない場合は、ログファイルを技術専門家に送ってください。スクリーンショットは情報が不足する可能性があるため、使用を避けてください。</string>
+    <string name="crash_exit_note">具体的な原因については、ログファイルを確認してください。ご自身で問題を解決できない場合は、ログファイルを解析できる人に送ってください。問題の特定や修正の手助けになるかもしれません。現在の画面をスクリーンショットしないでください。スクリーンショットでは問題解決に十分な情報が得られない可能性があります。</string>
     <string name="crash_type">クラッシュの種類: %s</string>
     <string name="error_import_image">画像のインポートに失敗しました</string>
     <string name="error_create_dir">ディレクトリの作成に失敗しました: %s</string>
@@ -90,8 +90,8 @@
     <string name="download_game_install_title">ゲームをインストール</string>
     <string name="download_game_version_name">バージョン名</string>
     <string name="download_game_addon_list_load_error">リストの読み込みに失敗: %s</string>
-    <string name="unpack_screen_lwjgl">軽量Javaゲームライブラリ (Minecraftに必要)。</string>
-    <string name="unpack_screen_launcher">ランチャーの必須コンポーネント。</string>
+    <string name="unpack_screen_lwjgl">軽量Javaゲームライブラリ (Minecraftに必要)</string>
+    <string name="unpack_screen_launcher">ランチャーの必須コンポーネント</string>
     <string name="just_now">たった今</string>
     <string name="generic_input_failed_to_number">入力を数値として解析できません</string>
     <string name="generic_confirm">確認</string>
@@ -161,7 +161,7 @@
     <string name="download_game_install_base_install">%s をインストール</string>
     <string name="download_game_install_base_installing">フォアグラウンドで%sをインストールしています</string>
     <string name="splash_screen_unpack_desc">ランチャーは、Minecraftが正常に動作するようにこれらのファイルをインストールする必要があります。これらはアプリに含まれており、まず展開する必要があります。下のボタンをクリックして、展開と更新を開始してください。</string>
-    <string name="unpack_screen_cacio">OpenJDK用のポータブルGUIバックエンド。</string>
+    <string name="unpack_screen_cacio">OpenJDK用のポータブルGUIバックエンド</string>
     <string name="download_game_failed_to_get_versions">バージョンの取得に失敗しました: %s。タップして再試行してください。</string>
     <string name="download_game_install_vanilla">バニラ版 %s をダウンロード</string>
     <string name="download_game_install_base_download_file">%1$s %2$s のメインファイルをダウンロード</string>
@@ -254,10 +254,10 @@
     <string name="settings_tab_renderer">レンダラー</string>
     <string name="settings_tab_game">ゲーム</string>
     <string name="settings_tab_control">コントロール</string>
-    <string name="settings_tab_control_manage">コントロール</string>
+    <string name="settings_tab_control_manage">コントロール一覧</string>
     <string name="settings_tab_java_manage">Java</string>
     <string name="settings_tab_launcher">ランチャー</string>
-    <string name="minecraft_download_failed">ダウンロード失敗</string>
+    <string name="minecraft_download_failed">Minecraft のダウンロード中にエラーが発生しました</string>
     <string name="saves_manage_gamemode_survival">サバイバルモード</string>
     <string name="saves_manage_gamemode_creative">クリエイティブモード</string>
     <string name="saves_manage_gamemode_adventure">アドベンチャーモード</string>
@@ -283,12 +283,12 @@
     <string name="mods_manage_version">モッドのバージョン: %s</string>
     <string name="saves_manage_gamemode">ゲームモード: %s</string>
     <string name="versions_overview_saves_folder">セーブフォルダ</string>
-    <string name="versions_overview_resource_pack_folder">リソースパック</string>
-    <string name="versions_overview_shaders_pack_folder">シェーダー</string>
-    <string name="versions_overview_screenshot_folder">スクリーンショット</string>
-    <string name="versions_overview_logs_folder">ログ</string>
-    <string name="versions_overview_crash_report_folder">クラッシュレポート</string>
-    <string name="versions_config_game_settings">ゲーム設定</string>
+    <string name="versions_overview_resource_pack_folder">リソースパックフォルダ</string>
+    <string name="versions_overview_shaders_pack_folder">シェーダーパックフォルダ</string>
+    <string name="versions_overview_screenshot_folder">スクリーンショットフォルダ</string>
+    <string name="versions_overview_logs_folder">ログフォルダ</string>
+    <string name="versions_overview_crash_report_folder">クラッシュレポートフォルダ</string>
+    <string name="versions_config_game_settings">ゲーム個別設定</string>
     <string name="versions_config_renderer">レンダラー</string>
     <string name="versions_config_vulkan_driver">Vulkanドライバー</string>
     <string name="account_supporting_microsoft_tip_hint_t2">1. ログインボタンをクリック ― ランチャーが認証コードを取得しようとします;\n</string>
@@ -408,7 +408,7 @@
     <string name="control_keyboard_bind_summary">キーボードで割り当てたいキーを入力</string>
     <string name="settings_launcher_log_share_title">ランチャーログを共有</string>
     <string name="settings_launcher_animate_speed_title">アニメーションの速度</string>
-    <string name="settings_launcher_log_share_summary">タップしてランチャーのログファイルを共有すれば、開発者がランチャーの問題を特定して修正できます。</string>
+    <string name="settings_launcher_log_share_summary">タップしてランチャーのログファイルを共有すれば、開発者がランチャーの問題を特定して修正できます</string>
     <string name="settings_game_auto_pick_java_runtime_title">Javaの自動選択</string>
     <string name="settings_renderer_vulkan_driver_system_title">システムVulkanドライバーを使用</string>
     <string name="settings_renderer_full_screen_title">ゲームの全画面モード</string>
@@ -418,4 +418,5 @@
     <string name="resource_pack_manage_delete_warning">リソースパック %s を削除しますか？この操作はもとに戻せません！</string>
     <string name="resource_pack_manage_no_packs">現在のバージョンで利用可能なリソースパックはありません</string>
     <string name="resource_pack_manage_type">リソースパックの種類: %s</string>
+    <string name="minecraft_download_failed_retried">これ以前にランチャーは一度再試行を行いましたが、いくつかのタスクのダウンロードは依然として失敗しました</string>
 </resources>
