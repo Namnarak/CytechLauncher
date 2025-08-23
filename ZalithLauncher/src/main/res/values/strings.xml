@@ -75,7 +75,7 @@
     <string name="crash_launcher_message">The application crashed unexpectedly. The error details below will help developers improve the app.</string>
     <string name="crash_exit_message">JVM exited with code %d.</string>
     <string name="crash_singnal_message">JVM aborted due to fatal signal %d.</string>
-    <string name="crash_exit_note">Check the logs for details. If you cannot resolve this issue, send the log file to a technical expert. Avoid taking screenshots, as they may lack sufficient information.</string>
+    <string name="crash_exit_note">For details on the cause, please check the log file. If you are unable to resolve the issue yourself, please send the log file to someone who can analyze it. They may be able to help you diagnose and fix the problem. Please do not take a screenshot of the current screen, as screenshots may not provide sufficient information to resolve the issue.</string>
     <string name="crash_type">Crash Type: %s</string>
     <string name="crash_type_launcher">Launcher Crash</string>
     <string name="crash_type_game">Game Crash</string>
@@ -110,10 +110,10 @@
     <string name="unpack_screen_jre8">Java 8 Environment (required for Minecraft 1.16 and below)</string>
     <string name="unpack_screen_jre17">Java 17 Environment (required for Minecraft 1.17+)</string>
     <string name="unpack_screen_jre21">Java 21 Environment (required for Minecraft 1.20.5+)</string>
-    <string name="unpack_screen_authlib_injector">Modifies authlib for external logins.</string>
-    <string name="unpack_screen_cacio">Portable GUI backend for OpenJDK.</string>
-    <string name="unpack_screen_lwjgl">Lightweight Java Game Library (required by Minecraft).</string>
-    <string name="unpack_screen_launcher">Essential launcher components.</string>
+    <string name="unpack_screen_authlib_injector">Modifies authlib for external logins</string>
+    <string name="unpack_screen_cacio">Portable GUI backend for OpenJDK</string>
+    <string name="unpack_screen_lwjgl">Lightweight Java Game Library (required by Minecraft)</string>
+    <string name="unpack_screen_launcher">Essential launcher components</string>
     <!-- Main Menu -->
     <string name="main_launch_game">Launch</string>
     <string name="main_task_menu">Task Menu</string>
@@ -409,7 +409,7 @@
     <string name="account_other_login_delete_server_message">Delete auth server %s?</string>
     <string name="account_other_login_select_role">Select Role</string>
     <string name="account_other_login_select_role_logging">Logging in as %s</string>
-    <string name="account_other_login_role_not_found">Role not found. Check the server.</string>
+    <string name="account_other_login_role_not_found">No role matching the current account was found. Please check on the server you are using to see if this role exists!</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Back</string>
     <string name="files_create_dir">Create Folder</string>
@@ -440,7 +440,7 @@
     <string name="versions_manage_game_path_delete_message">Delete this folder? Files will remain, but the launcher will unlink it.</string>
     <string name="versions_manage_game_path_exists_title">Folder conflict</string>
     <string name="versions_manage_game_path_exists_message">This folder is already managed. You cannot add duplicates.</string>
-    <string name="versions_manage_game_path_error_title">Folder error</string>
+    <string name="versions_manage_game_path_error_title">Encountered a problem while accessing the game directory</string>
     <string name="versions_manage_game_path_storage_permissions">Want to install the game to external storage? Please enable external storage permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
     <string name="versions_manage_game_path_storage_permissions_sdk30">Want to install the game to external storage? Please enable "Manage all files on device" permission for the launcher first, or it won\'t be able to install the game to an external directory!</string>
     <string name="versions_manage_game_storage_permissions">Want to use an external game path? Please enable external storage permission for the launcher first, or it won\'t be able to access external game files!</string>
@@ -471,18 +471,18 @@
     <string name="versions_settings_config">Configuration</string>
     <string name="versions_overview_custom_version_icon">Custom Icon</string>
     <string name="versions_overview_reset_version_icon">Reset Icon</string>
-    <string name="versions_overview_reset_version_icon_message">Reset this version\'s icon?</string>
+    <string name="versions_overview_reset_version_icon_message">Are you sure you want to reset the icon for the current version?</string>
     <string name="versions_overview_edit_version_summary">Edit Description</string>
     <string name="versions_overview_edit_version_summary_label">Leave blank for default</string>
     <string name="versions_overview_version_folder">Version Folder</string>
     <string name="versions_overview_saves_folder">Saves Folder</string>
-    <string name="versions_overview_resource_pack_folder">Resource Packs</string>
-    <string name="versions_overview_shaders_pack_folder">Shaders</string>
-    <string name="versions_overview_screenshot_folder">Screenshots</string>
-    <string name="versions_overview_logs_folder">Logs</string>
-    <string name="versions_overview_crash_report_folder">Crash Reports</string>
+    <string name="versions_overview_resource_pack_folder">Resource Pack Folder</string>
+    <string name="versions_overview_shaders_pack_folder">Shader Pack Folder</string>
+    <string name="versions_overview_screenshot_folder">Screenshot Folder</string>
+    <string name="versions_overview_logs_folder">Log Folder</string>
+    <string name="versions_overview_crash_report_folder">Crash Report Folder</string>
     <string name="versions_config_version_settings">Version-Specific Settings</string>
-    <string name="versions_config_game_settings">Game Settings</string>
+    <string name="versions_config_game_settings">Game-Specific Settings</string>
     <string name="versions_config_support_settings">Additional Support Settings</string>
     <string name="versions_config_isolation_title">Version Isolation</string>
     <string name="versions_config_isolation_summary">Isolate the current version so that its data does not interfere with any other versions</string>
@@ -543,7 +543,7 @@
     <string name="resource_pack_manage_delete_warning">Are you sure you want to delete the resource pack %s? This action cannot be undone!</string>
     <string name="resource_pack_manage_no_packs">No resource packs available for the current version</string>
     <string name="shader_pack_manage">Shader Packs</string>
-    <string name="shader_pack_manage_exists">A shader pack with this name already exists.</string>
+    <string name="shader_pack_manage_exists">A shader pack with this name already exists</string>
     <string name="shader_pack_manage_name">Shader Pack Name</string>
     <string name="shader_pack_manage_delete_warning">Are you sure you want to delete the shader pack %s? This action cannot be undone!</string>
     <string name="shader_pack_manage_no_packs">No shader packs for this version</string>
@@ -554,8 +554,8 @@
     <string name="minecraft_download_verifying_and_repairing_files">Verifying files \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_downloading_files">Retrying downloads \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_verifying_files">Retrying verifications \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_failed">Download failed</string>
-    <string name="minecraft_download_failed_retried">Retries exhausted. Some files failed to download.</string>
+    <string name="minecraft_download_failed">An error occurred while downloading Minecraft</string>
+    <string name="minecraft_download_failed_retried">Before this, the launcher had already attempted a retry once, but some tasks still failed to download</string>
     <string name="minecraft_download_failed_notfound">Some dependency files could not be downloaded. If the issue persists after multiple attempts, the game may be missing required library files. It is recommended to reinstall the game.</string>
     <!-- Settings -->
     <string name="settings_element_selected">Selected: %s</string>
@@ -565,7 +565,7 @@
     <string name="settings_tab_control">Controls</string>
     <string name="settings_tab_launcher">Launcher</string>
     <string name="settings_tab_java_manage">Java</string>
-    <string name="settings_tab_control_manage">Controls</string>
+    <string name="settings_tab_control_manage">Control list</string>
     <string name="settings_tab_info_about">About</string>
     <string name="settings_renderer_global_renderer_title">Global Renderer</string>
     <string name="settings_renderer_global_renderer_summary">The global default renderer uses a dynamic library translation layer to ensure the game runs smoothly on mobile devices</string>
@@ -612,7 +612,7 @@
     <string name="settings_control_physical_key_bind_ime_un_bind">Not bound</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">Physical Mouse</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">When a physical mouse is connected, disable the virtual mouse pointer and use the system mouse pointer for control</string>
-    <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings > Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
+    <string name="settings_control_mouse_physical_mouse_warning">If your device interprets physical mouse right-click as "Back" or middle-click as "Home", you can go to System Settings &gt; Developer Options and enable "Disable Permission Monitoring", this will likely resolve the issue.</string>
     <string name="settings_control_mouse_hide_title">Hide Virtual Mouse</string>
     <string name="settings_control_mouse_hide_summary">In some situations, you may want to hide the virtual mouse; this setting does not affect physical mouse control or swipe control</string>
     <string name="settings_control_mouse_size_title">Virtual Mouse Size</string>
@@ -625,7 +625,7 @@
     <string name="settings_control_mouse_control_mode_slide">Swipe Control</string>
     <string name="settings_control_mouse_control_mode_click">Tap Control</string>
     <string name="settings_control_mouse_pointer_title">Custom Pointer</string>
-    <string name="settings_control_mouse_pointer_summary">Customize the virtual mouse pointer image to suit your personal preferences.</string>
+    <string name="settings_control_mouse_pointer_summary">Customize the virtual mouse pointer image to suit your personal preferences</string>
     <string name="settings_control_mouse_pointer_reset_message">Reset mouse pointer to default?</string>
     <string name="settings_control_mouse_long_press_delay_title">Long Press Delay</string>
     <string name="settings_control_mouse_long_press_delay_summary">Set the delay time for recognizing a long press on the screen (does not affect physical mouse long presses, even when physical mouse control is disabled)</string>
@@ -649,9 +649,9 @@
     <string name="settings_launcher_swap_animate_type_title">Transition Animation</string>
     <string name="settings_launcher_swap_animate_type_summary">Choose the page transition animation that best suits your preferences</string>
     <string name="settings_launcher_log_retention_days_title">Log Retention Days</string>
-    <string name="settings_launcher_log_retention_days_summary">Set how many days launcher logs should be retained. Logs older than this will be automatically deleted.</string>
+    <string name="settings_launcher_log_retention_days_summary">Set how many days launcher logs should be retained. Logs older than this will be automatically deleted</string>
     <string name="settings_launcher_log_share_title">Share Launcher Logs</string>
-    <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher.</string>
+    <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher</string>
     <string name="settings_launcher_log_share_packing">Package launcher log files</string>
     <string name="settings_launcher_mirror_modloader_title">Mod Loader Version Source</string>
     <string name="settings_launcher_mirror_file_download_title">File Download Source</string>
