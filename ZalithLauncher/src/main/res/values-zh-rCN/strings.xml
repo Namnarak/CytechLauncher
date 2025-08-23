@@ -25,7 +25,7 @@
     <string name="generic_disable">禁用</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
-    <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
+    <string name="generic_input_invalid_character">名称内包含无效字符：“%s”</string>
     <string name="generic_input_failed_to_number">输入的内容无法正常解析为数字</string>
     <string name="generic_input_too_small">输入的数值不能小于 %s</string>
     <string name="generic_input_too_large">输入的数值不能大于 %s</string>
@@ -54,7 +54,7 @@
     <string name="years_ago">%d 年前</string>
     <!--  启动器版本  -->
     <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
-    <string name="launcher_version_debug_warning">您正在使用测试版的 %s！该版本可能并不稳定，主要是用于功能测试、尝鲜，不建议长期使用这个版本！如果您在测试过程中发现任何问题，请通过 Github 反馈给我们，我们会尽快处理！</string>
+    <string name="launcher_version_debug_warning">您正在使用测试版的 %s！该版本可能并不稳定，主要是用于功能测试、尝鲜，不建议长期使用这个版本！如果您在测试过程中发现任何问题，请通过 Github 反馈给我们，我们会尽快处理。</string>
     <string name="launcher_version_debug_warning_cant_close">这条警告无法被关闭</string>
     <!--  主题  -->
     <string name="theme_color_dynamic">动态 (Android 12+)</string>
@@ -72,10 +72,10 @@
     <string name="animate_type_slice_in">切入</string>
     <!--  崩溃  -->
     <string name="crash_launcher_title">%s 遇到了严重的问题崩溃了</string>
-    <string name="crash_launcher_message">应用程序意外崩溃了，以下错误信息将帮助开发者改进程序</string>
+    <string name="crash_launcher_message">应用程序意外崩溃了，以下错误信息将帮助开发者改进程序。</string>
     <string name="crash_exit_message">JVM 以代码 %d 退出。</string>
     <string name="crash_singnal_message">JVM 因致命信号 %d 而中止。</string>
-    <string name="crash_exit_note">具体原因请查看日志文件。如果您无法自己解决这个问题，请将日志文件发送给具有相关技术能力的人，他们可以帮助您排查并修复问题。请不要截图当前画面，截图可能无法提供足够的信息来解决问题。</string>
+    <string name="crash_exit_note">具体原因请查看日志文件。如果您无法自己解决这个问题，请将日志文件发送给能够分析日志文件的人，也许他们可以帮助您排查并修复问题。请不要截图当前画面，截图可能无法提供足够的信息来解决问题。</string>
     <string name="crash_type">崩溃类型：%s</string>
     <string name="crash_type_launcher">启动器崩溃</string>
     <string name="crash_type_game">游戏运行崩溃</string>
@@ -102,18 +102,18 @@
     <!--  通知  -->
     <string name="notification_title">检查通知权限</string>
     <string name="notification_request">申请权限</string>
-    <string name="notification_ignore">无视</string>
+    <string name="notification_ignore">忽略</string>
     <string name="notification_data_jvm_service_message">为了让安装顺利进行，启动器需要在前台运行安装器。我们会尝试启动一个前台服务来确保稳定性，不过这需要开启通知权限。能帮我们开启通知权限吗？这样可以避免安装中断哦！</string>
     <string name="notification_data_jvm_service_name">前台安装服务</string>
     <string name="notification_data_jvm_service_running">正在前台服务安装游戏中</string>
     <!--  解压  -->
-    <string name="unpack_screen_jre8">Java 8 环境，Minecraft 1.16- 依赖 Java 8。</string>
-    <string name="unpack_screen_jre17">Java 17 环境，Minecraft 1.17+ 依赖 Java 17。</string>
-    <string name="unpack_screen_jre21">Java 21 环境，Minecraft 1.20.5+ 依赖 Java 21。</string>
-    <string name="unpack_screen_authlib_injector">通过运行时修改 authlib 实现游戏外登录。</string>
-    <string name="unpack_screen_cacio">为 OpenJDK 提供可移植的 GUI 后端。</string>
-    <string name="unpack_screen_lwjgl">轻量级 Java 游戏库，Minecraft 依赖它运行游戏。</string>
-    <string name="unpack_screen_launcher">启动器依赖的一些组件。</string>
+    <string name="unpack_screen_jre8">Java 8 环境，Minecraft 1.16- 依赖 Java 8</string>
+    <string name="unpack_screen_jre17">Java 17 环境，Minecraft 1.17+ 依赖 Java 17</string>
+    <string name="unpack_screen_jre21">Java 21 环境，Minecraft 1.20.5+ 依赖 Java 21</string>
+    <string name="unpack_screen_authlib_injector">通过运行时修改 authlib 实现游戏外登录</string>
+    <string name="unpack_screen_cacio">为 OpenJDK 提供可移植的 GUI 后端</string>
+    <string name="unpack_screen_lwjgl">轻量级 Java 游戏库，Minecraft 依赖它运行游戏</string>
+    <string name="unpack_screen_launcher">启动器依赖的一些组件</string>
     <!--  主菜单  -->
     <string name="main_launch_game">启动游戏</string>
     <string name="main_task_menu">任务菜单</string>
@@ -124,7 +124,7 @@
     <string name="download_category_resource_pack">资源包</string>
     <string name="download_category_saves">存档</string>
     <string name="download_category_shaders">光影包</string>
-    <string name="download_game_failed_to_get_versions">获取版本失败：%s，点击重试</string>
+    <string name="download_game_failed_to_get_versions">获取版本失败：%s，点击重试。</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
     <string name="download_game_type_old">远古版</string>
@@ -158,7 +158,7 @@
     <string name="download_install_error_message">您的游戏在安装过程中出现了异常：</string>
     <string name="download_install_error_cant_fetch_optifine_download_url">无法获取 OptiFine 主文件的下载链接</string>
     <string name="download_install_error_jvm_crash">安装过程中遇到了异常，退出代码：%s</string>
-    <string name="download_install_error_download_failed">一些文件下载失败，可能是网络问题导致的</string>
+    <string name="download_install_error_download_failed">一些文件下载失败，可能是网络问题导致的。</string>
     <string name="download_install_success_title">安装成功</string>
     <string name="download_install_success_message">您的游戏已顺利的完成了安装！</string>
     <string name="download_install_clear_temp">清理缓存文件</string>
@@ -179,9 +179,9 @@
     <string name="download_assets_result_authors">作者：%s</string>
     <string name="download_assets_result_previous_page">上一页</string>
     <string name="download_assets_result_next_page">下一页</string>
-    <string name="download_assets_failed_to_get_result">获取搜索结果失败：%s，点击重试</string>
-    <string name="download_assets_failed_to_get_project">获取项目信息失败：%s，点击重试</string>
-    <string name="download_assets_failed_to_get_versions">获取版本列表失败：%s，点击重试</string>
+    <string name="download_assets_failed_to_get_result">获取搜索结果失败：%s，点击重试。</string>
+    <string name="download_assets_failed_to_get_project">获取项目信息失败：%s，点击重试。</string>
+    <string name="download_assets_failed_to_get_versions">获取版本列表失败：%s，点击重试。</string>
     <string name="download_assets_show_only_mc_release">仅展示 MC 正式版</string>
     <string name="download_assets_search_mc_versions">搜索 MC 版本</string>
     <string name="download_assets_dependency_projects">依赖前置</string>
@@ -299,7 +299,7 @@
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登录游戏账号！</string>
-    <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境</string>
+    <string name="game_auto_pick_runtime_failed">未找到合适的运行环境，已设置为当前版本选择的运行环境。</string>
     <string name="game_button_input">输入法</string>
     <string name="game_button_force_close">强制关闭</string>
     <string name="game_button_log_output">日志输出</string>
@@ -310,7 +310,7 @@
     <string name="game_loading_version_name">游戏版本：%s</string>
     <string name="game_loading_version_info">游戏信息：%s</string>
     <string name="game_menu_title">游戏菜单</string>
-    <string name="game_menu_option_force_close_text">强制关闭正在运行的游戏可能导致存档损坏或设置无法保存，除特殊情况外请避免此操作</string>
+    <string name="game_menu_option_force_close_text">强制关闭正在运行的游戏可能导致存档损坏或设置无法保存，除特殊情况外请避免此操作。</string>
     <string name="game_menu_option_switch_log">日志输出</string>
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
@@ -325,19 +325,19 @@
     <string name="account_logging_in">%s 登录中</string>
     <string name="account_logging_in_failed">登录失败</string>
     <string name="account_logging_in_saving">获取玩家皮肤、保存账号信息</string>
-    <string name="account_logging_time_out">网络访问超时，请检查网络环境</string>
+    <string name="account_logging_time_out">网络访问超时，请检查网络环境。</string>
     <string name="account_logging_xbox_banned">您的账号因违反 Xbox 社区规范已被封禁，无法使用！</string>
-    <string name="account_logging_xbox_restricted">您的账号目前受到限制，监护人尚未授权您进行在线游戏</string>
-    <string name="account_logging_xbox_unregistered">您的账号尚未创建 Xbox 个人资料，请前往 https://signup.live.com/signup 注册</string>
-    <string name="account_logging_xbox_not_accepted_service">您的账号尚未接受 Xbox 的服务条款</string>
-    <string name="account_logging_xbox_blocked_region">您的账号所在的地区未被 Xbox 授权使用，登录尝试已被拦截</string>
-    <string name="account_logging_xbox_requires_proof_of_age">您的账号需要提供年龄证明，请登录 https://login.live.com/login.srf 提供相关信息</string>
-    <string name="account_logging_xbox_reached_playtime_limit">您的账号已达到游戏时间限制，已被禁止登录</string>
-    <string name="account_logging_xbox_underage">账号的出生日期显示未满 18 岁，必须由成年人添加到家庭中才能继续使用</string>
-    <string name="account_logging_frequent">登录过于频繁，请稍后再试</string>
-    <string name="account_logging_blocked_ip">当前 IP 地址已被禁止登陆</string>
+    <string name="account_logging_xbox_restricted">您的账号目前受到限制，监护人尚未授权您进行在线游戏。</string>
+    <string name="account_logging_xbox_unregistered">您的账号尚未创建 Xbox 个人资料，请前往 https://signup.live.com/signup 注册。</string>
+    <string name="account_logging_xbox_not_accepted_service">您的账号尚未接受 Xbox 的服务条款。</string>
+    <string name="account_logging_xbox_blocked_region">您的账号所在的地区未被 Xbox 授权使用，登录尝试已被拦截。</string>
+    <string name="account_logging_xbox_requires_proof_of_age">您的账号需要提供年龄证明，请登录 https://login.live.com/login.srf 提供相关信息。</string>
+    <string name="account_logging_xbox_reached_playtime_limit">您的账号已达到游戏时间限制，已被禁止登录。</string>
+    <string name="account_logging_xbox_underage">账号的出生日期显示未满 18 岁，必须由成年人添加到家庭中才能继续使用。</string>
+    <string name="account_logging_frequent">登录过于频繁，请稍后再试。</string>
+    <string name="account_logging_blocked_ip">当前 IP 地址已被禁止登陆。</string>
     <string name="account_logging_profile_not_exists">请先创建 Minecraft 玩家档案，然后再重新登陆！</string>
-    <string name="account_logging_not_purchased_minecraft">未检查到 Minecraft 配置信息，请前往 Minecraft 的官方网站购买</string>
+    <string name="account_logging_not_purchased_minecraft">未检查到 Minecraft 配置信息，请前往 Minecraft 的官方网站购买。</string>
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>
     <string name="account_add_new_server">添加认证服务器</string>
@@ -361,10 +361,10 @@
     <string name="account_change_skin_model_alex">Alex 模型</string>
     <string name="account_change_skin_reset_skin_message">您确定要重置当前账号的皮肤吗？</string>
     <string name="account_change_skin_not_supported_alex">当前 Minecraft 版本不支持使用 Alex 模型的皮肤，如果您给当前账号的皮肤设置为 Alex 模型，游戏内将只会显示 Steve 的皮肤！</string>
-    <string name="account_change_skin_compatibility_warning">因技术限制，在当前 Minecraft  版本使用自定义皮肤可能会不生效</string>
+    <string name="account_change_skin_compatibility_warning">因技术限制，在当前 Minecraft 版本使用自定义皮肤可能会不生效。</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
-    <string name="account_supporting_username_invalid_local_message_hint1">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符</string>
-    <string name="account_supporting_username_invalid_local_message_hint2">否则可能将导致游戏无法正常运行</string>
+    <string name="account_supporting_username_invalid_local_message_hint1">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符。</string>
+    <string name="account_supporting_username_invalid_local_message_hint2">否则可能将导致游戏无法正常运行。</string>
     <string name="account_supporting_username_invalid_local_message_hint3">正确的用户名举例：Name、Name_、Name123</string>
     <string name="account_supporting_username_invalid_local_message_hint4">错误的用户名举例：Name@、N ame、name_name_name_name</string>
     <string name="account_supporting_username_invalid_local_message_hint5">但如果您使用了相关模组或者插件能够解除这一机制，那么您可以继续使用这个名字，否则请重新命名！</string>
@@ -390,7 +390,7 @@
     <string name="account_delete_title">删除账号</string>
     <string name="account_delete_message">您确定要将账号 %s 从启动器内删除吗？</string>
     <string name="account_microsoft_fetch_device_code">获取设备码</string>
-    <string name="account_microsoft_coped_device_code">已获取并自动复制设备码：%s，稍后请在网页中完成验证！</string>
+    <string name="account_microsoft_coped_device_code">已获取并自动复制设备码：%s，稍后请在网页中完成验证。</string>
     <string name="account_microsoft_get_token">轮询中，尝试获取令牌；设备码：%s</string>
     <string name="account_microsoft_getting_access_token">获取访问令牌</string>
     <string name="account_microsoft_getting_xbl_token">获取 XBL 令牌</string>
@@ -403,7 +403,7 @@
     <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
     <string name="account_other_login_getting_server_info">获取服务器信息中</string>
     <string name="account_other_login_saving_server">保存服务器中</string>
-    <string name="account_other_login_adding_failure">添加认证服务器时遇到问题！</string>
+    <string name="account_other_login_adding_failure">添加认证服务器时遇到问题</string>
     <string name="account_other_login_register">没有账号？点我注册一个！</string>
     <string name="account_other_login_delete_server_title">删除认证服务器</string>
     <string name="account_other_login_delete_server_message">您确定要删除认证服务器 %s 吗？</string>
@@ -422,24 +422,24 @@
     <string name="multirt_runtime_incompatible_arch">不兼容的架构：%s</string>
     <string name="multirt_runtime_delete_message">您确定要删除 Java 环境 %s 吗？此操作不可逆！</string>
     <string name="multirt_runtime_deleting">删除 Java 环境：%s</string>
-    <string name="multirt_runtime_delete_failed">删除 Java 环境失败！</string>
-    <string name="multirt_runtime_import_failed">导入 Java 环境失败！</string>
+    <string name="multirt_runtime_delete_failed">删除 Java 环境失败</string>
+    <string name="multirt_runtime_import_failed">导入 Java 环境失败</string>
     <string name="multirt_runtime_import_failed_file_name">无法获取到目标文件的文件名</string>
-    <string name="multirt_runtime_import_failed_input_stream">无法创建目标文件输入流</string>
+    <string name="multirt_runtime_import_failed_input_stream">无法读取文件</string>
     <string name="multirt_runtime_provided_by_launcher">内置</string>
     <string name="multirt_runtime_version_name">版本：%s</string>
     <string name="multirt_runtime_version_code">版本号：%s</string>
     <string name="multirt_runtime_version_arch">架构：%s</string>
-    <string name="multirt_no_java_8">未找到 Java 8，要使用这个功能，您必须安装 Java 8</string>
+    <string name="multirt_no_java_8">未找到 Java 8，要使用这个功能，您必须安装 Java 8。</string>
     <string name="execute_jar_title">执行 Jar 文件</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">默认游戏目录</string>
     <string name="versions_manage_game_path_add_new">添加游戏目录</string>
     <string name="versions_manage_game_path_edit_title">为该游戏目录命名</string>
     <string name="versions_manage_game_path_delete_title">删除游戏目录</string>
-    <string name="versions_manage_game_path_delete_message">您确定要删除这个游戏目录吗？该操作并不会删除对应目录内的文件，仅仅只是将其与启动器解除绑定</string>
+    <string name="versions_manage_game_path_delete_message">您确定要删除这个游戏目录吗？该操作并不会删除对应目录内的文件，仅仅只是将其与启动器解除绑定。</string>
     <string name="versions_manage_game_path_exists_title">游戏目录已存在</string>
-    <string name="versions_manage_game_path_exists_message">当前选择的游戏目录与现有的目录冲突，您不能同时管理两个游戏目录！</string>
+    <string name="versions_manage_game_path_exists_message">当前选择的游戏目录与现有的目录冲突，您不能同时管理两个游戏目录。</string>
     <string name="versions_manage_game_path_error_title">操作游戏目录时遇到问题</string>
     <string name="versions_manage_game_path_storage_permissions">想要将游戏安装到外部存储？请先为启动器开启外部存储权限，否则启动器无法在外部目录安装游戏！</string>
     <string name="versions_manage_game_path_storage_permissions_sdk30">想要将游戏安装到外部存储？请先为启动器开启“管理设备所有文件”的权限，否则启动器无法在外部目录安装游戏！</string>
@@ -449,7 +449,7 @@
     <string name="versions_manage_category_vanilla">原版</string>
     <string name="versions_manage_category_modloader">可安装模组</string>
     <string name="versions_manage_install_exists">此名称的版本已经存在！</string>
-    <string name="versions_manage_install_cannot_use_mc_name">已选择附加内容，需要确保原版核心的独立性，请勿使用原版名称！</string>
+    <string name="versions_manage_install_cannot_use_mc_name">已选择附加内容，需要确保原版核心的独立性，请勿使用原版名称。</string>
     <string name="versions_manage_invalid">该版本无效</string>
     <string name="versions_manage_isolation_enabled">启用版本隔离</string>
     <string name="versions_manage_rename_version">重命名版本</string>
@@ -556,7 +556,7 @@
     <string name="minecraft_download_progress_retry_verifying_files">重试验证并补全游戏文件中 \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
-    <string name="minecraft_download_failed_notfound">某些依赖文件无法下载，如果多次尝试仍失败，可能是游戏缺少必要的库文件，建议重新安装游戏</string>
+    <string name="minecraft_download_failed_notfound">某些依赖文件无法下载，如果多次尝试仍失败，可能是游戏缺少必要的库文件，建议重新安装游戏。</string>
     <!--  设置  -->
     <string name="settings_element_selected">当前选择项：%s</string>
     <string name="settings_label_ignore_if_blank">留白则忽略此设置</string>
@@ -612,7 +612,7 @@
     <string name="settings_control_physical_key_bind_ime_un_bind">未绑定</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">实体鼠标控制</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">连接实体鼠标时，是否禁用虚拟鼠标指针，直接使用系统鼠标指针进行操控</string>
-    <string name="settings_control_mouse_physical_mouse_warning">若您的设备把实体鼠标右键识别为“返回”，或中键识别为“回到桌面”，可进入系统设置 &gt; 开发者选项，开启“禁用权限监控”，大概率能解决</string>
+    <string name="settings_control_mouse_physical_mouse_warning">若您的设备把实体鼠标右键识别为“返回”，或中键识别为“回到桌面”，可进入系统设置 &gt; 开发者选项，开启“禁用权限监控”，大概率能解决。</string>
     <string name="settings_control_mouse_hide_title">隐藏虚拟鼠标</string>
     <string name="settings_control_mouse_hide_summary">一些场景下，您可能希望隐藏虚拟鼠标；该设置不会影响实体鼠标控制、滑动控制</string>
     <string name="settings_control_mouse_size_title">虚拟鼠标大小</string>
