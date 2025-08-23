@@ -45,7 +45,7 @@
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
     <!--  啟動器版本  -->
     <string name="launcher_version_label_alpha">Alpha 版：%s，僅供演示</string>
-    <string name="launcher_version_debug_warning">您正在使用 %s 的測試版本！此版本可能不穩定，主要用於功能測試與搶先體驗，不建議長期使用！如果您在測試過程中發現任何問題，請透過 GitHub 回報給我們，我們會儘快處理！</string>
+    <string name="launcher_version_debug_warning">您正在使用 %s 的測試版本！此版本可能不穩定，主要用於功能測試與搶先體驗，不建議長期使用！如果您在測試過程中發現任何問題，請透過 GitHub 回報給我們，我們會儘快處理。</string>
     <string name="launcher_version_debug_warning_cant_close">此警告無法關閉</string>
     <!--  主題  -->
     <string name="theme_color_dynamic">動態 (Android 12+)</string>
@@ -66,7 +66,7 @@
     <string name="crash_launcher_message">應用程式意外崩潰，以下錯誤訊息將協助開發者改進程式。</string>
     <string name="crash_exit_message">JVM 以代碼 %d 退出。</string>
     <string name="crash_singnal_message">JVM 因致命訊號 %d 而中止。</string>
-    <string name="crash_exit_note">具體原因請查看日誌檔案。如果您無法自行解決此問題，請將日誌檔案傳送給具備相關技術能力的人員，他們可以協助您排查並修復問題。請不要擷取目前畫面，擷圖可能無法提供足夠的資訊來解決問題。</string>
+    <string name="crash_exit_note">具體原因請查看日誌檔案。如果您無法自行解決此問題，請將日誌檔案提供給能夠分析的人，也許他們可以幫助您排查並修復問題。請勿截圖目前畫面，截圖可能無法提供足夠的資訊來解決問題。</string>
     <string name="crash_type">崩潰類型：%s</string>
     <string name="crash_type_launcher">啟動器崩潰</string>
     <string name="crash_type_game">遊戲執行崩潰</string>
@@ -98,13 +98,13 @@
     <string name="notification_data_jvm_service_name">前景安裝服務</string>
     <string name="notification_data_jvm_service_running">正在透過前景服務安裝遊戲中</string>
     <!--  解壓縮  -->
-    <string name="unpack_screen_jre8">Java 8 環境，Minecraft 1.16 及更早版本依賴 Java 8。</string>
-    <string name="unpack_screen_jre17">Java 17 環境，Minecraft 1.17+ 依賴 Java 17。</string>
-    <string name="unpack_screen_jre21">Java 21 環境，Minecraft 1.20.5+ 依賴 Java 21。</string>
-    <string name="unpack_screen_authlib_injector">透過執行時修改 authlib 實作遊戲外登入。</string>
-    <string name="unpack_screen_cacio">為 OpenJDK 提供可移植的 GUI 後端。</string>
-    <string name="unpack_screen_lwjgl">輕量級 Java 遊戲函式庫，Minecraft 依賴它執行遊戲。</string>
-    <string name="unpack_screen_launcher">啟動器依賴的一些元件。</string>
+    <string name="unpack_screen_jre8">Java 8 環境，Minecraft 1.16 及更早版本依賴 Java 8</string>
+    <string name="unpack_screen_jre17">Java 17 環境，Minecraft 1.17+ 依賴 Java 17</string>
+    <string name="unpack_screen_jre21">Java 21 環境，Minecraft 1.20.5+ 依賴 Java 21</string>
+    <string name="unpack_screen_authlib_injector">透過執行時修改 authlib 實作遊戲外登入</string>
+    <string name="unpack_screen_cacio">為 OpenJDK 提供可移植的 GUI 後端</string>
+    <string name="unpack_screen_lwjgl">輕量級 Java 遊戲函式庫，Minecraft 依賴它執行遊戲</string>
+    <string name="unpack_screen_launcher">啟動器依賴的一些元件</string>
     <!--  主選單  -->
     <string name="main_launch_game">啟動遊戲</string>
     <string name="main_task_menu">任務選單</string>
@@ -115,7 +115,7 @@
     <string name="download_category_resource_pack">資源包</string>
     <string name="download_category_saves">存檔</string>
     <string name="download_category_shaders">光影包</string>
-    <string name="download_game_failed_to_get_versions">獲取版本失敗：%s，點擊重試</string>
+    <string name="download_game_failed_to_get_versions">獲取版本失敗：%s，點擊重試。</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
     <string name="download_game_type_old">遠古版</string>
@@ -149,7 +149,7 @@
     <string name="download_install_error_message">您的遊戲在安裝過程中發生異常：</string>
     <string name="download_install_error_cant_fetch_optifine_download_url">無法獲取 OptiFine 主檔案的下載連結</string>
     <string name="download_install_error_jvm_crash">安裝過程中發生異常，退出代碼：%s</string>
-    <string name="download_install_error_download_failed">部分檔案下載失敗，可能是網路問題導致</string>
+    <string name="download_install_error_download_failed">部分檔案下載失敗，可能是網路問題導致。</string>
     <string name="download_install_success_title">安裝成功</string>
     <string name="download_install_success_message">您的遊戲已順利完成安裝！</string>
     <string name="download_install_clear_temp">清理快取檔案</string>
@@ -170,7 +170,7 @@
     <string name="download_assets_result_authors">作者：%s</string>
     <string name="download_assets_result_previous_page">上一頁</string>
     <string name="download_assets_result_next_page">下一頁</string>
-    <string name="download_assets_failed_to_get_result">取得搜尋結果失敗：%s，點擊重試</string>
+    <string name="download_assets_failed_to_get_result">取得搜尋結果失敗：%s，點擊重試。</string>
     <string name="download_modpack_warning1">在安裝前，您需要了解，大多數整合包是為電腦端製作的，在您嘗試啟動時，很可能會發生崩潰或其他問題，這些通常不是啟動器層面可以解決的問題。</string>
     <string name="download_modpack_warning2">您需要自行學習相關知識來嘗試解決，或是尋求其他人的協助。</string>
     <string name="download_modpack_warning3">註：啟動器開發者通常不會處理整合包引起的任何問題。</string>
@@ -271,7 +271,7 @@
     <!--  啟動遊戲  -->
     <string name="game_launch_no_version">未選擇遊戲版本！</string>
     <string name="game_launch_no_account">未登入遊戲帳號！</string>
-    <string name="game_auto_pick_runtime_failed">找不到合適的執行環境，已設定為目前版本選擇的執行環境</string>
+    <string name="game_auto_pick_runtime_failed">找不到合適的執行環境，已設定為目前版本選擇的執行環境。</string>
     <string name="game_button_input">輸入法</string>
     <string name="game_button_force_close">強制關閉</string>
     <string name="game_button_log_output">日誌輸出</string>
@@ -282,7 +282,7 @@
     <string name="game_loading_version_name">遊戲版本：%s</string>
     <string name="game_loading_version_info">遊戲資訊：%s</string>
     <string name="game_menu_title">遊戲選單</string>
-    <string name="game_menu_option_force_close_text">強制關閉正在執行的遊戲可能會導致存檔損壞或設定無法儲存，除非特殊情況請避免此操作</string>
+    <string name="game_menu_option_force_close_text">強制關閉正在執行的遊戲可能會導致存檔損壞或設定無法儲存，除非特殊情況請避免此操作。</string>
     <string name="game_menu_option_switch_log">日誌輸出</string>
     <string name="game_menu_option_input_method">切換輸入法</string>
     <string name="game_menu_option_switch_fps">幀率顯示</string>
@@ -297,8 +297,8 @@
     <string name="account_logging_in">%s 登入中</string>
     <string name="account_logging_in_failed">登入失敗</string>
     <string name="account_logging_in_saving">獲取玩家皮膚、儲存帳號資訊</string>
-    <string name="account_logging_time_out">網路連線逾時，請檢查網路環境</string>
-    <string name="account_logging_not_purchased_minecraft">未偵測到 Minecraft 購買資訊，請前往 Minecraft 官方網站購買</string>
+    <string name="account_logging_time_out">網路連線逾時，請檢查網路環境。</string>
+    <string name="account_logging_not_purchased_minecraft">未偵測到 Minecraft 購買資訊，請前往 Minecraft 官方網站購買。</string>
     <string name="account_type_microsoft">Microsoft 帳號</string>
     <string name="account_type_local">離線帳號</string>
     <string name="account_add_new_server">新增驗證伺服器</string>
@@ -322,7 +322,7 @@
     <string name="account_change_skin_model_alex">Alex 模型</string>
     <string name="account_change_skin_reset_skin_message">您確定要重設目前帳號的皮膚嗎？</string>
     <string name="account_change_skin_not_supported_alex">目前 Minecraft 版本不支援使用 Alex 模型的皮膚，如果您將目前帳號的皮膚設定為 Alex 模型，遊戲內將只會顯示 Steve 的皮膚！</string>
-    <string name="account_change_skin_compatibility_warning">因技術限制，在目前 Minecraft 版本使用自訂皮膚可能不會生效</string>
+    <string name="account_change_skin_compatibility_warning">因技術限制，在目前 Minecraft 版本使用自訂皮膚可能不會生效。</string>
     <string name="account_supporting_username_invalid_title">此使用者名稱無效</string>
     <string name="account_supporting_username_invalid_local_message_hint1">正常的使用者名稱僅支援英文字母（大小寫均可）、數字以及底線，長度不得少於 3 個字元或超過 16 個字元。</string>
     <string name="account_supporting_username_invalid_local_message_hint2">否則可能導致遊戲無法正常執行。</string>
@@ -351,7 +351,7 @@
     <string name="account_delete_title">刪除帳號</string>
     <string name="account_delete_message">您確定要將帳號 %s 從啟動器內刪除嗎？</string>
     <string name="account_microsoft_fetch_device_code">獲取裝置代碼</string>
-    <string name="account_microsoft_coped_device_code">已獲取並自動複製裝置代碼：%s，稍後請在網頁中完成驗證！</string>
+    <string name="account_microsoft_coped_device_code">已獲取並自動複製裝置代碼：%s，稍後請在網頁中完成驗證。</string>
     <string name="account_microsoft_get_token">輪詢中，嘗試獲取權杖；裝置代碼：%s</string>
     <string name="account_microsoft_getting_access_token">獲取存取權杖</string>
     <string name="account_microsoft_getting_xbl_token">獲取 XBL 權杖</string>
@@ -364,7 +364,7 @@
     <string name="account_other_login_getting_full_url">嘗試解析完整 URL 中</string>
     <string name="account_other_login_getting_server_info">獲取伺服器資訊中</string>
     <string name="account_other_login_saving_server">儲存伺服器中</string>
-    <string name="account_other_login_adding_failure">新增驗證伺服器時發生問題！</string>
+    <string name="account_other_login_adding_failure">新增驗證伺服器時發生問題</string>
     <string name="account_other_login_register">沒有帳號？點我註冊一個！</string>
     <string name="account_other_login_delete_server_title">刪除驗證伺服器</string>
     <string name="account_other_login_delete_server_message">您確定要刪除驗證伺服器 %s 嗎？</string>
@@ -383,15 +383,15 @@
     <string name="multirt_runtime_incompatible_arch">不相容的架構：%s</string>
     <string name="multirt_runtime_delete_message">您確定要刪除 Java 環境 %s 嗎？此操作不可逆！</string>
     <string name="multirt_runtime_deleting">刪除 Java 環境：%s</string>
-    <string name="multirt_runtime_delete_failed">刪除 Java 環境失敗！</string>
-    <string name="multirt_runtime_import_failed">匯入 Java 環境失敗！</string>
+    <string name="multirt_runtime_delete_failed">刪除 Java 環境失敗</string>
+    <string name="multirt_runtime_import_failed">匯入 Java 環境失敗</string>
     <string name="multirt_runtime_import_failed_file_name">無法獲取目標檔案的檔案名稱</string>
-    <string name="multirt_runtime_import_failed_input_stream">無法建立目標檔案的輸入串流</string>
+    <string name="multirt_runtime_import_failed_input_stream">無法讀取檔案</string>
     <string name="multirt_runtime_provided_by_launcher">內建</string>
     <string name="multirt_runtime_version_name">版本：%s</string>
     <string name="multirt_runtime_version_code">版本號：%s</string>
     <string name="multirt_runtime_version_arch">架構：%s</string>
-    <string name="multirt_no_java_8">找不到 Java 8，要使用此功能，您必須安裝 Java 8</string>
+    <string name="multirt_no_java_8">找不到 Java 8，要使用此功能，您必須安裝 Java 8。</string>
     <string name="execute_jar_title">執行 Jar 檔案</string>
     <!--  版本  -->
     <string name="versions_manage_game_path_default">預設遊戲目錄</string>
@@ -400,7 +400,7 @@
     <string name="versions_manage_game_path_delete_title">刪除遊戲目錄</string>
     <string name="versions_manage_game_path_delete_message">您確定要刪除此遊戲目錄嗎？此操作不會刪除對應目錄內的檔案，僅會將其與啟動器解除綁定。</string>
     <string name="versions_manage_game_path_exists_title">遊戲目錄已存在</string>
-    <string name="versions_manage_game_path_exists_message">目前選擇的遊戲目錄與現有目錄衝突，您不能同時管理兩個相同的遊戲目錄！</string>
+    <string name="versions_manage_game_path_exists_message">目前選擇的遊戲目錄與現有目錄衝突，您不能同時管理兩個相同的遊戲目錄。</string>
     <string name="versions_manage_game_path_error_title">操作遊戲目錄時發生問題</string>
     <string name="versions_manage_game_path_storage_permissions">想要將遊戲安裝到外部儲存空間？請先為啟動器開啟外部儲存權限，否則將無法在外部目錄安裝遊戲！</string>
     <string name="versions_manage_game_path_storage_permissions_sdk30">想要將遊戲安裝到外部儲存空間？請先為啟動器開啟「管理裝置上的所有檔案」權限，否則將無法在外部目錄安裝遊戲！</string>
@@ -410,7 +410,7 @@
     <string name="versions_manage_category_vanilla">原版</string>
     <string name="versions_manage_category_modloader">可安裝模組</string>
     <string name="versions_manage_install_exists">此名稱的版本已存在！</string>
-    <string name="versions_manage_install_cannot_use_mc_name">已選擇附加內容，需確保原版核心的獨立性，請勿使用原版名稱！</string>
+    <string name="versions_manage_install_cannot_use_mc_name">已選擇附加內容，需確保原版核心的獨立性，請勿使用原版名稱。</string>
     <string name="versions_manage_invalid">此版本無效</string>
     <string name="versions_manage_isolation_enabled">啟用版本隔離</string>
     <string name="versions_manage_rename_version">重新命名版本</string>
@@ -501,7 +501,7 @@
     <string name="minecraft_download_progress_retry_verifying_files">重試驗證並補齊遊戲檔案中 \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">下載 Minecraft 過程中發生異常</string>
     <string name="minecraft_download_failed_retried">在此之前，啟動器已嘗試重試一次，但仍有任務下載失敗</string>
-    <string name="minecraft_download_failed_notfound">部分依賴檔案無法下載，如果多次嘗試仍失敗，可能是遊戲缺少必要的函式庫檔案，建議重新安裝遊戲</string>
+    <string name="minecraft_download_failed_notfound">部分依賴檔案無法下載，如果多次嘗試仍失敗，可能是遊戲缺少必要的函式庫檔案，建議重新安裝遊戲。</string>
     <!--  設定  -->
     <string name="settings_element_selected">目前選擇：%s</string>
     <string name="settings_label_ignore_if_blank">留白則忽略此設定</string>
@@ -557,7 +557,7 @@
     <string name="settings_control_physical_key_bind_ime_un_bind">未綁定</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">實體滑鼠控制</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">連接實體滑鼠時，是否停用虛擬滑鼠指標，直接使用系統滑鼠指標進行操控</string>
-    <string name="settings_control_mouse_physical_mouse_warning">若您的裝置將實體滑鼠右鍵辨識為「返回」，或中鍵辨識為「回到桌面」，可進入系統設定 &gt; 開發人員選項，開啟「停用權限監控」，應能解決</string>
+    <string name="settings_control_mouse_physical_mouse_warning">若您的裝置將實體滑鼠右鍵辨識為「返回」，或中鍵辨識為「回到桌面」，可進入系統設定 &gt; 開發人員選項，開啟「停用權限監控」，應能解決。</string>
     <string name="settings_control_mouse_hide_title">隱藏虛擬滑鼠</string>
     <string name="settings_control_mouse_hide_summary">在某些情況下，您可能會希望隱藏虛擬滑鼠；此設定不會影響實體滑鼠控制或滑動控制</string>
     <string name="settings_control_mouse_size_title">虛擬滑鼠大小</string>
@@ -615,15 +615,15 @@
     <string name="generic_file_name">檔案名稱: %s</string>
     <string name="generic_file_size">檔案大小: %s</string>
     <string name="account_logging_xbox_banned">您的帳號因違反 Xbox 社群規範而被封禁，無法使用！</string>
-    <string name="account_logging_xbox_restricted">您的賬號目前受到限制，監護人尚未授權您進行多人遊戲</string>
-    <string name="account_logging_xbox_unregistered">您的賬號尚未創建 Xbox 個人資料，請前往 https://signup.live.com/signup 註冊</string>
-    <string name="account_logging_xbox_not_accepted_service">您的帳戶尚未接受 Xbox 服務條款</string>
-    <string name="account_logging_xbox_blocked_region">您的賬號所在的地區未被 Xbox 授權使用，登錄嘗試已被攔截</string>
-    <string name="account_logging_xbox_requires_proof_of_age">您的賬號需要提供年齡證明，請登錄 https://login.live.com/login.srf 提供相關信息</string>
-    <string name="account_logging_xbox_reached_playtime_limit">您的帳戶已達到遊戲時間限制，並被禁止登入</string>
-    <string name="account_logging_xbox_underage">賬號的出生日期顯示未滿18歲，必須由成年人添加到家庭中才能繼續使用</string>
-    <string name="account_logging_frequent">登入嘗試太頻繁，請稍後再試</string>
-    <string name="account_logging_blocked_ip">當前的 IP 位址已被阻止登入</string>
+    <string name="account_logging_xbox_restricted">您的賬號目前受到限制，監護人尚未授權您進行多人遊戲。</string>
+    <string name="account_logging_xbox_unregistered">您的賬號尚未創建 Xbox 個人資料，請前往 https://signup.live.com/signup 註冊。</string>
+    <string name="account_logging_xbox_not_accepted_service">您的帳戶尚未接受 Xbox 服務條款。</string>
+    <string name="account_logging_xbox_blocked_region">您的賬號所在的地區未被 Xbox 授權使用，登錄嘗試已被攔截。</string>
+    <string name="account_logging_xbox_requires_proof_of_age">您的賬號需要提供年齡證明，請登錄 https://login.live.com/login.srf 提供相關信息。</string>
+    <string name="account_logging_xbox_reached_playtime_limit">您的帳戶已達到遊戲時間限制，並被禁止登入。</string>
+    <string name="account_logging_xbox_underage">賬號的出生日期顯示未滿18歲，必須由成年人添加到家庭中才能繼續使用。</string>
+    <string name="account_logging_frequent">登入嘗試太頻繁，請稍後再試。</string>
+    <string name="account_logging_blocked_ip">當前的 IP 位址已被阻止登入。</string>
     <string name="account_logging_profile_not_exists">請先建立 Minecraft 玩家檔案，然後再嘗試登入！</string>
     <string name="resource_pack_manage">資源包管理</string>
     <string name="resource_pack_manage_info">資源包資訊</string>
@@ -658,8 +658,8 @@
     <string name="days_ago">%d 天前</string>
     <string name="months_ago">%d 個月前</string>
     <string name="years_ago">%d 年前</string>
-    <string name="download_assets_failed_to_get_project">獲取項目信息失敗：%s，點擊重試</string>
-    <string name="download_assets_failed_to_get_versions">獲取版本列表失敗：%s，點擊重試</string>
+    <string name="download_assets_failed_to_get_project">獲取項目信息失敗：%s，點擊重試。</string>
+    <string name="download_assets_failed_to_get_versions">獲取版本列表失敗：%s，點擊重試。</string>
     <string name="download_assets_show_only_mc_release">僅顯示 MC 正式版</string>
     <string name="download_assets_search_mc_versions">搜尋 MC 版本</string>
     <string name="download_assets_dependency_projects">前置依賴</string>
