@@ -31,7 +31,7 @@
     <string name="generic_input_too_large">Значение не может быть больше %s</string>
     <string name="generic_unpacking">Распаковка %s</string>
     <string name="generic_unknown">Неизвестно</string>
-    <string name="generic_follow_global">Глобальные</string>
+    <string name="generic_follow_global">Следовать глобальному</string>
     <string name="generic_custom">Пользовательский</string>
     <string name="generic_search">Поиск</string>
     <string name="generic_loading">Загрузка</string>
@@ -63,7 +63,7 @@
     <string name="crash_launcher_message">Приложение неожиданно завершило работу. Подробности ошибки ниже помогут разработчикам улучшить приложение.</string>
     <string name="crash_exit_message">JVM завершил работу с кодом %d.</string>
     <string name="crash_singnal_message">JVM прервал работу из-за фатального сигнала %d.</string>
-    <string name="crash_exit_note">Проверьте логи для получения подробностей. Если вы не можете решить проблему, отправьте файл лога техническому специалисту. Избегайте создания скриншотов, так как они могут не содержать достаточно информации.</string>
+    <string name="crash_exit_note">Для уточнения причины, пожалуйста, проверьте файл журнала. Если вы не можете решить эту проблему самостоятельно, отправьте файл журнала человеку, который сможет его проанализировать. Возможно, он сможет помочь вам диагностировать и исправить проблему. Пожалуйста, не делайте скриншот текущего экрана, так как скриншоты могут не содержать достаточной информации для решения проблемы.</string>
     <string name="crash_restart">Перезапустить</string>
     <string name="crash_exit">Выйти</string>
     <!-- Errors -->
@@ -92,10 +92,10 @@
     <string name="unpack_screen_jre8">Среда Java 8 (требуется для Minecraft 1.16 и ниже)</string>
     <string name="unpack_screen_jre17">Среда Java 17 (требуется для Minecraft 1.17+)</string>
     <string name="unpack_screen_jre21">Среда Java 21 (требуется для Minecraft 1.20.5+)</string>
-    <string name="unpack_screen_authlib_injector">Модифицирует authlib для внешних логинов.</string>
-    <string name="unpack_screen_cacio">Портативный GUI-бэкенд для OpenJDK.</string>
-    <string name="unpack_screen_lwjgl">Лёгкая игровая библиотека Java (требуется для Minecraft).</string>
-    <string name="unpack_screen_launcher">Основные компоненты лаунчера.</string>
+    <string name="unpack_screen_authlib_injector">Модифицирует authlib для внешних логинов</string>
+    <string name="unpack_screen_cacio">Портативный GUI-бэкенд для OpenJDK</string>
+    <string name="unpack_screen_lwjgl">Лёгкая игровая библиотека Java (требуется для Minecraft)</string>
+    <string name="unpack_screen_launcher">Основные компоненты лаунчера</string>
     <!-- Main Menu -->
     <string name="main_launch_game">Запустить</string>
     <string name="main_task_menu">Меню задач</string>
@@ -233,7 +233,7 @@
     <string name="account_other_login_delete_server_message">Удалить сервер авторизации %s?</string>
     <string name="account_other_login_select_role">Выбрать роль</string>
     <string name="account_other_login_select_role_logging">Вход в систему как %s</string>
-    <string name="account_other_login_role_not_found">Роль не найдена. Проверьте сервер.</string>
+    <string name="account_other_login_role_not_found">Роль, соответствующая текущей учетной записи, не найдена. Пожалуйста, проверьте на используемом сервере, существует ли эта роль!</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Назад</string>
     <string name="files_create_dir">Создать папку</string>
@@ -264,7 +264,7 @@
     <string name="versions_manage_game_path_delete_message">Удалить эту папку? Файлы останутся, но лаунчер отключит её.</string>
     <string name="versions_manage_game_path_exists_title">Конфликт папок</string>
     <string name="versions_manage_game_path_exists_message">Эта папка уже управляется. Нельзя добавлять дубликаты.</string>
-    <string name="versions_manage_game_path_error_title">Ошибка папки</string>
+    <string name="versions_manage_game_path_error_title">Возникла проблема при работе с каталогом игры</string>
     <string name="versions_manage_no_versions">Нет установленных версий</string>
     <string name="versions_manage_install_exists">Название версии уже существует!</string>
     <string name="versions_manage_install_cannot_use_mc_name">Не используйте ванильные названия для модифицированных версий.</string>
@@ -289,18 +289,18 @@
     <string name="versions_settings_config">Конфигурация</string>
     <string name="versions_overview_custom_version_icon">Пользовательская иконка</string>
     <string name="versions_overview_reset_version_icon">Сбросить иконку</string>
-    <string name="versions_overview_reset_version_icon_message">Сбросить иконку этой версии?</string>
+    <string name="versions_overview_reset_version_icon_message">Вы уверены, что хотите сбросить значок для текущей версии?</string>
     <string name="versions_overview_edit_version_summary">Редактировать описание</string>
     <string name="versions_overview_edit_version_summary_label">Оставьте пустым для значения по умолчанию</string>
     <string name="versions_overview_version_folder">Папка версии</string>
     <string name="versions_overview_saves_folder">Папка сохранений</string>
-    <string name="versions_overview_resource_pack_folder">Ресурс-паки</string>
-    <string name="versions_overview_shaders_pack_folder">Шейдеры</string>
-    <string name="versions_overview_screenshot_folder">Скриншоты</string>
-    <string name="versions_overview_logs_folder">Логи</string>
-    <string name="versions_overview_crash_report_folder">Отчёты о сбоях</string>
+    <string name="versions_overview_resource_pack_folder">Папка с ресурсным паком</string>
+    <string name="versions_overview_shaders_pack_folder">Папка с шейдер-паком</string>
+    <string name="versions_overview_screenshot_folder">Папка скриншотов</string>
+    <string name="versions_overview_logs_folder">Папка с журналами</string>
+    <string name="versions_overview_crash_report_folder">Папка с отчетами о сбоях</string>
     <string name="versions_config_version_settings">Настройки версии</string>
-    <string name="versions_config_game_settings">Настройки игры</string>
+    <string name="versions_config_game_settings">Индивидуальные настройки игры</string>
     <string name="versions_config_support_settings">Дополнительные настройки поддержки</string>
     <string name="versions_config_isolation_title">Изоляция версии</string>
     <string name="versions_config_isolation_summary">Изолировать текущую версию, чтобы её данные не пересекались с другими версиями</string>
@@ -358,8 +358,8 @@
     <string name="minecraft_download_verifying_and_repairing_files">Проверка файлов \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_downloading_files">Повторная попытка загрузки \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_verifying_files">Повторная попытка проверки \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_failed">Ошибка загрузки</string>
-    <string name="minecraft_download_failed_retried">Попытки исчерпаны. Некоторые файлы не удалось скачать.</string>
+    <string name="minecraft_download_failed">Произошла ошибка при загрузке Minecraft</string>
+    <string name="minecraft_download_failed_retried">До этого лаунчер уже пытался выполнить повторную попытку, но некоторые задачи всё же не удалось загрузить</string>
     <string name="minecraft_download_failed_notfound">Некоторые зависимые файлы не удалось скачать. Если проблема сохраняется после нескольких попыток, возможно, в игре отсутствуют необходимые библиотечные файлы. Рекомендуется переустановить игру.</string>
     <!-- Settings -->
     <string name="settings_element_selected">Выбрано: %s</string>
@@ -418,7 +418,7 @@
     <string name="settings_control_mouse_control_mode_slide">Управление смахиванием</string>
     <string name="settings_control_mouse_control_mode_click">Управление касанием</string>
     <string name="settings_control_mouse_pointer_title">Пользовательский указатель</string>
-    <string name="settings_control_mouse_pointer_summary">Настройте изображение виртуального указателя мыши по вашим предпочтениям.</string>
+    <string name="settings_control_mouse_pointer_summary">Настройте изображение виртуального указателя мыши по вашим предпочтениям</string>
     <string name="settings_control_mouse_pointer_reset_message">Сбросить указатель мыши на значение по умолчанию?</string>
     <string name="settings_control_mouse_long_press_delay_title">Задержка длительного нажатия</string>
     <string name="settings_control_mouse_long_press_delay_summary">Установить время задержки для распознавания длительного нажатия на экране (не влияет на длительные нажатия физической мыши, даже если управление физической мышью отключено)</string>
