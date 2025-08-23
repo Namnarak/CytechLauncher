@@ -359,7 +359,7 @@
     <string name="renderer_version_storage_permissions">O renderizador atual %s pode ser configurado pelo arquivo de configuração. Por favor, permita o armazenamento externo do launcher. Caso contrário, não será possível carregar as configurações!</string>
     <string name="renderer_version_storage_permissions_sdk30">O renderizador atual %s pode ser configurado pelo arquivo de configuração. Por favor, permita o acesso a todos os arquivos. Caso contrário, o programa não será capaz de carregar as configurações de renderização!</string>
     <string name="account_logging_xbox_not_accepted_service">Sua conta não aceitou os Termos de Serviço do Xbox.</string>
-    <string name="account_logging_xbox_blocked_region">A região da conta não está autorizada a utilizar os serviços Xbox. A tentativa de login foi bloqueada.</string>
+    <string name="account_logging_xbox_blocked_region">A região da sua conta não está autorizada a utilizar os serviços Xbox. A tentativa de login foi bloqueada.</string>
     <string name="account_logging_xbox_requires_proof_of_age">A conta requer verificação de idade. Por favor, acesse https://login.live.com/login.srf para fornecer as informações necessárias.</string>
     <string name="account_logging_xbox_reached_playtime_limit">A conta atingiu o tempo limite da sessão e seu login foi bloqueado.</string>
     <string name="account_logging_xbox_underage">A data de aniversário do usuário indica ser menor de 18 anos. Essa conta precisa ser adicionada ao grupo da família.</string>
