@@ -2,7 +2,7 @@
 ![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
 [![Discord](https://img.shields.io/discord/1409012263423185039?label=Discord&logo=discord&color=7289DA)](https://discord.gg/yDDkTHp4cJ)
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
-[//]: # ([![QQ]&#40;https://img.shields.io/badge/QQ-blue&#41;]&#40;https://qm.qq.com/q/2MVxS0B29y&#41;)
+<!-- [![QQ](https://img.shields.io/badge/QQ-blue)](https://qm.qq.com/q/2MVxS0B29y) -->
 
 [English](README.md) | [简体中文](README_ZH_CN.md)
 
