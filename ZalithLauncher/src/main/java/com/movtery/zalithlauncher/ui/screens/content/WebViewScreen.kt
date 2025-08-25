@@ -45,7 +45,7 @@ fun WebViewScreen(
 ) {
     BaseScreen(
         screenKey = key,
-        currentKey = backStackViewModel.mainScreenKey,
+        currentKey = backStackViewModel.mainScreen.currentKey,
         useClassEquality = true
     ) { isVisible ->
 

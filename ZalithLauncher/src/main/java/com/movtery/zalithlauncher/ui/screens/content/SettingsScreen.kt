@@ -69,24 +69,24 @@ fun SettingsScreen(
 ) {
     BaseScreen(
         screenKey = key,
-        currentKey = backStackViewModel.mainScreenKey
+        currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
 
         Row(modifier = Modifier.fillMaxSize()) {
             TabMenu(
                 modifier = Modifier.fillMaxHeight(),
                 isVisible = isVisible,
-                settingsScreenKey = backStackViewModel.settingsScreenKey,
+                settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
                 navigateTo = { settingKey ->
                     key.backStack.navigateOnce(settingKey)
                 }
             )
             NavigationUI(
                 key = key,
-                mainScreenKey = backStackViewModel.mainScreenKey,
-                settingsScreenKey = backStackViewModel.settingsScreenKey,
+                mainScreenKey = backStackViewModel.mainScreen.currentKey,
+                settingsScreenKey = backStackViewModel.settingsScreen.currentKey,
                 onCurrentKeyChange = { newKey ->
-                    backStackViewModel.settingsScreenKey = newKey
+                    backStackViewModel.settingsScreen.currentKey = newKey
                 },
                 openLicenseScreen = openLicenseScreen,
                 summitError = summitError,

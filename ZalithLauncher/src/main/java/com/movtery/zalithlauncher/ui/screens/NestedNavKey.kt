@@ -1,7 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens
 
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.game.version.installed.Version
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -9,31 +7,32 @@ import kotlinx.serialization.Serializable
 /**
  * 嵌套NavDisplay的屏幕
  */
-sealed interface NestedNavKey : NavKey {
-    /** 当前屏幕正在使用的堆栈 */
-    val backStack: NavBackStack
-
+sealed interface NestedNavKey {
+    /** 主屏幕 */
+    @Serializable class Main() : BackStackNavKey()
     /** 设置屏幕 */
-    @Serializable data class Settings(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class Settings() : BackStackNavKey()
     /** 版本详细设置屏幕 */
-    @Serializable data class Versions(
-        @Contextual override val backStack: NavBackStack,
-        @Contextual val version: Version
-    ) : NestedNavKey
+    @Serializable
+    class VersionNestedNavKey(@Contextual val version: Version) : BackStackNavKey() {
+        init {
+            backStack.addIfEmpty(NormalNavKey.Versions.OverView)
+        }
+    }
     /** 下载屏幕 */
-    @Serializable data class Download(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class Download() : BackStackNavKey()
 
     //下载嵌套子屏幕
     /** 下载游戏屏幕 */
-    @Serializable data class DownloadGame(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadGame() : BackStackNavKey()
     /** 下载整合包屏幕 */
-    @Serializable data class DownloadModPack(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadModPack() : BackStackNavKey()
     /** 下载模组屏幕 */
-    @Serializable data class DownloadMod(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadMod() : BackStackNavKey()
     /** 下载资源包屏幕 */
-    @Serializable data class DownloadResourcePack(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadResourcePack() : BackStackNavKey()
     /** 下载存档屏幕 */
-    @Serializable data class DownloadSaves(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadSaves() : BackStackNavKey()
     /** 下载光影包屏幕 */
-    @Serializable data class DownloadShaders(@Contextual override val backStack: NavBackStack) : NestedNavKey
+    @Serializable class DownloadShaders() : BackStackNavKey()
 }

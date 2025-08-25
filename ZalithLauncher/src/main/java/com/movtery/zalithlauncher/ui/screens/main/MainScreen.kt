@@ -69,7 +69,6 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.DownloadScreen
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
@@ -106,7 +105,7 @@ fun MainScreen(
 
         /** 回到主页面通用函数 */
         val toMainScreen: () -> Unit = {
-            screenBackStackModel.mainScreenBackStack.clearWith(NormalNavKey.LauncherMain)
+            screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
         }
 
         TopBar(
@@ -114,20 +113,16 @@ fun MainScreen(
                 .fillMaxWidth()
                 .height(40.dp)
                 .zIndex(10f),
-            mainScreenKey = screenBackStackModel.mainScreenKey,
+            mainScreenKey = screenBackStackModel.mainScreen.currentKey,
             taskRunning = tasks.isEmpty(),
             isTasksExpanded = isTaskMenuExpanded,
             color = MaterialTheme.colorScheme.surfaceContainer,
             onScreenBack = {
-                screenBackStackModel.mainScreenBackStack.removeFirstOrNull()
+                screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
             },
             toMainScreen = toMainScreen,
             toSettingsScreen = {
-                screenBackStackModel.mainScreenBackStack.navigateTo(
-                    NestedNavKey.Settings(
-                        screenBackStackModel.settingsBackStack
-                    )
-                )
+                screenBackStackModel.mainScreen.navigateTo(screenBackStackModel.settingsScreen)
             },
             toDownloadScreen = {
                 screenBackStackModel.navigateToDownload()
@@ -325,22 +320,18 @@ private fun NavigationUI(
     launchGameViewModel: LaunchGameViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val backStack = screenBackStackModel.mainScreenBackStack
+    val backStack = screenBackStackModel.mainScreen.backStack
     val currentKey = backStack.lastOrNull()
 
     LaunchedEffect(currentKey) {
-        screenBackStackModel.mainScreenKey = currentKey
+        screenBackStackModel.mainScreen.currentKey = currentKey
     }
 
     if (backStack.isNotEmpty()) {
         /** 导航至版本详细信息屏幕 */
         val navigateToVersions: (Version) -> Unit = { version ->
-            screenBackStackModel.versionsBackStack.clearWith(NormalNavKey.Versions.OverView)
-            screenBackStackModel.mainScreenBackStack.navigateTo(
-                screenKey = NestedNavKey.Versions(
-                    backStack = screenBackStackModel.versionsBackStack,
-                    version = version
-                ),
+            screenBackStackModel.mainScreen.navigateTo(
+                screenKey = NestedNavKey.VersionNestedNavKey(version),
                 useClassEquality = true
             )
         }
@@ -379,7 +370,7 @@ private fun NavigationUI(
                     AccountManageScreen(
                         backStackViewModel = screenBackStackModel,
                         backToMainScreen = {
-                            screenBackStackModel.mainScreenBackStack.clearWith(NormalNavKey.LauncherMain)
+                            screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
                         },
                         summitError = summitError
                     )
@@ -405,7 +396,7 @@ private fun NavigationUI(
                         backStack.removeLastOrNull()
                     }
                 }
-                entry<NestedNavKey.Versions> { key ->
+                entry<NestedNavKey.VersionNestedNavKey> { key ->
                     VersionSettingsScreen(
                         key = key,
                         backScreenViewModel = screenBackStackModel,

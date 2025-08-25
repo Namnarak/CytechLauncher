@@ -30,9 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -59,7 +56,6 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.ShadersManagerScre
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -68,26 +64,21 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun VersionSettingsScreen(
-    key: NestedNavKey.Versions,
+    key: NestedNavKey.VersionNestedNavKey,
     backScreenViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    /** 版本详细设置屏幕的标签 */
-    var versionsScreenKey by remember(key) {
-        mutableStateOf<NavKey?>(null)
-    }
-
     BaseScreen(
         screenKey = key,
-        currentKey = backScreenViewModel.mainScreenKey
+        currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
             TabMenu(
                 isVisible = isVisible,
-                backStack = backScreenViewModel.versionsBackStack,
-                versionsScreenKey = versionsScreenKey,
+                backStack = key.backStack,
+                versionsScreenKey = key.currentKey,
                 modifier = Modifier.fillMaxHeight()
             )
 
@@ -95,9 +86,9 @@ fun VersionSettingsScreen(
                 modifier = Modifier.fillMaxHeight(),
                 key = key,
                 backScreenViewModel = backScreenViewModel,
-                versionsScreenKey = versionsScreenKey,
+                versionsScreenKey = key.currentKey,
                 onCurrentKeyChange = { newKey ->
-                    versionsScreenKey = newKey
+                    key.currentKey = newKey
                 },
                 backToMainScreen = backToMainScreen,
                 launchGameViewModel = launchGameViewModel,
@@ -177,7 +168,7 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
-    key: NestedNavKey.Versions,
+    key: NestedNavKey.VersionNestedNavKey,
     backScreenViewModel: ScreenBackStackViewModel,
     versionsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
@@ -186,7 +177,7 @@ private fun NavigationUI(
     version: Version,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val mainScreenKey = backScreenViewModel.mainScreenKey
+    val mainScreenKey = backScreenViewModel.mainScreen.currentKey
 
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -226,20 +217,16 @@ private fun NavigationUI(
                         version = version,
                         swapToDownload = {
                             backScreenViewModel.navigateToDownload(
-                                targetScreen = NestedNavKey.DownloadMod(
-                                    backStack = backScreenViewModel.downloadModBackStack
-                                )
+                                targetScreen = backScreenViewModel.downloadModScreen
                             )
                         },
                         onSwapMoreInfo = { projectId, platform ->
                             backScreenViewModel.navigateToDownload(
-                                targetScreen = NestedNavKey.DownloadMod(
-                                    backStack = backScreenViewModel.downloadModBackStack.also { stack ->
-                                        stack.navigateTo(
-                                            NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
-                                        )
-                                    }
-                                )
+                                targetScreen = backScreenViewModel.downloadModScreen.apply {
+                                    navigateTo(
+                                        NormalNavKey.DownloadAssets(platform, projectId, PlatformClasses.MOD)
+                                    )
+                                }
                             )
                         }
                     )
@@ -252,9 +239,7 @@ private fun NavigationUI(
                         version = version
                     ) {
                         backScreenViewModel.navigateToDownload(
-                            targetScreen = NestedNavKey.DownloadSaves(
-                                backStack = backScreenViewModel.downloadSavesBackStack
-                            )
+                            targetScreen = backScreenViewModel.downloadSavesScreen
                         )
                     }
                 }
@@ -265,9 +250,7 @@ private fun NavigationUI(
                         version = version
                     ) {
                         backScreenViewModel.navigateToDownload(
-                            targetScreen = NestedNavKey.DownloadResourcePack(
-                                backStack = backScreenViewModel.downloadResourcePackBackStack
-                            )
+                            targetScreen = backScreenViewModel.downloadResourcePackScreen
                         )
                     }
                 }
@@ -278,9 +261,7 @@ private fun NavigationUI(
                         version = version
                     ) {
                         backScreenViewModel.navigateToDownload(
-                            targetScreen = NestedNavKey.DownloadShaders(
-                                backStack = backScreenViewModel.downloadShadersBackStack
-                            )
+                            targetScreen = backScreenViewModel.downloadShadersScreen
                         )
                     }
                 }

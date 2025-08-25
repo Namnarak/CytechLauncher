@@ -21,7 +21,6 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -117,10 +116,10 @@ class MainActivity : BaseComponentActivity() {
                             errorViewModel.showError(it)
                         },
                         toAccountManageScreen = {
-                            screenBackStackModel.mainScreenBackStack.navigateTo(NormalNavKey.AccountManager)
+                            screenBackStackModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
                         },
                         toVersionManageScreen = {
-                            screenBackStackModel.mainScreenBackStack.navigateTo(NormalNavKey.VersionsManager)
+                            screenBackStackModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
                         }
                     )
 

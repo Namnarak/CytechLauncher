@@ -71,7 +71,6 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
-import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
@@ -86,7 +85,6 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDi
 import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
@@ -114,7 +112,7 @@ fun AccountManageScreen(
 
     BaseScreen(
         screenKey = NormalNavKey.AccountManager,
-        currentKey = backStackViewModel.mainScreenKey
+        currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -143,13 +141,11 @@ fun AccountManageScreen(
                 },
                 swapToDownloadScreen = { projectId, platform, classes ->
                     backStackViewModel.navigateToDownload(
-                        targetScreen = NestedNavKey.DownloadMod(
-                            backStack = backStackViewModel.downloadModBackStack.also { stack ->
-                                stack.navigateTo(
-                                    NormalNavKey.DownloadAssets(platform, projectId, classes)
-                                )
-                            }
-                        )
+                        targetScreen = backStackViewModel.downloadModScreen.apply {
+                            navigateTo(
+                                NormalNavKey.DownloadAssets(platform, projectId, classes)
+                            )
+                        }
                     )
                 }
             )
@@ -159,10 +155,10 @@ fun AccountManageScreen(
     //微软账号操作逻辑
     MicrosoftLoginOperation(
         checkIfInWebScreen = {
-            backStackViewModel.mainScreenKey is NormalNavKey.WebScreen
+            backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen
         },
         navigateToWeb = { url ->
-            backStackViewModel.mainScreenBackStack.navigateToWeb(url)
+            backStackViewModel.mainScreen.backStack.navigateToWeb(url)
         },
         backToMainScreen = backToMainScreen,
         microsoftLoginOperation = microsoftLoginOperation,

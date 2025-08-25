@@ -46,7 +46,7 @@ fun LicenseScreen(
 
     BaseScreen(
         screenKey = key,
-        currentKey = backStackViewModel.mainScreenKey
+        currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,

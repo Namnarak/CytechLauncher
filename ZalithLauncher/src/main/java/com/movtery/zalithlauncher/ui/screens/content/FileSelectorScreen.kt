@@ -74,7 +74,7 @@ fun FileSelectorScreen(
 
     BaseScreen(
         screenKey = key,
-        currentKey = backScreenViewModel.mainScreenKey,
+        currentKey = backScreenViewModel.mainScreen.currentKey,
         useClassEquality = true
     ) { isVisible ->
         Column(

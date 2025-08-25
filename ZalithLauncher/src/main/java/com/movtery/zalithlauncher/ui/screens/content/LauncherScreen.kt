@@ -49,12 +49,10 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
@@ -67,7 +65,7 @@ fun LauncherScreen(
 ) {
     BaseScreen(
         screenKey = NormalNavKey.LauncherMain,
-        currentKey = backStackViewModel.mainScreenKey
+        currentKey = backStackViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -85,10 +83,10 @@ fun LauncherScreen(
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp),
                 launchGameViewModel = launchGameViewModel,
                 toAccountManageScreen = {
-                    backStackViewModel.mainScreenBackStack.navigateTo(NormalNavKey.AccountManager)
+                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
                 },
                 toVersionManageScreen = {
-                    backStackViewModel.mainScreenBackStack.navigateTo(NormalNavKey.VersionsManager)
+                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
                 },
                 toVersionSettingsScreen = {
                     VersionsManager.currentVersion?.let { version ->
@@ -97,13 +95,11 @@ fun LauncherScreen(
                 },
                 toDownloadScreen = { projectId, platform, classes ->
                     backStackViewModel.navigateToDownload(
-                        targetScreen = NestedNavKey.DownloadMod(
-                            backStack = backStackViewModel.downloadModBackStack.also { stack ->
-                                stack.navigateTo(
-                                    NormalNavKey.DownloadAssets(platform, projectId, classes)
-                                )
-                            }
-                        )
+                        targetScreen = backStackViewModel.downloadModScreen.apply {
+                            navigateTo(
+                                NormalNavKey.DownloadAssets(platform, projectId, classes)
+                            )
+                        }
                     )
                 }
             )

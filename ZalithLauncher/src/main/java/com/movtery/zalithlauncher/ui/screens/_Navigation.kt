@@ -11,7 +11,7 @@ fun onBack(currentBackStack: NavBackStack) {
     when (key) {
         //普通的屏幕，直接退出当前堆栈的上层
         is NormalNavKey -> currentBackStack.removeLastOrNull()
-        is NestedNavKey -> {
+        is BackStackNavKey -> {
             if (key.backStack.size <= 1) {
                 //嵌套屏幕的堆栈处于最后一个屏幕的状态
                 //可以退出当前堆栈的上层了
@@ -51,6 +51,12 @@ fun NavBackStack.clearWith(navKey: NavKey) {
     //批量替换内容，避免 Nav3 看到空帧
     this.apply {
         clear()
+        add(navKey)
+    }
+}
+
+fun NavBackStack.addIfEmpty(navKey: NavKey) {
+    if (isEmpty()) {
         add(navKey)
     }
 }

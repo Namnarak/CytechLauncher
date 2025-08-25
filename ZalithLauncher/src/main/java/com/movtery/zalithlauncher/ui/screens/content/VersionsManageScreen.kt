@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavBackStack
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -84,12 +83,18 @@ fun VersionsManageScreen(
 
     BaseScreen(
         screenKey = NormalNavKey.VersionsManager,
-        currentKey = backScreenViewModel.mainScreenKey
+        currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row {
             GamePathLayout(
                 isVisible = isVisible,
-                backStack = backScreenViewModel.mainScreenBackStack,
+                swapToFileSelector = { path ->
+                    backScreenViewModel.mainScreen.backStack.navigateToFileSelector(
+                        startPath = path,
+                        selectFile = false,
+                        saveKey = NormalNavKey.VersionsManager
+                    )
+                },
                 summitError = summitError,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -123,7 +128,7 @@ fun VersionsManageScreen(
 @Composable
 private fun GamePathLayout(
     isVisible: Boolean,
-    backStack: NavBackStack,
+    swapToFileSelector: (path: String) -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -202,11 +207,7 @@ private fun GamePathLayout(
                         message = activity.getString(R.string.versions_manage_game_path_storage_permissions),
                         messageSdk30 = activity.getString(R.string.versions_manage_game_path_storage_permissions_sdk30),
                         hasPermission = {
-                            backStack.navigateToFileSelector(
-                                startPath = Environment.getExternalStorageDirectory().absolutePath,
-                                selectFile = false,
-                                saveKey = NormalNavKey.VersionsManager
-                            )
+                            swapToFileSelector(Environment.getExternalStorageDirectory().absolutePath)
                         }
                     )
                 }

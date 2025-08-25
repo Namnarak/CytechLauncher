@@ -43,7 +43,6 @@ import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
-import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadGameScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModPackScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.DownloadModScreen
@@ -53,7 +52,6 @@ import com.movtery.zalithlauncher.ui.screens.content.download.DownloadShadersScr
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
-import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -63,9 +61,9 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
  * 导航至DownloadScreen
  */
 fun ScreenBackStackViewModel.navigateToDownload(targetScreen: NavKey? = null) {
-    downloadBackStack.clearWith(targetScreen ?: NestedNavKey.DownloadGame(downloadGameBackStack))
-    mainScreenBackStack.navigateTo(
-        screenKey = NestedNavKey.Download(backStack = downloadBackStack),
+    downloadScreen.clearWith(targetScreen ?: downloadGameScreen)
+    mainScreen.navigateTo(
+        screenKey = downloadScreen,
         useClassEquality = true
     )
 }
@@ -78,7 +76,7 @@ fun DownloadScreen(
 ) {
     BaseScreen(
         screenKey = key,
-        currentKey = backScreenViewModel.mainScreenKey,
+        currentKey = backScreenViewModel.mainScreen.currentKey,
         useClassEquality = true
     ) { isVisible: Boolean ->
         Row(modifier = Modifier.fillMaxSize()) {
@@ -86,13 +84,7 @@ fun DownloadScreen(
                 modifier = Modifier.fillMaxHeight(),
                 isVisible = isVisible,
                 backStack = key.backStack,
-                downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                gameBackStack = backScreenViewModel.downloadGameBackStack,
-                modpackBackStack = backScreenViewModel.downloadModPackBackStack,
-                modBackStack = backScreenViewModel.downloadModBackStack,
-                resourcePackBackStack = backScreenViewModel.downloadResourcePackBackStack,
-                savesBackStack = backScreenViewModel.downloadSavesBackStack,
-                shadersBackStack = backScreenViewModel.downloadShadersBackStack
+                backScreenViewModel = backScreenViewModel,
             )
 
             NavigationUI(
@@ -110,21 +102,15 @@ private fun TabMenu(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
     backStack: NavBackStack,
-    downloadScreenKey: NavKey?,
-    gameBackStack: NavBackStack,
-    modpackBackStack: NavBackStack,
-    modBackStack: NavBackStack,
-    resourcePackBackStack: NavBackStack,
-    savesBackStack: NavBackStack,
-    shadersBackStack: NavBackStack
+    backScreenViewModel: ScreenBackStackViewModel,
 ) {
     val downloadsList = listOf(
-        CategoryItem(NestedNavKey.DownloadGame(gameBackStack), { CategoryIcon(Icons.Outlined.SportsEsports, R.string.download_category_game) }, R.string.download_category_game),
-        CategoryItem(NestedNavKey.DownloadModPack(modpackBackStack), { CategoryIcon(R.drawable.ic_package_2, R.string.download_category_modpack) }, R.string.download_category_modpack),
-        CategoryItem(NestedNavKey.DownloadMod(modBackStack), { CategoryIcon(Icons.Outlined.Extension, R.string.download_category_mod) }, R.string.download_category_mod, division = true),
-        CategoryItem(NestedNavKey.DownloadResourcePack(resourcePackBackStack), { CategoryIcon(Icons.Outlined.Image, R.string.download_category_resource_pack) }, R.string.download_category_resource_pack),
-        CategoryItem(NestedNavKey.DownloadSaves(savesBackStack), { CategoryIcon(Icons.Outlined.Public, R.string.download_category_saves) }, R.string.download_category_saves),
-        CategoryItem(NestedNavKey.DownloadShaders(shadersBackStack), { CategoryIcon(Icons.Outlined.Lightbulb, R.string.download_category_shaders) }, R.string.download_category_shaders),
+        CategoryItem(backScreenViewModel.downloadGameScreen, { CategoryIcon(Icons.Outlined.SportsEsports, R.string.download_category_game) }, R.string.download_category_game),
+        CategoryItem(backScreenViewModel.downloadModPackScreen, { CategoryIcon(R.drawable.ic_package_2, R.string.download_category_modpack) }, R.string.download_category_modpack),
+        CategoryItem(backScreenViewModel.downloadModScreen, { CategoryIcon(Icons.Outlined.Extension, R.string.download_category_mod) }, R.string.download_category_mod, division = true),
+        CategoryItem(backScreenViewModel.downloadResourcePackScreen, { CategoryIcon(Icons.Outlined.Image, R.string.download_category_resource_pack) }, R.string.download_category_resource_pack),
+        CategoryItem(backScreenViewModel.downloadSavesScreen, { CategoryIcon(Icons.Outlined.Public, R.string.download_category_saves) }, R.string.download_category_saves),
+        CategoryItem(backScreenViewModel.downloadShadersScreen, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.download_category_shaders) }, R.string.download_category_shaders),
     )
 
     val xOffset by swapAnimateDpAsState(
@@ -155,7 +141,7 @@ private fun TabMenu(
             }
 
             NavigationRailItem(
-                selected = downloadScreenKey == item.key,
+                selected = backScreenViewModel.downloadScreen.currentKey == item.key,
                 onClick = {
                     backStack.navigateOnce(item.key)
                 },
@@ -187,7 +173,7 @@ private fun NavigationUI(
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
     LaunchedEffect(stackTopKey) {
-        backScreenViewModel.downloadScreenKey = stackTopKey
+        backScreenViewModel.downloadScreen.currentKey = stackTopKey
     }
 
     if (backStack.isNotEmpty()) {
@@ -201,33 +187,33 @@ private fun NavigationUI(
                 entry<NestedNavKey.DownloadGame> { key ->
                     DownloadGameScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadGameScreenKey = backScreenViewModel.downloadGameScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadGameScreenKey = backScreenViewModel.downloadGameScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadGameScreenKey = newKey
+                            backScreenViewModel.downloadGameScreen.currentKey = newKey
                         }
                     )
                 }
                 entry<NestedNavKey.DownloadModPack> { key ->
                     DownloadModPackScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadModPackScreenKey = backScreenViewModel.downloadModPackScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadModPackScreenKey = backScreenViewModel.downloadModPackScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadModPackScreenKey = newKey
+                            backScreenViewModel.downloadModPackScreen.currentKey = newKey
                         }
                     )
                 }
                 entry<NestedNavKey.DownloadMod> { key ->
                     DownloadModScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadModScreenKey = backScreenViewModel.downloadModScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadModScreenKey = backScreenViewModel.downloadModScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadModScreenKey = newKey
+                            backScreenViewModel.downloadModScreen.currentKey = newKey
                         },
                         summitError = summitError
                     )
@@ -235,11 +221,11 @@ private fun NavigationUI(
                 entry<NestedNavKey.DownloadResourcePack> { key ->
                     DownloadResourcePackScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadResourcePackScreenKey = backScreenViewModel.downloadResourcePackScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadResourcePackScreenKey = newKey
+                            backScreenViewModel.downloadResourcePackScreen.currentKey = newKey
                         },
                         summitError = summitError
                     )
@@ -247,11 +233,11 @@ private fun NavigationUI(
                 entry<NestedNavKey.DownloadSaves> { key ->
                     DownloadSavesScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadSavesScreenKey = backScreenViewModel.downloadSavesScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadSavesScreenKey = backScreenViewModel.downloadSavesScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadSavesScreenKey = newKey
+                            backScreenViewModel.downloadSavesScreen.currentKey = newKey
                         },
                         summitError = summitError
                     )
@@ -259,11 +245,11 @@ private fun NavigationUI(
                 entry<NestedNavKey.DownloadShaders> { key ->
                     DownloadShadersScreen(
                         key = key,
-                        mainScreenKey = backScreenViewModel.mainScreenKey,
-                        downloadScreenKey = backScreenViewModel.downloadScreenKey,
-                        downloadShadersScreenKey = backScreenViewModel.downloadShadersScreenKey,
+                        mainScreenKey = backScreenViewModel.mainScreen.currentKey,
+                        downloadScreenKey = backScreenViewModel.downloadScreen.currentKey,
+                        downloadShadersScreenKey = backScreenViewModel.downloadShadersScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
-                            backScreenViewModel.downloadShadersScreenKey = newKey
+                            backScreenViewModel.downloadShadersScreen.currentKey = newKey
                         },
                         summitError = summitError
                     )

@@ -55,7 +55,7 @@ fun VersionConfigScreen(
 ) {
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.Versions::class.java, mainScreenKey)
+            Pair(NestedNavKey.VersionNestedNavKey::class.java, mainScreenKey)
         ),
         Triple(NormalNavKey.Versions.Config, versionsScreenKey, false)
     ) { isVisible ->
