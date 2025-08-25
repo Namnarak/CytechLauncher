@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens
 
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import kotlin.reflect.KClass
 
 /**
  * 兼容嵌套NavDisplay的返回事件处理
@@ -29,19 +30,21 @@ fun NavBackStack.navigateOnce(key: NavKey) {
     clearWith(key)
 }
 
-fun NavBackStack.navigateTo(key: NavKey) {
-    if (key == lastOrNull()) return //防止反复加载
-    add(key)
+fun NavBackStack.navigateTo(screenKey: NavKey, useClassEquality: Boolean = false) {
+    val current = lastOrNull()
+    if (useClassEquality) {
+        if (current != null && screenKey::class == current::class) return //防止反复加载
+    } else {
+        if (screenKey == current) return //防止反复加载
+    }
+    add(screenKey)
 }
 
-fun NavBackStack.navigateTo(screenKey: NavKey, useClassEquality: Boolean = false) {
-    if (useClassEquality) {
-        val current = lastOrNull()
-        if (current != null && screenKey::class == current::class) return //防止反复加载
-        add(screenKey)
-    } else {
-        navigateTo(screenKey)
+fun NavBackStack.removeAndNavigateTo(remove: KClass<*>, screenKey: NavKey, useClassEquality: Boolean = false) {
+    removeIf { key ->
+        key::class == remove
     }
+    navigateTo(screenKey, useClassEquality)
 }
 
 /**

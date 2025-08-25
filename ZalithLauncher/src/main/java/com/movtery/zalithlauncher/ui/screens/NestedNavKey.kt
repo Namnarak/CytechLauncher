@@ -14,7 +14,7 @@ sealed interface NestedNavKey {
     @Serializable class Settings() : BackStackNavKey()
     /** 版本详细设置屏幕 */
     @Serializable
-    class VersionNestedNavKey(@Contextual val version: Version) : BackStackNavKey() {
+    class VersionSettings(@Contextual val version: Version) : BackStackNavKey() {
         init {
             backStack.addIfEmpty(NormalNavKey.Versions.OverView)
         }

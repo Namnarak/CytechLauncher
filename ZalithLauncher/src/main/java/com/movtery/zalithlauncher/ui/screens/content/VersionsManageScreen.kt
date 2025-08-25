@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -139,10 +140,12 @@ private fun GamePathLayout(
     )
 
     var gamePathOperation by remember { mutableStateOf<GamePathOperation>(GamePathOperation.None) }
-    MutableStates.filePathSelector?.let {
-        if (it.saveKey === NormalNavKey.VersionsManager) {
-            gamePathOperation = GamePathOperation.AddNewPath(it.path)
-            MutableStates.filePathSelector = null
+    LaunchedEffect(MutableStates.filePathSelector) {
+        MutableStates.filePathSelector?.let {
+            if (it.saveKey == NormalNavKey.VersionsManager) {
+                gamePathOperation = GamePathOperation.AddNewPath(it.path)
+                MutableStates.filePathSelector = null
+            }
         }
     }
     GamePathOperation(

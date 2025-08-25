@@ -331,7 +331,7 @@ private fun NavigationUI(
         /** 导航至版本详细信息屏幕 */
         val navigateToVersions: (Version) -> Unit = { version ->
             screenBackStackModel.mainScreen.navigateTo(
-                screenKey = NestedNavKey.VersionNestedNavKey(version),
+                screenKey = NestedNavKey.VersionSettings(version),
                 useClassEquality = true
             )
         }
@@ -396,7 +396,7 @@ private fun NavigationUI(
                         backStack.removeLastOrNull()
                     }
                 }
-                entry<NestedNavKey.VersionNestedNavKey> { key ->
+                entry<NestedNavKey.VersionSettings> { key ->
                     VersionSettingsScreen(
                         key = key,
                         backScreenViewModel = screenBackStackModel,

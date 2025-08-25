@@ -51,11 +51,17 @@ fun VersionConfigScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     version: Version,
+    backToMainScreen: () -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    if (!version.isValid()) {
+        backToMainScreen()
+        return
+    }
+
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.VersionNestedNavKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.VersionSettings::class.java, mainScreenKey)
         ),
         Triple(NormalNavKey.Versions.Config, versionsScreenKey, false)
     ) { isVisible ->

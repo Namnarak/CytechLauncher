@@ -64,7 +64,7 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun VersionSettingsScreen(
-    key: NestedNavKey.VersionNestedNavKey,
+    key: NestedNavKey.VersionSettings,
     backScreenViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
@@ -168,7 +168,7 @@ private fun TabMenu(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
-    key: NestedNavKey.VersionNestedNavKey,
+    key: NestedNavKey.VersionSettings,
     backScreenViewModel: ScreenBackStackViewModel,
     versionsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
@@ -207,6 +207,7 @@ private fun NavigationUI(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version,
+                        backToMainScreen = backToMainScreen,
                         summitError = summitError
                     )
                 }
@@ -215,6 +216,7 @@ private fun NavigationUI(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version,
+                        backToMainScreen = backToMainScreen,
                         swapToDownload = {
                             backScreenViewModel.navigateToDownload(
                                 targetScreen = backScreenViewModel.downloadModScreen
@@ -236,7 +238,8 @@ private fun NavigationUI(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         launchGameViewModel = launchGameViewModel,
-                        version = version
+                        version = version,
+                        backToMainScreen = backToMainScreen
                     ) {
                         backScreenViewModel.navigateToDownload(
                             targetScreen = backScreenViewModel.downloadSavesScreen
@@ -247,7 +250,8 @@ private fun NavigationUI(
                     ResourcePackManageScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
-                        version = version
+                        version = version,
+                        backToMainScreen = backToMainScreen
                     ) {
                         backScreenViewModel.navigateToDownload(
                             targetScreen = backScreenViewModel.downloadResourcePackScreen
@@ -258,7 +262,8 @@ private fun NavigationUI(
                     ShadersManagerScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
-                        version = version
+                        version = version,
+                        backToMainScreen = backToMainScreen
                     ) {
                         backScreenViewModel.navigateToDownload(
                             targetScreen = backScreenViewModel.downloadShadersScreen

@@ -152,11 +152,17 @@ fun ShadersManagerScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
     version: Version,
+    backToMainScreen: () -> Unit,
     swapToDownload: () -> Unit = {}
 ) {
+    if (!version.isValid()) {
+        backToMainScreen()
+        return
+    }
+
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.VersionNestedNavKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.VersionSettings::class.java, mainScreenKey)
         ),
         Triple(NormalNavKey.Versions.ShadersManager, versionsScreenKey, false),
     ) { isVisible ->

@@ -18,6 +18,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
@@ -119,7 +120,10 @@ class MainActivity : BaseComponentActivity() {
                             screenBackStackModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
                         },
                         toVersionManageScreen = {
-                            screenBackStackModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                remove = NestedNavKey.VersionSettings::class,
+                                screenKey = NormalNavKey.VersionsManager
+                            )
                         }
                     )
 

@@ -70,9 +70,14 @@ fun VersionOverViewScreen(
     version: Version,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    if (!version.isValid()) {
+        backToMainScreen()
+        return
+    }
+
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.VersionNestedNavKey::class.java, mainScreenKey)
+            Pair(NestedNavKey.VersionSettings::class.java, mainScreenKey)
         ),
         Triple(NormalNavKey.Versions.OverView, versionsScreenKey, false)
     ) { isVisible ->

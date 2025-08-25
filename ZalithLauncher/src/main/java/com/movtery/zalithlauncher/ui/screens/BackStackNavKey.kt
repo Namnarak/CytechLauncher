@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 
 @Serializable
 abstract class BackStackNavKey : NavKey {
@@ -22,12 +23,12 @@ abstract class BackStackNavKey : NavKey {
         backStack.navigateOnce(key)
     }
 
-    fun navigateTo(key: NavKey) {
-        backStack.navigateTo(key)
-    }
-
     fun navigateTo(screenKey: NavKey, useClassEquality: Boolean = false) {
         backStack.navigateTo(screenKey, useClassEquality)
+    }
+
+    fun removeAndNavigateTo(remove: KClass<*>, screenKey: NavKey, useClassEquality: Boolean = false) {
+        backStack.removeAndNavigateTo(remove, screenKey, useClassEquality)
     }
 
     fun clearWith(navKey: NavKey) {

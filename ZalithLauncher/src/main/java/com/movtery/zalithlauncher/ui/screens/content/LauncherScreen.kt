@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
@@ -86,7 +87,10 @@ fun LauncherScreen(
                     backStackViewModel.mainScreen.navigateTo(NormalNavKey.AccountManager)
                 },
                 toVersionManageScreen = {
-                    backStackViewModel.mainScreen.navigateTo(NormalNavKey.VersionsManager)
+                    backStackViewModel.mainScreen.removeAndNavigateTo(
+                        remove = NestedNavKey.VersionSettings::class,
+                        screenKey = NormalNavKey.VersionsManager
+                    )
                 },
                 toVersionSettingsScreen = {
                     VersionsManager.currentVersion?.let { version ->
