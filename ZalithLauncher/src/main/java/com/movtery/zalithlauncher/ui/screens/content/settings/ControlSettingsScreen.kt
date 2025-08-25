@@ -147,6 +147,14 @@ fun ControlSettingsScreen(
                     enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
                 )
 
+                ListSettingsLayout(
+                    unit = AllSettings.mouseControlMode,
+                    items = MouseControlMode.entries,
+                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
+                    summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
+                    getItemText = { stringResource(it.nameRes) }
+                )
+
                 var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
                 MousePointerLayout(
                     mouseSize = AllSettings.mouseSize.state,
@@ -161,14 +169,6 @@ fun ControlSettingsScreen(
                     valueRange = 5f..50f,
                     suffix = "Dp",
                     fineTuningControl = true
-                )
-
-                ListSettingsLayout(
-                    unit = AllSettings.mouseControlMode,
-                    items = MouseControlMode.entries,
-                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
-                    summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
-                    getItemText = { stringResource(it.nameRes) }
                 )
 
                 SliderSettingsLayout(

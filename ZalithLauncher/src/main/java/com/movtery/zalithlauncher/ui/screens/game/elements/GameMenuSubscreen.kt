@@ -131,6 +131,17 @@ fun GameMenuSubscreen(
                     enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK
                 )
             }
+            //鼠标控制模式
+            item {
+                MenuListLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
+                    items = MouseControlMode.entries,
+                    currentItem = AllSettings.mouseControlMode.state,
+                    onItemChange = { AllSettings.mouseControlMode.save(it) },
+                    getItemText = { stringResource(it.nameRes) }
+                )
+            }
             //虚拟鼠标大小
             item {
                 MenuSliderLayout(
@@ -177,17 +188,6 @@ fun GameMenuSubscreen(
                     onValueChange = { AllSettings.mouseLongPressDelay.updateState(it) },
                     onValueChangeFinished = { AllSettings.mouseLongPressDelay.save(it) },
                     suffix = "ms"
-                )
-            }
-            //鼠标控制模式
-            item {
-                MenuListLayout(
-                    modifier = itemCommonModifier,
-                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
-                    items = MouseControlMode.entries,
-                    currentItem = AllSettings.mouseControlMode.state,
-                    onItemChange = { AllSettings.mouseControlMode.save(it) },
-                    getItemText = { stringResource(it.nameRes) }
                 )
             }
 
