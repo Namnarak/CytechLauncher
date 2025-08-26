@@ -37,7 +37,8 @@ void dlsym_EGL() {
     {
         eglName = "libEGL_angle.so";
     } else {
-        eglName = getenv("POJAVEXEC_EGL");
+        char* execEgl = getenv("POJAVEXEC_EGL");
+        eglName = gles ? gles : (execEgl ? execEgl : "libEGL.so");
     }
 
     if (eglName)
