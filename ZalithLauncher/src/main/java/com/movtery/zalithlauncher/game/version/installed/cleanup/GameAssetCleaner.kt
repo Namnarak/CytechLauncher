@@ -1,6 +1,10 @@
 package com.movtery.zalithlauncher.game.version.installed.cleanup
 
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CleaningServices
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
@@ -95,6 +99,7 @@ class GameAssetCleaner(
             tasks.add(
                 TitledTask(
                     title = context.getString(R.string.versions_manage_cleanup_collect_files),
+                    runningIcon = Icons.AutoMirrored.Outlined.Article,
                     task = Task.runTask(
                         id = "GameAssetCleaner.CollectFiles",
                         task = { task ->
@@ -111,6 +116,7 @@ class GameAssetCleaner(
             tasks.add(
                 TitledTask(
                     title = context.getString(R.string.versions_manage_cleanup_collect_game_files),
+                    runningIcon = Icons.AutoMirrored.Outlined.Article,
                     task = Task.runTask(
                         id = "GameAssetCleaner.CollectGameFiles",
                         task = { task ->
@@ -150,6 +156,7 @@ class GameAssetCleaner(
             tasks.add(
                 TitledTask(
                     title = context.getString(R.string.versions_manage_cleanup_compare_files),
+                    runningIcon = Icons.Outlined.Build,
                     task = Task.runTask(
                         id = "GameAssetCleaner.CompareFiles",
                         task = { task ->
@@ -168,6 +175,7 @@ class GameAssetCleaner(
             tasks.add(
                 TitledTask(
                     title = context.getString(R.string.versions_manage_cleanup_cleanup),
+                    runningIcon = Icons.Outlined.CleaningServices,
                     task = Task.runTask(
                         id = "GameAssetsCleaner.Cleanup",
                         task = { task ->

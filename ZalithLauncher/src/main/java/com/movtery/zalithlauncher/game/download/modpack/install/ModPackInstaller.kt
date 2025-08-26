@@ -1,6 +1,10 @@
 package com.movtery.zalithlauncher.game.download.modpack.install
 
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CleaningServices
+import androidx.compose.material.icons.outlined.Edit
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
@@ -115,6 +119,7 @@ class ModPackInstaller(
         tasks.add(
             TitledTask(
                 title = context.getString(R.string.download_install_clear_temp),
+                runningIcon = Icons.Outlined.CleaningServices,
                 task = Task.runTask(
                     id = "Download.ModPack.ClearTemp",
                     task = {
@@ -165,6 +170,7 @@ class ModPackInstaller(
         tasks.add(
             TitledTask(
                 title = context.getString(R.string.download_modpack_install_parse),
+                runningIcon = Icons.Outlined.Build,
                 task = Task.runTask(
                     id = "Parse.ModPack",
                     task = { task ->
@@ -183,6 +189,7 @@ class ModPackInstaller(
         tasks.add(
             TitledTask(
                 title = context.getString(R.string.download_install_input_version_name),
+                runningIcon = Icons.Outlined.Edit,
                 task = Task.runTask(
                     id = "Download.ModPack.WaitUserForVersionName",
                     task = { task ->
@@ -212,6 +219,7 @@ class ModPackInstaller(
         tasks.add(
             TitledTask(
                 title = context.getString(R.string.download_modpack_get_loaders),
+                runningIcon = Icons.Outlined.Build,
                 task = createRetrieveLoaderTask()
             )
         )
@@ -246,6 +254,7 @@ class ModPackInstaller(
                 //最终整合包安装任务
                 val finalTask = TitledTask(
                     title = context.getString(R.string.download_modpack_final_move),
+                    runningIcon = Icons.Outlined.Build,
                     task = createFinalInstallTask(
                         targetClientDir = targetClientDir,
                         tempVersionsDir = tempVersionsDir,

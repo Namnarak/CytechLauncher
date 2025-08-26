@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -81,11 +82,12 @@ fun GameInstallingDialog(
                 ) {
                     items(tasks) { task ->
                         InstallingTaskItem(
-                            title = task.title,
-                            task = task.task,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 6.dp)
+                                .padding(vertical = 6.dp),
+                            title = task.title,
+                            runningIcon = task.runningIcon,
+                            task = task.task
                         )
                     }
                 }
@@ -104,9 +106,10 @@ fun GameInstallingDialog(
 
 @Composable
 private fun InstallingTaskItem(
+    modifier: Modifier = Modifier,
     title: String,
-    task: Task,
-    modifier: Modifier = Modifier
+    runningIcon: ImageVector? = null,
+    task: Task
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -114,7 +117,7 @@ private fun InstallingTaskItem(
     ) {
         val icon = when (task.taskState) {
             TaskState.PREPARING -> Icons.Outlined.Schedule
-            TaskState.RUNNING -> Icons.Outlined.Download
+            TaskState.RUNNING -> runningIcon ?: Icons.Outlined.Download
             TaskState.COMPLETED -> Icons.Outlined.Check
         }
         Icon(
