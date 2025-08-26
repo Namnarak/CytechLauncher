@@ -124,6 +124,7 @@ sealed interface DownloadAssetsState<T> {
 class DownloadProjectInfo(
     val id: String,
     val platform: Platform,
+    val classes: PlatformClasses,
     val slug: String,
     val iconUrl: String? = null,
     val title: String,
@@ -175,6 +176,7 @@ class DownloadProjectInfo(
  */
 class DownloadVersionInfo(
     val platform: Platform,
+    val classes: PlatformClasses,
     val displayName: String,
     val iconUrl: String? = null,
     val fileName: String,
@@ -208,6 +210,7 @@ class VersionInfoMap(
 )
 
 suspend fun List<PlatformVersion>.mapToInfos(
+    classes: PlatformClasses,
     currentProjectId: String,
     iconUrl: String? = null,
     also: suspend (DownloadVersionInfo) -> Unit = {}
@@ -221,6 +224,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
                 } //仅下载主文件
                 DownloadVersionInfo(
                     platform = Platform.MODRINTH,
+                    classes = classes,
                     displayName = version.name,
                     iconUrl = iconUrl,
                     fileName = file.fileName,
@@ -273,6 +277,7 @@ suspend fun List<PlatformVersion>.mapToInfos(
 
                 DownloadVersionInfo(
                     platform = Platform.CURSEFORGE,
+                    classes = classes,
                     displayName = file.displayName,
                     iconUrl = iconUrl,
                     fileName = file.fileName!!,
@@ -305,20 +310,21 @@ suspend fun List<PlatformVersion>.mapToInfos(
 }
 
 fun PlatformProject.toInfo(
-    platformClasses: PlatformClasses
+    defaultClasses: PlatformClasses
 ): DownloadProjectInfo {
     return when (this) {
         is ModrinthSingleProject -> {
             DownloadProjectInfo(
                 id = id,
                 platform = Platform.MODRINTH,
+                classes = projectType.platform,
                 slug = slug,
                 iconUrl = iconUrl,
                 title = title,
                 summary = description,
                 downloadCount = downloads,
                 urls = DownloadProjectInfo.Urls(
-                    projectUrl = "https://modrinth.com/${platformClasses.modrinth!!.facetValue()}/${slug}",
+                    projectUrl = "https://modrinth.com/${projectType.platform.modrinth!!.facetValue()}/${slug}",
                     sourceUrl = sourceUrl,
                     issuesUrl = issuesUrl,
                     wikiUrl = wikiUrl
@@ -334,9 +340,11 @@ fun PlatformProject.toInfo(
         }
         is CurseForgeProject -> {
             val data = data
+            val classes = data.classId?.platform ?: defaultClasses
             DownloadProjectInfo(
                 id = data.id.toString(),
                 platform = Platform.CURSEFORGE,
+                classes = classes,
                 slug = data.slug,
                 iconUrl = data.logo.url,
                 title = data.name,
@@ -344,7 +352,7 @@ fun PlatformProject.toInfo(
                 author = data.authors[0].name,
                 downloadCount = data.downloadCount,
                 urls = DownloadProjectInfo.Urls(
-                    projectUrl = "https://www.curseforge.com/minecraft/${platformClasses.curseforge.slug}/${data.slug}",
+                    projectUrl = "https://www.curseforge.com/minecraft/${classes.curseforge.slug}/${data.slug}",
                     sourceUrl = data.links.sourceUrl,
                     issuesUrl = data.links.issuesUrl,
                     wikiUrl = data.links.wikiUrl
@@ -447,7 +455,7 @@ fun AssetsVersionItemLayout(
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
-    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
+    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -536,7 +544,7 @@ fun AssetsVersionItemLayout(
 private fun LazyListScope.dependencyLayout(
     list: List<Pair<DownloadVersionInfo.Dependency, DownloadProjectInfo>>,
     titleRes: Int,
-    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
+    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit
 ) {
     if (list.isNotEmpty()) {
         item {
@@ -554,7 +562,7 @@ private fun LazyListScope.dependencyLayout(
                     .padding(all = 4.dp),
                 project = dependencyProject,
                 onClick = {
-                    onDependencyClicked(dependency)
+                    onDependencyClicked(dependency, dependencyProject.classes)
                 }
             )
         }

@@ -125,8 +125,8 @@ private class DownloadScreenViewModel(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
-                    val infos: List<DownloadVersionInfo> = result.mapToInfos(projectId, iconUrl) { info ->
-                        if (classes != PlatformClasses.MOD) return@mapToInfos //暂时仅支持模组获取依赖
+                    val infos: List<DownloadVersionInfo> = result.mapToInfos(classes, projectId, iconUrl) { info ->
+                        if (classes == PlatformClasses.MOD_PACK) return@mapToInfos //整合包不支持获取依赖
                         info.dependencies.forEach { dependency ->
                             cacheDependencyProject(
                                 platform = dependency.platform,
@@ -247,7 +247,7 @@ fun DownloadAssetsScreen(
     currentKey: NavKey?,
     key: NormalNavKey.DownloadAssets,
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
-    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
+    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit = { _, _ -> }
 ) {
     val viewModel: DownloadScreenViewModel = rememberDownloadAssetsViewModel(key)
 
@@ -301,7 +301,7 @@ private fun Versions(
     viewModel: DownloadScreenViewModel,
     onReload: () -> Unit = {},
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
-    onDependencyClicked: (DownloadVersionInfo.Dependency) -> Unit = {}
+    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit
 ) {
     when (val versions = viewModel.versionsResult) {
         is DownloadAssetsState.Getting -> {
