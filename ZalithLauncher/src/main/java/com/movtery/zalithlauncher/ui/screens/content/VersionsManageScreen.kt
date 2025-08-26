@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
+import android.content.Context
 import android.os.Environment
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -36,11 +37,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleaner
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -49,6 +52,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.CleanupOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
@@ -63,6 +67,36 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 private class VersionsScreenViewModel() : ViewModel() {
     /** 版本类别分类 */
     var versionCategory by mutableStateOf(VersionCategory.ALL)
+
+    /** 清理游戏文件操作 */
+    var cleanupOperation by mutableStateOf<CleanupOperation>(CleanupOperation.None)
+
+    /** 游戏无用资源清理者 */
+    var cleaner by mutableStateOf<GameAssetCleaner?>(null)
+
+    fun cleanUnusedFiles(context: Context) {
+        cleaner = GameAssetCleaner(context, viewModelScope).also {
+            it.start(
+                onEnd = { count, size ->
+                    cleaner = null
+                    cleanupOperation = CleanupOperation.Success(count, size)
+                },
+                onThrowable = { th ->
+                    cleaner = null
+                    cleanupOperation = CleanupOperation.Error(th)
+                }
+            )
+        }
+    }
+
+    fun cancelCleaner() {
+        cleaner?.cancel()
+        cleaner = null
+    }
+
+    override fun onCleared() {
+        cancelCleaner()
+    }
 }
 
 @Composable
@@ -81,13 +115,14 @@ fun VersionsManageScreen(
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
+    val context = LocalContext.current
 
     BaseScreen(
         screenKey = NormalNavKey.VersionsManager,
         currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row {
-            GamePathLayout(
+            LeftMenu(
                 isVisible = isVisible,
                 swapToFileSelector = { path ->
                     backScreenViewModel.mainScreen.backStack.navigateToFileSelector(
@@ -95,6 +130,9 @@ fun VersionsManageScreen(
                         selectFile = false,
                         saveKey = NormalNavKey.VersionsManager
                     )
+                },
+                onCleanupGameFiles = {
+                    viewModel.cleanupOperation = CleanupOperation.Tip
                 },
                 summitError = summitError,
                 modifier = Modifier
@@ -122,14 +160,28 @@ fun VersionsManageScreen(
                     backScreenViewModel.navigateToDownload()
                 }
             )
+
+            CleanupOperation(
+                operation = viewModel.cleanupOperation,
+                changeOperation = { viewModel.cleanupOperation = it },
+                cleaner = viewModel.cleaner,
+                onClean = {
+                    viewModel.cleanUnusedFiles(context)
+                },
+                onCancel = {
+                    viewModel.cancelCleaner()
+                },
+                summitError = summitError
+            )
         }
     }
 }
 
 @Composable
-private fun GamePathLayout(
+private fun LeftMenu(
     isVisible: Boolean,
     swapToFileSelector: (path: String) -> Unit,
+    onCleanupGameFiles: () -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -201,7 +253,8 @@ private fun GamePathLayout(
 
         ScalingActionButton(
             modifier = Modifier
-                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .padding(horizontal = 12.dp)
+                .padding(top = 8.dp)
                 .fillMaxWidth(),
             onClick = {
                 (context as? MainActivity)?.let { activity ->
@@ -217,6 +270,15 @@ private fun GamePathLayout(
             }
         ) {
             MarqueeText(text = stringResource(R.string.versions_manage_game_path_add_new))
+        }
+
+        ScalingActionButton(
+            modifier = Modifier
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .fillMaxWidth(),
+            onClick = onCleanupGameFiles
+        ) {
+            MarqueeText(text = stringResource(R.string.versions_manage_cleanup))
         }
     }
 }

@@ -33,7 +33,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
-import com.movtery.zalithlauncher.game.download.game.GameInstallTask
+import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
@@ -53,7 +53,7 @@ sealed interface GameInstallOperation {
 @Composable
 fun GameInstallingDialog(
     title: String,
-    tasks: List<GameInstallTask>,
+    tasks: List<TitledTask>,
     onCancel: () -> Unit = {}
 ) {
     Dialog(onDismissRequest = {}) {

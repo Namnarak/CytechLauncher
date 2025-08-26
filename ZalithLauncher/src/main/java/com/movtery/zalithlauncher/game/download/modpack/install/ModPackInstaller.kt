@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVe
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
-import com.movtery.zalithlauncher.game.download.game.GameInstallTask
+import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
@@ -46,8 +46,8 @@ class ModPackInstaller(
     private val scope: CoroutineScope,
     private val waitForVersionName: suspend (ModPackInfo) -> String
 ) {
-    private val _tasksFlow: MutableStateFlow<List<GameInstallTask>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<GameInstallTask>> = _tasksFlow
+    private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
+    val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
 
     /**
      * 当前整合包的安装任务
@@ -109,11 +109,11 @@ class ModPackInstaller(
         //icon临时文件
         val tempIconFile = File(tempModPackDir, "icon.png")
 
-        val tasks = mutableListOf<GameInstallTask>()
+        val tasks = mutableListOf<TitledTask>()
 
         //清除上一次安装的缓存（如果有的话，可能会影响这次的安装结果）
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_install_clear_temp),
                 task = Task.runTask(
                     id = "Download.ModPack.ClearTemp",
@@ -130,7 +130,7 @@ class ModPackInstaller(
 
         //下载整合包安装包
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_game_install_base_download_file2, info.displayName),
                 task = Task.runTask(
                     id = "Download.ModPack.Installer",
@@ -163,7 +163,7 @@ class ModPackInstaller(
 
         //解析整合包、解压整合包
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_modpack_install_parse),
                 task = Task.runTask(
                     id = "Parse.ModPack",
@@ -181,7 +181,7 @@ class ModPackInstaller(
 
         //等待用户输入预安装版本名称
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_install_input_version_name),
                 task = Task.runTask(
                     id = "Download.ModPack.WaitUserForVersionName",
@@ -195,7 +195,7 @@ class ModPackInstaller(
 
         //下载整合包模组文件
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_modpack_download),
                 task = Task.runTask(
                     id = "Download.ModPack.Mods",
@@ -210,7 +210,7 @@ class ModPackInstaller(
 
         //分析并匹配模组加载器信息，并构造出游戏安装信息
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 title = context.getString(R.string.download_modpack_get_loaders),
                 task = createRetrieveLoaderTask()
             )
@@ -244,7 +244,7 @@ class ModPackInstaller(
             createIsolation = false, //不在这里开启版本隔离，后面单独设置版本
             onInstalled = { targetClientDir ->
                 //最终整合包安装任务
-                val finalTask = GameInstallTask(
+                val finalTask = TitledTask(
                     title = context.getString(R.string.download_modpack_final_move),
                     task = createFinalInstallTask(
                         targetClientDir = targetClientDir,

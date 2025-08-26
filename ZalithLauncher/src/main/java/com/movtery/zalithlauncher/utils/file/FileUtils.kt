@@ -369,3 +369,37 @@ suspend fun copyDirectoryContents(
         onProgress?.invoke((index + 1).toFloat() / fileCount)
     }
 }
+
+/**
+ * 以递归的方式，收集一个文件夹内的全部文件
+ * @param summitFile 提交获取到的文件
+ */
+fun collectFiles(
+    folder: File,
+    summitFile: (File) -> Unit
+) {
+    if (!folder.exists()) return
+    folder.listFiles()?.forEach { file ->
+        if (file.isDirectory) {
+            collectFiles(file, summitFile)
+        } else if (file.isFile) {
+            summitFile(file)
+        }
+    }
+}
+
+/**
+ * 在[sourceFiles]中找出[targetFiles]中不存在的文件
+ */
+fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<File> {
+    if (targetFiles.isEmpty()) return sourceFiles
+    if (sourceFiles.isEmpty()) return emptyList()
+
+    val targetPaths = targetFiles.mapTo(
+        HashSet(targetFiles.size)
+    ) { it.absolutePath }
+
+    return sourceFiles.filter { sourceFile ->
+        sourceFile.absolutePath !in targetPaths
+    }
+}

@@ -11,15 +11,20 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -33,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +66,9 @@ import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.game.version.installed.cleanup.CleanFailedException
+import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleaner
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
@@ -68,6 +77,7 @@ import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.desaturate
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
+import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -90,6 +100,18 @@ sealed interface VersionsOperation {
     data class Delete(val version: Version, val text: String? = null): VersionsOperation
     data class InvalidDelete(val version: Version): VersionsOperation
     data class RunTask(val title: Int, val task: suspend () -> Unit): VersionsOperation
+}
+
+sealed interface CleanupOperation {
+    data object None : CleanupOperation
+    /** 清理前的提醒 */
+    data object Tip : CleanupOperation
+    /** 开始清理 */
+    data object Clean : CleanupOperation
+    /** 清理失败 */
+    data class Error(val error: Throwable) : CleanupOperation
+    /** 成功清除 */
+    data class Success(val count: Int, val size: String) : CleanupOperation
 }
 
 enum class VersionCategory(val textRes: Int) {
@@ -518,6 +540,95 @@ fun DeleteVersionDialog(
             onCancel = onDismissRequest,
             onDismissRequest = onDismissRequest
         )
+    }
+}
+
+@Composable
+fun CleanupOperation(
+    operation: CleanupOperation,
+    changeOperation: (CleanupOperation) -> Unit,
+    cleaner: GameAssetCleaner?,
+    onClean: () -> Unit,
+    onCancel: () -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+) {
+    when(operation) {
+        is CleanupOperation.None -> {}
+        is CleanupOperation.Tip -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.versions_manage_cleanup),
+                text = {
+                    Text(stringResource(R.string.versions_manage_cleanup_tip))
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.versions_manage_cleanup_warning))
+                    Text("../assets/..")
+                    Text("../libraries/..")
+                },
+                onConfirm = { changeOperation(CleanupOperation.Clean) },
+                onCancel = { changeOperation(CleanupOperation.None) }
+            )
+        }
+        is CleanupOperation.Clean -> {
+            if (cleaner != null) {
+                val tasks = cleaner.tasksFlow.collectAsState()
+                if (tasks.value.isNotEmpty()) {
+                    //功能差不多，直接复用了XD
+                    GameInstallingDialog(
+                        title = stringResource(R.string.versions_manage_cleanup),
+                        tasks = tasks.value,
+                        onCancel = {
+                            onCancel()
+                            changeOperation(CleanupOperation.None)
+                        }
+                    )
+                }
+            } else {
+                onClean()
+            }
+        }
+        is CleanupOperation.Error -> {
+            val error = operation.error
+            if (error is CleanFailedException) {
+                AlertDialog(
+                    onDismissRequest = {},
+                    title = {
+                        Text(
+                            text = stringResource(R.string.generic_warning),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    text = {
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                            Text(stringResource(R.string.versions_manage_cleanup_failed_files))
+                            error.files.forEach { file ->
+                                Text(file.absolutePath)
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(onClick = { changeOperation(CleanupOperation.None) }) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                    }
+                )
+            } else {
+                changeOperation(CleanupOperation.None)
+                summitError(
+                    ErrorViewModel.ThrowableMessage(
+                        title = stringResource(R.string.versions_manage_cleanup_failed),
+                        message = error.getMessageOrToString()
+                    )
+                )
+            }
+        }
+        is CleanupOperation.Success -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.versions_manage_cleanup),
+                text = stringResource(R.string.versions_manage_cleanup_success, operation.count, operation.size)
+            ) {
+                changeOperation(CleanupOperation.None)
+            }
+        }
     }
 }
 

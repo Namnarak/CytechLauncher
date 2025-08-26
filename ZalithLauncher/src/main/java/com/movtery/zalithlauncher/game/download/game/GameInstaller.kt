@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.GlobalContext
+import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
@@ -60,8 +61,8 @@ class GameInstaller(
     private val info: GameDownloadInfo,
     private val scope: CoroutineScope
 ) {
-    private val _tasksFlow: MutableStateFlow<List<GameInstallTask>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<GameInstallTask>> = _tasksFlow
+    private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
+    val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
 
     /**
      * 当前游戏的安装任务
@@ -92,7 +93,7 @@ class GameInstaller(
     fun installGame(
         onInstalled: () -> Unit = {},
         onError: (th: Throwable) -> Unit = {},
-        updateTasks: (List<GameInstallTask>) -> Unit = { tasks ->
+        updateTasks: (List<TitledTask>) -> Unit = { tasks ->
             _tasksFlow.update { tasks }
         }
     ) {
@@ -117,7 +118,7 @@ class GameInstaller(
         createIsolation: Boolean = true,
         onInstalled: suspend (targetClientDir: File) -> Unit = {},
         onError: (th: Throwable) -> Unit = {},
-        updateTasks: (List<GameInstallTask>) -> Unit = { tasks ->
+        updateTasks: (List<TitledTask>) -> Unit = { tasks ->
             _tasksFlow.update { tasks }
         }
     ) = withContext(Dispatchers.IO) {
@@ -148,11 +149,11 @@ class GameInstaller(
         //Mods临时目录
         val tempModsDir = File(tempGameDir, ".temp_mods")
 
-        val tasks: MutableList<GameInstallTask> = mutableListOf()
+        val tasks: MutableList<TitledTask> = mutableListOf()
 
         //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 context.getString(R.string.download_install_clear_temp),
                 Task.runTask(
                     id = "Download.Game.ClearTemp",
@@ -173,7 +174,7 @@ class GameInstaller(
 
         //下载安装原版
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 context.getString(R.string.download_game_install_vanilla, info.gameVersion),
                 createMinecraftDownloadTask(info.gameVersion, tempGameVersionsDir)
             )
@@ -187,8 +188,12 @@ class GameInstaller(
 
                 //将OptiFine作为版本下载，其余情况则作为Mod下载
                 tasks.add(
-                    GameInstallTask(
-                        context.getString(R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, info.optifine.displayName),
+                    TitledTask(
+                        context.getString(
+                            R.string.download_game_install_base_download_file,
+                            ModLoader.OPTIFINE.displayName,
+                            info.optifine.displayName
+                        ),
                         getOptiFineDownloadTask(
                             targetTempInstaller = targetInstaller,
                             optifine = optifineVersion
@@ -198,8 +203,11 @@ class GameInstaller(
 
                 //安装 OptiFine
                 tasks.add(
-                    GameInstallTask(
-                        context.getString(R.string.download_game_install_base_install, ModLoader.OPTIFINE.displayName),
+                    TitledTask(
+                        context.getString(
+                            R.string.download_game_install_base_install,
+                            ModLoader.OPTIFINE.displayName
+                        ),
                         getOptiFineInstallTask(
                             tempGameDir = tempGameDir,
                             tempMinecraftDir = tempMinecraftDir,
@@ -212,8 +220,12 @@ class GameInstaller(
             } else {
                 //仅作为Mod进行下载
                 tasks.add(
-                    GameInstallTask(
-                        context.getString(R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, info.optifine.displayName),
+                    TitledTask(
+                        context.getString(
+                            R.string.download_game_install_base_download_file,
+                            ModLoader.OPTIFINE.displayName,
+                            info.optifine.displayName
+                        ),
                         getOptiFineModsDownloadTask(
                             optifine = optifineVersion,
                             tempModsDir = tempModsDir
@@ -254,8 +266,12 @@ class GameInstaller(
         }
         info.fabricAPI?.let { apiVersion ->
             tasks.add(
-                GameInstallTask(
-                    context.getString(R.string.download_game_install_base_download_file, ModLoader.FABRIC_API.displayName, info.fabricAPI.displayName),
+                TitledTask(
+                    context.getString(
+                        R.string.download_game_install_base_download_file,
+                        ModLoader.FABRIC_API.displayName,
+                        info.fabricAPI.displayName
+                    ),
                     createModLikeDownloadTask(
                         tempModsDir = tempModsDir,
                         modVersion = apiVersion
@@ -273,8 +289,12 @@ class GameInstaller(
         }
         info.quiltAPI?.let { apiVersion ->
             tasks.add(
-                GameInstallTask(
-                    context.getString(R.string.download_game_install_base_download_file, ModLoader.QUILT_API.displayName, info.quiltAPI.displayName),
+                TitledTask(
+                    context.getString(
+                        R.string.download_game_install_base_download_file,
+                        ModLoader.QUILT_API.displayName,
+                        info.quiltAPI.displayName
+                    ),
                     createModLikeDownloadTask(
                         tempModsDir = tempModsDir,
                         modVersion = apiVersion
@@ -284,10 +304,12 @@ class GameInstaller(
         }
 
         tasks.add(
-            GameInstallTask(
+            TitledTask(
                 context.getString(R.string.download_game_install_game_files_progress),
                 //如果有非原版以外的任务，则需要进行处理安装（合并版本Json、迁移文件等）
-                if (optifineDir != null || forgeDir != null || neoforgeDir != null || fabricDir != null || quiltDir != null || tempModsDir.listFiles()?.isNotEmpty() == true) {
+                if (optifineDir != null || forgeDir != null || neoforgeDir != null || fabricDir != null || quiltDir != null || tempModsDir.listFiles()
+                        ?.isNotEmpty() == true
+                ) {
                     createGameInstalledTask(
                         tempMinecraftDir = tempMinecraftDir,
                         targetMinecraftDir = targetGameFolder,
@@ -328,7 +350,7 @@ class GameInstaller(
     }
 
     private suspend fun startInstall(
-        tasks: List<GameInstallTask>,
+        tasks: List<TitledTask>,
         onInstalled: suspend () -> Unit,
         onError: (th: Throwable) -> Unit
     ) = withContext(Dispatchers.Default) {
@@ -426,7 +448,7 @@ class GameInstaller(
         tempGameDir: File,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (GameInstallTask) -> Unit
+        addTask: (TitledTask) -> Unit
     ) {
         //类似 1.19.3-41.2.8 格式，优先使用 Version 中要求的版本而非 Inherit（例如 1.19.3 却使用了 1.19 的 Forge）
         val (processedInherit, processedLoaderVersion) =
@@ -441,8 +463,12 @@ class GameInstaller(
         val tempInstaller = targetTempForgeLikeInstaller(tempGameDir)
         //下载安装器
         addTask(
-            GameInstallTask(
-                context.getString(R.string.download_game_install_base_download_file, forgeLikeVersion.loaderName, processedLoaderVersion),
+            TitledTask(
+                context.getString(
+                    R.string.download_game_install_base_download_file,
+                    forgeLikeVersion.loaderName,
+                    processedLoaderVersion
+                ),
                 getForgeLikeDownloadTask(tempInstaller, forgeLikeVersion)
             )
         )
@@ -451,8 +477,11 @@ class GameInstaller(
 
         if (isNew) {
             addTask(
-                GameInstallTask(
-                    context.getString(R.string.download_game_install_forgelike_analyse, forgeLikeVersion.loaderName),
+                TitledTask(
+                    context.getString(
+                        R.string.download_game_install_forgelike_analyse,
+                        forgeLikeVersion.loaderName
+                    ),
                     getForgeLikeAnalyseTask(
                         downloader = downloader,
                         targetTempInstaller = tempInstaller,
@@ -467,8 +496,11 @@ class GameInstaller(
         }
 
         addTask(
-            GameInstallTask(
-                context.getString(R.string.download_game_install_base_install, forgeLikeVersion.loaderName),
+            TitledTask(
+                context.getString(
+                    R.string.download_game_install_base_install,
+                    forgeLikeVersion.loaderName
+                ),
                 getForgeLikeInstallTask(
                     isNew = isNew,
                     downloader = downloader,
@@ -487,14 +519,18 @@ class GameInstaller(
         fabricLikeVersion: FabricLikeVersion,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (GameInstallTask) -> Unit
+        addTask: (TitledTask) -> Unit
     ) {
         val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
 
         //下载 Json
         addTask(
-            GameInstallTask(
-                context.getString(R.string.download_game_install_base_download_file, fabricLikeVersion.loaderName, fabricLikeVersion.version),
+            TitledTask(
+                context.getString(
+                    R.string.download_game_install_base_download_file,
+                    fabricLikeVersion.loaderName,
+                    fabricLikeVersion.version
+                ),
                 getFabricLikeDownloadTask(
                     fabricLikeVersion = fabricLikeVersion,
                     tempVersionJson = tempVersionJson
@@ -504,12 +540,15 @@ class GameInstaller(
 
         //补全游戏库
         addTask(
-            GameInstallTask(
-                context.getString(R.string.download_game_install_forgelike_analyse, fabricLikeVersion.loaderName),
+            TitledTask(
+                context.getString(
+                    R.string.download_game_install_forgelike_analyse,
+                    fabricLikeVersion.loaderName
+                ),
                 getFabricLikeCompleterTask(
                     downloader = downloader,
                     tempMinecraftDir = tempMinecraftDir,
-                    tempVersionJson= tempVersionJson
+                    tempVersionJson = tempVersionJson
                 )
             )
         )
