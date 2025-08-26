@@ -44,7 +44,9 @@ object ForgeVersions {
                 MirrorSourceType.OFFICIAL_FIRST -> listOf(fetchListWithOfficial(mcVersion, 5), fetchListWithBMCLAPI(mcVersion, 5 + 30))
                 MirrorSourceType.MIRROR_FIRST -> listOf(fetchListWithBMCLAPI(mcVersion, 30), fetchListWithOfficial(mcVersion, 30 + 60))
             }
-        )
+        )?.sortedWith { o1, o2 ->
+            o2.forgeBuildVersion.compareTo(o1.forgeBuildVersion)
+        }
     }
 
     /**

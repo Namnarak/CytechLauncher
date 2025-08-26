@@ -34,7 +34,10 @@ object OptiFineVersions {
     /**
      * 获取 OptiFine 版本列表
      */
-    suspend fun fetchOptiFineList(force: Boolean = false): List<OptiFineVersion>? = withContext(Dispatchers.IO) {
+    suspend fun fetchOptiFineList(
+        force: Boolean = false,
+        gameVersion: String
+    ): List<OptiFineVersion>? = withContext(Dispatchers.IO) {
         runMirrorable(
             when (AllSettings.fetchModLoaderSource.getValue()) {
                 MirrorSourceType.OFFICIAL_FIRST -> listOf(
@@ -46,7 +49,9 @@ object OptiFineVersions {
                     fetchListWithOfficial(force, 30 + 60)
                 )
             }
-        )
+        )?.filter {
+            it.inherit == gameVersion
+        }?.reversed()
     }
 
     /**

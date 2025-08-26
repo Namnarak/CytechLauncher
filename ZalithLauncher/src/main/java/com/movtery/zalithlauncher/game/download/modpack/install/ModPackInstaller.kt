@@ -341,8 +341,8 @@ class ModPackInstaller(
                         }
                     }
                     ModLoader.NEOFORGE -> {
-                        NeoForgeVersions.fetchNeoForgeList()?.find {
-                            it.inherit == gameVersion && it.versionName == version
+                        NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion)?.find {
+                            it.versionName == version
                         }?.let { neoforgeVersion ->
                             gameInfo = gameInfo.copy(neoforge = neoforgeVersion)
                         }

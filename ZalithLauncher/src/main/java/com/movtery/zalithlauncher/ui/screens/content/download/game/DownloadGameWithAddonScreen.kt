@@ -133,7 +133,7 @@ private class AddonsViewModel(
 
     fun reloadOptiFine() = launchAddonReload(
         { currentAddon.optifineState = it },
-        { OptiFineVersions.fetchOptiFineList()?.filter { it.inherit == gameVersion } },
+        { OptiFineVersions.fetchOptiFineList(gameVersion = gameVersion) },
         { addonList.optifineList = it }
     )
 
@@ -145,7 +145,7 @@ private class AddonsViewModel(
 
     fun reloadNeoForge() = launchAddonReload(
         { currentAddon.neoforgeState = it },
-        { NeoForgeVersions.fetchNeoForgeList()?.filter { it.inherit == gameVersion } },
+        { NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion) },
         { addonList.neoforgeList = it }
     )
 

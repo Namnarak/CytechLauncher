@@ -24,14 +24,21 @@ object NeoForgeVersions {
      * 获取 NeoForge 版本列表
      * [Reference PCL2](https://github.com/Meloong-Git/PCL/blob/28ef67e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L811-L830)
      */
-    suspend fun fetchNeoForgeList(force: Boolean = false): List<NeoForgeVersion>? = withContext(Dispatchers.Default) {
+    suspend fun fetchNeoForgeList(
+        force: Boolean = false,
+        gameVersion: String
+    ): List<NeoForgeVersion>? = withContext(Dispatchers.Default) {
         if (!force) cacheResult?.let { return@withContext it }
         runMirrorable(
             when (AllSettings.fetchModLoaderSource.getValue()) {
                 MirrorSourceType.OFFICIAL_FIRST -> listOf(fetchListWithOfficial(5), fetchListWithBMCLAPI(5 + 30))
                 MirrorSourceType.MIRROR_FIRST -> listOf(fetchListWithBMCLAPI(30), fetchListWithOfficial(30 + 60))
             }
-        )
+        )?.filter {
+            it.inherit == gameVersion
+        }?.sortedWith { o1, o2 ->
+            o2.forgeBuildVersion.compareTo(o1.forgeBuildVersion)
+        }
     }.also {
         cacheResult = it
     }
