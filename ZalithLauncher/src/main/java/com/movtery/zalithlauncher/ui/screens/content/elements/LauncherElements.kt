@@ -22,7 +22,6 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -189,16 +188,15 @@ fun LaunchGameOperation(
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     when (launchGameOperation) {
         is LaunchGameOperation.None -> {}
         is LaunchGameOperation.NoVersion -> {
-            Toast.makeText(context, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
             toVersionManageScreen()
             updateOperation(LaunchGameOperation.None)
         }
         is LaunchGameOperation.NoAccount -> {
-            Toast.makeText(context, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
             toAccountManageScreen()
             updateOperation(LaunchGameOperation.None)
         }
@@ -247,7 +245,7 @@ fun LaunchGameOperation(
             }
 
             //开始检查渲染器的版本支持情况
-            Renderers.setCurrentRenderer(context, version.getRenderer())
+            Renderers.setCurrentRenderer(activity, version.getRenderer())
             val currentRenderer = Renderers.getCurrentRenderer()
             val rendererMinVer = currentRenderer.getMinMCVersion()
             val rendererMaxVer = currentRenderer.getMaxMCVersion()
@@ -282,7 +280,7 @@ fun LaunchGameOperation(
                 offlineAccountLogin = false
                 quickPlaySingle = quickPlay
             }
-            LaunchGame.launchGame(context, version, summitError)
+            LaunchGame.launchGame(activity, version, summitError)
             updateOperation(LaunchGameOperation.None)
         }
     }
