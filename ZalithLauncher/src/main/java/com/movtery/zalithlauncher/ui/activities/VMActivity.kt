@@ -90,6 +90,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         val exitListener = { exitCode: Int, isSignal: Boolean ->
             if (exitCode != 0) {
                 ErrorActivity.showExitMessage(this, exitCode, isSignal)
+            } else {
+                //重启启动器
+                startActivity(Intent(this@VMActivity, MainActivity::class.java))
             }
         }
 

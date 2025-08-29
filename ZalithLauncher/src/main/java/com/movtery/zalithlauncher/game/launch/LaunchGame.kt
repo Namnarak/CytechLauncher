@@ -28,6 +28,7 @@ object LaunchGame {
     fun launchGame(
         context: Context,
         version: Version,
+        exitActivity: () -> Unit,
         summitError: (ErrorViewModel.ThrowableMessage) -> Unit
     ) {
         if (isLaunching) return
@@ -44,6 +45,7 @@ object LaunchGame {
             mode = DownloadMode.VERIFY_AND_REPAIR,
             onCompletion = {
                 runGame(context, version)
+                exitActivity()
             },
             onError = { message ->
                 summitError(

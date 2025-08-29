@@ -117,6 +117,9 @@ class MainActivity : BaseComponentActivity() {
                         activity = this@MainActivity,
                         launchGameOperation = launchGameViewModel.launchGameOperation,
                         updateOperation = { launchGameViewModel.updateOperation(it) },
+                        exitActivity = {
+                            this@MainActivity.finish()
+                        },
                         summitError = {
                             errorViewModel.showError(it)
                         },
