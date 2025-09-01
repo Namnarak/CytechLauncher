@@ -221,6 +221,12 @@ object AllSettings : SettingsRegistry() {
      */
     val fileDownloadSource = enumSetting("fileDownloadSource", MirrorSourceType.OFFICIAL_FIRST)
 
+    //Control
+    /**
+     * 全局默认控制布局文件名
+     */
+    val controlLayout = stringSetting("controlLayout", "")
+
     //Other
     /**
      * 当前选择的账号

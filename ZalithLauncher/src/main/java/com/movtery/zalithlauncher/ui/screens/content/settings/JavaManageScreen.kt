@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -69,7 +70,7 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageO
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 
-sealed interface RuntimeOperation {
+private sealed interface RuntimeOperation {
     data object None: RuntimeOperation
     data class PreDelete(val runtime: Runtime): RuntimeOperation
     data class Delete(val runtime: Runtime): RuntimeOperation
@@ -336,15 +337,16 @@ private fun JavaRuntimeItem(
         shadowElevation = 1.dp,
         onClick = onClick
     ) {
-        Row {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = runtime.name,
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.titleSmall
                 )
                 //环境标签
                 Row(
@@ -354,20 +356,20 @@ private fun JavaRuntimeItem(
                     if (runtime.isProvidedByLauncher) {
                         Text(
                             text = stringResource(R.string.multirt_runtime_provided_by_launcher),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                     Text(
                         text =  runtime.versionString?.let {
                             stringResource(R.string.multirt_runtime_version_name, it)
                         } ?: stringResource(R.string.multirt_runtime_corrupt),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = if (runtime.versionString != null) contentColor else MaterialTheme.colorScheme.error
                     )
                     runtime.javaVersion.takeIf { it != 0 }?.let { javaVersion ->
                         Text(
                             text = stringResource(R.string.multirt_runtime_version_code, javaVersion),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                     runtime.arch?.let { arch ->
@@ -378,7 +380,7 @@ private fun JavaRuntimeItem(
                             }?.let {
                                 stringResource(R.string.multirt_runtime_version_arch, it)
                             } ?: stringResource(R.string.multirt_runtime_incompatible_arch, arch),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = if (compatible) contentColor else MaterialTheme.colorScheme.error
                         )
                     }

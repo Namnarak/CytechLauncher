@@ -7,6 +7,7 @@ import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.path.getVersionsHome
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
@@ -116,6 +117,11 @@ class Version(
     fun getRenderer(): String = versionConfig.renderer.getValueOrDefault(AllSettings.renderer.getValue())
 
     fun getDriver(): String = versionConfig.driver.getValueOrDefault(AllSettings.vulkanDriver.getValue())
+
+    fun getControlPath(): File? = versionConfig.control
+        .getValueOrDefault(AllSettings.controlLayout.getValue())
+        .takeIf { it.isNotEmpty() }
+        ?.let { fileName -> File(PathManager.DIR_CONTROL_LAYOUTS, fileName) }
 
     fun getJavaRuntime(): String = versionConfig.javaRuntime
 

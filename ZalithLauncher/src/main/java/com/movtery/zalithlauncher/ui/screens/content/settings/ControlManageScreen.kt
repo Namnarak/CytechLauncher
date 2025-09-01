@@ -1,54 +1,765 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
+import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.utils.AUTHOR_NAME_LENGTH
+import com.movtery.layer_controller.utils.NAME_LENGTH
+import com.movtery.layer_controller.utils.VERSION_NAME_LENGTH
+import com.movtery.layer_controller.utils.lang.TranslatableString
+import com.movtery.layer_controller.utils.newRandomFileName
+import com.movtery.layer_controller.utils.saveToFile
+import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.control.ControlData
+import com.movtery.zalithlauncher.game.control.ControlManager
+import com.movtery.zalithlauncher.path.PathManager
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import org.apache.commons.io.FileUtils
+import java.io.File
+import java.util.Locale
+
+private sealed interface ControlOperation {
+    data object None : ControlOperation
+    /** 创建新布局弹窗 */
+    data object CreateNew : ControlOperation
+}
+
+private class ControlViewModel : ViewModel() {
+    var operation by mutableStateOf<ControlOperation>(ControlOperation.None)
+
+    fun createNew(
+        layout: ControlLayout,
+        summitError: (Exception) -> Unit
+    ) {
+        viewModelScope.launch {
+            val file = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
+            try {
+                layout.saveToFile(file)
+            } catch (e: Exception) {
+                summitError(e)
+                FileUtils.deleteQuietly(file)
+            }
+            ControlManager.refresh()
+        }
+    }
+
+    override fun onCleared() {
+        viewModelScope.cancel()
+    }
+}
+
+@Composable
+private fun rememberControlViewModel() = viewModel(
+    key = NormalNavKey.Settings.ControlManager.toString()
+) {
+    ControlViewModel()
+}
 
 @Composable
 fun ControlManageScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
-    mainScreenKey: NavKey?
+    mainScreenKey: NavKey?,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val viewModel = rememberControlViewModel()
+    val dataList by ControlManager.dataList.collectAsState()
+    val context = LocalContext.current
+
+    val configuration = LocalConfiguration.current
+    val locale = configuration.locales[0]
+
+    ControlOperation(
+        operation = viewModel.operation,
+        changeOperation = { viewModel.operation = it },
+        onCreate = { name, author, versionName ->
+            val layout = ControlLayout.Empty.copy(
+                info = ControlLayout.Info.Empty.copy(
+                    name = TranslatableString.create(default = name),
+                    author = TranslatableString.create(default = author),
+                    versionName = versionName
+                )
+            )
+            viewModel.createNew(layout) { e ->
+                summitError(
+                    ErrorViewModel.ThrowableMessage(
+                        title = context.getString(R.string.control_manage_failed_to_save),
+                        message = e.getMessageOrToString()
+                    )
+                )
+            }
+        }
+    )
+
     BaseScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.ControlManager, settingsScreenKey, false)
     ) { isVisible ->
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(all = 12.dp)
+                .padding(all = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            val yOffset by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
+            val xOffset1 by swapAnimateDpAsState(
+                targetValue = 40.dp,
+                swapIn = isVisible,
+                isHorizontal = true
             )
 
-            SettingsBackground(
+            ControlLayoutList(
                 modifier = Modifier
+                    .weight(0.5f)
                     .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset.roundToPx()
+                        IntOffset(x = xOffset1.roundToPx(), y = 0)
+                    },
+                dataList = dataList,
+                locale = locale,
+                isLoading = ControlManager.isRefreshing,
+                onRefresh = {
+                    ControlManager.refresh()
+                },
+                onImport = {
+
+                },
+                onCreate = {
+                    viewModel.operation = ControlOperation.CreateNew
+                }
+            )
+
+            val xOffset2 by swapAnimateDpAsState(
+                targetValue = 40.dp,
+                swapIn = isVisible,
+                isHorizontal = true,
+                delayMillis = 50
+            )
+
+            ControlLayoutInfo(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .offset {
+                        IntOffset(x = xOffset2.roundToPx(), y = 0)
+                    },
+                isLoading = ControlManager.isRefreshing,
+                data = ControlManager.selectedLayout,
+                locale = locale,
+                onEditLayout = { data ->
+                    startEditorActivity(context, data.file)
+                }
+            )
+        }
+    }
+}
+
+/**
+ * 控制布局相关操作
+ */
+@Composable
+private fun ControlOperation(
+    operation: ControlOperation,
+    changeOperation: (ControlOperation) -> Unit,
+    onCreate: (name: String, author: String, versionName: String) -> Unit
+) {
+    when (operation) {
+        is ControlOperation.None -> {}
+        is ControlOperation.CreateNew -> {
+            CreateNewLayoutDialog(
+                onDismissRequest = { changeOperation(ControlOperation.None) },
+                onCreate = onCreate
+            )
+        }
+    }
+}
+
+/**
+ * 左侧：控制布局展示列表
+ */
+@Composable
+private fun ControlLayoutList(
+    modifier: Modifier = Modifier,
+    dataList: List<ControlData>,
+    locale: Locale,
+    isLoading: Boolean,
+    onRefresh: () -> Unit,
+    onImport: () -> Unit,
+    onCreate: () -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxHeight(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            ControlListHeader(
+                modifier = Modifier.fillMaxWidth(),
+                onRefresh = onRefresh,
+                onImport = onImport,
+                onCreate = onCreate
+            )
+
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            if (dataList.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    items(dataList) { data ->
+                        ControlLayoutItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp),
+                            data = data,
+                            locale = locale,
+                            selected = data.file.name == AllSettings.controlLayout.state,
+                            onSelected = { ControlManager.selectControl(data) }
                         )
                     }
+                }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ScalingLabel(text = stringResource(R.string.control_manage_list_empty))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 左侧：控制布局列表顶部操作栏
+ */
+@Composable
+private fun ControlListHeader(
+    modifier: Modifier = Modifier,
+    onRefresh: () -> Unit,
+    onImport: () -> Unit,
+    onCreate: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(state = rememberScrollState())
+            .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconTextButton(
+            onClick = onRefresh,
+            imageVector = Icons.Filled.Refresh,
+            contentDescription = stringResource(R.string.generic_refresh),
+            text = stringResource(R.string.generic_refresh),
+        )
+        IconTextButton(
+            onClick = onImport,
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(R.string.generic_import),
+            text = stringResource(R.string.generic_import),
+        )
+        IconTextButton(
+            onClick = onCreate,
+            imageVector = Icons.Outlined.AddBox,
+            contentDescription = stringResource(R.string.control_manage_create_new),
+            text = stringResource(R.string.control_manage_create_new),
+        )
+    }
+}
+
+/**
+ * 控制布局单项外观
+ */
+@Composable
+private fun ControlLayoutItem(
+    modifier: Modifier = Modifier,
+    data: ControlData,
+    locale: Locale,
+    selected: Boolean,
+    onSelected: () -> Unit,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    val scale = remember { Animatable(initialValue = 0.95f) }
+    LaunchedEffect(Unit) {
+        scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
+    }
+    Surface(
+        modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = {
+            if (selected) return@Surface
+            onSelected()
+        }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape = MaterialTheme.shapes.large)
+                .padding(all = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (data.isSupport) {
+                RadioButton(
+                    selected = selected,
+                    onClick = {
+                        if (selected) return@RadioButton
+                        onSelected()
+                    }
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    MarqueeText(
+                        text = data.controlLayout.info.name.translate(locale),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    MarqueeText(
+                        text = data.controlLayout.info.versionName,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                MarqueeText(
+                    text = data.file.name,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 右侧：控制布局详细信息
+ */
+@Composable
+private fun ControlLayoutInfo(
+    modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    data: ControlData? = null,
+    locale: Locale,
+    onEditLayout: (ControlData) -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxHeight(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
-                Box(modifier = Modifier.fillMaxSize()) { Text(modifier = Modifier.align(Alignment.Center) , text = "TODO") }
+                CircularProgressIndicator()
+            }
+        } else if (data == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ScalingLabel(text = stringResource(R.string.control_manage_info_empty))
+            }
+        } else if (!data.isSupport) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ScalingLabel(text = stringResource(R.string.control_manage_info_unsupport))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                contentPadding = PaddingValues(all = 12.dp)
+            ) {
+                item {
+                    val name = data.controlLayout.info.name.translate(locale)
+                    ControlInfoItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.control_manage_create_new_name),
+                        value = if (name.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else name,
+                        onEdit = {}
+                    )
+                }
+
+                item {
+                    val author = data.controlLayout.info.author.translate(locale)
+                    ControlInfoItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.control_manage_create_new_author),
+                        value = if (author.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else author,
+                        onEdit = {}
+                    )
+                }
+
+                item {
+                    val versionName = data.controlLayout.info.versionName
+                    ControlInfoItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.control_manage_create_new_version_name),
+                        value = if (versionName.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else versionName,
+                        onEdit = {}
+                    )
+                }
+
+                item {
+                    val description =  data.controlLayout.info.description.translate(locale)
+                    if (description.isEmptyOrBlank()) {
+                        ControlInfoItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_manage_info_description),
+                            value = stringResource(R.string.control_manage_info_description_empty),
+                            onEdit = {}
+                        )
+                    } else {
+                        ControlInfoItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            onEdit = {}
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.control_manage_info_description),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            ScalingActionButton(
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
+                onClick = { onEditLayout(data) }
+            ) {
+                MarqueeText(
+                    text = stringResource(R.string.control_manage_info_edit)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ControlInfoItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    onEdit: () -> Unit,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    ControlInfoItem(
+        modifier = modifier,
+        onEdit = onEdit,
+        color = color,
+        contentColor = contentColor
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        MarqueeText(
+            modifier = Modifier.weight(1f),
+            text = value,
+            textAlign = TextAlign.End,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun ControlInfoItem(
+    modifier: Modifier = Modifier,
+    onEdit: () -> Unit,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    content: @Composable RowScope.() -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = onEdit
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape = MaterialTheme.shapes.large)
+                .padding(all = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            content = content
+        )
+    }
+}
+
+
+/**
+ * 创建新控制布局对话框
+ */
+@Composable
+private fun CreateNewLayoutDialog(
+    onDismissRequest: () -> Unit,
+    onCreate: (name: String, author: String, versionName: String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf("") }
+    var versionName by remember { mutableStateOf("1.0") }
+
+    val blankError = stringResource(R.string.control_manage_create_new_field_blank)
+    val longError = stringResource(R.string.control_manage_create_new_field_long)
+
+    var nameError by remember { mutableStateOf<String?>(null) }
+    val isNameError = remember(name) {
+        nameError = when {
+            name.isEmptyOrBlank() -> blankError
+            name.length > NAME_LENGTH -> longError
+            else -> null
+        }
+        nameError != null
+    }
+    var authorNameError by remember { mutableStateOf<String?>(null) }
+    val isAuthorNameError = remember(author) {
+        authorNameError = when {
+            author.isEmptyOrBlank() -> blankError
+            author.length > AUTHOR_NAME_LENGTH -> longError
+            else -> null
+        }
+        authorNameError != null
+    }
+    var versionNameError by remember { mutableStateOf<String?>(null) }
+    val isVersionNameError = remember(versionName) {
+        versionNameError = when {
+            versionName.isEmptyOrBlank() -> blankError
+            versionName.length > VERSION_NAME_LENGTH -> longError
+            else -> null
+        }
+        versionNameError != null
+    }
+
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.control_manage_create_new_title),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val focusManager = LocalFocusManager.current
+                    val authorFocus = remember { FocusRequester() }
+                    val versionNameFocus = remember { FocusRequester() }
+
+                    //名称
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = name,
+                        onValueChange = { name = it },
+                        label = {
+                            Text(text = stringResource(R.string.control_manage_create_new_name))
+                        },
+                        isError = isNameError,
+                        supportingText = {
+                            nameError?.let { Text(it) }
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                authorFocus.requestFocus()
+                            }
+                        ),
+                        shape = MaterialTheme.shapes.large
+                    )
+
+                    //作者
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth().focusRequester(authorFocus),
+                        value = author,
+                        onValueChange = { author = it },
+                        label = {
+                            Text(text = stringResource(R.string.control_manage_create_new_author))
+                        },
+                        isError = isAuthorNameError,
+                        supportingText = {
+                            authorNameError?.let { Text(it) }
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                versionNameFocus.requestFocus()
+                            }
+                        ),
+                        shape = MaterialTheme.shapes.large
+                    )
+
+                    //版本
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth().focusRequester(versionNameFocus),
+                        value = versionName,
+                        onValueChange = { versionName = it },
+                        label = {
+                            Text(text = stringResource(R.string.control_manage_create_new_version_name))
+                        },
+                        isError = isVersionNameError,
+                        supportingText = {
+                            versionNameError?.let { Text(it) }
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus(true)
+                            }
+                        ),
+                        shape = MaterialTheme.shapes.large
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = onDismissRequest
+                    ) {
+                        MarqueeText(text = stringResource(R.string.generic_cancel))
+                    }
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = onClick@{
+                            if (isNameError || isAuthorNameError || isVersionNameError) return@onClick
+                            onDismissRequest()
+                            onCreate(name, author, versionName)
+                        }
+                    ) {
+                        MarqueeText(text = stringResource(R.string.control_manage_create_new))
+                    }
+                }
             }
         }
     }

@@ -1,0 +1,36 @@
+package com.movtery.layer_controller.observable
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.movtery.layer_controller.data.NormalData
+
+/**
+ * 可观察的NormalData包装类
+ */
+class ObservableNormalData(data: NormalData) : ObservableTextData(data) {
+    var clickEvents by mutableStateOf(data.clickEvents)
+    var isSwipple by mutableStateOf(data.isSwipple)
+    var isPenetrable by mutableStateOf(data.isPenetrable)
+    var isToggleable by mutableStateOf(data.isToggleable)
+
+    /**
+     * 当前是否处于按下状态
+     */
+    var isPressed by mutableStateOf(false)
+
+    fun packNormal(): NormalData {
+        return NormalData(
+            text = text,
+            uuid = uuid,
+            position = position,
+            buttonSize = buttonSize,
+            buttonStyle = buttonStyle,
+            visibilityType = visibilityType,
+            clickEvents = clickEvents,
+            isSwipple = isSwipple,
+            isPenetrable = isPenetrable,
+            isToggleable = isToggleable
+        )
+    }
+}

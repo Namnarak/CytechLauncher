@@ -175,6 +175,117 @@ fun MenuSubscreen(
 }
 
 @Composable
+fun DualMenuSubscreen(
+    state: MenuState,
+    closeScreen: () -> Unit,
+    shape: Shape = RoundedCornerShape(21.0.dp),
+    backgroundColor: Color = Color.Black.copy(alpha = 0.25f),
+    backgroundAnimDuration: Int = 150,
+    leftMenuContent: @Composable ColumnScope.() -> Unit = {},
+    rightMenuContent: @Composable ColumnScope.() -> Unit = {}
+) {
+    val visible = state == MenuState.SHOW
+
+    val animationProgress = remember { Animatable(0f) }
+    var shouldRender by remember { mutableStateOf(false) }
+
+    LaunchedEffect(visible) {
+        if (visible) {
+            shouldRender = true
+            animationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(backgroundAnimDuration)
+            )
+        } else {
+            animationProgress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(backgroundAnimDuration)
+            )
+            shouldRender = false
+        }
+    }
+
+    val bgAlpha by remember {
+        derivedStateOf { animationProgress.value }
+    }
+
+    val leftMenuOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp, //从左
+        swapIn = visible,
+        isHorizontal = true,
+        animationSpec = getAnimateTweenJellyBounce()
+    )
+
+    val rightMenuOffset by swapAnimateDpAsState(
+        targetValue = 40.dp, //从右
+        swapIn = visible,
+        isHorizontal = true,
+        animationSpec = getAnimateTweenJellyBounce()
+    )
+
+    if (shouldRender) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            //背景阴影层
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(bgAlpha)
+                    .background(color = backgroundColor)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = closeScreen
+                    )
+            )
+
+            //左侧菜单
+            if (animationProgress.value > 0f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxWidth(fraction = 1f / 3f)
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, start = 12.dp, bottom = 12.dp)
+                        .offset {
+                            IntOffset(x = leftMenuOffset.roundToPx(), y = 0)
+                        }
+                ) {
+                    Card(
+                        shape = shape,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(animationProgress.value),
+                        content = { leftMenuContent() }
+                    )
+                }
+            }
+
+            //右侧菜单
+            if (animationProgress.value > 0f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxWidth(fraction = 1f / 3f)
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
+                        .offset {
+                            IntOffset(x = rightMenuOffset.roundToPx(), y = 0)
+                        }
+                ) {
+                    Card(
+                        shape = shape,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(animationProgress.value),
+                        content = { rightMenuContent() }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun MenuTextButton(
     modifier: Modifier = Modifier,
     text: String,

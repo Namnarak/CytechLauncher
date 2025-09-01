@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -96,13 +97,15 @@ fun ScalingActionButton(
 fun MarqueeText(
     modifier: Modifier = Modifier,
     text: String,
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
+    textAlign: TextAlign? = null
 ) {
     Text(
         modifier = modifier.basicMarquee(Int.MAX_VALUE),
         text = text,
         style = style,
-        maxLines = 1
+        maxLines = 1,
+        textAlign = textAlign
     )
 }
 

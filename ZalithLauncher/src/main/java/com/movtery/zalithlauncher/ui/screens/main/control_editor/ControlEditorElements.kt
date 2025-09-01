@@ -1,0 +1,289 @@
+package com.movtery.zalithlauncher.ui.screens.main.control_editor
+
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableControlLayer
+import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.DraggableBox
+import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
+import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.components.MenuTextButton
+import com.movtery.zalithlauncher.ui.components.ScalingActionButton
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+
+/**
+ * 控制布局编辑器操作状态
+ */
+sealed interface EditorOperation {
+    data object None : EditorOperation
+    /** 选择了一个控件 */
+    data class SelectButton(val data: ObservableBaseData) : EditorOperation
+    /** 没有控件层级，提醒用户添加 */
+    data object WarningNoLayers : EditorOperation
+    /** 没有选择控件层，提醒用户选择 */
+    data object WarningNoSelectLayer : EditorOperation
+    /** 控制布局正在保存中 */
+    data object Saving : EditorOperation
+    /** 控制布局保存失败 */
+    data class SaveFailed(val error: Throwable) : EditorOperation
+}
+
+@Composable
+fun MenuBox(
+    onClick: () -> Unit
+) {
+    DraggableBox(
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(all = 2.dp)
+                .animateContentSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier.size(28.dp),
+                imageVector = Icons.Default.Settings,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+@Composable
+fun EditorMenu(
+    state: MenuState,
+    closeScreen: () -> Unit,
+    layers: List<ObservableControlLayer>,
+    selectedLayer: ObservableControlLayer?,
+    onLayerSelected: (ObservableControlLayer) -> Unit,
+    createLayer: () -> Unit,
+    deleteLayer: (ObservableControlLayer) -> Unit,
+    addNewButton: () -> Unit,
+    addNewText: () -> Unit,
+    saveAndExit: () -> Unit
+) {
+    DualMenuSubscreen(
+        state = state,
+        closeScreen = closeScreen,
+        leftMenuContent = {
+            Text(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.control_editor_menu_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            )
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(all = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                //添加按钮
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_new_widget_button),
+                        onClick = addNewButton
+                    )
+                }
+
+                //添加文本框
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_new_widget_text),
+                        onClick = addNewText
+                    )
+                }
+
+                //保存并退出
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_save_and_exit),
+                        onClick = saveAndExit
+                    )
+                }
+            }
+        },
+        rightMenuContent = {
+            Text(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .align(Alignment.CenterHorizontally),
+                text = stringResource(R.string.control_editor_layers_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+            )
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(all = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(layers) { layer ->
+                    ControlLayerItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        layer = layer,
+                        selected = selectedLayer == layer,
+                        onSelected = {
+                            onLayerSelected(layer)
+                        },
+                        deleteLayer = {
+                            deleteLayer(layer)
+                        }
+                    )
+                }
+            }
+            ScalingActionButton(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 4.dp)
+                    .fillMaxWidth(),
+                onClick = createLayer
+            ) {
+                MarqueeText(text = stringResource(R.string.control_editor_layers_create))
+            }
+        }
+    )
+}
+
+@Composable
+private fun ControlLayerItem(
+    modifier: Modifier = Modifier,
+    layer: ObservableControlLayer,
+    selected: Boolean,
+    onSelected: () -> Unit,
+    deleteLayer: () -> Unit,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    borderColor: Color = MaterialTheme.colorScheme.primary,
+    shape: Shape = MaterialTheme.shapes.large
+) {
+    val borderWidth by animateDpAsState(
+        if (selected) 4.dp
+        else (-1).dp
+    )
+
+    Surface(
+        modifier = modifier.border(
+            width = borderWidth,
+            color = borderColor,
+            shape = shape
+        ),
+        color = color,
+        contentColor = contentColor,
+        shape = shape,
+        shadowElevation = 1.dp,
+        onClick = {
+            if (selected) return@Surface
+            onSelected()
+        }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(shape = MaterialTheme.shapes.large)
+                .padding(all = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    layer.hide = !layer.hide
+                }
+            ) {
+                Crossfade(
+                    targetState = layer.hide
+                ) { isHide ->
+                    Icon(
+                        imageVector = if (isHide) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                        contentDescription = null
+                    )
+                }
+            }
+            Text(
+                modifier = Modifier.weight(1f),
+                text = layer.name,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            IconButton(
+                onClick = deleteLayer
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(R.string.generic_delete)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EditWidgetDialog(
+    data: ObservableBaseData,
+    onDismissRequest: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+
+        }
+    }
+}

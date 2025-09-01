@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -56,6 +57,8 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
  * @param onMouseScroll             实体鼠标指针滚轮滑动
  * @param onMouseButton             实体鼠标指针按钮按下反馈
+ * @param onOccupiedPointer         占用指针回调
+ * @param onReleasePointer          释放指针回调
  * @param mouseSize                 指针大小
  * @param cursorSensitivity         指针灵敏度（滑动模式生效）
  */
@@ -73,6 +76,8 @@ fun VirtualPointerLayout(
     onPointerMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
+    onOccupiedPointer: (PointerId) -> Unit = {},
+    onReleasePointer: (PointerId) -> Unit = {},
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
     cursorSensitivity: Int = AllSettings.cursorSensitivity.state,
     requestFocusKey: Any? = null
@@ -174,6 +179,8 @@ fun VirtualPointerLayout(
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,
+            onOccupiedPointer = onOccupiedPointer,
+            onReleasePointer = onReleasePointer,
             inputChange = arrayOf<Any>(speedFactor, controlMode),
             requestFocusKey = requestFocusKey
         )

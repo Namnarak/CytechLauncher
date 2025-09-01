@@ -521,7 +521,7 @@ private fun LibraryInfoItem(
             ) {
                 Text(
                     text = info.name,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleSmall
                 )
                 Column(
                     modifier = Modifier.alpha(0.7f)
