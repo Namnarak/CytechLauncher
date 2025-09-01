@@ -436,4 +436,9 @@
     <string name="download_game_addon_request_addon">まず %s バージョンを選択してください</string>
     <string name="download_game_addon_recommended">%s を推奨</string>
     <string name="download_game_addon_not_installable">自動でインストールできません</string>
+    <string name="minecraft_download_stat_download_task">ダウンロードを準備中</string>
+    <string name="minecraft_download_stat_verify_task">検証の準備中</string>
+    <string name="versions_config_auto_join_server_ip_summary">サーバーのIPをここに入力すると、ゲーム起動後に自動で参加します (例、114.514.114.514:114514)</string>
+    <string name="account_supporting_microsoft_tip_link_purchase">Minecraftを購入</string>
+    <string name="account_supporting_microsoft_tip_link_make_gameid">プロフィールの作成 / プロフィール名を編集</string>
 </resources>
