@@ -138,7 +138,7 @@ private fun TabMenu(
             }
 
             NavigationRailItem(
-                selected = settingsScreenKey === item.key,
+                selected = settingsScreenKey == item.key,
                 onClick = {
                     navigateTo(item.key)
                 },

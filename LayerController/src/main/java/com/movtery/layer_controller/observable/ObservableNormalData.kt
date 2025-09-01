@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.NormalData
+import com.movtery.layer_controller.event.ClickEvent
 
 /**
  * 可观察的NormalData包装类
@@ -18,6 +19,20 @@ class ObservableNormalData(data: NormalData) : ObservableTextData(data) {
      * 当前是否处于按下状态
      */
     var isPressed by mutableStateOf(false)
+
+    fun addEvent(event: ClickEvent) {
+        if (clickEvents.none { it.type == event.type && it.key == event.key }) {
+            clickEvents = clickEvents + event
+        }
+    }
+
+    fun removeEvent(event: ClickEvent) {
+        removeEvent(event.type, event.key)
+    }
+
+    fun removeEvent(eventType: ClickEvent.Type, key: String) {
+        clickEvents = clickEvents.filterNot { it.type == eventType && it.key == key }
+    }
 
     fun packNormal(): NormalData {
         return NormalData(

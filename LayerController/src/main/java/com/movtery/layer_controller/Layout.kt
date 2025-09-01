@@ -102,26 +102,35 @@ private fun BaseControlBoxLayout(
 
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
 
-    fun prePressStart(data: ObservableNormalData) {
-        if (data.isToggleable) data.isPressed = !data.isPressed
-        else data.isPressed = true
-
-        //在这里处理触摸事件，控件层级隐藏事件优先处理
+    fun handleClickEvents(
+        data: ObservableNormalData,
+        extra: ((event: ClickEvent) -> Unit)? = null
+    ) {
         for (event in data.clickEvents) {
-            switchLayer(event, layers) { layer ->
-                layer.hide = if (data.isToggleable) data.isPressed else !layer.hide
-            }
+            extra?.invoke(event)
             onClickEvent1(event, data.isPressed)
         }
     }
 
+    fun prePressStart(data: ObservableNormalData) {
+        if (data.isPressed && !data.isToggleable) return
+
+        data.isPressed = if (data.isToggleable) !data.isPressed else true
+
+        handleClickEvents(data) { event ->
+            switchLayer(event, layers) { layer ->
+                layer.hide = if (data.isToggleable) data.isPressed else !layer.hide
+            }
+        }
+    }
+
     fun prePressEnd(data: ObservableNormalData) {
+        if (!data.isPressed && !data.isToggleable) return
+
+        //非可开关按钮在松开时复位
         if (!data.isToggleable) data.isPressed = false
 
-        //在这里处理释放事件
-        for (event in data.clickEvents) {
-            onClickEvent1(event, data.isPressed)
-        }
+        handleClickEvents(data)
     }
 
     Box(
@@ -221,16 +230,12 @@ private fun BaseControlBoxLayout(
                                                     change.consume()
                                                     consumeEvent = false
                                                 }
-                                                if (!targetButton.isPressed) {
-                                                    prePressStart(targetButton)
-                                                }
+                                                prePressStart(targetButton)
                                             } else if (targetButton !in activeButtonList && targetButton.isSwipple) {
                                                 //滑动到其他按钮时的处理
                                                 if (activeButtonList.fastAll { it.isSwipple } && targetButton.isSwipple) {
                                                     activeButtons[pointerId] = activeButtonList + listOf(targetButton)
-                                                    if (!targetButton.isPressed) {
-                                                        prePressStart(targetButton)
-                                                    }
+                                                    prePressStart(targetButton)
                                                 }
                                             }
                                             if (!consumeEvent) break
@@ -245,9 +250,9 @@ private fun BaseControlBoxLayout(
                                     val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
                                             position.y !in offset.y..(offset.y + size.height)
 
-                                    if (isOutOfBounds && button.isPressed) {
+                                    if (isOutOfBounds) {
                                         prePressEnd(button)
-                                    } else if (!isOutOfBounds && !button.isPressed) {
+                                    } else {
                                         prePressStart(button)
                                     }
                                 }

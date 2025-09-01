@@ -30,11 +30,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -55,11 +53,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -527,7 +522,6 @@ private fun MenuListItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuSliderLayout(
     modifier: Modifier = Modifier,
@@ -576,38 +570,16 @@ fun MenuSliderLayout(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-            /** Slider顶部需要裁切的像素 */
-            val sliderTopCut = with(LocalDensity.current) { 8.dp.toPx().toInt() }
-            /** Slider底部需要裁切的像素 */
-            val sliderBottomCut = with(LocalDensity.current) { 6.dp.toPx().toInt() }
-            Layout(
-                content = {
-                    Slider(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = value.toFloat(),
-                        onValueChange = { onValueChange(it.toInt()) },
-                        valueRange = valueRange,
-                        enabled = enabled,
-                        onValueChangeFinished = { onValueChangeFinished(value) },
-                        interactionSource = interactionSource,
-                        colors = colors,
-                        thumb = {
-                            SliderDefaults.Thumb(
-                                interactionSource = interactionSource,
-                                colors = colors,
-                                enabled = enabled,
-                                thumbSize = DpSize(4.0.dp, 18.5.dp)
-                            )
-                        }
-                    )
-                }
-            ) { measurables, constraints ->
-                val placeable = measurables.first().measure(constraints)
-                val newHeight = (placeable.height - sliderTopCut - sliderBottomCut).coerceAtLeast(0)
-                layout(placeable.width, newHeight) {
-                    placeable.place(0, -sliderTopCut)
-                }
-            }
+            IndicatorSlider(
+                modifier = Modifier.fillMaxWidth(),
+                value = value.toFloat(),
+                onValueChange = { onValueChange(it.toInt()) },
+                onValueChangeFinished = { onValueChangeFinished(value) },
+                interactionSource = interactionSource,
+                valueRange = valueRange,
+                colors = colors,
+                enabled = enabled
+            )
         }
     }
 }

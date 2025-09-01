@@ -1,6 +1,5 @@
 package com.movtery.layer_controller.data
 
-import androidx.compose.ui.geometry.Offset
 import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.utils.lang.TranslatableString
 
@@ -11,7 +10,7 @@ open class TextData(
     @SerializedName("text")
     var text: TranslatableString,
     uuid: String = getAButtonUUID(),
-    position: Offset = Offset.Zero,
+    position: ButtonPosition = ButtonPosition.Zero,
     buttonSize: ButtonSize = ButtonSize.Default,
     buttonStyle: String? = null,
     visibilityType: VisibilityType = VisibilityType.ALWAYS

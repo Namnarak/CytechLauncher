@@ -10,6 +10,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.utils.getWidgetPosition
@@ -17,10 +18,13 @@ import com.movtery.layer_controller.utils.getWidgetPosition
 @Composable
 fun ControlEditorLayer(
     observedLayout: ObservableControlLayout,
-    onButtonTap: (ObservableBaseData) -> Unit
+    onButtonTap: (data: ObservableBaseData, layer: ObservableControlLayer) -> Unit
 ) {
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
+
+    //反转：将最后一层视为底层，逐步向上渲染
+    val renderingLayers = layers.reversed()
 
     val sizes = remember { mutableStateMapOf<ObservableTextData, IntSize>() }
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
@@ -28,7 +32,7 @@ fun ControlEditorLayer(
     Layout(
         content = {
             //按图层顺序渲染所有可见的控件
-            layers.forEach { layer ->
+            renderingLayers.forEach { layer ->
                 if (!layer.hide) {
                     val normalButtons by layer.normalButtons.collectAsState()
                     normalButtons.forEach { data ->
@@ -39,7 +43,7 @@ fun ControlEditorLayer(
                             getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                             isPressed = data.isPressed,
                             onTapInEditMode = {
-                                onButtonTap(data)
+                                onButtonTap(data, layer)
                             }
                         )
                     }
@@ -53,7 +57,7 @@ fun ControlEditorLayer(
                             getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                             isPressed = false, //文本框不需要按压状态
                             onTapInEditMode = {
-                                onButtonTap(data)
+                                onButtonTap(data, layer)
                             }
                         )
                     }
@@ -66,7 +70,7 @@ fun ControlEditorLayer(
         }
 
         var index = 0
-        layers.forEach { layer ->
+        renderingLayers.forEach { layer ->
             if (!layer.hide) {
                 layer.normalButtons.value.forEach { data ->
                     if (index < placeables.size) {
@@ -88,7 +92,7 @@ fun ControlEditorLayer(
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             var placeableIndex = 0
-            layers.forEach { layer ->
+            renderingLayers.forEach { layer ->
                 if (!layer.hide) {
                     layer.normalButtons.value.forEach { data ->
                         if (placeableIndex < placeables.size) {

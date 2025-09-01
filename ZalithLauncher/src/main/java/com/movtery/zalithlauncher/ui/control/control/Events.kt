@@ -11,13 +11,15 @@ fun lwjglEvent(
     clickEvent: ClickEvent,
     isPressed: Boolean
 ) {
-    if (clickEvent.type != ClickEvent.Type.Key) return
     val keycode: Int = ControlEventKeycode.getKeycodeFromEvent(clickEvent)?.toInt() ?: return
-    if (clickEvent.key.startsWith("GLFW_MOUSE_", false)) {
-        CallbackBridge.sendMouseButton(keycode, isPressed)
-    } else {
-        CallbackBridge.sendKeyPress(keycode, CallbackBridge.getCurrentMods(), isPressed)
-        CallbackBridge.setModifiers(keycode, isPressed)
+
+    if (clickEvent.type != ClickEvent.Type.SwitchLayer) {
+        if (clickEvent.key.startsWith("GLFW_MOUSE_", false)) {
+            CallbackBridge.sendMouseButton(keycode, isPressed)
+        } else {
+            CallbackBridge.sendKeyPress(keycode, CallbackBridge.getCurrentMods(), isPressed)
+            CallbackBridge.setModifiers(keycode, isPressed)
+        }
     }
 }
 

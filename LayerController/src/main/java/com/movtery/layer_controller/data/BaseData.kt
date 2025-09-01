@@ -1,6 +1,5 @@
 package com.movtery.layer_controller.data
 
-import androidx.compose.ui.geometry.Offset
 import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.utils.randomUUID
 
@@ -14,7 +13,7 @@ open class BaseData(
     @SerializedName("uuid")
     val uuid: String = getAButtonUUID(),
     @SerializedName("position")
-    var position: Offset = Offset.Zero,
+    var position: ButtonPosition = ButtonPosition.Zero,
     @SerializedName("buttonSize")
     var buttonSize: ButtonSize = ButtonSize.Default,
     @SerializedName("buttonStyle")

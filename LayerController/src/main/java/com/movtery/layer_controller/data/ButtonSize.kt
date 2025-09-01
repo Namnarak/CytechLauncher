@@ -10,9 +10,9 @@ data class ButtonSize(
     @SerializedName("heightDp")
     val heightDp: Float,
     @SerializedName("widthPercentage")
-    val widthPercentage: Float,
+    val widthPercentage: Int,
     @SerializedName("heightPercentage")
-    val heightPercentage: Float,
+    val heightPercentage: Int,
     @SerializedName("widthReference")
     val widthReference: Reference,
     @SerializedName("heightReference")
@@ -58,8 +58,8 @@ data class ButtonSize(
             type = Type.Percentage,
             widthDp = 50f,
             heightDp = 50f,
-            widthPercentage = 140f,
-            heightPercentage = 140f,
+            widthPercentage = 140,
+            heightPercentage = 140,
             widthReference = Reference.ScreenHeight,
             heightReference = Reference.ScreenHeight
         )

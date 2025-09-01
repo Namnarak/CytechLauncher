@@ -21,7 +21,8 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
      * 添加控制层
      */
     fun addLayer(layer: ControlLayer) {
-        _layers.update { it + ObservableControlLayer(layer) }
+        //               在顶部添加
+        _layers.update { listOf(ObservableControlLayer(layer)) + it }
     }
 
     /**

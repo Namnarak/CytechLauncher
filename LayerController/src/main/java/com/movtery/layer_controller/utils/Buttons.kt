@@ -28,12 +28,11 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonShape.Companion.toAndroidShape
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * 自动处理按钮拖动改变位置
@@ -55,6 +54,13 @@ internal fun Modifier.editMode(
             Modifier
                 .pointerInput(data) {
                     detectDragGestures(
+                        onDragStart = {
+                            data.isEditingPos = false
+                            data.movingOffset = Offset.Zero
+                            val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
+                            data.movingOffset = currentOffset
+                            data.isEditingPos = true
+                        },
                         onDrag = { change, dragAmount ->
                             change.consume()
                             val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
@@ -67,12 +73,22 @@ internal fun Modifier.editMode(
                             val maxY = screenSize.height.toFloat() - currentSize.height
 
                             data.position = Offset(
-                                x = max(0f, min(newX, maxX)),
-                                y = max(0f, min(newY, maxY))
-                            ).toPercentagePosition(
+                                x = newX.coerceIn(0f, maxX),
+                                y = newY.coerceIn(0f, maxY)
+                            ).also { offset ->
+                                data.movingOffset = offset
+                            }.toPercentagePosition(
                                 widgetSize = currentSize,
                                 screenSize = screenSize
                             )
+                        },
+                        onDragEnd = {
+                            data.isEditingPos = false
+                            data.movingOffset = Offset.Zero
+                        },
+                        onDragCancel = {
+                            data.isEditingPos = false
+                            data.movingOffset = Offset.Zero
                         }
                     )
                 }
@@ -238,8 +254,9 @@ internal fun getWidgetPosition(
     widgetSize: IntSize,
     screenSize: IntSize
 ): Offset {
-    val x = (screenSize.width - widgetSize.width) * (data.position.x / 1000f)
-    val y = (screenSize.height - widgetSize.height) * (data.position.y / 1000f)
+    if (data.isEditingPos) return data.movingOffset
+    val x = (screenSize.width - widgetSize.width) * (data.position.xPercentage())
+    val y = (screenSize.height - widgetSize.height) * (data.position.yPercentage())
     return Offset(x, y)
 }
 
@@ -249,8 +266,8 @@ internal fun getWidgetPosition(
 internal fun Offset.toPercentagePosition(
     widgetSize: IntSize,
     screenSize: IntSize
-): Offset {
-    val x = (1000 * x) / (screenSize.width - widgetSize.width)
-    val y = (1000 * y) / (screenSize.height - widgetSize.height)
-    return Offset(x, y)
+): ButtonPosition {
+    val x = ((100 * x) / (screenSize.width - widgetSize.width) * 10).toInt()
+    val y = ((100 * y) / (screenSize.height - widgetSize.height) * 10).toInt()
+    return ButtonPosition(x, y)
 }

@@ -11,8 +11,6 @@ public class ControlEventKeycode {
      * @return 匹配到的键值，若为null则未匹配到
      */
     public static @Nullable Short getKeycodeFromEvent(ClickEvent event) {
-        if (event.getType() != ClickEvent.Type.Key) return null;
-
         switch (event.getKey()) {
             case GLFW_KEY_UNKNOWN: return LwjglGlfwKeycode.GLFW_KEY_UNKNOWN;
             case GLFW_KEY_SPACE: return LwjglGlfwKeycode.GLFW_KEY_SPACE;

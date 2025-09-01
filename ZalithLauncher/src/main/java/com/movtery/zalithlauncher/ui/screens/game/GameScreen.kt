@@ -150,7 +150,7 @@ private class MouseScrollEvent(private val scope: CoroutineScope) {
      * 单击响应一次滚轮滚动事件
      */
     fun scrollSingle(isUp: Boolean) {
-        CallbackBridge.sendScroll(0.0, if (isUp) -1.0 else 1.0)
+        CallbackBridge.sendScroll(0.0, if (isUp) 1.0 else -1.0)
     }
 
     /**
@@ -164,7 +164,7 @@ private class MouseScrollEvent(private val scope: CoroutineScope) {
                 while (true) {
                     try {
                         ensureActive()
-                        CallbackBridge.sendScroll(0.0, if (isUp) -1.0 else 1.0)
+                        CallbackBridge.sendScroll(0.0, if (isUp) 1.0 else -1.0)
                         delay(50)
                     } catch (_: Exception) {
                         break
@@ -227,13 +227,17 @@ fun GameScreen(
                 lwjglEvent(event, pressed)
                 if (event.type == ClickEvent.Type.LauncherEvent) {
                     //处理启动器事件
+                    if (pressed) {
+                        when (event.key) {
+                            LAUNCHER_EVENT_SWITCH_IME -> { viewModel.switchIME() }
+                            LAUNCHER_EVENT_SWITCH_MENU -> { viewModel.switchMenu() }
+                            LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = true) }
+                            LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = false) }
+                        }
+                    }
                     when (event.key) {
-                        LAUNCHER_EVENT_SWITCH_IME -> { viewModel.switchIME() }
-                        LAUNCHER_EVENT_SWITCH_MENU -> { viewModel.switchMenu() }
                         LAUNCHER_EVENT_SCROLL_UP -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = true) }
-                        LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = true) }
                         LAUNCHER_EVENT_SCROLL_DOWN -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = false) }
-                        LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = false) }
                     }
                 }
             },

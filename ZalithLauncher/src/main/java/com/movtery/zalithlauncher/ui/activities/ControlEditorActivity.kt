@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.layer_controller.layout.ControlLayout
@@ -13,6 +14,7 @@ import com.movtery.zalithlauncher.ui.activities.ControlEditorActivity.Companion.
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.ControlEditor
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -21,6 +23,9 @@ class ControlEditorActivity : BaseComponentActivity() {
     companion object {
         const val BUNDLE_CONTROL = "BUNDLE_CONTROL"
     }
+
+    /** 编辑器 */
+    private val editorViewModel: EditorViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +37,9 @@ class ControlEditorActivity : BaseComponentActivity() {
         val layout: ControlLayout = runCatching {
             ControlLayout.loadFromFile(controlFile)
         }.getOrNull() ?: return runFinish()
+
+        //初始化控制布局
+        editorViewModel.initLayout(layout)
 
         //绑定返回键按下事件，防止直接退出导致控制布局丢失所有变更
         //提醒用户保存并退出
@@ -55,7 +63,10 @@ class ControlEditorActivity : BaseComponentActivity() {
 
         setContent {
             ZalithLauncherTheme {
-                ControlEditor(layout, controlFile) {
+                ControlEditor(
+                    viewModel = editorViewModel,
+                    targetFile = controlFile
+                ) {
                     finish()
                 }
             }

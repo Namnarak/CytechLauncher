@@ -389,48 +389,63 @@ fun SimpleIntSliderLayout(
     }
 
     if (showValueEditDialog) {
-        val maxLength = listOf(
-            valueRange.start.toInt().toString().length,
-            valueRange.endInclusive.toInt().toString().length
-        ).maxOrNull() ?: 5
-
-        var inputValue by remember { mutableStateOf(value.toString()) }
-        var errorText by remember { mutableStateOf("") }
-        val numberFormatError = stringResource(R.string.generic_input_failed_to_number)
-        val numberTooSmallError = stringResource(R.string.generic_input_too_small, valueRange.start.toInt())
-        val numberTooLargeError = stringResource(R.string.generic_input_too_large, valueRange.endInclusive.toInt())
-
-        SimpleEditDialog(
+        SliderValueEditDialog(
+            onDismissRequest = { showValueEditDialog = false },
             title = title,
-            value = inputValue,
-            onValueChange = { newInput ->
-                val filteredInput = newInput.take(maxLength)
-                inputValue = filteredInput
-
-                val result = filteredInput.toIntOrNull()
-                errorText = when {
-                    result == null -> numberFormatError
-                    result < valueRange.start -> numberTooSmallError
-                    result > valueRange.endInclusive -> numberTooLargeError
-                    else -> ""
-                }
-            },
-            isError = errorText.isNotEmpty(),
-            supportingText = {
-                if (errorText.isNotEmpty()) Text(text = errorText)
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            onConfirm = {
-                if (errorText.isEmpty()) {
-                    val newValue = inputValue.toIntOrNull() ?: value
-                    onValueChange(newValue)
-                    onValueChangeFinished()
-                    showValueEditDialog = false
-                }
-            },
-            onDismissRequest = { showValueEditDialog = false }
+            valueRange = valueRange,
+            value = value.toFloat(),
+            onValueChange = { onValueChange(it.toInt()) },
+            onValueChangeFinished = onValueChangeFinished,
+            intCheck = true
         )
     }
+}
+
+@Composable
+fun SliderValueEditDialog(
+    onDismissRequest: () -> Unit,
+    title: String,
+    valueRange: ClosedFloatingPointRange<Float>,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit = {},
+    intCheck: Boolean = false
+) {
+    var inputValue by remember { mutableStateOf(value.let { if (intCheck) it.toInt() else it }.toString()) }
+    var errorText by remember { mutableStateOf("") }
+    val numberFormatError = stringResource(R.string.generic_input_failed_to_number)
+    val numberTooSmallError = stringResource(R.string.generic_input_too_small, valueRange.start.toInt())
+    val numberTooLargeError = stringResource(R.string.generic_input_too_large, valueRange.endInclusive.toInt())
+
+    SimpleEditDialog(
+        title = title,
+        value = inputValue,
+        onValueChange = { newInput ->
+            inputValue = newInput
+
+            val result = if (intCheck) inputValue.toIntOrNull()?.toFloat() else inputValue.toFloatOrNull()
+            errorText = when {
+                result == null -> numberFormatError
+                result < valueRange.start -> numberTooSmallError
+                result > valueRange.endInclusive -> numberTooLargeError
+                else -> ""
+            }
+        },
+        isError = errorText.isNotEmpty(),
+        supportingText = {
+            if (errorText.isNotEmpty()) Text(text = errorText)
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+        onConfirm = {
+            if (errorText.isEmpty()) {
+                val newValue = inputValue.toFloatOrNull() ?: value
+                onValueChange(newValue)
+                onValueChangeFinished()
+                onDismissRequest()
+            }
+        },
+        onDismissRequest = onDismissRequest
+    )
 }
 
 @Composable
