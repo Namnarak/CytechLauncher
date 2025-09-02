@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -275,6 +276,7 @@ fun InfoLayoutTextItem(
     modifier: Modifier = Modifier,
     title: String,
     onClick: () -> Unit,
+    showArrow: Boolean = true,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
@@ -291,6 +293,14 @@ fun InfoLayoutTextItem(
             text = title,
             style = MaterialTheme.typography.bodyMedium
         )
+        if (showArrow) {
+            Icon(
+                modifier = Modifier
+                    .size(28.dp),
+                imageVector = Icons.AutoMirrored.Rounded.ArrowRight,
+                contentDescription = null
+            )
+        }
     }
 }
 
