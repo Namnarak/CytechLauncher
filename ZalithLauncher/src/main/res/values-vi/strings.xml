@@ -656,4 +656,17 @@
     <string name="settings_control_mouse_hide_summary">Trong một số trường hợp, bạn có thể muốn ẩn chuột ảo; cài đặt này không ảnh hưởng đến việc điều khiển chuột vật lý hoặc điều khiển vuốt</string>
     <string name="control_keyboard_bind_title">Nhập</string>
     <string name="control_keyboard_bind_summary">Nhấn phím bạn muốn liên kết trên bàn phím của bạn</string>
+    <string name="versions_manage_cleanup">Dọn dẹp các tập tin trò chơi</string>
+    <string name="versions_manage_cleanup_tip">Trình khởi chạy sẽ kiểm tra các tệp trò chơi đã cài đặt, so sánh chúng với các tệp trò chơi cần thiết cho các phiên bản hiện có, sau đó xóa các tệp trò chơi không sử dụng. Thao tác này có thể tiết kiệm đáng kể dung lượng trên thiết bị của bạn.</string>
+    <string name="versions_manage_cleanup_warning">Lưu ý: Trình khởi chạy sẽ chỉ quét các thư mục sau trong thư mục trò chơi hiện tại:</string>
+    <string name="versions_manage_cleanup_collect_files">Thu thập các tập tin được cài đặt cục bộ</string>
+    <string name="versions_manage_cleanup_collect_game_files">Thu thập các tập tin trò chơi được yêu cầu bởi tất cả các phiên bản</string>
+    <string name="versions_manage_cleanup_compare_files">So sánh các tập tin</string>
+    <string name="versions_manage_cleanup_cleanup">Dọn dẹp các tập tin trò chơi không sử dụng</string>
+    <string name="versions_manage_cleanup_progress">Tập tin: %s</string>
+    <string name="versions_manage_cleanup_progress_collected">Tập tin đã thu thập</string>
+    <string name="versions_manage_cleanup_progress_next_version">Đang kiểm tra phiên bản: %s</string>
+    <string name="versions_manage_cleanup_failed">Đã xảy ra ngoại lệ khi dọn dẹp các tệp trò chơi!</string>
+    <string name="versions_manage_cleanup_failed_files">Không thể dọn dẹp các tệp sau đây vì lý do chưa rõ:</string>
+    <string name="versions_manage_cleanup_success">Đã xóa thành công %1$d tệp, tổng kích thước: %2$s</string>
 </resources>
