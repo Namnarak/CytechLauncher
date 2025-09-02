@@ -1,6 +1,7 @@
 package com.movtery.layer_controller.layout
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,33 +21,41 @@ import com.movtery.layer_controller.utils.editMode
 internal fun TextButton(
     isEditMode: Boolean,
     data: ObservableTextData,
+    visible: Boolean = true,
     getSize: () -> IntSize,
     getStyle: () -> ObservableButtonStyle?,
     isPressed: Boolean,
     onTapInEditMode: () -> Unit = {}
 ) {
-    val style = remember(data, data.buttonStyle) {
-        getStyle() ?: ObservableButtonStyle.Default
-    }
+    if (visible) {
+        val style = remember(data, data.buttonStyle) {
+            getStyle() ?: ObservableButtonStyle.Default
+        }
 
-    val locale = LocalConfiguration.current.locales[0]
+        val locale = LocalConfiguration.current.locales[0]
 
-    Box(
-        modifier = Modifier
-            .buttonSize(data)
-            .buttonStyle(style, isPressed)
-            .editMode(
-                isEditMode = isEditMode,
-                data = data,
-                getSize = getSize,
-                onTapInEditMode = onTapInEditMode
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        val color by buttonContentColorAsState(style, isPressed)
-        Text(
-            text = data.text.translate(locale),
-            color = color
+        Box(
+            modifier = Modifier
+                .buttonSize(data)
+                .buttonStyle(style, isPressed)
+                .editMode(
+                    isEditMode = isEditMode,
+                    data = data,
+                    getSize = getSize,
+                    onTapInEditMode = onTapInEditMode
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            val color by buttonContentColorAsState(style, isPressed)
+            Text(
+                text = data.text.translate(locale),
+                color = color
+            )
+        }
+    } else {
+        //虚假的控件，使用一个空的组件，只是让Layout有东西能测
+        Spacer(
+            modifier = Modifier.buttonSize(data)
         )
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.ButtonSize
+import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.zalithlauncher.R
 
@@ -65,6 +66,25 @@ fun EditWidgetInfo(
             onValueChangeFinished = onDismissRequested,
             decimalFormat = "#0.0",
             suffix = "%"
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        //可见场景
+        InfoLayoutItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.control_editor_edit_visibility),
+            items = VisibilityType.entries,
+            selectedItem = data.visibilityType,
+            onItemSelected = { data.visibilityType = it },
+            getItemText = { type ->
+                val textRes = when (type) {
+                    VisibilityType.ALWAYS -> R.string.control_editor_edit_visibility_always
+                    VisibilityType.IN_GAME -> R.string.control_editor_edit_visibility_in_game
+                    VisibilityType.IN_MENU -> R.string.control_editor_edit_visibility_in_menu
+                }
+                stringResource(textRes)
+            }
         )
 
         Spacer(modifier = Modifier.height(4.dp))

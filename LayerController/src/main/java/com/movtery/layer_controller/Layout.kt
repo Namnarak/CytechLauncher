@@ -275,28 +275,26 @@ private fun BaseControlBoxLayout(
                     if (!layer.hide && checkVisibility(isCursorGrabbing1, layer.visibilityType)) {
                         val normalButtons by layer.normalButtons.collectAsState()
                         normalButtons.forEach { data ->
-                            if (checkVisibility(isCursorGrabbing1, data.visibilityType)) {
-                                TextButton(
-                                    isEditMode = false,
-                                    data = data,
-                                    getSize = { sizes[data] ?: IntSize.Zero },
-                                    getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                                    isPressed = data.isPressed
-                                )
-                            }
+                            TextButton(
+                                isEditMode = false,
+                                data = data,
+                                visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
+                                getSize = { sizes[data] ?: IntSize.Zero },
+                                getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                                isPressed = data.isPressed
+                            )
                         }
 
                         val textBoxes by layer.textBoxes.collectAsState()
                         textBoxes.forEach { data ->
-                            if (checkVisibility(isCursorGrabbing1, data.visibilityType)) {
-                                TextButton(
-                                    isEditMode = false,
-                                    data = data,
-                                    getSize = { sizes[data] ?: IntSize.Zero },
-                                    getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                                    isPressed = false //文本框不需要按压状态
-                                )
-                            }
+                            TextButton(
+                                isEditMode = false,
+                                data = data,
+                                visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
+                                getSize = { sizes[data] ?: IntSize.Zero },
+                                getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                                isPressed = false //文本框不需要按压状态
+                            )
                         }
                     }
                 }
