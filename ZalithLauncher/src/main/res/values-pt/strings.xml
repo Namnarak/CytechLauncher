@@ -656,4 +656,17 @@
     <string name="about_acknowledgements_pcl_text">%s retribui parte da implementação do PCL2</string>
     <string name="about_acknowledgements_fcl_text">%s incorpora o código do FCL e retribui parte de sua implementação</string>
     <string name="about_acknowledgements_hmcl_text">%s incorpora o código do HMCL e retribui parte de sua colaboração</string>
+    <string name="versions_manage_cleanup">Limpar arquivos de jogo</string>
+    <string name="versions_manage_cleanup_tip">O lançador irá verificar os arquivos do jogo instalado, compará-los com os arquivos necessários das versões, e então apagar arquivos não usados. Isso pode economizar muito espaço no seu dispositivo.</string>
+    <string name="versions_manage_cleanup_warning">Nota: O lançador vai apenas escanear as seguintes pastas do diretório do jogo atual:</string>
+    <string name="versions_manage_cleanup_collect_files">Coletar arquivos instalados localmente</string>
+    <string name="versions_manage_cleanup_collect_game_files">Colete arquivos de jogo requeridos por todas as versões</string>
+    <string name="versions_manage_cleanup_compare_files">Compare arquivos</string>
+    <string name="versions_manage_cleanup_cleanup">Limpe arquivos de jogo não usados</string>
+    <string name="versions_manage_cleanup_progress">Arquivo: %s</string>
+    <string name="versions_manage_cleanup_progress_collected">Arquivo coletado</string>
+    <string name="versions_manage_cleanup_progress_next_version">Verificando versão: %s</string>
+    <string name="versions_manage_cleanup_failed">Uma exceção ocorreu enquanto limpavamos os arquivos de jogo!</string>
+    <string name="versions_manage_cleanup_failed_files">Os seguintes arquivos não poderam ser limpos por razões desconhecidas:</string>
+    <string name="versions_manage_cleanup_success">%1$d arquivos limpos com sucesso, tamanho total: %2$s</string>
 </resources>
