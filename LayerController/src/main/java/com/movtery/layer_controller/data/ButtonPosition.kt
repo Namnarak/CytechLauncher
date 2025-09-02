@@ -25,5 +25,6 @@ data class ButtonPosition(
 
     companion object {
         public val Zero = ButtonPosition(0, 0)
+        public val Center = ButtonPosition(500, 500)
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.layout.ControlEditorLayer
@@ -58,12 +59,22 @@ fun ControlEditor(
         },
         addNewButton = {
             viewModel.addWidget(layers) { layer ->
-                layer.addNormalButton(NormalData(text = TranslatableString.create(default = defaultButtonName)))
+                layer.addNormalButton(
+                    NormalData(
+                        text = TranslatableString.create(default = defaultButtonName),
+                        position = ButtonPosition.Center
+                    )
+                )
             }
         },
         addNewText = {
             viewModel.addWidget(layers) { layer ->
-                layer.addTextBox(TextData(text = TranslatableString.create(default = defaultTextName)))
+                layer.addTextBox(
+                    TextData(
+                        text = TranslatableString.create(default = defaultTextName),
+                        position = ButtonPosition.Center
+                    )
+                )
             }
         },
         saveAndExit = {
