@@ -39,7 +39,7 @@ fun EditWidgetInfo(
         Spacer(Modifier)
 
         //可见场景
-        InfoLayoutItem(
+        InfoLayoutListItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_visibility),
             items = VisibilityType.entries,
@@ -58,7 +58,7 @@ fun EditWidgetInfo(
         Spacer(modifier = Modifier.height(4.dp))
 
         //x
-        InfoLayoutItem(
+        InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_position_x),
             value = data.position.x / 10f,
@@ -73,7 +73,7 @@ fun EditWidgetInfo(
         )
 
         //y
-        InfoLayoutItem(
+        InfoLayoutSliderItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_position_y),
             value = data.position.y / 10f,
@@ -90,7 +90,7 @@ fun EditWidgetInfo(
         Spacer(modifier = Modifier.height(4.dp))
 
         //尺寸类型
-        InfoLayoutItem(
+        InfoLayoutListItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_size_type),
             items = ButtonSize.Type.entries,
@@ -114,7 +114,7 @@ fun EditWidgetInfo(
                 val screenHeight = with(density) { screenSize.height.toDp() }.value
 
                 //绝对宽度
-                InfoLayoutItem(
+                InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_width),
                     value = data.buttonSize.widthDp,
@@ -128,7 +128,7 @@ fun EditWidgetInfo(
                 )
 
                 //绝对高度
-                InfoLayoutItem(
+                InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_height),
                     value = data.buttonSize.heightDp,
@@ -151,7 +151,7 @@ fun EditWidgetInfo(
                 }
 
                 //百分比宽度
-                InfoLayoutItem(
+                InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_width),
                     value = data.buttonSize.widthPercentage / 10f,
@@ -166,7 +166,7 @@ fun EditWidgetInfo(
                 )
 
                 //控件宽度参考对象
-                InfoLayoutItem(
+                InfoLayoutListItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_width_reference),
                     items = ButtonSize.Reference.entries,
@@ -176,7 +176,7 @@ fun EditWidgetInfo(
                 )
 
                 //百分比高度
-                InfoLayoutItem(
+                InfoLayoutSliderItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_height),
                     value = data.buttonSize.heightPercentage / 10f,
@@ -191,7 +191,7 @@ fun EditWidgetInfo(
                 )
 
                 //控件高度参考对象
-                InfoLayoutItem(
+                InfoLayoutListItem(
                     modifier = Modifier.fillMaxWidth(),
                     title = stringResource(R.string.control_editor_edit_size_height_reference),
                     items = ButtonSize.Reference.entries,

@@ -34,6 +34,13 @@ class ObservableNormalData(data: NormalData) : ObservableTextData(data) {
         clickEvents = clickEvents.filterNot { it.type == eventType && it.key == key }
     }
 
+    fun removeAllEvent(events: Collection<ClickEvent>) {
+        val removalKeys = events.associateBy { it.type to it.key }
+        clickEvents = clickEvents.filterNot { existingEvent ->
+            (existingEvent.type to existingEvent.key) in removalKeys
+        }
+    }
+
     fun packNormal(): NormalData {
         return NormalData(
             text = text,

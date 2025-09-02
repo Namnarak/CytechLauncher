@@ -741,6 +741,7 @@
     <string name="control_editor_edit_visibility_always">Always Visible</string>
     <string name="control_editor_edit_visibility_in_game">Visible In-Game</string>
     <string name="control_editor_edit_visibility_in_menu">Visible Out-Game</string>
+    <string name="control_editor_edit_switch_layers">Switch Control Layers Visibility</string>
     <string name="control_editor_exit_message">Are you sure you want to exit directly? This will cause any changes to be unsaved. If you need to save, please use the "Save and Exit" option in the menu.</string>
     <string name="control_editor_exit_confirm">Exit Directly</string>
     <!-- About -->

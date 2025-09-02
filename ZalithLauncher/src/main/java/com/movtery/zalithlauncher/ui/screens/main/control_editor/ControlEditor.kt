@@ -91,7 +91,8 @@ fun ControlEditor(
         changeOperation = { viewModel.editorOperation = it },
         onDeleteWidget = { data, layer ->
             viewModel.removeWidget(layer, data)
-        }
+        },
+        controlLayers = layers
     )
 }
 
@@ -99,7 +100,8 @@ fun ControlEditor(
 private fun EditorOperation(
     operation: EditorOperation,
     changeOperation: (EditorOperation) -> Unit,
-    onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit
+    onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit,
+    controlLayers: List<ObservableControlLayer>
 ) {
     when (operation) {
         is EditorOperation.None -> {}
@@ -111,6 +113,19 @@ private fun EditorOperation(
                 },
                 onDelete = {
                     onDeleteWidget(operation.data, operation.layer)
+                    changeOperation(EditorOperation.None)
+                },
+                switchControlLayers = { data ->
+                    changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                }
+            )
+        }
+        is EditorOperation.SwitchLayersVisibility -> {
+            val data = operation.data
+            EditSwitchLayersVisibilityDialog(
+                data = data,
+                layers = controlLayers,
+                onDismissRequest = {
                     changeOperation(EditorOperation.None)
                 }
             )

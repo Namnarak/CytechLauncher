@@ -39,7 +39,8 @@ private data class TabItem(val title: Int)
 
 @Composable
 fun EditWidgetClickEvent(
-    data: ObservableNormalData
+    data: ObservableNormalData,
+    switchControlLayers: (ObservableNormalData) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -89,7 +90,8 @@ fun EditWidgetClickEvent(
                 0 -> {
                     EditBasicEvent(
                         modifier = Modifier.fillMaxWidth(),
-                        data = data
+                        data = data,
+                        switchControlLayers = switchControlLayers
                     )
                 }
                 1 -> {
@@ -109,7 +111,8 @@ fun EditWidgetClickEvent(
 @Composable
 private fun EditBasicEvent(
     modifier: Modifier = Modifier,
-    data: ObservableNormalData
+    data: ObservableNormalData,
+    switchControlLayers: (ObservableNormalData) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -120,7 +123,7 @@ private fun EditBasicEvent(
         Spacer(Modifier)
 
         //滑动触发
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_swipple),
             value = data.isSwipple,
@@ -130,7 +133,7 @@ private fun EditBasicEvent(
         )
 
         //带动鼠标
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_penetrable),
             value = data.isPenetrable,
@@ -140,12 +143,21 @@ private fun EditBasicEvent(
         )
 
         //可开关
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_toggleable),
             value = data.isToggleable,
             onValueChange = { value ->
                 data.isToggleable = value
+            }
+        )
+
+        //切换控制层可见性
+        InfoLayoutTextItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.control_editor_edit_switch_layers),
+            onClick = {
+                switchControlLayers(data)
             }
         )
 
@@ -221,7 +233,7 @@ private fun EditLauncherEvent(
         Spacer(Modifier)
 
         //切换输入法
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.game_menu_option_input_method),
             value = eventData.switchIme,
@@ -236,7 +248,7 @@ private fun EditLauncherEvent(
         )
 
         //切换菜单
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_switch_menu),
             value = eventData.switchMenu,
@@ -251,7 +263,7 @@ private fun EditLauncherEvent(
         )
 
         //鼠标左键
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_left),
             value = eventData.mouseLeft,
@@ -266,7 +278,7 @@ private fun EditLauncherEvent(
         )
 
         //鼠标中键
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_middle),
             value = eventData.mouseMiddle,
@@ -281,7 +293,7 @@ private fun EditLauncherEvent(
         )
 
         //鼠标右键
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_right),
             value = eventData.mouseRight,
@@ -296,7 +308,7 @@ private fun EditLauncherEvent(
         )
 
         //鼠标滚轮上
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_up),
             value = eventData.mouseScrollUp,
@@ -311,7 +323,7 @@ private fun EditLauncherEvent(
         )
 
         //单次鼠标滚轮上
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_up_single),
             value = eventData.mouseScrollUpSingle,
@@ -326,7 +338,7 @@ private fun EditLauncherEvent(
         )
 
         //鼠标滚轮下
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_down),
             value = eventData.mouseScrollDown,
@@ -341,7 +353,7 @@ private fun EditLauncherEvent(
         )
 
         //单次鼠标滚轮下
-        InfoLayoutItem(
+        InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_down_single),
             value = eventData.mouseScrollDownSingle,

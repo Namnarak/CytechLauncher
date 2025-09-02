@@ -48,7 +48,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 
 @Composable
-fun InfoLayoutItem(
+fun InfoLayoutSliderItem(
     modifier: Modifier = Modifier,
     title: String,
     value: Float,
@@ -103,7 +103,7 @@ fun InfoLayoutItem(
 }
 
 @Composable
-fun <E> InfoLayoutItem(
+fun <E> InfoLayoutListItem(
     modifier: Modifier = Modifier,
     title: String,
     items: List<E>,
@@ -203,7 +203,7 @@ private fun <E> InfoListLayoutHeader(
     Row(
         modifier = modifier
             .clickable(onClick = onClick)
-            .padding(all = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         MarqueeText(
@@ -213,7 +213,7 @@ private fun <E> InfoListLayoutHeader(
         Row(
             Modifier
                 .weight(1f)
-                .padding(all = 4.dp),
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.End
         ) {
             selectedItemLayout()
@@ -242,7 +242,7 @@ private fun <E> InfoListLayoutHeader(
 }
 
 @Composable
-fun InfoLayoutItem(
+fun InfoLayoutSwitchItem(
     modifier: Modifier = Modifier,
     title: String,
     value: Boolean,
@@ -271,7 +271,31 @@ fun InfoLayoutItem(
 }
 
 @Composable
-private fun InfoLayoutItem(
+fun InfoLayoutTextItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    onClick: () -> Unit,
+    color: Color = itemLayoutColorOnSurface(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface
+) {
+    InfoLayoutItem(
+        modifier = modifier,
+        onClick = onClick,
+        color = color,
+        contentColor = contentColor
+    ) {
+        MarqueeText(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .weight(1f),
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+fun InfoLayoutItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     color: Color = itemLayoutColorOnSurface(),

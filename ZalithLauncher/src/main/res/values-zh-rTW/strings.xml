@@ -759,6 +759,7 @@
     <string name="control_editor_edit_visibility_always">總是可見</string>
     <string name="control_editor_edit_visibility_in_game">遊戲內可見</string>
     <string name="control_editor_edit_visibility_in_menu">遊戲外可見</string>
+    <string name="control_editor_edit_switch_layers">切換控制項圖層可見性</string>
     <string name="control_editor_exit_message">您確定要直接退出嗎？這將導致您的任何變更都無法被儲存。若需要儲存，請使用選單內的「儲存並退出」選項。</string>
     <string name="control_editor_exit_confirm">直接退出</string>
 </resources>
