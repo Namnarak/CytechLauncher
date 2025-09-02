@@ -43,7 +43,7 @@ import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
 import com.movtery.zalithlauncher.ui.components.SliderValueEditDialog
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 
@@ -57,7 +57,7 @@ fun InfoLayoutItem(
     onValueChangeFinished: (() -> Unit)? = null,
     decimalFormat: String = "#0.00",
     suffix: String? = null,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     var showValueEditDialog by remember { mutableStateOf(false) }
@@ -110,7 +110,7 @@ fun <E> InfoLayoutItem(
     selectedItem: E,
     onItemSelected: (E) -> Unit,
     getItemText: @Composable (E) -> String,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     maxListHeight: Dp = 200.dp
 ) {
@@ -247,7 +247,7 @@ fun InfoLayoutItem(
     title: String,
     value: Boolean,
     onValueChange: (Boolean) -> Unit,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     InfoLayoutItem(
@@ -274,7 +274,7 @@ fun InfoLayoutItem(
 private fun InfoLayoutItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable RowScope.() -> Unit
 ) {

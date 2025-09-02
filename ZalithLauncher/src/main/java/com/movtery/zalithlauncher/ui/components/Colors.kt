@@ -31,6 +31,11 @@ fun itemLayoutColor(): Color {
     }
 }
 
+@Composable
+fun itemLayoutColorOnSurface(): Color {
+    return MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+}
+
 /**
  * 在 secondaryContainer 背景上使用的 NavigationDrawerItem 颜色
  */
