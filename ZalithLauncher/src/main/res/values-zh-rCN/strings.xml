@@ -707,6 +707,7 @@
     <string name="control_editor_edit_category_info">基本信息</string>
     <string name="control_editor_edit_category_event">点击事件</string>
     <string name="control_editor_edit_category_style">控件样式</string>
+    <string name="control_editor_edit_layer_default">新控件层</string>
     <string name="control_editor_edit_button_default">按键</string>
     <string name="control_editor_edit_text_default">文本框</string>
     <string name="control_editor_edit_text">编辑文本</string>

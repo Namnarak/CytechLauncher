@@ -725,6 +725,7 @@
     <string name="control_editor_edit_category_info">基本資訊</string>
     <string name="control_editor_edit_category_event">點擊事件</string>
     <string name="control_editor_edit_category_style">控制項樣式</string>
+    <string name="control_editor_edit_layer_default">新控制項圖層</string>
     <string name="control_editor_edit_button_default">按鍵</string>
     <string name="control_editor_edit_text_default">文字框</string>
     <string name="control_editor_edit_text">編輯文字</string>

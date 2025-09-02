@@ -28,7 +28,7 @@ fun ControlEditor(
     val layers by viewModel.observableLayout.layers.collectAsState()
 
     /** 默认新建的控件层的名称 */
-    val defaultLayerName = stringResource(R.string.control_editor_layers_title)
+    val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
     /** 默认新建的按键的名称 */
     val defaultButtonName = stringResource(R.string.control_editor_edit_button_default)
     /** 默认新建的文本框的名称 */
