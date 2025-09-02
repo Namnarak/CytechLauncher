@@ -99,7 +99,7 @@
     <string name="download_assets_wiki_link">Wikiを見る</string>
     <string name="download_assets_release_type_beta">ベータ</string>
     <string name="download_assets_release_type_alpha">アルファ</string>
-    <string name="download_assets_search_mc_versions">Minecraftバージョンを検索</string>
+    <string name="download_assets_search_mc_versions">MCバージョンを検索</string>
     <string name="download_assets_dependency_projects">依存関係</string>
     <string name="download_modpack_install_title">モッドパックをインストール</string>
     <string name="download_modpack_install_parse">モッドパックを解析</string>
@@ -179,7 +179,7 @@
     <string name="download_assets_source_link">ソースコードを表示</string>
     <string name="download_assets_issues_link">問題を報告する</string>
     <string name="download_assets_release_type_release">安定版</string>
-    <string name="download_assets_show_only_mc_release">Minecraft正式リリースのみ表示</string>
+    <string name="download_assets_show_only_mc_release">MCリリースのみ表示</string>
     <string name="download_assets_install_assets_for_versions">どのゲームバージョンにインストールしますか？</string>
     <string name="download_assets_install_progress_downloading">アセットのダウンロードとインストール\n%1$s\n (%2$s / %3$s)</string>
     <string name="download_assets_install_progress_installing">アセットをインストール\n%s</string>
@@ -441,4 +441,25 @@
     <string name="versions_config_auto_join_server_ip_summary">サーバーのIPをここに入力すると、ゲーム起動後に自動で参加します (例、114.514.114.514:114514)</string>
     <string name="account_supporting_microsoft_tip_link_purchase">Minecraftを購入</string>
     <string name="account_supporting_microsoft_tip_link_make_gameid">プロフィールの作成 / プロフィール名を編集</string>
+    <string name="account_supporting_microsoft_tip_hint_t1">アカウントを追加するには、以下の手順に従ってください:</string>
+    <string name="account_supporting_username_invalid_local_message_hint3">有効なユーザー名: Name、Name_、Name123</string>
+    <string name="account_supporting_username_invalid_local_message_hint4">無効なユーザー名: Name@、N ame、name_name_name_name</string>
+    <string name="account_change_skin">スキンを変更</string>
+    <string name="account_change_skin_select_model_title">スキンモデルを選択</string>
+    <string name="account_change_skin_select_model_message">このスキンはスティーブ（広い腕）またはアレックス（細い腕）ですか？</string>
+    <string name="account_label_password">パスワード</string>
+    <string name="settings_launcher_mirror_file_download_title">ファイルのダウンロードソース</string>
+    <string name="settings_launcher_mirror_official_first">公式のソースを優先</string>
+    <string name="settings_launcher_mirror_mirror_first">ミラーソースを優先</string>
+    <string name="settings_launcher_mirror_modloader_title">モッドローダーのバージョンソース</string>
+    <string name="settings_game_java_runtime_title">Javaランタイム</string>
+    <string name="settings_game_java_runtime_summary">使用するデフォルトのJava環境を指定してください</string>
+    <string name="versions_overview_version_folder">バージョンフォルダ</string>
+    <string name="versions_manage_install_new">新しくインストール</string>
+    <string name="versions_manage_settings">バージョンの設定</string>
+    <string name="versions_manage_cleanup">ゲームファイルをクリーンアップ</string>
+    <string name="versions_manage_cleanup_tip">ランチャーはインストール済みのゲームファイルを確認し、既存バージョンに必要なゲームファイルと比較したうえで、未使用のゲームファイルを削除します。これにより、デバイスの空き容量を大幅に節約できます。</string>
+    <string name="versions_manage_rename_version">バージョン名を変更</string>
+    <string name="versions_manage_copy_version">バージョンをコピー</string>
+    <string name="renderer_version_support">対応MCバージョン:</string>
 </resources>
