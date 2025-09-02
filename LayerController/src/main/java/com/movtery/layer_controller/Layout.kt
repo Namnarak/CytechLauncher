@@ -89,7 +89,7 @@ private fun BaseControlBoxLayout(
     isCursorGrabbing: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val isDarkMode = isSystemInDarkTheme()
+    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
 
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
@@ -150,7 +150,7 @@ private fun BaseControlBoxLayout(
                                 .filter { !it.hide && checkVisibility(isCursorGrabbing1, it.visibilityType) }
                                 .flatMap { layer -> layer.normalButtons.value }
 
-                            //查找当前指针在哪个按钮上
+                            //查找当前指针在哪些按钮上
                             val targetButtons = visibleWidgets
                                 .filter { data ->
                                     if (!checkVisibility(isCursorGrabbing1, data.visibilityType)) {
