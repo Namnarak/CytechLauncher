@@ -266,7 +266,7 @@ private fun ControlLayerItem(
                     )
                 }
             }
-            Text(
+            MarqueeText(
                 modifier = Modifier.weight(1f),
                 text = layer.name,
                 style = MaterialTheme.typography.bodyMedium
