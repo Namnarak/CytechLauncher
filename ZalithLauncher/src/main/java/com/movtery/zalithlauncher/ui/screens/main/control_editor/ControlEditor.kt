@@ -151,6 +151,7 @@ private fun EditorOperation(
             val textData = operation.data
             EditTranslatableTextDialog(
                 text = textData.text,
+                singleLine = false,
                 onClose = {
                     changeOperation(EditorOperation.None)
                 }
