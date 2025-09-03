@@ -69,6 +69,7 @@ data class ButtonSize(
          */
         fun createAdaptiveButtonSize(
             referenceLength: Int,
+            type: Type = Type.Percentage,
             reference: Reference = Reference.ScreenHeight,
             density: Float = 1f,
             targetDpSize: Float = 50f
@@ -76,7 +77,7 @@ data class ButtonSize(
             val percentage = ((targetDpSize * density) / referenceLength * 1000).toInt()
 
             return ButtonSize(
-                type = Type.Percentage,
+                type = type,
                 widthDp = targetDpSize,
                 heightDp = targetDpSize,
                 widthPercentage = percentage,

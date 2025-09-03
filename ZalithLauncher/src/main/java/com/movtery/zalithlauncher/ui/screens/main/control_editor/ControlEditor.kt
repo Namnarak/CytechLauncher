@@ -90,7 +90,8 @@ fun ControlEditor(
                         position = ButtonPosition.Center,
                         buttonSize = ButtonSize.createAdaptiveButtonSize(
                             referenceLength = screenHeight,
-                            density = density
+                            density = density,
+                            type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
                         )
                     )
                 )
