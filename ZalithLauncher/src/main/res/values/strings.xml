@@ -701,6 +701,9 @@
     <string name="control_editor_menu_save_and_exit">Save and Exit</string>
     <string name="control_editor_layers_title">Control Layers</string>
     <string name="control_editor_layers_create">Create New</string>
+    <string name="control_editor_layers_attribute">Control Layer Attributes</string>
+    <string name="control_editor_layers_attribute_name">Control Layer Name</string>
+    <string name="control_editor_layers_attribute_hide">Hide Control Layer by Default</string>
     <string name="control_editor_edit">Edit Control</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>

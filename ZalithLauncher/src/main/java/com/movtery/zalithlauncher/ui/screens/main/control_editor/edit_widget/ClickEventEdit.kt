@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.main.control_editor
+package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +34,8 @@ import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SINGLE
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 
 private data class TabItem(val title: Int)
 
@@ -268,7 +270,10 @@ private fun EditLauncherEvent(
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_left),
             value = eventData.mouseLeft,
             onValueChange = { value ->
-                val event = ClickEvent(ClickEvent.Type.LauncherEvent, ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT)
+                val event = ClickEvent(
+                    ClickEvent.Type.LauncherEvent,
+                    ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT
+                )
                 if (value) {
                     data.addEvent(event)
                 } else {
@@ -283,7 +288,10 @@ private fun EditLauncherEvent(
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_middle),
             value = eventData.mouseMiddle,
             onValueChange = { value ->
-                val event = ClickEvent(ClickEvent.Type.LauncherEvent, ControlEventKeycode.GLFW_MOUSE_BUTTON_MIDDLE)
+                val event = ClickEvent(
+                    ClickEvent.Type.LauncherEvent,
+                    ControlEventKeycode.GLFW_MOUSE_BUTTON_MIDDLE
+                )
                 if (value) {
                     data.addEvent(event)
                 } else {
@@ -298,7 +306,10 @@ private fun EditLauncherEvent(
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_right),
             value = eventData.mouseRight,
             onValueChange = { value ->
-                val event = ClickEvent(ClickEvent.Type.LauncherEvent, ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT)
+                val event = ClickEvent(
+                    ClickEvent.Type.LauncherEvent,
+                    ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT
+                )
                 if (value) {
                     data.addEvent(event)
                 } else {
@@ -328,7 +339,8 @@ private fun EditLauncherEvent(
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_up_single),
             value = eventData.mouseScrollUpSingle,
             onValueChange = { value ->
-                val event = ClickEvent(ClickEvent.Type.LauncherEvent, LAUNCHER_EVENT_SCROLL_UP_SINGLE)
+                val event =
+                    ClickEvent(ClickEvent.Type.LauncherEvent, LAUNCHER_EVENT_SCROLL_UP_SINGLE)
                 if (value) {
                     data.addEvent(event)
                 } else {
@@ -358,7 +370,8 @@ private fun EditLauncherEvent(
             title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_down_single),
             value = eventData.mouseScrollDownSingle,
             onValueChange = { value ->
-                val event = ClickEvent(ClickEvent.Type.LauncherEvent, LAUNCHER_EVENT_SCROLL_DOWN_SINGLE)
+                val event =
+                    ClickEvent(ClickEvent.Type.LauncherEvent, LAUNCHER_EVENT_SCROLL_DOWN_SINGLE)
                 if (value) {
                     data.addEvent(event)
                 } else {

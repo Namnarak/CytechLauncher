@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.main.control_editor
+package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,9 @@ import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
 
 /**
  * 编辑控件基本信息
@@ -45,14 +48,7 @@ fun EditWidgetInfo(
             items = VisibilityType.entries,
             selectedItem = data.visibilityType,
             onItemSelected = { data.visibilityType = it },
-            getItemText = { type ->
-                val textRes = when (type) {
-                    VisibilityType.ALWAYS -> R.string.control_editor_edit_visibility_always
-                    VisibilityType.IN_GAME -> R.string.control_editor_edit_visibility_in_game
-                    VisibilityType.IN_MENU -> R.string.control_editor_edit_visibility_in_menu
-                }
-                stringResource(textRes)
-            }
+            getItemText = { it.getVisibilityText() }
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -171,7 +167,9 @@ fun EditWidgetInfo(
                     title = stringResource(R.string.control_editor_edit_size_width_reference),
                     items = ButtonSize.Reference.entries,
                     selectedItem = data.buttonSize.widthReference,
-                    onItemSelected = { data.buttonSize = data.buttonSize.copy(widthReference = it) },
+                    onItemSelected = {
+                        data.buttonSize = data.buttonSize.copy(widthReference = it)
+                    },
                     getItemText = { it.getReferenceText() }
                 )
 
@@ -196,7 +194,9 @@ fun EditWidgetInfo(
                     title = stringResource(R.string.control_editor_edit_size_height_reference),
                     items = ButtonSize.Reference.entries,
                     selectedItem = data.buttonSize.heightReference,
-                    onItemSelected = { data.buttonSize = data.buttonSize.copy(heightReference = it) },
+                    onItemSelected = {
+                        data.buttonSize = data.buttonSize.copy(heightReference = it)
+                    },
                     getItemText = { it.getReferenceText() }
                 )
             }

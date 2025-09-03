@@ -719,6 +719,9 @@
     <string name="control_editor_menu_save_and_exit">儲存並退出</string>
     <string name="control_editor_layers_title">控制項圖層</string>
     <string name="control_editor_layers_create">新建</string>
+    <string name="control_editor_layers_attribute">控制項圖層屬性</string>
+    <string name="control_editor_layers_attribute_name">控制項圖層名稱</string>
+    <string name="control_editor_layers_attribute_hide">預設隱藏控制項圖層</string>
     <string name="control_editor_edit">編輯控制項</string>
     <string name="control_editor_edit_dialog_open_preview">開啟預覽</string>
     <string name="control_editor_edit_dialog_close_preview">關閉預覽</string>

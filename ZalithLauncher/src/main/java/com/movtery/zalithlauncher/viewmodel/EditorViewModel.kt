@@ -58,6 +58,14 @@ class EditorViewModel() : ViewModel() {
     }
 
     /**
+     * 移除控件层
+     */
+    fun removeLayer(layer: ObservableControlLayer) {
+        if (layer == selectedLayer) selectedLayer = null
+        observableLayout.removeLayer(layer.uuid)
+    }
+
+    /**
      * 为控件层添加控件
      */
     fun addWidget(layers: List<ObservableControlLayer>, addToLayer: (ObservableControlLayer) -> Unit) {

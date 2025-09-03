@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.ui.screens.main.control_editor
+package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info

@@ -16,6 +16,9 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditControlLayerDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditSwitchLayersVisibilityDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import java.io.File
@@ -53,9 +56,8 @@ fun ControlEditor(
         createLayer = {
             viewModel.observableLayout.addLayer(ControlLayer(name = defaultLayerName))
         },
-        deleteLayer = { layer ->
-            if (layer == viewModel.selectedLayer) viewModel.selectedLayer = null
-            viewModel.observableLayout.removeLayer(layer.uuid)
+        onAttribute = { layer ->
+            viewModel.editorOperation = EditorOperation.EditLayer(layer)
         },
         addNewButton = {
             viewModel.addWidget(layers) { layer ->
@@ -92,6 +94,9 @@ fun ControlEditor(
         onDeleteWidget = { data, layer ->
             viewModel.removeWidget(layer, data)
         },
+        onDeleteLayer = { layer ->
+            viewModel.removeLayer(layer)
+        },
         controlLayers = layers
     )
 }
@@ -101,6 +106,7 @@ private fun EditorOperation(
     operation: EditorOperation,
     changeOperation: (EditorOperation) -> Unit,
     onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit,
+    onDeleteLayer: (ObservableControlLayer) -> Unit,
     controlLayers: List<ObservableControlLayer>
 ) {
     when (operation) {
@@ -108,7 +114,7 @@ private fun EditorOperation(
         is EditorOperation.SelectButton -> {
             EditWidgetDialog(
                 data = operation.data,
-                onDismissRequest =  {
+                onDismissRequest = {
                     changeOperation(EditorOperation.None)
                 },
                 onDelete = {
@@ -117,6 +123,19 @@ private fun EditorOperation(
                 },
                 switchControlLayers = { data ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                }
+            )
+        }
+        is EditorOperation.EditLayer -> {
+            val layer = operation.layer
+            EditControlLayerDialog(
+                layer = layer,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                },
+                onDelete = {
+                    onDeleteLayer(layer)
+                    changeOperation(EditorOperation.None)
                 }
             )
         }
