@@ -683,6 +683,7 @@
     <string name="control_manage_create_new_field_blank">This field cannot be empty</string>
     <string name="control_manage_create_new_field_long">Content too long</string>
     <string name="control_manage_create_new_field_number">Invalid number</string>
+    <string name="control_manage_delete_message">Are you sure you want to delete the control layout %s?</string>
     <string name="control_manage_saving">Saving control layout</string>
     <string name="control_manage_failed_to_save">Failed to save control layout</string>
     <string name="control_manage_list_empty">No control layouts</string>

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.apache.commons.io.FileUtils
 import kotlin.collections.find
 import kotlin.collections.firstOrNull
 
@@ -101,5 +102,16 @@ object ControlManager {
         if (!data.file.exists()) return //文件不存在了（？
         AllSettings.controlLayout.save(data.file.name)
         selectedLayout = data
+    }
+
+    /**
+     * 在协程内删除控制布局
+     */
+    fun deleteControl(data: ControlData) {
+        scope.launch(Dispatchers.IO) {
+            if (!data.file.exists()) return@launch
+            FileUtils.deleteQuietly(data.file)
+            refresh()
+        }
     }
 }

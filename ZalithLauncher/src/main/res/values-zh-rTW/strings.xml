@@ -701,6 +701,7 @@
     <string name="control_manage_create_new_field_blank">該項不能為空</string>
     <string name="control_manage_create_new_field_long">內容過長</string>
     <string name="control_manage_create_new_field_number">非法數字</string>
+    <string name="control_manage_delete_message">您確定要刪除控制佈局 %s 嗎？</string>
     <string name="control_manage_saving">儲存控制佈局中</string>
     <string name="control_manage_failed_to_save">儲存控制佈局時遇到了問題</string>
     <string name="control_manage_list_empty">沒有控制佈局</string>

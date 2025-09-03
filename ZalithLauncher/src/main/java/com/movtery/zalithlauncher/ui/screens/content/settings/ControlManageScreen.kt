@@ -23,10 +23,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -77,6 +80,7 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -95,6 +99,8 @@ private sealed interface ControlOperation {
     data object None : ControlOperation
     /** 创建新布局弹窗 */
     data object CreateNew : ControlOperation
+    /** 删除控制布局 */
+    data class Delete(val data: ControlData) : ControlOperation
 }
 
 private class ControlViewModel : ViewModel() {
@@ -161,6 +167,9 @@ fun ControlManageScreen(
                     )
                 )
             }
+        },
+        onDelete = { data ->
+            ControlManager.deleteControl(data)
         }
     )
 
@@ -197,6 +206,9 @@ fun ControlManageScreen(
                 },
                 onCreate = {
                     viewModel.operation = ControlOperation.CreateNew
+                },
+                onDelete = { data ->
+                    viewModel.operation = ControlOperation.Delete(data)
                 }
             )
 
@@ -231,7 +243,8 @@ fun ControlManageScreen(
 private fun ControlOperation(
     operation: ControlOperation,
     changeOperation: (ControlOperation) -> Unit,
-    onCreate: (name: String, author: String, versionName: String) -> Unit
+    onCreate: (name: String, author: String, versionName: String) -> Unit,
+    onDelete: (ControlData) -> Unit
 ) {
     when (operation) {
         is ControlOperation.None -> {}
@@ -239,6 +252,25 @@ private fun ControlOperation(
             CreateNewLayoutDialog(
                 onDismissRequest = { changeOperation(ControlOperation.None) },
                 onCreate = onCreate
+            )
+        }
+        is ControlOperation.Delete -> {
+            val data = operation.data
+            val layoutName = if (data.isSupport) {
+                data.controlLayout.info.name.translate()
+            } else {
+                data.file.name
+            }
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_warning),
+                text = stringResource(R.string.control_manage_delete_message, layoutName),
+                onDismiss = {
+                    changeOperation(ControlOperation.None)
+                },
+                onConfirm = {
+                    onDelete(data)
+                    changeOperation(ControlOperation.None)
+                }
             )
         }
     }
@@ -255,7 +287,8 @@ private fun ControlLayoutList(
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onImport: () -> Unit,
-    onCreate: () -> Unit
+    onCreate: () -> Unit,
+    onDelete: (ControlData) -> Unit
 ) {
     Card(
         modifier = modifier.fillMaxHeight(),
@@ -298,7 +331,8 @@ private fun ControlLayoutList(
                             data = data,
                             locale = locale,
                             selected = data.file.name == AllSettings.controlLayout.state,
-                            onSelected = { ControlManager.selectControl(data) }
+                            onSelected = { ControlManager.selectControl(data) },
+                            onDelete = { onDelete(data) }
                         )
                     }
                 }
@@ -363,6 +397,7 @@ private fun ControlLayoutItem(
     locale: Locale,
     selected: Boolean,
     onSelected: () -> Unit,
+    onDelete: () -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
@@ -407,6 +442,14 @@ private fun ControlLayoutItem(
                     MarqueeText(
                         text = data.controlLayout.info.versionName,
                         style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                IconButton(
+                    onClick = onDelete
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.generic_delete)
                     )
                 }
             } else {
