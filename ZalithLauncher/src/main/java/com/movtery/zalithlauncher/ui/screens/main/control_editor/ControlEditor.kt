@@ -3,8 +3,12 @@ package com.movtery.zalithlauncher.ui.screens.main.control_editor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import com.movtery.layer_controller.data.ButtonPosition
+import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.layout.ControlEditorLayer
@@ -39,6 +43,10 @@ fun ControlEditor(
     /** 默认新建的文本框的名称 */
     val defaultTextName = stringResource(R.string.control_editor_edit_text_default)
 
+    val density = LocalDensity.current.density
+    val screenSize = LocalWindowInfo.current.containerSize
+    val screenHeight = remember(screenSize) { screenSize.height }
+
     ControlEditorLayer(
         observedLayout = viewModel.observableLayout,
         onButtonTap = { data, layer ->
@@ -65,7 +73,11 @@ fun ControlEditor(
                 layer.addNormalButton(
                     NormalData(
                         text = TranslatableString.create(default = defaultButtonName),
-                        position = ButtonPosition.Center
+                        position = ButtonPosition.Center,
+                        buttonSize = ButtonSize.createAdaptiveButtonSize(
+                            referenceLength = screenHeight,
+                            density = density
+                        )
                     )
                 )
             }
@@ -75,7 +87,11 @@ fun ControlEditor(
                 layer.addTextBox(
                     TextData(
                         text = TranslatableString.create(default = defaultTextName),
-                        position = ButtonPosition.Center
+                        position = ButtonPosition.Center,
+                        buttonSize = ButtonSize.createAdaptiveButtonSize(
+                            referenceLength = screenHeight,
+                            density = density
+                        )
                     )
                 )
             }

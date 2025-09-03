@@ -70,10 +70,9 @@ fun EditControlLayerDialog(
                         modifier = Modifier
                             .weight(1f, fill = false)
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Spacer(Modifier)
-
                         val focusManager = LocalFocusManager.current
 
                         //控件层名称

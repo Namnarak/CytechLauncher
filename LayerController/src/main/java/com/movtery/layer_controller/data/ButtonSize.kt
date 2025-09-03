@@ -63,5 +63,27 @@ data class ButtonSize(
             widthReference = Reference.ScreenHeight,
             heightReference = Reference.ScreenHeight
         )
+
+        /**
+         * 创建一个默认的百分比尺寸，根据参考尺寸计算出合适的值
+         */
+        fun createAdaptiveButtonSize(
+            referenceLength: Int,
+            reference: Reference = Reference.ScreenHeight,
+            density: Float = 1f,
+            targetDpSize: Float = 50f
+        ): ButtonSize {
+            val percentage = ((targetDpSize * density) / referenceLength * 1000).toInt()
+
+            return ButtonSize(
+                type = Type.Percentage,
+                widthDp = targetDpSize,
+                heightDp = targetDpSize,
+                widthPercentage = percentage,
+                heightPercentage = percentage,
+                widthReference = reference,
+                heightReference = reference
+            )
+        }
     }
 }
