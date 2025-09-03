@@ -2,9 +2,11 @@ package com.movtery.zalithlauncher.ui.screens.content.download.common
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
@@ -57,47 +60,58 @@ fun GameInstallingDialog(
     tasks: List<TitledTask>,
     onCancel: () -> Unit = {}
 ) {
-    Dialog(onDismissRequest = {}) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnClickOutside = false
+        )
+    ) {
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-
-                LazyColumn(
-                    modifier = Modifier.weight(1f, fill = false)
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(tasks) { task ->
-                        InstallingTaskItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                            title = task.title,
-                            runningIcon = task.runningIcon,
-                            task = task.task
-                        )
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        items(tasks) { task ->
+                            InstallingTaskItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                title = task.title,
+                                runningIcon = task.runningIcon,
+                                task = task.task
+                            )
+                        }
                     }
-                }
-                Spacer(modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.size(16.dp))
 
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onCancel
-                ) {
-                    MarqueeText(text = stringResource(R.string.generic_cancel))
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onCancel
+                    ) {
+                        MarqueeText(text = stringResource(R.string.generic_cancel))
+                    }
                 }
             }
         }

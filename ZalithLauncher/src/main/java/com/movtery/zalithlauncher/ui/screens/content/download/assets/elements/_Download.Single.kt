@@ -2,10 +2,12 @@ package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -99,57 +101,63 @@ fun SelectVersionToDownloadDialog(
         Dialog(
             onDismissRequest = onDismiss
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                shadowElevation = 6.dp
+            Box(
+                modifier = Modifier.fillMaxHeight(),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Surface(
+                    modifier = Modifier.padding(all = 6.dp),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    shadowElevation = 6.dp
                 ) {
-                    Text(
-                        text = stringResource(R.string.download_assets_install_assets_for_versions),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    //选择游戏版本
-                    ChoseGameVersionLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = false),
-                        versions = versions,
-                        selectedVersions = selectedVersions,
-                        onVersionSelected = { selectedVersions.add(it) },
-                        onVersionUnSelected = { selectedVersions.remove(it) }
-                    )
-
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(
-                            modifier = Modifier.weight(0.5f),
-                            onClick = onDismiss
+                        Text(
+                            text = stringResource(R.string.download_assets_install_assets_for_versions),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        //选择游戏版本
+                        ChoseGameVersionLayout(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false),
+                            versions = versions,
+                            selectedVersions = selectedVersions,
+                            onVersionSelected = { selectedVersions.add(it) },
+                            onVersionUnSelected = { selectedVersions.remove(it) }
+                        )
+
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            MarqueeText(text = stringResource(R.string.generic_cancel))
-                        }
-                        Button(
-                            modifier = Modifier.weight(0.5f),
-                            onClick = {
-                                if (selectedVersions.isNotEmpty()) {
-                                    onInstall(selectedVersions)
-                                }
+                            Button(
+                                modifier = Modifier.weight(0.5f),
+                                onClick = onDismiss
+                            ) {
+                                MarqueeText(text = stringResource(R.string.generic_cancel))
                             }
-                        ) {
-                            MarqueeText(text = stringResource(R.string.download_install))
+                            Button(
+                                modifier = Modifier.weight(0.5f),
+                                onClick = {
+                                    if (selectedVersions.isNotEmpty()) {
+                                        onInstall(selectedVersions)
+                                    }
+                                }
+                            ) {
+                                MarqueeText(text = stringResource(R.string.download_install))
+                            }
                         }
                     }
                 }

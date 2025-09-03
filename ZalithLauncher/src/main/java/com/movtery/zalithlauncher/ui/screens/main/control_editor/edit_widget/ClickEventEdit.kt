@@ -91,19 +91,19 @@ fun EditWidgetClickEvent(
             when (page) {
                 0 -> {
                     EditBasicEvent(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxSize(),
                         data = data,
                         switchControlLayers = switchControlLayers
                     )
                 }
                 1 -> {
                     EditLauncherEvent(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxSize(),
                         data = data
                     )
                 }
                 2 -> {
-                    Box(modifier = Modifier.fillMaxWidth())
+                    Box(modifier = Modifier.fillMaxSize())
                 }
             }
         }

@@ -1,9 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -24,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.zalithlauncher.R
@@ -39,90 +42,100 @@ fun EditControlLayerDialog(
     onDelete: () -> Unit
 ) {
     Dialog(
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            dismissOnClickOutside = false,
+        )
     ) {
-        Surface(
-            shadowElevation = 3.dp,
-            shape = MaterialTheme.shapes.extraLarge
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(all = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Surface(
+                modifier = Modifier.padding(all = 3.dp),
+                shadowElevation = 3.dp,
+                shape = MaterialTheme.shapes.extraLarge
             ) {
-                MarqueeText(
-                    text = stringResource(R.string.control_editor_layers_attribute),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
                 Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    val focusManager = LocalFocusManager.current
-
-                    //控件层名称
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = layer.name,
-                        onValueChange = { layer.name = it },
-                        label = {
-                            Text(stringResource(R.string.control_editor_layers_attribute_name))
-                        },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus(true)
-                            }
-                        ),
-                        shape = MaterialTheme.shapes.large
+                    MarqueeText(
+                        text = stringResource(R.string.control_editor_layers_attribute),
+                        style = MaterialTheme.typography.titleMedium
                     )
 
-                    //可见场景
-                    InfoLayoutListItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.control_editor_edit_visibility),
-                        items = VisibilityType.entries,
-                        selectedItem = layer.visibilityType,
-                        onItemSelected = { layer.visibilityType = it },
-                        getItemText = { it.getVisibilityText() }
-                    )
-
-                    //默认隐藏控件层
-                    InfoLayoutSwitchItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.control_editor_layers_attribute_hide),
-                        value = layer.hide,
-                        onValueChange = { layer.hide = it }
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        modifier = Modifier.weight(1f, fill = false),
-                        onClick = onDelete
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        MarqueeText(
-                            text = stringResource(R.string.generic_delete)
+                        val focusManager = LocalFocusManager.current
+
+                        //控件层名称
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = layer.name,
+                            onValueChange = { layer.name = it },
+                            label = {
+                                Text(stringResource(R.string.control_editor_layers_attribute_name))
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus(true)
+                                }
+                            ),
+                            shape = MaterialTheme.shapes.large
+                        )
+
+                        //可见场景
+                        InfoLayoutListItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_editor_edit_visibility),
+                            items = VisibilityType.entries,
+                            selectedItem = layer.visibilityType,
+                            onItemSelected = { layer.visibilityType = it },
+                            getItemText = { it.getVisibilityText() },
+                            useMenu = false
+                        )
+
+                        //默认隐藏控件层
+                        InfoLayoutSwitchItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_editor_layers_attribute_hide),
+                            value = layer.hide,
+                            onValueChange = { layer.hide = it }
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Button(
-                        modifier = Modifier.weight(1f, fill = false),
-                        onClick = onDismissRequest
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        MarqueeText(
-                            text = stringResource(R.string.generic_close)
-                        )
+                        Button(
+                            modifier = Modifier.weight(1f, fill = false),
+                            onClick = onDelete
+                        ) {
+                            MarqueeText(
+                                text = stringResource(R.string.generic_delete)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Button(
+                            modifier = Modifier.weight(1f, fill = false),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(
+                                text = stringResource(R.string.generic_close)
+                            )
+                        }
                     }
                 }
             }

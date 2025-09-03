@@ -641,123 +641,129 @@ private fun CreateNewLayoutDialog(
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                Text(
-                    text = stringResource(R.string.control_manage_create_new_title),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
                 Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    val focusManager = LocalFocusManager.current
-                    val authorFocus = remember { FocusRequester() }
-                    val versionNameFocus = remember { FocusRequester() }
-
-                    //名称
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = name,
-                        onValueChange = { name = it },
-                        label = {
-                            Text(text = stringResource(R.string.control_manage_create_new_name))
-                        },
-                        isError = isNameError,
-                        supportingText = {
-                            nameError?.let { Text(it) }
-                        },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                authorFocus.requestFocus()
-                            }
-                        ),
-                        shape = MaterialTheme.shapes.large
+                    Text(
+                        text = stringResource(R.string.control_manage_create_new_title),
+                        style = MaterialTheme.typography.titleMedium
                     )
 
-                    //作者
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth().focusRequester(authorFocus),
-                        value = author,
-                        onValueChange = { author = it },
-                        label = {
-                            Text(text = stringResource(R.string.control_manage_create_new_author))
-                        },
-                        isError = isAuthorNameError,
-                        supportingText = {
-                            authorNameError?.let { Text(it) }
-                        },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                versionNameFocus.requestFocus()
-                            }
-                        ),
-                        shape = MaterialTheme.shapes.large
-                    )
-
-                    //版本
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth().focusRequester(versionNameFocus),
-                        value = versionName,
-                        onValueChange = { versionName = it },
-                        label = {
-                            Text(text = stringResource(R.string.control_manage_create_new_version_name))
-                        },
-                        isError = isVersionNameError,
-                        supportingText = {
-                            versionNameError?.let { Text(it) }
-                        },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus(true)
-                            }
-                        ),
-                        shape = MaterialTheme.shapes.large
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        MarqueeText(text = stringResource(R.string.generic_cancel))
+                        val focusManager = LocalFocusManager.current
+                        val authorFocus = remember { FocusRequester() }
+                        val versionNameFocus = remember { FocusRequester() }
+
+                        //名称
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = name,
+                            onValueChange = { name = it },
+                            label = {
+                                Text(text = stringResource(R.string.control_manage_create_new_name))
+                            },
+                            isError = isNameError,
+                            supportingText = {
+                                nameError?.let { Text(it) }
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    authorFocus.requestFocus()
+                                }
+                            ),
+                            shape = MaterialTheme.shapes.large
+                        )
+
+                        //作者
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth().focusRequester(authorFocus),
+                            value = author,
+                            onValueChange = { author = it },
+                            label = {
+                                Text(text = stringResource(R.string.control_manage_create_new_author))
+                            },
+                            isError = isAuthorNameError,
+                            supportingText = {
+                                authorNameError?.let { Text(it) }
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    versionNameFocus.requestFocus()
+                                }
+                            ),
+                            shape = MaterialTheme.shapes.large
+                        )
+
+                        //版本
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth().focusRequester(versionNameFocus),
+                            value = versionName,
+                            onValueChange = { versionName = it },
+                            label = {
+                                Text(text = stringResource(R.string.control_manage_create_new_version_name))
+                            },
+                            isError = isVersionNameError,
+                            supportingText = {
+                                versionNameError?.let { Text(it) }
+                            },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus(true)
+                                }
+                            ),
+                            shape = MaterialTheme.shapes.large
+                        )
                     }
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onClick@{
-                            if (isNameError || isAuthorNameError || isVersionNameError) return@onClick
-                            onDismissRequest()
-                            onCreate(name, author, versionName)
-                        }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        MarqueeText(text = stringResource(R.string.control_manage_create_new))
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = onClick@{
+                                if (isNameError || isAuthorNameError || isVersionNameError) return@onClick
+                                onDismissRequest()
+                                onCreate(name, author, versionName)
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.control_manage_create_new))
+                        }
                     }
                 }
             }

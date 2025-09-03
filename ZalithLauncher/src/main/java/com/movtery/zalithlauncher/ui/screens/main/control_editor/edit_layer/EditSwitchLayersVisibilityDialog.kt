@@ -1,8 +1,10 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -70,49 +72,55 @@ fun EditSwitchLayersVisibilityDialog(
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        Surface(
-            shadowElevation = 3.dp,
-            shape = MaterialTheme.shapes.extraLarge
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(all = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shadowElevation = 3.dp,
+                shape = MaterialTheme.shapes.extraLarge
             ) {
-                MarqueeText(
-                    text = stringResource(R.string.control_editor_edit_switch_layers),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(layers) { layer ->
-                        LayerVisibilityItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            layer = layer,
-                            selected = layerSelected.contains(layer),
-                            onSelectedChange = { selected ->
-                                val event = ClickEvent(ClickEvent.Type.SwitchLayer, layer.uuid)
-                                if (selected) {
-                                    data.addEvent(event)
-                                } else {
-                                    data.removeEvent(event)
-                                }
-                            }
-                        )
-                    }
-                }
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onDismissRequest
+                Column(
+                    modifier = Modifier.padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     MarqueeText(
-                        text = stringResource(R.string.generic_close)
+                        text = stringResource(R.string.control_editor_edit_switch_layers),
+                        style = MaterialTheme.typography.titleMedium
                     )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(layers) { layer ->
+                            LayerVisibilityItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                layer = layer,
+                                selected = layerSelected.contains(layer),
+                                onSelectedChange = { selected ->
+                                    val event = ClickEvent(ClickEvent.Type.SwitchLayer, layer.uuid)
+                                    if (selected) {
+                                        data.addEvent(event)
+                                    } else {
+                                        data.removeEvent(event)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onDismissRequest
+                    ) {
+                        MarqueeText(
+                            text = stringResource(R.string.generic_close)
+                        )
+                    }
                 }
             }
         }

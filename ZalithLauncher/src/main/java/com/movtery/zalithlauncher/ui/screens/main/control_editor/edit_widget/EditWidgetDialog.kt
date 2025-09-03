@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -84,6 +86,7 @@ fun EditWidgetDialog(
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
+            dismissOnClickOutside = false,
             usePlatformDefaultWidth = false
         )
     ) {
@@ -102,21 +105,26 @@ fun EditWidgetDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.75f)
-                .padding(5.dp)
-                .alpha(cardAlpha)
+                .fillMaxHeight()
+                .alpha(cardAlpha),
+            contentAlignment = Alignment.Center
         ) {
             Surface(
-                modifier = Modifier.padding(all = 3.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(all = 16.dp),
                 shadowElevation = 3.dp,
                 shape = MaterialTheme.shapes.extraLarge
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 4.dp)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f, fill = false)
+                            .weight(1f)
                     ) {
                         EditWidgetTabLayout(
                             modifier = Modifier.fillMaxHeight(),
