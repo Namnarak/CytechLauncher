@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -63,6 +65,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.utils.AUTHOR_NAME_LENGTH
 import com.movtery.layer_controller.utils.NAME_LENGTH
 import com.movtery.layer_controller.utils.VERSION_NAME_LENGTH
@@ -81,9 +84,11 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
@@ -101,6 +106,21 @@ private sealed interface ControlOperation {
     data object CreateNew : ControlOperation
     /** 删除控制布局 */
     data class Delete(val data: ControlData) : ControlOperation
+    /** 编辑普通的文本 */
+    data class EditText(
+        val data: ControlData,
+        val string: ObservableTranslatableString,
+        val type: EditTextType
+    ) : ControlOperation
+    /** 编辑描述 */
+    data class EditDescription(val data: ControlData) : ControlOperation
+    /** 编辑版本名称 */
+    data class EditVersion(val data: ControlData) : ControlOperation
+}
+
+private enum class EditTextType(val length: Int, val titleRes: Int) {
+    NAME(length = NAME_LENGTH, titleRes = R.string.control_manage_create_new_name),
+    AUTHOR(length = AUTHOR_NAME_LENGTH, titleRes = R.string.control_manage_create_new_author)
 }
 
 private class ControlViewModel : ViewModel() {
@@ -170,6 +190,14 @@ fun ControlManageScreen(
         },
         onDelete = { data ->
             ControlManager.deleteControl(data)
+        },
+        onSave = { data ->
+            ControlManager.saveControl(data) { e ->
+                ErrorViewModel.ThrowableMessage(
+                    title = context.getString(R.string.control_manage_failed_to_save),
+                    message = e.getMessageOrToString()
+                )
+            }
         }
     )
 
@@ -230,6 +258,15 @@ fun ControlManageScreen(
                 locale = locale,
                 onEditLayout = { data ->
                     startEditorActivity(context, data.file)
+                },
+                onEditText = { data, string, type ->
+                    viewModel.operation = ControlOperation.EditText(data, string, type)
+                },
+                onEditDescription = { data ->
+                    viewModel.operation = ControlOperation.EditDescription(data)
+                },
+                onEditVersion = { data ->
+                    viewModel.operation = ControlOperation.EditVersion(data)
                 }
             )
         }
@@ -244,7 +281,8 @@ private fun ControlOperation(
     operation: ControlOperation,
     changeOperation: (ControlOperation) -> Unit,
     onCreate: (name: String, author: String, versionName: String) -> Unit,
-    onDelete: (ControlData) -> Unit
+    onDelete: (ControlData) -> Unit,
+    onSave: (ControlData) -> Unit
 ) {
     when (operation) {
         is ControlOperation.None -> {}
@@ -269,6 +307,63 @@ private fun ControlOperation(
                 },
                 onConfirm = {
                     onDelete(data)
+                    changeOperation(ControlOperation.None)
+                }
+            )
+        }
+        is ControlOperation.EditText -> {
+            EditTranslatableTextDialog(
+                title = stringResource(operation.type.titleRes),
+                text = operation.string,
+                onDismissRequest = {
+                    operation.string.reset()
+                    changeOperation(ControlOperation.None)
+                },
+                onClose = {
+                    onSave(operation.data)
+                    changeOperation(ControlOperation.None)
+                },
+                dismissText = stringResource(R.string.generic_close),
+                closeText = stringResource(R.string.generic_save),
+                take = operation.type.length
+            )
+        }
+        is ControlOperation.EditDescription -> {
+            val string = operation.data.controlLayout.info.description
+            EditTranslatableTextDialog(
+                title = stringResource(R.string.control_manage_info_description),
+                text = string,
+                singleLine = false,
+                onDismissRequest = {
+                    string.reset()
+                    changeOperation(ControlOperation.None)
+                },
+                onClose = {
+                    onSave(operation.data)
+                    changeOperation(ControlOperation.None)
+                },
+                dismissText = stringResource(R.string.generic_close),
+                closeText = stringResource(R.string.generic_save)
+            )
+        }
+        is ControlOperation.EditVersion -> {
+            val info = operation.data.controlLayout.info
+            SimpleEditDialog(
+                title = stringResource(R.string.control_manage_create_new_version_name),
+                value = info.versionName,
+                onValueChange = {
+                    info.versionName = it.take(VERSION_NAME_LENGTH)
+                },
+                supportingText = {
+                    Text(stringResource(R.string.generic_input_length, info.versionName.length, VERSION_NAME_LENGTH))
+                },
+                singleLine = true,
+                onDismissRequest = {
+                    info.resetVersionName()
+                    changeOperation(ControlOperation.None)
+                },
+                onConfirm = {
+                    onSave(operation.data)
                     changeOperation(ControlOperation.None)
                 }
             )
@@ -471,7 +566,10 @@ private fun ControlLayoutInfo(
     isLoading: Boolean,
     data: ControlData? = null,
     locale: Locale,
-    onEditLayout: (ControlData) -> Unit
+    onEditLayout: (ControlData) -> Unit,
+    onEditText: (ControlData, ObservableTranslatableString, type: EditTextType) -> Unit,
+    onEditDescription: (ControlData) -> Unit,
+    onEditVersion: (ControlData) -> Unit
 ) {
     Card(
         modifier = modifier.fillMaxHeight(),
@@ -499,54 +597,68 @@ private fun ControlLayoutInfo(
                 ScalingLabel(text = stringResource(R.string.control_manage_info_unsupport))
             }
         } else {
+            val info = data.controlLayout.info
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
                 contentPadding = PaddingValues(all = 12.dp)
             ) {
                 item {
-                    val name = data.controlLayout.info.name.translate(locale)
+                    val name = info.name.translate(locale)
                     ControlInfoItem(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.control_manage_create_new_name),
                         value = if (name.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else name,
-                        onEdit = {}
+                        onEdit = {
+                            onEditText(data, info.name, EditTextType.NAME)
+                        }
                     )
                 }
 
                 item {
-                    val author = data.controlLayout.info.author.translate(locale)
+                    val author = info.author.translate(locale)
                     ControlInfoItem(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.control_manage_create_new_author),
                         value = if (author.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else author,
-                        onEdit = {}
+                        onEdit = {
+                            onEditText(data, info.author, EditTextType.AUTHOR)
+                        }
                     )
                 }
 
                 item {
-                    val versionName = data.controlLayout.info.versionName
+                    val versionName = info.versionName
                     ControlInfoItem(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.control_manage_create_new_version_name),
                         value = if (versionName.isEmptyOrBlank()) stringResource(R.string.generic_unspecified) else versionName,
-                        onEdit = {}
+                        onEdit = {
+                            onEditVersion(data)
+                        }
                     )
                 }
 
-                item {
-                    val description =  data.controlLayout.info.description.translate(locale)
-                    if (description.isEmptyOrBlank()) {
+                val description = info.description.translate(locale)
+                if (description.isEmptyOrBlank()) {
+                    item {
                         ControlInfoItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_manage_info_description),
                             value = stringResource(R.string.control_manage_info_description_empty),
-                            onEdit = {}
+                            onEdit = {
+                                onEditDescription(data)
+                            }
                         )
-                    } else {
+                    }
+                } else {
+                    item {
+                        Spacer(Modifier.height(4.dp))
                         ControlInfoItem(
                             modifier = Modifier.fillMaxWidth(),
-                            onEdit = {}
+                            onEdit = {
+                                onEditDescription(data)
+                            }
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -555,6 +667,10 @@ private fun ControlLayoutInfo(
                                 Text(
                                     text = stringResource(R.string.control_manage_info_description),
                                     style = MaterialTheme.typography.bodyMedium
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = description,
@@ -724,7 +840,9 @@ private fun CreateNewLayoutDialog(
                             },
                             isError = isNameError,
                             supportingText = {
-                                nameError?.let { Text(it) }
+                                nameError?.let { Text(it) } ?: run {
+                                    Text(stringResource(R.string.generic_input_length, name.length, NAME_LENGTH))
+                                }
                             },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions.Default.copy(
@@ -740,7 +858,9 @@ private fun CreateNewLayoutDialog(
 
                         //作者
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth().focusRequester(authorFocus),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(authorFocus),
                             value = author,
                             onValueChange = { author = it },
                             label = {
@@ -748,7 +868,9 @@ private fun CreateNewLayoutDialog(
                             },
                             isError = isAuthorNameError,
                             supportingText = {
-                                authorNameError?.let { Text(it) }
+                                authorNameError?.let { Text(it) } ?: run {
+                                    Text(stringResource(R.string.generic_input_length, author.length, AUTHOR_NAME_LENGTH))
+                                }
                             },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions.Default.copy(
@@ -764,7 +886,9 @@ private fun CreateNewLayoutDialog(
 
                         //版本
                         OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth().focusRequester(versionNameFocus),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(versionNameFocus),
                             value = versionName,
                             onValueChange = { versionName = it },
                             label = {
@@ -772,7 +896,9 @@ private fun CreateNewLayoutDialog(
                             },
                             isError = isVersionNameError,
                             supportingText = {
-                                versionNameError?.let { Text(it) }
+                                versionNameError?.let { Text(it) } ?: run {
+                                    Text(stringResource(R.string.generic_input_length, versionName.length, VERSION_NAME_LENGTH))
+                                }
                             },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions.Default.copy(

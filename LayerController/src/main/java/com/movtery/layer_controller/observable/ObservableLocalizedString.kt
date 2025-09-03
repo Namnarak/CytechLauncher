@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.utils.lang.LocalizedString
 import java.util.Locale
 
-class ObservableLocalizedString(val string: LocalizedString): Packable<LocalizedString> {
+class ObservableLocalizedString(string: LocalizedString): Packable<LocalizedString> {
     var languageTag by mutableStateOf(string.languageTag)
     var value by mutableStateOf(string.value)
 

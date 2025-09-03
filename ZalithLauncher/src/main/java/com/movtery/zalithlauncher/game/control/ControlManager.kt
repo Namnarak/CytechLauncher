@@ -4,6 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.observable.ObservableControlLayout
+import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -15,8 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
-import kotlin.collections.find
-import kotlin.collections.firstOrNull
 
 /**
  * 控制布局管理者
@@ -66,7 +66,7 @@ object ControlManager {
 
                 ControlData(
                     file = file,
-                    controlLayout = layout,
+                    controlLayout = ObservableControlLayout(layout),
                     isSupport = isSupport
                 )
             }?.let { list ->
@@ -111,6 +111,29 @@ object ControlManager {
         scope.launch(Dispatchers.IO) {
             if (!data.file.exists()) return@launch
             FileUtils.deleteQuietly(data.file)
+            refresh()
+        }
+    }
+
+    /**
+     * 在协程内保存控制布局的数据
+     */
+    fun saveControl(
+        data: ControlData,
+        summitError: (Exception) -> Unit
+    ) {
+        scope.launch(Dispatchers.IO) {
+            if (!data.file.exists()) {
+                refresh()
+                return@launch
+            }
+            val layout = data.controlLayout.pack()
+            try {
+                layout.saveToFile(data.file)
+            } catch (e: Exception) {
+                summitError(e)
+                FileUtils.deleteQuietly(data.file)
+            }
             refresh()
         }
     }

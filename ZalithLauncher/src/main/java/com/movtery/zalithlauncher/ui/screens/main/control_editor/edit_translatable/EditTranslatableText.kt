@@ -40,13 +40,26 @@ import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 
+/**
+ * 编辑可翻译文本
+ * @param onDismissRequest 由Dialog主动调用的关闭请求回调
+ * @param onClose 由用户主动点击关闭按钮调用的关闭请求回调
+ * @param title 对话框标题
+ * @param take 限制输入文本的字数
+ */
 @Composable
 fun EditTranslatableTextDialog(
     text: ObservableTranslatableString,
-    onDismissRequest: () -> Unit
+    onClose: () -> Unit,
+    singleLine: Boolean = true,
+    onDismissRequest: (() -> Unit)? = null,
+    title: String? = null,
+    dismissText: String? = null,
+    closeText: String? = null,
+    take: Int? = null
 ) {
     Dialog(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = {},
         properties = DialogProperties(
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false
@@ -68,7 +81,7 @@ fun EditTranslatableTextDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     MarqueeText(
-                        text = stringResource(R.string.control_editor_edit_text),
+                        text = title ?: stringResource(R.string.control_editor_edit_text),
                         style = MaterialTheme.typography.titleMedium
                     )
 
@@ -96,14 +109,23 @@ fun EditTranslatableTextDialog(
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = text.default,
-                                onValueChange = { text.default = it },
+                                onValueChange = { text.default = take.take(it) },
                                 label = {
                                     Text(stringResource(R.string.control_editor_edit_translatable_default))
                                 },
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done
-                                ),
+                                supportingText = if (take != null) {
+                                    @Composable {
+                                        Text(stringResource(R.string.generic_input_length, text.default.length, take))
+                                    }
+                                } else null,
+                                singleLine = singleLine,
+                                keyboardOptions = if (singleLine) {
+                                    KeyboardOptions.Default.copy(
+                                        imeAction = ImeAction.Done
+                                    )
+                                } else {
+                                    KeyboardOptions.Default
+                                },
                                 keyboardActions = KeyboardActions(
                                     onDone = {
                                         focusManager.clearFocus(true)
@@ -119,7 +141,9 @@ fun EditTranslatableTextDialog(
                                 string = string,
                                 onDelete = {
                                     text.deleteLocalizedString(string)
-                                }
+                                },
+                                singleLine = singleLine,
+                                take = take
                             )
                         }
                     }
@@ -136,11 +160,25 @@ fun EditTranslatableTextDialog(
                         ) {
                             MarqueeText(text = stringResource(R.string.control_editor_edit_translatable_other_add))
                         }
-                        Button(
+                        Row(
                             modifier = Modifier.weight(1f, fill = false),
-                            onClick = onDismissRequest
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            MarqueeText(text = stringResource(R.string.generic_close))
+                            onDismissRequest?.let { request ->
+                                Button(
+                                    modifier = Modifier.weight(1f, fill = false),
+                                    onClick = request
+                                ) {
+                                    MarqueeText(text = dismissText ?: stringResource(R.string.generic_close))
+                                }
+                            }
+
+                            Button(
+                                modifier = Modifier.weight(1f, fill = false),
+                                onClick = onClose
+                            ) {
+                                MarqueeText(text = closeText ?: stringResource(R.string.generic_close))
+                            }
                         }
                     }
                 }
@@ -156,7 +194,9 @@ fun EditTranslatableTextDialog(
 private fun LocalizedStringItem(
     modifier: Modifier = Modifier,
     string: ObservableLocalizedString,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    singleLine: Boolean = true,
+    take: Int? = null
 ) {
     Row(
         modifier = modifier,
@@ -172,7 +212,8 @@ private fun LocalizedStringItem(
                 onValueChange = { tag ->
                     string.languageTag = tag
                 },
-                label = stringResource(R.string.control_editor_edit_translatable_other_tag)
+                label = stringResource(R.string.control_editor_edit_translatable_other_tag),
+                take = 8
             )
             SimpleEditBox(
                 modifier = Modifier.weight(0.7f),
@@ -180,7 +221,9 @@ private fun LocalizedStringItem(
                 onValueChange = { value ->
                     string.value = value
                 },
-                label = stringResource(R.string.control_editor_edit_translatable_other_value)
+                label = stringResource(R.string.control_editor_edit_translatable_other_value),
+                singleLine = singleLine,
+                take = take
             )
         }
 
@@ -200,16 +243,25 @@ private fun SimpleEditBox(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
+    take: Int? = null
 ) {
     OutlinedTextField(
         modifier = modifier,
         value = value,
-        onValueChange = { onValueChange(it) },
+        onValueChange = { onValueChange(take.take(it)) },
         label = {
             Text(text = label)
         },
-        singleLine = true,
+        supportingText = if (take != null) {
+            @Composable {
+                Text(stringResource(R.string.generic_input_length, value.length, take))
+            }
+        } else null,
+        singleLine = singleLine,
         shape = MaterialTheme.shapes.large
     )
 }
+
+private fun Int?.take(value: String) = this?.let { takes -> value.take(takes) } ?: value

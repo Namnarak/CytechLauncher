@@ -29,6 +29,7 @@
     <string name="generic_input_failed_to_number">輸入的內容無法正常解析為數字</string>
     <string name="generic_input_too_small">輸入的數值不能小於 %s</string>
     <string name="generic_input_too_large">輸入的數值不能大於 %s</string>
+    <string name="generic_input_length">文字框字數：%1$d/%2$d</string>
     <string name="generic_unpacking">正在解壓縮 %s</string>
     <string name="generic_unknown">未知</string>
     <string name="generic_follow_global">跟隨全域設定</string>
@@ -40,6 +41,8 @@
     <string name="generic_ignore">忽略</string>
     <string name="generic_authorization">授權</string>
     <string name="generic_all">全部</string>
+    <string name="generic_unspecified">未指定</string>
+    <string name="generic_save">儲存</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>

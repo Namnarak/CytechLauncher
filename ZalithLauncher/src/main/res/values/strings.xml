@@ -29,6 +29,7 @@
     <string name="generic_input_failed_to_number">Input cannot be parsed as a number</string>
     <string name="generic_input_too_small">Value cannot be smaller than %s</string>
     <string name="generic_input_too_large">Value cannot be larger than %s</string>
+    <string name="generic_input_length">Text length: %1$d/%2$d</string>
     <string name="generic_unpacking">Unpacking %s</string>
     <string name="generic_unknown">Unknown</string>
     <string name="generic_follow_global">Global</string>
@@ -44,6 +45,7 @@
     <string name="generic_file_size">File Size: %s</string>
     <string name="generic_all">All</string>
     <string name="generic_unspecified">Unspecified</string>
+    <string name="generic_save">Save</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
