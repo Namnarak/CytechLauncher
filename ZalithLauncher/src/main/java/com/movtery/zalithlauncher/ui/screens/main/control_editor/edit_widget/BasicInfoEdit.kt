@@ -18,9 +18,11 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
 
 /**
@@ -29,6 +31,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityTe
 @Composable
 fun EditWidgetInfo(
     data: ObservableBaseData,
+    onEditWidgetText: (ObservableTextData) -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
 ) {
@@ -40,6 +43,16 @@ fun EditWidgetInfo(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Spacer(Modifier)
+
+        if (data is ObservableTextData) {
+            //编辑文本
+            InfoLayoutTextItem(
+                title = stringResource(R.string.control_editor_edit_text),
+                onClick = {
+                    onEditWidgetText(data)
+                }
+            )
+        }
 
         //可见场景
         InfoLayoutListItem(

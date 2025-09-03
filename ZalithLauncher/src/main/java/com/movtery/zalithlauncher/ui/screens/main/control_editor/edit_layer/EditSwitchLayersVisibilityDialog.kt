@@ -77,7 +77,7 @@ fun EditSwitchLayersVisibilityDialog(
             contentAlignment = Alignment.Center
         ) {
             Surface(
-                modifier = Modifier.padding(all = 6.dp),
+                modifier = Modifier.padding(all = 3.dp),
                 shadowElevation = 3.dp,
                 shape = MaterialTheme.shapes.extraLarge
             ) {

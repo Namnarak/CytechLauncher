@@ -714,6 +714,11 @@
     <string name="control_editor_edit_button_default">Button</string>
     <string name="control_editor_edit_text_default">Text Box</string>
     <string name="control_editor_edit_text">Edit Text</string>
+    <string name="control_editor_edit_translatable_default">Default Text</string>
+    <string name="control_editor_edit_translatable_other_add">Add Text</string>
+    <string name="control_editor_edit_translatable_other_tip">Label for current system language: %s</string>
+    <string name="control_editor_edit_translatable_other_tag">Language Tag</string>
+    <string name="control_editor_edit_translatable_other_value">Text Content</string>
     <string name="control_editor_edit_position_x">X Coordinate</string>
     <string name="control_editor_edit_position_y">Y Coordinate</string>
     <string name="control_editor_edit_size_type">Size Type</string>

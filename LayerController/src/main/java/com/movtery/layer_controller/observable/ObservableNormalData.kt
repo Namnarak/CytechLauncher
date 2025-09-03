@@ -41,7 +41,7 @@ class ObservableNormalData(data: NormalData) : ObservableTextData(data) {
 
     fun packNormal(): NormalData {
         return NormalData(
-            text = text,
+            text = text.pack(),
             uuid = uuid,
             position = position,
             buttonSize = buttonSize,

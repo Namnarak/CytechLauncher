@@ -38,6 +38,7 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.DraggableBox
 import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
@@ -54,6 +55,8 @@ sealed interface EditorOperation {
     data object None : EditorOperation
     /** 选择了一个控件, 附带其所属控件层 */
     data class SelectButton(val data: ObservableBaseData, val layer: ObservableControlLayer) : EditorOperation
+    /** 编辑控件的显示文本 */
+    data class EditWidgetText(val data: ObservableTextData) : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
     /** 编辑切换控件层可见性事件 */

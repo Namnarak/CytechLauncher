@@ -18,6 +18,7 @@ import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditControlLayerDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditSwitchLayersVisibilityDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
@@ -121,8 +122,20 @@ private fun EditorOperation(
                     onDeleteWidget(operation.data, operation.layer)
                     changeOperation(EditorOperation.None)
                 },
+                onEditWidgetText = { textData ->
+                    changeOperation(EditorOperation.EditWidgetText(textData))
+                },
                 switchControlLayers = { data ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                }
+            )
+        }
+        is EditorOperation.EditWidgetText -> {
+            val textData = operation.data
+            EditTranslatableTextDialog(
+                text = textData.text,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
                 }
             )
         }

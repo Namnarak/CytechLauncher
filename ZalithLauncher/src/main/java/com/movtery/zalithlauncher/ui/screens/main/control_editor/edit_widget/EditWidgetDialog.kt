@@ -48,6 +48,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.clearWith
@@ -78,6 +79,7 @@ fun EditWidgetDialog(
     data: ObservableBaseData,
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
+    onEditWidgetText: (ObservableTextData) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit
 ) {
     val backStack = rememberNavBackStack(EditWidgetCategory.Info)
@@ -142,6 +144,7 @@ fun EditWidgetDialog(
                             backStack = backStack,
                             data = data,
                             switchControlLayers = switchControlLayers,
+                            onEditWidgetText = onEditWidgetText,
                             onPreviewRequested = {
                                 if (dialogTransparent == EditWidgetDialogState.SEMI_TRANSPARENT_USER) return@EditWidgetNavigation
                                 dialogTransparent = EditWidgetDialogState.SEMI_TRANSPARENT
@@ -257,6 +260,7 @@ private fun EditWidgetNavigation(
     modifier: Modifier = Modifier,
     backStack: NavBackStack,
     data: ObservableBaseData,
+    onEditWidgetText: (ObservableTextData) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
@@ -268,7 +272,7 @@ private fun EditWidgetNavigation(
             onBack = { /* 忽略 */ },
             entryProvider = entryProvider {
                 entry<EditWidgetCategory.Info> {
-                    EditWidgetInfo(data, onPreviewRequested, onDismissRequested)
+                    EditWidgetInfo(data, onEditWidgetText, onPreviewRequested, onDismissRequested)
                 }
                 entry<EditWidgetCategory.ClickEvent> {
                     EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers)

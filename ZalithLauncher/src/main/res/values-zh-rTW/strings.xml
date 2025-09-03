@@ -732,6 +732,11 @@
     <string name="control_editor_edit_button_default">按鍵</string>
     <string name="control_editor_edit_text_default">文字框</string>
     <string name="control_editor_edit_text">編輯文字</string>
+    <string name="control_editor_edit_translatable_default">預設文本</string>
+    <string name="control_editor_edit_translatable_other_add">添加文本</string>
+    <string name="control_editor_edit_translatable_other_tip">目前系統語言的標籤：%s</string>
+    <string name="control_editor_edit_translatable_other_tag">語言標籤</string>
+    <string name="control_editor_edit_translatable_other_value">文本內容</string>
     <string name="control_editor_edit_position_x">X 座標</string>
     <string name="control_editor_edit_position_y">Y 座標</string>
     <string name="control_editor_edit_size_type">尺寸類型</string>
