@@ -745,6 +745,8 @@
     <string name="control_editor_edit_event_launcher_mouse_scroll_down">Continuous Mouse Scroll Down</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">Single Mouse Scroll Down</string>
     <string name="control_editor_edit_event_key">Key</string>
+    <string name="control_editor_edit_event_key_new">Add New Trigger Key Value</string>
+    <string name="control_editor_edit_event_key_value">Trigger Key Value: %s</string>
     <string name="control_editor_edit_event_swipple">Swipe Trigger</string>
     <string name="control_editor_edit_event_penetrable">Move with Mouse</string>
     <string name="control_editor_edit_event_toggleable">Toggleable</string>

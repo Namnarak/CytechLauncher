@@ -11,7 +11,7 @@ import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
-import com.movtery.layer_controller.layout.ControlEditorLayer
+import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer

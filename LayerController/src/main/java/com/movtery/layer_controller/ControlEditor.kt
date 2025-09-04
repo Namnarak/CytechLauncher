@@ -1,4 +1,4 @@
-package com.movtery.layer_controller.layout
+package com.movtery.layer_controller
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -9,6 +9,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
+import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
@@ -40,7 +41,10 @@ fun ControlEditorLayer(
                             isEditMode = true,
                             data = data,
                             getSize = { sizes[data] ?: IntSize.Zero },
-                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                            getStyle = {
+                                styles.takeIf { data.buttonStyle != null }
+                                    ?.find { it.uuid == data.buttonStyle }
+                            },
                             isPressed = data.isPressed,
                             onTapInEditMode = {
                                 onButtonTap(data, layer)
@@ -54,7 +58,10 @@ fun ControlEditorLayer(
                             isEditMode = true,
                             data = data,
                             getSize = { sizes[data] ?: IntSize.Zero },
-                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                            getStyle = {
+                                styles.takeIf { data.buttonStyle != null }
+                                    ?.find { it.uuid == data.buttonStyle }
+                            },
                             isPressed = false, //文本框不需要按压状态
                             onTapInEditMode = {
                                 onButtonTap(data, layer)

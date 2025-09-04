@@ -764,6 +764,8 @@
     <string name="control_editor_edit_event_launcher_mouse_scroll_down">持續滑鼠滾輪下</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">單次滑鼠滾輪下</string>
     <string name="control_editor_edit_event_key">按鍵</string>
+    <string name="control_editor_edit_event_key_new">添加新的觸發鍵值</string>
+    <string name="control_editor_edit_event_key_value">觸發鍵值：%s</string>
     <string name="control_editor_edit_event_swipple">滑動觸發</string>
     <string name="control_editor_edit_event_penetrable">帶動滑鼠</string>
     <string name="control_editor_edit_event_toggleable">可開關</string>
