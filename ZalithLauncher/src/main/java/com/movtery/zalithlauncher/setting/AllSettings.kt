@@ -247,4 +247,9 @@ object AllSettings : SettingsRegistry() {
      * 在游戏菜单悬浮窗上显示帧率
      */
     val showFPS = boolSetting("showFPS", true)
+
+    /**
+     * 控制布局编辑器是否开启控件吸附功能
+     */
+    val editorEnableWidgetSnap = boolSetting("editorEnableWidgetSnap", true)
 }

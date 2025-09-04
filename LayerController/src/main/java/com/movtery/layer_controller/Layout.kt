@@ -274,24 +274,29 @@ private fun BaseControlBoxLayout(
                 layers.forEach { layer ->
                     if (!layer.hide && checkVisibility(isCursorGrabbing1, layer.visibilityType)) {
                         val normalButtons by layer.normalButtons.collectAsState()
+                        val textBoxes by layer.textBoxes.collectAsState()
+
                         normalButtons.forEach { data ->
                             TextButton(
                                 isEditMode = false,
                                 data = data,
                                 visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
+                                otherWidgets = emptyList(), //不需要计算吸附
+                                snapThresholdValue = 4.dp,
                                 getSize = { sizes[data] ?: IntSize.Zero },
                                 getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                                 isPressed = data.isPressed
                             )
                         }
 
-                        val textBoxes by layer.textBoxes.collectAsState()
                         textBoxes.forEach { data ->
                             TextButton(
                                 isEditMode = false,
                                 data = data,
                                 visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
                                 getSize = { sizes[data] ?: IntSize.Zero },
+                                otherWidgets = emptyList(), //不需要计算吸附
+                                snapThresholdValue = 4.dp,
                                 getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                                 isPressed = false //文本框不需要按压状态
                             )

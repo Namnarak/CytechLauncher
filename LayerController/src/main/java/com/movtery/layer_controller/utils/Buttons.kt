@@ -33,26 +33,47 @@ import com.movtery.layer_controller.data.ButtonShape.Companion.toAndroidShape
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
+import com.movtery.layer_controller.utils.snap.GuideLine
+import com.movtery.layer_controller.utils.snap.LineDirection
+import kotlin.math.abs
 
 /**
  * 自动处理按钮拖动改变位置
  * @param onTapInEditMode 在编辑模式下点击了按钮
+ * @param enableSnap 是否开启吸附功能
+ * @param otherWidgets 其他控件的信息，用于计算吸附位置
+ * @param snapThresholdValue 吸附距离阈值
+ * @param drawLine 绘制吸附参考线
+ * @param onLineCancel 取消吸附参考线
  */
 @Composable
 internal fun Modifier.editMode(
     isEditMode: Boolean,
     data: ObservableBaseData,
     getSize: () -> IntSize,
+    enableSnap: Boolean,
+    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    snapThresholdValue: Dp,
+    drawLine: (ObservableBaseData, List<GuideLine>) -> Unit,
+    onLineCancel: (ObservableBaseData) -> Unit,
     onTapInEditMode: () -> Unit = {}
 ): Modifier {
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
     val getSize1 by rememberUpdatedState(getSize)
+
+    val enableSnap1 by rememberUpdatedState(enableSnap)
+    val otherWidgets1 by rememberUpdatedState(otherWidgets)
+    val drawLine1 by rememberUpdatedState(drawLine)
+    val onLineCancel1 by rememberUpdatedState(onLineCancel)
+
     val onTapInEditMode1 by rememberUpdatedState(onTapInEditMode)
+    val density = LocalDensity.current
+    val snapThreshold = with(density) { snapThresholdValue.toPx() }
 
     return this.then(
         if (isEditMode) {
             Modifier
-                .pointerInput(data) {
+                .pointerInput(data, snapThreshold) {
                     detectDragGestures(
                         onDragStart = {
                             data.isEditingPos = false
@@ -60,35 +81,59 @@ internal fun Modifier.editMode(
                             val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
                             data.movingOffset = currentOffset
                             data.isEditingPos = true
+                            onLineCancel1(data)
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
                             val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
                             val currentSize = getSize1()
 
-                            val newX = currentOffset.x + dragAmount.x
-                            val newY = currentOffset.y + dragAmount.y
+                            var newX = currentOffset.x + dragAmount.x
+                            var newY = currentOffset.y + dragAmount.y
 
                             val maxX = screenSize.width.toFloat() - currentSize.width
                             val maxY = screenSize.height.toFloat() - currentSize.height
 
-                            data.position = Offset(
-                                x = newX.coerceIn(0f, maxX),
-                                y = newY.coerceIn(0f, maxY)
-                            ).also { offset ->
-                                data.movingOffset = offset
-                            }.toPercentagePosition(
+                            newX = newX.coerceIn(0f, maxX)
+                            newY = newY.coerceIn(0f, maxY)
+
+                            val newPosition = Offset(newX, newY)
+
+                            val finalPosition = if (enableSnap1) {
+                                calculateSnapPosition(
+                                    currentPosition = newPosition,
+                                    currentSize = currentSize,
+                                    screenSize = screenSize,
+                                    otherWidgets = otherWidgets1,
+                                    snapThreshold = snapThreshold,
+                                    drawLine = { lines ->
+                                        drawLine1(data, lines)
+                                    },
+                                    onLineCancel = {
+                                        onLineCancel1(data)
+                                    }
+                                )
+                            } else {
+                                onLineCancel(data)
+                                newPosition
+                            }
+
+                            data.position = finalPosition.toPercentagePosition(
                                 widgetSize = currentSize,
                                 screenSize = screenSize
-                            )
+                            ).also {
+                                data.movingOffset = newPosition
+                            }
                         },
                         onDragEnd = {
                             data.isEditingPos = false
                             data.movingOffset = Offset.Zero
+                            onLineCancel1(data)
                         },
                         onDragCancel = {
                             data.isEditingPos = false
                             data.movingOffset = Offset.Zero
+                            onLineCancel1(data)
                         }
                     )
                 }
@@ -99,6 +144,84 @@ internal fun Modifier.editMode(
                 }
         } else Modifier
     )
+}
+
+/**
+ * 计算吸附位置
+ * @param snapThreshold 吸附参考距离
+ * @param drawLine 通知绘制参考线
+ * @param onLineCancel 通知取消绘制参考线
+ */
+private fun calculateSnapPosition(
+    currentPosition: Offset,
+    currentSize: IntSize,
+    screenSize: IntSize,
+    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    snapThreshold: Float,
+    drawLine: (List<GuideLine>) -> Unit,
+    onLineCancel: () -> Unit,
+): Offset {
+    var newX = currentPosition.x
+    var newY = currentPosition.y
+
+    //当前控件的边界
+    val currentLeft = newX
+    val currentRight = newX + currentSize.width
+    val currentTop = newY
+    val currentBottom = newY + currentSize.height
+
+    val lines = mutableListOf<GuideLine>()
+
+    for ((otherData, otherSize) in otherWidgets) {
+        val otherPosition = getWidgetPosition(otherData, otherSize, screenSize)
+        val otherLeft = otherPosition.x
+        val otherRight = otherPosition.x + otherSize.width
+        val otherTop = otherPosition.y
+        val otherBottom = otherPosition.y + otherSize.height
+
+        //左侧
+        if (abs(currentRight - otherLeft) < snapThreshold) {
+            newX = otherLeft - currentSize.width
+            lines.add(GuideLine(LineDirection.Vertical, otherLeft))
+        } else if (abs(currentLeft - otherRight) < snapThreshold) {
+            newX = otherRight
+            lines.add(GuideLine(LineDirection.Vertical, otherRight))
+        }
+
+        //顶部/底部
+        if (abs(currentBottom - otherTop) < snapThreshold) {
+            newY = otherTop - currentSize.height
+            lines.add(GuideLine(LineDirection.Horizontal, otherTop))
+        } else if (abs(currentTop - otherBottom) < snapThreshold) {
+            newY = otherBottom
+            lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
+        }
+
+        //同侧对齐（左对左，右对右，上对上，下对下）
+        if (abs(currentLeft - otherLeft) < snapThreshold) {
+            newX = otherLeft
+            lines.add(GuideLine(LineDirection.Vertical, otherLeft))
+        } else if (abs(currentRight - otherRight) < snapThreshold) {
+            newX = otherRight - currentSize.width
+            lines.add(GuideLine(LineDirection.Vertical, otherRight))
+        }
+
+        if (abs(currentTop - otherTop) < snapThreshold) {
+            newY = otherTop
+            lines.add(GuideLine(LineDirection.Horizontal, otherTop))
+        } else if (abs(currentBottom - otherBottom) < snapThreshold) {
+            newY = otherBottom - currentSize.height
+            lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
+        }
+    }
+
+    if (lines.isNotEmpty()) {
+        drawLine(lines)
+    } else {
+        onLineCancel()
+    }
+
+    return Offset(newX, newY)
 }
 
 /**

@@ -701,6 +701,7 @@
     <string name="control_editor_menu_no_layers_message">当前控制布局还创建没有控件层，请先创建一个控件层。</string>
     <string name="control_editor_menu_no_selected_layer_title">未选择控件层</string>
     <string name="control_editor_menu_no_selected_layer_message">请先选择一个控件层作为目标。</string>
+    <string name="control_editor_menu_widget_snap">控件吸附</string>
     <string name="control_editor_menu_save_and_exit">保存并退出</string>
     <string name="control_editor_layers_title">控件层</string>
     <string name="control_editor_layers_create">新建</string>

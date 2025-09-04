@@ -40,10 +40,12 @@ import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.DraggableBox
 import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -153,6 +155,19 @@ fun EditorMenu(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_menu_new_widget_text),
                         onClick = addNewText
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                //控件吸附
+                item {
+                    MenuSwitchButton(
+                        text = stringResource(R.string.control_editor_menu_widget_snap),
+                        switch = AllSettings.editorEnableWidgetSnap.state,
+                        onSwitch = { AllSettings.editorEnableWidgetSnap.save(it) }
                     )
                 }
 

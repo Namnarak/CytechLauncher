@@ -17,6 +17,7 @@ import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.utils.lang.TranslatableString
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -51,7 +52,8 @@ fun ControlEditor(
         observedLayout = viewModel.observableLayout,
         onButtonTap = { data, layer ->
             viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
-        }
+        },
+        enableSnap = AllSettings.editorEnableWidgetSnap.state,
     )
 
     EditorMenu(

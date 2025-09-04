@@ -9,20 +9,36 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
 import com.movtery.layer_controller.utils.editMode
 
+/**
+ * 基础文本控件
+ * @param enableSnap 编辑模式下，是否开启吸附功能
+ * @param otherWidgets 其他控件的信息，在编辑模式下，用于计算吸附位置
+ * @param snapThresholdValue 吸附距离阈值
+ * @param drawLine 绘制吸附参考线
+ * @param onLineCancel 取消吸附参考线
+ */
 @Composable
 internal fun TextButton(
     isEditMode: Boolean,
     data: ObservableTextData,
     visible: Boolean = true,
     getSize: () -> IntSize,
+    enableSnap: Boolean = false,
+    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    snapThresholdValue: Dp,
+    drawLine: (ObservableBaseData, List<GuideLine>) -> Unit = { _, _ -> },
+    onLineCancel: (ObservableBaseData) -> Unit = {},
     getStyle: () -> ObservableButtonStyle?,
     isPressed: Boolean,
     onTapInEditMode: () -> Unit = {}
@@ -42,6 +58,11 @@ internal fun TextButton(
                     isEditMode = isEditMode,
                     data = data,
                     getSize = getSize,
+                    enableSnap = enableSnap,
+                    otherWidgets = otherWidgets,
+                    snapThresholdValue = snapThresholdValue,
+                    drawLine = drawLine,
+                    onLineCancel = onLineCancel,
                     onTapInEditMode = onTapInEditMode
                 ),
             contentAlignment = Alignment.Center
