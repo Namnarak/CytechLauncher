@@ -272,35 +272,34 @@ private fun BaseControlBoxLayout(
             content = {
                 //按图层顺序渲染所有可见的控件
                 layers.forEach { layer ->
-                    if (!layer.hide && checkVisibility(isCursorGrabbing1, layer.visibilityType)) {
-                        val normalButtons by layer.normalButtons.collectAsState()
-                        val textBoxes by layer.textBoxes.collectAsState()
+                    val layerVisibility = !layer.hide && checkVisibility(isCursorGrabbing1, layer.visibilityType)
+                    val normalButtons by layer.normalButtons.collectAsState()
+                    val textBoxes by layer.textBoxes.collectAsState()
 
-                        normalButtons.forEach { data ->
-                            TextButton(
-                                isEditMode = false,
-                                data = data,
-                                visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
-                                otherWidgets = emptyList(), //不需要计算吸附
-                                snapThresholdValue = 4.dp,
-                                getSize = { sizes[data] ?: IntSize.Zero },
-                                getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                                isPressed = data.isPressed
-                            )
-                        }
+                    normalButtons.forEach { data ->
+                        TextButton(
+                            isEditMode = false,
+                            data = data,
+                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
+                            otherWidgets = emptyList(), //不需要计算吸附
+                            snapThresholdValue = 4.dp,
+                            getSize = { sizes[data] ?: IntSize.Zero },
+                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                            isPressed = data.isPressed
+                        )
+                    }
 
-                        textBoxes.forEach { data ->
-                            TextButton(
-                                isEditMode = false,
-                                data = data,
-                                visible = checkVisibility(isCursorGrabbing1, data.visibilityType),
-                                getSize = { sizes[data] ?: IntSize.Zero },
-                                otherWidgets = emptyList(), //不需要计算吸附
-                                snapThresholdValue = 4.dp,
-                                getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                                isPressed = false //文本框不需要按压状态
-                            )
-                        }
+                    textBoxes.forEach { data ->
+                        TextButton(
+                            isEditMode = false,
+                            data = data,
+                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
+                            getSize = { sizes[data] ?: IntSize.Zero },
+                            otherWidgets = emptyList(), //不需要计算吸附
+                            snapThresholdValue = 4.dp,
+                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                            isPressed = false //文本框不需要按压状态
+                        )
                     }
                 }
             }
@@ -311,21 +310,19 @@ private fun BaseControlBoxLayout(
 
             var index = 0
             layers.forEach { layer ->
-                if (!layer.hide) {
-                    layer.normalButtons.value.forEach { data ->
-                        if (index < placeables.size) {
-                            val placeable = placeables[index]
-                            sizes[data] = IntSize(placeable.width, placeable.height)
-                            index++
-                        }
+                layer.normalButtons.value.forEach { data ->
+                    if (index < placeables.size) {
+                        val placeable = placeables[index]
+                        sizes[data] = IntSize(placeable.width, placeable.height)
+                        index++
                     }
+                }
 
-                    layer.textBoxes.value.forEach { data ->
-                        if (index < placeables.size) {
-                            val placeable = placeables[index]
-                            sizes[data] = IntSize(placeable.width, placeable.height)
-                            index++
-                        }
+                layer.textBoxes.value.forEach { data ->
+                    if (index < placeables.size) {
+                        val placeable = placeables[index]
+                        sizes[data] = IntSize(placeable.width, placeable.height)
+                        index++
                     }
                 }
             }
@@ -333,31 +330,29 @@ private fun BaseControlBoxLayout(
             layout(constraints.maxWidth, constraints.maxHeight) {
                 var placeableIndex = 0
                 layers.forEach { layer ->
-                    if (!layer.hide) {
-                        layer.normalButtons.value.forEach { data ->
-                            if (placeableIndex < placeables.size) {
-                                val placeable = placeables[placeableIndex]
-                                val position = getWidgetPosition(
-                                    data = data,
-                                    widgetSize = IntSize(placeable.width, placeable.height),
-                                    screenSize = screenSize
-                                )
-                                placeable.place(position.x.toInt(), position.y.toInt())
-                                placeableIndex++
-                            }
+                    layer.normalButtons.value.forEach { data ->
+                        if (placeableIndex < placeables.size) {
+                            val placeable = placeables[placeableIndex]
+                            val position = getWidgetPosition(
+                                data = data,
+                                widgetSize = IntSize(placeable.width, placeable.height),
+                                screenSize = screenSize
+                            )
+                            placeable.place(position.x.toInt(), position.y.toInt())
+                            placeableIndex++
                         }
+                    }
 
-                        layer.textBoxes.value.forEach { data ->
-                            if (placeableIndex < placeables.size) {
-                                val placeable = placeables[placeableIndex]
-                                val position = getWidgetPosition(
-                                    data = data,
-                                    widgetSize = IntSize(placeable.width, placeable.height),
-                                    screenSize = screenSize
-                                )
-                                placeable.place(position.x.toInt(), position.y.toInt())
-                                placeableIndex++
-                            }
+                    layer.textBoxes.value.forEach { data ->
+                        if (placeableIndex < placeables.size) {
+                            val placeable = placeables[placeableIndex]
+                            val position = getWidgetPosition(
+                                data = data,
+                                widgetSize = IntSize(placeable.width, placeable.height),
+                                screenSize = screenSize
+                            )
+                            placeable.place(position.x.toInt(), position.y.toInt())
+                            placeableIndex++
                         }
                     }
                 }
