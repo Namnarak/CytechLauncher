@@ -54,7 +54,7 @@ class ObservableTranslatableString(private val text: TranslatableString): Packab
     override fun pack(): TranslatableString {
         return TranslatableString(
             default = default,
-            matchQueue = matchQueue.map { it.pack() }
+            matchQueue = matchQueue.mapNotNull { it.pack() }
         )
     }
 }
