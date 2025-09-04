@@ -54,6 +54,7 @@ fun ControlEditor(
             viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
         },
         enableSnap = AllSettings.editorEnableWidgetSnap.state,
+        snapMode = AllSettings.editorWidgetSnapMode.state
     )
 
     EditorMenu(

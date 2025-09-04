@@ -35,12 +35,17 @@ import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
+import com.movtery.layer_controller.utils.snap.SnapMode
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.sqrt
 
 /**
  * 自动处理按钮拖动改变位置
  * @param onTapInEditMode 在编辑模式下点击了按钮
  * @param enableSnap 是否开启吸附功能
+ * @param snapMode 吸附模式
+ * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param otherWidgets 其他控件的信息，用于计算吸附位置
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
@@ -52,6 +57,8 @@ internal fun Modifier.editMode(
     data: ObservableBaseData,
     getSize: () -> IntSize,
     enableSnap: Boolean,
+    snapMode: SnapMode,
+    localSnapRange: Dp,
     otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
     snapThresholdValue: Dp,
     drawLine: (ObservableBaseData, List<GuideLine>) -> Unit,
@@ -62,18 +69,22 @@ internal fun Modifier.editMode(
     val getSize1 by rememberUpdatedState(getSize)
 
     val enableSnap1 by rememberUpdatedState(enableSnap)
+    val snapMode1 by rememberUpdatedState(snapMode)
+
     val otherWidgets1 by rememberUpdatedState(otherWidgets)
     val drawLine1 by rememberUpdatedState(drawLine)
     val onLineCancel1 by rememberUpdatedState(onLineCancel)
 
     val onTapInEditMode1 by rememberUpdatedState(onTapInEditMode)
+
     val density = LocalDensity.current
     val snapThreshold = with(density) { snapThresholdValue.toPx() }
+    val localSnapRangePx = with(density) { localSnapRange.toPx() }
 
     return this.then(
         if (isEditMode) {
             Modifier
-                .pointerInput(data, snapThreshold) {
+                .pointerInput(data, snapThreshold, localSnapRangePx) {
                     detectDragGestures(
                         onDragStart = {
                             data.isEditingPos = false
@@ -106,6 +117,8 @@ internal fun Modifier.editMode(
                                     screenSize = screenSize,
                                     otherWidgets = otherWidgets1,
                                     snapThreshold = snapThreshold,
+                                    snapMode = snapMode1,
+                                    localSnapRange = localSnapRangePx,
                                     drawLine = { lines ->
                                         drawLine1(data, lines)
                                     },
@@ -149,6 +162,8 @@ internal fun Modifier.editMode(
 /**
  * 计算吸附位置
  * @param snapThreshold 吸附参考距离
+ * @param snapMode 吸附模式
+ * @param localSnapRange 局部吸附范围（像素）
  * @param drawLine 通知绘制参考线
  * @param onLineCancel 通知取消绘制参考线
  */
@@ -158,6 +173,8 @@ private fun calculateSnapPosition(
     screenSize: IntSize,
     otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
     snapThreshold: Float,
+    snapMode: SnapMode,
+    localSnapRange: Float,
     drawLine: (List<GuideLine>) -> Unit,
     onLineCancel: () -> Unit,
 ): Offset {
@@ -179,37 +196,60 @@ private fun calculateSnapPosition(
         val otherTop = otherPosition.y
         val otherBottom = otherPosition.y + otherSize.height
 
-        //左侧
-        if (abs(currentRight - otherLeft) < snapThreshold) {
+        //在局部模式下，检查是否在吸附范围内
+        if (snapMode == SnapMode.Local) {
+            val minDistance = calculateMinDistanceBetweenRects(
+                currentLeft, currentTop, currentRight, currentBottom,
+                otherLeft, otherTop, otherRight, otherBottom
+            )
+
+            if (minDistance > localSnapRange) {
+                continue
+            }
+        }
+
+        //左/右
+        val rightToLeft = abs(currentRight - otherLeft)
+        val leftToRight = abs(currentLeft - otherRight)
+
+        //顶/底
+        val bottomToTop = abs(currentBottom - otherTop)
+        val topToBottom = abs(currentTop - otherBottom)
+
+        //同侧
+        val leftToLeft = abs(currentLeft - otherLeft)
+        val rightToRight = abs(currentRight - otherRight)
+        val topToTop = abs(currentTop - otherTop)
+        val bottomToBottom = abs(currentBottom - otherBottom)
+
+        if (rightToLeft < snapThreshold) {
             newX = otherLeft - currentSize.width
             lines.add(GuideLine(LineDirection.Vertical, otherLeft))
-        } else if (abs(currentLeft - otherRight) < snapThreshold) {
+        } else if (leftToRight < snapThreshold) {
             newX = otherRight
             lines.add(GuideLine(LineDirection.Vertical, otherRight))
         }
 
-        //顶部/底部
-        if (abs(currentBottom - otherTop) < snapThreshold) {
+        if (bottomToTop < snapThreshold) {
             newY = otherTop - currentSize.height
             lines.add(GuideLine(LineDirection.Horizontal, otherTop))
-        } else if (abs(currentTop - otherBottom) < snapThreshold) {
+        } else if (topToBottom < snapThreshold) {
             newY = otherBottom
             lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
         }
 
-        //同侧对齐（左对左，右对右，上对上，下对下）
-        if (abs(currentLeft - otherLeft) < snapThreshold) {
+        if (leftToLeft < snapThreshold) {
             newX = otherLeft
             lines.add(GuideLine(LineDirection.Vertical, otherLeft))
-        } else if (abs(currentRight - otherRight) < snapThreshold) {
+        } else if (rightToRight < snapThreshold) {
             newX = otherRight - currentSize.width
             lines.add(GuideLine(LineDirection.Vertical, otherRight))
         }
 
-        if (abs(currentTop - otherTop) < snapThreshold) {
+        if (topToTop < snapThreshold) {
             newY = otherTop
             lines.add(GuideLine(LineDirection.Horizontal, otherTop))
-        } else if (abs(currentBottom - otherBottom) < snapThreshold) {
+        } else if (bottomToBottom < snapThreshold) {
             newY = otherBottom - currentSize.height
             lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
         }
@@ -393,4 +433,45 @@ internal fun Offset.toPercentagePosition(
     val x = ((100 * x) / (screenSize.width - widgetSize.width) * 10).toInt()
     val y = ((100 * y) / (screenSize.height - widgetSize.height) * 10).toInt()
     return ButtonPosition(x, y)
+}
+
+/**
+ * 计算两个矩形之间的最小距离（边缘到边缘）
+ */
+internal fun calculateMinDistanceBetweenRects(
+    rect1Left: Float, rect1Top: Float, rect1Right: Float, rect1Bottom: Float,
+    rect2Left: Float, rect2Top: Float, rect2Right: Float, rect2Bottom: Float
+): Float {
+    // 检查是否有重叠
+    if (rect1Right >= rect2Left && rect1Left <= rect2Right &&
+        rect1Bottom >= rect2Top && rect1Top <= rect2Bottom) {
+        return 0f // 有重叠，距离为0
+    }
+
+    // 计算水平距离
+    val horizontalDistance = if (rect1Right < rect2Left) {
+        rect2Left - rect1Right // 矩形1在矩形2左侧
+    } else if (rect1Left > rect2Right) {
+        rect1Left - rect2Right // 矩形1在矩形2右侧
+    } else {
+        0f // 水平方向有重叠
+    }
+
+    // 计算垂直距离
+    val verticalDistance = if (rect1Bottom < rect2Top) {
+        rect2Top - rect1Bottom // 矩形1在矩形2上方
+    } else if (rect1Top > rect2Bottom) {
+        rect1Top - rect2Bottom // 矩形1在矩形2下方
+    } else {
+        0f // 垂直方向有重叠
+    }
+
+    // 返回最小距离
+    return if (horizontalDistance > 0 && verticalDistance > 0) {
+        // 两个矩形在对角位置，使用欧几里得距离
+        sqrt(horizontalDistance * horizontalDistance + verticalDistance * verticalDistance)
+    } else {
+        // 至少一个方向的距离为0，返回另一个方向的距离
+        max(horizontalDistance, verticalDistance)
+    }
 }

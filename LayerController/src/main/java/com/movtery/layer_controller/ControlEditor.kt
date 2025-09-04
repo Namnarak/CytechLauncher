@@ -27,9 +27,13 @@ import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
 import com.movtery.layer_controller.utils.getWidgetPosition
+import com.movtery.layer_controller.utils.snap.SnapMode
 
 /**
  * 控制布局编辑器渲染层
+ * @param enableSnap 是否开启吸附
+ * @param snapMode 吸附模式
+ * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param snapThresholdValue 吸附距离阈值
  */
 @Composable
@@ -37,7 +41,9 @@ fun ControlEditorLayer(
     observedLayout: ObservableControlLayout,
     onButtonTap: (data: ObservableBaseData, layer: ObservableControlLayer) -> Unit,
     enableSnap: Boolean,
-    snapThresholdValue: Dp = 2.dp
+    snapMode: SnapMode,
+    localSnapRange: Dp = 20.dp,
+    snapThresholdValue: Dp = 4.dp
 ) {
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
@@ -52,6 +58,8 @@ fun ControlEditorLayer(
             renderingLayers = renderingLayers,
             styles = styles,
             enableSnap = enableSnap,
+            snapMode = snapMode,
+            localSnapRange = localSnapRange,
             snapThresholdValue = snapThresholdValue,
             onButtonTap = onButtonTap,
             drawLine = { data, line ->
@@ -104,6 +112,8 @@ private fun DrawScope.drawLine(
 
 /**
  * @param enableSnap 是否开启吸附功能
+ * @param snapMode 吸附模式
+ * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
  * @param onLineCancel 取消吸附参考线
@@ -113,7 +123,9 @@ private fun ControlWidgetRenderer(
     renderingLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     enableSnap: Boolean,
-    snapThresholdValue: Dp = 4.dp,
+    snapMode: SnapMode,
+    localSnapRange: Dp,
+    snapThresholdValue: Dp,
     onButtonTap: (data: ObservableBaseData, layer: ObservableControlLayer) -> Unit,
     drawLine: (ObservableBaseData, List<GuideLine>) -> Unit,
     onLineCancel: (ObservableBaseData) -> Unit
@@ -139,6 +151,8 @@ private fun ControlWidgetRenderer(
                             data = data,
                             getSize = { sizes[data] ?: IntSize.Zero },
                             enableSnap = enableSnap,
+                            snapMode = snapMode,
+                            localSnapRange = localSnapRange,
                             otherWidgets = allWidgetsInLayer
                                 .filter { it != data } //排除自己
                                 .map { it to (sizes[it] ?: IntSize.Zero) },
@@ -162,6 +176,8 @@ private fun ControlWidgetRenderer(
                             data = data,
                             getSize = { sizes[data] ?: IntSize.Zero },
                             enableSnap = enableSnap,
+                            snapMode = snapMode,
+                            localSnapRange = localSnapRange,
                             otherWidgets = allWidgetsInLayer
                                 .filter { it != data } //排除自己
                                 .map { it to (sizes[it] ?: IntSize.Zero) },

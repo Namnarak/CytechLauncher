@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableTextData
@@ -19,10 +20,13 @@ import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
 import com.movtery.layer_controller.utils.editMode
+import com.movtery.layer_controller.utils.snap.SnapMode
 
 /**
  * 基础文本控件
  * @param enableSnap 编辑模式下，是否开启吸附功能
+ * @param snapMode 吸附模式
+ * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param otherWidgets 其他控件的信息，在编辑模式下，用于计算吸附位置
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
@@ -35,6 +39,8 @@ internal fun TextButton(
     visible: Boolean = true,
     getSize: () -> IntSize,
     enableSnap: Boolean = false,
+    snapMode: SnapMode = SnapMode.FullScreen,
+    localSnapRange: Dp = 50.dp,
     otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
     snapThresholdValue: Dp,
     drawLine: (ObservableBaseData, List<GuideLine>) -> Unit = { _, _ -> },
@@ -59,6 +65,8 @@ internal fun TextButton(
                     data = data,
                     getSize = getSize,
                     enableSnap = enableSnap,
+                    snapMode = snapMode,
+                    localSnapRange = localSnapRange,
                     otherWidgets = otherWidgets,
                     snapThresholdValue = snapThresholdValue,
                     drawLine = drawLine,

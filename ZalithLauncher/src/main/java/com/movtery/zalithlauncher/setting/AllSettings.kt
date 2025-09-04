@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.setting
 import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
@@ -249,7 +250,12 @@ object AllSettings : SettingsRegistry() {
     val showFPS = boolSetting("showFPS", true)
 
     /**
-     * 控制布局编辑器是否开启控件吸附功能
+     * 控制布局编辑器：是否开启控件吸附功能
      */
     val editorEnableWidgetSnap = boolSetting("editorEnableWidgetSnap", true)
+
+    /**
+     * 控制布局编辑器：控件吸附模式
+     */
+    val editorWidgetSnapMode = enumSetting("editorWidgetSnapMode", SnapMode.FullScreen)
 }
