@@ -8,13 +8,13 @@ import androidx.compose.material.icons.outlined.Edit
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
+import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
-import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders

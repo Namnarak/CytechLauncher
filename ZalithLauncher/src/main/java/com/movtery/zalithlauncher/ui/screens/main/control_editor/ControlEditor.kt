@@ -7,11 +7,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
-import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer

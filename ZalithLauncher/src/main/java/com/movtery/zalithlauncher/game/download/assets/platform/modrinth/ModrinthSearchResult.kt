@@ -2,9 +2,9 @@ package com.movtery.zalithlauncher.game.download.assets.platform.modrinth
 
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.MonetizationStatus
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSide
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthProjectType
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSide
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.MonetizationStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

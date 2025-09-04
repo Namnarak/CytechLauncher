@@ -36,8 +36,8 @@ import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
-import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.coroutine.TitledTask
+import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 

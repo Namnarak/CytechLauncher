@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableTextData
-import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
 import com.movtery.layer_controller.utils.editMode
+import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.SnapMode
 
 /**

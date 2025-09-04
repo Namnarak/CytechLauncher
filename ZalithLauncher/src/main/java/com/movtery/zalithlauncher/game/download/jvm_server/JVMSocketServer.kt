@@ -10,7 +10,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.net.*
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.SocketException
+import java.net.UnknownHostException
 
 /**
  * [Reference FCL](https://github.com/FCL-Team/FoldCraftLauncher/blob/main/FCLCore/src/main/java/com/tungsten/fclcore/util/SocketServer.java)

@@ -7,9 +7,9 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CleaningServices
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.GlobalContext
-import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
+import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion

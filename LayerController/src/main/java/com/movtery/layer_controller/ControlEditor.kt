@@ -24,9 +24,9 @@ import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
-import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.SnapMode
 
 /**

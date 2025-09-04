@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
