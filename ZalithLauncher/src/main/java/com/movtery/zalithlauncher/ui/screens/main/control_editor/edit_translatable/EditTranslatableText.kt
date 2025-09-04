@@ -25,6 +25,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -39,6 +43,7 @@ import com.movtery.layer_controller.observable.ObservableLocalizedString
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 
 /**
  * 编辑可翻译文本
@@ -52,16 +57,29 @@ fun EditTranslatableTextDialog(
     text: ObservableTranslatableString,
     onClose: () -> Unit,
     singleLine: Boolean = true,
+    allowEmpty: Boolean = true,
     onDismissRequest: (() -> Unit)? = null,
     title: String? = null,
     dismissText: String? = null,
     closeText: String? = null,
     take: Int? = null
 ) {
+    val blankError = stringResource(R.string.control_manage_create_new_field_blank)
+
+    var fieldError by remember { mutableStateOf<String?>(null) }
+    val isFieldError = remember(text.default) {
+        fieldError = when {
+            !allowEmpty && text.default.isEmptyOrBlank() -> blankError
+            else -> null
+        }
+        fieldError != null
+    }
+
     Dialog(
         onDismissRequest = {},
         properties = DialogProperties(
             dismissOnClickOutside = false,
+            dismissOnBackPress = false,
             usePlatformDefaultWidth = false
         )
     ) {
@@ -113,11 +131,14 @@ fun EditTranslatableTextDialog(
                                 label = {
                                     Text(stringResource(R.string.control_editor_edit_translatable_default))
                                 },
-                                supportingText = if (take != null) {
-                                    @Composable {
-                                        Text(stringResource(R.string.generic_input_length, text.default.length, take))
+                                isError = isFieldError,
+                                supportingText = {
+                                    fieldError?.let { Text(it) } ?: run {
+                                        if (take != null) {
+                                            Text(stringResource(R.string.generic_input_length, text.default.length, take))
+                                        }
                                     }
-                                } else null,
+                                },
                                 singleLine = singleLine,
                                 keyboardOptions = if (singleLine) {
                                     KeyboardOptions.Default.copy(
@@ -143,6 +164,7 @@ fun EditTranslatableTextDialog(
                                     text.deleteLocalizedString(string)
                                 },
                                 singleLine = singleLine,
+                                allowEmpty = allowEmpty,
                                 take = take
                             )
                         }
@@ -196,6 +218,7 @@ private fun LocalizedStringItem(
     string: ObservableLocalizedString,
     onDelete: () -> Unit,
     singleLine: Boolean = true,
+    allowEmpty: Boolean = true,
     take: Int? = null
 ) {
     Row(
@@ -223,6 +246,7 @@ private fun LocalizedStringItem(
                 },
                 label = stringResource(R.string.control_editor_edit_translatable_other_value),
                 singleLine = singleLine,
+                allowEmpty = allowEmpty,
                 take = take
             )
         }
@@ -245,8 +269,20 @@ private fun SimpleEditBox(
     label: String,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
+    allowEmpty: Boolean = true,
     take: Int? = null
 ) {
+    val blankError = stringResource(R.string.control_manage_create_new_field_blank)
+
+    var fieldError by remember { mutableStateOf<String?>(null) }
+    val isFieldError = remember(value) {
+        fieldError = when {
+            !allowEmpty && value.isEmptyOrBlank() -> blankError
+            else -> null
+        }
+        fieldError != null
+    }
+
     OutlinedTextField(
         modifier = modifier,
         value = value,
@@ -254,11 +290,14 @@ private fun SimpleEditBox(
         label = {
             Text(text = label)
         },
-        supportingText = if (take != null) {
-            @Composable {
-                Text(stringResource(R.string.generic_input_length, value.length, take))
+        isError = isFieldError,
+        supportingText = {
+            fieldError?.let { Text(it) } ?: run {
+                if (take != null) {
+                    Text(stringResource(R.string.generic_input_length, value.length, take))
+                }
             }
-        } else null,
+        },
         singleLine = singleLine,
         shape = MaterialTheme.shapes.large
     )

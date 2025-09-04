@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -37,6 +38,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -118,9 +121,9 @@ private sealed interface ControlOperation {
     data class EditVersion(val data: ControlData) : ControlOperation
 }
 
-private enum class EditTextType(val length: Int, val titleRes: Int) {
-    NAME(length = NAME_LENGTH, titleRes = R.string.control_manage_create_new_name),
-    AUTHOR(length = AUTHOR_NAME_LENGTH, titleRes = R.string.control_manage_create_new_author)
+private enum class EditTextType(val length: Int, val titleRes: Int, val allowEmpty: Boolean) {
+    NAME(length = NAME_LENGTH, titleRes = R.string.control_manage_create_new_name, false),
+    AUTHOR(length = AUTHOR_NAME_LENGTH, titleRes = R.string.control_manage_create_new_author, true)
 }
 
 private class ControlViewModel : ViewModel() {
@@ -320,9 +323,14 @@ private fun ControlOperation(
                     changeOperation(ControlOperation.None)
                 },
                 onClose = {
+                    if (!operation.type.allowEmpty) {
+                        if (operation.string.default.isEmptyOrBlank()) return@EditTranslatableTextDialog
+                        if (operation.string.matchQueue.any { it.value.isEmptyOrBlank() }) return@EditTranslatableTextDialog
+                    }
                     onSave(operation.data)
                     changeOperation(ControlOperation.None)
                 },
+                allowEmpty = operation.type.allowEmpty,
                 dismissText = stringResource(R.string.generic_close),
                 closeText = stringResource(R.string.generic_save),
                 take = operation.type.length
@@ -530,14 +538,42 @@ private fun ControlLayoutItem(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    MarqueeText(
-                        text = data.controlLayout.info.name.translate(locale),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    MarqueeText(
-                        text = data.controlLayout.info.versionName,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    val info = data.controlLayout.info
+                    Row(
+                        modifier = modifier.height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        MarqueeText(
+                            modifier = Modifier.weight(0.4f, fill = false),
+                            text = info.name.translate(locale),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        //作者名称
+                        val authorName = info.author.translate(locale)
+                        if (!authorName.isEmptyOrBlank()) {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                            )
+                            MarqueeText(
+                                modifier = Modifier
+                                    .weight(0.6f, fill = false)
+                                    .alpha(0.7f),
+                                text = authorName,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+
+                    if (!info.versionName.isEmptyOrBlank()) {
+                        MarqueeText(
+                            text = info.versionName,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
                 IconButton(
                     onClick = onDelete
@@ -781,7 +817,7 @@ private fun CreateNewLayoutDialog(
     var authorNameError by remember { mutableStateOf<String?>(null) }
     val isAuthorNameError = remember(author) {
         authorNameError = when {
-            author.isEmptyOrBlank() -> blankError
+//            author.isEmptyOrBlank() -> blankError
             author.length > AUTHOR_NAME_LENGTH -> longError
             else -> null
         }
@@ -790,7 +826,7 @@ private fun CreateNewLayoutDialog(
     var versionNameError by remember { mutableStateOf<String?>(null) }
     val isVersionNameError = remember(versionName) {
         versionNameError = when {
-            versionName.isEmptyOrBlank() -> blankError
+//            versionName.isEmptyOrBlank() -> blankError
             versionName.length > VERSION_NAME_LENGTH -> longError
             else -> null
         }
