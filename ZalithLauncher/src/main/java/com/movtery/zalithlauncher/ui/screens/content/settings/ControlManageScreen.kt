@@ -535,8 +535,7 @@ private fun ControlLayoutItem(
                     }
                 )
                 Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.weight(1f)
                 ) {
                     val info = data.controlLayout.info
                     Row(
