@@ -282,6 +282,8 @@ private fun EditLauncherEvent(
             }
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         //鼠标左键
         InfoLayoutSwitchItem(
             modifier = Modifier.fillMaxWidth(),
@@ -335,6 +337,8 @@ private fun EditLauncherEvent(
                 }
             }
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         //鼠标滚轮上
         InfoLayoutSwitchItem(
