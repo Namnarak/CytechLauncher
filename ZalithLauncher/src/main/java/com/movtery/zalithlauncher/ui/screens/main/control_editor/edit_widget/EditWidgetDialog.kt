@@ -47,6 +47,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.zalithlauncher.R
@@ -77,11 +78,13 @@ private enum class EditWidgetDialogState(val alpha: Float, val buttonText: Int) 
 @Composable
 fun EditWidgetDialog(
     data: ObservableBaseData,
+    styles: List<ObservableButtonStyle>,
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
     onClone: () -> Unit,
     onEditWidgetText: (ObservableTextData) -> Unit,
-    switchControlLayers: (ObservableNormalData) -> Unit
+    switchControlLayers: (ObservableNormalData) -> Unit,
+    openStyleList: () -> Unit
 ) {
     val backStack = rememberNavBackStack(EditWidgetCategory.Info)
     var dialogTransparent by remember { mutableStateOf(EditWidgetDialogState.OPAQUE) }
@@ -144,7 +147,9 @@ fun EditWidgetDialog(
                                 .fillMaxHeight(),
                             backStack = backStack,
                             data = data,
+                            styles = styles,
                             switchControlLayers = switchControlLayers,
+                            openStyleList = openStyleList,
                             onEditWidgetText = onEditWidgetText,
                             onPreviewRequested = {
                                 if (dialogTransparent == EditWidgetDialogState.SEMI_TRANSPARENT_USER) return@EditWidgetNavigation
@@ -271,8 +276,10 @@ private fun EditWidgetNavigation(
     modifier: Modifier = Modifier,
     backStack: NavBackStack,
     data: ObservableBaseData,
+    styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTextData) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit,
+    openStyleList: () -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
 ) {
@@ -289,7 +296,7 @@ private fun EditWidgetNavigation(
                     EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers)
                 }
                 entry<EditWidgetCategory.Style> {
-
+                    EditWidgetStyle(data, styles, openStyleList)
                 }
             }
         )

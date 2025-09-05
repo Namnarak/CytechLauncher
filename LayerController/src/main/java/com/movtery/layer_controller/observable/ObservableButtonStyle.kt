@@ -12,8 +12,8 @@ class ObservableButtonStyle(style: ButtonStyle): Packable<ButtonStyle> {
     val uuid = style.uuid
     var name by mutableStateOf(style.name)
     var animateSwap by mutableStateOf(style.animateSwap)
-    var lightStyle by mutableStateOf(ObservableStyleConfig(style.lightStyle))
-    var darkStyle by mutableStateOf(ObservableStyleConfig(style.darkStyle))
+    var lightStyle = ObservableStyleConfig(style.lightStyle)
+    var darkStyle = ObservableStyleConfig(style.darkStyle)
 
     override fun pack(): ButtonStyle {
         return ButtonStyle(

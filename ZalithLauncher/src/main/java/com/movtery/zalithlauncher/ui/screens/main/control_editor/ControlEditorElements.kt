@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
@@ -71,6 +72,12 @@ sealed interface EditorOperation {
     data object WarningNoLayers : EditorOperation
     /** 没有选择控件层，提醒用户选择 */
     data object WarningNoSelectLayer : EditorOperation
+    /** 打开控件外观列表 */
+    data object OpenStyleList : EditorOperation
+    /** 创建控件外观 */
+    data object CreateStyle : EditorOperation
+    /** 编辑控件外观 */
+    data class EditStyle(val style: ObservableButtonStyle) : EditorOperation
     /** 控制布局正在保存中 */
     data object Saving : EditorOperation
     /** 控制布局保存失败 */
@@ -120,6 +127,7 @@ fun EditorMenu(
     onAttribute: (ObservableControlLayer) -> Unit,
     addNewButton: () -> Unit,
     addNewText: () -> Unit,
+    openStyleList: () -> Unit,
     saveAndExit: () -> Unit
 ) {
     DualMenuSubscreen(
@@ -159,6 +167,15 @@ fun EditorMenu(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_menu_new_widget_text),
                         onClick = addNewText
+                    )
+                }
+
+                //控件外观列表
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_edit_style_config),
+                        onClick = openStyleList
                     )
                 }
 

@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.movtery.layer_controller.data.ButtonStyle
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
@@ -109,6 +111,22 @@ class EditorViewModel() : ViewModel() {
                 }
             }
         }
+    }
+
+    /**
+     * 创建一个新的控件外观
+     */
+    fun createNewStyle(name: String) {
+        observableLayout.addStyle(
+            ButtonStyle.createNew(name)
+        )
+    }
+
+    /**
+     * 删除一个控件外观
+     */
+    fun removeStyle(style: ObservableButtonStyle) {
+        observableLayout.removeStyle(style.uuid)
     }
 
     /**

@@ -3,7 +3,9 @@ package com.movtery.zalithlauncher.ui.screens.main.control_editor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -14,6 +16,7 @@ import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.observable.ObservableBaseData
+import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.utils.lang.TranslatableString
 import com.movtery.zalithlauncher.R
@@ -21,8 +24,11 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditControlLayerDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditSwitchLayersVisibilityDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style.EditStyleDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style.StyleListDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectLayers
@@ -37,6 +43,7 @@ fun ControlEditor(
     exit: () -> Unit
 ) {
     val layers by viewModel.observableLayout.layers.collectAsState()
+    val styles by viewModel.observableLayout.styles.collectAsState()
 
     /** 默认新建的控件层的名称 */
     val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
@@ -101,6 +108,9 @@ fun ControlEditor(
                 )
             }
         },
+        openStyleList = {
+            viewModel.editorOperation = EditorOperation.OpenStyleList
+        },
         saveAndExit = {
             viewModel.save(targetFile, onSaved = exit)
         }
@@ -122,7 +132,14 @@ fun ControlEditor(
         onCloneWidgets = { widget, layers ->
             viewModel.cloneWidgetToLayers(widget, layers)
         },
-        controlLayers = layers
+        onCreateStyle = { name ->
+            viewModel.createNewStyle(name)
+        },
+        onDeleteStyle = { style ->
+            viewModel.removeStyle(style)
+        },
+        controlLayers = layers,
+        styles = styles
     )
 }
 
@@ -133,7 +150,10 @@ private fun EditorOperation(
     onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onCloneWidgets: (ObservableBaseData, List<ObservableControlLayer>) -> Unit,
-    controlLayers: List<ObservableControlLayer>
+    onCreateStyle: (name: String) -> Unit,
+    onDeleteStyle: (ObservableButtonStyle) -> Unit,
+    controlLayers: List<ObservableControlLayer>,
+    styles: List<ObservableButtonStyle>
 ) {
     when (operation) {
         is EditorOperation.None -> {}
@@ -142,6 +162,7 @@ private fun EditorOperation(
             val layer = operation.layer
             EditWidgetDialog(
                 data = data,
+                styles = styles,
                 onDismissRequest = {
                     changeOperation(EditorOperation.None)
                 },
@@ -157,6 +178,9 @@ private fun EditorOperation(
                 },
                 switchControlLayers = { data ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                },
+                openStyleList = {
+                    changeOperation(EditorOperation.OpenStyleList)
                 }
             )
         }
@@ -225,6 +249,47 @@ private fun EditorOperation(
             ) {
                 changeOperation(EditorOperation.None)
             }
+        }
+        is EditorOperation.OpenStyleList -> {
+            StyleListDialog(
+                styles = styles,
+                onEditStyle = { style ->
+                    changeOperation(EditorOperation.EditStyle(style))
+                },
+                onCreate = {
+                    changeOperation(EditorOperation.CreateStyle)
+                },
+                onDelete = { style ->
+                    onDeleteStyle(style)
+                },
+                onClose = {
+                    changeOperation(EditorOperation.None)
+                }
+            )
+        }
+        is EditorOperation.CreateStyle -> {
+            var name by remember { mutableStateOf("") }
+            SimpleEditDialog(
+                title = stringResource(R.string.control_editor_edit_style_config_name),
+                value = name,
+                onValueChange = { name = it },
+                singleLine = true,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                },
+                onConfirm = {
+                    onCreateStyle(name)
+                    changeOperation(EditorOperation.OpenStyleList)
+                }
+            )
+        }
+        is EditorOperation.EditStyle -> {
+            EditStyleDialog(
+                style = operation.style,
+                onClose = {
+                    changeOperation(EditorOperation.None)
+                }
+            )
         }
         is EditorOperation.Saving -> {
             ProgressDialog(

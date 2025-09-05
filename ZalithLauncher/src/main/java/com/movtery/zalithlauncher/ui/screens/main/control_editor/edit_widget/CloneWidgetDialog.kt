@@ -78,7 +78,6 @@ fun SelectLayers(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
 
-                    //选择游戏版本
                     ChoseLayersLayout(
                         modifier = Modifier
                             .fillMaxWidth()

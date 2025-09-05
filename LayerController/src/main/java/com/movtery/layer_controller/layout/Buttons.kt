@@ -59,7 +59,7 @@ internal fun TextButton(
         Box(
             modifier = Modifier
                 .buttonSize(data)
-                .buttonStyle(style, isPressed)
+                .buttonStyle(style = style, isPressed = isPressed)
                 .editMode(
                     isEditMode = isEditMode,
                     data = data,
@@ -75,7 +75,7 @@ internal fun TextButton(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val color by buttonContentColorAsState(style, isPressed)
+            val color by buttonContentColorAsState(style = style, isPressed = isPressed)
             Text(
                 text = data.text.translate(locale),
                 color = color
@@ -85,6 +85,29 @@ internal fun TextButton(
         //虚假的控件，使用一个空的组件，只是让Layout有东西能测
         Spacer(
             modifier = Modifier.buttonSize(data)
+        )
+    }
+}
+
+/**
+ * 仅渲染控件外观的组件
+ */
+@Composable
+fun RendererStyleBox(
+    style: ObservableButtonStyle,
+    modifier: Modifier = Modifier,
+    text: String = "",
+    isDark: Boolean,
+    isPressed: Boolean
+) {
+    Box(
+        modifier = modifier.buttonStyle(style = style, isDark = isDark, isPressed = isPressed),
+        contentAlignment = Alignment.Center
+    ) {
+        val color by buttonContentColorAsState(style = style, isDark = isDark, isPressed = isPressed)
+        Text(
+            text = text,
+            color = color
         )
     }
 }

@@ -761,6 +761,24 @@
     <string name="control_editor_edit_visibility_in_game">Visible In-Game</string>
     <string name="control_editor_edit_visibility_in_menu">Visible Out-Game</string>
     <string name="control_editor_edit_switch_layers">Switch Control Layers Visibility</string>
+    <string name="control_editor_edit_style_config">Control Appearance List</string>
+    <string name="control_editor_edit_style_config_empty">No control appearances in the current control layout</string>
+    <string name="control_editor_edit_style_config_name">Control Appearance Name</string>
+    <string name="control_editor_edit_style_config_animate_swap">Enable Animation Transition</string>
+    <string name="control_editor_edit_style_config_light">Light Appearance</string>
+    <string name="control_editor_edit_style_config_dark">Dark Appearance</string>
+    <string name="control_editor_edit_style_config_normal">Normal</string>
+    <string name="control_editor_edit_style_config_pressed">When Pressed</string>
+    <string name="control_editor_edit_style_config_alpha">Overall Opacity</string>
+    <string name="control_editor_edit_style_config_background_color">Background Color</string>
+    <string name="control_editor_edit_style_config_content_color">Content Color</string>
+    <string name="control_editor_edit_style_config_border_width">Border Width</string>
+    <string name="control_editor_edit_style_config_border_color">Border Color</string>
+    <string name="control_editor_edit_style_config_widget_radius">Control Corner Radius</string>
+    <string name="control_editor_edit_style_config_widget_radius_left_top">Top Left Corner</string>
+    <string name="control_editor_edit_style_config_widget_radius_right_top">Top Right Corner</string>
+    <string name="control_editor_edit_style_config_widget_radius_left_bottom">Bottom Left Corner</string>
+    <string name="control_editor_edit_style_config_widget_radius_right_bottom">Bottom Right Corner</string>
     <string name="control_editor_exit_message">Are you sure you want to exit directly? This will cause any changes to be unsaved. If you need to save, please use the "Save and Exit" option in the menu.</string>
     <string name="control_editor_exit_confirm">Exit Directly</string>
     <!-- About -->

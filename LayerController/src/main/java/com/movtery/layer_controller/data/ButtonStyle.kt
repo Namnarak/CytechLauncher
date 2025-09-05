@@ -67,13 +67,13 @@ data class ButtonStyle(
                 alpha = 1f,
                 backgroundColor = Color.Black.copy(alpha = 0.5f),
                 contentColor = Color.White,
-                borderWidth = -1,
+                borderWidth = 0,
                 borderColor = Color.White,
                 borderRadius = ButtonShape(0f),
                 pressedAlpha = 1f,
                 pressedBackgroundColor = Color.Gray.copy(alpha = 0.7f),
                 pressedContentColor = Color.White,
-                pressedBorderWidth = -1,
+                pressedBorderWidth = 0,
                 pressedBorderColor = Color.White,
                 pressedBorderRadius = ButtonShape(0f)
             )
@@ -87,5 +87,7 @@ data class ButtonStyle(
             lightStyle = StyleConfig.Default,
             darkStyle = StyleConfig.Default
         )
+
+        fun createNew(name: String): ButtonStyle = Default.copy(name = name, uuid = randomUUID())
     }
 }

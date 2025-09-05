@@ -20,6 +20,11 @@ data class ButtonShape constructor(
 
     companion object {
         /**
+         * 形状有效值范围
+         */
+        val valueRange = 0f..100f
+
+        /**
          * 转换为 RoundedCornerShape
          */
         fun ButtonShape.toAndroidShape() = RoundedCornerShape(

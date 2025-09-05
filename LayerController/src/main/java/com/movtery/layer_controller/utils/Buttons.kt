@@ -315,12 +315,14 @@ internal fun Modifier.buttonSize(
 @Composable
 internal fun buttonContentColorAsState(
     style: ObservableButtonStyle,
+    isDark: Boolean = isSystemInDarkTheme(),
     isPressed: Boolean
 ): State<Color> {
-    val isDark = isSystemInDarkTheme()
     val themeStyle = if (isDark) style.darkStyle else style.lightStyle
 
-    val targetColor = if (isPressed) themeStyle.pressedContentColor else themeStyle.contentColor
+    val targetColor = remember(themeStyle, isPressed, themeStyle.pressedContentColor, themeStyle.contentColor) {
+        if (isPressed) themeStyle.pressedContentColor else themeStyle.contentColor
+    }
 
     return if (style.animateSwap) {
         animateColorAsState(targetColor, label = "contentColorAnimation")
@@ -336,24 +338,25 @@ internal fun buttonContentColorAsState(
 @Composable
 internal fun Modifier.buttonStyle(
     style: ObservableButtonStyle,
+    isDark: Boolean = isSystemInDarkTheme(),
     isPressed: Boolean
 ): Modifier {
-    val isDark = isSystemInDarkTheme()
     val themeStyle = if (isDark) style.darkStyle else style.lightStyle
 
-    val alpha = remember(themeStyle, isPressed) {
+    val alpha = remember(themeStyle, isPressed, themeStyle.pressedAlpha, themeStyle.alpha) {
         if (isPressed) themeStyle.pressedAlpha else themeStyle.alpha
     }
-    val backgroundColor = remember(themeStyle, isPressed) {
+    val backgroundColor = remember(themeStyle, isPressed, themeStyle.pressedBackgroundColor, themeStyle.backgroundColor) {
         if (isPressed) themeStyle.pressedBackgroundColor else themeStyle.backgroundColor
     }
-    val borderWidth = remember(themeStyle, isPressed) {
-        if (isPressed) themeStyle.pressedBorderWidth.dp else themeStyle.borderWidth.dp
+    val borderWidth = remember(themeStyle, isPressed, themeStyle.pressedBorderWidth, themeStyle.borderWidth) {
+        val value = if (isPressed) themeStyle.pressedBorderWidth else themeStyle.borderWidth
+        if (value == 0) (-1).dp else value.dp
     }
-    val borderColor = remember(themeStyle, isPressed) {
+    val borderColor = remember(themeStyle, isPressed, themeStyle.pressedBorderColor, themeStyle.borderColor) {
         if (isPressed) themeStyle.pressedBorderColor else themeStyle.borderColor
     }
-    val borderRadius = remember(themeStyle, isPressed) {
+    val borderRadius = remember(themeStyle, isPressed, themeStyle.pressedBorderRadius, themeStyle.borderRadius) {
         if (isPressed) themeStyle.pressedBorderRadius.toAndroidShape() else themeStyle.borderRadius.toAndroidShape()
     }
 

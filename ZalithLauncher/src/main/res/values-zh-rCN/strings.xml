@@ -761,6 +761,24 @@
     <string name="control_editor_edit_visibility_in_game">游戏内可见</string>
     <string name="control_editor_edit_visibility_in_menu">游戏外可见</string>
     <string name="control_editor_edit_switch_layers">切换控件层可见性</string>
+    <string name="control_editor_edit_style_config">控件外观列表</string>
+    <string name="control_editor_edit_style_config_empty">当前控制布局还没有控件外观</string>
+    <string name="control_editor_edit_style_config_name">控件外观名称</string>
+    <string name="control_editor_edit_style_config_animate_swap">启用动画过渡</string>
+    <string name="control_editor_edit_style_config_light">亮色外观</string>
+    <string name="control_editor_edit_style_config_dark">暗色外观</string>
+    <string name="control_editor_edit_style_config_normal">正常</string>
+    <string name="control_editor_edit_style_config_pressed">按下时</string>
+    <string name="control_editor_edit_style_config_alpha">整体不透明度</string>
+    <string name="control_editor_edit_style_config_background_color">背景颜色</string>
+    <string name="control_editor_edit_style_config_content_color">内容颜色</string>
+    <string name="control_editor_edit_style_config_border_width">边框粗细</string>
+    <string name="control_editor_edit_style_config_border_color">边框颜色</string>
+    <string name="control_editor_edit_style_config_widget_radius">控件圆角</string>
+    <string name="control_editor_edit_style_config_widget_radius_left_top">左上角</string>
+    <string name="control_editor_edit_style_config_widget_radius_right_top">右上角</string>
+    <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
+    <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
     <string name="control_editor_exit_message">您确定要直接退出吗，这会导致您的任何更改都无法被保存。若需要保存，请使用菜单内的“保存并退出”选项。</string>
     <string name="control_editor_exit_confirm">直接退出</string>
     <!--  关于  -->
