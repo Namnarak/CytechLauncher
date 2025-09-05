@@ -128,6 +128,7 @@ fun EditorMenu(
     addNewButton: () -> Unit,
     addNewText: () -> Unit,
     openStyleList: () -> Unit,
+    onSave: () -> Unit,
     saveAndExit: () -> Unit
 ) {
     DualMenuSubscreen(
@@ -213,6 +214,15 @@ fun EditorMenu(
 
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                //保存
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.generic_save),
+                        onClick = onSave
+                    )
                 }
 
                 //保存并退出

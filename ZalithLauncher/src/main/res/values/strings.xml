@@ -779,7 +779,7 @@
     <string name="control_editor_edit_style_config_widget_radius_right_top">Top Right Corner</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">Bottom Left Corner</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">Bottom Right Corner</string>
-    <string name="control_editor_exit_message">Are you sure you want to exit directly? This will cause any changes to be unsaved. If you need to save, please use the "Save and Exit" option in the menu.</string>
+    <string name="control_editor_exit_message">Are you sure you want to exit directly? This will cause any changes to be unsaved. If you need to save, please check the editor menu.</string>
     <string name="control_editor_exit_confirm">Exit Directly</string>
     <!-- About -->
     <string name="about_launcher_title">About Launcher</string>

@@ -798,6 +798,6 @@
     <string name="control_editor_edit_style_config_widget_radius_right_top">右上角</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
-    <string name="control_editor_exit_message">您確定要直接退出嗎？這將導致您的任何變更都無法被儲存。若需要儲存，請使用選單內的「儲存並退出」選項。</string>
+    <string name="control_editor_exit_message">您確定要直接退出嗎？這將導致您的任何變更都無法被儲存。若需要儲存，請檢查編輯器選單。</string>
     <string name="control_editor_exit_confirm">直接退出</string>
 </resources>

@@ -111,6 +111,9 @@ fun ControlEditor(
         openStyleList = {
             viewModel.editorOperation = EditorOperation.OpenStyleList
         },
+        onSave = {
+            viewModel.save(targetFile, onSaved = {})
+        },
         saveAndExit = {
             viewModel.save(targetFile, onSaved = exit)
         }

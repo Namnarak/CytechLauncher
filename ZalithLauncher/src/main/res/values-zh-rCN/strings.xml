@@ -779,7 +779,7 @@
     <string name="control_editor_edit_style_config_widget_radius_right_top">右上角</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
-    <string name="control_editor_exit_message">您确定要直接退出吗，这会导致您的任何更改都无法被保存。若需要保存，请使用菜单内的“保存并退出”选项。</string>
+    <string name="control_editor_exit_message">您确定要直接退出吗，这会导致您的任何更改都无法被保存。若需要保存，请检查编辑器菜单。</string>
     <string name="control_editor_exit_confirm">直接退出</string>
     <!--  关于  -->
     <string name="about_launcher_title">关于启动器</string>
