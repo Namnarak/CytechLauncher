@@ -1,6 +1,5 @@
 package com.movtery.layer_controller
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
@@ -28,7 +27,6 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.event.switchLayer
 import com.movtery.layer_controller.layout.TextButton
-import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
@@ -93,7 +91,7 @@ private fun BaseControlBoxLayout(
     isCursorGrabbing: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
+//    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
 
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
@@ -168,31 +166,32 @@ private fun BaseControlBoxLayout(
                                     val inBoundingBox = position.x in offset.x..(offset.x + size.width) &&
                                             position.y in offset.y..(offset.y + size.height)
 
-                                    if (!inBoundingBox) {
-                                        false
-                                    } else {
-                                        //获取按钮样式和圆角信息
-                                        val style = styles.takeIf {
-                                            data.buttonStyle != null
-                                        }?.find {
-                                            it.uuid == data.buttonStyle
-                                        } ?: ObservableButtonStyle.Default
-                                        val borderRadius = (if (isDarkMode) style.darkStyle else style.lightStyle).borderRadius
-
-                                        if (borderRadius.topStart == 0f && borderRadius.topEnd == 0f &&
-                                            borderRadius.bottomEnd == 0f && borderRadius.bottomStart == 0f
-                                        ) {
-                                            true //都是直角
-                                        } else {
-                                            //检查触摸点是否在圆角矩形内
-                                            isPointInRoundedRect(
-                                                point = position,
-                                                rectOffset = offset,
-                                                rectSize = size,
-                                                cornerRadius = borderRadius
-                                            )
-                                        }
-                                    }
+                                    inBoundingBox
+//                                    if (!inBoundingBox) {
+//                                        false
+//                                    } else {
+//                                        //获取按钮样式和圆角信息
+//                                        val style = styles.takeIf {
+//                                            data.buttonStyle != null
+//                                        }?.find {
+//                                            it.uuid == data.buttonStyle
+//                                        } ?: ObservableButtonStyle.Default
+//                                        val borderRadius = (if (isDarkMode) style.darkStyle else style.lightStyle).borderRadius
+//
+//                                        if (borderRadius.topStart == 0f && borderRadius.topEnd == 0f &&
+//                                            borderRadius.bottomEnd == 0f && borderRadius.bottomStart == 0f
+//                                        ) {
+//                                            true //都是直角
+//                                        } else {
+//                                            //检查触摸点是否在圆角矩形内
+//                                            isPointInRoundedRect(
+//                                                point = position,
+//                                                rectOffset = offset,
+//                                                rectSize = size,
+//                                                cornerRadius = borderRadius
+//                                            )
+//                                        }
+//                                    }
                                 }.reversed()
                                 .let { list ->
                                     val nonSwippleButtons = list.filter { !it.isSwipple || !(it.isSwipple && it.isPenetrable) }
