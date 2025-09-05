@@ -103,9 +103,9 @@ fun EditWidgetInfo(
             InfoLayoutSliderItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.control_editor_edit_position_y),
-                value = data.position.y / 10f,
+                value = data.position.y / 100f,
                 onValueChange = {
-                    data.position = data.position.copy(y = (it * 10).toInt())
+                    data.position = data.position.copy(y = (it * 100).toInt())
                     onPreviewRequested()
                 },
                 valueRange = 0f..100f,
