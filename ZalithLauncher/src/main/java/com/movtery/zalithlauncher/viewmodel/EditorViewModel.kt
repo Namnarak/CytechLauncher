@@ -10,7 +10,9 @@ import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableNormalData.Companion.cloneNormal
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableTextData.Companion.cloneText
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorOperation
@@ -86,6 +88,26 @@ class EditorViewModel() : ViewModel() {
         when (widget) {
             is ObservableNormalData -> layer.removeNormalButton(widget.uuid)
             is ObservableTextData -> layer.removeTextBox(widget.uuid)
+        }
+    }
+
+    /**
+     * 将控件复制到控件层
+     */
+    fun cloneWidgetToLayers(widget: ObservableBaseData, layers: List<ObservableControlLayer>) {
+        when (widget) {
+            is ObservableNormalData -> {
+                val newData = widget.cloneNormal()
+                layers.forEach { layer ->
+                    layer.addNormalButton(newData)
+                }
+            }
+            is ObservableTextData -> {
+                val newData = widget.cloneText()
+                layers.forEach { layer ->
+                    layer.addTextBox(newData)
+                }
+            }
         }
     }
 

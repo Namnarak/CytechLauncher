@@ -714,6 +714,8 @@
     <string name="control_editor_edit">Edit Control</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>
+    <string name="control_editor_edit_dialog_clone_widget">Clone Control</string>
+    <string name="control_editor_edit_dialog_clone_widget_title">Clone to Control Layer</string>
     <string name="control_editor_edit_category_info">Information</string>
     <string name="control_editor_edit_category_event">Click Event</string>
     <string name="control_editor_edit_category_style">Control Style</string>

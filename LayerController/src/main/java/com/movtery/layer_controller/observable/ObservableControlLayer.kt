@@ -30,7 +30,14 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
      * 添加一个普通的按钮
      */
     fun addNormalButton(button: NormalData) {
-        _normalButtons.update { it + ObservableNormalData(button) }
+        addNormalButton(ObservableNormalData(button))
+    }
+
+    /**
+     * 添加一个普通的按钮
+     */
+    fun addNormalButton(button: ObservableNormalData) {
+        _normalButtons.update { it + button }
     }
 
     /**
@@ -46,7 +53,14 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
      * 添加文本展示框
      */
     fun addTextBox(textBox: TextData) {
-        _textBoxes.update { it + ObservableTextData(textBox) }
+        addTextBox(ObservableTextData(textBox))
+    }
+
+    /**
+     * 添加文本展示框
+     */
+    fun addTextBox(textBox: ObservableTextData) {
+        _textBoxes.update { it + textBox }
     }
 
     /**

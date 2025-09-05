@@ -25,6 +25,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.Edit
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_layer.EditSwitchLayersVisibilityDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectLayers
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import java.io.File
@@ -118,6 +119,9 @@ fun ControlEditor(
         onDeleteLayer = { layer ->
             viewModel.removeLayer(layer)
         },
+        onCloneWidgets = { widget, layers ->
+            viewModel.cloneWidgetToLayers(widget, layers)
+        },
         controlLayers = layers
     )
 }
@@ -128,25 +132,48 @@ private fun EditorOperation(
     changeOperation: (EditorOperation) -> Unit,
     onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
+    onCloneWidgets: (ObservableBaseData, List<ObservableControlLayer>) -> Unit,
     controlLayers: List<ObservableControlLayer>
 ) {
     when (operation) {
         is EditorOperation.None -> {}
         is EditorOperation.SelectButton -> {
+            val data = operation.data
+            val layer = operation.layer
             EditWidgetDialog(
-                data = operation.data,
+                data = data,
                 onDismissRequest = {
                     changeOperation(EditorOperation.None)
                 },
                 onDelete = {
-                    onDeleteWidget(operation.data, operation.layer)
+                    onDeleteWidget(data, layer)
                     changeOperation(EditorOperation.None)
+                },
+                onClone = {
+                    changeOperation(EditorOperation.CloneButton(data, layer))
                 },
                 onEditWidgetText = { textData ->
                     changeOperation(EditorOperation.EditWidgetText(textData))
                 },
                 switchControlLayers = { data ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                }
+            )
+        }
+        is EditorOperation.CloneButton -> {
+            val data = operation.data
+            val layer = operation.layer
+            SelectLayers(
+                layers= controlLayers,
+                initLayer = layer,
+                onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                },
+                title = stringResource(R.string.control_editor_edit_dialog_clone_widget_title),
+                confirmText = stringResource(R.string.control_editor_edit_dialog_clone_widget),
+                onConfirm = { layers ->
+                    onCloneWidgets(data, layers)
+                    changeOperation(EditorOperation.None)
                 }
             )
         }

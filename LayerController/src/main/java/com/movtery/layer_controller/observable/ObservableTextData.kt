@@ -1,6 +1,7 @@
 package com.movtery.layer_controller.observable
 
 import com.movtery.layer_controller.data.TextData
+import com.movtery.layer_controller.data.TextData.Companion.cloneNew
 
 /**
  * 可观察的TextData包装类
@@ -17,5 +18,11 @@ open class ObservableTextData(data: TextData) : ObservableBaseData(data) {
             buttonStyle = buttonStyle,
             visibilityType = visibilityType
         )
+    }
+
+    companion object {
+        fun ObservableTextData.cloneText(): ObservableTextData {
+            return ObservableTextData(packText().cloneNew())
+        }
     }
 }

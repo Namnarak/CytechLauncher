@@ -59,6 +59,8 @@ sealed interface EditorOperation {
     data object None : EditorOperation
     /** 选择了一个控件, 附带其所属控件层 */
     data class SelectButton(val data: ObservableBaseData, val layer: ObservableControlLayer) : EditorOperation
+    /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
+    data class CloneButton(val data: ObservableBaseData, val layer: ObservableControlLayer) : EditorOperation
     /** 编辑控件的显示文本 */
     data class EditWidgetText(val data: ObservableTextData) : EditorOperation
     /** 编辑控件层属性 */

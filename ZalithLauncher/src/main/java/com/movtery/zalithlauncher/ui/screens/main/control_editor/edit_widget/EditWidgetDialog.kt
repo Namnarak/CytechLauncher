@@ -79,6 +79,7 @@ fun EditWidgetDialog(
     data: ObservableBaseData,
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
+    onClone: () -> Unit,
     onEditWidgetText: (ObservableTextData) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit
 ) {
@@ -161,7 +162,7 @@ fun EditWidgetDialog(
                             .padding(all = 8.dp)
                             .fillMaxWidth()
                     ) {
-                        val (previewButton, deleteButton, closeButton) = createRefs()
+                        val (previewButton, deleteButton, cloneButton, closeButton) = createRefs()
 
                         //非用户决定时，隐藏这个按钮
                         if (dialogTransparent != EditWidgetDialogState.SEMI_TRANSPARENT) {
@@ -183,11 +184,21 @@ fun EditWidgetDialog(
                         Button(
                             modifier = Modifier
                                 .constrainAs(deleteButton) {
-                                    end.linkTo(closeButton.start, 16.dp)
+                                    end.linkTo(cloneButton.start, 16.dp)
                                 },
                             onClick = onDelete
                         ) {
                             MarqueeText(text = stringResource(R.string.generic_delete))
+                        }
+
+                        Button(
+                            modifier = Modifier
+                                .constrainAs(cloneButton) {
+                                    end.linkTo(closeButton.start, 16.dp)
+                                },
+                            onClick = onClone
+                        ) {
+                            MarqueeText(text = stringResource(R.string.control_editor_edit_dialog_clone_widget))
                         }
 
                         Button(

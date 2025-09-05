@@ -733,6 +733,8 @@
     <string name="control_editor_edit">編輯控制項</string>
     <string name="control_editor_edit_dialog_open_preview">開啟預覽</string>
     <string name="control_editor_edit_dialog_close_preview">關閉預覽</string>
+    <string name="control_editor_edit_dialog_clone_widget">複製控制項</string>
+    <string name="control_editor_edit_dialog_clone_widget_title">複製到控制項圖層</string>
     <string name="control_editor_edit_category_info">基本資訊</string>
     <string name="control_editor_edit_category_event">點擊事件</string>
     <string name="control_editor_edit_category_style">控制項樣式</string>

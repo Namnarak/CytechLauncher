@@ -32,4 +32,22 @@ class NormalData(
     buttonSize = buttonSize,
     buttonStyle = buttonStyle,
     visibilityType = visibilityType
-)
+) {
+    companion object {
+        /**
+         * 克隆一个新的NormalData对象（UUID、位置不同）
+         */
+        fun NormalData.cloneNew(): NormalData = NormalData(
+            text = this.text,
+            uuid = getAButtonUUID(),
+            position = ButtonPosition.Center,
+            buttonSize = buttonSize,
+            buttonStyle = buttonStyle,
+            visibilityType = visibilityType,
+            clickEvents = clickEvents,
+            isSwipple = isSwipple,
+            isPenetrable = isPenetrable,
+            isToggleable = isToggleable
+        )
+    }
+}

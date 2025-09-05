@@ -20,4 +20,18 @@ open class TextData(
     buttonSize = buttonSize,
     buttonStyle = buttonStyle,
     visibilityType = visibilityType
-)
+) {
+    companion object {
+        /**
+         * 克隆一个新的TextData对象（UUID、位置不同）
+         */
+        fun TextData.cloneNew(): TextData = TextData(
+            text = this.text,
+            uuid = getAButtonUUID(),
+            position = ButtonPosition.Center,
+            buttonSize = buttonSize,
+            buttonStyle = buttonStyle,
+            visibilityType = visibilityType
+        )
+    }
+}
