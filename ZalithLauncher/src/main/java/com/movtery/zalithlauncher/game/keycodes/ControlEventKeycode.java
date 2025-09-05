@@ -2,16 +2,14 @@ package com.movtery.zalithlauncher.game.keycodes;
 
 import androidx.annotation.Nullable;
 
-import com.movtery.layer_controller.event.ClickEvent;
-
 public class ControlEventKeycode {
     /**
      * 利用Java语言switch的性能，快速匹配点击事件对应的键值
      * @param event 点击事件
      * @return 匹配到的键值，若为null则未匹配到
      */
-    public static @Nullable Short getKeycodeFromEvent(ClickEvent event) {
-        switch (event.getKey()) {
+    public static @Nullable Short getKeycodeFromEvent(String event) {
+        switch (event) {
             case GLFW_KEY_UNKNOWN: return LwjglGlfwKeycode.GLFW_KEY_UNKNOWN;
             case GLFW_KEY_SPACE: return LwjglGlfwKeycode.GLFW_KEY_SPACE;
             case GLFW_KEY_APOSTROPHE: return LwjglGlfwKeycode.GLFW_KEY_APOSTROPHE;

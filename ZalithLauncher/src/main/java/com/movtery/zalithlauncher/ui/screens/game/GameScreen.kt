@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,6 +57,7 @@ import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
+import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -79,9 +81,14 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     /** 鼠标触摸指针处理层占用指针列表 */
     var touchpadOccupiedPointers = mutableSetOf<PointerId>()
 
-    /** 可观察的 */
+    /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
         private set
+
+    /** 所有已按下的按键，与同一键值的同时按下个数 */
+    val pressedKeyEvents = mutableStateMapOf<String, Int>()
+    /** 所有已按下的启动器事件，与同一键值的同时按下个数 */
+    val pressedLauncherEvents = mutableStateMapOf<String, Int>()
 
     /** 虚拟鼠标滚动事件处理 */
     val mouseScrollEvent = MouseScrollEvent(viewModelScope)
@@ -218,27 +225,51 @@ fun GameScreen(
             isGameRendering = isGameRendering
         )
 
-        ControlBoxLayout(
-            modifier = Modifier.fillMaxSize(),
-            observedLayout = viewModel.observableLayout,
-            checkOccupiedPointers = { viewModel.touchpadOccupiedPointers.contains(it) },
-            onClickEvent = { event, pressed ->
-                //处理按键事件
-                lwjglEvent(event, pressed)
-                if (event.type == ClickEvent.Type.LauncherEvent) {
-                    //处理启动器事件
+        HandleEventKey(
+            keys = viewModel.pressedKeyEvents,
+            handle = { key, pressed ->
+                lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
+            }
+        )
+        HandleEventKey(
+            keys = viewModel.pressedLauncherEvents,
+            handle = { key, pressed ->
+                if (key.startsWith("GLFW_MOUSE_", false)) {
+                    //处理鼠标事件
+                    lwjglEvent(eventKey = key, isMouse = true, isPressed = pressed)
+                } else {
                     if (pressed) {
-                        when (event.key) {
+                        when (key) {
                             LAUNCHER_EVENT_SWITCH_IME -> { viewModel.switchIME() }
                             LAUNCHER_EVENT_SWITCH_MENU -> { viewModel.switchMenu() }
                             LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = true) }
                             LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = false) }
                         }
                     }
-                    when (event.key) {
+                    when (key) {
                         LAUNCHER_EVENT_SCROLL_UP -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = true) }
                         LAUNCHER_EVENT_SCROLL_DOWN -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = false) }
                     }
+                }
+            }
+        )
+
+        ControlBoxLayout(
+            modifier = Modifier.fillMaxSize(),
+            observedLayout = viewModel.observableLayout,
+            checkOccupiedPointers = { viewModel.touchpadOccupiedPointers.contains(it) },
+            onClickEvent = { event, pressed ->
+                val events = when (event.type) {
+                    ClickEvent.Type.Key -> viewModel.pressedKeyEvents
+                    ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
+                    else -> return@ControlBoxLayout
+                }
+                //获取当前已按下相同键值的按键个数
+                val count = (events[event.key] ?: 0).coerceAtLeast(0)
+                if (pressed) {
+                    events[event.key] = count + 1
+                } else if (count > 0) {
+                    events[event.key] = count - 1
                 }
             },
             isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED

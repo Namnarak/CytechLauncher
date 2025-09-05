@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.control.control
 
-import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import org.lwjgl.glfw.CallbackBridge
 
@@ -8,18 +7,17 @@ import org.lwjgl.glfw.CallbackBridge
  * 点击按键时，处理LWJGL按键事件
  */
 fun lwjglEvent(
-    clickEvent: ClickEvent,
+    eventKey: String,
+    isMouse: Boolean,
     isPressed: Boolean
 ) {
-    val keycode: Int = ControlEventKeycode.getKeycodeFromEvent(clickEvent)?.toInt() ?: return
+    val keycode: Int = ControlEventKeycode.getKeycodeFromEvent(eventKey)?.toInt() ?: return
 
-    if (clickEvent.type != ClickEvent.Type.SwitchLayer) {
-        if (clickEvent.key.startsWith("GLFW_MOUSE_", false)) {
-            CallbackBridge.sendMouseButton(keycode, isPressed)
-        } else {
-            CallbackBridge.sendKeyPress(keycode, CallbackBridge.getCurrentMods(), isPressed)
-            CallbackBridge.setModifiers(keycode, isPressed)
-        }
+    if (isMouse) {
+        CallbackBridge.sendMouseButton(keycode, isPressed)
+    } else {
+        CallbackBridge.sendKeyPress(keycode, CallbackBridge.getCurrentMods(), isPressed)
+        CallbackBridge.setModifiers(keycode, isPressed)
     }
 }
 
