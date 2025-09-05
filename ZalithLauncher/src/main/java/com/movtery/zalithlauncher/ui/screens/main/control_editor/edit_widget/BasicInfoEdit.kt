@@ -93,7 +93,7 @@ fun EditWidgetInfo(
                 },
                 valueRange = 0f..100f,
                 onValueChangeFinished = onDismissRequested,
-                decimalFormat = "#0.0",
+                decimalFormat = "#0.00",
                 suffix = "%"
             )
         }
@@ -110,7 +110,7 @@ fun EditWidgetInfo(
                 },
                 valueRange = 0f..100f,
                 onValueChangeFinished = onDismissRequested,
-                decimalFormat = "#0.0",
+                decimalFormat = "#0.00",
                 suffix = "%"
             )
         }
