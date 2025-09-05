@@ -9,10 +9,16 @@ import com.movtery.layer_controller.layout.ControlLayout
  */
 internal const val EDITOR_VERSION = 2
 
-internal fun update1ToNew(
+/**
+ * 自动处理并逐步更新控制布局到新版编辑器
+ */
+internal fun updateLayoutToNew(
     layout: ControlLayout
 ): ControlLayout {
-    return update1To2(layout)
+    return when (layout.editorVersion) {
+        1 -> updateLayoutToNew(update1To2(layout))
+        else -> layout
+    }
 }
 
 /**

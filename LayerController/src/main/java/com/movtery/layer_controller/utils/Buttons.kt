@@ -38,6 +38,7 @@ import com.movtery.layer_controller.utils.snap.LineDirection
 import com.movtery.layer_controller.utils.snap.SnapMode
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
@@ -108,12 +109,17 @@ internal fun Modifier.editMode(
                             newX = newX.coerceIn(0f, maxX)
                             newY = newY.coerceIn(0f, maxY)
 
-                            val newPosition = Offset(newX, newY)
+                            val newPosition = Offset(newX, newY).also { data.movingOffset = it }
+
+                            val newPercentagePosition = newPosition.toPercentagePosition(
+                                widgetSize = currentSize,
+                                screenSize = screenSize
+                            )
 
                             val finalPosition = if (enableSnap1) {
                                 calculateSnapPosition(
-                                    currentPosition = newPosition,
-                                    currentSize = currentSize,
+                                    currentPosition = newPercentagePosition,
+                                    widgetSize = currentSize,
                                     screenSize = screenSize,
                                     otherWidgets = otherWidgets1,
                                     snapThreshold = snapThreshold,
@@ -128,15 +134,10 @@ internal fun Modifier.editMode(
                                 )
                             } else {
                                 onLineCancel(data)
-                                newPosition
+                                newPercentagePosition
                             }
 
-                            data.position = finalPosition.toPercentagePosition(
-                                widgetSize = currentSize,
-                                screenSize = screenSize
-                            ).also {
-                                data.movingOffset = newPosition
-                            }
+                            data.position = finalPosition
                         },
                         onDragEnd = {
                             data.isEditingPos = false
@@ -168,8 +169,8 @@ internal fun Modifier.editMode(
  * @param onLineCancel 通知取消绘制参考线
  */
 private fun calculateSnapPosition(
-    currentPosition: Offset,
-    currentSize: IntSize,
+    currentPosition: ButtonPosition,
+    widgetSize: IntSize,
     screenSize: IntSize,
     otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
     snapThreshold: Float,
@@ -177,17 +178,17 @@ private fun calculateSnapPosition(
     localSnapRange: Float,
     drawLine: (List<GuideLine>) -> Unit,
     onLineCancel: () -> Unit,
-): Offset {
-    var newX = currentPosition.x
-    var newY = currentPosition.y
+): ButtonPosition {
+    val currentOffset = getWidgetPosition(currentPosition, widgetSize, screenSize)
 
     //当前控件的边界
-    val currentLeft = newX
-    val currentRight = newX + currentSize.width
-    val currentTop = newY
-    val currentBottom = newY + currentSize.height
+    val currentLeft = currentOffset.x
+    val currentRight = currentOffset.x + widgetSize.width
+    val currentTop = currentOffset.y
+    val currentBottom = currentOffset.y + widgetSize.height
 
-    val lines = mutableListOf<GuideLine>()
+    val newXWithLines = mutableMapOf<Float, GuideLine>()
+    val newYWithLines = mutableMapOf<Float, GuideLine>()
 
     for ((otherData, otherSize) in otherWidgets) {
         val otherPosition = getWidgetPosition(otherData, otherSize, screenSize)
@@ -223,45 +224,48 @@ private fun calculateSnapPosition(
         val bottomToBottom = abs(currentBottom - otherBottom)
 
         if (rightToLeft < snapThreshold) {
-            newX = otherLeft - currentSize.width
-            lines.add(GuideLine(LineDirection.Vertical, otherLeft))
+            newXWithLines[otherLeft - widgetSize.width] = GuideLine(LineDirection.Vertical, otherLeft)
         } else if (leftToRight < snapThreshold) {
-            newX = otherRight
-            lines.add(GuideLine(LineDirection.Vertical, otherRight))
+            newXWithLines[otherRight] = GuideLine(LineDirection.Vertical, otherRight)
         }
 
         if (bottomToTop < snapThreshold) {
-            newY = otherTop - currentSize.height
-            lines.add(GuideLine(LineDirection.Horizontal, otherTop))
+            newYWithLines[otherTop - widgetSize.height] = GuideLine(LineDirection.Horizontal, otherTop)
         } else if (topToBottom < snapThreshold) {
-            newY = otherBottom
-            lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
+            newYWithLines[otherBottom] = GuideLine(LineDirection.Horizontal, otherBottom)
         }
 
         if (leftToLeft < snapThreshold) {
-            newX = otherLeft
-            lines.add(GuideLine(LineDirection.Vertical, otherLeft))
+            newXWithLines[otherLeft] = GuideLine(LineDirection.Vertical, otherLeft)
         } else if (rightToRight < snapThreshold) {
-            newX = otherRight - currentSize.width
-            lines.add(GuideLine(LineDirection.Vertical, otherRight))
+            newXWithLines[otherRight - widgetSize.width] = GuideLine(LineDirection.Vertical, otherRight)
         }
 
         if (topToTop < snapThreshold) {
-            newY = otherTop
-            lines.add(GuideLine(LineDirection.Horizontal, otherTop))
+            newYWithLines[otherTop] = GuideLine(LineDirection.Horizontal, otherTop)
         } else if (bottomToBottom < snapThreshold) {
-            newY = otherBottom - currentSize.height
-            lines.add(GuideLine(LineDirection.Horizontal, otherBottom))
+            newYWithLines[otherBottom - widgetSize.height] = GuideLine(LineDirection.Horizontal, otherBottom)
         }
     }
 
-    if (lines.isNotEmpty()) {
-        drawLine(lines)
-    } else {
-        onLineCancel()
-    }
+    val newX = newXWithLines.minByOrNull { abs(it.key - currentOffset.x) }
+    val newY = newYWithLines.minByOrNull { abs(it.key - currentOffset.y) }
 
-    return Offset(newX, newY)
+    if (newX == null && newY == null) {
+        //未找到距离最短的坐标
+        onLineCancel()
+        return currentPosition
+    } else {
+        listOfNotNull(newX?.value, newY?.value).let { guideLines ->
+            if (guideLines.isNotEmpty()) {
+                drawLine(guideLines)
+            } else {
+                onLineCancel()
+            }
+        }
+        return Offset(newX?.key ?: currentOffset.x, newY?.key ?: currentOffset.y)
+            .toPercentagePosition(widgetSize, screenSize)
+    }
 }
 
 /**
@@ -421,8 +425,19 @@ internal fun getWidgetPosition(
     screenSize: IntSize
 ): Offset {
     if (data.isEditingPos) return data.movingOffset
-    val x = (screenSize.width - widgetSize.width) * (data.position.xPercentage())
-    val y = (screenSize.height - widgetSize.height) * (data.position.yPercentage())
+    return getWidgetPosition(data.position, widgetSize, screenSize)
+}
+
+/**
+ * 根据控件的位置百分比值，计算其在屏幕上的真实位置
+ */
+internal fun getWidgetPosition(
+    position: ButtonPosition,
+    widgetSize: IntSize,
+    screenSize: IntSize
+): Offset {
+    val x = (screenSize.width - widgetSize.width) * (position.xPercentage())
+    val y = (screenSize.height - widgetSize.height) * (position.yPercentage())
     return Offset(x, y)
 }
 
@@ -433,8 +448,14 @@ internal fun Offset.toPercentagePosition(
     widgetSize: IntSize,
     screenSize: IntSize
 ): ButtonPosition {
-    val x = ((100 * x) / (screenSize.width - widgetSize.width) * 100).toInt()
-    val y = ((100 * y) / (screenSize.height - widgetSize.height) * 100).toInt()
+    val availableWidth = (screenSize.width - widgetSize.width).toFloat()
+    val availableHeight = (screenSize.height - widgetSize.height).toFloat()
+
+    val xPercent = if (availableWidth > 0) x / availableWidth else 0f
+    val yPercent = if (availableHeight > 0) y / availableHeight else 0f
+
+    val x = (xPercent * 10000).roundToInt().coerceIn(0, 10000)
+    val y = (yPercent * 10000).roundToInt().coerceIn(0, 10000)
     return ButtonPosition(x, y)
 }
 

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.EDITOR_VERSION
 import com.movtery.layer_controller.data.ButtonStyle
-import com.movtery.layer_controller.update1ToNew
+import com.movtery.layer_controller.updateLayoutToNew
 import com.movtery.layer_controller.utils.CheckNotNull
 import com.movtery.layer_controller.utils.lang.TranslatableString
 import com.movtery.layer_controller.utils.layoutGson
@@ -91,7 +91,7 @@ data class ControlLayout(
                 var layout = layoutGson.fromJson(jsonObject, ControlLayout::class.java).also {
                     it.checkNotNull()
                 }
-                if (version == 1) layout = update1ToNew(layout)
+                if (version < EDITOR_VERSION) layout = updateLayoutToNew(layout)
                 return layout
             } else {
                 throw IllegalArgumentException("Control layout versions are not supported!")

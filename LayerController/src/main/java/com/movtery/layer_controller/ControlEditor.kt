@@ -28,6 +28,7 @@ import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
 import com.movtery.layer_controller.utils.snap.SnapMode
+import kotlin.math.roundToInt
 
 /**
  * 控制布局编辑器渲染层
@@ -235,7 +236,7 @@ private fun ControlWidgetRenderer(
                                 widgetSize = IntSize(placeable.width, placeable.height),
                                 screenSize = screenSize
                             )
-                            placeable.place(position.x.toInt(), position.y.toInt())
+                            placeable.place(position.x.roundToInt(), position.y.roundToInt())
                             placeableIndex++
                         }
                     }
