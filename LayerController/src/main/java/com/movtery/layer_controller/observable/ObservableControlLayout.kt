@@ -3,6 +3,7 @@ package com.movtery.layer_controller.observable
 import com.movtery.layer_controller.data.ButtonStyle
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.observable.ObservableButtonStyle.Companion.cloneNew
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -41,6 +42,13 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
      */
     fun addStyle(style: ButtonStyle) {
         _styles.update { it + ObservableButtonStyle(style) }
+    }
+
+    /**
+     * 复制控件样式
+     */
+    fun cloneStyle(style: ObservableButtonStyle) {
+        _styles.update { it + style.cloneNew() }
     }
 
     /**

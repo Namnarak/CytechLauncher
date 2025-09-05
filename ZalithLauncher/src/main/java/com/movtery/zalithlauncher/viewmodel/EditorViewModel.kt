@@ -123,6 +123,13 @@ class EditorViewModel() : ViewModel() {
     }
 
     /**
+     * 复制控件外观
+     */
+    fun cloneStyle(style: ObservableButtonStyle) {
+        observableLayout.cloneStyle(style)
+    }
+
+    /**
      * 删除一个控件外观
      */
     fun removeStyle(style: ObservableButtonStyle) {

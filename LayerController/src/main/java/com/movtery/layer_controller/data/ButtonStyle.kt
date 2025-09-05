@@ -89,5 +89,16 @@ data class ButtonStyle(
         )
 
         fun createNew(name: String): ButtonStyle = Default.copy(name = name, uuid = randomUUID())
+
+        /**
+         * 克隆一个新的ButtonStyle对象（UUID不同）
+         */
+        fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
+            name = name,
+            uuid = randomUUID(),
+            animateSwap = animateSwap,
+            lightStyle = lightStyle,
+            darkStyle = darkStyle
+        )
     }
 }

@@ -138,6 +138,9 @@ fun ControlEditor(
         onCreateStyle = { name ->
             viewModel.createNewStyle(name)
         },
+        onCloneStyle = { style ->
+            viewModel.cloneStyle(style)
+        },
         onDeleteStyle = { style ->
             viewModel.removeStyle(style)
         },
@@ -154,6 +157,7 @@ private fun EditorOperation(
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onCloneWidgets: (ObservableBaseData, List<ObservableControlLayer>) -> Unit,
     onCreateStyle: (name: String) -> Unit,
+    onCloneStyle: (ObservableButtonStyle) -> Unit,
     onDeleteStyle: (ObservableButtonStyle) -> Unit,
     controlLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>
@@ -261,6 +265,9 @@ private fun EditorOperation(
                 },
                 onCreate = {
                     changeOperation(EditorOperation.CreateStyle)
+                },
+                onClone = { style ->
+                    onCloneStyle(style)
                 },
                 onDelete = { style ->
                     onDeleteStyle(style)

@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
+import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -42,6 +44,7 @@ fun StyleListDialog(
     styles: List<ObservableButtonStyle>,
     onEditStyle: (ObservableButtonStyle) -> Unit,
     onCreate: () -> Unit,
+    onClone: (ObservableButtonStyle) -> Unit,
     onDelete: (ObservableButtonStyle) -> Unit,
     onClose: () -> Unit
 ) {
@@ -55,7 +58,7 @@ fun StyleListDialog(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.5f)
+                .fillMaxWidth(0.6f)
                 .fillMaxHeight(),
             contentAlignment = Alignment.Center
         ) {
@@ -79,7 +82,8 @@ fun StyleListDialog(
                         LazyColumn(
                             modifier = Modifier
                                 .weight(1f, fill = false)
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .animateContentSize(),
                             contentPadding = PaddingValues(vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
@@ -88,6 +92,7 @@ fun StyleListDialog(
                                     modifier = itemModifier,
                                     style = style,
                                     onClick = { onEditStyle(style) },
+                                    onClone = { onClone(style) },
                                     onDelete = { onDelete(style) }
                                 )
                             }
@@ -127,7 +132,8 @@ fun StyleListDialog(
 private fun StyleItem(
     style: ObservableButtonStyle,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
+    onClick: () -> Unit,
+    onClone: () -> Unit,
     onDelete: () -> Unit
 ) {
     InfoLayoutItem(
@@ -150,11 +156,19 @@ private fun StyleItem(
             style = MaterialTheme.typography.bodyMedium
         )
         IconButton(
+            onClick = onClone
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.CopyAll,
+                contentDescription = stringResource(R.string.generic_copy)
+            )
+        }
+        IconButton(
             onClick = onDelete
         ) {
             Icon(
                 imageVector = Icons.Outlined.Delete,
-                contentDescription = null
+                contentDescription = stringResource(R.string.generic_delete)
             )
         }
         Icon(
