@@ -86,9 +86,9 @@ fun EditWidgetInfo(
             InfoLayoutSliderItem(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.control_editor_edit_position_x),
-                value = data.position.x / 10f,
+                value = data.position.x / 100f,
                 onValueChange = {
-                    data.position = data.position.copy(x = (it * 10).toInt())
+                    data.position = data.position.copy(x = (it * 100).toInt())
                     onPreviewRequested()
                 },
                 valueRange = 0f..100f,
@@ -186,14 +186,14 @@ fun EditWidgetInfo(
                     InfoLayoutSliderItem(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.control_editor_edit_size_width),
-                        value = data.buttonSize.widthPercentage / 10f,
+                        value = data.buttonSize.widthPercentage / 100f,
                         onValueChange = {
-                            data.buttonSize = data.buttonSize.copy(widthPercentage = (it * 10).toInt())
+                            data.buttonSize = data.buttonSize.copy(widthPercentage = (it * 100).toInt())
                             onPreviewRequested()
                         },
                         valueRange = 5f..100f,
                         onValueChangeFinished = onDismissRequested,
-                        decimalFormat = "#0.0",
+                        decimalFormat = "#0.00",
                         suffix = "%"
                     )
                 }
@@ -217,14 +217,14 @@ fun EditWidgetInfo(
                     InfoLayoutSliderItem(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.control_editor_edit_size_height),
-                        value = data.buttonSize.heightPercentage / 10f,
+                        value = data.buttonSize.heightPercentage / 100f,
                         onValueChange = {
-                            data.buttonSize = data.buttonSize.copy(heightPercentage = (it * 10).toInt())
+                            data.buttonSize = data.buttonSize.copy(heightPercentage = (it * 100).toInt())
                             onPreviewRequested()
                         },
                         valueRange = 5f..100f,
                         onValueChangeFinished = onDismissRequested,
-                        decimalFormat = "#0.0",
+                        decimalFormat = "#0.00",
                         suffix = "%"
                     )
                 }

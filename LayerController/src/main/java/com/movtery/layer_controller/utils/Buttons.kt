@@ -296,8 +296,8 @@ internal fun Modifier.buttonSize(
 
                 val density = LocalDensity.current
                 with(density) {
-                    val buttonWidth = (widthReference * (size.widthPercentage / 1000f)).toDp()
-                    val buttonHeight = (heightReference * (size.heightPercentage / 1000f)).toDp()
+                    val buttonWidth = (widthReference * (size.widthPercentage / 10000f)).toDp()
+                    val buttonHeight = (heightReference * (size.heightPercentage / 10000f)).toDp()
                     Modifier.size(width = buttonWidth, height = buttonHeight)
                 }
             }
@@ -430,8 +430,8 @@ internal fun Offset.toPercentagePosition(
     widgetSize: IntSize,
     screenSize: IntSize
 ): ButtonPosition {
-    val x = ((100 * x) / (screenSize.width - widgetSize.width) * 10).toInt()
-    val y = ((100 * y) / (screenSize.height - widgetSize.height) * 10).toInt()
+    val x = ((100 * x) / (screenSize.width - widgetSize.width) * 100).toInt()
+    val y = ((100 * y) / (screenSize.height - widgetSize.height) * 100).toInt()
     return ButtonPosition(x, y)
 }
 

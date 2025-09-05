@@ -4,10 +4,12 @@ import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.EDITOR_VERSION
 import com.movtery.layer_controller.data.ButtonStyle
+import com.movtery.layer_controller.update1ToNew
 import com.movtery.layer_controller.utils.CheckNotNull
 import com.movtery.layer_controller.utils.lang.TranslatableString
 import com.movtery.layer_controller.utils.layoutGson
 import java.io.File
+import java.io.IOException
 
 /**
  * 描述一个控制布局结构
@@ -83,10 +85,14 @@ data class ControlLayout(
         public fun loadFromFile(file: File): ControlLayout {
             val jsonString = file.readText()
             val jsonObject = layoutGson.fromJson(jsonString, JsonObject::class.java)
-            if (jsonObject.has("editorVersion") && jsonObject.get("editorVersion").asInt <= EDITOR_VERSION) {
-                return layoutGson.fromJson(jsonObject, ControlLayout::class.java).also {
+            if (!jsonObject.has("editorVersion")) throw IOException("The file does not contain the key \"editorVersion\".")
+            val version = jsonObject.get("editorVersion").asInt
+            if (version <= EDITOR_VERSION) {
+                var layout = layoutGson.fromJson(jsonObject, ControlLayout::class.java).also {
                     it.checkNotNull()
                 }
+                if (version == 1) layout = update1ToNew(layout)
+                return layout
             } else {
                 throw IllegalArgumentException("Control layout versions are not supported!")
             }

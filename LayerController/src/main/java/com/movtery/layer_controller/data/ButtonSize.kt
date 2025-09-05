@@ -2,6 +2,13 @@ package com.movtery.layer_controller.data
 
 import com.google.gson.annotations.SerializedName
 
+/**
+ * 按钮的大小
+ * @param widthDp 绝对值宽度 0~设备总Dp
+ * @param heightDp 绝对值高度 0~设备总Dp
+ * @param widthPercentage 百分比宽度 0~10000
+ * @param heightPercentage 百分比高度 0~10000
+ */
 data class ButtonSize(
     @SerializedName("type")
     val type: Type,
@@ -58,8 +65,8 @@ data class ButtonSize(
             type = Type.Percentage,
             widthDp = 50f,
             heightDp = 50f,
-            widthPercentage = 140,
-            heightPercentage = 140,
+            widthPercentage = 1400,
+            heightPercentage = 1400,
             widthReference = Reference.ScreenHeight,
             heightReference = Reference.ScreenHeight
         )
@@ -74,7 +81,7 @@ data class ButtonSize(
             density: Float = 1f,
             targetDpSize: Float = 50f
         ): ButtonSize {
-            val percentage = ((targetDpSize * density) / referenceLength * 1000).toInt()
+            val percentage = ((targetDpSize * density) / referenceLength * 10000).toInt()
 
             return ButtonSize(
                 type = type,
