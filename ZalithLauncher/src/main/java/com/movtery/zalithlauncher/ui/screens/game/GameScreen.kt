@@ -78,6 +78,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
     /** 输入法状态 */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
+    /** 被控制布局层标记为仅滑动的指针列表 */
+    var moveOnlyPointers = mutableSetOf<PointerId>()
     /** 鼠标触摸指针处理层占用指针列表 */
     var touchpadOccupiedPointers = mutableSetOf<PointerId>()
 
@@ -272,6 +274,7 @@ fun GameScreen(
                     events[event.key] = count - 1
                 }
             },
+            markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
             isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED
         ) {
             MouseControlLayout(
@@ -280,8 +283,12 @@ fun GameScreen(
                 onInputAreaRectUpdated = onInputAreaRectUpdated,
                 textInputMode = viewModel.textInputMode,
                 onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
+                isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
                 onOccupiedPointer = { viewModel.touchpadOccupiedPointers.add(it) },
-                onReleasePointer = { viewModel.touchpadOccupiedPointers.remove(it) }
+                onReleasePointer = {
+                    viewModel.touchpadOccupiedPointers.remove(it)
+                    viewModel.moveOnlyPointers.remove(it)
+                }
             )
         }
 
@@ -369,11 +376,12 @@ private fun GameInfoBox(
 private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
     modifier: Modifier = Modifier,
-    onInputAreaRectUpdated: (IntRect?) -> Unit = {},
+    onInputAreaRectUpdated: (IntRect?) -> Unit,
     textInputMode: TextInputMode,
-    onCloseInputMethod: () -> Unit = {},
-    onOccupiedPointer: (PointerId) -> Unit = {},
-    onReleasePointer: (PointerId) -> Unit = {}
+    onCloseInputMethod: () -> Unit,
+    isMoveOnlyPointer: (PointerId) -> Boolean,
+    onOccupiedPointer: (PointerId) -> Unit,
+    onReleasePointer: (PointerId) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -440,6 +448,7 @@ private fun MouseControlLayout(
                 val code = LWJGLCharSender.getMouseButton(button) ?: return@SwitchableMouseLayout
                 CallbackBridge.sendMouseButton(code.toInt(), pressed)
             },
+            isMoveOnlyPointer = isMoveOnlyPointer,
             onOccupiedPointer = onOccupiedPointer,
             onReleasePointer = onReleasePointer
         )

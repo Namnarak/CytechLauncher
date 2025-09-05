@@ -42,6 +42,7 @@ import kotlin.math.sqrt
  * @param observedLayout 需要监听并绘制的控制布局
  * @param checkOccupiedPointers 检查已占用的指针，防止底层正在被使用的指针仍被控制布局画布处理
  * @param onClickEvent 控制按键点击事件回调（切换层级事件已优先处理）
+ * @param markPointerAsMoveOnly 标记指针为仅接受滑动处理
  */
 @Composable
 fun ControlBoxLayout(
@@ -49,6 +50,7 @@ fun ControlBoxLayout(
     observedLayout: ObservableControlLayout? = null,
     checkOccupiedPointers: (PointerId) -> Boolean,
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit = { _, _ -> },
+    markPointerAsMoveOnly: (PointerId) -> Unit = {},
     isCursorGrabbing: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -70,6 +72,7 @@ fun ControlBoxLayout(
                 observedLayout = observedLayout,
                 checkOccupiedPointers = checkOccupiedPointers,
                 onClickEvent = onClickEvent,
+                markPointerAsMoveOnly = markPointerAsMoveOnly,
                 isCursorGrabbing = isCursorGrabbing,
                 content = content
             )
@@ -85,7 +88,8 @@ private fun BaseControlBoxLayout(
     modifier: Modifier = Modifier,
     observedLayout: ObservableControlLayout,
     checkOccupiedPointers: (PointerId) -> Boolean,
-    onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit = { _, _ -> },
+    onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit,
+    markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -229,6 +233,10 @@ private fun BaseControlBoxLayout(
                                                 if (!targetButton.isPenetrable) {
                                                     change.consume()
                                                     consumeEvent = false
+                                                } else {
+                                                    //将指针标记为仅接受滑动处理
+                                                    //期望子级不对点击事件等进行处理
+                                                    markPointerAsMoveOnly(pointerId)
                                                 }
                                                 prePressStart(targetButton)
                                             } else if (targetButton !in activeButtonList && targetButton.isSwipple) {

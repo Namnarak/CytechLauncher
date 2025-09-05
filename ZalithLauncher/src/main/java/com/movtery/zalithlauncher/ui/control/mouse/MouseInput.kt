@@ -55,6 +55,7 @@ private data class DragState(
  * @param onMouseMove               实体鼠标指针移动回调
  * @param onMouseScroll             实体鼠标指针滚轮滑动
  * @param onMouseButton             实体鼠标指针按钮按下反馈
+ * @param isMoveOnlyPointer         指针是否被父级标记为仅可滑动指针
  * @param onOccupiedPointer         占用指针回调
  * @param onReleasePointer          释放指针回调
  * @param inputChange               重新启动内部的 pointerInput 块，让触摸逻辑能够实时拿到最新的外部参数
@@ -72,6 +73,7 @@ fun TouchpadLayout(
     onMouseMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
+    isMoveOnlyPointer: (PointerId) -> Boolean = { false },
     onOccupiedPointer: (PointerId) -> Unit = {},
     onReleasePointer: (PointerId) -> Unit = {},
     inputChange: Array<out Any> = arrayOf(Unit),
@@ -109,6 +111,8 @@ fun TouchpadLayout(
                                 .filter { it.pressed && !it.previousPressed && !it.isConsumed && it.type == PointerType.Touch }
                                 .forEach { change ->
                                     val pointerId = change.id
+                                    //是否被父级标记为仅处理滑动
+                                    val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                     if (pointerId !in occupiedPointers) {
                                         onOccupiedPointer(pointerId)
@@ -121,7 +125,7 @@ fun TouchpadLayout(
 
                                         dragStates[pointerId] = DragState(startPosition = change.position)
 
-                                        if (currentControlMode == MouseControlMode.SLIDE) {
+                                        if (!isMoveOnly && currentControlMode == MouseControlMode.SLIDE) {
                                             longPressJobs[pointerId] = launch {
                                                 //只在滑动点击模式下进行长按计时
                                                 val timeout = if (currentLongPressTimeoutMillis > 0) {
@@ -139,7 +143,7 @@ fun TouchpadLayout(
                                             }
                                         }
 
-                                        if (currentControlMode == MouseControlMode.CLICK) {
+                                        if (!isMoveOnly && currentControlMode == MouseControlMode.CLICK) {
                                             //点击模式下，如果触摸，无论如何都应该更新指针位置
                                             currentOnPointerMove(change.position)
                                         }
@@ -152,6 +156,8 @@ fun TouchpadLayout(
                                     .firstOrNull { it.id == pointerId && it.positionChanged() && !it.isConsumed }
                                     ?.let { moveChange ->
                                         val dragState = dragStates[pointerId] ?: return@let
+                                        //是否被父级标记为仅处理滑动
+                                        val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                         if (currentControlMode == MouseControlMode.SLIDE) {
                                             val distanceFromStart = (moveChange.position - dragState.startPosition).getDistance()
@@ -167,7 +173,7 @@ fun TouchpadLayout(
                                                 currentOnPointerMove(delta)
                                             }
                                         } else {
-                                            if (!dragState.longPressTriggered) {
+                                            if (!isMoveOnly && !dragState.longPressTriggered) {
                                                 dragState.longPressTriggered = true
                                                 longPressJobs.remove(pointerId)?.cancel()
                                                 currentOnLongPress()
@@ -184,24 +190,28 @@ fun TouchpadLayout(
                                 .filter { !it.pressed && it.previousPressed && it.type == PointerType.Touch }
                                 .forEach { change ->
                                     val pointerId = change.id
+                                    //是否被父级标记为仅处理滑动
+                                    val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                     longPressJobs.remove(pointerId)?.cancel()
                                     val dragState = dragStates.remove(pointerId)
 
                                     //如果是活跃指针，处理释放逻辑
                                     if (pointerId == activePointer) {
-                                        if (dragState?.longPressTriggered == true) {
-                                            currentOnLongPressEnd()
-                                        } else {
-                                            when (currentControlMode) {
-                                                MouseControlMode.SLIDE -> {
-                                                    if (dragState?.isDragging != true) {
+                                        if (!isMoveOnly) {
+                                            if (dragState?.longPressTriggered == true) {
+                                                currentOnLongPressEnd()
+                                            } else {
+                                                when (currentControlMode) {
+                                                    MouseControlMode.SLIDE -> {
+                                                        if (dragState?.isDragging != true) {
+                                                            currentOnTap(change.position)
+                                                        }
+                                                    }
+                                                    MouseControlMode.CLICK -> {
+                                                        //未进入长按，算一次点击事件
                                                         currentOnTap(change.position)
                                                     }
-                                                }
-                                                MouseControlMode.CLICK -> {
-                                                    //未进入长按，算一次点击事件
-                                                    currentOnTap(change.position)
                                                 }
                                             }
                                         }

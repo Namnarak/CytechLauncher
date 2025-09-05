@@ -57,6 +57,7 @@ fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists(
  * @param onPointerMove             指针移动回调，参数在 SLIDE 模式下是指针位置，CLICK 模式下是手指当前位置
  * @param onMouseScroll             实体鼠标指针滚轮滑动
  * @param onMouseButton             实体鼠标指针按钮按下反馈
+ * @param isMoveOnlyPointer         指针是否被父级标记为仅可滑动指针
  * @param onOccupiedPointer         占用指针回调
  * @param onReleasePointer          释放指针回调
  * @param mouseSize                 指针大小
@@ -76,6 +77,7 @@ fun VirtualPointerLayout(
     onPointerMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
+    isMoveOnlyPointer: (PointerId) -> Boolean = { false },
     onOccupiedPointer: (PointerId) -> Unit = {},
     onReleasePointer: (PointerId) -> Unit = {},
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
@@ -179,6 +181,7 @@ fun VirtualPointerLayout(
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,
+            isMoveOnlyPointer = isMoveOnlyPointer,
             onOccupiedPointer = onOccupiedPointer,
             onReleasePointer = onReleasePointer,
             inputChange = arrayOf<Any>(speedFactor, controlMode),
