@@ -67,6 +67,10 @@ data class ControlLayout(
          */
         public fun loadFromFile(file: File): ControlLayout {
             val jsonString = file.readText()
+            return loadFromString(jsonString)
+        }
+
+        public fun loadFromString(jsonString: String): ControlLayout {
             val jsonObject = layoutJson.decodeFromString<JsonObject>(jsonString)
             if (jsonObject["editorVersion"] == null) throw IOException("The file does not contain the key \"editorVersion\".")
             val version = jsonObject["editorVersion"]!!.jsonPrimitive.int

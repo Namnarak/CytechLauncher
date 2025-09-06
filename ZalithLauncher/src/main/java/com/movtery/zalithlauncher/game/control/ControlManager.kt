@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableControlLayout
+import com.movtery.layer_controller.utils.newRandomFileName
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.file.readString
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import org.apache.commons.io.FileUtils
+import java.io.File
+import java.io.InputStream
 
 /**
  * 控制布局管理者
@@ -135,6 +141,30 @@ object ControlManager {
                 FileUtils.deleteQuietly(data.file)
             }
             refresh()
+        }
+    }
+
+    /**
+     * 尝试导入控制布局
+     */
+    suspend fun importControl(
+        inputStream: InputStream,
+        onSerializationError: (Exception) -> Unit,
+        catchedError: (Exception) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        val file = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
+        try {
+            inputStream.use { stream ->
+                val jsonString = stream.readString()
+                val layout = ControlLayout.loadFromString(jsonString)
+                layout.saveToFile(file)
+            }
+        } catch (e: SerializationException) {
+            FileUtils.deleteQuietly(file)
+            onSerializationError(e)
+        } catch (e: Exception) {
+            FileUtils.deleteQuietly(file)
+            catchedError(e)
         }
     }
 }

@@ -694,6 +694,8 @@
     <string name="control_manage_info_description">布局描述</string>
     <string name="control_manage_info_description_empty">没有描述</string>
     <string name="control_manage_info_edit">编辑控制布局</string>
+    <string name="control_manage_import_failed">导入控制布局文件失败</string>
+    <string name="control_manage_import_failed_to_parse">控制布局格式错误，启动器无法识别它！</string>
     <string name="control_editor_menu_title">编辑器菜单</string>
     <string name="control_editor_menu_new_widget_button">添加按钮</string>
     <string name="control_editor_menu_new_widget_text">添加文本框</string>

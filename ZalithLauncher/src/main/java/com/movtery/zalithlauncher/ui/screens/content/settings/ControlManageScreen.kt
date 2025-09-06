@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -76,6 +78,9 @@ import com.movtery.layer_controller.utils.VERSION_NAME_LENGTH
 import com.movtery.layer_controller.utils.newRandomFileName
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.contract.ExtensionFilteredDocumentPicker
+import com.movtery.zalithlauncher.coroutine.Task
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.control.ControlData
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -97,6 +102,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
@@ -119,6 +125,8 @@ private sealed interface ControlOperation {
     data class EditDescription(val data: ControlData) : ControlOperation
     /** 编辑版本名称 */
     data class EditVersion(val data: ControlData) : ControlOperation
+    /** 处理用户选择的Uri */
+    data class ProgressUri(val uris: List<Uri>) : ControlOperation
 }
 
 private enum class EditTextType(val length: Int, val titleRes: Int, val allowEmpty: Boolean) {
@@ -171,6 +179,15 @@ fun ControlManageScreen(
     val configuration = LocalConfiguration.current
     val locale = configuration.locales[0]
 
+    /** Json文件选择器 */
+    val jsonPicker = rememberLauncherForActivityResult(
+        contract = ExtensionFilteredDocumentPicker(extension = "json", allowMultiple = true)
+    ) { uris ->
+        uris.takeIf { it.isNotEmpty() }?.let {
+            viewModel.operation = ControlOperation.ProgressUri(it)
+        }
+    }
+
     ControlOperation(
         operation = viewModel.operation,
         changeOperation = { viewModel.operation = it },
@@ -201,7 +218,8 @@ fun ControlManageScreen(
                     message = e.getMessageOrToString()
                 )
             }
-        }
+        },
+        summitError = summitError
     )
 
     BaseScreen(
@@ -233,7 +251,7 @@ fun ControlManageScreen(
                     ControlManager.refresh()
                 },
                 onImport = {
-
+                    jsonPicker.launch("")
                 },
                 onCreate = {
                     viewModel.operation = ControlOperation.CreateNew
@@ -285,8 +303,11 @@ private fun ControlOperation(
     changeOperation: (ControlOperation) -> Unit,
     onCreate: (name: String, author: String, versionName: String) -> Unit,
     onDelete: (ControlData) -> Unit,
-    onSave: (ControlData) -> Unit
+    onSave: (ControlData) -> Unit,
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val context = LocalContext.current
+
     when (operation) {
         is ControlOperation.None -> {}
         is ControlOperation.CreateNew -> {
@@ -374,6 +395,46 @@ private fun ControlOperation(
                     onSave(operation.data)
                     changeOperation(ControlOperation.None)
                 }
+            )
+        }
+        is ControlOperation.ProgressUri -> {
+            val uris = operation.uris
+            fun showError(
+                title: String = context.getString(R.string.control_manage_import_failed),
+                message: String
+            ) {
+                summitError(
+                    ErrorViewModel.ThrowableMessage(
+                        title = title,
+                        message = message
+                    )
+                )
+            }
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = { task ->
+                        uris.forEach { uri ->
+                            val inputStream = context.contentResolver.openInputStream(uri) ?: run {
+                                showError(message = context.getString(R.string.multirt_runtime_import_failed_input_stream))
+                                return@forEach
+                            }
+                            ControlManager.importControl(
+                                inputStream = inputStream,
+                                onSerializationError = {
+                                    showError(
+                                        message = context.getString(R.string.control_manage_import_failed_to_parse) + "\n" +
+                                                it.getMessageOrToString()
+                                    )
+                                },
+                                catchedError =  {
+                                    showError(message = it.getMessageOrToString())
+                                }
+                            )
+                        }
+                        ControlManager.refresh()
+                    }
+                )
             )
         }
     }

@@ -714,6 +714,8 @@
     <string name="control_manage_info_description_empty">沒有描述</string>
     <string name="control_manage_info_edit">編輯控制佈局</string>
     <string name="control_editor_menu_title">編輯器選單</string>
+    <string name="control_manage_import_failed">匯入控制佈局檔案失敗</string>
+    <string name="control_manage_import_failed_to_parse">控制佈局格式錯誤，啟動器無法識別它！</string>
     <string name="control_editor_menu_new_widget_button">新增按鈕</string>
     <string name="control_editor_menu_new_widget_text">新增文字框</string>
     <string name="control_editor_menu_no_layers_title">沒有控制項圖層</string>
