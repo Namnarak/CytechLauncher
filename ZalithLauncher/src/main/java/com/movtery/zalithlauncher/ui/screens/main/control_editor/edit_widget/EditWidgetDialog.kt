@@ -48,7 +48,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -82,7 +82,7 @@ fun EditWidgetDialog(
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
     onClone: () -> Unit,
-    onEditWidgetText: (ObservableTextData) -> Unit,
+    onEditWidgetText: (ObservableTranslatableString) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit
 ) {
@@ -277,7 +277,7 @@ private fun EditWidgetNavigation(
     backStack: NavBackStack,
     data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
-    onEditWidgetText: (ObservableTextData) -> Unit,
+    onEditWidgetText: (ObservableTranslatableString) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit,
     onPreviewRequested: () -> Unit,

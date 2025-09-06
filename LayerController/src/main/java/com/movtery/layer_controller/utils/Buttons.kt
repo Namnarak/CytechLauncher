@@ -280,12 +280,10 @@ private fun calculateSnapPosition(
 internal fun Modifier.buttonSize(
     data: ObservableWidget
 ): Modifier {
-    val size = remember(data) {
-        when (data) {
-            is ObservableNormalData -> data.buttonSize
-            is ObservableTextData -> data.buttonSize
-            else -> error("Unknown widget type")
-        }
+    val size = when (data) {
+        is ObservableNormalData -> data.buttonSize
+        is ObservableTextData -> data.buttonSize
+        else -> error("Unknown widget type")
     }
     return this.then(
         when (size.type) {

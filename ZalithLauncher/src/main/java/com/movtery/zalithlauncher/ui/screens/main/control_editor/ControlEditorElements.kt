@@ -38,7 +38,7 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.R
@@ -63,7 +63,7 @@ sealed interface EditorOperation {
     /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
     data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
     /** 编辑控件的显示文本 */
-    data class EditWidgetText(val data: ObservableTextData) : EditorOperation
+    data class EditWidgetText(val string: ObservableTranslatableString) : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
     /** 编辑切换控件层可见性事件 */

@@ -21,6 +21,7 @@ import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
@@ -34,7 +35,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityTe
 @Composable
 fun EditWidgetInfo(
     data: ObservableWidget,
-    onEditWidgetText: (ObservableTextData) -> Unit,
+    onEditWidgetText: (ObservableTranslatableString) -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
 ) {
@@ -56,21 +57,12 @@ fun EditWidgetInfo(
     ) {
         when (data) {
             is ObservableTextData -> {
-                //编辑文本
-                item {
-                    InfoLayoutTextItem(
-                        title = stringResource(R.string.control_editor_edit_text),
-                        onClick = {
-                            onEditWidgetText(data)
-                        }
-                    )
-                }
-
                 commonInfos(
                     onPreviewRequested = onPreviewRequested,
                     onDismissRequested = onDismissRequested,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
+                    onEditWidgetText = { onEditWidgetText(data.text) },
                     visibilityType = data.visibilityType,
                     onVisibilityTypeChanged = { data.visibilityType = it },
                     position = data.position,
@@ -85,6 +77,7 @@ fun EditWidgetInfo(
                     onDismissRequested = onDismissRequested,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
+                    onEditWidgetText = { onEditWidgetText(data.text) },
                     visibilityType = data.visibilityType,
                     onVisibilityTypeChanged = { data.visibilityType = it },
                     position = data.position,
@@ -102,6 +95,7 @@ private fun LazyListScope.commonInfos(
     onDismissRequested: () -> Unit,
     screenWidth: Float,
     screenHeight: Float,
+    onEditWidgetText: () -> Unit,
     visibilityType: VisibilityType,
     onVisibilityTypeChanged: (VisibilityType) -> Unit,
     position: ButtonPosition,
@@ -109,6 +103,16 @@ private fun LazyListScope.commonInfos(
     buttonSize: ButtonSize,
     onButtonSizeChanged: (ButtonSize) -> Unit,
 ) {
+    //编辑文本
+    item {
+        InfoLayoutTextItem(
+            title = stringResource(R.string.control_editor_edit_text),
+            onClick = {
+                onEditWidgetText()
+            }
+        )
+    }
+
     //可见场景
     item {
         InfoLayoutListItem(

@@ -193,8 +193,8 @@ private fun EditorOperation(
                 onClone = {
                     changeOperation(EditorOperation.CloneButton(data, layer))
                 },
-                onEditWidgetText = { textData ->
-                    changeOperation(EditorOperation.EditWidgetText(textData))
+                onEditWidgetText = { string ->
+                    changeOperation(EditorOperation.EditWidgetText(string))
                 },
                 switchControlLayers = { data ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data))
@@ -222,9 +222,8 @@ private fun EditorOperation(
             )
         }
         is EditorOperation.EditWidgetText -> {
-            val textData = operation.data
             EditTranslatableTextDialog(
-                text = textData.text,
+                text = operation.string,
                 singleLine = false,
                 onClose = {
                     changeOperation(EditorOperation.None)

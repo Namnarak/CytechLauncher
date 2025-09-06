@@ -51,12 +51,10 @@ internal fun TextButton(
     onTapInEditMode: () -> Unit = {}
 ) {
     if (visible) {
-        val buttonStyle = remember(data) {
-            when(data) {
-                is ObservableNormalData -> data.buttonStyle
-                is ObservableTextData -> data.buttonStyle
-                else -> error("Unknown widget type")
-            }
+        val buttonStyle = when (data) {
+            is ObservableNormalData -> data.buttonStyle
+            is ObservableTextData -> data.buttonStyle
+            else -> error("Unknown widget type")
         }
 
         val style = remember(data, buttonStyle) {
