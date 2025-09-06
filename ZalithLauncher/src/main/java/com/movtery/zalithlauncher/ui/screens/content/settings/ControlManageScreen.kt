@@ -99,6 +99,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -277,6 +278,9 @@ fun ControlManageScreen(
                 isLoading = ControlManager.isRefreshing,
                 data = ControlManager.selectedLayout,
                 locale = locale,
+                onShareLayout = { data ->
+                    shareFile(context, data.file)
+                },
                 onEditLayout = { data ->
                     startEditorActivity(context, data.file)
                 },
@@ -662,6 +666,7 @@ private fun ControlLayoutInfo(
     isLoading: Boolean,
     data: ControlData? = null,
     locale: Locale,
+    onShareLayout: (ControlData) -> Unit,
     onEditLayout: (ControlData) -> Unit,
     onEditText: (ControlData, ObservableTranslatableString, type: EditTextType) -> Unit,
     onEditDescription: (ControlData) -> Unit,
@@ -778,16 +783,32 @@ private fun ControlLayoutInfo(
                 }
             }
 
-            ScalingActionButton(
+            Row(
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp),
-                onClick = { onEditLayout(data) }
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                MarqueeText(
-                    text = stringResource(R.string.control_manage_info_edit)
-                )
+                ScalingActionButton(
+                    modifier = Modifier
+                        .weight(1f, fill = false),
+                    onClick = { onShareLayout(data) }
+                ) {
+                    MarqueeText(
+                        text = stringResource(R.string.generic_share)
+                    )
+                }
+
+                ScalingActionButton(
+                    modifier = Modifier
+                        .weight(1f, fill = false),
+                    onClick = { onEditLayout(data) }
+                ) {
+                    MarqueeText(
+                        text = stringResource(R.string.control_manage_info_edit)
+                    )
+                }
             }
         }
     }
