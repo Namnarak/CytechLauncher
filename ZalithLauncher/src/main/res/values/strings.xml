@@ -505,6 +505,7 @@
     <string name="versions_config_isolation_summary">Isolate the current version so that its data does not interfere with any other versions</string>
     <string name="versions_config_renderer">Renderer</string>
     <string name="versions_config_vulkan_driver">Vulkan Driver</string>
+    <string name="versions_config_control">Control Layout</string>
     <string name="versions_config_java_runtime_summary">Specify the Java environment used by the current version</string>
     <string name="versions_config_auto_join_server_ip_title">Auto-Join Server</string>
     <string name="versions_config_auto_join_server_ip_summary">Enter the server IP here to auto-join after launching the game (e.g., 114.514.114.514:114514)</string>

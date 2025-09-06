@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
@@ -191,6 +193,25 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.driver != item.id) {
                     config.driver = item.id
+                    config.saveOrShowError(context, summitError)
+                }
+            }
+        )
+
+        val controls by ControlManager.dataList.collectAsState()
+        val controlsIdList = getIDList(controls.filter { it.isSupport }) {
+            IDItem(it.file.name, it.controlLayout.info.name.translate())
+        }
+        SimpleListLayout(
+            items = controlsIdList,
+            currentId = config.control,
+            defaultId = "",
+            title = stringResource(R.string.versions_config_control),
+            getItemText = { it.title },
+            getItemId = { it.id },
+            onValueChange = {
+                if (config.control != it.id) {
+                    config.control = it.id
                     config.saveOrShowError(context, summitError)
                 }
             }

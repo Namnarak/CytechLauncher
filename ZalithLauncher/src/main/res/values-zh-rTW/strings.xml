@@ -466,6 +466,7 @@
     <string name="versions_config_isolation_summary">隔離目前版本，使各版本之間的資料互不干擾</string>
     <string name="versions_config_renderer">渲染器</string>
     <string name="versions_config_vulkan_driver">Vulkan 驅動程式</string>
+    <string name="versions_config_control">控制佈局</string>
     <string name="versions_config_java_runtime_summary">指定目前版本所使用的 Java 環境</string>
     <string name="versions_config_auto_join_server_ip_title">自動加入伺服器</string>
     <string name="versions_config_auto_join_server_ip_summary">在此填入伺服器 IP，啟動遊戲後將自動加入目標伺服器。例如 114.514.114.514:114514</string>
