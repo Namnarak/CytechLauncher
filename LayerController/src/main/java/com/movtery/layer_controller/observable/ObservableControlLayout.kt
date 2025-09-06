@@ -58,6 +58,18 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
         _styles.update { oldStyles ->
             oldStyles.filterNot { it.uuid == uuid }
         }
+        layers.value.forEach { layer ->
+            layer.normalButtons.value.forEach { button ->
+                if (button.buttonStyle == uuid) {
+                    button.buttonStyle = null
+                }
+            }
+            layer.textBoxes.value.forEach { textBox ->
+                if (textBox.buttonStyle == uuid) {
+                    textBox.buttonStyle = null
+                }
+            }
+        }
     }
 
     override fun pack(): ControlLayout {
