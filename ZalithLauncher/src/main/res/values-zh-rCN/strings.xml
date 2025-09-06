@@ -706,6 +706,7 @@
     <string name="control_editor_menu_no_selected_layer_title">未选择控件层</string>
     <string name="control_editor_menu_no_selected_layer_message">请先选择一个控件层作为目标。</string>
     <string name="control_editor_menu_widget_snap">控件吸附</string>
+    <string name="control_editor_menu_widget_snap_all_layers">所有控制层范围吸附</string>
     <string name="control_editor_menu_widget_snap_mode">控件吸附模式</string>
     <string name="control_editor_menu_widget_snap_mode_fullscreen">全屏吸附</string>
     <string name="control_editor_menu_widget_snap_mode_local">小范围吸附</string>

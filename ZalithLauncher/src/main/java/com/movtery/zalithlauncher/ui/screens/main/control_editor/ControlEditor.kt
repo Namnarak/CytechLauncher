@@ -64,6 +64,7 @@ fun ControlEditor(
             viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
         },
         enableSnap = AllSettings.editorEnableWidgetSnap.state,
+        snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
         snapMode = AllSettings.editorWidgetSnapMode.state
     )
 

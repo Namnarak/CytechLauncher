@@ -194,6 +194,16 @@ fun EditorMenu(
                     )
                 }
 
+                //所有控制层范围吸附
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_widget_snap_all_layers),
+                        switch = AllSettings.editorSnapInAllLayers.state,
+                        onSwitch = { AllSettings.editorSnapInAllLayers.save(it) }
+                    )
+                }
+
                 //控件吸附模式
                 item {
                     MenuListLayout(

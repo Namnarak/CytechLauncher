@@ -49,7 +49,7 @@ import kotlin.math.sqrt
  * @param enableSnap 是否开启吸附功能
  * @param snapMode 吸附模式
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
- * @param otherWidgets 其他控件的信息，用于计算吸附位置
+ * @param getOtherWidgets 获取其他控件的信息，用于计算吸附位置
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
  * @param onLineCancel 取消吸附参考线
@@ -58,11 +58,11 @@ import kotlin.math.sqrt
 internal fun Modifier.editMode(
     isEditMode: Boolean,
     data: ObservableWidget,
-    getSize: () -> IntSize,
+    getSize: (ObservableWidget) -> IntSize,
     enableSnap: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp,
-    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
+    getOtherWidgets: () -> List<ObservableWidget>,
     snapThresholdValue: Dp,
     drawLine: (ObservableWidget, List<GuideLine>) -> Unit,
     onLineCancel: (ObservableWidget) -> Unit,
@@ -74,7 +74,7 @@ internal fun Modifier.editMode(
     val enableSnap1 by rememberUpdatedState(enableSnap)
     val snapMode1 by rememberUpdatedState(snapMode)
 
-    val otherWidgets1 by rememberUpdatedState(otherWidgets)
+    val getOtherWidgets1 by rememberUpdatedState(getOtherWidgets)
     val drawLine1 by rememberUpdatedState(drawLine)
     val onLineCancel1 by rememberUpdatedState(onLineCancel)
 
@@ -92,15 +92,15 @@ internal fun Modifier.editMode(
                         onDragStart = {
                             data.isEditingPos = false
                             data.movingOffset = Offset.Zero
-                            val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
+                            val currentOffset = getWidgetPosition(data, getSize1(data), screenSize)
                             data.movingOffset = currentOffset
                             data.isEditingPos = true
                             onLineCancel1(data)
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
-                            val currentOffset = getWidgetPosition(data, getSize1(), screenSize)
-                            val currentSize = getSize1()
+                            val currentSize = getSize1(data)
+                            val currentOffset = getWidgetPosition(data, currentSize, screenSize)
 
                             var newX = currentOffset.x + dragAmount.x
                             var newY = currentOffset.y + dragAmount.y
@@ -123,7 +123,8 @@ internal fun Modifier.editMode(
                                     currentPosition = newPercentagePosition,
                                     widgetSize = currentSize,
                                     screenSize = screenSize,
-                                    otherWidgets = otherWidgets1,
+                                    otherWidgets = getOtherWidgets1(),
+                                    getSize = getSize1,
                                     snapThreshold = snapThreshold,
                                     snapMode = snapMode1,
                                     localSnapRange = localSnapRangePx,
@@ -177,7 +178,8 @@ private fun calculateSnapPosition(
     currentPosition: ButtonPosition,
     widgetSize: IntSize,
     screenSize: IntSize,
-    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
+    otherWidgets: List<ObservableWidget>,
+    getSize: (ObservableWidget) -> IntSize,
     snapThreshold: Float,
     snapMode: SnapMode,
     localSnapRange: Float,
@@ -195,7 +197,8 @@ private fun calculateSnapPosition(
     val newXWithLines = mutableMapOf<Float, GuideLine>()
     val newYWithLines = mutableMapOf<Float, GuideLine>()
 
-    for ((otherData, otherSize) in otherWidgets) {
+    for (otherData in otherWidgets) {
+        val otherSize = getSize(otherData)
         val otherPosition = getWidgetPosition(otherData, otherSize, screenSize)
         val otherLeft = otherPosition.x
         val otherRight = otherPosition.x + otherSize.width

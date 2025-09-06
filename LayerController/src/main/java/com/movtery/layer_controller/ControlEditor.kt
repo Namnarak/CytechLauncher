@@ -4,7 +4,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -22,6 +24,8 @@ import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
+import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.GuideLine
@@ -32,6 +36,7 @@ import kotlin.math.roundToInt
 /**
  * 控制布局编辑器渲染层
  * @param enableSnap 是否开启吸附
+ * @param snapInAllLayers 是否在全控制层范围内吸附
  * @param snapMode 吸附模式
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param snapThresholdValue 吸附距离阈值
@@ -41,6 +46,7 @@ fun ControlEditorLayer(
     observedLayout: ObservableControlLayout,
     onButtonTap: (data: ObservableWidget, layer: ObservableControlLayer) -> Unit,
     enableSnap: Boolean,
+    snapInAllLayers: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp = 20.dp,
     snapThresholdValue: Dp = 4.dp
@@ -58,6 +64,7 @@ fun ControlEditorLayer(
             renderingLayers = renderingLayers,
             styles = styles,
             enableSnap = enableSnap,
+            snapInAllLayers = snapInAllLayers,
             snapMode = snapMode,
             localSnapRange = localSnapRange,
             snapThresholdValue = snapThresholdValue,
@@ -113,6 +120,7 @@ private fun DrawScope.drawLine(
 /**
  * @param enableSnap 是否开启吸附功能
  * @param snapMode 吸附模式
+ * @param snapInAllLayers 是否在全控制层范围内吸附
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
@@ -123,6 +131,7 @@ private fun ControlWidgetRenderer(
     renderingLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     enableSnap: Boolean,
+    snapInAllLayers: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp,
     snapThresholdValue: Dp,
@@ -133,6 +142,80 @@ private fun ControlWidgetRenderer(
     val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
 
+    val allWidgetsMap = remember { mutableStateMapOf<ObservableControlLayer, List<ObservableWidget>>() }
+    val snapInAllLayers1 by rememberUpdatedState(snapInAllLayers)
+
+    /** 缓存对于拖动中的控件的 其他控件列表 */
+    val cachedOtherWidgets = remember { mutableStateMapOf<ObservableWidget, List<ObservableWidget>>() }
+    /** 更新缓存的条件 */
+    val widgetsUpdateTrigger = remember {
+        derivedStateOf {
+            renderingLayers.flatMap { layer ->
+                listOf(
+                    layer.hide,
+                    layer.normalButtons.value.size,
+                    layer.textBoxes.value.size
+                )
+            } + listOf(snapInAllLayers1)
+        }
+    }
+
+    LaunchedEffect(widgetsUpdateTrigger.value) {
+        cachedOtherWidgets.clear()
+        allWidgetsMap.clear()
+
+        renderingLayers.forEach { layer ->
+            if (!layer.hide) {
+                val normalButtons = layer.normalButtons.value
+                val textBoxes = layer.textBoxes.value
+                allWidgetsMap[layer] = normalButtons + textBoxes
+            }
+        }
+    }
+
+    @Composable
+    fun RenderWidget(
+        data: ObservableWidget,
+        layer: ObservableControlLayer,
+        isPressed: Boolean
+    ) {
+        //使用缓存的控件列表或计算新的列表
+        val otherWidgets = cachedOtherWidgets.getOrPut(data) {
+            allWidgetsMap
+                .filter { (layer1, _) ->
+                    !layer1.hide && (snapInAllLayers1 || layer1 == layer)
+                }
+                .values.flatten()
+                .filter { it != data }
+        }
+
+        TextButton(
+            isEditMode = true,
+            data = data,
+            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
+            enableSnap = enableSnap,
+            snapMode = snapMode,
+            localSnapRange = localSnapRange,
+            getOtherWidgets = { otherWidgets },
+            snapThresholdValue = snapThresholdValue,
+            drawLine = drawLine,
+            onLineCancel = onLineCancel,
+            getStyle = {
+                val buttonStyle = when (data) {
+                    is ObservableNormalData -> data.buttonStyle
+                    is ObservableTextData -> data.buttonStyle
+                    else -> error("Unknown widget type")
+                }
+                styles.takeIf { buttonStyle != null }
+                    ?.find { it.uuid == buttonStyle }
+            },
+            isPressed = isPressed,
+            onTapInEditMode = remember(data, layer) {
+                { onButtonTap(data, layer) }
+            }
+        )
+    }
+
     Layout(
         content = {
             //按图层顺序渲染所有可见的控件
@@ -141,58 +224,15 @@ private fun ControlWidgetRenderer(
                     val normalButtons by layer.normalButtons.collectAsState()
                     val textBoxes by layer.textBoxes.collectAsState()
 
-                    val allWidgetsInLayer = remember(layer, normalButtons, textBoxes) {
-                        normalButtons + textBoxes
-                    }
+                    val widgetsInLayer = normalButtons + textBoxes
+                    allWidgetsMap[layer] = widgetsInLayer
 
                     normalButtons.forEach { data ->
-                        TextButton(
-                            isEditMode = true,
-                            data = data,
-                            getSize = { sizes[data] ?: IntSize.Zero },
-                            enableSnap = enableSnap,
-                            snapMode = snapMode,
-                            localSnapRange = localSnapRange,
-                            otherWidgets = allWidgetsInLayer
-                                .filter { it != data } //排除自己
-                                .map { it to (sizes[it] ?: IntSize.Zero) },
-                            snapThresholdValue = snapThresholdValue,
-                            drawLine = drawLine,
-                            onLineCancel = onLineCancel,
-                            getStyle = {
-                                styles.takeIf { data.buttonStyle != null }
-                                    ?.find { it.uuid == data.buttonStyle }
-                            },
-                            isPressed = data.isPressed,
-                            onTapInEditMode = {
-                                onButtonTap(data, layer)
-                            }
-                        )
+                        RenderWidget(data, layer, data.isPressed)
                     }
 
                     textBoxes.forEach { data ->
-                        TextButton(
-                            isEditMode = true,
-                            data = data,
-                            getSize = { sizes[data] ?: IntSize.Zero },
-                            enableSnap = enableSnap,
-                            snapMode = snapMode,
-                            localSnapRange = localSnapRange,
-                            otherWidgets = allWidgetsInLayer
-                                .filter { it != data } //排除自己
-                                .map { it to (sizes[it] ?: IntSize.Zero) },
-                            snapThresholdValue = snapThresholdValue,
-                            drawLine = drawLine,
-                            onLineCancel = onLineCancel,
-                            getStyle = {
-                                styles.takeIf { data.buttonStyle != null }
-                                    ?.find { it.uuid == data.buttonStyle }
-                            },
-                            isPressed = false, //文本框不需要按压状态
-                            onTapInEditMode = {
-                                onButtonTap(data, layer)
-                            }
-                        )
+                        RenderWidget(data, layer, isPressed = false) //文本框没有按压状态
                     }
                 }
             }

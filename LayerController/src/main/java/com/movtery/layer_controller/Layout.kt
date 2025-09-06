@@ -288,9 +288,9 @@ private fun BaseControlBoxLayout(
                             isEditMode = false,
                             data = data,
                             visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
-                            otherWidgets = emptyList(), //不需要计算吸附
+                            getOtherWidgets = { emptyList() }, //不需要计算吸附
                             snapThresholdValue = 4.dp,
-                            getSize = { sizes[data] ?: IntSize.Zero },
+                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
                             getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                             isPressed = data.isPressed
                         )
@@ -301,8 +301,8 @@ private fun BaseControlBoxLayout(
                             isEditMode = false,
                             data = data,
                             visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
-                            getSize = { sizes[data] ?: IntSize.Zero },
-                            otherWidgets = emptyList(), //不需要计算吸附
+                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
+                            getOtherWidgets = { emptyList() }, //不需要计算吸附
                             snapThresholdValue = 4.dp,
                             getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                             isPressed = false //文本框不需要按压状态

@@ -28,7 +28,7 @@ import com.movtery.layer_controller.utils.snap.SnapMode
  * @param enableSnap 编辑模式下，是否开启吸附功能
  * @param snapMode 吸附模式
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
- * @param otherWidgets 其他控件的信息，在编辑模式下，用于计算吸附位置
+ * @param getOtherWidgets 获取其他控件的信息，在编辑模式下，用于计算吸附位置
  * @param snapThresholdValue 吸附距离阈值
  * @param drawLine 绘制吸附参考线
  * @param onLineCancel 取消吸附参考线
@@ -38,11 +38,11 @@ internal fun TextButton(
     isEditMode: Boolean,
     data: ObservableWidget,
     visible: Boolean = true,
-    getSize: () -> IntSize,
+    getSize: (ObservableWidget) -> IntSize,
     enableSnap: Boolean = false,
     snapMode: SnapMode = SnapMode.FullScreen,
     localSnapRange: Dp = 50.dp,
-    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
+    getOtherWidgets: () -> List<ObservableWidget>,
     snapThresholdValue: Dp,
     drawLine: (ObservableWidget, List<GuideLine>) -> Unit = { _, _ -> },
     onLineCancel: (ObservableWidget) -> Unit = {},
@@ -74,7 +74,7 @@ internal fun TextButton(
                     enableSnap = enableSnap,
                     snapMode = snapMode,
                     localSnapRange = localSnapRange,
-                    otherWidgets = otherWidgets,
+                    getOtherWidgets = getOtherWidgets,
                     snapThresholdValue = snapThresholdValue,
                     drawLine = drawLine,
                     onLineCancel = onLineCancel,
