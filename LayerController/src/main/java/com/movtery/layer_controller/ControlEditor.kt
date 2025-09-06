@@ -4,9 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -145,50 +143,12 @@ private fun ControlWidgetRenderer(
     val allWidgetsMap = remember { mutableStateMapOf<ObservableControlLayer, List<ObservableWidget>>() }
     val snapInAllLayers1 by rememberUpdatedState(snapInAllLayers)
 
-    /** 缓存对于拖动中的控件的 其他控件列表 */
-    val cachedOtherWidgets = remember { mutableStateMapOf<ObservableWidget, List<ObservableWidget>>() }
-    /** 更新缓存的条件 */
-    val widgetsUpdateTrigger = remember {
-        derivedStateOf {
-            renderingLayers.flatMap { layer ->
-                listOf(
-                    layer.hide,
-                    layer.normalButtons.value.size,
-                    layer.textBoxes.value.size
-                )
-            } + listOf(snapInAllLayers1)
-        }
-    }
-
-    LaunchedEffect(widgetsUpdateTrigger.value) {
-        cachedOtherWidgets.clear()
-        allWidgetsMap.clear()
-
-        renderingLayers.forEach { layer ->
-            if (!layer.hide) {
-                val normalButtons = layer.normalButtons.value
-                val textBoxes = layer.textBoxes.value
-                allWidgetsMap[layer] = normalButtons + textBoxes
-            }
-        }
-    }
-
     @Composable
     fun RenderWidget(
         data: ObservableWidget,
         layer: ObservableControlLayer,
         isPressed: Boolean
     ) {
-        //使用缓存的控件列表或计算新的列表
-        val otherWidgets = cachedOtherWidgets.getOrPut(data) {
-            allWidgetsMap
-                .filter { (layer1, _) ->
-                    !layer1.hide && (snapInAllLayers1 || layer1 == layer)
-                }
-                .values.flatten()
-                .filter { it != data }
-        }
-
         TextButton(
             isEditMode = true,
             data = data,
@@ -196,7 +156,14 @@ private fun ControlWidgetRenderer(
             enableSnap = enableSnap,
             snapMode = snapMode,
             localSnapRange = localSnapRange,
-            getOtherWidgets = { otherWidgets },
+            getOtherWidgets = {
+                allWidgetsMap
+                    .filter { (layer1, _) ->
+                        if (layer1.hide) return@filter false
+                        snapInAllLayers1 || layer1 == layer
+                    }
+                    .values.flatten().filter { it != data }
+            },
             snapThresholdValue = snapThresholdValue,
             drawLine = drawLine,
             onLineCancel = onLineCancel,
@@ -232,7 +199,7 @@ private fun ControlWidgetRenderer(
                     }
 
                     textBoxes.forEach { data ->
-                        RenderWidget(data, layer, isPressed = false) //文本框没有按压状态
+                        RenderWidget(data, layer, isPressed = false)
                     }
                 }
             }
