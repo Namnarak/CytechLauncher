@@ -19,11 +19,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.layout.TextButton
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
-import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
@@ -40,7 +39,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ControlEditorLayer(
     observedLayout: ObservableControlLayout,
-    onButtonTap: (data: ObservableBaseData, layer: ObservableControlLayer) -> Unit,
+    onButtonTap: (data: ObservableWidget, layer: ObservableControlLayer) -> Unit,
     enableSnap: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp = 20.dp,
@@ -49,7 +48,7 @@ fun ControlEditorLayer(
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
 
-    val guideLines = remember { mutableStateMapOf<ObservableBaseData, List<GuideLine>>() }
+    val guideLines = remember { mutableStateMapOf<ObservableWidget, List<GuideLine>>() }
 
     //反转：将最后一层视为底层，逐步向上渲染
     val renderingLayers = layers.reversed()
@@ -127,11 +126,11 @@ private fun ControlWidgetRenderer(
     snapMode: SnapMode,
     localSnapRange: Dp,
     snapThresholdValue: Dp,
-    onButtonTap: (data: ObservableBaseData, layer: ObservableControlLayer) -> Unit,
-    drawLine: (ObservableBaseData, List<GuideLine>) -> Unit,
-    onLineCancel: (ObservableBaseData) -> Unit
+    onButtonTap: (data: ObservableWidget, layer: ObservableControlLayer) -> Unit,
+    drawLine: (ObservableWidget, List<GuideLine>) -> Unit,
+    onLineCancel: (ObservableWidget) -> Unit
 ) {
-    val sizes = remember { mutableStateMapOf<ObservableTextData, IntSize>() }
+    val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
 
     Layout(

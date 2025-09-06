@@ -29,7 +29,7 @@ import com.movtery.layer_controller.event.switchLayer
 import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.getWidgetPosition
 import kotlin.math.max
 import kotlin.math.pow
@@ -96,7 +96,7 @@ private fun BaseControlBoxLayout(
     val layers by observedLayout.layers.collectAsState()
     val styles by observedLayout.styles.collectAsState()
 
-    val sizes = remember { mutableStateMapOf<ObservableTextData, IntSize>() }
+    val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
     val activeButtons = remember { mutableStateMapOf<PointerId, List<ObservableNormalData>>() }
     val onClickEvent1 by rememberUpdatedState(onClickEvent)
     val checkOccupiedPointers1 by rememberUpdatedState(checkOccupiedPointers)
@@ -385,6 +385,7 @@ private fun checkVisibility(
 /**
  * 检查触点是否在按钮的圆角矩形内
  */
+@Suppress("unused")
 private fun isPointInRoundedRect(
     point: Offset,
     rectOffset: Offset,

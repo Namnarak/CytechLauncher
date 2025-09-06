@@ -14,11 +14,13 @@ import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
+import com.movtery.layer_controller.data.VisibilityType
+import com.movtery.layer_controller.data.Widget.Companion.createWithUUID
+import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.layout.ControlLayer
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
-import com.movtery.layer_controller.utils.lang.TranslatableString
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.MenuState
@@ -74,7 +76,7 @@ fun ControlEditor(
             viewModel.selectedLayer = layer
         },
         createLayer = {
-            viewModel.observableLayout.addLayer(ControlLayer(name = defaultLayerName))
+            viewModel.observableLayout.addLayer(ControlLayer.createNew(defaultLayerName = defaultLayerName))
         },
         onAttribute = { layer ->
             viewModel.editorOperation = EditorOperation.EditLayer(layer)
@@ -82,29 +84,40 @@ fun ControlEditor(
         addNewButton = {
             viewModel.addWidget(layers) { layer ->
                 layer.addNormalButton(
-                    NormalData(
-                        text = TranslatableString.create(default = defaultButtonName),
-                        position = ButtonPosition.Center,
-                        buttonSize = ButtonSize.createAdaptiveButtonSize(
-                            referenceLength = screenHeight,
-                            density = density
+                    createWithUUID { uuid ->
+                        NormalData(
+                            text = TranslatableString.create(default = defaultButtonName),
+                            uuid = uuid,
+                            position = ButtonPosition.Center,
+                            buttonSize = ButtonSize.createAdaptiveButtonSize(
+                                referenceLength = screenHeight,
+                                density = density
+                            ),
+                            visibilityType = VisibilityType.ALWAYS,
+                            isSwipple = false,
+                            isPenetrable = false,
+                            isToggleable = false
                         )
-                    )
+                    }
                 )
             }
         },
         addNewText = {
             viewModel.addWidget(layers) { layer ->
                 layer.addTextBox(
-                    TextData(
-                        text = TranslatableString.create(default = defaultTextName),
-                        position = ButtonPosition.Center,
-                        buttonSize = ButtonSize.createAdaptiveButtonSize(
-                            referenceLength = screenHeight,
-                            density = density,
-                            type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
+                    createWithUUID { uuid ->
+                        TextData(
+                            text = TranslatableString.create(default = defaultTextName),
+                            uuid = uuid,
+                            position = ButtonPosition.Center,
+                            buttonSize = ButtonSize.createAdaptiveButtonSize(
+                                referenceLength = screenHeight,
+                                density = density,
+                                type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
+                            ),
+                            visibilityType = VisibilityType.ALWAYS
                         )
-                    )
+                    }
                 )
             }
         },
@@ -153,9 +166,9 @@ fun ControlEditor(
 private fun EditorOperation(
     operation: EditorOperation,
     changeOperation: (EditorOperation) -> Unit,
-    onDeleteWidget: (ObservableBaseData, ObservableControlLayer) -> Unit,
+    onDeleteWidget: (ObservableWidget, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
-    onCloneWidgets: (ObservableBaseData, List<ObservableControlLayer>) -> Unit,
+    onCloneWidgets: (ObservableWidget, List<ObservableControlLayer>) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
     onDeleteStyle: (ObservableButtonStyle) -> Unit,

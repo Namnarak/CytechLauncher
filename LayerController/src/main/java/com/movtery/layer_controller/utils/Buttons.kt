@@ -31,8 +31,10 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonShape.Companion.toAndroidShape
 import com.movtery.layer_controller.data.ButtonSize
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
+import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
 import com.movtery.layer_controller.utils.snap.SnapMode
@@ -55,15 +57,15 @@ import kotlin.math.sqrt
 @Composable
 internal fun Modifier.editMode(
     isEditMode: Boolean,
-    data: ObservableBaseData,
+    data: ObservableWidget,
     getSize: () -> IntSize,
     enableSnap: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp,
-    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
     snapThresholdValue: Dp,
-    drawLine: (ObservableBaseData, List<GuideLine>) -> Unit,
-    onLineCancel: (ObservableBaseData) -> Unit,
+    drawLine: (ObservableWidget, List<GuideLine>) -> Unit,
+    onLineCancel: (ObservableWidget) -> Unit,
     onTapInEditMode: () -> Unit = {}
 ): Modifier {
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
@@ -137,7 +139,10 @@ internal fun Modifier.editMode(
                                 newPercentagePosition
                             }
 
-                            data.position = finalPosition
+                            when (data) {
+                                is ObservableNormalData -> data.position = finalPosition
+                                is ObservableTextData -> data.position = finalPosition
+                            }
                         },
                         onDragEnd = {
                             data.isEditingPos = false
@@ -172,7 +177,7 @@ private fun calculateSnapPosition(
     currentPosition: ButtonPosition,
     widgetSize: IntSize,
     screenSize: IntSize,
-    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
     snapThreshold: Float,
     snapMode: SnapMode,
     localSnapRange: Float,
@@ -273,9 +278,15 @@ private fun calculateSnapPosition(
  */
 @Composable
 internal fun Modifier.buttonSize(
-    data: ObservableBaseData
+    data: ObservableWidget
 ): Modifier {
-    val size = data.buttonSize
+    val size = remember(data) {
+        when (data) {
+            is ObservableNormalData -> data.buttonSize
+            is ObservableTextData -> data.buttonSize
+            else -> error("Unknown widget type")
+        }
+    }
     return this.then(
         when (size.type) {
             ButtonSize.Type.Dp -> Modifier.size(
@@ -420,12 +431,17 @@ private fun Modifier.staticButtonModifier(
  * 根据控件的位置百分比值，计算其在屏幕上的真实位置
  */
 internal fun getWidgetPosition(
-    data: ObservableBaseData,
+    data: ObservableWidget,
     widgetSize: IntSize,
     screenSize: IntSize
 ): Offset {
     if (data.isEditingPos) return data.movingOffset
-    return getWidgetPosition(data.position, widgetSize, screenSize)
+    val position = when (data) {
+        is ObservableNormalData -> data.position
+        is ObservableTextData -> data.position
+        else -> error("Unknown widget type")
+    }
+    return getWidgetPosition(position, widgetSize, screenSize)
 }
 
 /**

@@ -20,8 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.layout.RendererStyleBox
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
+import com.movtery.layer_controller.observable.ObservableNormalData
+import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
@@ -33,7 +35,7 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyO
  */
 @Composable
 fun EditWidgetStyle(
-    data: ObservableBaseData,
+    data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     openStyleList: () -> Unit
 ) {
@@ -41,29 +43,56 @@ fun EditWidgetStyle(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (styles.isNotEmpty()) {
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Adaptive(minSize = 120.dp)
-            ) {
-                items(styles) { style ->
-                    ChoseStyleItem(
-                        modifier = Modifier.padding(all = 8.dp),
-                        style = style,
-                        selected = data.buttonStyle == style.uuid,
-                        onSelectedChange = { selected ->
-                            data.buttonStyle = if (selected) style.uuid else null
-                        }
-                    )
-                }
+        when (data) {
+            is ObservableTextData -> {
+                MainContent(
+                    styles = styles,
+                    buttonStyle = data.buttonStyle,
+                    onButtonStyleChanged = { data.buttonStyle = it },
+                    openStyleList = openStyleList
+                )
             }
-        } else {
-            InfoLayoutTextItem(
-                modifier = Modifier.padding(all = 24.dp),
-                title = stringResource(R.string.control_editor_edit_style_config_empty),
-                onClick = openStyleList
-            )
+            is ObservableNormalData -> {
+                MainContent(
+                    styles = styles,
+                    buttonStyle = data.buttonStyle,
+                    onButtonStyleChanged = { data.buttonStyle = it },
+                    openStyleList = openStyleList
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun MainContent(
+    styles: List<ObservableButtonStyle>,
+    buttonStyle: String?,
+    onButtonStyleChanged: (String?) -> Unit,
+    openStyleList: () -> Unit
+) {
+    if (styles.isNotEmpty()) {
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Adaptive(minSize = 120.dp)
+        ) {
+            items(styles) { style ->
+                ChoseStyleItem(
+                    modifier = Modifier.padding(all = 8.dp),
+                    style = style,
+                    selected = buttonStyle == style.uuid,
+                    onSelectedChange = { selected ->
+                        onButtonStyleChanged(if (selected) style.uuid else null)
+                    }
+                )
+            }
+        }
+    } else {
+        InfoLayoutTextItem(
+            modifier = Modifier.padding(all = 24.dp),
+            title = stringResource(R.string.control_editor_edit_style_config_empty),
+            onClick = openStyleList
+        )
     }
 }
 

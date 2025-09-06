@@ -1,6 +1,7 @@
 package com.movtery.layer_controller.data
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * 按钮的大小
@@ -9,52 +10,55 @@ import com.google.gson.annotations.SerializedName
  * @param widthPercentage 百分比宽度 0~10000
  * @param heightPercentage 百分比高度 0~10000
  */
+@Serializable
 data class ButtonSize(
-    @SerializedName("type")
+    @SerialName("type")
     val type: Type,
-    @SerializedName("widthDp")
+    @SerialName("widthDp")
     val widthDp: Float,
-    @SerializedName("heightDp")
+    @SerialName("heightDp")
     val heightDp: Float,
-    @SerializedName("widthPercentage")
+    @SerialName("widthPercentage")
     val widthPercentage: Int,
-    @SerializedName("heightPercentage")
+    @SerialName("heightPercentage")
     val heightPercentage: Int,
-    @SerializedName("widthReference")
+    @SerialName("widthReference")
     val widthReference: Reference,
-    @SerializedName("heightReference")
+    @SerialName("heightReference")
     val heightReference: Reference
 ) {
     /**
      * 大小计算类型
      */
+    @Serializable
     enum class Type {
         /**
          * 以 Dp 绝对值进行存储
          */
-        @SerializedName("dp") Dp,
+        @SerialName("dp") Dp,
 
         /**
          * 以百分比值进行存储
          */
-        @SerializedName("percentage") Percentage,
+        @SerialName("percentage") Percentage,
 
         /**
          * 跟随内容大小变化
          */
-        @SerializedName("wrap_content") WrapContent
+        @SerialName("wrap_content") WrapContent
     }
 
+    @Serializable
     enum class Reference {
         /**
          * 参考屏幕宽
          */
-        @SerializedName("screen_width") ScreenWidth,
+        @SerialName("screen_width") ScreenWidth,
 
         /**
          * 参考屏幕高
          */
-        @SerializedName("screen_height") ScreenHeight,
+        @SerialName("screen_height") ScreenHeight,
     }
 
     companion object {

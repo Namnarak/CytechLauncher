@@ -1,10 +1,11 @@
 package com.movtery.layer_controller.layout
 
-import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.utils.randomUUID
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * 控制布局单个层级，像图层一样存储控制组件
@@ -14,17 +15,29 @@ import com.movtery.layer_controller.utils.randomUUID
  * @param normalButtons 普通的按钮列表
  * @param textBoxes 文本显示框列表
  */
+@Serializable
 data class ControlLayer(
-    @SerializedName("name")
-    val name: String = "",
-    @SerializedName("uuid")
-    val uuid: String = randomUUID(),
-    @SerializedName("hide")
-    val hide: Boolean = false,
-    @SerializedName("visibilityType")
-    val visibilityType: VisibilityType = VisibilityType.ALWAYS,
-    @SerializedName("normalButtons")
+    @SerialName("name")
+    val name: String,
+    @SerialName("uuid")
+    val uuid: String,
+    @SerialName("hide")
+    val hide: Boolean,
+    @SerialName("visibilityType")
+    val visibilityType: VisibilityType,
+    @SerialName("normalButtons")
     val normalButtons: List<NormalData> = emptyList(),
-    @SerializedName("textBoxes")
+    @SerialName("textBoxes")
     val textBoxes: List<TextData> = emptyList()
-)
+) {
+    companion object {
+        public fun createNew(defaultLayerName: String = ""): ControlLayer {
+            return ControlLayer(
+                name = defaultLayerName,
+                uuid = randomUUID(),
+                hide = false,
+                visibilityType = VisibilityType.ALWAYS
+            )
+        }
+    }
+}

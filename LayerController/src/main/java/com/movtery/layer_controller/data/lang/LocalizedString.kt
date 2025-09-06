@@ -1,16 +1,18 @@
-package com.movtery.layer_controller.utils.lang
+package com.movtery.layer_controller.data.lang
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.Locale
 
 /**
  * 本地化显示字符串
  * @param languageTag 语言标签
  */
+@Serializable
 data class LocalizedString(
-    @SerializedName("language_tag")
+    @SerialName("language_tag")
     val languageTag: String,
-    @SerializedName("value")
+    @SerialName("value")
     val value: String
 ) {
     companion object {

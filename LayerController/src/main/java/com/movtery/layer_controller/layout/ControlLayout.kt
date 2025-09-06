@@ -1,13 +1,15 @@
 package com.movtery.layer_controller.layout
 
-import com.google.gson.JsonObject
-import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.EDITOR_VERSION
 import com.movtery.layer_controller.data.ButtonStyle
+import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.updateLayoutToNew
-import com.movtery.layer_controller.utils.CheckNotNull
-import com.movtery.layer_controller.utils.lang.TranslatableString
-import com.movtery.layer_controller.utils.layoutGson
+import com.movtery.layer_controller.utils.layoutJson
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import java.io.IOException
 
@@ -17,28 +19,30 @@ import java.io.IOException
  * @param layers 控制层级列表
  * @param editorVersion 使用编辑器版本
  */
+@Serializable
 data class ControlLayout(
-    @SerializedName("info")
-    val info: Info = Info.Empty,
-    @SerializedName("layers")
-    val layers: List<ControlLayer> = emptyList(),
-    @SerializedName("styles")
-    val styles: List<ButtonStyle> = emptyList(),
-    @SerializedName("editorVersion")
+    @SerialName("info")
+    val info: Info,
+    @SerialName("layers")
+    val layers: List<ControlLayer>,
+    @SerialName("styles")
+    val styles: List<ButtonStyle>,
+    @SerialName("editorVersion")
     val editorVersion: Int
-) : CheckNotNull {
+) {
+    @Serializable
     data class Info(
-        @SerializedName("name")
+        @SerialName("name")
         val name: TranslatableString,
-        @SerializedName("author")
+        @SerialName("author")
         val author: TranslatableString,
-        @SerializedName("description")
+        @SerialName("description")
         val description: TranslatableString,
-        @SerializedName("versionCode")
+        @SerialName("versionCode")
         val versionCode: Int,
-        @SerializedName("versionName")
+        @SerialName("versionName")
         val versionName: String
-    ) : CheckNotNull {
+    ) {
         companion object {
             public val Empty = Info(
                 name = TranslatableString.Empty,
@@ -48,49 +52,26 @@ data class ControlLayout(
                 versionName = ""
             )
         }
-
-        override fun checkNotNull() {
-            val key = when {
-                name == null -> "name"
-                author == null -> "author"
-                description == null -> "description"
-                versionCode == null -> "versionCode"
-                versionName == null -> "versionName"
-                else -> null
-            }
-            if (key != null) throw NullPointerException("The key \"$key\" should not be null.")
-        }
-    }
-
-    override fun checkNotNull() {
-        val key = when {
-            info == null -> "info"
-            layers == null -> "layers"
-            styles == null -> "styles"
-            editorVersion == null -> "editorVersion"
-            else -> {
-                info.checkNotNull()
-                null
-            }
-        }
-        if (key != null) throw NullPointerException("The key \"$key\" should not be null.")
     }
 
     companion object {
-        public val Empty = ControlLayout(editorVersion = EDITOR_VERSION)
+        public val Empty = ControlLayout(
+            editorVersion = EDITOR_VERSION,
+            info = Info.Empty,
+            layers = emptyList(),
+            styles = emptyList()
+        )
 
         /**
          * 从文件加载控制布局配置（检查版本号，大于编辑器版本则抛出`IllegalArgumentException`）
          */
         public fun loadFromFile(file: File): ControlLayout {
             val jsonString = file.readText()
-            val jsonObject = layoutGson.fromJson(jsonString, JsonObject::class.java)
-            if (!jsonObject.has("editorVersion")) throw IOException("The file does not contain the key \"editorVersion\".")
-            val version = jsonObject.get("editorVersion").asInt
+            val jsonObject = layoutJson.decodeFromString<JsonObject>(jsonString)
+            if (jsonObject["editorVersion"] == null) throw IOException("The file does not contain the key \"editorVersion\".")
+            val version = jsonObject["editorVersion"]!!.jsonPrimitive.int
             if (version <= EDITOR_VERSION) {
-                var layout = layoutGson.fromJson(jsonObject, ControlLayout::class.java).also {
-                    it.checkNotNull()
-                }
+                var layout = layoutJson.decodeFromString<ControlLayout>(jsonString)
                 if (version < EDITOR_VERSION) layout = updateLayoutToNew(layout)
                 return layout
             } else {
@@ -103,9 +84,7 @@ data class ControlLayout(
          */
         public fun loadFromFileUncheck(file: File): ControlLayout {
             val jsonString = file.readText()
-           return layoutGson.fromJson(jsonString, ControlLayout::class.java).also {
-               it.checkNotNull()
-           }
+           return layoutJson.decodeFromString<ControlLayout>(jsonString)
         }
     }
 }

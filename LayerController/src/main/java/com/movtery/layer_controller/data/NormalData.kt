@@ -1,8 +1,9 @@
 package com.movtery.layer_controller.data
 
-import com.google.gson.annotations.SerializedName
+import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.event.ClickEvent
-import com.movtery.layer_controller.utils.lang.TranslatableString
+import com.movtery.layer_controller.utils.getAButtonUUID
+import kotlinx.serialization.Serializable
 
 /**
  * @param clickEvents 点击事件组
@@ -10,29 +11,19 @@ import com.movtery.layer_controller.utils.lang.TranslatableString
  * @param isPenetrable 是否允许将触摸事件向下穿透
  * @param isToggleable 是否用开关的形式切换按下状态
  */
-class NormalData(
-    text: TranslatableString,
-    uuid: String = getAButtonUUID(),
-    position: ButtonPosition = ButtonPosition.Zero,
-    buttonSize: ButtonSize = ButtonSize.Default,
-    buttonStyle: String? = null,
-    visibilityType: VisibilityType = VisibilityType.ALWAYS,
-    @SerializedName("clickEvents")
-    var clickEvents: List<ClickEvent> = emptyList(),
-    @SerializedName("isSwipple")
-    var isSwipple: Boolean = false,
-    @SerializedName("isPenetrable")
-    var isPenetrable: Boolean = false,
-    @SerializedName("isToggleable")
-    var isToggleable: Boolean = false
-) : TextData(
-    text = text,
-    uuid = uuid,
-    position = position,
-    buttonSize = buttonSize,
-    buttonStyle = buttonStyle,
-    visibilityType = visibilityType
-) {
+@Serializable
+data class NormalData(
+    val text: TranslatableString,
+    val uuid: String,
+    val position: ButtonPosition,
+    val buttonSize: ButtonSize,
+    val buttonStyle: String? = null,
+    val visibilityType: VisibilityType,
+    val clickEvents: List<ClickEvent> = emptyList(),
+    val isSwipple: Boolean,
+    val isPenetrable: Boolean,
+    val isToggleable: Boolean
+): Widget {
     companion object {
         /**
          * 克隆一个新的NormalData对象（UUID、位置不同）

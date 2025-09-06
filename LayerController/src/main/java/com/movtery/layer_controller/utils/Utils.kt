@@ -1,24 +1,28 @@
 package com.movtery.layer_controller.utils
 
 import androidx.compose.ui.graphics.Color
-import com.google.gson.GsonBuilder
-import com.google.gson.Strictness
 import com.movtery.layer_controller.layout.ControlLayout
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
 import java.io.File
 import java.util.Base64
 import java.util.UUID
 
-internal val layoutGson = GsonBuilder()
-    .registerTypeAdapter(Color::class.java, ColorTypeAdapter())
-    .setPrettyPrinting()
-    .setStrictness(Strictness.STRICT)
-    .create()
+internal val layoutJson = Json {
+    prettyPrint = true
+    ignoreUnknownKeys = true
+    serializersModule = SerializersModule {
+        contextual(Color::class, ColorSerializer)
+    }
+}
 
 internal fun randomUUID(length: Int = 12): String =
     UUID.randomUUID()
         .toString()
         .replace("-", "")
         .take(length)
+
+internal fun getAButtonUUID() = randomUUID(18)
 
 /**
  * 生成一个随机的文件名
@@ -48,6 +52,6 @@ private fun longToBytes(long: Long): ByteArray {
 }
 
 fun ControlLayout.saveToFile(file: File) {
-    val jsonString = layoutGson.toJson(this)
+    val jsonString = layoutJson.encodeToString(this)
     file.writeText(jsonString)
 }

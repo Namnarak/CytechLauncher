@@ -12,9 +12,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
+import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
@@ -35,22 +36,30 @@ import com.movtery.layer_controller.utils.snap.SnapMode
 @Composable
 internal fun TextButton(
     isEditMode: Boolean,
-    data: ObservableTextData,
+    data: ObservableWidget,
     visible: Boolean = true,
     getSize: () -> IntSize,
     enableSnap: Boolean = false,
     snapMode: SnapMode = SnapMode.FullScreen,
     localSnapRange: Dp = 50.dp,
-    otherWidgets: List<Pair<ObservableBaseData, IntSize>>,
+    otherWidgets: List<Pair<ObservableWidget, IntSize>>,
     snapThresholdValue: Dp,
-    drawLine: (ObservableBaseData, List<GuideLine>) -> Unit = { _, _ -> },
-    onLineCancel: (ObservableBaseData) -> Unit = {},
+    drawLine: (ObservableWidget, List<GuideLine>) -> Unit = { _, _ -> },
+    onLineCancel: (ObservableWidget) -> Unit = {},
     getStyle: () -> ObservableButtonStyle?,
     isPressed: Boolean,
     onTapInEditMode: () -> Unit = {}
 ) {
     if (visible) {
-        val style = remember(data, data.buttonStyle) {
+        val buttonStyle = remember(data) {
+            when(data) {
+                is ObservableNormalData -> data.buttonStyle
+                is ObservableTextData -> data.buttonStyle
+                else -> error("Unknown widget type")
+            }
+        }
+
+        val style = remember(data, buttonStyle) {
             getStyle() ?: ObservableButtonStyle.Default
         }
 
@@ -76,8 +85,15 @@ internal fun TextButton(
             contentAlignment = Alignment.Center
         ) {
             val color by buttonContentColorAsState(style = style, isPressed = isPressed)
+            val text = remember(data) {
+                when (data) {
+                    is ObservableNormalData -> data.text
+                    is ObservableTextData -> data.text
+                    else -> error("Unknown widget type")
+                }
+            }
             Text(
-                text = data.text.translate(locale),
+                text = text.translate(locale),
                 color = color
             )
         }

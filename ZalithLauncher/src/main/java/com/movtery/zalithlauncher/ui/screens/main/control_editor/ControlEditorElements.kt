@@ -35,11 +35,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.VisibilityType
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -59,9 +59,9 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 sealed interface EditorOperation {
     data object None : EditorOperation
     /** 选择了一个控件, 附带其所属控件层 */
-    data class SelectButton(val data: ObservableBaseData, val layer: ObservableControlLayer) : EditorOperation
+    data class SelectButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
     /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
-    data class CloneButton(val data: ObservableBaseData, val layer: ObservableControlLayer) : EditorOperation
+    data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
     /** 编辑控件的显示文本 */
     data class EditWidgetText(val data: ObservableTextData) : EditorOperation
     /** 编辑控件层属性 */

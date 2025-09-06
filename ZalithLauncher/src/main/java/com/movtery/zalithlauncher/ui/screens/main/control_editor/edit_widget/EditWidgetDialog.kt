@@ -46,10 +46,10 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.movtery.layer_controller.observable.ObservableBaseData
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.clearWith
@@ -77,7 +77,7 @@ private enum class EditWidgetDialogState(val alpha: Float, val buttonText: Int) 
  */
 @Composable
 fun EditWidgetDialog(
-    data: ObservableBaseData,
+    data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
@@ -275,7 +275,7 @@ private fun EditWidgetTabLayout(
 private fun EditWidgetNavigation(
     modifier: Modifier = Modifier,
     backStack: NavBackStack,
-    data: ObservableBaseData,
+    data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTextData) -> Unit,
     switchControlLayers: (ObservableNormalData) -> Unit,

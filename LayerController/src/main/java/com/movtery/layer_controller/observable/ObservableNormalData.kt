@@ -10,7 +10,13 @@ import com.movtery.layer_controller.event.ClickEvent
 /**
  * 可观察的NormalData包装类
  */
-class ObservableNormalData(data: NormalData) : ObservableTextData(data) {
+class ObservableNormalData(data: NormalData) : ObservableWidget() {
+    val text = ObservableTranslatableString(data.text)
+    val uuid: String = data.uuid
+    var position by mutableStateOf(data.position)
+    var buttonSize by mutableStateOf(data.buttonSize)
+    var buttonStyle by mutableStateOf(data.buttonStyle)
+    var visibilityType by mutableStateOf(data.visibilityType)
     var clickEvents by mutableStateOf(data.clickEvents)
     var isSwipple by mutableStateOf(data.isSwipple)
     var isPenetrable by mutableStateOf(data.isPenetrable)

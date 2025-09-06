@@ -1,12 +1,18 @@
 package com.movtery.layer_controller.data
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 /**
  * 按钮的位置
  * @param x 0~10000
  * @param y 0~10000
  */
+@Serializable
 data class ButtonPosition(
+    @SerialName("x")
     val x: Int,
+    @SerialName("y")
     val y: Int
 ) {
     /**

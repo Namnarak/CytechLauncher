@@ -4,9 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.movtery.layer_controller.data.lang.LocalizedString
+import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.observable.ObservableLocalizedString.Companion.check
-import com.movtery.layer_controller.utils.lang.LocalizedString
-import com.movtery.layer_controller.utils.lang.TranslatableString
 import java.util.Locale
 
 class ObservableTranslatableString(private val text: TranslatableString): Packable<TranslatableString> {

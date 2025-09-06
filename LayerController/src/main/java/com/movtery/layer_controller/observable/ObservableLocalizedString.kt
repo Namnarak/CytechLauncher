@@ -3,7 +3,7 @@ package com.movtery.layer_controller.observable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.movtery.layer_controller.utils.lang.LocalizedString
+import com.movtery.layer_controller.data.lang.LocalizedString
 import java.util.Locale
 
 class ObservableLocalizedString(string: LocalizedString): Packable<LocalizedString?> {

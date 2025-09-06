@@ -67,12 +67,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
+import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.utils.AUTHOR_NAME_LENGTH
 import com.movtery.layer_controller.utils.NAME_LENGTH
 import com.movtery.layer_controller.utils.VERSION_NAME_LENGTH
-import com.movtery.layer_controller.utils.lang.TranslatableString
 import com.movtery.layer_controller.utils.newRandomFileName
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.R

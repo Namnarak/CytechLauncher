@@ -1,8 +1,10 @@
 package com.movtery.layer_controller.data
 
 import androidx.compose.ui.graphics.Color
-import com.google.gson.annotations.SerializedName
 import com.movtery.layer_controller.utils.randomUUID
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * @param name 样式显示名称
@@ -10,16 +12,17 @@ import com.movtery.layer_controller.utils.randomUUID
  * @param lightStyle 亮色模式样式
  * @param darkStyle 暗色模式样式
  */
+@Serializable
 data class ButtonStyle(
-    @SerializedName("name")
+    @SerialName("name")
     val name: String,
-    @SerializedName("uuid")
-    val uuid: String = randomUUID(),
-    @SerializedName("animateSwap")
-    val animateSwap: Boolean = false,
-    @SerializedName("lightStyle")
+    @SerialName("uuid")
+    val uuid: String,
+    @SerialName("animateSwap")
+    val animateSwap: Boolean,
+    @SerialName("lightStyle")
     val lightStyle: StyleConfig,
-    @SerializedName("darkStyle")
+    @SerialName("darkStyle")
     val darkStyle: StyleConfig
 ) {
     /**
@@ -36,30 +39,31 @@ data class ButtonStyle(
      * @param pressedBorderColor 按下时，边框颜色
      * @param pressedBorderRadius 按下时，圆角尺寸
      */
+    @Serializable
     data class StyleConfig(
-        @SerializedName("alpha")
+        @SerialName("alpha")
         val alpha: Float,
-        @SerializedName("pressedAlpha")
+        @SerialName("pressedAlpha")
         val pressedAlpha: Float,
-        @SerializedName("backgroundColor")
-        val backgroundColor: Color,
-        @SerializedName("pressedBackgroundColor")
-        val pressedBackgroundColor: Color,
-        @SerializedName("contentColor")
-        val contentColor: Color,
-        @SerializedName("pressedContentColor")
-        val pressedContentColor: Color,
-        @SerializedName("borderWidth")
+        @SerialName("backgroundColor")
+        @Contextual val backgroundColor: Color,
+        @SerialName("pressedBackgroundColor")
+        @Contextual val pressedBackgroundColor: Color,
+        @SerialName("contentColor")
+        @Contextual val contentColor: Color,
+        @SerialName("pressedContentColor")
+        @Contextual val pressedContentColor: Color,
+        @SerialName("borderWidth")
         val borderWidth: Int,
-        @SerializedName("pressedBorderWidth")
+        @SerialName("pressedBorderWidth")
         val pressedBorderWidth: Int,
-        @SerializedName("borderColor")
-        val borderColor: Color,
-        @SerializedName("pressedBorderColor")
-        val pressedBorderColor: Color,
-        @SerializedName("borderRadius")
+        @SerialName("borderColor")
+        @Contextual val borderColor: Color,
+        @SerialName("pressedBorderColor")
+        @Contextual val pressedBorderColor: Color,
+        @SerialName("borderRadius")
         val borderRadius: ButtonShape,
-        @SerializedName("pressedBorderRadius")
+        @SerialName("pressedBorderRadius")
         val pressedBorderRadius: ButtonShape
     ) {
         companion object {
@@ -83,6 +87,7 @@ data class ButtonStyle(
     companion object {
         public val Default = ButtonStyle(
             name = "Default",
+            uuid = randomUUID(),
             animateSwap = false,
             lightStyle = StyleConfig.Default,
             darkStyle = StyleConfig.Default
