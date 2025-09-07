@@ -107,7 +107,7 @@ fun GameMenuSubscreen(
                     valueRange = 25f..300f,
                     onValueChange = { value ->
                         AllSettings.resolutionRatio.updateState(value)
-                        onRefreshWindowSize()
+//                        onRefreshWindowSize()
                     },
                     onValueChangeFinished = { value ->
                         AllSettings.resolutionRatio.save(value)
