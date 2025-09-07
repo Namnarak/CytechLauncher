@@ -4,15 +4,13 @@ import android.content.Context
 import android.os.Build
 import android.os.FileObserver
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.splitPreservingQuotes
-import org.lwjgl.glfw.CallbackBridge.windowHeight
-import org.lwjgl.glfw.CallbackBridge.windowWidth
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -23,9 +21,9 @@ object MCOptions {
     private lateinit var version: Version
 
     /**
-     * GUI 缩放尺寸
+     * options.txt 文件刷新
      */
-    var guiScale by mutableIntStateOf(0)
+    var refreshKey by mutableStateOf(false)
         private set
 
     /**
@@ -74,9 +72,7 @@ object MCOptions {
             parameterMap.clear()
             parameterMap.putAll(newMap)
 
-            val guiScale = get("guiScale")?.toIntOrNull() ?: 0
-            val dynamicScale = calculateDynamicScale()
-            this.guiScale = if (guiScale == 0 || dynamicScale < guiScale) dynamicScale else guiScale
+            refreshKey = !refreshKey
         }.onFailure {
             lWarning("Failed to load options!", it)
         }
@@ -131,11 +127,6 @@ object MCOptions {
             tempFile.delete()
         }
     }
-
-    private fun calculateDynamicScale() = minOf(
-        windowWidth / 320,
-        windowHeight / 240
-    ).coerceAtLeast(1)
 
     private fun getOptionsFile() = File(version.getGameDir(), "options.txt")
 

@@ -50,6 +50,7 @@ import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SINGLE
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
+import com.movtery.zalithlauncher.ui.control.control.MinecraftHotbar
 import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
@@ -289,6 +290,14 @@ fun GameScreen(
                     viewModel.touchpadOccupiedPointers.remove(it)
                     viewModel.moveOnlyPointers.remove(it)
                 }
+            )
+
+            MinecraftHotbar(
+                onClickSlot = { keycode ->
+                    CallbackBridge.sendKeyPress(keycode)
+                },
+                isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+                scaleFactor = AllSettings.resolutionRatio.state / 100f
             )
         }
 
