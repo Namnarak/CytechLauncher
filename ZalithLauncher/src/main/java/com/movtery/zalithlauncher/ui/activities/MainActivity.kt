@@ -150,7 +150,7 @@ class MainActivity : BaseComponentActivity() {
         if (VersionsManager.versions.value.isEmpty()) {
             VersionsManager.refresh()
         }
-        ControlManager.refresh()
+        ControlManager.checkDefaultAndRefresh(this@MainActivity)
     }
 
     @SuppressLint("RestrictedApi")

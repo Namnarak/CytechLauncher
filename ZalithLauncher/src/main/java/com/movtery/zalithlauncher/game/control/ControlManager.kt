@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.control
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +8,7 @@ import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.utils.newRandomFileName
 import com.movtery.layer_controller.utils.saveToFile
+import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.file.readString
@@ -46,9 +48,31 @@ object ControlManager {
     var isRefreshing by mutableStateOf(false)
         private set
 
+    /**
+     * 获取一个新的布局文件文件，名称随机
+     */
+    private fun getNewRandomFile() = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
+
+    /**
+     * 检查当前是否不存在控制布局，不存在则解压一份默认控制布局
+     * @param context 访问assets的上下文
+     */
+    fun checkDefaultAndRefresh(context: Context) {
+        scope.launch(Dispatchers.IO) {
+            val files = (PathManager.DIR_CONTROL_LAYOUTS.listFiles() ?: emptyArray())
+                .filter { file ->
+                    file.isFile && file.exists() && file.extension.equals("json", true)
+                }
+            if (files.isEmpty()) {
+                unpackDefaultControl(context)
+            }
+            refresh()
+        }
+    }
+
     fun refresh() {
         currentJob?.cancel()
-        currentJob = scope.launch {
+        currentJob = scope.launch(Dispatchers.IO) {
             isRefreshing = true
 
             _dataList.update { emptyList() }
@@ -98,6 +122,20 @@ object ControlManager {
 
         if (selectedLayout == null) {
             AllSettings.controlLayout.reset()
+        }
+    }
+
+    /**
+     * 解压默认控制布局
+     */
+    private suspend fun unpackDefaultControl(
+        context: Context
+    ) = withContext(Dispatchers.IO) {
+        try {
+            val file = getNewRandomFile()
+            context.copyAssetFile(fileName = "default_layout.json", output = file, overwrite = false)
+        } catch (e: Exception) {
+            lWarning("Failed to unpack default control layout", e)
         }
     }
 
@@ -152,7 +190,7 @@ object ControlManager {
         onSerializationError: (Exception) -> Unit,
         catchedError: (Exception) -> Unit
     ) = withContext(Dispatchers.IO) {
-        val file = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
+        val file = getNewRandomFile()
         try {
             inputStream.use { stream ->
                 val jsonString = stream.readString()
