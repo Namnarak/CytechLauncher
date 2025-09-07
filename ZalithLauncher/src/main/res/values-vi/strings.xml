@@ -50,7 +50,6 @@
     <string name="days_ago">%d ngày trước</string>
     <string name="months_ago">%d tháng trước</string>
     <string name="years_ago">%d năm trước</string>
-    <string name="launcher_version_label_alpha">Phiên bản Alpha: %s (Chế độ Demo)</string>
     <string name="launcher_version_debug_warning">Bạn đang sử dụng phiên bản thử nghiệm của %s! Phiên bản này có thể có lỗi và thường được dùng để thử nghiệm cách tính năng mới và không được khuyên khích để dùng lâu dài. Nếu bạn gặp lỗi, hãy báo cáo nó trên GitHub của chúng tôi và chúng tôi sẽ cố gắng sửa lỗi càng sớm càng tốt.</string>
     <string name="launcher_version_debug_warning_cant_close">Bạn không thể bỏ qua cảnh báo này</string>
     <string name="theme_color_dynamic">Màu Monet (Android 12+)</string>

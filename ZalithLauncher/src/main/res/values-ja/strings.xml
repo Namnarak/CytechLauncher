@@ -297,7 +297,6 @@
     <string name="account_supporting_password_invalid_empty">パスワードが必要</string>
     <string name="account_supporting_microsoft_tip_title">Microsoftアカウントを追加</string>
     <string name="download_game_addon_stable">安定版</string>
-    <string name="launcher_version_label_alpha">アルファバージョン: %s (デモのみ)</string>
     <string name="generic_input_invalid_character">名前に無効な文字が含まれています: \"%s\"</string>
     <string name="generic_input_too_small">値は %s より小さくできません</string>
     <string name="generic_input_too_large">値は %s より大きくできません</string>

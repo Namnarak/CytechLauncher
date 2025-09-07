@@ -5,10 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.SplashException
@@ -50,11 +46,6 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
                     SplashScreen(
                         startAllTask = { startAllTask() },
                         unpackItems = unpackItems
-                    )
-                    LauncherVersion(
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
-                            .align(Alignment.BottomCenter)
                     )
                 }
             }

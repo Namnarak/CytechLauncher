@@ -36,8 +36,6 @@
     <string name="generic_search">Ara</string>
     <string name="generic_loading">Yükleniyor</string>
     <string name="generic_anyway">Yine de Kullan</string>
-    <!-- Launcher Version -->
-    <string name="launcher_version_label_alpha">Alpha Sürüm: %s (Demo)</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Dinamik (Android 12+)</string>
     <string name="theme_color_embermire">Embermire</string>

@@ -6,10 +6,6 @@ import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -133,12 +129,6 @@ class MainActivity : BaseComponentActivity() {
                                 screenKey = NormalNavKey.VersionsManager
                             )
                         }
-                    )
-
-                    LauncherVersion(
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
-                            .align(Alignment.BottomCenter)
                     )
                 }
             }

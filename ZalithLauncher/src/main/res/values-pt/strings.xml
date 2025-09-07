@@ -144,7 +144,6 @@
     <string name="days_ago">%d dias atrás</string>
     <string name="months_ago">%d meses atrás</string>
     <string name="years_ago">%d anos atrás</string>
-    <string name="launcher_version_label_alpha">Versão alpha: %s (somente demonstração)</string>
     <string name="launcher_version_debug_warning">Você está usando uma versão de teste do %s! Esta versão pode ser instável e destina-se principalmente a testes de recursos e acesso antecipado. Não é recomendada para o uso a longo prazo! Se encontrar algum problema durante os testes, informe-nos via GitHub e resolveremos o problema o mais breve possível.</string>
     <string name="launcher_version_debug_warning_cant_close">Este aviso não pode ser ignorado</string>
     <string name="theme_color_dynamic">Dinâmico (Android 12+)</string>

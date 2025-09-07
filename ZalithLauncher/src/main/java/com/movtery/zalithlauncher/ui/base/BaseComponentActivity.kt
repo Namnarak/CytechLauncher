@@ -6,14 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import androidx.annotation.CallSuper
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.stringResource
-import com.movtery.zalithlauncher.BuildConfig
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.path.GamePathManager
@@ -147,17 +139,4 @@ open class BaseComponentActivity(
     }
 
     protected fun runFinish() = run { finish() }
-
-    @Composable
-    protected fun LauncherVersion(
-        modifier: Modifier = Modifier
-    ) {
-        val versionName = BuildConfig.VERSION_NAME
-        Text(
-            modifier = modifier.alpha(0.6f),
-            text = stringResource(R.string.launcher_version_label_alpha, versionName),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
 }

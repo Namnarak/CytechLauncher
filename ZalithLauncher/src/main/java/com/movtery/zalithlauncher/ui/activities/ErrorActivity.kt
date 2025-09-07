@@ -7,10 +7,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.path.PathManager
@@ -136,11 +132,6 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
                             finish()
                         },
                         onExitClick = { finish() }
-                    )
-                    LauncherVersion(
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
-                            .align(Alignment.BottomCenter)
                     )
                 }
             }
