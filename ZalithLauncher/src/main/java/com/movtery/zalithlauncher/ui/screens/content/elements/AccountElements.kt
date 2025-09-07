@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -557,117 +558,123 @@ fun OtherServerLoginDialog(
     }
 
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                Text(
-                    text = server.serverName,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-
                 Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxWidth(),
+                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val passwordFocus = remember { FocusRequester() }
-                    val focusManager = LocalFocusManager.current
+                    Text(
+                        text = server.serverName,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
 
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = email,
-                        onValueChange = { email = it },
-                        isError = email.isEmpty(),
-                        label = { Text(text = stringResource(R.string.account_label_email)) },
-                        supportingText = {
-                            if (email.isEmpty()) {
-                                Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                //自动跳到密码输入框，无缝衔接
-                                passwordFocus.requestFocus()
-                            }
-                        ),
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    OutlinedTextField(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(passwordFocus),
-                        value = password,
-                        onValueChange = { password = it },
-                        isError = password.isEmpty(),
-                        label = { Text(text = stringResource(R.string.account_label_password)) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Transparent,
-                        ),
-                        supportingText = {
-                            if (password.isEmpty()) {
-                                Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                //用户按下返回，甚至可以在这里直接进行登陆
-                                focusManager.clearFocus(true)
-                                confirmAction()
-                            }
-                        ),
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    if (!server.register.isNullOrEmpty()) {
-                        Column(
+                            .weight(1f, fill = false)
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val passwordFocus = remember { FocusRequester() }
+                        val focusManager = LocalFocusManager.current
+
+                        OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            IconTextButton(
-                                onClick = {
-                                    onRegisterClick(server.register!!)
-                                },
-                                imageVector = Icons.Outlined.Link,
-                                contentDescription = null,
-                                text = stringResource(R.string.account_other_login_register)
-                            )
+                            value = email,
+                            onValueChange = { email = it },
+                            isError = email.isEmpty(),
+                            label = { Text(text = stringResource(R.string.account_label_email)) },
+                            supportingText = {
+                                if (email.isEmpty()) {
+                                    Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Next
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onNext = {
+                                    //自动跳到密码输入框，无缝衔接
+                                    passwordFocus.requestFocus()
+                                }
+                            ),
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(passwordFocus),
+                            value = password,
+                            onValueChange = { password = it },
+                            isError = password.isEmpty(),
+                            label = { Text(text = stringResource(R.string.account_label_password)) },
+                            visualTransformation = PasswordVisualTransformation(),
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = Transparent,
+                            ),
+                            supportingText = {
+                                if (password.isEmpty()) {
+                                    Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    //用户按下返回，甚至可以在这里直接进行登陆
+                                    focusManager.clearFocus(true)
+                                    confirmAction()
+                                }
+                            ),
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        if (!server.register.isNullOrEmpty()) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                IconTextButton(
+                                    onClick = {
+                                        onRegisterClick(server.register!!)
+                                    },
+                                    imageVector = Icons.Outlined.Link,
+                                    contentDescription = null,
+                                    text = stringResource(R.string.account_other_login_register)
+                                )
+                            }
                         }
                     }
-                }
-                Spacer(modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.size(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        MarqueeText(text = stringResource(R.string.generic_cancel))
-                    }
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = confirmAction
-                    ) {
-                        MarqueeText(text = stringResource(R.string.generic_confirm))
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = confirmAction
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_confirm))
+                        }
                     }
                 }
             }
@@ -681,56 +688,62 @@ fun SelectSkinModelDialog(
     onSelected: (SkinModelType) -> Unit = {}
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(all = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                Text(
-                    text = stringResource(R.string.account_change_skin_select_model_title),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
                 Column(
-                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(all = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.account_change_skin_select_model_message),
-                        style = MaterialTheme.typography.bodyMedium
+                        text = stringResource(R.string.account_change_skin_select_model_title),
+                        style = MaterialTheme.typography.titleMedium
                     )
-                }
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            onSelected(SkinModelType.STEVE)
-                        }
+                    Column(
+                        modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        MarqueeText(text = stringResource(R.string.account_change_skin_model_steve))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.account_change_skin_select_model_message),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
-                    Button(
+
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            onSelected(SkinModelType.ALEX)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                onSelected(SkinModelType.STEVE)
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.account_change_skin_model_steve))
                         }
-                    ) {
-                        MarqueeText(text = stringResource(R.string.account_change_skin_model_alex))
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onDismissRequest
-                    ) {
-                        MarqueeText(text = stringResource(R.string.generic_cancel))
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                onSelected(SkinModelType.ALEX)
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.account_change_skin_model_alex))
+                        }
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
                     }
                 }
             }

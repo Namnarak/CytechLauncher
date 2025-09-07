@@ -1,10 +1,12 @@
 package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -175,44 +177,50 @@ fun SimpleEditDialog(
     onConfirm: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                simpleEditDialogBody(
-                    title = title,
-                    value = value,
-                    onValueChange = onValueChange,
-                    label = label,
-                    isError = isError,
-                    supportingText = supportingText,
-                    singleLine = singleLine,
-                    maxLines = maxLines,
-                    keyboardOptions = keyboardOptions,
-                    extraBody = extraBody,
-                    extraContent = extraContent
-                ).invoke(this)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest
+                    simpleEditDialogBody(
+                        title = title,
+                        value = value,
+                        onValueChange = onValueChange,
+                        label = label,
+                        isError = isError,
+                        supportingText = supportingText,
+                        singleLine = singleLine,
+                        maxLines = maxLines,
+                        keyboardOptions = keyboardOptions,
+                        extraBody = extraBody,
+                        extraContent = extraContent
+                    ).invoke(this)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        MarqueeText(text = stringResource(R.string.generic_cancel))
-                    }
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onConfirm
-                    ) {
-                        MarqueeText(text = stringResource(R.string.generic_confirm))
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = onConfirm
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_confirm))
+                        }
                     }
                 }
             }
@@ -236,34 +244,40 @@ fun SimpleEditDialog(
     onConfirm: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = {}) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                simpleEditDialogBody(
-                    title = title,
-                    value = value,
-                    onValueChange = onValueChange,
-                    label = label,
-                    isError = isError,
-                    supportingText = supportingText,
-                    singleLine = singleLine,
-                    maxLines = maxLines,
-                    keyboardOptions = keyboardOptions,
-                    extraBody = extraBody,
-                    extraContent = extraContent
-                ).invoke(this)
-
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onConfirm
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    MarqueeText(text = stringResource(R.string.generic_confirm))
+                    simpleEditDialogBody(
+                        title = title,
+                        value = value,
+                        onValueChange = onValueChange,
+                        label = label,
+                        isError = isError,
+                        supportingText = supportingText,
+                        singleLine = singleLine,
+                        maxLines = maxLines,
+                        keyboardOptions = keyboardOptions,
+                        extraBody = extraBody,
+                        extraContent = extraContent
+                    ).invoke(this)
+
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onConfirm
+                    ) {
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
+                    }
                 }
             }
         }
@@ -400,51 +414,57 @@ fun <T> SimpleListDialog(
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 6.dp
+        Box(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .wrapContentHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Surface(
+                modifier = Modifier.padding(all = 6.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Spacer(modifier = Modifier.size(16.dp))
-                LazyColumn(
-                    modifier = Modifier.weight(1f, fill = false)
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .wrapContentHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(itemsProvider()) { item ->
-                        SimpleListItem(
-                            selected = false,
-                            itemName = itemTextProvider(item),
-                            modifier = Modifier.fillMaxWidth(),
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        items(itemsProvider()) { item ->
+                            SimpleListItem(
+                                selected = false,
+                                itemName = itemTextProvider(item),
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    selectedItem = item
+                                    if (!showConfirmAndCancel) {
+                                        onItemSelected(item)
+                                        onDismissRequest()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.size(4.dp))
+
+                    if (showConfirmAndCancel) {
+                        Button(
                             onClick = {
-                                selectedItem = item
-                                if (!showConfirmAndCancel) {
-                                    onItemSelected(item)
+                                if (selectedItem != null) {
+                                    onItemSelected(selectedItem!!)
                                     onDismissRequest()
                                 }
                             }
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.size(4.dp))
-
-                if (showConfirmAndCancel) {
-                    Button(
-                        onClick = {
-                            if (selectedItem != null) {
-                                onItemSelected(selectedItem!!)
-                                onDismissRequest()
-                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_confirm))
                         }
-                    ) {
-                        MarqueeText(text = stringResource(R.string.generic_confirm))
                     }
                 }
             }

@@ -234,6 +234,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
     implementation(libs.material.color.utilities)
+    //Project
+    implementation(project(":LayerController"))
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)

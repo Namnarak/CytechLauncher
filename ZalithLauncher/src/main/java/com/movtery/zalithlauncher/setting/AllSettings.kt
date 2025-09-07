@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.setting
 import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
@@ -221,6 +222,12 @@ object AllSettings : SettingsRegistry() {
      */
     val fileDownloadSource = enumSetting("fileDownloadSource", MirrorSourceType.OFFICIAL_FIRST)
 
+    //Control
+    /**
+     * 全局默认控制布局文件名
+     */
+    val controlLayout = stringSetting("controlLayout", "")
+
     //Other
     /**
      * 当前选择的账号
@@ -241,4 +248,19 @@ object AllSettings : SettingsRegistry() {
      * 在游戏菜单悬浮窗上显示帧率
      */
     val showFPS = boolSetting("showFPS", true)
+
+    /**
+     * 控制布局编辑器：是否开启控件吸附功能
+     */
+    val editorEnableWidgetSnap = boolSetting("editorEnableWidgetSnap", true)
+
+    /**
+     * 控制布局编辑器：是否在所有控件层范围内吸附
+     */
+    val editorSnapInAllLayers = boolSetting("editorSnapInAllLayers", false)
+
+    /**
+     * 控制布局编辑器：控件吸附模式
+     */
+    val editorWidgetSnapMode = enumSetting("editorWidgetSnapMode", SnapMode.FullScreen)
 }

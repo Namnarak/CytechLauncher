@@ -8,6 +8,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -27,8 +28,13 @@ fun itemLayoutColor(): Color {
         MaterialTheme.colorScheme.surfaceVariant
     } else {
         //浅色模式下用这个颜色刚刚好
-        MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+        itemLayoutColorOnSurface(1.dp)
     }
+}
+
+@Composable
+fun itemLayoutColorOnSurface(elevation: Dp = 2.dp): Color {
+    return MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
 }
 
 /**

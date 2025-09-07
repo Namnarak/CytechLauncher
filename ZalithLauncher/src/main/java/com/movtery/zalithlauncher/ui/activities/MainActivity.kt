@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -149,6 +150,7 @@ class MainActivity : BaseComponentActivity() {
         if (VersionsManager.versions.value.isEmpty()) {
             VersionsManager.refresh()
         }
+        ControlManager.refresh()
     }
 
     @SuppressLint("RestrictedApi")

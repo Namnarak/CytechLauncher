@@ -490,7 +490,7 @@ fun ProjectTitleHead(
         ) {
             Text(
                 modifier = Modifier
-                    .weight(1f, fill = false)
+                    .weight(0.6f, fill = false)
                     .basicMarquee(iterations = Int.MAX_VALUE),
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
@@ -504,7 +504,9 @@ fun ProjectTitleHead(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
                 Text(
-                    modifier = Modifier.alpha(0.7f),
+                    modifier = Modifier
+                        .weight(0.4f, fill = false)
+                        .alpha(0.7f),
                     text = stringResource(R.string.download_assets_result_authors, it),
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1

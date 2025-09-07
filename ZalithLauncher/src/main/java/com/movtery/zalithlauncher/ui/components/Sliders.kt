@@ -1,6 +1,8 @@
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.annotation.IntRange
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,26 +12,39 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.utils.math.addBigDecimal
 import com.movtery.zalithlauncher.utils.math.subtractBigDecimal
 import java.text.DecimalFormat
 
+/**
+ * 简单的文本滑动条，支持实时显示当前滑动条的数值，支持显示自定义数值的单位
+ * @param shorter 是否使用更短的指示器的滑动条
+ */
 @Composable
 fun SimpleTextSlider(
     modifier: Modifier = Modifier,
+    shorter: Boolean = false,
     value: Float,
+    decimalFormat: String = "#0.00",
     enabled: Boolean = true,
     onValueChange: (Float) -> Unit,
     toInt: Boolean = false,
@@ -42,7 +57,7 @@ fun SimpleTextSlider(
     fineTuningStep: Float = 0.5f,
     appendContent: @Composable () -> Unit = {}
 ) {
-    val formatter = DecimalFormat("#0.00")
+    val formatter = DecimalFormat(decimalFormat)
     fun getTextString(value: Float) = "${if (toInt) {
         value.toInt()
     } else {
@@ -66,15 +81,27 @@ fun SimpleTextSlider(
     Row(
         modifier = modifier
     ) {
-        Slider(
-            value = value,
-            enabled = enabled,
-            onValueChange = { changeValue(it, false) },
-            onValueChangeFinished = onValueChangeFinished,
-            valueRange = valueRange,
-            steps = steps,
-            modifier = Modifier.weight(1f)
-        )
+        if (shorter) {
+            IndicatorSlider(
+                value = value,
+                enabled = enabled,
+                onValueChange = { changeValue(it, false) },
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = valueRange,
+                steps = steps,
+                modifier = Modifier.weight(1f)
+            )
+        } else {
+            Slider(
+                value = value,
+                enabled = enabled,
+                onValueChange = { changeValue(it, false) },
+                onValueChangeFinished = onValueChangeFinished,
+                valueRange = valueRange,
+                steps = steps,
+                modifier = Modifier.weight(1f)
+            )
+        }
         Surface(
             modifier = Modifier
                 .alpha(alpha = if (enabled) 1f else 0.5f)
@@ -145,5 +172,53 @@ fun SimpleTextSlider(
             }
         }
         appendContent()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IndicatorSlider(
+    modifier: Modifier = Modifier,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    enabled: Boolean = true,
+    onValueChangeFinished: (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    @IntRange(from = 0) steps: Int = 0,
+    colors: SliderColors = SliderDefaults.colors()
+) {
+    /** Slider顶部需要裁切的像素 */
+    val sliderTopCut = with(LocalDensity.current) { 8.dp.toPx().toInt() }
+    /** Slider底部需要裁切的像素 */
+    val sliderBottomCut = with(LocalDensity.current) { 6.dp.toPx().toInt() }
+    Layout(
+        modifier = modifier,
+        content = {
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                valueRange = valueRange,
+                enabled = enabled,
+                onValueChangeFinished = onValueChangeFinished,
+                interactionSource = interactionSource,
+                steps = steps,
+                colors = colors,
+                thumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = interactionSource,
+                        colors = colors,
+                        enabled = enabled,
+                        thumbSize = DpSize(4.0.dp, 18.5.dp)
+                    )
+                }
+            )
+        }
+    ) { measurables, constraints ->
+        val placeable = measurables.first().measure(constraints)
+        val newHeight = (placeable.height - sliderTopCut - sliderBottomCut).coerceAtLeast(0)
+        layout(placeable.width, newHeight) {
+            placeable.place(0, -sliderTopCut)
+        }
     }
 }

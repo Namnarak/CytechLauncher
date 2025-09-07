@@ -687,9 +687,10 @@ fun Modifier.touchControllerTouchModifier() = this.pointerInput(Unit) {
         }
 
         while (true) {
-            val event = awaitPointerEvent(PointerEventPass.Main)
+            val event = awaitPointerEvent(PointerEventPass.Initial)
             val proxyClient = proxyClient.value
             event.changes.fastForEach { change ->
+                if (change.isConsumed) return@fastForEach
                 if (change.changedToDownIgnoreConsumed()) {
                     if (!activePointers.containsKey(change.id)) {
                         val pointerId = nextPointerId++

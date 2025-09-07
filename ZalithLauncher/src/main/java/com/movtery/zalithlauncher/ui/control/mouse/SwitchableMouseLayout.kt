@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
@@ -43,6 +44,9 @@ typealias CursorMode = Int
  * @param onCapturedMove            抓取模式指针移动回调，返回滑动偏移量
  * @param onMouseScroll             实体鼠标指针滚轮滑动
  * @param onMouseButton             实体鼠标指针按钮按下反馈
+ * @param isMoveOnlyPointer         指针是否被父级标记为仅可滑动指针
+ * @param onOccupiedPointer         占用指针回调
+ * @param onReleasePointer          释放指针回调
  * @param mouseSize                 指针大小
  * @param cursorSensitivity         指针灵敏度（滑动模式生效）
  */
@@ -64,6 +68,9 @@ fun SwitchableMouseLayout(
     onCapturedMove: (Offset) -> Unit = {},
     onMouseScroll: (Offset) -> Unit = {},
     onMouseButton: (button: Int, pressed: Boolean) -> Unit = { _, _ -> },
+    isMoveOnlyPointer: (PointerId) -> Boolean = { false },
+    onOccupiedPointer: (PointerId) -> Unit = {},
+    onReleasePointer: (PointerId) -> Unit = {},
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
     cursorSensitivity: Int = AllSettings.cursorSensitivity.state
 ) {
@@ -244,6 +251,9 @@ fun SwitchableMouseLayout(
             },
             onMouseScroll = onMouseScroll,
             onMouseButton = onMouseButton,
+            isMoveOnlyPointer = isMoveOnlyPointer,
+            onOccupiedPointer = onOccupiedPointer,
+            onReleasePointer = onReleasePointer,
             requestFocusKey = cursorMode
         )
     }

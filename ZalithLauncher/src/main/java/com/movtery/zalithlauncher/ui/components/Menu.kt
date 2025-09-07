@@ -30,11 +30,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -55,11 +53,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -167,6 +162,117 @@ fun MenuSubscreen(
                             .fillMaxSize()
                             .alpha(animationProgress.value),
                         content = content
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DualMenuSubscreen(
+    state: MenuState,
+    closeScreen: () -> Unit,
+    shape: Shape = RoundedCornerShape(21.0.dp),
+    backgroundColor: Color = Color.Black.copy(alpha = 0.25f),
+    backgroundAnimDuration: Int = 150,
+    leftMenuContent: @Composable ColumnScope.() -> Unit = {},
+    rightMenuContent: @Composable ColumnScope.() -> Unit = {}
+) {
+    val visible = state == MenuState.SHOW
+
+    val animationProgress = remember { Animatable(0f) }
+    var shouldRender by remember { mutableStateOf(false) }
+
+    LaunchedEffect(visible) {
+        if (visible) {
+            shouldRender = true
+            animationProgress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(backgroundAnimDuration)
+            )
+        } else {
+            animationProgress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(backgroundAnimDuration)
+            )
+            shouldRender = false
+        }
+    }
+
+    val bgAlpha by remember {
+        derivedStateOf { animationProgress.value }
+    }
+
+    val leftMenuOffset by swapAnimateDpAsState(
+        targetValue = (-40).dp, //从左
+        swapIn = visible,
+        isHorizontal = true,
+        animationSpec = getAnimateTweenJellyBounce()
+    )
+
+    val rightMenuOffset by swapAnimateDpAsState(
+        targetValue = 40.dp, //从右
+        swapIn = visible,
+        isHorizontal = true,
+        animationSpec = getAnimateTweenJellyBounce()
+    )
+
+    if (shouldRender) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            //背景阴影层
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(bgAlpha)
+                    .background(color = backgroundColor)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = closeScreen
+                    )
+            )
+
+            //左侧菜单
+            if (animationProgress.value > 0f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxWidth(fraction = 1f / 3f)
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, start = 12.dp, bottom = 12.dp)
+                        .offset {
+                            IntOffset(x = leftMenuOffset.roundToPx(), y = 0)
+                        }
+                ) {
+                    Card(
+                        shape = shape,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(animationProgress.value),
+                        content = { leftMenuContent() }
+                    )
+                }
+            }
+
+            //右侧菜单
+            if (animationProgress.value > 0f) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxWidth(fraction = 1f / 3f)
+                        .fillMaxHeight()
+                        .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
+                        .offset {
+                            IntOffset(x = rightMenuOffset.roundToPx(), y = 0)
+                        }
+                ) {
+                    Card(
+                        shape = shape,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(animationProgress.value),
+                        content = { rightMenuContent() }
                     )
                 }
             }
@@ -416,7 +522,6 @@ private fun MenuListItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuSliderLayout(
     modifier: Modifier = Modifier,
@@ -465,38 +570,16 @@ fun MenuSliderLayout(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-            /** Slider顶部需要裁切的像素 */
-            val sliderTopCut = with(LocalDensity.current) { 8.dp.toPx().toInt() }
-            /** Slider底部需要裁切的像素 */
-            val sliderBottomCut = with(LocalDensity.current) { 6.dp.toPx().toInt() }
-            Layout(
-                content = {
-                    Slider(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = value.toFloat(),
-                        onValueChange = { onValueChange(it.toInt()) },
-                        valueRange = valueRange,
-                        enabled = enabled,
-                        onValueChangeFinished = { onValueChangeFinished(value) },
-                        interactionSource = interactionSource,
-                        colors = colors,
-                        thumb = {
-                            SliderDefaults.Thumb(
-                                interactionSource = interactionSource,
-                                colors = colors,
-                                enabled = enabled,
-                                thumbSize = DpSize(4.0.dp, 18.5.dp)
-                            )
-                        }
-                    )
-                }
-            ) { measurables, constraints ->
-                val placeable = measurables.first().measure(constraints)
-                val newHeight = (placeable.height - sliderTopCut - sliderBottomCut).coerceAtLeast(0)
-                layout(placeable.width, newHeight) {
-                    placeable.place(0, -sliderTopCut)
-                }
-            }
+            IndicatorSlider(
+                modifier = Modifier.fillMaxWidth(),
+                value = value.toFloat(),
+                onValueChange = { onValueChange(it.toInt()) },
+                onValueChangeFinished = { onValueChangeFinished(value) },
+                interactionSource = interactionSource,
+                valueRange = valueRange,
+                colors = colors,
+                enabled = enabled
+            )
         }
     }
 }

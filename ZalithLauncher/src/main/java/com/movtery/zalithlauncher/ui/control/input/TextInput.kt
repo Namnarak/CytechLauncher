@@ -107,6 +107,7 @@ private class TextInputNode(
 
                         startInputMethod { info ->
                             info.inputType = InputType.TYPE_CLASS_TEXT or
+                                    InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
                                     InputType.TYPE_TEXT_VARIATION_NORMAL
                             info.imeOptions = EditorInfo.IME_ACTION_DONE
                             connection
@@ -152,10 +153,12 @@ private class TextInputNode(
      * 大多数未实现的方法都返回默认值或执行无操作操作，因为它们对于此特定用例而言不是必需的
      */
     private inner class InputConnectionImpl() : InputConnection {
+        private var composingText: CharSequence? = null
 
         override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
             val newText = text.toString()
             newText.forEach { char -> sender.sendChar(char) }
+            composingText = null
             return true
         }
 
@@ -181,14 +184,24 @@ private class TextInputNode(
         override fun getTextBeforeCursor(p0: Int, p1: Int): CharSequence = ""
         override fun getTextAfterCursor(p0: Int, p1: Int): CharSequence = ""
         override fun getSelectedText(p0: Int): CharSequence? = null
-        override fun setComposingText(p0: CharSequence, p1: Int): Boolean {
-            //中间状态文本不提交到最终内容，不发送字符
+
+        override fun setComposingText(text: CharSequence, newCursorPosition: Int): Boolean {
+            composingText = text //更新组合文本，但不发送
+            return true
+        }
+
+        override fun finishComposingText(): Boolean {
+            //提交当前的组合文本
+            composingText?.let { text ->
+                val str = text.toString()
+                str.forEach { char -> sender.sendChar(char) }
+                composingText = null
+            }
             return true
         }
 
         override fun setSelection(p0: Int, p1: Int): Boolean = true
 
-        override fun finishComposingText(): Boolean = true
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
             repeat(beforeLength) { sender.sendBackspace() }
             return true
