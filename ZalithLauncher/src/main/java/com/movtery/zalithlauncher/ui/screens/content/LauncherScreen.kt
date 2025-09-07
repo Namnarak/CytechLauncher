@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -233,7 +232,6 @@ private fun RightMenu(
                 VersionManagerLayout(
                     version = version,
                     modifier = Modifier
-                        .height(56.dp)
                         .weight(1f)
                         .padding(8.dp),
                     swapToVersionManage = toVersionManageScreen
@@ -284,8 +282,7 @@ private fun VersionManagerLayout(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
+                .padding(PaddingValues(all = 8.dp))
         ) {
             if (VersionsManager.isRefreshing) {
                 Box(modifier = Modifier.fillMaxSize()) {

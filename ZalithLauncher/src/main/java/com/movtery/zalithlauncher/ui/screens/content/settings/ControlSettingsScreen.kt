@@ -104,7 +104,9 @@ fun ControlSettingsScreen(
                     summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
                     trailingIcon = {
                         TooltipIconButton(
-                            modifier = Modifier.padding(horizontal = 8.dp),
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(horizontal = 8.dp),
                             tooltipTitle = stringResource(R.string.generic_warning),
                             tooltipMessage = stringResource(R.string.settings_control_mouse_physical_mouse_warning)
                         ) {

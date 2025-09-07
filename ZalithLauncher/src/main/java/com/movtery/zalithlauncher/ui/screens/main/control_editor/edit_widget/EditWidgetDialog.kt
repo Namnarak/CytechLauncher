@@ -3,6 +3,8 @@ package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 import android.view.WindowManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -39,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
@@ -52,6 +53,7 @@ import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 
@@ -162,58 +164,45 @@ fun EditWidgetDialog(
                         )
                     }
                     //底部操作栏
-                    ConstraintLayout(
+                    Row(
                         modifier = Modifier
                             .padding(all = 8.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val (previewButton, deleteButton, cloneButton, closeButton) = createRefs()
-
-                        //非用户决定时，隐藏这个按钮
                         if (dialogTransparent != EditWidgetDialogState.SEMI_TRANSPARENT) {
                             Button(
-                                modifier = Modifier
-                                    .constrainAs(previewButton) {
-                                        start.linkTo(parent.start)
-                                    },
                                 onClick = {
                                     dialogTransparent = dialogTransparent.nextByUser()
                                 }
                             ) {
-                                MarqueeText(
-                                    text = stringResource(dialogTransparent.buttonText)
-                                )
+                                MarqueeText(text = stringResource(dialogTransparent.buttonText))
                             }
+                            Spacer(Modifier.width(16.dp))
                         }
 
-                        Button(
+                        Row(
                             modifier = Modifier
-                                .constrainAs(deleteButton) {
-                                    end.linkTo(cloneButton.start, 16.dp)
-                                },
-                            onClick = onDelete
+                                .horizontalScroll(rememberAutoScrollToEndState()),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            MarqueeText(text = stringResource(R.string.generic_delete))
-                        }
+                            Button(
+                                onClick = onDelete
+                            ) {
+                                MarqueeText(text = stringResource(R.string.generic_delete))
+                            }
 
-                        Button(
-                            modifier = Modifier
-                                .constrainAs(cloneButton) {
-                                    end.linkTo(closeButton.start, 16.dp)
-                                },
-                            onClick = onClone
-                        ) {
-                            MarqueeText(text = stringResource(R.string.control_editor_edit_dialog_clone_widget))
-                        }
+                            Button(
+                                onClick = onClone
+                            ) {
+                                MarqueeText(text = stringResource(R.string.control_editor_edit_dialog_clone_widget))
+                            }
 
-                        Button(
-                            modifier = Modifier
-                                .constrainAs(closeButton) {
-                                    end.linkTo(parent.end)
-                                },
-                            onClick = onDismissRequest
-                        ) {
-                            MarqueeText(text = stringResource(R.string.generic_close))
+                            Button(
+                                onClick = onDismissRequest
+                            ) {
+                                MarqueeText(text = stringResource(R.string.generic_close))
+                            }
                         }
                     }
                 }

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -112,6 +114,7 @@ fun ScalingLabel(
 fun LittleTextLabel(
     modifier: Modifier = Modifier,
     text: String,
+    singleLine: Boolean = true,
     color: Color = MaterialTheme.colorScheme.tertiary,
     contentColor: Color = MaterialTheme.colorScheme.onTertiary,
     shape: Shape = MaterialTheme.shapes.large,
@@ -124,9 +127,15 @@ fun LittleTextLabel(
         shape = shape
     ) {
         Text(
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            modifier = Modifier
+                .then(
+                    if (singleLine) Modifier.basicMarquee(Int.MAX_VALUE)
+                    else Modifier
+                )
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             text = text,
-            style = textStyle
+            style = textStyle,
+            maxLines = if (singleLine) 1 else Int.MAX_VALUE
         )
     }
 }
@@ -457,7 +466,7 @@ fun SwitchLayout(
     summary: String? = null,
     enabled: Boolean = true,
     shape: Shape = RoundedCornerShape(22.0.dp),
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -479,7 +488,9 @@ fun SwitchLayout(
             )
         }
 
-        trailingIcon?.invoke()
+        Row(modifier = Modifier.align(Alignment.CenterVertically)) {
+            trailingIcon?.invoke(this)
+        }
 
         Switch(
             modifier = Modifier.align(Alignment.CenterVertically),

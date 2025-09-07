@@ -6,7 +6,6 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -443,8 +442,10 @@ private fun ResultItemLayout(
                 }
 
                 //标签栏
-                FlowRow(
-                    modifier = Modifier.alpha(0.7f),
+                Row(
+                    modifier = Modifier
+                        .basicMarquee(Int.MAX_VALUE)
+                        .alpha(0.7f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     modloaders?.let {

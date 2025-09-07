@@ -94,6 +94,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
@@ -529,7 +530,7 @@ private fun ControlListHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .horizontalScroll(state = rememberScrollState())
+            .horizontalScroll(state = rememberAutoScrollToEndState())
             .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically

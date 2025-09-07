@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +49,7 @@ class SettingsLayoutScope {
         summary: String? = null,
         enabled: Boolean = true,
         onCheckedChange: (Boolean) -> Unit = {},
-        trailingIcon: @Composable (() -> Unit)? = null
+        trailingIcon: @Composable (RowScope.() -> Unit)? = null
     ) {
         SwitchLayout(
             checked = unit.state,
