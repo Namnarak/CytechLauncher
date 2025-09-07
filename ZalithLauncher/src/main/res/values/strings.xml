@@ -683,10 +683,8 @@
     <string name="control_manage_create_new_name">Layout Name</string>
     <string name="control_manage_create_new_author">Layout Author</string>
     <string name="control_manage_create_new_version_name">Layout Version</string>
-    <string name="control_manage_create_new_version_code">Layout Version Code</string>
     <string name="control_manage_create_new_field_blank">This field cannot be empty</string>
     <string name="control_manage_create_new_field_long">Content too long</string>
-    <string name="control_manage_create_new_field_number">Invalid number</string>
     <string name="control_manage_delete_message">Are you sure you want to delete the control layout %s?</string>
     <string name="control_manage_saving">Saving control layout</string>
     <string name="control_manage_failed_to_save">Failed to save control layout</string>
@@ -716,7 +714,6 @@
     <string name="control_editor_layers_attribute">Control Layer Attributes</string>
     <string name="control_editor_layers_attribute_name">Control Layer Name</string>
     <string name="control_editor_layers_attribute_hide">Hide Control Layer by Default</string>
-    <string name="control_editor_edit">Edit Control</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>
     <string name="control_editor_edit_dialog_clone_widget">Clone Control</string>

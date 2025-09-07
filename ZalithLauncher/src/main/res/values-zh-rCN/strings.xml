@@ -683,10 +683,8 @@
     <string name="control_manage_create_new_name">布局名称</string>
     <string name="control_manage_create_new_author">布局创作者</string>
     <string name="control_manage_create_new_version_name">布局版本</string>
-    <string name="control_manage_create_new_version_code">布局版本号</string>
     <string name="control_manage_create_new_field_blank">该项不能为空</string>
     <string name="control_manage_create_new_field_long">内容过长</string>
-    <string name="control_manage_create_new_field_number">非法数字</string>
     <string name="control_manage_delete_message">您确定要删除控制布局 %s 吗？</string>
     <string name="control_manage_saving">保存控制布局中</string>
     <string name="control_manage_failed_to_save">保存控制布局时遇到了问题</string>
@@ -716,7 +714,6 @@
     <string name="control_editor_layers_attribute">控件层属性</string>
     <string name="control_editor_layers_attribute_name">控件层名称</string>
     <string name="control_editor_layers_attribute_hide">默认隐藏控件层</string>
-    <string name="control_editor_edit">编辑控件</string>
     <string name="control_editor_edit_dialog_open_preview">开启预览</string>
     <string name="control_editor_edit_dialog_close_preview">关闭预览</string>
     <string name="control_editor_edit_dialog_clone_widget">复制控件</string>
