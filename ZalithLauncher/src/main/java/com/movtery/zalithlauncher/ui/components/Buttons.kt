@@ -42,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
@@ -97,12 +98,14 @@ fun ScalingActionButton(
 fun MarqueeText(
     modifier: Modifier = Modifier,
     text: String,
+    color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current,
     textAlign: TextAlign? = null
 ) {
     Text(
         modifier = modifier.basicMarquee(Int.MAX_VALUE),
         text = text,
+        color = color,
         style = style,
         maxLines = 1,
         textAlign = textAlign

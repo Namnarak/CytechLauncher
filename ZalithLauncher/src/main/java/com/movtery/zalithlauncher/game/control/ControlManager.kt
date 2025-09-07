@@ -116,7 +116,7 @@ object ControlManager {
     private fun checkSettings() {
         val setting = AllSettings.controlLayout.getValue()
 
-        selectedLayout = _dataList.value.find { it.file.name == setting }
+        selectedLayout = _dataList.value.find { it.file.name == setting && it.isSupport }
             ?: dataList.value.firstOrNull { it.isSupport }
                 ?.also { AllSettings.controlLayout.save(it.file.name) }
 
@@ -143,7 +143,7 @@ object ControlManager {
      * 选择控制布局
      */
     fun selectControl(data: ControlData) {
-        if (!data.file.exists()) return //文件不存在了（？
+        if (!data.file.exists() || !data.isSupport) return
         AllSettings.controlLayout.save(data.file.name)
         selectedLayout = data
     }

@@ -591,28 +591,29 @@ private fun ControlLayoutItem(
                 .padding(all = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (data.isSupport) {
-                RadioButton(
-                    selected = selected,
-                    onClick = {
-                        if (selected) return@RadioButton
-                        onSelected()
-                    }
-                )
-                Column(
-                    modifier = Modifier.weight(1f)
+            RadioButton(
+                selected = selected,
+                enabled = data.isSupport,
+                onClick = {
+                    if (selected) return@RadioButton
+                    onSelected()
+                }
+            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                val info = data.controlLayout.info
+                Row(
+                    modifier = modifier.height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val info = data.controlLayout.info
-                    Row(
-                        modifier = modifier.height(IntrinsicSize.Min),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        MarqueeText(
-                            modifier = Modifier.weight(0.4f, fill = false),
-                            text = info.name.translate(locale),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                    MarqueeText(
+                        modifier = Modifier.weight(0.4f, fill = false),
+                        text = if (data.isSupport) info.name.translate(locale) else data.file.name,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    if (data.isSupport) {
                         //作者名称
                         val authorName = info.author.translate(locale)
                         if (!authorName.isEmptyOrBlank()) {
@@ -631,26 +632,29 @@ private fun ControlLayoutItem(
                             )
                         }
                     }
+                }
 
+                if (data.isSupport) {
                     if (!info.versionName.isEmptyOrBlank()) {
                         MarqueeText(
                             text = info.versionName,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                }
-                IconButton(
-                    onClick = onDelete
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(R.string.generic_delete)
+                } else {
+                    MarqueeText(
+                        text = stringResource(R.string.control_manage_info_unsupport),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
-            } else {
-                MarqueeText(
-                    text = data.file.name,
-                    style = MaterialTheme.typography.titleSmall
+            }
+            IconButton(
+                onClick = onDelete
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(R.string.generic_delete)
                 )
             }
         }
