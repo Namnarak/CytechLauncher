@@ -45,7 +45,7 @@ fun BoxScope.MinecraftHotbar(
 
     var hotbarSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
 
-    LaunchedEffect(MCOptions.refreshKey, density, scaleFactor) {
+    LaunchedEffect(isGrabbing, MCOptions.refreshKey, density, scaleFactor) {
         val guiScale = getMCGuiScale()
 
         with(density) {
