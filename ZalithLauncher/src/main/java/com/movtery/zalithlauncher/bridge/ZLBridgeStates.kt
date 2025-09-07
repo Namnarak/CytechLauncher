@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.bridge
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 object ZLBridgeStates {
@@ -16,6 +17,16 @@ object ZLBridgeStates {
      */
     @JvmStatic
     var currentFPS by mutableIntStateOf(0)
+
+    /**
+     * 莊濤：窗口变更刷新key
+     */
+    @JvmStatic
+    var windowChangeKey by mutableStateOf(false)
+
+    fun onWindowChange() {
+        this.windowChangeKey = !this.windowChangeKey
+    }
 }
 
 /** 指针:启用 */

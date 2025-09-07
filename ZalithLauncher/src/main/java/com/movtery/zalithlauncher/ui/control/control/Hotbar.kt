@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import org.lwjgl.glfw.CallbackBridge.windowHeight
@@ -39,14 +40,18 @@ private val keyList = listOf(
 fun BoxScope.MinecraftHotbar(
     onClickSlot: (key: Int) -> Unit,
     isGrabbing: Boolean = false,
-    scaleFactor: Float = 1f
+    resolutionRatio: Int
 ) {
     val density = LocalDensity.current
 
     var hotbarSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
 
-    LaunchedEffect(isGrabbing, MCOptions.refreshKey, density, scaleFactor) {
+    LaunchedEffect(
+        isGrabbing, MCOptions.refreshKey, density,
+        resolutionRatio, ZLBridgeStates.windowChangeKey
+    ) {
         val guiScale = getMCGuiScale()
+        val scaleFactor = resolutionRatio / 100f
 
         with(density) {
             val width = mcScale(guiScale, 180, scaleFactor)

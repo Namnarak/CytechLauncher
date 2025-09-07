@@ -297,7 +297,7 @@ fun GameScreen(
                     CallbackBridge.sendKeyPress(keycode)
                 },
                 isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                scaleFactor = AllSettings.resolutionRatio.state / 100f
+                resolutionRatio = AllSettings.resolutionRatio.state
             )
         }
 

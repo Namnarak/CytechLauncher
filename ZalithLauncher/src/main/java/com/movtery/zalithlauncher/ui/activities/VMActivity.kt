@@ -37,6 +37,7 @@ import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
+import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.JvmLaunchInfo
@@ -309,6 +310,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
         CallbackBridge.windowWidth = width
         CallbackBridge.windowHeight = height
+        ZLBridgeStates.onWindowChange()
     }
 
     private fun refreshSize() {
