@@ -462,4 +462,21 @@
     <string name="versions_manage_rename_version">バージョン名を変更</string>
     <string name="versions_manage_copy_version">バージョンをコピー</string>
     <string name="renderer_version_support">対応MCバージョン:</string>
+    <string name="download_game_install_optifine_fetch_download_url">OptiFine %s のダウンロードURLを取得</string>
+    <string name="download_game_install_forgelike_analyse">%s ライブラリを分析中</string>
+    <string name="download_game_install_forgelike_preparing_mapping_file">%s マッピングファイルを準備中</string>
+    <string name="download_install_error_cant_fetch_optifine_download_url">メインのOptiFineファイルのダウンロードリンクを取得できません</string>
+    <string name="download_modpack_install_get_mod_url">モッドのダウンロードリンクを取得 (%1$d/%2$d)</string>
+    <string name="account_supporting_microsoft_tip_link_text">必要かもしれないショートカット:</string>
+    <string name="versions_manage_game_path_delete_message">このフォルダを削除しますか？ファイルは残りますが、ランチャーからはリンクが解除されます。</string>
+    <string name="download_install_input_version_name">ユーザーがバージョン名を入力するのを待機中</string>
+    <string name="download_install_input_version_name_title">プリインストールバージョン名を入力してください</string>
+    <string name="download_assets_filter_search_name">検索名</string>
+    <string name="download_assets_failed_to_get_result">検索結果を取得できませんでした: %s。タップして再試行。</string>
+    <string name="download_assets_failed_to_get_project">プロジェクト情報の取得に失敗しました: %s。タップして再試行。</string>
+    <string name="download_assets_failed_to_get_versions">バージョンリストの取得に失敗しました: %s。タップして再試行。</string>
+    <string name="game_auto_pick_runtime_failed">互換性のあるランタイムが見つかりません。選択しているバージョンのランタイムを使用します。</string>
+    <string name="game_dialog_force_close_message">強制終了してメイン画面に戻りますか？</string>
+    <string name="game_loading">ゲームは実行中で、ゲーム画面が表示されるのを待っています</string>
+    <string name="game_menu_option_force_close_text">現在実行中のゲームを強制終了するとセーブデータの破損や設定の保存の失敗を引き起こす可能性があります。必要な場合以外この操作は避けてください。</string>
 </resources>
