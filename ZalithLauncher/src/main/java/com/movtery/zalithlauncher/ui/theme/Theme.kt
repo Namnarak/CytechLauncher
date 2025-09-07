@@ -2,6 +2,9 @@ package com.movtery.zalithlauncher.ui.theme
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -10,15 +13,17 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.material.color.utilities.CorePalette
+import com.google.android.material.color.utilities.DynamicScheme
 import com.google.android.material.color.utilities.Hct
-import com.google.android.material.color.utilities.Scheme
+import com.google.android.material.color.utilities.Variant
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 private val embermireLight = lightColorScheme(
     primary = primaryLight.embermire,
@@ -554,7 +559,21 @@ private val verdantDawnDark = darkColorScheme(
 
 @SuppressLint("RestrictedApi")
 private fun customLight(color: Color): ColorScheme {
-    val scheme = Scheme.light(color.toArgb())
+    val hct = Hct.fromInt(color.toArgb())
+    val palettes = CorePalette.of(color.toArgb())
+
+    val scheme = DynamicScheme(
+        hct,
+        Variant.TONAL_SPOT,
+        false,
+        0.0,
+        palettes.a1,
+        palettes.a2,
+        palettes.a3,
+        palettes.n1,
+        palettes.n2
+    )
+
     val hctNeutral = Hct.fromInt(scheme.surface)
     //https://github.com/flutter/flutter/issues/137679
     val surfaceDim               = Hct.from(hctNeutral.hue, hctNeutral.chroma, 87.0).toInt()
@@ -606,9 +625,22 @@ private fun customLight(color: Color): ColorScheme {
 
 @SuppressLint("RestrictedApi")
 private fun customDark(color: Color): ColorScheme {
-    val scheme = Scheme.dark(color.toArgb())
+    val hct = Hct.fromInt(color.toArgb())
+    val palettes = CorePalette.of(color.toArgb())
+
+    val scheme = DynamicScheme(
+        hct,
+        Variant.TONAL_SPOT,
+        true,
+        0.0,
+        palettes.a1,
+        palettes.a2,
+        palettes.a3,
+        palettes.n1,
+        palettes.n2
+    )
+
     val hctNeutral = Hct.fromInt(scheme.surface)
-    //https://github.com/flutter/flutter/issues/137679
     val surfaceDim                = Hct.from(hctNeutral.hue, hctNeutral.chroma, 6.0).toInt()
     val surfaceBright             = Hct.from(hctNeutral.hue, hctNeutral.chroma, 24.0).toInt()
     val surfaceContainerLowest    = Hct.from(hctNeutral.hue, hctNeutral.chroma, 4.0).toInt()
@@ -656,58 +688,58 @@ private fun customDark(color: Color): ColorScheme {
     )
 }
 
-//@Composable
-//private fun animateColorScheme(target: ColorScheme): ColorScheme {
-//    val transition = updateTransition(target, label = "ColorSchemeTransition")
-//
-//    @Composable
-//    fun Transition<ColorScheme>.animate(
-//        label: String,
-//        colorProp: ColorScheme.() -> Color
-//    ): State<Color> = animateColor(
-//        transitionSpec = { getAnimateTween() },
-//        label = label
-//    ) { it.colorProp() }
-//
-//    return ColorScheme(
-//        primary = transition.animate("primary") { primary }.value,
-//        onPrimary = transition.animate("onPrimary") { onPrimary }.value,
-//        primaryContainer = transition.animate("primaryContainer") { primaryContainer }.value,
-//        onPrimaryContainer = transition.animate("onPrimaryContainer") { onPrimaryContainer }.value,
-//        inversePrimary = transition.animate("inversePrimary") { inversePrimary }.value,
-//        secondary = transition.animate("secondary") { secondary }.value,
-//        onSecondary = transition.animate("onSecondary") { onSecondary }.value,
-//        secondaryContainer = transition.animate("secondaryContainer") { secondaryContainer }.value,
-//        onSecondaryContainer = transition.animate("onSecondaryContainer") { onSecondaryContainer }.value,
-//        tertiary = transition.animate("tertiary") { tertiary }.value,
-//        onTertiary = transition.animate("onTertiary") { onTertiary }.value,
-//        tertiaryContainer = transition.animate("tertiaryContainer") { tertiaryContainer }.value,
-//        onTertiaryContainer = transition.animate("onTertiaryContainer") { onTertiaryContainer }.value,
-//        background = transition.animate("background") { background }.value,
-//        onBackground = transition.animate("onBackground") { onBackground }.value,
-//        surface = transition.animate("surface") { surface }.value,
-//        onSurface = transition.animate("onSurface") { onSurface }.value,
-//        surfaceVariant = transition.animate("surfaceVariant") { surfaceVariant }.value,
-//        onSurfaceVariant = transition.animate("onSurfaceVariant") { onSurfaceVariant }.value,
-//        surfaceTint = transition.animate("surfaceTint") { surfaceTint }.value,
-//        inverseSurface = transition.animate("inverseSurface") { inverseSurface }.value,
-//        inverseOnSurface = transition.animate("inverseOnSurface") { inverseOnSurface }.value,
-//        error = transition.animate("error") { error }.value,
-//        onError = transition.animate("onError") { onError }.value,
-//        errorContainer = transition.animate("errorContainer") { errorContainer }.value,
-//        onErrorContainer = transition.animate("onErrorContainer") { onErrorContainer }.value,
-//        outline = transition.animate("outline") { outline }.value,
-//        outlineVariant = transition.animate("outlineVariant") { outlineVariant }.value,
-//        scrim = transition.animate("scrim") { scrim }.value,
-//        surfaceBright = transition.animate("surfaceBright") { surfaceBright }.value,
-//        surfaceContainer = transition.animate("surfaceContainer") { surfaceContainer }.value,
-//        surfaceContainerHigh = transition.animate("surfaceContainerHigh") { surfaceContainerHigh }.value,
-//        surfaceContainerHighest = transition.animate("surfaceContainerHighest") { surfaceContainerHighest }.value,
-//        surfaceContainerLow = transition.animate("surfaceContainerLow") { surfaceContainerLow }.value,
-//        surfaceContainerLowest = transition.animate("surfaceContainerLowest") { surfaceContainerLowest }.value,
-//        surfaceDim = transition.animate("surfaceDim") { surfaceDim }.value,
-//    )
-//}
+@Composable
+private fun animateColorScheme(target: ColorScheme): ColorScheme {
+    val transition = updateTransition(target, label = "ColorSchemeTransition")
+
+    @Composable
+    fun Transition<ColorScheme>.animate(
+        label: String,
+        colorProp: ColorScheme.() -> Color
+    ): State<Color> = animateColor(
+        transitionSpec = { getAnimateTween() },
+        label = label
+    ) { it.colorProp() }
+
+    return ColorScheme(
+        primary = transition.animate("primary") { primary }.value,
+        onPrimary = transition.animate("onPrimary") { onPrimary }.value,
+        primaryContainer = transition.animate("primaryContainer") { primaryContainer }.value,
+        onPrimaryContainer = transition.animate("onPrimaryContainer") { onPrimaryContainer }.value,
+        inversePrimary = transition.animate("inversePrimary") { inversePrimary }.value,
+        secondary = transition.animate("secondary") { secondary }.value,
+        onSecondary = transition.animate("onSecondary") { onSecondary }.value,
+        secondaryContainer = transition.animate("secondaryContainer") { secondaryContainer }.value,
+        onSecondaryContainer = transition.animate("onSecondaryContainer") { onSecondaryContainer }.value,
+        tertiary = transition.animate("tertiary") { tertiary }.value,
+        onTertiary = transition.animate("onTertiary") { onTertiary }.value,
+        tertiaryContainer = transition.animate("tertiaryContainer") { tertiaryContainer }.value,
+        onTertiaryContainer = transition.animate("onTertiaryContainer") { onTertiaryContainer }.value,
+        background = transition.animate("background") { background }.value,
+        onBackground = transition.animate("onBackground") { onBackground }.value,
+        surface = transition.animate("surface") { surface }.value,
+        onSurface = transition.animate("onSurface") { onSurface }.value,
+        surfaceVariant = transition.animate("surfaceVariant") { surfaceVariant }.value,
+        onSurfaceVariant = transition.animate("onSurfaceVariant") { onSurfaceVariant }.value,
+        surfaceTint = transition.animate("surfaceTint") { surfaceTint }.value,
+        inverseSurface = transition.animate("inverseSurface") { inverseSurface }.value,
+        inverseOnSurface = transition.animate("inverseOnSurface") { inverseOnSurface }.value,
+        error = transition.animate("error") { error }.value,
+        onError = transition.animate("onError") { onError }.value,
+        errorContainer = transition.animate("errorContainer") { errorContainer }.value,
+        onErrorContainer = transition.animate("onErrorContainer") { onErrorContainer }.value,
+        outline = transition.animate("outline") { outline }.value,
+        outlineVariant = transition.animate("outlineVariant") { outlineVariant }.value,
+        scrim = transition.animate("scrim") { scrim }.value,
+        surfaceBright = transition.animate("surfaceBright") { surfaceBright }.value,
+        surfaceContainer = transition.animate("surfaceContainer") { surfaceContainer }.value,
+        surfaceContainerHigh = transition.animate("surfaceContainerHigh") { surfaceContainerHigh }.value,
+        surfaceContainerHighest = transition.animate("surfaceContainerHighest") { surfaceContainerHighest }.value,
+        surfaceContainerLow = transition.animate("surfaceContainerLow") { surfaceContainerLow }.value,
+        surfaceContainerLowest = transition.animate("surfaceContainerLowest") { surfaceContainerLowest }.value,
+        surfaceDim = transition.animate("surfaceDim") { surfaceDim }.value,
+    )
+}
 
 @Composable
 fun ZalithLauncherTheme(
@@ -718,23 +750,17 @@ fun ZalithLauncherTheme(
 ) {
     val colorTheme = AllSettings.launcherColorTheme.state
     val customColorInt = AllSettings.launcherCustomColor.state
-
-    val colorTheme1 by rememberUpdatedState(colorTheme)
-    val customColor by rememberUpdatedState(
-        remember(customColorInt) {
-            Color(customColorInt)
-        }
-    )
+    val customColor = Color(customColorInt)
 
     val context = LocalContext.current
 
-    val targetColorScheme by rememberUpdatedState(
+    val targetColorScheme = remember(darkTheme, dynamicColor, colorTheme, customColor) {
         when {
-            dynamicColor && colorTheme1 == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            dynamicColor && colorTheme == ColorThemeType.DYNAMIC && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             }
 
-            darkTheme -> when (colorTheme1) {
+            darkTheme -> when (colorTheme) {
                 ColorThemeType.EMBERMIRE -> embermireDark
                 ColorThemeType.VELVET_ROSE -> velvetRoseDark
                 ColorThemeType.MISTWAVE -> mistwaveDark
@@ -746,7 +772,7 @@ fun ZalithLauncherTheme(
                 else -> embermireDark
             }
 
-            else -> when (colorTheme1) {
+            else -> when (colorTheme) {
                 ColorThemeType.EMBERMIRE -> embermireLight
                 ColorThemeType.VELVET_ROSE -> velvetRoseLight
                 ColorThemeType.MISTWAVE -> mistwaveLight
@@ -758,12 +784,12 @@ fun ZalithLauncherTheme(
                 else -> embermireLight
             }
         }
-    )
+    }
 
-//    val animatedColorScheme = animateColorScheme(targetColorScheme)
+    val animatedColorScheme = animateColorScheme(targetColorScheme)
 
     MaterialTheme(
-        colorScheme = targetColorScheme,
+        colorScheme = animatedColorScheme,
         typography = AppTypography,
         content = content
     )
