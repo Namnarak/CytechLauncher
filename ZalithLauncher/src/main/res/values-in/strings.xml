@@ -488,4 +488,17 @@
     <string name="versions_config_vibrate_duration_summary">Atur durasi getaran yang dibutuhkan oleh mod Touch Controller</string>
     <string name="versions_config_follow_global_if_blank">Biarkan kosong untuk menggunakan pengaturan global</string>
     <string name="versions_config_disable_if_blank">Biarkan kosong untuk menonaktifkan</string>
+    <string name="settings_renderer_sustained_performance_summary">Kalau diaktifkan, sistem akan kasih performa yang lebih stabil buat game, cocok buat main lama, tapi mungkin sedikit ngurangin responsivitas perangkat biar nggak cepat panas</string>
+    <string name="settings_tab_java_manage">Java</string>
+    <string name="settings_tab_control_manage">Daftar kontrol</string>
+    <string name="settings_tab_info_about">Tentang</string>
+    <string name="settings_tab_control">Kontrol</string>
+    <string name="settings_renderer_global_vulkan_driver_title">Driver Vulkan</string>
+    <string name="settings_renderer_global_renderer_summary">Renderer bawaan global memakai lapisan translasi pustaka dinamis supaya game bisa jalan dengan lancar di perangkat mobile</string>
+    <string name="settings_renderer_resolution_scale_title">Skala Resolusi</string>
+    <string name="settings_renderer_full_screen_title">Mode game layar penuh</string>
+    <string name="settings_renderer_full_screen_summary">Aktifkan mode layar penuh, abaikan area aman seperti notch dan punch-hole</string>
+    <string name="settings_game_version_isolation_summary">Mengisolasi semua versi supaya datanya tidak saling ganggu</string>
+    <string name="settings_renderer_vulkan_driver_system_title">Gunakan Driver Vulkan Sistem</string>
+    <string name="settings_renderer_resolution_scale_summary">Nilai rendah bikin performa lebih bagus; nilai tinggi ningkatin kualitas grafik. Atur sesuai kebutuhanmu</string>
 </resources>
