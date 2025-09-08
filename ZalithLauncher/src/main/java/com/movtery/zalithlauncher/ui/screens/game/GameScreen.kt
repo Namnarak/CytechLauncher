@@ -44,6 +44,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.control.control.HotbarRule.Companion.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
@@ -303,6 +304,9 @@ fun GameScreen(
             )
 
             MinecraftHotbar(
+                rule = AllSettings.hotbarRule.state,
+                widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
+                heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
                 onClickSlot = { keycode ->
                     CallbackBridge.sendKeyPress(keycode)
                 },

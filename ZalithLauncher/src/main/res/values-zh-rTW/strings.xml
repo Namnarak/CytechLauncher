@@ -290,6 +290,11 @@
     <string name="game_menu_option_input_method">切換輸入法</string>
     <string name="game_menu_option_switch_fps">幀率顯示</string>
     <string name="game_menu_option_send_keycode">發送鍵值</string>
+    <string name="game_menu_option_hotbar_rule">快捷列定位規則</string>
+    <string name="game_menu_option_hotbar_rule_auto">自適應（可能不準確）</string>
+    <string name="game_menu_option_hotbar_rule_custom">自訂</string>
+    <string name="game_menu_option_hotbar_width">快捷列寬度</string>
+    <string name="game_menu_option_hotbar_height">快捷列高度</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>

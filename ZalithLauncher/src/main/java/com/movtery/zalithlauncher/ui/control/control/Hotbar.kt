@@ -1,5 +1,8 @@
 package com.movtery.zalithlauncher.ui.control.control
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
@@ -11,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
@@ -20,9 +24,30 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.MCOptions
+import kotlinx.coroutines.delay
+
+enum class HotbarRule(val nameRes: Int) {
+    /**
+     * 自动计算(一些情况下并不精准)
+     */
+    Auto(R.string.game_menu_option_hotbar_rule_auto),
+
+    /**
+     * 完全自定义大小
+     */
+    Custom(R.string.game_menu_option_hotbar_rule_custom);
+
+    companion object {
+        /**
+         * 自定义大小：0~1000比例下，计算百分比值
+         */
+        fun Int.hotbarPercentage() = this / 1000f
+    }
+}
 
 private val keyList = listOf(
     LwjglGlfwKeycode.GLFW_KEY_1,
@@ -46,6 +71,9 @@ private val keyList = listOf(
  */
 @Composable
 fun BoxScope.MinecraftHotbar(
+    rule: HotbarRule,
+    widthPercentage: Float,
+    heightPercentage: Float,
     onClickSlot: (key: Int) -> Unit,
     isGrabbing: Boolean = false,
     resolutionRatio: Int,
@@ -56,39 +84,72 @@ fun BoxScope.MinecraftHotbar(
     val density = LocalDensity.current
 
     var hotbarSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
+    val hotbarUpdateAnim = remember { Animatable(0f) }
 
-    LaunchedEffect(
-        isGrabbing, MCOptions.refreshKey, screenSize, density,
-        resolutionRatio, ZLBridgeStates.windowChangeKey
-    ) {
-        val guiScale = getMCGuiScale(
-            width = (screenSize.width * resolutionRatio / 100f).toInt(),
-            height = (screenSize.height * resolutionRatio / 100f).toInt()
-        )
-        val slotSize = guiScale * 20
+    when (rule) {
+        HotbarRule.Auto -> {
+            LaunchedEffect(
+                isGrabbing, MCOptions.refreshKey, screenSize, density,
+                resolutionRatio, ZLBridgeStates.windowChangeKey
+            ) {
+                val guiScale = getMCGuiScale(
+                    width = (screenSize.width * resolutionRatio / 100f).toInt(),
+                    height = (screenSize.height * resolutionRatio / 100f).toInt()
+                )
+                val slotSize = guiScale * 20
 
-        with(density) {
-            hotbarSize = DpSize((slotSize * keyList.size).toDp(), slotSize.toDp())
+                with(density) {
+                    hotbarSize = DpSize((slotSize * keyList.size).toDp(), slotSize.toDp())
+                }
+            }
+        }
+        HotbarRule.Custom -> {
+            var isInitialized by remember { mutableStateOf(false) }
+
+            LaunchedEffect(
+                widthPercentage, heightPercentage
+            ) {
+                val width = (screenSize.width * widthPercentage).toInt()
+                val height = (screenSize.height * heightPercentage).toInt()
+
+                with(density) {
+                    hotbarSize = DpSize(width.toDp(), height.toDp())
+                }
+
+                if (isInitialized) {
+                    hotbarUpdateAnim.snapTo(0.5f)
+                    delay(1000)
+                    hotbarUpdateAnim.animateTo(0f, tween(800))
+                } else {
+                    isInitialized = true
+                }
+            }
         }
     }
 
-    if (isGrabbing) {
-        Box(
-            modifier = Modifier
-                .size(hotbarSize)
-                .align(Alignment.BottomCenter)
-                .mainTouchLogic(
-                    slotCount = keyList.size,
-                    hotbarSize = hotbarSize,
-                    density = density,
-                    onClickSlot = { index ->
-                        onClickSlot(keyList[index].toInt())
-                    },
-                    onOccupiedPointer = onOccupiedPointer,
-                    onReleasePointer = onReleasePointer
-                )
-        )
-    }
+    Box(
+        modifier = Modifier
+            .size(hotbarSize)
+            .align(Alignment.BottomCenter)
+            .then(
+                if (rule == HotbarRule.Custom) Modifier.background(Color.Red.copy(alpha = hotbarUpdateAnim.value))
+                else Modifier
+            )
+            .then(
+                if (isGrabbing) Modifier
+                    .mainTouchLogic(
+                        slotCount = keyList.size,
+                        hotbarSize = hotbarSize,
+                        density = density,
+                        onClickSlot = { index ->
+                            onClickSlot(keyList[index].toInt())
+                        },
+                        onOccupiedPointer = onOccupiedPointer,
+                        onReleasePointer = onReleasePointer
+                    )
+                else Modifier
+            )
+    )
 }
 
 private fun Modifier.mainTouchLogic(

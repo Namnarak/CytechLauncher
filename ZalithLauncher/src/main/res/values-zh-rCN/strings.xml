@@ -318,6 +318,11 @@
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
     <string name="game_menu_option_send_keycode">发送键值</string>
+    <string name="game_menu_option_hotbar_rule">快捷栏定位规则</string>
+    <string name="game_menu_option_hotbar_rule_auto">自适应（可能不准确）</string>
+    <string name="game_menu_option_hotbar_rule_custom">自定义</string>
+    <string name="game_menu_option_hotbar_width">快捷栏宽度</string>
+    <string name="game_menu_option_hotbar_height">快捷栏高度</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支持：</string>
     <string name="renderer_version_unsupported_warning">当前渲染器 %s 不支持该游戏版本，继续使用可能导致渲染错误或游戏崩溃！您确定要无视风险坚持访问吗？</string>

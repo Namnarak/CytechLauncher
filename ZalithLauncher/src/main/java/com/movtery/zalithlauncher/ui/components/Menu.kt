@@ -61,6 +61,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenJellyBounce
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import java.text.DecimalFormat
 
 /**
  * 菜单状态
@@ -574,6 +575,72 @@ fun MenuSliderLayout(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toFloat(),
                 onValueChange = { onValueChange(it.toInt()) },
+                onValueChangeFinished = { onValueChangeFinished(value) },
+                interactionSource = interactionSource,
+                valueRange = valueRange,
+                colors = colors,
+                enabled = enabled
+            )
+        }
+    }
+}
+
+@Composable
+fun MenuSliderLayout(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    enabled: Boolean = true,
+    onValueChangeFinished: (Float) -> Unit = {},
+    suffix: String? = null,
+    decimalFormat: String = "#0.00",
+    colors: SliderColors = SliderDefaults.colors(),
+    shape: Shape = MaterialTheme.shapes.large,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = 1.dp
+) {
+    val formatter = DecimalFormat(decimalFormat)
+    fun getTextString(value: Float) = formatter.format(value) + (suffix ?: "")
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    MenuButtonLayout(
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        color = color,
+        contentColor = contentColor,
+        shadowElevation = shadowElevation
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .alpha(if (enabled) 1f else 0.5f),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                MarqueeText(
+                    modifier = Modifier.weight(1f),
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = getTextString(value),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            IndicatorSlider(
+                modifier = Modifier.fillMaxWidth(),
+                value = value,
+                onValueChange = { onValueChange(it) },
                 onValueChangeFinished = { onValueChangeFinished(value) },
                 interactionSource = interactionSource,
                 valueRange = valueRange,
