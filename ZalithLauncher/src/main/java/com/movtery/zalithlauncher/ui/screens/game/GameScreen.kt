@@ -82,7 +82,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     /** 被控制布局层标记为仅滑动的指针列表 */
     var moveOnlyPointers = mutableSetOf<PointerId>()
     /** 鼠标触摸指针处理层占用指针列表 */
-    var touchpadOccupiedPointers = mutableSetOf<PointerId>()
+    var occupiedPointers = mutableSetOf<PointerId>()
 
     /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
@@ -260,7 +260,7 @@ fun GameScreen(
         ControlBoxLayout(
             modifier = Modifier.fillMaxSize(),
             observedLayout = viewModel.observableLayout,
-            checkOccupiedPointers = { viewModel.touchpadOccupiedPointers.contains(it) },
+            checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
             onClickEvent = { event, pressed ->
                 val events = when (event.type) {
                     ClickEvent.Type.Key -> viewModel.pressedKeyEvents
@@ -285,9 +285,9 @@ fun GameScreen(
                 textInputMode = viewModel.textInputMode,
                 onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
                 isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
-                onOccupiedPointer = { viewModel.touchpadOccupiedPointers.add(it) },
+                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
                 onReleasePointer = {
-                    viewModel.touchpadOccupiedPointers.remove(it)
+                    viewModel.occupiedPointers.remove(it)
                     viewModel.moveOnlyPointers.remove(it)
                 }
             )
@@ -297,7 +297,9 @@ fun GameScreen(
                     CallbackBridge.sendKeyPress(keycode)
                 },
                 isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                resolutionRatio = AllSettings.resolutionRatio.state
+                resolutionRatio = AllSettings.resolutionRatio.state,
+                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                onReleasePointer = { viewModel.occupiedPointers.remove(it) }
             )
         }
 
