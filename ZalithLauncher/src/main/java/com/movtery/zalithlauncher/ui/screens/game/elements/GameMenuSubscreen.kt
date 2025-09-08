@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.MenuSubscreen
 import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
+import com.movtery.zalithlauncher.ui.control.control.HotbarRule
 
 @Composable
 fun GameMenuSubscreen(
@@ -32,7 +33,8 @@ fun GameMenuSubscreen(
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
     onRefreshWindowSize: () -> Unit,
-    onInputMethod: () -> Unit
+    onInputMethod: () -> Unit,
+    onSendKeycode: () -> Unit
 ) {
     MenuSubscreen(
         state = state,
@@ -84,6 +86,17 @@ fun GameMenuSubscreen(
                     }
                 )
             }
+            //发送键值
+            item {
+                MenuTextButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.game_menu_option_send_keycode),
+                    onClick = {
+                        onSendKeycode()
+                        closeScreen()
+                    }
+                )
+            }
 
             item {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -112,6 +125,58 @@ fun GameMenuSubscreen(
                     onValueChangeFinished = { value ->
                         AllSettings.resolutionRatio.save(value)
                         onRefreshWindowSize()
+                    },
+                    suffix = "%",
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            //快捷栏定位规则
+            item {
+                MenuListLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.game_menu_option_hotbar_rule),
+                    items = HotbarRule.entries,
+                    currentItem = AllSettings.hotbarRule.state,
+                    onItemChange = { AllSettings.hotbarRule.save(it) },
+                    getItemText = { stringResource(it.nameRes) }
+                )
+            }
+
+            //快捷栏宽度
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.game_menu_option_hotbar_width),
+                    value = AllSettings.hotbarWidth.state / 10f,
+                    valueRange = 0f..100f,
+                    enabled = AllSettings.hotbarRule.state == HotbarRule.Custom,
+                    onValueChange = { value ->
+                        AllSettings.hotbarWidth.updateState((value * 10f).toInt().coerceIn(0, 1000))
+                    },
+                    onValueChangeFinished = { value ->
+                        AllSettings.hotbarWidth.save((value * 10f).toInt().coerceIn(0, 1000))
+                    },
+                    suffix = "%",
+                )
+            }
+
+            //快捷栏高度
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.game_menu_option_hotbar_height),
+                    value = AllSettings.hotbarHeight.state / 10f,
+                    valueRange = 0f..100f,
+                    enabled = AllSettings.hotbarRule.state == HotbarRule.Custom,
+                    onValueChange = { value ->
+                        AllSettings.hotbarHeight.updateState((value * 10f).toInt().coerceIn(0, 1000))
+                    },
+                    onValueChangeFinished = { value ->
+                        AllSettings.hotbarHeight.save((value * 10f).toInt().coerceIn(0, 1000))
                     },
                     suffix = "%",
                 )

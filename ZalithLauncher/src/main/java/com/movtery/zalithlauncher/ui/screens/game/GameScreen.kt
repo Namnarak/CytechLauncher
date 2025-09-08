@@ -44,6 +44,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.control.control.HotbarRule.Companion.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
@@ -61,6 +62,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
+import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -77,12 +80,14 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var gameMenuState by mutableStateOf(MenuState.NONE)
     /** 强制关闭弹窗操作状态 */
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
+    /** 发送键值操作状态 */
+    var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
     /** 输入法状态 */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
     /** 被控制布局层标记为仅滑动的指针列表 */
     var moveOnlyPointers = mutableSetOf<PointerId>()
     /** 鼠标触摸指针处理层占用指针列表 */
-    var touchpadOccupiedPointers = mutableSetOf<PointerId>()
+    var occupiedPointers = mutableSetOf<PointerId>()
 
     /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
@@ -213,6 +218,12 @@ fun GameScreen(
 ) {
     val viewModel = rememberGameViewModel(version)
 
+    SendKeycodeOperation(
+        operation = viewModel.sendKeycodeState,
+        onChange = { viewModel.sendKeycodeState = it },
+        lifecycleScope = viewModel.viewModelScope
+    )
+
     ForceCloseOperation(
         operation = viewModel.forceCloseState,
         onChange = { viewModel.forceCloseState = it },
@@ -260,7 +271,7 @@ fun GameScreen(
         ControlBoxLayout(
             modifier = Modifier.fillMaxSize(),
             observedLayout = viewModel.observableLayout,
-            checkOccupiedPointers = { viewModel.touchpadOccupiedPointers.contains(it) },
+            checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
             onClickEvent = { event, pressed ->
                 val events = when (event.type) {
                     ClickEvent.Type.Key -> viewModel.pressedKeyEvents
@@ -285,19 +296,24 @@ fun GameScreen(
                 textInputMode = viewModel.textInputMode,
                 onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
                 isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
-                onOccupiedPointer = { viewModel.touchpadOccupiedPointers.add(it) },
+                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
                 onReleasePointer = {
-                    viewModel.touchpadOccupiedPointers.remove(it)
+                    viewModel.occupiedPointers.remove(it)
                     viewModel.moveOnlyPointers.remove(it)
                 }
             )
 
             MinecraftHotbar(
+                rule = AllSettings.hotbarRule.state,
+                widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
+                heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
                 onClickSlot = { keycode ->
                     CallbackBridge.sendKeyPress(keycode)
                 },
                 isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                resolutionRatio = AllSettings.resolutionRatio.state
+                resolutionRatio = AllSettings.resolutionRatio.state,
+                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                onReleasePointer = { viewModel.occupiedPointers.remove(it) }
             )
         }
 
@@ -312,7 +328,8 @@ fun GameScreen(
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
-            onInputMethod = { viewModel.switchIME() }
+            onInputMethod = { viewModel.switchIME() },
+            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog }
         )
 
         DraggableGameBall(

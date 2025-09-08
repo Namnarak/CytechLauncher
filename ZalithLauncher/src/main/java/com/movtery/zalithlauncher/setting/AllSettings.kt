@@ -9,6 +9,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.ui.control.control.HotbarRule
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -248,6 +249,23 @@ object AllSettings : SettingsRegistry() {
      * 在游戏菜单悬浮窗上显示帧率
      */
     val showFPS = boolSetting("showFPS", true)
+
+    /**
+     * 快捷栏判定箱计算规则
+     */
+    val hotbarRule = enumSetting("hotbarRule", HotbarRule.Auto)
+
+    /**
+     * 快捷栏宽度百分比
+     * 0~1000
+     */
+    val hotbarWidth = intSetting("hotbarWidth", 500)
+
+    /**
+     * 快捷栏高度百分比
+     * 0~1000
+     */
+    val hotbarHeight = intSetting("hotbarHeight", 100)
 
     /**
      * 控制布局编辑器：是否开启控件吸附功能
