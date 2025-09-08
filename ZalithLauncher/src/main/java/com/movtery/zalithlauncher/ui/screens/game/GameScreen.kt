@@ -61,6 +61,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
+import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -77,6 +79,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var gameMenuState by mutableStateOf(MenuState.NONE)
     /** 强制关闭弹窗操作状态 */
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
+    /** 发送键值操作状态 */
+    var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
     /** 输入法状态 */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
     /** 被控制布局层标记为仅滑动的指针列表 */
@@ -213,6 +217,12 @@ fun GameScreen(
 ) {
     val viewModel = rememberGameViewModel(version)
 
+    SendKeycodeOperation(
+        operation = viewModel.sendKeycodeState,
+        onChange = { viewModel.sendKeycodeState = it },
+        lifecycleScope = viewModel.viewModelScope
+    )
+
     ForceCloseOperation(
         operation = viewModel.forceCloseState,
         onChange = { viewModel.forceCloseState = it },
@@ -314,7 +324,8 @@ fun GameScreen(
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
-            onInputMethod = { viewModel.switchIME() }
+            onInputMethod = { viewModel.switchIME() },
+            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog }
         )
 
         DraggableGameBall(

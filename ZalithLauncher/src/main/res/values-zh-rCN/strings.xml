@@ -317,6 +317,7 @@
     <string name="game_menu_option_switch_log">日志输出</string>
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
+    <string name="game_menu_option_send_keycode">发送键值</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支持：</string>
     <string name="renderer_version_unsupported_warning">当前渲染器 %s 不支持该游戏版本，继续使用可能导致渲染错误或游戏崩溃！您确定要无视风险坚持访问吗？</string>

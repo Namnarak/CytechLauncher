@@ -32,7 +32,8 @@ fun GameMenuSubscreen(
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
     onRefreshWindowSize: () -> Unit,
-    onInputMethod: () -> Unit
+    onInputMethod: () -> Unit,
+    onSendKeycode: () -> Unit
 ) {
     MenuSubscreen(
         state = state,
@@ -80,6 +81,17 @@ fun GameMenuSubscreen(
                     text = stringResource(R.string.game_menu_option_input_method),
                     onClick = {
                         onInputMethod()
+                        closeScreen()
+                    }
+                )
+            }
+            //发送键值
+            item {
+                MenuTextButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.game_menu_option_send_keycode),
+                    onClick = {
+                        onSendKeycode()
                         closeScreen()
                     }
                 )
