@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_setting">Pengaturan</string>
+    <string name="generic_expand">Perluas</string>
+    <string name="generic_collapse">Persempit</string>
+    <string name="generic_main_menu">Menu Utama</string>
+    <string name="generic_rename">Ganti Nama</string>
+    <string name="generic_more">Lebih Banyak</string>
+    <string name="generic_download">Unduh</string>
+    <string name="generic_done">Selesai</string>
+    <string name="generic_close">Tutup</string>
+    <string name="generic_clear">Bersihkan</string>
+    <string name="generic_import">Impor</string>
+    <string name="generic_enable">Aktifkan</string>
+    <string name="generic_disable">Matikan</string>
+    <string name="generic_open_link">Buka di Peramban</string>
+    <string name="generic_cannot_empty">Konten tidak boleh kosong!</string>
+    <string name="generic_input_invalid_character">Karakter tidak valid dalam nama: \"%s\"</string>
 </resources>
