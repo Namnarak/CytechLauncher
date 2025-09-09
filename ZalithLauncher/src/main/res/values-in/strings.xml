@@ -501,4 +501,25 @@
     <string name="settings_game_version_isolation_summary">Mengisolasi semua versi supaya datanya tidak saling ganggu</string>
     <string name="settings_renderer_vulkan_driver_system_title">Gunakan Driver Vulkan Sistem</string>
     <string name="settings_renderer_resolution_scale_summary">Nilai rendah bikin performa lebih bagus; nilai tinggi ningkatin kualitas grafik. Atur sesuai kebutuhanmu</string>
+    <string name="settings_control_physical_key_bind_ime_title">Pemanggilan Metode Input Keyboard Fisik</string>
+    <string name="settings_control_physical_key_bind_ime_un_bind">Belum terikat</string>
+    <string name="settings_control_physical_key_bind_ime_bound">Tombol terikat: %s</string>
+    <string name="settings_control_physical_key_bind_ime_summary">Klik untuk mengikat tombol yang dipakai memanggil metode input saat bermain</string>
+    <string name="settings_control_mouse_physical_mouse_mode_title">Mouse Fisik</string>
+    <string name="settings_control_mouse_physical_mouse_mode_summary">Ketika mouse fisik tersambung, nonaktifkan kursor mouse virtual dan pakai kursor mouse sistem untuk kontrol</string>
+    <string name="settings_control_mouse_physical_mouse_warning">Jika perangkatmu nganggep klik kanan mouse fisik sebagai Tombol Kembali atau klik tengah sebagai Tombol Home, kamu bisa masuk ke Pengaturan Sistem &gt; Opsi Pengembang terus aktifin Nonaktifkan Pemantauan Izin, kemungkinan ini bisa ngatasin masalahnya.</string>
+    <string name="settings_control_mouse_hide_title">Sembunyikan Mouse Virtual</string>
+    <string name="settings_control_mouse_hide_summary">Di beberapa situasi, kamu mungkin ingin nyembunyiin mouse virtual; pengaturan ini nggak ngaruh ke kontrol mouse fisik atau kontrol geser</string>
+    <string name="settings_control_mouse_size_title">Ukuran Mouse Virtual</string>
+    <string name="settings_control_mouse_sensitivity_title">Sensitivitas Mouse Virtual</string>
+    <string name="settings_control_mouse_sensitivity_summary">Atur kecepatan gerakan mouse virtual di mode normal</string>
+    <string name="settings_control_mouse_capture_sensitivity_title">Sensitivitas Gerakan Mouse yang ditangkap</string>
+    <string name="settings_control_mouse_capture_sensitivity_summary">Atur sensitivitas gerakan mouse saat ditangkap, misalnya sensitivitas buat gerakin tampilan game</string>
+    <string name="settings_control_mouse_control_mode_title">Mode Kontrol</string>
+    <string name="settings_control_mouse_control_mode_summary">Pilih metode kontrol mouse virtual: geser layar buat mindahin kursor, atau tap layar buat nunjuk posisi kursor</string>
+    <string name="settings_control_mouse_control_mode_slide">Kontrol Geser</string>
+    <string name="settings_control_mouse_control_mode_click">Kontrol Ketuk</string>
+    <string name="settings_control_mouse_pointer_title">Kursor Kustom</string>
+    <string name="settings_control_mouse_pointer_summary">Sesuaikan gambar kursor mouse virtual yang cocok sama preferensimu</string>
+    <string name="settings_launcher_full_screen_title">Mode layar penuh</string>
 </resources>
