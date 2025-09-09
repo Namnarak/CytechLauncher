@@ -51,6 +51,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVer
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
 import java.net.ConnectException
@@ -113,6 +114,7 @@ fun DownloadGameScreen(
     downloadScreenKey: NavKey?,
     downloadGameScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
+    eventViewModel: EventViewModel
 ) {
     val viewModel: GameDownloadViewModel = rememberGameDownloadViewModel(key)
 
@@ -152,7 +154,8 @@ fun DownloadGameScreen(
                     SelectGameVersionScreen(
                         mainScreenKey = mainScreenKey,
                         downloadScreenKey = downloadScreenKey,
-                        downloadGameScreenKey = downloadGameScreenKey
+                        downloadGameScreenKey = downloadGameScreenKey,
+                        eventViewModel = eventViewModel,
                     ) { versionString ->
                         backStack.navigateTo(
                             NormalNavKey.DownloadGame.Addons(versionString)

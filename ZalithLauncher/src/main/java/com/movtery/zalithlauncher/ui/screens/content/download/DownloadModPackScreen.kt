@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerializationException
@@ -146,7 +147,8 @@ fun DownloadModPackScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadModPackScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit
+    onCurrentKeyChange: (NavKey?) -> Unit,
+    eventViewModel: EventViewModel
 ) {
     val viewModel: ModPackViewModel = rememberModPackViewModel(key)
 
@@ -208,6 +210,7 @@ fun DownloadModPackScreen(
                         parentCurrentKey = downloadScreenKey,
                         currentKey = downloadModPackScreenKey,
                         key = assetsKey,
+                        eventViewModel = eventViewModel,
                         onItemClicked = { info ->
                             if (viewModel.installOperation !is ModPackInstallOperation.None) {
                                 //不是待安装状态，拒绝此次安装

@@ -21,6 +21,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperatio
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils.Companion.openLink
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -91,6 +92,12 @@ class MainActivity : BaseComponentActivity() {
                         lInfo("Stop key capture!")
                         isCaptureKey = false
                     }
+                    is EventViewModel.Event.OpenLink -> {
+                        val url = event.url
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            this@MainActivity.openLink(url)
+                        }
+                    }
                     else -> {
                         //忽略
                     }
@@ -104,6 +111,7 @@ class MainActivity : BaseComponentActivity() {
                     MainScreen(
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
+                        eventViewModel = eventViewModel,
                         summitError = {
                             errorViewModel.showError(it)
                         }

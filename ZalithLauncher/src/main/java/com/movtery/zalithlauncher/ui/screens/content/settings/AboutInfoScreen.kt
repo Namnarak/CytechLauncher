@@ -57,7 +57,6 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 
 private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
 private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
@@ -111,7 +110,8 @@ fun AboutInfoScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    openLicense: (raw: Int) -> Unit
+    openLicense: (raw: Int) -> Unit,
+    openLink: (url: String) -> Unit
 ) {
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -131,14 +131,13 @@ fun AboutInfoScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_launcher_title)
                 ) {
-                    val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_launcher),
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
                             buttonText = stringResource(R.string.about_launcher_project_link),
-                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_PROJECT) }
+                            onButtonClick = { openLink(UrlManager.URL_PROJECT) }
                         )
 
                         ButtonIconItem(
@@ -146,7 +145,7 @@ fun AboutInfoScreen(
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_SUPPORT) }
+                            onButtonClick = { openLink(UrlManager.URL_SUPPORT) }
                         )
                     }
                 }
@@ -162,47 +161,46 @@ fun AboutInfoScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_acknowledgements_title)
                 ) {
-                    val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_bangbang93),
                             title = "bangbang93",
                             text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
+                            onButtonClick = { openLink("https://afdian.com/a/bangbang93") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_fcl),
                             title = "Fold Craft Launcher",
                             text = stringResource(R.string.about_acknowledgements_fcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.fcl_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/FCL-Team/FoldCraftLauncher") }
+                            openLink = { openLink("https://github.com/FCL-Team/FoldCraftLauncher") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_hmcl),
                             title = "Hello Minecraft! Launcher",
                             text = stringResource(R.string.about_acknowledgements_hmcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.hmcl_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/HMCL-dev/HMCL") }
+                            openLink = { openLink("https://github.com/HMCL-dev/HMCL") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_platform_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, UrlManager.URL_MCMOD) }
+                            openLink = { openLink(UrlManager.URL_MCMOD) }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_pcl2),
                             title = "Plain Craft Launcher 2",
                             text = stringResource(R.string.about_acknowledgements_pcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
+                            openLink = { openLink("https://github.com/Meloong-Git/PCL") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_pojav),
                             title = "PojavLauncher",
                             text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.pojav_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
+                            openLink = { openLink("https://github.com/PojavLauncherTeam/PojavLauncher") }
                         )
                     }
                 }
@@ -221,7 +219,7 @@ fun AboutInfoScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         libraryData.forEach { info ->
-                            LibraryInfoItem(info = info)
+                            LibraryInfoItem(info = info, openLink = openLink)
                         }
                     }
                 }
@@ -499,9 +497,8 @@ private fun LibraryInfoItem(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    openLink: (url: String) -> Unit
 ) {
-    val context = LocalContext.current
-
     Surface(
         modifier = modifier,
         color = color,
@@ -536,7 +533,7 @@ private fun LibraryInfoItem(
                         modifier = Modifier.clickable(
                             enabled = info.licenseUrl != null,
                             onClick = {
-                                info.licenseUrl?.let { NetWorkUtils.openLink(context, it) }
+                                info.licenseUrl?.let { openLink(it) }
                             }
                         ),
                         text = "Licensed under the ${info.license}",
@@ -549,7 +546,7 @@ private fun LibraryInfoItem(
             IconButton(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 onClick = {
-                    NetWorkUtils.openLink(context, info.webUrl)
+                    openLink(info.webUrl)
                 }
             ) {
                 Icon(

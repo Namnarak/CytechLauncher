@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -68,8 +67,8 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
@@ -176,6 +175,7 @@ fun SelectGameVersionScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadGameScreenKey: NavKey?,
+    eventViewModel: EventViewModel,
     onVersionSelect: (String) -> Unit = {}
 ) {
     val viewModel = viewModel(
@@ -246,7 +246,10 @@ fun SelectGameVersionScreen(
                             itemContainerColor = itemLayoutColor(),
                             itemContentColor = MaterialTheme.colorScheme.onSurface,
                             versions = state.versions,
-                            onVersionSelect = onVersionSelect
+                            onVersionSelect = onVersionSelect,
+                            openLink = { url ->
+                                eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
+                            }
                         )
                     }
                 }
@@ -363,9 +366,9 @@ private fun VersionList(
     itemContainerColor: Color,
     itemContentColor: Color,
     versions: List<VersionManifest.Version>,
-    onVersionSelect: (String) -> Unit
+    onVersionSelect: (String) -> Unit,
+    openLink: (url: String) -> Unit
 ) {
-    val context = LocalContext.current
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
@@ -380,7 +383,7 @@ private fun VersionList(
                     onVersionSelect(version.id)
                 },
                 onAccessWiki = { wikiUrl ->
-                    NetWorkUtils.openLink(context, wikiUrl)
+                    openLink(wikiUrl)
                 },
                 color = itemContainerColor,
                 contentColor = itemContentColor

@@ -83,6 +83,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
@@ -90,6 +91,7 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(
@@ -143,6 +145,7 @@ fun MainScreen(
                 screenBackStackModel = screenBackStackModel,
                 toMainScreen = toMainScreen,
                 launchGameViewModel = launchGameViewModel,
+                eventViewModel = eventViewModel,
                 summitError = summitError
             )
 
@@ -318,6 +321,7 @@ private fun NavigationUI(
     screenBackStackModel: ScreenBackStackViewModel,
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreen.backStack
@@ -357,6 +361,7 @@ private fun NavigationUI(
                         openLicenseScreen = { raw ->
                             backStack.navigateTo(NormalNavKey.License(raw))
                         },
+                        eventViewModel = eventViewModel,
                         summitError = summitError
                     )
                 }
@@ -371,6 +376,9 @@ private fun NavigationUI(
                         backStackViewModel = screenBackStackModel,
                         backToMainScreen = {
                             screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
+                        },
+                        openLink = { url ->
+                            eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
                         },
                         summitError = summitError
                     )
@@ -409,6 +417,7 @@ private fun NavigationUI(
                     DownloadScreen(
                         key = key,
                         backScreenViewModel = screenBackStackModel,
+                        eventViewModel = eventViewModel,
                         summitError = summitError
                     )
                 }

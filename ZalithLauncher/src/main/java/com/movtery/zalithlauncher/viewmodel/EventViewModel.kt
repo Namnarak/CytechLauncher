@@ -35,5 +35,7 @@ class EventViewModel : ViewModel() {
             /** 刷新游戏画面分辨率 */
             data object RefreshSize : Event
         }
+        /** 在浏览器访问链接 */
+        data class OpenLink(val url: String) : Event
     }
 }

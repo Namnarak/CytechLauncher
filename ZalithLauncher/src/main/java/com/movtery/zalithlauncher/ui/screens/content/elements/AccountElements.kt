@@ -89,7 +89,6 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -419,9 +418,9 @@ fun ServerItem(
 @Composable
 fun MicrosoftLoginTipDialog(
     onDismissRequest: () -> Unit = {},
-    onConfirm: () -> Unit = {}
+    onConfirm: () -> Unit = {},
+    openLink: (url: String) -> Unit = {}
 ) {
-    val context = LocalContext.current
     SimpleAlertDialog(
         title = stringResource(R.string.account_supporting_microsoft_tip_title),
         text = {
@@ -432,7 +431,7 @@ fun MicrosoftLoginTipDialog(
             FlowRow {
                 IconTextButton(
                     onClick = {
-                        NetWorkUtils.openLink(context, UrlManager.URL_MINECRAFT_PURCHASE)
+                        openLink(UrlManager.URL_MINECRAFT_PURCHASE)
                     },
                     imageVector = Icons.Outlined.Link,
                     contentDescription = null,
@@ -440,7 +439,7 @@ fun MicrosoftLoginTipDialog(
                 )
                 IconTextButton(
                     onClick = {
-                        NetWorkUtils.openLink(context, "https://www.minecraft.net/msaprofile/mygames/editprofile")
+                        openLink("https://www.minecraft.net/msaprofile/mygames/editprofile")
                     },
                     imageVector = Icons.Outlined.Link,
                     contentDescription = null,
@@ -489,12 +488,11 @@ private val localNamePattern = Pattern.compile("[^a-zA-Z0-9_]")
 @Composable
 fun LocalLoginDialog(
     onDismissRequest: () -> Unit,
-    onConfirm: (isUserNameInvalid: Boolean, userName: String) -> Unit
+    onConfirm: (isUserNameInvalid: Boolean, userName: String) -> Unit,
+    openLink: (url: String) -> Unit
 ) {
     var userName by rememberSaveable { mutableStateOf("") }
     var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     SimpleEditDialog(
         title = stringResource(R.string.account_local_create_account),
@@ -524,7 +522,7 @@ fun LocalLoginDialog(
             ) {
                 IconTextButton(
                     onClick = {
-                        NetWorkUtils.openLink(context, UrlManager.URL_MINECRAFT_PURCHASE)
+                        openLink(UrlManager.URL_MINECRAFT_PURCHASE)
                     },
                     imageVector = Icons.Outlined.Link,
                     contentDescription = null,

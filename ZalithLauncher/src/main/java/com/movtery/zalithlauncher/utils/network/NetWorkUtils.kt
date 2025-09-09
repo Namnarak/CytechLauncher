@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.utils.network
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -12,6 +13,8 @@ import com.movtery.zalithlauncher.path.UrlManager.Companion.URL_USER_AGENT
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -332,8 +335,8 @@ class NetWorkUtils {
          * 展示一个提示弹窗，告知用户接下来将要在浏览器内访问的链接，用户可以选择不进行访问
          * @param link 要访问的链接
          */
-        fun openLink(context: Context, link: String) {
-            openLink(context, link, null)
+        fun Activity.openLink(link: String) {
+            this.openLink(link, null)
         }
 
         /**
@@ -341,20 +344,28 @@ class NetWorkUtils {
          * @param link 要访问的链接
          * @param dataType 设置 intent 的数据以及显式 MIME 数据类型
          */
-        fun openLink(context: Context, link: String, dataType: String?) {
-            MaterialAlertDialogBuilder(context)
+        fun Activity.openLink(link: String, dataType: String?) {
+            if (link.isEmptyOrBlank()) {
+                return
+            }
+
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.generic_open_link)
                 .setMessage(link)
                 .setPositiveButton(R.string.generic_confirm) { _, _ ->
-                    val uri = link.toUri()
-                    val browserIntent: Intent
-                    if (dataType != null) {
-                        browserIntent = Intent(Intent.ACTION_VIEW)
-                        browserIntent.setDataAndType(uri, dataType)
-                    } else {
-                        browserIntent = Intent(Intent.ACTION_VIEW, uri)
+                    try {
+                        val uri = link.toUri()
+                        val browserIntent = if (dataType != null) {
+                            Intent(Intent.ACTION_VIEW).apply {
+                                setDataAndType(uri, dataType)
+                            }
+                        } else {
+                            Intent(Intent.ACTION_VIEW, uri)
+                        }
+                        startActivity(browserIntent)
+                    } catch (e: Exception) {
+                        lWarning("Failed to open link: $link", e)
                     }
-                    context.startActivity(browserIntent)
                 }
                 .setNegativeButton(R.string.generic_cancel) { dialog, _ ->
                     dialog.dismiss()
