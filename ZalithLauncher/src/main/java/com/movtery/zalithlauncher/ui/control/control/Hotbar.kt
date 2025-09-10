@@ -254,7 +254,8 @@ private fun calculateSlotIndex(
  * @return 如果找到映射则返回键码，否则返回 `null`
  */
 private fun String?.mapToKeycode(): Int? {
-    val binding = this ?: return null
+    val key = this ?: return null
+    val binding = MCOptions.get(key) ?: return null
 
     return if (binding.startsWith("key.")) {
         //新版MC键绑定映射
