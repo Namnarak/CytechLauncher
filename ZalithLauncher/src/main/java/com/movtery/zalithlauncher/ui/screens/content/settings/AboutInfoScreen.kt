@@ -50,6 +50,8 @@ import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.library.LibraryInfo
+import com.movtery.zalithlauncher.library.libraryData
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -57,53 +59,6 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-
-private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
-private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
-private const val LICENSE_APACHE_2 = "Apache License 2.0"
-private const val LICENSE_MIT = "MIT License"
-private const val LICENSE_LGPL_3 = "LGPL-3.0 License"
-private const val URL_KTOR = "https://ktor.io"
-private const val URL_LICENSE_APACHE_2 = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-private const val URL_LICENSE_MIT = "https://opensource.org/licenses/MIT"
-private const val URL_LICENSE_LGPL = "https://www.gnu.org/licenses/lgpl-3.0.html"
-
-private val libraryData = listOf(
-    LibraryInfo("androidx-constraintlayout-compose", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/develop/ui/compose/layouts/constraintlayout", URL_LICENSE_APACHE_2),
-    LibraryInfo("androidx-material-icons-core", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material", URL_LICENSE_APACHE_2),
-    LibraryInfo("androidx-material-icons-extended", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons Codec", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-codec", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons Compress", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-compress", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons IO", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-io", URL_LICENSE_APACHE_2),
-    LibraryInfo("ByteHook", "Copyright © 2020-2024 ByteDance, Inc.", LICENSE_MIT, "https://github.com/bytedance/bhook", URL_LICENSE_MIT),
-    LibraryInfo("Coil Compose", "Copyright © 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil", URL_LICENSE_APACHE_2),
-    LibraryInfo("Coil Gifs", "Copyright © 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil", URL_LICENSE_APACHE_2),
-    LibraryInfo("colorpicker-compose", "Copyright © 2022 skydoves (Jaewoong Eum)", LICENSE_APACHE_2, "https://github.com/skydoves/colorpicker-compose", URL_LICENSE_APACHE_2),
-    LibraryInfo("Gson", "Copyright © 2008 Google Inc.", LICENSE_APACHE_2, "https://github.com/google/gson", URL_LICENSE_APACHE_2),
-    LibraryInfo("kotlinx.coroutines", "Copyright © 2000-2020 JetBrains s.r.o.", LICENSE_APACHE_2, "https://github.com/Kotlin/kotlinx.coroutines", URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-cio", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-content-negotiation", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-core", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-http", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-serialization-kotlinx-json", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("material-color-utilities", "Copyright 2021 Google LLC", LICENSE_APACHE_2, "https://github.com/material-foundation/material-color-utilities", "https://github.com/jordond/materialkolor/blob/master/LICENSE"),
-    LibraryInfo("Maven Artifact", "Copyright © The Apache Software Foundation", LICENSE_APACHE_2, "https://github.com/apache/maven/tree/maven-3.9.9/maven-artifact", URL_LICENSE_MIT),
-    LibraryInfo("MMKV", "Copyright © 2018 THL A29 Limited, a Tencent company.", "BSD 3-Clause License", "https://github.com/Tencent/MMKV", "https://github.com/Tencent/MMKV?tab=License-1-ov-file"),
-    LibraryInfo("Navigation 3", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/navigation3", URL_LICENSE_APACHE_2),
-    LibraryInfo("NBT", "Copyright © 2016 - 2020 Querz", LICENSE_MIT, "https://github.com/Querz/NBT", URL_LICENSE_MIT),
-    LibraryInfo("OkHttp", "Copyright © 2019 Square, Inc.", LICENSE_APACHE_2, "https://github.com/square/okhttp", URL_LICENSE_APACHE_2),
-    LibraryInfo("proxy-client-android", null, LICENSE_LGPL_3, "https://github.com/TouchController/TouchController", URL_LICENSE_LGPL),
-    LibraryInfo("StringFog", "Copyright © 2016-2023, Megatron King", LICENSE_APACHE_2, "https://github.com/MegatronKing/StringFog", URL_LICENSE_APACHE_2),
-    LibraryInfo("XZ for Java", "Copyright © The XZ for Java authors and contributors", "0BSD License", "https://tukaani.org/xz/java.html", null)
-)
-
-private data class LibraryInfo(
-    val name: String,
-    val copyrightInfo: String?,
-    val license: String,
-    val webUrl: String,
-    val licenseUrl: String?
-)
 
 @Composable
 fun AboutInfoScreen(
@@ -199,7 +154,7 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.img_launcher_pojav),
                             title = "PojavLauncher",
                             text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLicense = { openLicense(R.raw.pojav_license) },
+                            openLicense = { openLicense(R.raw.lgpl_3_license) },
                             openLink = { openLink("https://github.com/PojavLauncherTeam/PojavLauncher") }
                         )
                     }
@@ -219,7 +174,7 @@ fun AboutInfoScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         libraryData.forEach { info ->
-                            LibraryInfoItem(info = info, openLink = openLink)
+                            LibraryInfoItem(info = info, openLicense = openLicense, openLink = openLink)
                         }
                     }
                 }
@@ -497,6 +452,7 @@ private fun LibraryInfoItem(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    openLicense: (Int) -> Unit,
     openLink: (url: String) -> Unit
 ) {
     Surface(
@@ -531,14 +487,13 @@ private fun LibraryInfoItem(
                     }
                     Text(
                         modifier = Modifier.clickable(
-                            enabled = info.licenseUrl != null,
                             onClick = {
-                                info.licenseUrl?.let { openLink(it) }
+                                openLicense(info.license.raw)
                             }
                         ),
-                        text = "Licensed under the ${info.license}",
+                        text = "Licensed under the ${info.license.name}",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            textDecoration = if (info.licenseUrl != null) TextDecoration.Underline else TextDecoration.None
+                            textDecoration = TextDecoration.Underline
                         )
                     )
                 }
