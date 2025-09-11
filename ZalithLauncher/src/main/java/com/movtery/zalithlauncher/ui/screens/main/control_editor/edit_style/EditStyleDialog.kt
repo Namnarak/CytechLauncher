@@ -352,7 +352,8 @@ private fun LazyListScope.commonStyleConfig(
             value = alpha,
             onValueChange = { onAlphaChange(it) },
             valueRange = 0f..1f,
-            suffix = "%"
+            suffix = "%",
+            fineTuningStep = 0.1f
         )
     }
 
@@ -385,7 +386,8 @@ private fun LazyListScope.commonStyleConfig(
             onValueChange = { onBorderWidthChange(it.toInt()) },
             valueRange = 0f..50f,
             decimalFormat = "#0",
-            suffix = "Dp"
+            suffix = "Dp",
+            fineTuningStep = 1f,
         )
     }
 
