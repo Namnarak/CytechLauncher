@@ -482,9 +482,8 @@ private fun ProjectInfo(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AssetsIcon(
-                                modifier = Modifier
-                                    .clip(shape = RoundedCornerShape(10.dp))
-                                    .size(72.dp),
+                                modifier = Modifier.clip(shape = RoundedCornerShape(10.dp)),
+                                size = 72.dp,
                                 iconUrl = info.iconUrl
                             )
                             //标题、简介

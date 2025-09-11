@@ -707,8 +707,8 @@ private fun ModIcon(
             )
         } else {
             AssetsIcon(
-                modifier = Modifier.size(iconSize),
                 iconUrl = projectInfo.iconUrl,
+                size = iconSize,
                 colorFilter = ColorFilter.colorMatrix(colorMatrix)
             )
         }

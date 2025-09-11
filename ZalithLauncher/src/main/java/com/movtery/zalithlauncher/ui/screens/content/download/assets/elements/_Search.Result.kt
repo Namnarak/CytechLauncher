@@ -372,9 +372,9 @@ private fun ResultItemLayout(
         ) {
             AssetsIcon(
                 modifier = Modifier
-                    .size(72.dp)
                     .clip(shape = RoundedCornerShape(10.dp))
                     .align(Alignment.CenterVertically),
+                size = 72.dp,
                 iconUrl = iconUrl
             )
 
