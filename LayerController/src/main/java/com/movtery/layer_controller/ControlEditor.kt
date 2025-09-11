@@ -194,12 +194,12 @@ private fun ControlWidgetRenderer(
                     val widgetsInLayer = normalButtons + textBoxes
                     allWidgetsMap[layer] = widgetsInLayer
 
-                    normalButtons.forEach { data ->
-                        RenderWidget(data, layer, data.isPressed)
-                    }
-
                     textBoxes.forEach { data ->
                         RenderWidget(data, layer, isPressed = false)
+                    }
+
+                    normalButtons.forEach { data ->
+                        RenderWidget(data, layer, data.isPressed)
                     }
                 }
             }
@@ -212,7 +212,7 @@ private fun ControlWidgetRenderer(
         var index = 0
         renderingLayers.forEach { layer ->
             if (!layer.hide) {
-                layer.normalButtons.value.forEach { data ->
+                layer.textBoxes.value.forEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -220,7 +220,7 @@ private fun ControlWidgetRenderer(
                     }
                 }
 
-                layer.textBoxes.value.forEach { data ->
+                layer.normalButtons.value.forEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -234,19 +234,6 @@ private fun ControlWidgetRenderer(
             var placeableIndex = 0
             renderingLayers.forEach { layer ->
                 if (!layer.hide) {
-                    layer.normalButtons.value.forEach { data ->
-                        if (placeableIndex < placeables.size) {
-                            val placeable = placeables[placeableIndex]
-                            val position = getWidgetPosition(
-                                data = data,
-                                widgetSize = IntSize(placeable.width, placeable.height),
-                                screenSize = screenSize
-                            )
-                            placeable.place(position.x.roundToInt(), position.y.roundToInt())
-                            placeableIndex++
-                        }
-                    }
-
                     layer.textBoxes.value.forEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]
@@ -256,6 +243,19 @@ private fun ControlWidgetRenderer(
                                 screenSize = screenSize
                             )
                             placeable.place(position.x.toInt(), position.y.toInt())
+                            placeableIndex++
+                        }
+                    }
+
+                    layer.normalButtons.value.forEach { data ->
+                        if (placeableIndex < placeables.size) {
+                            val placeable = placeables[placeableIndex]
+                            val position = getWidgetPosition(
+                                data = data,
+                                widgetSize = IntSize(placeable.width, placeable.height),
+                                screenSize = screenSize
+                            )
+                            placeable.place(position.x.roundToInt(), position.y.roundToInt())
                             placeableIndex++
                         }
                     }
