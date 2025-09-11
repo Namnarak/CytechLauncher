@@ -1,3 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">إلغاء</string>
+    <string name="generic_confirm">تأكيد</string>
+    <string name="generic_error">حدث خطأ</string>
+    <string name="generic_warning">تحذير</string>
+    <string name="generic_back">العودة</string>
+    <string name="generic_reset">إعادة تعيين</string>
+    <string name="generic_delete">حذف</string>
+    <string name="generic_rename">إعادة تسمية</string>
+    <string name="generic_copy">نسخ</string>
+    <string name="generic_paste">لصق</string>
+    <string name="generic_more">المزيد</string>
+    <string name="generic_setting">الإعدادات</string>
+    <string name="generic_expand">توسيع</string>
+    <string name="generic_collapse">انهيار</string>
+    <string name="generic_main_menu">القائمة الرئيسية</string>
+    <string name="generic_download">تنزيل</string>
+    <string name="generic_done">تم</string>
+    <string name="generic_close">إغلاق</string>
+    <string name="generic_clear">مسح</string>
+    <string name="generic_import">استيراد</string>
+    <string name="generic_enable">تفعيل</string>
+    <string name="generic_disable">تعطيل</string>
+    <string name="generic_open_link">الفتح في المتصفح</string>
+    <string name="generic_cannot_empty">لا يمكن أن يكون المحتوى فارغًا!</string>
+    <string name="generic_input_invalid_character">أحرف غير صالحة في الاسم: \"%s\"</string>
+    <string name="generic_input_failed_to_number">لا يمكن تحليل الإدخال كرقم</string>
+    <string name="generic_input_too_small">‫لا يمكن أن تكون القيمة أصغر من %s</string>
+    <string name="generic_input_too_large">لا يمكن أن تكون القيمة أكبر من %s</string>
+    <string name="generic_input_length">طول النص: %1$d/%2$d</string>
+    <string name="generic_unpacking">تفريغ %s</string>
+    <string name="generic_unknown">غير معروف</string>
+    <string name="generic_follow_global">عالمي</string>
+    <string name="generic_custom">تخصيص</string>
+    <string name="generic_search">بحث</string>
+    <string name="generic_loading">تحميل</string>
+    <string name="generic_in_progress">جار العمل</string>
+    <string name="generic_anyway">استخدم على أي حال</string>
 </resources>
