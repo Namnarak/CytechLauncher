@@ -331,14 +331,14 @@ fun GameScreen(
             onInputMethod = { viewModel.switchIME() },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog }
         )
-
-        DraggableGameBall(
-            showGameFps = AllSettings.showFPS.state,
-            onClick = {
-                viewModel.switchMenu()
-            }
-        )
     }
+
+    DraggableGameBall(
+        showGameFps = AllSettings.showFPS.state,
+        onClick = {
+            viewModel.switchMenu()
+        }
+    )
 
     LaunchedEffect(Unit) {
         eventViewModel.events

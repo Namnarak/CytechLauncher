@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -18,8 +19,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import com.movtery.layer_controller.data.ButtonShape
@@ -65,15 +68,17 @@ fun ControlBoxLayout(
             }
         }
         else -> {
-            BaseControlBoxLayout(
-                modifier = modifier,
-                observedLayout = observedLayout,
-                checkOccupiedPointers = checkOccupiedPointers,
-                onClickEvent = onClickEvent,
-                markPointerAsMoveOnly = markPointerAsMoveOnly,
-                isCursorGrabbing = isCursorGrabbing,
-                content = content
-            )
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                BaseControlBoxLayout(
+                    modifier = modifier,
+                    observedLayout = observedLayout,
+                    checkOccupiedPointers = checkOccupiedPointers,
+                    onClickEvent = onClickEvent,
+                    markPointerAsMoveOnly = markPointerAsMoveOnly,
+                    isCursorGrabbing = isCursorGrabbing,
+                    content = content
+                )
+            }
         }
     }
 }

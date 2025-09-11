@@ -3,7 +3,7 @@ package com.movtery.zalithlauncher.ui.components
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,11 +21,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -47,7 +47,6 @@ fun DraggableBox(
     val screenWidthPx = containerSize.width.toFloat()
     val screenHeightPx = containerSize.height.toFloat()
     val viewConfig = LocalViewConfiguration.current
-    val layoutDirection = LocalLayoutDirection.current
 
     val offsetState by rememberUpdatedState(offset)
     val boxSizeState by rememberUpdatedState(boxSize)
@@ -58,20 +57,17 @@ fun DraggableBox(
         modifier = Modifier
             .onGloballyPositioned { layoutCoordinates ->
                 boxSize = layoutCoordinates.size
-                //初始化后，放置到预定位置
                 if (!initialized && boxSize.width > 0 && boxSize.height > 0) {
                     val placeableSize = IntSize(
                         screenWidthPx.toInt() - boxSize.width,
                         screenHeightPx.toInt() - boxSize.height
                     )
-                    val alignedOffset = alignment.align(IntSize.Zero, placeableSize, layoutDirection)
+                    val alignedOffset = alignment.align(IntSize.Zero, placeableSize, LayoutDirection.Ltr)
                     offset = Offset(alignedOffset.x.toFloat(), alignedOffset.y.toFloat())
                     initialized = true
                 }
             }
-            .offset {
-                IntOffset(offset.x.roundToInt(), offset.y.roundToInt())
-            }
+            .absoluteOffset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
             .pointerInput(Unit) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)

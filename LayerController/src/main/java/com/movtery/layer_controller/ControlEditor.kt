@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -14,9 +15,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableButtonStyle
@@ -49,38 +52,40 @@ fun ControlEditorLayer(
     localSnapRange: Dp = 20.dp,
     snapThresholdValue: Dp = 4.dp
 ) {
-    val layers by observedLayout.layers.collectAsState()
-    val styles by observedLayout.styles.collectAsState()
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        val layers by observedLayout.layers.collectAsState()
+        val styles by observedLayout.styles.collectAsState()
 
-    val guideLines = remember { mutableStateMapOf<ObservableWidget, List<GuideLine>>() }
+        val guideLines = remember { mutableStateMapOf<ObservableWidget, List<GuideLine>>() }
 
-    //反转：将最后一层视为底层，逐步向上渲染
-    val renderingLayers = layers.reversed()
+        //反转：将最后一层视为底层，逐步向上渲染
+        val renderingLayers = layers.reversed()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ControlWidgetRenderer(
-            renderingLayers = renderingLayers,
-            styles = styles,
-            enableSnap = enableSnap,
-            snapInAllLayers = snapInAllLayers,
-            snapMode = snapMode,
-            localSnapRange = localSnapRange,
-            snapThresholdValue = snapThresholdValue,
-            onButtonTap = onButtonTap,
-            drawLine = { data, line ->
-                guideLines[data] = line
-            },
-            onLineCancel = { data ->
-                guideLines.remove(data)
-            }
-        )
-        //绘制参考线
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            guideLines.values.forEach { guidelines ->
-                guidelines.forEach { guideline ->
-                    drawLine(
-                        guideline = guideline
-                    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            ControlWidgetRenderer(
+                renderingLayers = renderingLayers,
+                styles = styles,
+                enableSnap = enableSnap,
+                snapInAllLayers = snapInAllLayers,
+                snapMode = snapMode,
+                localSnapRange = localSnapRange,
+                snapThresholdValue = snapThresholdValue,
+                onButtonTap = onButtonTap,
+                drawLine = { data, line ->
+                    guideLines[data] = line
+                },
+                onLineCancel = { data ->
+                    guideLines.remove(data)
+                }
+            )
+            //绘制参考线
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                guideLines.values.forEach { guidelines ->
+                    guidelines.forEach { guideline ->
+                        drawLine(
+                            guideline = guideline
+                        )
+                    }
                 }
             }
         }
