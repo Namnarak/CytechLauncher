@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
@@ -43,7 +42,6 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
-import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -71,6 +69,7 @@ fun ControlSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
@@ -123,7 +122,8 @@ fun ControlSettingsScreen(
                 PhysicalKeyImeTrigger(
                     modifier = Modifier.fillMaxWidth(),
                     operation = operation,
-                    changeOperation = { operation = it }
+                    changeOperation = { operation = it },
+                    eventViewModel = eventViewModel
                 )
             }
 
@@ -263,7 +263,8 @@ private sealed interface PhysicalKeyOperation {
 private fun PhysicalKeyImeTrigger(
     modifier: Modifier = Modifier,
     operation: PhysicalKeyOperation,
-    changeOperation: (PhysicalKeyOperation) -> Unit
+    changeOperation: (PhysicalKeyOperation) -> Unit,
+    eventViewModel: EventViewModel
 ) {
     Row(modifier = modifier) {
         Column(
@@ -282,12 +283,6 @@ private fun PhysicalKeyImeTrigger(
             when (operation) {
                 PhysicalKeyOperation.None -> {}
                 PhysicalKeyOperation.Bind -> {
-                    val activity = LocalActivity.current as? MainActivity ?: run {
-                        changeOperation(PhysicalKeyOperation.None)
-                        return@Column //无法通过Activity获取更精准的按键键值
-                    }
-                    val eventViewModel = activity.eventViewModel
-
                     LaunchedEffect(Unit) {
                         eventViewModel.sendEvent(EventViewModel.Event.Key.StartKeyCapture)
                         //接收Activity发送的按键事件

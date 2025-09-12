@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -80,7 +79,8 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ma
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.isChinese
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -246,6 +246,7 @@ fun DownloadAssetsScreen(
     parentCurrentKey: NavKey?,
     currentKey: NavKey?,
     key: NormalNavKey.DownloadAssets,
+    eventViewModel: EventViewModel,
     onItemClicked: (DownloadVersionInfo) -> Unit = {},
     onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit = { _, _ -> }
 ) {
@@ -286,7 +287,10 @@ fun DownloadAssetsScreen(
                     .padding(end = 12.dp)
                     .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
                 projectResult = viewModel.projectResult,
-                onReload = { viewModel.getProject() }
+                onReload = { viewModel.getProject() },
+                openLink = { url ->
+                    eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
+                }
             )
         }
     }
@@ -412,7 +416,8 @@ private fun Versions(
 private fun ProjectInfo(
     modifier: Modifier = Modifier,
     projectResult: DownloadAssetsState<Triple<DownloadProjectInfo, ModTranslations, ModTranslations.McMod?>>,
-    onReload: () -> Unit = {}
+    onReload: () -> Unit = {},
+    openLink: (url: String) -> Unit = {}
 ) {
     Card(
         modifier = modifier,
@@ -477,9 +482,8 @@ private fun ProjectInfo(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             AssetsIcon(
-                                modifier = Modifier
-                                    .clip(shape = RoundedCornerShape(10.dp))
-                                    .size(72.dp),
+                                modifier = Modifier.clip(shape = RoundedCornerShape(10.dp)),
+                                size = 72.dp,
                                 iconUrl = info.iconUrl
                             )
                             //标题、简介
@@ -507,7 +511,6 @@ private fun ProjectInfo(
                     //相关链接
                     if (!info.urls.isAllNull()) {
                         item {
-                            val context = LocalContext.current
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -517,9 +520,9 @@ private fun ProjectInfo(
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                info.urls.projectUrl?.let { url ->
+                                info.urls.projectUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
                                     IconTextButton(
-                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        onClick = { openLink(url) },
                                         iconSize = 18.dp,
                                         painter = when (info.platform) {
                                             Platform.CURSEFORGE -> painterResource(R.drawable.img_platform_curseforge)
@@ -528,33 +531,39 @@ private fun ProjectInfo(
                                         text = stringResource(R.string.download_assets_project_link)
                                     )
                                 }
-                                info.urls.sourceUrl?.let { url ->
+                                info.urls.sourceUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
                                     IconTextButton(
-                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        onClick = { openLink(url) },
                                         iconSize = 18.dp,
                                         imageVector = Icons.Default.Code,
                                         text = stringResource(R.string.download_assets_source_link)
                                     )
                                 }
-                                info.urls.issuesUrl?.let { url ->
+                                info.urls.issuesUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
                                     IconTextButton(
-                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        onClick = { openLink(url) },
                                         iconSize = 18.dp,
                                         painter = painterResource(R.drawable.ic_chat_info),
                                         text = stringResource(R.string.download_assets_issues_link)
                                     )
                                 }
-                                info.urls.wikiUrl?.let { url ->
+                                info.urls.wikiUrl?.takeIf { it.isNotEmptyOrBlank() }?.let { url ->
                                     IconTextButton(
-                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        onClick = { openLink(url) },
                                         iconSize = 18.dp,
                                         imageVector = Icons.Outlined.ImportContacts,
                                         text = stringResource(R.string.download_assets_wiki_link)
                                     )
                                 }
-                                mcmod?.takeIf { isChinese() }?.let { mod.getMcmodUrl(it) }?.let { url ->
+                                mcmod?.takeIf {
+                                    isChinese()
+                                }?.let {
+                                    mod.getMcmodUrl(it)
+                                }?.takeIf {
+                                    it.isNotEmptyOrBlank()
+                                }?.let { url ->
                                     IconTextButton(
-                                        onClick = { NetWorkUtils.openLink(context, url) },
+                                        onClick = { openLink(url) },
                                         iconSize = 18.dp,
                                         imageVector = Icons.Outlined.Link,
                                         text = "MC 百科" //品牌名不需要翻译，硬编码

@@ -38,6 +38,17 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
     }
 
     /**
+     * 调换层级顺序
+     */
+    fun reorder(fromIndex: Int, toIndex: Int) {
+        _layers.update { oldLayers ->
+            oldLayers.toMutableList().apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+        }
+    }
+
+    /**
      * 添加新的按钮样式
      */
     fun addStyle(style: ButtonStyle) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -18,8 +19,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
 import com.movtery.layer_controller.data.ButtonShape
@@ -65,15 +68,17 @@ fun ControlBoxLayout(
             }
         }
         else -> {
-            BaseControlBoxLayout(
-                modifier = modifier,
-                observedLayout = observedLayout,
-                checkOccupiedPointers = checkOccupiedPointers,
-                onClickEvent = onClickEvent,
-                markPointerAsMoveOnly = markPointerAsMoveOnly,
-                isCursorGrabbing = isCursorGrabbing,
-                content = content
-            )
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                BaseControlBoxLayout(
+                    modifier = modifier,
+                    observedLayout = observedLayout,
+                    checkOccupiedPointers = checkOccupiedPointers,
+                    onClickEvent = onClickEvent,
+                    markPointerAsMoveOnly = markPointerAsMoveOnly,
+                    isCursorGrabbing = isCursorGrabbing,
+                    content = content
+                )
+            }
         }
     }
 }
@@ -283,19 +288,6 @@ private fun BaseControlBoxLayout(
                     val normalButtons by layer.normalButtons.collectAsState()
                     val textBoxes by layer.textBoxes.collectAsState()
 
-                    normalButtons.forEach { data ->
-                        TextButton(
-                            isEditMode = false,
-                            data = data,
-                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
-                            getOtherWidgets = { emptyList() }, //不需要计算吸附
-                            snapThresholdValue = 4.dp,
-                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
-                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                            isPressed = data.isPressed
-                        )
-                    }
-
                     textBoxes.forEach { data ->
                         TextButton(
                             isEditMode = false,
@@ -308,6 +300,19 @@ private fun BaseControlBoxLayout(
                             isPressed = false //文本框不需要按压状态
                         )
                     }
+
+                    normalButtons.forEach { data ->
+                        TextButton(
+                            isEditMode = false,
+                            data = data,
+                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
+                            getOtherWidgets = { emptyList() }, //不需要计算吸附
+                            snapThresholdValue = 4.dp,
+                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
+                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                            isPressed = data.isPressed
+                        )
+                    }
                 }
             }
         ) { measurables, constraints ->
@@ -317,7 +322,7 @@ private fun BaseControlBoxLayout(
 
             var index = 0
             layers.forEach { layer ->
-                layer.normalButtons.value.forEach { data ->
+                layer.textBoxes.value.forEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -325,7 +330,7 @@ private fun BaseControlBoxLayout(
                     }
                 }
 
-                layer.textBoxes.value.forEach { data ->
+                layer.normalButtons.value.forEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -337,7 +342,7 @@ private fun BaseControlBoxLayout(
             layout(constraints.maxWidth, constraints.maxHeight) {
                 var placeableIndex = 0
                 layers.forEach { layer ->
-                    layer.normalButtons.value.forEach { data ->
+                    layer.textBoxes.value.forEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]
                             val position = getWidgetPosition(
@@ -350,7 +355,7 @@ private fun BaseControlBoxLayout(
                         }
                     }
 
-                    layer.textBoxes.value.forEach { data ->
+                    layer.normalButtons.value.forEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]
                             val position = getWidgetPosition(

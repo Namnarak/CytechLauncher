@@ -67,3 +67,37 @@ git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 
 2. 你不得移除该程序所显示的版权声明。(依据 [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
 
+## 引用开源项目
+
+本软件使用以下开源库:
+
+| Library                               | Copyright                                                                   | License              | Official Link                                                                   |
+|---------------------------------------|-----------------------------------------------------------------------------|----------------------|---------------------------------------------------------------------------------|
+| androidx-constraintlayout-compose     | Copyright © The Android Open Source Project                                 | Apache 2.0           | [链接](https://developer.android.com/develop/ui/compose/layouts/constraintlayout) |
+| androidx-material-icons-core          | Copyright © The Android Open Source Project                                 | Apache 2.0           | [链接](https://developer.android.com/jetpack/androidx/releases/compose-material)  |
+| androidx-material-icons-extended      | Copyright © The Android Open Source Project                                 | Apache 2.0           | [链接](https://developer.android.com/jetpack/androidx/releases/compose-material)  |
+| Apache Commons Codec                  | -                                                                           | Apache 2.0           | [链接](https://commons.apache.org/proper/commons-codec)                           |
+| Apache Commons Compress               | -                                                                           | Apache 2.0           | [链接](https://commons.apache.org/proper/commons-compress)                        |
+| Apache Commons IO                     | -                                                                           | Apache 2.0           | [链接](https://commons.apache.org/proper/commons-io)                              |
+| ByteHook                              | Copyright © 2020-2024 ByteDance, Inc.                                       | MIT License          | [链接](https://github.com/bytedance/bhook)                                        |
+| Coil Compose                          | Copyright © 2025 Coil Contributors                                          | Apache 2.0           | [链接](https://github.com/coil-kt/coil)                                           |
+| Coil Gifs                             | Copyright © 2025 Coil Contributors                                          | Apache 2.0           | [链接](https://github.com/coil-kt/coil)                                           |
+| colorpicker-compose                   | Copyright © 2022 skydoves (Jaewoong Eum)                                    | Apache 2.0           | [链接](https://github.com/skydoves/colorpicker-compose)                           |
+| Gson                                  | Copyright © 2008 Google Inc.                                                | Apache 2.0           | [链接](https://github.com/google/gson)                                            |
+| kotlinx.coroutines                    | Copyright © 2000-2020 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://github.com/Kotlin/kotlinx.coroutines)                              |
+| ktor-client-cio                       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://ktor.io)                                                           |
+| ktor-client-content-negotiation       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://ktor.io)                                                           |
+| ktor-client-core                      | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://ktor.io)                                                           |
+| ktor-http                             | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://ktor.io)                                                           |
+| ktor-serialization-kotlinx-json       | Copyright © 2000-2023 JetBrains s.r.o.                                      | Apache 2.0           | [链接](https://ktor.io)                                                           |
+| LWJGL - Lightweight Java Game Library | Copyright © 2012-present Lightweight Java Game Library All rights reserved. | BSD 3-Clause License | [链接](https://github.com/LWJGL/lwjgl3)                                           |
+| material-color-utilities              | Copyright 2021 Google LLC                                                   | Apache 2.0           | [链接](https://github.com/material-foundation/material-color-utilities)           |
+| Maven Artifact                        | Copyright © The Apache Software Foundation                                  | Apache 2.0           | [链接](https://github.com/apache/maven/tree/maven-3.9.9/maven-artifact)           |
+| MMKV                                  | Copyright © 2018 THL A29 Limited, a Tencent company.                        | BSD 3-Clause License | [链接](https://github.com/Tencent/MMKV)                                           |
+| Navigation 3                          | Copyright © The Android Open Source Project                                 | Apache 2.0           | [链接](https://developer.android.com/jetpack/androidx/releases/navigation3)       |
+| NBT                                   | Copyright © 2016 - 2020 Querz                                               | MIT License          | [链接](https://github.com/Querz/NBT)                                              |
+| OkHttp                                | Copyright © 2019 Square, Inc.                                               | Apache 2.0           | [链接](https://github.com/square/okhttp)                                          |
+| proxy-client-android                  | -                                                                           | LGPL-3.0 License     | [链接](https://github.com/TouchController/TouchController)                        |
+| Reorderable                           | Copyright © 2023 Calvin Liang                                               | Apache 2.0           | [链接](https://github.com/Calvin-LL/Reorderable)                                  |
+| StringFog                             | Copyright © 2016-2023, Megatron King                                        | Apache 2.0           | [链接](https://github.com/MegatronKing/StringFog)                                 |
+| XZ for Java                           | Copyright © The XZ for Java authors and contributors                        | 0BSD License         | [链接](https://tukaani.org/xz/java.html)                                          |

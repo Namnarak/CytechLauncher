@@ -263,7 +263,7 @@ private fun EditWidgetTabLayout(
 @Composable
 private fun EditWidgetNavigation(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack,
+    backStack: NavBackStack<NavKey>,
     data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,

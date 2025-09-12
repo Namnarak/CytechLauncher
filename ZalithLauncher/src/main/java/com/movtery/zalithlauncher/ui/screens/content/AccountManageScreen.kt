@@ -103,6 +103,7 @@ import java.nio.channels.UnresolvedAddressException
 fun AccountManageScreen(
     backStackViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
+    openLink: (url: String) -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
@@ -147,7 +148,8 @@ fun AccountManageScreen(
                             )
                         }
                     )
-                }
+                },
+                openLink = openLink
             )
         }
     }
@@ -163,20 +165,23 @@ fun AccountManageScreen(
         backToMainScreen = backToMainScreen,
         microsoftLoginOperation = microsoftLoginOperation,
         updateOperation = { microsoftLoginOperation = it },
+        openLink = openLink,
         summitError = summitError
     )
 
     //离线账号操作逻辑
     LocalLoginOperation(
         localLoginOperation = localLoginOperation,
-        updateOperation = { localLoginOperation = it }
+        updateOperation = { localLoginOperation = it },
+        openLink = openLink
     )
 
     //外置账号操作逻辑
     OtherLoginOperation(
         otherLoginOperation = otherLoginOperation,
         updateOperation = { otherLoginOperation = it },
-        summitError = summitError
+        summitError = summitError,
+        openLink = openLink
     )
 
     //外置服务器操作逻辑
@@ -266,7 +271,8 @@ private fun MicrosoftLoginOperation(
     navigateToWeb: (url: String) -> Unit,
     backToMainScreen: () -> Unit,
     microsoftLoginOperation: MicrosoftLoginOperation,
-    updateOperation: (MicrosoftLoginOperation) -> Unit = {},
+    updateOperation: (MicrosoftLoginOperation) -> Unit,
+    openLink: (url: String) -> Unit,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
@@ -276,7 +282,8 @@ private fun MicrosoftLoginOperation(
         is MicrosoftLoginOperation.Tip -> {
             MicrosoftLoginTipDialog(
                 onDismissRequest = { updateOperation(MicrosoftLoginOperation.None) },
-                onConfirm = { updateOperation(MicrosoftLoginOperation.RunTask) }
+                onConfirm = { updateOperation(MicrosoftLoginOperation.RunTask) },
+                openLink = openLink
             )
         }
         is MicrosoftLoginOperation.RunTask -> {
@@ -299,7 +306,8 @@ private fun MicrosoftLoginOperation(
 @Composable
 private fun LocalLoginOperation(
     localLoginOperation: LocalLoginOperation,
-    updateOperation: (LocalLoginOperation) -> Unit = {}
+    updateOperation: (LocalLoginOperation) -> Unit = {},
+    openLink: (url: String) -> Unit = {}
 ) {
     when (localLoginOperation) {
         is LocalLoginOperation.None -> {}
@@ -313,7 +321,8 @@ private fun LocalLoginOperation(
                         LocalLoginOperation.Create(userName)
                     }
                     updateOperation(operation)
-                }
+                },
+                openLink = openLink
             )
         }
         is LocalLoginOperation.Create -> {
@@ -356,7 +365,8 @@ private fun LocalLoginOperation(
 private fun OtherLoginOperation(
     otherLoginOperation: OtherLoginOperation,
     updateOperation: (OtherLoginOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    openLink: (link: String) -> Unit
 ) {
     val context = LocalContext.current
     when (otherLoginOperation) {
@@ -365,7 +375,7 @@ private fun OtherLoginOperation(
             OtherServerLoginDialog(
                 server = otherLoginOperation.server,
                 onRegisterClick = { url ->
-                    NetWorkUtils.openLink(context, url)
+                    openLink(url)
                     updateOperation(OtherLoginOperation.None)
                 },
                 onDismissRequest = { updateOperation(OtherLoginOperation.None) },
@@ -498,7 +508,8 @@ private fun AccountsLayout(
     modifier: Modifier = Modifier,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit = {},
-    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
+    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> },
+    openLink: (link: String) -> Unit = {}
 ) {
     val yOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
@@ -552,7 +563,6 @@ private fun AccountsLayout(
                         }
                     }
 
-                    val context = LocalContext.current
                     AccountItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -565,7 +575,7 @@ private fun AccountsLayout(
                         },
                         onChangeSkin = {
                             if (account.isMicrosoftAccount()) {
-                                NetWorkUtils.openLink(context = context, link = UrlManager.URL_MINECRAFT_CHANGE_SKIN)
+                                openLink(UrlManager.URL_MINECRAFT_CHANGE_SKIN)
                             } else if (account.isLocalAccount()) {
                                 skinPicker.launch(arrayOf("image/*"))
                             }

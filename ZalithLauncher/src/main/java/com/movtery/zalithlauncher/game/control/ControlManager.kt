@@ -101,7 +101,10 @@ object ControlManager {
                 )
             }?.let { list ->
                 _dataList.update {
-                    list.sortedBy { it.file.name }
+                    list.sortedBy {
+                        if (it.isSupport) it.controlLayout.info.name.default
+                        else it.file.name
+                    }
                 }
             }
             checkSettings()

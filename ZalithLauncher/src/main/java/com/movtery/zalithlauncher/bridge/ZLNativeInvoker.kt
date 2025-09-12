@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.killProgress
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils.Companion.openLink
 import java.io.File
 
 object ZLNativeInvoker {
@@ -31,7 +31,7 @@ object ZLNativeInvoker {
                     shareFile(activity, file)
                     lInfo("In-game Share File/Folder: ${file.absolutePath}")
                 } else {
-                    NetWorkUtils.openLink(activity, link, "*/*")
+                    activity.openLink(link, "*/*")
                 }
             }
         }

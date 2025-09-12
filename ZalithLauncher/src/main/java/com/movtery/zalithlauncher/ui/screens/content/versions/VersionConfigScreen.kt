@@ -1,12 +1,14 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -37,8 +40,11 @@ import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
 import com.movtery.zalithlauncher.ui.components.SimpleListLayout
 import com.movtery.zalithlauncher.ui.components.TextInputLayout
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckState
 import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
@@ -355,6 +361,37 @@ private fun SupportConfigs(
             },
             suffix = "ms",
             fineTuningControl = true
+        )
+
+        CheckMicrophoneLayout(
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun CheckMicrophoneLayout(
+    modifier: Modifier = Modifier
+) {
+    var state by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
+
+    MicrophoneCheckOperation(
+        state = state,
+        changeState = { state = it }
+    )
+
+    Column(
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(22.0.dp))
+            .clickable {
+                state = MicrophoneCheckState.Start
+            }
+            .padding(all = 8.dp)
+            .padding(bottom = 4.dp)
+    ) {
+        TitleAndSummary(
+            title = stringResource(R.string.versions_config_microphone_check_title),
+            summary = stringResource(R.string.versions_config_microphone_check_summary)
         )
     }
 }

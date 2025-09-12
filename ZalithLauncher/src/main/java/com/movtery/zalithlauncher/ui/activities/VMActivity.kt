@@ -16,7 +16,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -261,35 +259,32 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     private fun Screen(
         content: @Composable () -> Unit = {}
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            val imeInsets = WindowInsets.ime
-            val density = LocalDensity.current
-            val inputArea by handler.inputArea.collectAsState()
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset {
-                        val area = inputArea ?: return@offset IntOffset.Zero
-                        val imeHeight = imeInsets.getBottom(density)
-                        val bottomDistance = CallbackBridge.windowHeight - area.bottom
-                        val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
-                        IntOffset(0, -bottomPadding)
-                    }
-                    .align(Alignment.Center),
-                factory = { context ->
-                    TextureView(context).apply {
-                        isOpaque = true
-                        alpha = 1.0f
+        val imeInsets = WindowInsets.ime
+        val density = LocalDensity.current
+        val inputArea by handler.inputArea.collectAsState()
+        AndroidView(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset {
+                    val area = inputArea ?: return@offset IntOffset.Zero
+                    val imeHeight = imeInsets.getBottom(density)
+                    val bottomDistance = CallbackBridge.windowHeight - area.bottom
+                    val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
+                    IntOffset(0, -bottomPadding)
+                },
+            factory = { context ->
+                TextureView(context).apply {
+                    isOpaque = true
+                    alpha = 1.0f
 
-                        surfaceTextureListener = this@VMActivity
-                    }.also { view ->
-                        mTextureView = view
-                    }
+                    surfaceTextureListener = this@VMActivity
+                }.also { view ->
+                    mTextureView = view
                 }
-            )
+            }
+        )
 
-            content()
-        }
+        content()
     }
 
     private fun refreshWindowSize() {

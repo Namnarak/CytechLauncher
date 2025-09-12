@@ -54,7 +54,7 @@ import java.io.File
 /**
  * 导航至FileSelectorScreen
  */
-fun NavBackStack.navigateToFileSelector(
+fun NavBackStack<NavKey>.navigateToFileSelector(
     startPath: String,
     selectFile: Boolean,
     saveKey: NavKey

@@ -63,6 +63,8 @@ fun InfoLayoutSliderItem(
     onValueChangeFinished: (() -> Unit)? = null,
     decimalFormat: String = "#0.00",
     suffix: String? = null,
+    fineTuningControl: Boolean = true,
+    fineTuningStep: Float = 0.5f,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
@@ -89,7 +91,8 @@ fun InfoLayoutSliderItem(
                 onValueChangeFinished = onValueChangeFinished,
                 onTextClick = { showValueEditDialog = true },
                 suffix = suffix,
-                fineTuningControl = true
+                fineTuningControl = fineTuningControl,
+                fineTuningStep = fineTuningStep
             )
         }
     }

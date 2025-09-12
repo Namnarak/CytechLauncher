@@ -111,7 +111,7 @@ private val settingItems = listOf(
 @Composable
 private fun TabMenu(
     isVisible: Boolean,
-    backStack: NavBackStack,
+    backStack: NavBackStack<NavKey>,
     versionsScreenKey: NavKey?,
     modifier: Modifier = Modifier
 ) {

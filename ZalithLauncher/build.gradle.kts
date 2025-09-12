@@ -234,6 +234,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
     implementation(libs.material.color.utilities)
+    implementation(libs.reorderable)
     //Project
     implementation(project(":LayerController"))
     //Utils

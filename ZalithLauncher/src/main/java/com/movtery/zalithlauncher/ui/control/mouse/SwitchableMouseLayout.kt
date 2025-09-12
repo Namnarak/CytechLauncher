@@ -1,8 +1,8 @@
 package com.movtery.zalithlauncher.ui.control.mouse
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -146,7 +146,7 @@ fun SwitchableMouseLayout(
     Box(modifier = modifier) {
         if (showMousePointer) {
             MousePointer(
-                modifier = Modifier.offset(
+                modifier = Modifier.absoluteOffset(
                     x = with(LocalDensity.current) { pointerPosition.x.toDp() },
                     y = with(LocalDensity.current) { pointerPosition.y.toDp() }
                 ),

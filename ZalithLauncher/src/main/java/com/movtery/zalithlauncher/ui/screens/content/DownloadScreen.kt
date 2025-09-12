@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 /**
@@ -72,6 +73,7 @@ fun ScreenBackStackViewModel.navigateToDownload(targetScreen: NavKey? = null) {
 fun DownloadScreen(
     key: NestedNavKey.Download,
     backScreenViewModel: ScreenBackStackViewModel,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
@@ -90,6 +92,7 @@ fun DownloadScreen(
             NavigationUI(
                 key = key,
                 backScreenViewModel = backScreenViewModel,
+                eventViewModel = eventViewModel,
                 summitError = summitError,
                 modifier = Modifier.fillMaxHeight()
             )
@@ -101,7 +104,7 @@ fun DownloadScreen(
 private fun TabMenu(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
-    backStack: NavBackStack,
+    backStack: NavBackStack<NavKey>,
     backScreenViewModel: ScreenBackStackViewModel,
 ) {
     val downloadsList = listOf(
@@ -167,6 +170,7 @@ private fun TabMenu(
 private fun NavigationUI(
     key: NestedNavKey.Download,
     backScreenViewModel: ScreenBackStackViewModel,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -192,7 +196,8 @@ private fun NavigationUI(
                         downloadGameScreenKey = backScreenViewModel.downloadGameScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadGameScreen.currentKey = newKey
-                        }
+                        },
+                        eventViewModel = eventViewModel
                     )
                 }
                 entry<NestedNavKey.DownloadModPack> { key ->
@@ -203,7 +208,8 @@ private fun NavigationUI(
                         downloadModPackScreenKey = backScreenViewModel.downloadModPackScreen.currentKey,
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadModPackScreen.currentKey = newKey
-                        }
+                        },
+                        eventViewModel = eventViewModel
                     )
                 }
                 entry<NestedNavKey.DownloadMod> { key ->
@@ -215,7 +221,8 @@ private fun NavigationUI(
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadModScreen.currentKey = newKey
                         },
-                        summitError = summitError
+                        summitError = summitError,
+                        eventViewModel = eventViewModel
                     )
                 }
                 entry<NestedNavKey.DownloadResourcePack> { key ->
@@ -227,7 +234,8 @@ private fun NavigationUI(
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadResourcePackScreen.currentKey = newKey
                         },
-                        summitError = summitError
+                        summitError = summitError,
+                        eventViewModel = eventViewModel
                     )
                 }
                 entry<NestedNavKey.DownloadSaves> { key ->
@@ -239,7 +247,8 @@ private fun NavigationUI(
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadSavesScreen.currentKey = newKey
                         },
-                        summitError = summitError
+                        summitError = summitError,
+                        eventViewModel = eventViewModel
                     )
                 }
                 entry<NestedNavKey.DownloadShaders> { key ->
@@ -251,7 +260,8 @@ private fun NavigationUI(
                         onCurrentKeyChange = { newKey ->
                             backScreenViewModel.downloadShadersScreen.currentKey = newKey
                         },
-                        summitError = summitError
+                        summitError = summitError,
+                        eventViewModel = eventViewModel
                     )
                 }
             }

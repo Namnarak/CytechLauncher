@@ -100,6 +100,10 @@
     <string name="notification_data_jvm_service_message">為使安裝順利進行，啟動器需要在前景執行安裝程式。我們會嘗試啟動一個前景服務來確保穩定性，但這需要開啟通知權限。能協助我們開啟通知權限嗎？這樣可以避免安裝中斷喔！</string>
     <string name="notification_data_jvm_service_name">前景安裝服務</string>
     <string name="notification_data_jvm_service_running">正在透過前景服務安裝遊戲中</string>
+    <!--  麥克風  -->
+    <string name="microphone_check_title">檢查麥克風輸入</string>
+    <string name="microphone_check_volume">音量：%d</string>
+    <string name="microphone_check_no_permissions">未授予啟動器麥克風權限</string>
     <!--  解壓縮  -->
     <string name="unpack_screen_jre8">Java 8 環境，Minecraft 1.16 及更早版本依賴 Java 8</string>
     <string name="unpack_screen_jre17">Java 17 環境，Minecraft 1.17+ 依賴 Java 17</string>
@@ -482,6 +486,8 @@
     <string name="versions_config_follow_global_if_blank">留白則跟隨全域設定</string>
     <string name="versions_config_disable_if_blank">留白則不使用此功能</string>
     <string name="versions_config_failed_to_save">儲存版本組態時發生異常</string>
+    <string name="versions_config_microphone_check_title">檢查麥克風</string>
+    <string name="versions_config_microphone_check_summary">檢查系統麥克風是否可用，或確認啟動器是否已獲得麥克風權限。此檢查將確保您可以使用像 Simple Voice Chat 這樣需要使用麥克風的模組。</string>
     <string name="manage_only_show_valid">可用的</string>
     <string name="mods_manage">模組管理</string>
     <string name="mods_manage_info">模組資訊</string>

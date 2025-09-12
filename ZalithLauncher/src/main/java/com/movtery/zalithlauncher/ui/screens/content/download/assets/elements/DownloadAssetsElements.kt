@@ -648,8 +648,8 @@ private fun AssetsVersionDependencyItem(
         AssetsIcon(
             modifier = Modifier
                 .padding(all = 8.dp)
-                .clip(shape = RoundedCornerShape(10.dp))
-                .size(42.dp),
+                .clip(shape = RoundedCornerShape(10.dp)),
+            size = 42.dp,
             iconUrl = project.iconUrl
         )
         Column(

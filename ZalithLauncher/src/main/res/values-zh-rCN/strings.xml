@@ -109,6 +109,10 @@
     <string name="notification_data_jvm_service_message">为了让安装顺利进行，启动器需要在前台运行安装器。我们会尝试启动一个前台服务来确保稳定性，不过这需要开启通知权限。能帮我们开启通知权限吗？这样可以避免安装中断哦！</string>
     <string name="notification_data_jvm_service_name">前台安装服务</string>
     <string name="notification_data_jvm_service_running">正在前台服务安装游戏中</string>
+    <!--  麦克风  -->
+    <string name="microphone_check_title">检查麦克风输入</string>
+    <string name="microphone_check_volume">音量：%d</string>
+    <string name="microphone_check_no_permissions">未授予启动器麦克风权限</string>
     <!--  解压  -->
     <string name="unpack_screen_jre8">Java 8 环境，Minecraft 1.16- 依赖 Java 8</string>
     <string name="unpack_screen_jre17">Java 17 环境，Minecraft 1.17+ 依赖 Java 17</string>
@@ -521,6 +525,8 @@
     <string name="versions_config_follow_global_if_blank">留白则跟随全局设置</string>
     <string name="versions_config_disable_if_blank">留白则不使用此功能</string>
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
+    <string name="versions_config_microphone_check_title">检查麦克风</string>
+    <string name="versions_config_microphone_check_summary">检查系统麦克风是否可用，或确认启动器是否已获得麦克风权限。这项检查将确保您可以使用像“简单的语音聊天”这样的需要使用麦克风的模组。</string>
     <string name="manage_only_show_valid">可用的</string>
     <string name="mods_manage">模组管理</string>
     <string name="mods_manage_info">模组信息</string>

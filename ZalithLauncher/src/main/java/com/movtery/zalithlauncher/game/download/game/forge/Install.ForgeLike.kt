@@ -342,14 +342,15 @@ private suspend fun runProcessors(
         val options = parseOptions(tempMinecraftDir, processor.getArgs(), vars)
         if (options["task"] == "DOWNLOAD_MOJMAPS" || !processor.isSide("client")) return@mapNotNull null
 
-        val outputs: Map<String?, String?> = processor.getOutputs().mapKeys { (k, _) ->
-            parseLiteral(tempMinecraftDir, k, vars)
-        }.mapValues { (_, v) ->
-            parseLiteral(tempMinecraftDir, v, vars)
-        }.also {
-            require(it.keys.none { key -> key == null } && it.values.none { v -> v == null }) {
-                "Invalid forge installation configuration"
+        val outputs: Map<String, String> = processor.getOutputs().mapKeys { (k, _) ->
+            parseLiteral(tempMinecraftDir, k, vars) ?: run {
+                throw IllegalArgumentException("Invalid forge installation configuration")
             }
+        }.mapValues { (_, v) ->
+            parseLiteral(tempMinecraftDir, v, vars) ?: run {
+                throw IllegalArgumentException("Invalid forge installation configuration")
+            }
+        }.also {
             lInfo("Parsed output mappings for ${processor.javaClass.simpleName}: ${it.entries.joinToString("\n") { entry -> "${entry.key} = ${entry.value}" }}")
         }
 
@@ -400,11 +401,7 @@ private suspend fun runProcessors(
     }
 
     //正式开始执行命令
-    commandList.forEachIndexed { index, commandTriple ->
-        val processor = commandTriple.first
-        val jvmArgs = commandTriple.second
-        val outputs = commandTriple.third
-
+    commandList.forEachIndexed { index, (processor, jvmArgs, outputs) ->
         runJvmRetryRuntimes(
             logId = FORGE_LIKE_INSTALL_ID,
             jvmArgs = jvmArgs,

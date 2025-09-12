@@ -28,6 +28,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.Sear
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +42,8 @@ fun DownloadSavesScreen(
     downloadScreenKey: NavKey?,
     downloadSavesScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    eventViewModel: EventViewModel
 ) {
     val backStack = key.backStack
     val stackTopKey = backStack.lastOrNull()
@@ -112,6 +114,7 @@ fun DownloadSavesScreen(
                         parentCurrentKey = downloadScreenKey,
                         currentKey = downloadSavesScreenKey,
                         key = assetsKey,
+                        eventViewModel = eventViewModel,
                         onItemClicked = { info ->
                             operation = DownloadSingleOperation.SelectVersion(info)
                         },

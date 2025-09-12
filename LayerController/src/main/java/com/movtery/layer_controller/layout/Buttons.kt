@@ -2,7 +2,6 @@ package com.movtery.layer_controller.layout
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -90,7 +89,7 @@ internal fun TextButton(
                     else -> error("Unknown widget type")
                 }
             }
-            Text(
+            RtLText(
                 text = text.translate(locale),
                 color = color
             )
@@ -119,7 +118,7 @@ fun RendererStyleBox(
         contentAlignment = Alignment.Center
     ) {
         val color by buttonContentColorAsState(style = style, isDark = isDark, isPressed = isPressed)
-        Text(
+        RtLText(
             text = text,
             color = color
         )

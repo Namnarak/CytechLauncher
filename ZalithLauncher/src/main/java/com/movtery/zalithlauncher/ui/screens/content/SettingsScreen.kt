@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
@@ -62,6 +63,7 @@ fun SettingsScreen(
     key: NestedNavKey.Settings,
     backStackViewModel: ScreenBackStackViewModel,
     openLicenseScreen: (raw: Int) -> Unit,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
@@ -86,6 +88,7 @@ fun SettingsScreen(
                     backStackViewModel.settingsScreen.currentKey = newKey
                 },
                 openLicenseScreen = openLicenseScreen,
+                eventViewModel = eventViewModel,
                 summitError = summitError,
                 modifier = Modifier.fillMaxHeight()
             )
@@ -167,6 +170,7 @@ private fun NavigationUI(
     settingsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
     openLicenseScreen: (raw: Int) -> Unit,
+    eventViewModel: EventViewModel,
     summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -191,7 +195,7 @@ private fun NavigationUI(
                     GameSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.Control> {
-                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey, summitError)
+                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey, eventViewModel, summitError)
                 }
                 entry<NormalNavKey.Settings.Launcher> {
                     LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey)
@@ -203,7 +207,9 @@ private fun NavigationUI(
                     ControlManageScreen(key, settingsScreenKey, mainScreenKey, summitError)
                 }
                 entry<NormalNavKey.Settings.AboutInfo> {
-                    AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen)
+                    AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen) { url ->
+                        eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
+                    }
                 }
             }
         )

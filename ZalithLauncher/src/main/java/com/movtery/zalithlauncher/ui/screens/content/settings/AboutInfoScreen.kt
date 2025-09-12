@@ -50,6 +50,8 @@ import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.PluginLoader
 import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.library.LibraryInfo
+import com.movtery.zalithlauncher.library.libraryData
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -57,61 +59,14 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
-
-private const val COPYRIGHT_AOSP = "Copyright © The Android Open Source Project"
-private const val COPYRIGHT_KTOR = "Copyright © 2000-2023 JetBrains s.r.o."
-private const val LICENSE_APACHE_2 = "Apache License 2.0"
-private const val LICENSE_MIT = "MIT License"
-private const val LICENSE_LGPL_3 = "LGPL-3.0 License"
-private const val URL_KTOR = "https://ktor.io"
-private const val URL_LICENSE_APACHE_2 = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-private const val URL_LICENSE_MIT = "https://opensource.org/licenses/MIT"
-private const val URL_LICENSE_LGPL = "https://www.gnu.org/licenses/lgpl-3.0.html"
-
-private val libraryData = listOf(
-    LibraryInfo("androidx-constraintlayout-compose", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/develop/ui/compose/layouts/constraintlayout", URL_LICENSE_APACHE_2),
-    LibraryInfo("androidx-material-icons-core", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material", URL_LICENSE_APACHE_2),
-    LibraryInfo("androidx-material-icons-extended", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/compose-material", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons Codec", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-codec", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons Compress", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-compress", URL_LICENSE_APACHE_2),
-    LibraryInfo("Apache Commons IO", null, LICENSE_APACHE_2, "https://commons.apache.org/proper/commons-io", URL_LICENSE_APACHE_2),
-    LibraryInfo("ByteHook", "Copyright © 2020-2024 ByteDance, Inc.", LICENSE_MIT, "https://github.com/bytedance/bhook", URL_LICENSE_MIT),
-    LibraryInfo("Coil Compose", "Copyright © 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil", URL_LICENSE_APACHE_2),
-    LibraryInfo("Coil Gifs", "Copyright © 2025 Coil Contributors", LICENSE_APACHE_2, "https://github.com/coil-kt/coil", URL_LICENSE_APACHE_2),
-    LibraryInfo("colorpicker-compose", "Copyright © 2022 skydoves (Jaewoong Eum)", LICENSE_APACHE_2, "https://github.com/skydoves/colorpicker-compose", URL_LICENSE_APACHE_2),
-    LibraryInfo("Gson", "Copyright © 2008 Google Inc.", LICENSE_APACHE_2, "https://github.com/google/gson", URL_LICENSE_APACHE_2),
-    LibraryInfo("kotlinx.coroutines", "Copyright © 2000-2020 JetBrains s.r.o.", LICENSE_APACHE_2, "https://github.com/Kotlin/kotlinx.coroutines", URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-cio", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-content-negotiation", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-client-core", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-http", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("ktor-serialization-kotlinx-json", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR, URL_LICENSE_APACHE_2),
-    LibraryInfo("material-color-utilities", "Copyright 2021 Google LLC", LICENSE_APACHE_2, "https://github.com/material-foundation/material-color-utilities", "https://github.com/jordond/materialkolor/blob/master/LICENSE"),
-    LibraryInfo("Maven Artifact", "Copyright © The Apache Software Foundation", LICENSE_APACHE_2, "https://github.com/apache/maven/tree/maven-3.9.9/maven-artifact", URL_LICENSE_MIT),
-    LibraryInfo("MMKV", "Copyright © 2018 THL A29 Limited, a Tencent company.", "BSD 3-Clause License", "https://github.com/Tencent/MMKV", "https://github.com/Tencent/MMKV?tab=License-1-ov-file"),
-    LibraryInfo("Navigation 3", COPYRIGHT_AOSP, LICENSE_APACHE_2, "https://developer.android.com/jetpack/androidx/releases/navigation3", URL_LICENSE_APACHE_2),
-    LibraryInfo("NBT", "Copyright © 2016 - 2020 Querz", LICENSE_MIT, "https://github.com/Querz/NBT", URL_LICENSE_MIT),
-    LibraryInfo("OkHttp", "Copyright © 2019 Square, Inc.", LICENSE_APACHE_2, "https://github.com/square/okhttp", URL_LICENSE_APACHE_2),
-    LibraryInfo("proxy-client-android", null, LICENSE_LGPL_3, "https://github.com/TouchController/TouchController", URL_LICENSE_LGPL),
-    LibraryInfo("StringFog", "Copyright © 2016-2023, Megatron King", LICENSE_APACHE_2, "https://github.com/MegatronKing/StringFog", URL_LICENSE_APACHE_2),
-    LibraryInfo("XZ for Java", "Copyright © The XZ for Java authors and contributors", "0BSD License", "https://tukaani.org/xz/java.html", null)
-)
-
-private data class LibraryInfo(
-    val name: String,
-    val copyrightInfo: String?,
-    val license: String,
-    val webUrl: String,
-    val licenseUrl: String?
-)
 
 @Composable
 fun AboutInfoScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    openLicense: (raw: Int) -> Unit
+    openLicense: (raw: Int) -> Unit,
+    openLink: (url: String) -> Unit
 ) {
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -131,14 +86,13 @@ fun AboutInfoScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_launcher_title)
                 ) {
-                    val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_launcher),
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
                             buttonText = stringResource(R.string.about_launcher_project_link),
-                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_PROJECT) }
+                            onButtonClick = { openLink(UrlManager.URL_PROJECT) }
                         )
 
                         ButtonIconItem(
@@ -146,7 +100,7 @@ fun AboutInfoScreen(
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { NetWorkUtils.openLink(context, UrlManager.URL_SUPPORT) }
+                            onButtonClick = { openLink(UrlManager.URL_SUPPORT) }
                         )
                     }
                 }
@@ -162,47 +116,46 @@ fun AboutInfoScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_acknowledgements_title)
                 ) {
-                    val context = LocalContext.current
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_bangbang93),
                             title = "bangbang93",
                             text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { NetWorkUtils.openLink(context, "https://afdian.com/a/bangbang93") }
+                            onButtonClick = { openLink("https://afdian.com/a/bangbang93") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_fcl),
                             title = "Fold Craft Launcher",
                             text = stringResource(R.string.about_acknowledgements_fcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.fcl_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/FCL-Team/FoldCraftLauncher") }
+                            openLink = { openLink("https://github.com/FCL-Team/FoldCraftLauncher") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_hmcl),
                             title = "Hello Minecraft! Launcher",
                             text = stringResource(R.string.about_acknowledgements_hmcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.hmcl_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/HMCL-dev/HMCL") }
+                            openLink = { openLink("https://github.com/HMCL-dev/HMCL") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_platform_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, UrlManager.URL_MCMOD) }
+                            openLink = { openLink(UrlManager.URL_MCMOD) }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_pcl2),
                             title = "Plain Craft Launcher 2",
                             text = stringResource(R.string.about_acknowledgements_pcl_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/Meloong-Git/PCL") }
+                            openLink = { openLink("https://github.com/Meloong-Git/PCL") }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_pojav),
                             title = "PojavLauncher",
                             text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLicense = { openLicense(R.raw.pojav_license) },
-                            openLink = { NetWorkUtils.openLink(context, "https://github.com/PojavLauncherTeam/PojavLauncher") }
+                            openLicense = { openLicense(R.raw.lgpl_3_license) },
+                            openLink = { openLink("https://github.com/PojavLauncherTeam/PojavLauncher") }
                         )
                     }
                 }
@@ -221,7 +174,7 @@ fun AboutInfoScreen(
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         libraryData.forEach { info ->
-                            LibraryInfoItem(info = info)
+                            LibraryInfoItem(info = info, openLicense = openLicense, openLink = openLink)
                         }
                     }
                 }
@@ -499,9 +452,9 @@ private fun LibraryInfoItem(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    openLicense: (Int) -> Unit,
+    openLink: (url: String) -> Unit
 ) {
-    val context = LocalContext.current
-
     Surface(
         modifier = modifier,
         color = color,
@@ -534,14 +487,13 @@ private fun LibraryInfoItem(
                     }
                     Text(
                         modifier = Modifier.clickable(
-                            enabled = info.licenseUrl != null,
                             onClick = {
-                                info.licenseUrl?.let { NetWorkUtils.openLink(context, it) }
+                                openLicense(info.license.raw)
                             }
                         ),
-                        text = "Licensed under the ${info.license}",
+                        text = "Licensed under the ${info.license.name}",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            textDecoration = if (info.licenseUrl != null) TextDecoration.Underline else TextDecoration.None
+                            textDecoration = TextDecoration.Underline
                         )
                     )
                 }
@@ -549,7 +501,7 @@ private fun LibraryInfoItem(
             IconButton(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 onClick = {
-                    NetWorkUtils.openLink(context, info.webUrl)
+                    openLink(info.webUrl)
                 }
             ) {
                 Icon(
