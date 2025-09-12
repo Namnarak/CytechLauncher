@@ -90,6 +90,7 @@ class VersionSettingsLayoutScope {
         modifier: Modifier = Modifier,
         currentValue: SettingState,
         onValueChange: (SettingState) -> Unit,
+        enabled: Boolean = true,
         iconSize: Dp = 20.dp,
         shape: Shape = RoundedCornerShape(22.0.dp),
         title: String,
@@ -103,7 +104,7 @@ class VersionSettingsLayoutScope {
             modifier = modifier
                 .fillMaxWidth()
                 .clip(shape = shape)
-                .clickable { expanded = !expanded }
+                .clickable(enabled = enabled) { expanded = !expanded }
                 .padding(all = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -127,6 +128,7 @@ class VersionSettingsLayoutScope {
             ) {
                 IconButton(
                     modifier = Modifier.size(34.dp),
+                    enabled = enabled,
                     onClick = { expanded = !expanded }
                 ) {
                     Icon(
@@ -149,6 +151,7 @@ class VersionSettingsLayoutScope {
                             text = {
                                 Text(text = stringResource(state.textRes))
                             },
+                            enabled = enabled,
                             onClick = {
                                 value = state
                                 onValueChange(value)

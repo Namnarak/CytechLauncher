@@ -209,6 +209,7 @@ fun <E> SimpleListLayout(
                         .align(Alignment.CenterVertically)
                         .size(34.dp)
                         .rotate(rotation),
+                    enabled = enabled,
                     onClick = { expanded = !expanded }
                 ) {
                     Icon(
@@ -259,12 +260,13 @@ fun SimpleListItem(
     selected: Boolean,
     itemName: String,
     summary: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
-            .clickable(onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
