@@ -29,6 +29,7 @@ navigation3 = "1.0.0-alpha08"
 navigation3Lifecycle = "2.10.0-alpha03"
 okhttp = "5.1.0"
 proxyClientAndroid = "0.0.5"
+reorderable = "3.0.0"
 room = "2.7.2"
 stringfog-gradlePlugin = "5.2.0"
 stringfog-xor = "5.0.0"
@@ -86,6 +87,7 @@ maven-artifact = { module = "org.apache.maven:maven-artifact", version.ref = "ma
 mmkv = { module = "com.tencent:mmkv", version.ref = "mmkv" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 proxy-client-android = { module = "top.fifthlight.touchcontroller:proxy-client-android", version.ref = "proxyClientAndroid" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
 stringfog-gradle-plugin = { module = "com.github.megatronking.stringfog:gradle-plugin", version.ref = "stringfog-gradlePlugin" }
 stringfog-xor = { module = "com.github.megatronking.stringfog:xor", version.ref = "stringfog-xor" }

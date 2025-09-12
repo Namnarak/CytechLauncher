@@ -72,6 +72,9 @@ fun ControlEditor(
         state = viewModel.editorMenu,
         closeScreen = { viewModel.editorMenu = MenuState.HIDE },
         layers = layers,
+        onReorder = { from, to ->
+            viewModel.observableLayout.reorder(from, to)
+        },
         selectedLayer = viewModel.selectedLayer,
         onLayerSelected = { layer ->
             viewModel.selectedLayer = layer

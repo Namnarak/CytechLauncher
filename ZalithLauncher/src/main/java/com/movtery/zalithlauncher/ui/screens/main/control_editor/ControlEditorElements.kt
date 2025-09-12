@@ -5,16 +5,21 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Visibility
@@ -52,6 +57,8 @@ import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 /**
  * 控制布局编辑器操作状态
@@ -121,6 +128,7 @@ fun EditorMenu(
     state: MenuState,
     closeScreen: () -> Unit,
     layers: List<ObservableControlLayer>,
+    onReorder: (from: Int, to: Int) -> Unit,
     selectedLayer: ObservableControlLayer?,
     onLayerSelected: (ObservableControlLayer) -> Unit,
     createLayer: () -> Unit,
@@ -246,55 +254,91 @@ fun EditorMenu(
             }
         },
         rightMenuContent = {
-            Text(
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .align(Alignment.CenterHorizontally),
-                text = stringResource(R.string.control_editor_layers_title),
-                style = MaterialTheme.typography.titleMedium
+            ControlLayerMenu(
+                layers = layers,
+                onReorder = onReorder,
+                selectedLayer = selectedLayer,
+                onLayerSelected = onLayerSelected,
+                createLayer = createLayer,
+                onAttribute = onAttribute
             )
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(all = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(layers) { layer ->
-                    ControlLayerItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        layer = layer,
-                        selected = selectedLayer == layer,
-                        onSelected = {
-                            onLayerSelected(layer)
-                        },
-                        onAttribute = {
-                            onAttribute(layer)
-                        }
-                    )
-                }
-            }
-            ScalingActionButton(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 4.dp)
-                    .fillMaxWidth(),
-                onClick = createLayer
-            ) {
-                MarqueeText(text = stringResource(R.string.control_editor_layers_create))
-            }
         }
     )
+}
+
+@Composable
+private fun ColumnScope.ControlLayerMenu(
+    layers: List<ObservableControlLayer>,
+    onReorder: (from: Int, to: Int) -> Unit,
+    selectedLayer: ObservableControlLayer?,
+    onLayerSelected: (ObservableControlLayer) -> Unit,
+    createLayer: () -> Unit,
+    onAttribute: (ObservableControlLayer) -> Unit
+) {
+    Text(
+        modifier = Modifier
+            .padding(all = 8.dp)
+            .align(Alignment.CenterHorizontally),
+        text = stringResource(R.string.control_editor_layers_title),
+        style = MaterialTheme.typography.titleMedium
+    )
+    HorizontalDivider(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+    )
+
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(
+        lazyListState = lazyListState,
+        onMove = { from, to ->
+            onReorder(from.index, to.index)
+        }
+    )
+
+    LazyColumn(
+        modifier = Modifier.weight(1f),
+        state = lazyListState,
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(layers, { it.uuid }) { layer ->
+            ReorderableItem(
+                state = reorderableLazyListState,
+                key = layer.uuid
+            ) { isDragging ->
+                ControlLayerItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    layer = layer,
+                    dragButtonModifier = Modifier.draggableHandle(),
+                    selected = selectedLayer == layer,
+                    onSelected = {
+                        onLayerSelected(layer)
+                    },
+                    onAttribute = {
+                        onAttribute(layer)
+                    }
+                )
+            }
+        }
+    }
+    ScalingActionButton(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 4.dp)
+            .fillMaxWidth(),
+        onClick = createLayer
+    ) {
+        MarqueeText(text = stringResource(R.string.control_editor_layers_create))
+    }
 }
 
 @Composable
 private fun ControlLayerItem(
     modifier: Modifier = Modifier,
     layer: ObservableControlLayer,
+    dragButtonModifier: Modifier,
     selected: Boolean,
     onSelected: () -> Unit,
     onAttribute: () -> Unit,
@@ -355,6 +399,18 @@ private fun ControlLayerItem(
                 Icon(
                     imageVector = Icons.Default.MoreHoriz,
                     contentDescription = stringResource(R.string.control_editor_layers_attribute)
+                )
+            }
+            Row(
+                modifier = dragButtonModifier
+                    .fillMaxHeight()
+                    .clip(CircleShape),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(all = 4.dp),
+                    imageVector = Icons.Default.DragHandle,
+                    contentDescription = null
                 )
             }
         }
