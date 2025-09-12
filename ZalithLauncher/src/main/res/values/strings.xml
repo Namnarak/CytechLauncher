@@ -109,6 +109,10 @@
     <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the foreground. We\'ll try to start a foreground service to maintain stability, but this requires notification permissions. Could you help us enable notification permissions? This will help prevent installation interruptions!</string>
     <string name="notification_data_jvm_service_name">Foreground Installation Service</string>
     <string name="notification_data_jvm_service_running">Installing the game via foreground service</string>
+    <!--  Microphone  -->
+    <string name="microphone_check_title">Check Microphone Input</string>
+    <string name="microphone_check_volume">Volume: %d</string>
+    <string name="microphone_check_no_permissions">Microphone Permission Not Granted to Launcher</string>
     <!-- Unpacking -->
     <string name="unpack_screen_jre8">Java 8 Environment (required for Minecraft 1.16 and below)</string>
     <string name="unpack_screen_jre17">Java 17 Environment (required for Minecraft 1.17+)</string>
@@ -521,6 +525,8 @@
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
+    <string name="versions_config_microphone_check_title">Check Microphone</string>
+    <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
     <string name="manage_only_show_valid">Available</string>
     <string name="mods_manage">Mods</string>
     <string name="mods_manage_info">Mod Information</string>
