@@ -104,7 +104,7 @@ fun DownloadScreen(
 private fun TabMenu(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
-    backStack: NavBackStack,
+    backStack: NavBackStack<NavKey>,
     backScreenViewModel: ScreenBackStackViewModel,
 ) {
     val downloadsList = listOf(

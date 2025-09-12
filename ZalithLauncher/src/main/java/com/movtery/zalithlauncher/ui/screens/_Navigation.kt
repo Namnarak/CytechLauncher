@@ -7,12 +7,12 @@ import kotlin.reflect.KClass
 /**
  * 兼容嵌套NavDisplay的返回事件处理
  */
-fun onBack(currentBackStack: NavBackStack) {
+fun <E: NavKey> onBack(currentBackStack: NavBackStack<E>) {
     val key = currentBackStack.lastOrNull()
     when (key) {
         //普通的屏幕，直接退出当前堆栈的上层
         is NormalNavKey -> currentBackStack.removeLastOrNull()
-        is BackStackNavKey -> {
+        is BackStackNavKey<*> -> {
             if (key.backStack.size <= 1) {
                 //嵌套屏幕的堆栈处于最后一个屏幕的状态
                 //可以退出当前堆栈的上层了
@@ -25,12 +25,12 @@ fun onBack(currentBackStack: NavBackStack) {
     }
 }
 
-fun NavBackStack.navigateOnce(key: NavKey) {
+fun <E: NavKey> NavBackStack<E>.navigateOnce(key: E) {
     if (key == lastOrNull()) return //防止反复加载
     clearWith(key)
 }
 
-fun NavBackStack.navigateTo(screenKey: NavKey, useClassEquality: Boolean = false) {
+fun <E: NavKey> NavBackStack<E>.navigateTo(screenKey: E, useClassEquality: Boolean = false) {
     val current = lastOrNull()
     if (useClassEquality) {
         if (current != null && screenKey::class == current::class) return //防止反复加载
@@ -40,7 +40,7 @@ fun NavBackStack.navigateTo(screenKey: NavKey, useClassEquality: Boolean = false
     add(screenKey)
 }
 
-fun NavBackStack.removeAndNavigateTo(remove: KClass<*>, screenKey: NavKey, useClassEquality: Boolean = false) {
+fun <E: NavKey> NavBackStack<E>.removeAndNavigateTo(remove: KClass<*>, screenKey: E, useClassEquality: Boolean = false) {
     removeIf { key ->
         key::class == remove
     }
@@ -50,7 +50,7 @@ fun NavBackStack.removeAndNavigateTo(remove: KClass<*>, screenKey: NavKey, useCl
 /**
  * 清除所有栈，并加入指定的key
  */
-fun NavBackStack.clearWith(navKey: NavKey) {
+fun <E: NavKey> NavBackStack<E>.clearWith(navKey: E) {
     //批量替换内容，避免 Nav3 看到空帧
     this.apply {
         clear()
@@ -58,7 +58,7 @@ fun NavBackStack.clearWith(navKey: NavKey) {
     }
 }
 
-fun NavBackStack.addIfEmpty(navKey: NavKey) {
+fun <E: NavKey> NavBackStack<E>.addIfEmpty(navKey: E) {
     if (isEmpty()) {
         add(navKey)
     }

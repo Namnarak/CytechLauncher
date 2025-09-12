@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.navigateTo
@@ -32,7 +33,7 @@ import org.apache.commons.io.FileUtils
 /**
  * 导航至WebViewScreen并访问特定网址
  */
-fun NavBackStack.navigateToWeb(webUrl: String) = this.navigateTo(
+fun NavBackStack<NavKey>.navigateToWeb(webUrl: String) = this.navigateTo(
     screenKey = NormalNavKey.WebScreen(webUrl),
     useClassEquality = true
 )
