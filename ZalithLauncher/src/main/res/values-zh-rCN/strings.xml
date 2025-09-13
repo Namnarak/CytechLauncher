@@ -322,6 +322,7 @@
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
     <string name="game_menu_option_send_keycode">发送键值</string>
+    <string name="game_menu_option_replacement_control">更换控制布局</string>
     <string name="game_menu_option_hotbar_rule">快捷栏定位规则</string>
     <string name="game_menu_option_hotbar_rule_auto">自适应（可能不准确）</string>
     <string name="game_menu_option_hotbar_rule_custom">自定义</string>

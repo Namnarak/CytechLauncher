@@ -62,6 +62,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlOperation
+import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlState
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -82,6 +84,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
     /** 发送键值操作状态 */
     var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
+    /** 更换控制布局操作状态 */
+    var replacementControlState by mutableStateOf<ReplacementControlState>(ReplacementControlState.None)
     /** 输入法状态 */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
     /** 被控制布局层标记为仅滑动的指针列表 */
@@ -91,6 +95,9 @@ private class GameViewModel(private val version: Version) : ViewModel() {
 
     /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
+        private set
+    /** 当前控制布局文件 */
+    var currentControlFile by mutableStateOf<File?>(null)
         private set
     /** 启用控制布局 */
     var controlEnabled by mutableStateOf(true)
@@ -109,6 +116,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     val mouseScrollEvent = MouseScrollEvent(viewModelScope)
 
     fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
+        observableLayout = null
+        currentControlFile = layoutFile
         val layout = layoutFile?.let { file ->
             try {
                 ControlLayout.loadFromFile(file)
@@ -237,6 +246,13 @@ fun GameScreen(
         text = stringResource(R.string.game_menu_option_force_close_text)
     )
 
+    ReplacementControlOperation(
+        operation = viewModel.replacementControlState,
+        onChange = { viewModel.replacementControlState = it },
+        currentLayout = viewModel.currentControlFile,
+        replacementControl = { viewModel.loadControlLayout(it) }
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
         GameInfoBox(
             modifier = Modifier
@@ -339,7 +355,8 @@ fun GameScreen(
             onSwitchLog = { onLogStateChange(logState.next()) },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { viewModel.switchIME() },
-            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog }
+            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
+            onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show }
         )
     }
 

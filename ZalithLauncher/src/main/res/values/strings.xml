@@ -322,6 +322,7 @@
     <string name="game_menu_option_input_method">Switch Input Method</string>
     <string name="game_menu_option_switch_fps">FPS Display</string>
     <string name="game_menu_option_send_keycode">Send Keycode</string>
+    <string name="game_menu_option_replacement_control">Replace Control Layout</string>
     <string name="game_menu_option_hotbar_rule">Hotbar Positioning Rule</string>
     <string name="game_menu_option_hotbar_rule_auto">Adaptive (May Be Inaccurate)</string>
     <string name="game_menu_option_hotbar_rule_custom">Custom</string>

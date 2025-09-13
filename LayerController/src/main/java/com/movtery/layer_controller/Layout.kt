@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -73,16 +74,18 @@ fun ControlBoxLayout(
         }
         else -> {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                BaseControlBoxLayout(
-                    modifier = modifier,
-                    observedLayout = observedLayout,
-                    checkOccupiedPointers = checkOccupiedPointers,
-                    onClickEvent = onClickEvent,
-                    markPointerAsMoveOnly = markPointerAsMoveOnly,
-                    isCursorGrabbing = isCursorGrabbing,
-                    enabled = enabled,
-                    content = content
-                )
+                key(observedLayout.hashCode()) {
+                    BaseControlBoxLayout(
+                        modifier = modifier,
+                        observedLayout = observedLayout,
+                        checkOccupiedPointers = checkOccupiedPointers,
+                        onClickEvent = onClickEvent,
+                        markPointerAsMoveOnly = markPointerAsMoveOnly,
+                        isCursorGrabbing = isCursorGrabbing,
+                        enabled = enabled,
+                        content = content
+                    )
+                }
             }
         }
     }
@@ -308,7 +311,7 @@ private fun ControlsRendererLayer(
     sizes: Map<ObservableWidget, IntSize>,
     applySize: (ObservableWidget, IntSize) -> Unit,
     screenSize: IntSize,
-    isCursorGrabbing: Boolean,
+    isCursorGrabbing: Boolean
 ) {
     Layout(
         content = {

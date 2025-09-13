@@ -435,7 +435,7 @@ private fun OtherLoginOperation(
         is OtherLoginOperation.SelectRole -> {
             SimpleListDialog(
                 title = stringResource(R.string.account_other_login_select_role),
-                itemsProvider = { otherLoginOperation.profiles },
+                items = otherLoginOperation.profiles,
                 itemTextProvider = { it.name },
                 onItemSelected = { otherLoginOperation.selected(it) },
                 onDismissRequest = { updateOperation(OtherLoginOperation.None) }
