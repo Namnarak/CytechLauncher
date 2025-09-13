@@ -37,4 +37,13 @@
     <string name="generic_loading">تحميل</string>
     <string name="generic_in_progress">جار العمل</string>
     <string name="generic_anyway">استخدم على أي حال</string>
+    <string name="generic_refresh">إعادة بحث</string>
+    <string name="generic_go_it">فهمت</string>
+    <string name="generic_ignore">تجاهل</string>
+    <string name="generic_authorization">التفويض</string>
+    <string name="generic_file_name">اسم الملف: %s</string>
+    <string name="generic_file_size">حجم الملف: %s</string>
+    <string name="generic_all">الكل</string>
+    <string name="generic_unspecified">غير محدد</string>
+    <string name="generic_save">حفظ</string>
 </resources>
