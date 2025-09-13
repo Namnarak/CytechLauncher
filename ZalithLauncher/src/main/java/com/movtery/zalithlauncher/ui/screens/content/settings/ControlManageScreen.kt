@@ -441,6 +441,7 @@ private fun ControlOperation(
                     }
                 )
             )
+            changeOperation(ControlOperation.None)
         }
     }
 }
