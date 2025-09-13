@@ -41,6 +41,13 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
     }
 
     /**
+     * 批量添加普通的按钮
+     */
+    fun addAllNormalButton(buttons: List<ObservableNormalData>) {
+        _normalButtons.update { it + buttons }
+    }
+
+    /**
      * 移除一个普通的按钮
      */
     fun removeNormalButton(uuid: String) {
@@ -61,6 +68,13 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
      */
     fun addTextBox(textBox: ObservableTextData) {
         _textBoxes.update { it + textBox }
+    }
+
+    /**
+     * 批量添加文本展示框
+     */
+    fun addAllTextBox(textBoxes: List<ObservableTextData>) {
+        _textBoxes.update { it + textBoxes }
     }
 
     /**

@@ -725,6 +725,7 @@
     <string name="control_editor_layers_attribute">控件层属性</string>
     <string name="control_editor_layers_attribute_name">控件层名称</string>
     <string name="control_editor_layers_attribute_hide">默认隐藏控件层</string>
+    <string name="control_editor_layers_merge_downward">合并控件至下层</string>
     <string name="control_editor_edit_dialog_open_preview">开启预览</string>
     <string name="control_editor_edit_dialog_close_preview">关闭预览</string>
     <string name="control_editor_edit_dialog_clone_widget">复制控件</string>

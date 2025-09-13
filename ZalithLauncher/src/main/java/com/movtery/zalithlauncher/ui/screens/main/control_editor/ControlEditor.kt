@@ -149,6 +149,9 @@ fun ControlEditor(
         onDeleteLayer = { layer ->
             viewModel.removeLayer(layer)
         },
+        onMergeDownward = { layer ->
+            viewModel.observableLayout.mergeDownward(layer)
+        },
         onCloneWidgets = { widget, layers ->
             viewModel.cloneWidgetToLayers(widget, layers)
         },
@@ -172,6 +175,7 @@ private fun EditorOperation(
     changeOperation: (EditorOperation) -> Unit,
     onDeleteWidget: (ObservableWidget, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
+    onMergeDownward: (ObservableControlLayer) -> Unit,
     onCloneWidgets: (ObservableWidget, List<ObservableControlLayer>) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
@@ -244,6 +248,9 @@ private fun EditorOperation(
                 onDelete = {
                     onDeleteLayer(layer)
                     changeOperation(EditorOperation.None)
+                },
+                onMergeDownward = {
+                    onMergeDownward(layer)
                 }
             )
         }
