@@ -38,6 +38,36 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
     }
 
     /**
+     * 合并至下层
+     */
+    fun mergeDownward(layer: ObservableControlLayer) {
+        _layers.update { oldLayers ->
+            if (oldLayers.isEmpty()) return@update oldLayers
+
+            val layers = oldLayers.toMutableList()
+            val index = layers.indexOf(layer)
+            if (index == -1 || index + 1 >= layers.size) return@update oldLayers
+
+            val downLayer = layers[index + 1]
+
+            layer.normalButtons.value.takeIf {
+                it.isNotEmpty()
+            }?.let {
+                downLayer.addAllNormalButton(it)
+            }
+
+            layer.textBoxes.value.takeIf {
+                it.isNotEmpty()
+            }?.let {
+                downLayer.addAllTextBox(it)
+            }
+
+            layers.removeAt(index)
+            layers
+        }
+    }
+
+    /**
      * 调换层级顺序
      */
     fun reorder(fromIndex: Int, toIndex: Int) {

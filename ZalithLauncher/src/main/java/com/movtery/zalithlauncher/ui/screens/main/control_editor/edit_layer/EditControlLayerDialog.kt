@@ -33,13 +33,15 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
 
 @Composable
 fun EditControlLayerDialog(
     layer: ObservableControlLayer,
     onDismissRequest: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onMergeDownward: () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -112,6 +114,17 @@ fun EditControlLayerDialog(
                             title = stringResource(R.string.control_editor_layers_attribute_hide),
                             value = layer.hide,
                             onValueChange = { layer.hide = it }
+                        )
+
+                        //合并控件至下层
+                        InfoLayoutTextItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_editor_layers_merge_downward),
+                            showArrow = false,
+                            onClick = {
+                                onDismissRequest()
+                                onMergeDownward()
+                            }
                         )
 
                         Spacer(Modifier)

@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableButtonStyle
@@ -308,11 +309,13 @@ private fun ColumnScope.ControlLayerMenu(
                 state = reorderableLazyListState,
                 key = layer.uuid
             ) { isDragging ->
+                val shadowElevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
                 ControlLayerItem(
                     modifier = Modifier.fillMaxWidth(),
                     layer = layer,
                     dragButtonModifier = Modifier.draggableHandle(),
                     selected = selectedLayer == layer,
+                    shadowElevation = shadowElevation,
                     onSelected = {
                         onLayerSelected(layer)
                     },
@@ -345,7 +348,8 @@ private fun ControlLayerItem(
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.primary,
-    shape: Shape = MaterialTheme.shapes.large
+    shape: Shape = MaterialTheme.shapes.large,
+    shadowElevation: Dp = 1.dp
 ) {
     val borderWidth by animateDpAsState(
         if (selected) 4.dp
@@ -361,7 +365,7 @@ private fun ControlLayerItem(
         color = color,
         contentColor = contentColor,
         shape = shape,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {
             if (selected) return@Surface
             onSelected()
