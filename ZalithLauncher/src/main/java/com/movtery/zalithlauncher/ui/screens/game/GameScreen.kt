@@ -92,6 +92,13 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
         private set
+    /** 启用控制布局 */
+    var controlEnabled by mutableStateOf(true)
+        private set
+
+    fun switchControl(enabled: Boolean) {
+        if (controlEnabled != enabled) controlEnabled = enabled
+    }
 
     /** 所有已按下的按键，与同一键值的同时按下个数 */
     val pressedKeyEvents = mutableStateMapOf<String, Int>()
@@ -287,7 +294,8 @@ fun GameScreen(
                 }
             },
             markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
-            isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED
+            isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+            enabled = viewModel.controlEnabled
         ) {
             MouseControlLayout(
                 isTouchProxyEnabled = isTouchProxyEnabled,
@@ -300,7 +308,9 @@ fun GameScreen(
                 onReleasePointer = {
                     viewModel.occupiedPointers.remove(it)
                     viewModel.moveOnlyPointers.remove(it)
-                }
+                },
+                onEnableControl = { viewModel.switchControl(true) },
+                onDisableControl = { viewModel.switchControl(false) }
             )
 
             MinecraftHotbar(
@@ -398,6 +408,16 @@ private fun GameInfoBox(
     }
 }
 
+/**
+ * 鼠标控制层
+ * @param isTouchProxyEnabled 是否启用控制代理（TouchController模组支持）
+ * @param textInputMode 输入法状态
+ * @param isMoveOnlyPointer 检查指针是否被标记为仅处理滑动事件
+ * @param onOccupiedPointer 标记指针已被占用
+ * @param onReleasePointer 标记指针已被释放
+ * @param onEnableControl 启用控制布局操控层
+ * @param onDisableControl 禁用控制布局操控层
+ */
 @Composable
 private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
@@ -407,7 +427,9 @@ private fun MouseControlLayout(
     onCloseInputMethod: () -> Unit,
     isMoveOnlyPointer: (PointerId) -> Boolean,
     onOccupiedPointer: (PointerId) -> Unit,
-    onReleasePointer: (PointerId) -> Unit
+    onReleasePointer: (PointerId) -> Unit,
+    onEnableControl: () -> Unit,
+    onDisableControl: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -434,7 +456,9 @@ private fun MouseControlLayout(
         SwitchableMouseLayout(
             modifier = Modifier.fillMaxSize(),
             cursorMode = ZLBridgeStates.cursorMode,
-            onMouseTap = { position ->
+            onTouch = onEnableControl,
+            onMouse = onDisableControl,
+            onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
             },
             onCapturedTap = { position ->

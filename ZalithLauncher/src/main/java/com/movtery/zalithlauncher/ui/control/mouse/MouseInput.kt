@@ -9,14 +9,17 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.isBackPressed
 import androidx.compose.ui.input.pointer.isForwardPressed
 import androidx.compose.ui.input.pointer.isPrimaryPressed
@@ -48,6 +51,8 @@ private data class DragState(
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
+ * @param onTouch                   触摸到鼠标层
+ * @param onMouse                   实体鼠标交互事件
  * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
@@ -66,6 +71,8 @@ fun TouchpadLayout(
     controlMode: MouseControlMode = MouseControlMode.SLIDE,
     longPressTimeoutMillis: Long = -1L,
     requestPointerCapture: Boolean = true,
+    onTouch: () -> Unit = {},
+    onMouse: () -> Unit = {},
     onTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -83,6 +90,7 @@ fun TouchpadLayout(
     val interactionSource = remember { MutableInteractionSource() }
 
     //确保 pointerInput 中总是调用到最新的回调，避免闭包捕获旧值
+    val currentOnTouch by rememberUpdatedState(onTouch)
     val currentControlMode by rememberUpdatedState(controlMode)
     val currentLongPressTimeoutMillis by rememberUpdatedState(longPressTimeoutMillis)
     val currentOnTap by rememberUpdatedState(onTap)
@@ -106,6 +114,11 @@ fun TouchpadLayout(
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
+
+                            if (event.changes.any { it.changedToDown() }) {
+                                //刚触摸到屏幕时，触发触摸事件回调
+                                currentOnTouch()
+                            }
 
                             event.changes
                                 .filter { it.pressed && !it.previousPressed && !it.isConsumed && it.type == PointerType.Touch }
@@ -230,8 +243,9 @@ fun TouchpadLayout(
             }
             .then(
                 Modifier.mouseEventModifier(
-                    requestPointerCapture = requestPointerCapture,
+                    disabled = requestPointerCapture,
                     inputChange = inputChange,
+                    onMouse = onMouse,
                     onMouseMove = onMouseMove,
                     onMouseScroll = onMouseScroll,
                     onMouseButton = onMouseButton
@@ -241,36 +255,50 @@ fun TouchpadLayout(
     )
 
     SimpleMouseCapture(
-        requestPointerCapture = requestPointerCapture,
+        enabled = requestPointerCapture,
+        onMouse = onMouse,
         onMouseMove = onMouseMove,
         onMouseScroll = onMouseScroll,
         onMouseButton = onMouseButton
     )
 }
 
+/**
+ * 简单的实体鼠标捕获层
+ * @param enabled                   是否使用鼠标抓取方案
+ * @param onMouse                   实体鼠标开始响应事件的回调
+ * @param onMouseMove               实体鼠标指针移动回调
+ * @param onMouseScroll             实体鼠标指针滚轮滑动
+ * @param onMouseButton             实体鼠标指针按钮按下反馈
+ */
 @Composable
-fun SimpleMouseCapture(
-    requestPointerCapture: Boolean,
+private fun SimpleMouseCapture(
+    enabled: Boolean,
+    onMouse: () -> Unit,
     onMouseMove: (Offset) -> Unit,
     onMouseScroll: (Offset) -> Unit,
     onMouseButton: (button: Int, pressed: Boolean) -> Unit
 ) {
     val view = LocalView.current
+    val currentOnMouse by rememberUpdatedState(onMouse)
     val currentOnMouseMove by rememberUpdatedState(onMouseMove)
     val currentOnMouseScroll by rememberUpdatedState(onMouseScroll)
     val currentOnMouseButton by rememberUpdatedState(onMouseButton)
 
-    DisposableEffect(view, requestPointerCapture) {
+    /** 标记实体鼠标是否刚开始滑动 */
+    var mouseActive by remember { mutableStateOf(false) }
+
+    DisposableEffect(view, enabled) {
         view.setOnCapturedPointerListener(null)
 
         val focusListener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
-            if (requestPointerCapture && hasFocus) {
+            if (enabled && hasFocus) {
                 view.requestPointerCapture()
             }
         }
         view.viewTreeObserver.addOnWindowFocusChangeListener(focusListener)
 
-        if (requestPointerCapture) {
+        if (enabled) {
             view.requestFocus()
             if (view.hasWindowFocus()) {
                 view.requestPointerCapture()
@@ -279,6 +307,11 @@ fun SimpleMouseCapture(
             val pointerListener = View.OnCapturedPointerListener { _, event ->
                 when (event.actionMasked) {
                     MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_MOVE -> {
+                        if (!mouseActive) {
+                            //刚开始滑动触发一次
+                            currentOnMouse()
+                            mouseActive = true
+                        }
                         val relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X)
                         val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
                         val dx = if (relX != 0f) relX else event.x
@@ -301,6 +334,8 @@ fun SimpleMouseCapture(
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_BUTTON_RELEASE -> {
                         currentOnMouseButton(event.actionButton, false)
+                        //鼠标停止滑动，下一次移动时重新触发onMouse回调
+                        mouseActive = false
                         true
                     }
                     else -> false
@@ -320,40 +355,52 @@ fun SimpleMouseCapture(
     }
 }
 
+/**
+ * 实体鼠标指针事件监听
+ * @param disabled 是否禁用
+ */
+@Composable
 private fun Modifier.mouseEventModifier(
-    requestPointerCapture: Boolean,
+    disabled: Boolean,
     inputChange: Array<out Any> = arrayOf(Unit),
+    onMouse: () -> Unit,
     onMouseMove: (Offset) -> Unit,
     onMouseScroll: (Offset) -> Unit,
     onMouseButton: (Int, Boolean) -> Unit
-) = this.pointerInput(*inputChange, requestPointerCapture) {
-    val previousButtonStates = mutableMapOf<Int, Boolean>()
+): Modifier {
+    val currentOnMouse by rememberUpdatedState(onMouse)
+    val currentOnMouseMove by rememberUpdatedState(onMouseMove)
+    val currentOnMouseScroll by rememberUpdatedState(onMouseScroll)
+    val currentOnMouseButton by rememberUpdatedState(onMouseButton)
 
-    if (requestPointerCapture) return@pointerInput
+    return this.pointerInput(*inputChange, disabled) {
+        val previousButtonStates = mutableMapOf<Int, Boolean>()
 
-    awaitEachGesture {
-        while (true) {
-            val event = awaitPointerEvent()
-            val change = event.changes.firstOrNull()
+        awaitEachGesture {
+            while (!disabled) {
+                val event = awaitPointerEvent()
+                val change = event.changes.firstOrNull()
 
-            val pointerType = change?.type
-            if (pointerType != PointerType.Mouse) {
-                //过滤掉不是实体鼠标的类型
-                continue
+                val pointerType = change?.type
+                if (pointerType != PointerType.Mouse) {
+                    //过滤掉不是实体鼠标的类型
+                    continue
+                }
+
+                if (event.type == PointerEventType.Move) {
+                    currentOnMouse()
+                    currentOnMouseMove(change.position)
+                }
+
+                //滚动，但是方向要进行取反
+                if (event.type == PointerEventType.Scroll) {
+                    currentOnMouseScroll(-change.scrollDelta)
+                }
+
+                detectButtonChanges(previousButtonStates, event, currentOnMouseButton)
+
+                event.changes.forEach { it.consume() }
             }
-
-            if (event.type == PointerEventType.Move) {
-                onMouseMove(change.position)
-            }
-
-            //滚动，但是方向要进行取反
-            if (event.type == PointerEventType.Scroll) {
-                onMouseScroll(-change.scrollDelta)
-            }
-
-            detectButtonChanges(previousButtonStates, event, onMouseButton)
-
-            event.changes.forEach { it.consume() }
         }
     }
 }

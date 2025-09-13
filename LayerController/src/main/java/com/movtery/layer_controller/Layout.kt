@@ -30,6 +30,8 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.event.switchLayer
 import com.movtery.layer_controller.layout.TextButton
+import com.movtery.layer_controller.observable.ObservableButtonStyle
+import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableWidget
@@ -44,15 +46,17 @@ import kotlin.math.sqrt
  * @param checkOccupiedPointers 检查已占用的指针，防止底层正在被使用的指针仍被控制布局画布处理
  * @param onClickEvent 控制按键点击事件回调（切换层级事件已优先处理）
  * @param markPointerAsMoveOnly 标记指针为仅接受滑动处理
+ * @param enabled 是否启用
  */
 @Composable
 fun ControlBoxLayout(
     modifier: Modifier = Modifier,
     observedLayout: ObservableControlLayout? = null,
+    isCursorGrabbing: Boolean,
     checkOccupiedPointers: (PointerId) -> Boolean,
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit = { _, _ -> },
     markPointerAsMoveOnly: (PointerId) -> Unit = {},
-    isCursorGrabbing: Boolean,
+    enabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
     when {
@@ -76,6 +80,7 @@ fun ControlBoxLayout(
                     onClickEvent = onClickEvent,
                     markPointerAsMoveOnly = markPointerAsMoveOnly,
                     isCursorGrabbing = isCursorGrabbing,
+                    enabled = enabled,
                     content = content
                 )
             }
@@ -94,6 +99,7 @@ private fun BaseControlBoxLayout(
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit,
     markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
+    enabled: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
@@ -142,9 +148,9 @@ private fun BaseControlBoxLayout(
 
     Box(
         modifier = modifier
-            .pointerInput(layers, sizes) {
+            .pointerInput(layers, sizes, enabled) {
                 awaitPointerEventScope {
-                    while (true) {
+                    while (enabled) {
                         val event = awaitPointerEvent(pass = PointerEventPass.Initial)
 
                         event.changes.forEach { change ->
@@ -280,92 +286,121 @@ private fun BaseControlBoxLayout(
     ) {
         content()
 
-        Layout(
-            content = {
-                //按图层顺序渲染所有可见的控件
-                layers.forEach { layer ->
-                    val layerVisibility = !layer.hide && checkVisibility(isCursorGrabbing1, layer.visibilityType)
-                    val normalButtons by layer.normalButtons.collectAsState()
-                    val textBoxes by layer.textBoxes.collectAsState()
+        if (enabled) {
+            ControlsRendererLayer(
+                layers = layers,
+                styles = styles,
+                sizes = sizes,
+                applySize = { data, size ->
+                    sizes[data] = size
+                },
+                screenSize = screenSize,
+                isCursorGrabbing = isCursorGrabbing1
+            )
+        }
+    }
+}
 
-                    textBoxes.forEach { data ->
-                        TextButton(
-                            isEditMode = false,
-                            data = data,
-                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
-                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
-                            getOtherWidgets = { emptyList() }, //不需要计算吸附
-                            snapThresholdValue = 4.dp,
-                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                            isPressed = false //文本框不需要按压状态
-                        )
-                    }
+@Composable
+private fun ControlsRendererLayer(
+    layers: List<ObservableControlLayer>,
+    styles: List<ObservableButtonStyle>,
+    sizes: Map<ObservableWidget, IntSize>,
+    applySize: (ObservableWidget, IntSize) -> Unit,
+    screenSize: IntSize,
+    isCursorGrabbing: Boolean,
+) {
+    Layout(
+        content = {
+            //按图层顺序渲染所有可见的控件
+            layers.forEach { layer ->
+                val layerVisibility = !layer.hide && checkVisibility(isCursorGrabbing, layer.visibilityType)
+                val normalButtons by layer.normalButtons.collectAsState()
+                val textBoxes by layer.textBoxes.collectAsState()
 
-                    normalButtons.forEach { data ->
-                        TextButton(
-                            isEditMode = false,
-                            data = data,
-                            visible = layerVisibility && checkVisibility(isCursorGrabbing1, data.visibilityType),
-                            getOtherWidgets = { emptyList() }, //不需要计算吸附
-                            snapThresholdValue = 4.dp,
-                            getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
-                            getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
-                            isPressed = data.isPressed
-                        )
-                    }
+                textBoxes.forEach { data ->
+                    TextButton(
+                        isEditMode = false,
+                        data = data,
+                        visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
+                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
+                        getOtherWidgets = { emptyList() }, //不需要计算吸附
+                        snapThresholdValue = 4.dp,
+                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                        isPressed = false //文本框不需要按压状态
+                    )
+                }
+
+                normalButtons.forEach { data ->
+                    TextButton(
+                        isEditMode = false,
+                        data = data,
+                        visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
+                        getOtherWidgets = { emptyList() }, //不需要计算吸附
+                        snapThresholdValue = 4.dp,
+                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
+                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
+                        isPressed = data.isPressed
+                    )
                 }
             }
-        ) { measurables, constraints ->
-            val placeables = measurables.map { measurable ->
-                measurable.measure(constraints)
+        }
+    ) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints)
+        }
+
+        var index = 0
+        layers.forEach { layer ->
+            layer.textBoxes.value.forEach { data ->
+                if (index < placeables.size) {
+                    val placeable = placeables[index]
+                    applySize(
+                        data,
+                        IntSize(placeable.width, placeable.height)
+                    )
+                    index++
+                }
             }
 
-            var index = 0
+            layer.normalButtons.value.forEach { data ->
+                if (index < placeables.size) {
+                    val placeable = placeables[index]
+                    applySize(
+                        data,
+                        IntSize(placeable.width, placeable.height)
+                    )
+                    index++
+                }
+            }
+        }
+
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            var placeableIndex = 0
             layers.forEach { layer ->
                 layer.textBoxes.value.forEach { data ->
-                    if (index < placeables.size) {
-                        val placeable = placeables[index]
-                        sizes[data] = IntSize(placeable.width, placeable.height)
-                        index++
+                    if (placeableIndex < placeables.size) {
+                        val placeable = placeables[placeableIndex]
+                        val position = getWidgetPosition(
+                            data = data,
+                            widgetSize = IntSize(placeable.width, placeable.height),
+                            screenSize = screenSize
+                        )
+                        placeable.place(position.x.toInt(), position.y.toInt())
+                        placeableIndex++
                     }
                 }
 
                 layer.normalButtons.value.forEach { data ->
-                    if (index < placeables.size) {
-                        val placeable = placeables[index]
-                        sizes[data] = IntSize(placeable.width, placeable.height)
-                        index++
-                    }
-                }
-            }
-
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                var placeableIndex = 0
-                layers.forEach { layer ->
-                    layer.textBoxes.value.forEach { data ->
-                        if (placeableIndex < placeables.size) {
-                            val placeable = placeables[placeableIndex]
-                            val position = getWidgetPosition(
-                                data = data,
-                                widgetSize = IntSize(placeable.width, placeable.height),
-                                screenSize = screenSize
-                            )
-                            placeable.place(position.x.toInt(), position.y.toInt())
-                            placeableIndex++
-                        }
-                    }
-
-                    layer.normalButtons.value.forEach { data ->
-                        if (placeableIndex < placeables.size) {
-                            val placeable = placeables[placeableIndex]
-                            val position = getWidgetPosition(
-                                data = data,
-                                widgetSize = IntSize(placeable.width, placeable.height),
-                                screenSize = screenSize
-                            )
-                            placeable.place(position.x.toInt(), position.y.toInt())
-                            placeableIndex++
-                        }
+                    if (placeableIndex < placeables.size) {
+                        val placeable = placeables[placeableIndex]
+                        val position = getWidgetPosition(
+                            data = data,
+                            widgetSize = IntSize(placeable.width, placeable.height),
+                            screenSize = screenSize
+                        )
+                        placeable.place(position.x.toInt(), position.y.toInt())
+                        placeableIndex++
                     }
                 }
             }
