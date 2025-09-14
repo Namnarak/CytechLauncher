@@ -407,14 +407,18 @@ fun SimpleCheckEditDialog(
 fun <T> SimpleListDialog(
     title: String,
     items: List<T>,
-    itemTextProvider: (T) -> String,
+    itemTextProvider: @Composable (T) -> String,
     onItemSelected: (T) -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismissRequest: (selected: Boolean) -> Unit,
     isCurrent: (T) -> Boolean = { false },
     showConfirmAndCancel: Boolean = false
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
-    Dialog(onDismissRequest = onDismissRequest) {
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest(false)
+        }
+    ) {
         Box(
             modifier = Modifier.fillMaxHeight(),
             contentAlignment = Alignment.Center
@@ -447,7 +451,7 @@ fun <T> SimpleListDialog(
                                     selectedItem = item
                                     if (!showConfirmAndCancel && !isCurrent(item)) {
                                         onItemSelected(item)
-                                        onDismissRequest()
+                                        onDismissRequest(true)
                                     }
                                 }
                             )
@@ -460,7 +464,7 @@ fun <T> SimpleListDialog(
                             onClick = {
                                 if (selectedItem != null) {
                                     onItemSelected(selectedItem!!)
-                                    onDismissRequest()
+                                    onDismissRequest(true)
                                 }
                             }
                         ) {

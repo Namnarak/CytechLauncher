@@ -13,7 +13,7 @@ class Task private constructor(
     val id: String,
     val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     val task: suspend CoroutineScope.(Task) -> Unit,
-    val onError: (Throwable) -> Unit = {},
+    val onError: suspend (Throwable) -> Unit = {},
     val onFinally: () -> Unit = {},
     val onCancel: () -> Unit = {}
 ) {
@@ -86,7 +86,7 @@ class Task private constructor(
             id: String? = null,
             dispatcher: CoroutineDispatcher = Dispatchers.Default,
             task: suspend CoroutineScope.(Task) -> Unit,
-            onError: (Throwable) -> Unit = {},
+            onError: suspend (Throwable) -> Unit = {},
             onFinally: () -> Unit = {},
             onCancel: () -> Unit = {}
         ): Task =

@@ -46,7 +46,7 @@ fun ReplacementControlOperation(
 private fun ReplacementControlDialog(
     currentLayout: File?,
     onLayoutSelected: (ControlData) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: (selected: Boolean) -> Unit
 ) {
     val dataList by ControlManager.dataList.collectAsState()
     val controls = remember(dataList) { dataList.filter { it.isSupport } }
@@ -66,7 +66,9 @@ private fun ReplacementControlDialog(
         SimpleAlertDialog(
             title = stringResource(R.string.game_menu_option_replacement_control),
             text = stringResource(R.string.control_manage_list_empty),
-            onConfirm = onDismissRequest,
+            onConfirm = {
+                onDismissRequest(false)
+            },
             dismissText = stringResource(R.string.generic_refresh),
             onDismiss = {
                 ControlManager.refresh()

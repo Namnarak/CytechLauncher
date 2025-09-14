@@ -5,7 +5,6 @@ import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.BLOCKED_IP
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.FREQUENT
-import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.PROFILE_NOT_EXISTS
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException.ExceptionStatus.BANNED
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException.ExceptionStatus.BLOCKED_REGION
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException.ExceptionStatus.NOT_ACCEPTED_SERVICE
@@ -22,6 +21,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.models.XBLRequest
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSAuthResult
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSProperties
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSRequest
+import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
@@ -57,11 +57,11 @@ import kotlin.coroutines.CoroutineContext
 private val SCOPES = listOf("XboxLive.signin", "offline_access", "openid", "profile", "email")
 private const val TENANT = "/consumers"
 
-private const val MICROSOFT_AUTH_URL = "https://login.microsoftonline.com"
-private const val LIVE_AUTH_URL = "https://login.live.com"
-private const val XBL_AUTH_URL = "https://user.auth.xboxlive.com"
-private const val XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com"
-private const val MINECRAFT_SERVICES_URL = "https://api.minecraftservices.com"
+const val MICROSOFT_AUTH_URL = "https://login.microsoftonline.com"
+const val LIVE_AUTH_URL = "https://login.live.com"
+const val XBL_AUTH_URL = "https://user.auth.xboxlive.com"
+const val XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com"
+const val MINECRAFT_SERVICES_URL = "https://api.minecraftservices.com"
 
 /**
  * 从 Microsoft 身份验证终端节点获取设备代码响应
@@ -322,25 +322,17 @@ private suspend fun createAccount(
 ): Account {
     statusUpdate(AsyncStatus.GETTING_PLAYER_PROFILE)
 
-    val profile = runCatching {
-        GLOBAL_CLIENT.get("$MINECRAFT_SERVICES_URL/minecraft/profile") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }.body<JsonObject>()
-    }.onFailure { e ->
-        if (e is ResponseException) {
-            when (e.response.status.value) {
-                429 -> throw MinecraftProfileException(FREQUENT)
-                404 -> throw MinecraftProfileException(PROFILE_NOT_EXISTS)
-            }
-        }
-    }.getOrThrow()
+    val profile = getPlayerProfile(
+        apiUrl = MINECRAFT_SERVICES_URL,
+        accessToken = accessToken
+    )
 
-    val profileId = profile["id"].text()
+    val profileId = profile.id
     //避免同一个账号反复添加
     val account = AccountsManager.loadFromProfileID(profileId) ?: Account()
 
     return account.apply {
-        this.username = profile["name"].text()
+        this.username = profile.name
         this.accessToken = accessToken
         this.accountType = AccountType.MICROSOFT.tag
         this.clientToken = UUID.randomUUID().toString().replace("-", "")

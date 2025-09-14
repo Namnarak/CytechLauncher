@@ -381,6 +381,15 @@
     <string name="account_change_skin_uploading">Uploading skin file</string>
     <string name="account_change_skin_failed_to_upload">(%d) Failed to upload skin file</string>
     <string name="account_change_skin_update_local">Update local skin</string>
+    <string name="account_change_skin_update_toast">Skin uploaded successfully. If there are no changes, please refresh your account after some time</string>
+    <string name="account_change_cape">Change Cape</string>
+    <string name="account_change_cape_fetch_all">Fetching all capes</string>
+    <string name="account_change_cape_fetch_all_failed">Unable to fetch capes</string>
+    <string name="account_change_cape_select_cape">Select Cape</string>
+    <string name="account_change_cape_apply">Applying cape</string>
+    <string name="account_change_cape_apply_success">Successfully changed your cape to: %s</string>
+    <string name="account_change_cape_apply_reset">Successfully reset your cape</string>
+    <string name="account_change_cape_apply_failed">(%d) Failed to change cape</string>
     <string name="account_supporting_username_invalid_title">Invalid Username</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Valid usernames only support letters (case-insensitive), numbers, and underscores, with length between 3 and 16 characters.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Otherwise, the game may not run properly.</string>
