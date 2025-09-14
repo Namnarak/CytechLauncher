@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.movtery.zalithlauncher.game.account.yggdrasil.SkinFileDownloader
-import com.movtery.zalithlauncher.game.skin.SkinModelType
-import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinFileDownloader
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo

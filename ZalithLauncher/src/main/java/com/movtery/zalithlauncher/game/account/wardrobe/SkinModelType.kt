@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.skin
+package com.movtery.zalithlauncher.game.account.wardrobe
 
 /**
  * 皮肤模型枚举

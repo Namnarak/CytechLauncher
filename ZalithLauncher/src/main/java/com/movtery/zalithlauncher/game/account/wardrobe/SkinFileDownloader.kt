@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.account.yggdrasil
+package com.movtery.zalithlauncher.game.account.wardrobe
 
 import com.google.gson.JsonObject
 import com.movtery.zalithlauncher.path.UrlManager

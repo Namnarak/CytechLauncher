@@ -1,4 +1,4 @@
-package com.movtery.zalithlauncher.game.skin
+package com.movtery.zalithlauncher.game.account.wardrobe
 
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 
