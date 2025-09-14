@@ -2,7 +2,7 @@ package com.movtery.zalithlauncher.game.account
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.movtery.zalithlauncher.game.skin.SkinFileDownloader
+import com.movtery.zalithlauncher.game.account.yggdrasil.SkinFileDownloader
 import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.skin.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.path.PathManager

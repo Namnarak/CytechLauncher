@@ -33,6 +33,8 @@ class AuthServerHelper(
         onFinally: () -> Unit = {}
     ): this(server.baseUrl, server.serverName, email, password, onSuccess, onFailed, onFinally)
 
+    private val apiServer = AuthServerApi(baseUrl)
+
     private fun login(
         context: Context,
         taskId: String? = null,
@@ -44,8 +46,7 @@ class AuthServerHelper(
             id = taskId,
             dispatcher = Dispatchers.IO,
             task = { task ->
-                AuthServerApi.setBaseUrl(baseUrl)
-                AuthServerApi.login(
+                apiServer.login(
                     context, email, password,
                     onSuccess = { authResult ->
                         if (!Objects.isNull(authResult.selectedProfile)) {
@@ -150,8 +151,7 @@ class AuthServerHelper(
     private fun refresh(context: Context, account: Account) {
         val task = Task.runTask(
             task = { task ->
-                AuthServerApi.setBaseUrl(baseUrl)
-                AuthServerApi.refresh(context, account, true,
+                apiServer.refresh(context, account, true,
                     onSuccess = { authResult ->
                         account.accessToken = authResult.accessToken
                         onSuccess(account, task)
