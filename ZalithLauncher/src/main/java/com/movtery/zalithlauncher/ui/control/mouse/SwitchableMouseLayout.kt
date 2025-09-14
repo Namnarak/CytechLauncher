@@ -34,7 +34,9 @@ typealias CursorMode = Int
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param hideMouseInClickMode      是否在鼠标为点击控制模式时，隐藏鼠标指针
- * @param onMouseTap                点击回调
+ * @param onTouch                   触摸到鼠标层
+ * @param onMouse                   实体鼠标交互事件
+ * @param onTap                     点击回调
  * @param onCapturedTap             抓取模式点击回调，参数是触摸点在控件内的绝对坐标
  * @param onLongPress               长按开始回调
  * @param onLongPressEnd            长按结束回调
@@ -58,7 +60,9 @@ fun SwitchableMouseLayout(
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     hideMouseInClickMode: Boolean = AllSettings.hideMouse.state,
-    onMouseTap: (Offset) -> Unit = {},
+    onTouch: () -> Unit = {},
+    onMouse: () -> Unit = {},
+    onTap: (Offset) -> Unit = {},
     onCapturedTap: (Offset) -> Unit = {},
     onLongPress: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
@@ -165,13 +169,15 @@ fun SwitchableMouseLayout(
             },
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture1,
+            onTouch = onTouch,
+            onMouse = onMouse,
             onTap = { fingerPos ->
                 when (cursorMode) {
                     CURSOR_DISABLED -> {
                         onCapturedTap(fingerPos)
                     }
                     CURSOR_ENABLED -> {
-                        onMouseTap(
+                        onTap(
                             if (controlMode == MouseControlMode.CLICK) {
                                 updateMousePointer(!isCaptured && !hideMouseInClickMode)
                                 //当前手指的绝对坐标

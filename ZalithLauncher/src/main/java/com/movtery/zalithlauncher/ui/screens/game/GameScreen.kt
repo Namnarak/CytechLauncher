@@ -62,6 +62,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
+import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlOperation
+import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlState
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -82,6 +84,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
     /** 发送键值操作状态 */
     var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
+    /** 更换控制布局操作状态 */
+    var replacementControlState by mutableStateOf<ReplacementControlState>(ReplacementControlState.None)
     /** 输入法状态 */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
     /** 被控制布局层标记为仅滑动的指针列表 */
@@ -92,6 +96,16 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     /** 可观察的控制布局 */
     var observableLayout by mutableStateOf<ObservableControlLayout?>(null)
         private set
+    /** 当前控制布局文件 */
+    var currentControlFile by mutableStateOf<File?>(null)
+        private set
+    /** 启用控制布局 */
+    var controlEnabled by mutableStateOf(true)
+        private set
+
+    fun switchControl(enabled: Boolean) {
+        if (controlEnabled != enabled) controlEnabled = enabled
+    }
 
     /** 所有已按下的按键，与同一键值的同时按下个数 */
     val pressedKeyEvents = mutableStateMapOf<String, Int>()
@@ -102,6 +116,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     val mouseScrollEvent = MouseScrollEvent(viewModelScope)
 
     fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
+        observableLayout = null
+        currentControlFile = layoutFile
         val layout = layoutFile?.let { file ->
             try {
                 ControlLayout.loadFromFile(file)
@@ -230,6 +246,13 @@ fun GameScreen(
         text = stringResource(R.string.game_menu_option_force_close_text)
     )
 
+    ReplacementControlOperation(
+        operation = viewModel.replacementControlState,
+        onChange = { viewModel.replacementControlState = it },
+        currentLayout = viewModel.currentControlFile,
+        replacementControl = { viewModel.loadControlLayout(it) }
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
         GameInfoBox(
             modifier = Modifier
@@ -287,7 +310,8 @@ fun GameScreen(
                 }
             },
             markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
-            isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED
+            isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+            enabled = viewModel.controlEnabled
         ) {
             MouseControlLayout(
                 isTouchProxyEnabled = isTouchProxyEnabled,
@@ -300,7 +324,9 @@ fun GameScreen(
                 onReleasePointer = {
                     viewModel.occupiedPointers.remove(it)
                     viewModel.moveOnlyPointers.remove(it)
-                }
+                },
+                onEnableControl = { viewModel.switchControl(true) },
+                onDisableControl = { viewModel.switchControl(false) }
             )
 
             MinecraftHotbar(
@@ -329,7 +355,8 @@ fun GameScreen(
             onSwitchLog = { onLogStateChange(logState.next()) },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { viewModel.switchIME() },
-            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog }
+            onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
+            onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show }
         )
     }
 
@@ -398,6 +425,16 @@ private fun GameInfoBox(
     }
 }
 
+/**
+ * 鼠标控制层
+ * @param isTouchProxyEnabled 是否启用控制代理（TouchController模组支持）
+ * @param textInputMode 输入法状态
+ * @param isMoveOnlyPointer 检查指针是否被标记为仅处理滑动事件
+ * @param onOccupiedPointer 标记指针已被占用
+ * @param onReleasePointer 标记指针已被释放
+ * @param onEnableControl 启用控制布局操控层
+ * @param onDisableControl 禁用控制布局操控层
+ */
 @Composable
 private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
@@ -407,7 +444,9 @@ private fun MouseControlLayout(
     onCloseInputMethod: () -> Unit,
     isMoveOnlyPointer: (PointerId) -> Boolean,
     onOccupiedPointer: (PointerId) -> Unit,
-    onReleasePointer: (PointerId) -> Unit
+    onReleasePointer: (PointerId) -> Unit,
+    onEnableControl: () -> Unit,
+    onDisableControl: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -434,7 +473,9 @@ private fun MouseControlLayout(
         SwitchableMouseLayout(
             modifier = Modifier.fillMaxSize(),
             cursorMode = ZLBridgeStates.cursorMode,
-            onMouseTap = { position ->
+            onTouch = onEnableControl,
+            onMouse = onDisableControl,
+            onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
             },
             onCapturedTap = { position ->

@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -78,8 +80,10 @@ import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
-import com.movtery.zalithlauncher.game.skin.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -89,6 +93,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -103,6 +108,32 @@ sealed interface MicrosoftLoginOperation {
     data object Tip : MicrosoftLoginOperation
     /** 正式开始登陆微软账号流程 */
     data object RunTask: MicrosoftLoginOperation
+}
+
+/**
+ * 微软账号更改玩家皮肤的操作状态
+ */
+sealed interface MicrosoftChangeSkinOperation {
+    data object None : MicrosoftChangeSkinOperation
+    /** 导入缓存皮肤文件 */
+    data class ImportFile(val account: Account, val uri: Uri): MicrosoftChangeSkinOperation
+    /** 选择皮肤模型 */
+    data class SelectSkinModel(val account: Account, val file: File): MicrosoftChangeSkinOperation
+    /** 开始上传皮肤 */
+    data class RunTask(val account: Account, val file: File, val skinModel: SkinModelType): MicrosoftChangeSkinOperation
+}
+
+/**
+ * 微软账号更改玩家披风的操作状态
+ */
+sealed interface MicrosoftChangeCapeOperation {
+    data object None : MicrosoftChangeCapeOperation
+    /** 获取玩家配置信息，以得到披风列表 */
+    data class FetchProfiles(val account: Account): MicrosoftChangeCapeOperation
+    /** 选择更改为什么披风 */
+    data class SelectCape(val account: Account, val profile: PlayerProfile): MicrosoftChangeCapeOperation
+    /** 开始更改披风 */
+    data class RunTask(val account: Account, val cape: PlayerProfile.Cape): MicrosoftChangeCapeOperation
 }
 
 /**
@@ -138,7 +169,6 @@ sealed interface ServerOperation {
 sealed interface AccountOperation {
     data object None : AccountOperation
     data class Delete(val account: Account) : AccountOperation
-    data class Refresh(val account: Account) : AccountOperation
     data class OnFailed(val th: Throwable) : AccountOperation
 }
 
@@ -236,7 +266,7 @@ fun PlayerFace(
     refreshKey: Any? = null
 ) {
     val context = LocalContext.current
-    val avatarBitmap = remember(account, refreshKey) {
+    val avatarBitmap = remember(account, refreshKey, account.refreshSkinFile) {
         getAvatarFromAccount(context, account, avatarSize).asImageBitmap()
     }
 
@@ -259,6 +289,7 @@ fun AccountItem(
     refreshKey: Any? = null,
     onSelected: (Account) -> Unit = {},
     onChangeSkin: () -> Unit = {},
+    onChangeCape: () -> Unit = {},
     onResetSkin: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -319,16 +350,33 @@ fun AccountItem(
                 } else {
                     stringResource(R.string.account_change_skin)
                 }
-                val onClickAction = if (isLocalHasSkin) onResetSkin else onChangeSkin
 
-                IconButton(
-                    onClick = onClickAction,
-                    enabled = account.isSkinChangeAllowed()
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        imageVector = icon,
-                        contentDescription = description
+                Row {
+                    var showMenu by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = {
+                            when {
+                                account.isMicrosoftAccount() -> showMenu = true
+                                account.isLocalAccount() -> {
+                                    if (isLocalHasSkin) onResetSkin()
+                                    else onChangeSkin()
+                                }
+                            }
+                        },
+                        enabled = account.isSkinChangeAllowed()
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            imageVector = icon,
+                            contentDescription = description
+                        )
+                    }
+                    //衣橱菜单，用户可以选择更换皮肤还是更换披风
+                    WardrobeMenu(
+                        expanded = showMenu,
+                        closeMenu = { showMenu = false },
+                        onChangeSkin = onChangeSkin,
+                        onChangeCape = onChangeCape
                     )
                 }
                 IconButton(
@@ -352,6 +400,38 @@ fun AccountItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun WardrobeMenu(
+    expanded: Boolean,
+    closeMenu: () -> Unit,
+    onChangeSkin: () -> Unit,
+    onChangeCape: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = closeMenu,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 3.dp
+    ) {
+        //更改皮肤
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.account_change_skin)) },
+            onClick = {
+                onChangeSkin()
+                closeMenu()
+            }
+        )
+        //更改披风
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.account_change_cape)) },
+            onClick = {
+                onChangeCape()
+                closeMenu()
+            }
+        )
     }
 }
 

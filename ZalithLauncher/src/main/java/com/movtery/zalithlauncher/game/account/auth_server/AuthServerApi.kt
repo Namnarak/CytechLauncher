@@ -28,15 +28,17 @@ import java.io.IOException
 import java.util.Objects
 import java.util.UUID
 
-object AuthServerApi {
-    private var baseUrl: String? = null
-
-    fun setBaseUrl(baseUrl: String) {
+class AuthServerApi(private var baseUrl: String) {
+    fun formatUrl(baseUrl: String): String {
         var url = baseUrl
         if (baseUrl.endsWith("/")) {
             url = baseUrl.dropLast(1)
         }
-        AuthServerApi.baseUrl = url
+        return url
+    }
+
+    init {
+        baseUrl = formatUrl(baseUrl)
     }
 
     @Throws(IOException::class)
@@ -118,7 +120,7 @@ object AuthServerApi {
                 lError(errorMessage)
                 onFailed(ResponseException(errorMessage))
             }
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             lDebug("Login cancelled")
         } catch (e: Exception) {
             lError("Request failed", e)
@@ -145,12 +147,14 @@ object AuthServerApi {
         }
     }
 
-    suspend fun getServeInfo(url: String): String? = withContext(Dispatchers.IO) {
-        val response = GLOBAL_CLIENT.get(url)
-        if (response.status == HttpStatusCode.OK) {
-            response.bodyAsText()
-        } else {
-            null
+    companion object {
+        suspend fun getServeInfo(url: String): String? = withContext(Dispatchers.IO) {
+            val response = GLOBAL_CLIENT.get(url)
+            if (response.status == HttpStatusCode.OK) {
+                response.bodyAsText()
+            } else {
+                null
+            }
         }
     }
 }

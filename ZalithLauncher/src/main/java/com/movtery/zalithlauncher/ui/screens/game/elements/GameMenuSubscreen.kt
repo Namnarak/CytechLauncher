@@ -34,7 +34,8 @@ fun GameMenuSubscreen(
     onSwitchLog: () -> Unit,
     onRefreshWindowSize: () -> Unit,
     onInputMethod: () -> Unit,
-    onSendKeycode: () -> Unit
+    onSendKeycode: () -> Unit,
+    onReplacementControl: () -> Unit
 ) {
     MenuSubscreen(
         state = state,
@@ -75,6 +76,11 @@ fun GameMenuSubscreen(
                     onClick = onSwitchLog
                 )
             }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
             //切换输入法
             item {
                 MenuTextButton(
@@ -93,6 +99,17 @@ fun GameMenuSubscreen(
                     text = stringResource(R.string.game_menu_option_send_keycode),
                     onClick = {
                         onSendKeycode()
+                        closeScreen()
+                    }
+                )
+            }
+            //更换控制布局
+            item {
+                MenuTextButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.game_menu_option_replacement_control),
+                    onClick = {
+                        onReplacementControl()
                         closeScreen()
                     }
                 )

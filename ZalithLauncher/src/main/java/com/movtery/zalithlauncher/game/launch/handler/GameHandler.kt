@@ -13,13 +13,14 @@ import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
-import com.movtery.zalithlauncher.game.skin.SkinModelType
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
@@ -84,6 +85,7 @@ class GameHandler(
     }
 
     override fun onResume() {
+        refreshControls()
     }
 
     override fun onGraphicOutput() {
@@ -141,6 +143,14 @@ class GameHandler(
             onInputAreaRectUpdated = { _inputArea.value = it },
             eventViewModel = eventViewModel
         )
+    }
+
+    private fun refreshControls() {
+        ControlManager.refresh()
+    }
+
+    init {
+        refreshControls()
     }
 
     private suspend fun localSkinResourcePack() {

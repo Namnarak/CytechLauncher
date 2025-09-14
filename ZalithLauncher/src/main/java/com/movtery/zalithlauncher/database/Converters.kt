@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.database
 
 import androidx.room.TypeConverter
-import com.movtery.zalithlauncher.game.skin.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 
 class Converters {
     @TypeConverter

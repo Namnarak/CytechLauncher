@@ -77,6 +77,12 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     private lateinit var launcher: Launcher
     private lateinit var handler: AbstractHandler
 
+    private fun runIfHandlerInitialized(
+        block: (AbstractHandler) -> Unit
+    ) {
+        if (this::handler.isInitialized) block(this.handler)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //初始化物理鼠标连接检查器
@@ -163,13 +169,13 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     override fun onResume() {
         super.onResume()
-        handler.onResume()
+        runIfHandlerInitialized { it.onResume() }
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 1)
     }
 
     override fun onPause() {
         super.onPause()
-        handler.onPause()
+        runIfHandlerInitialized { it.onPause() }
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0)
     }
 
@@ -215,12 +221,12 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     //一些系统会将鼠标右键当成KEYCODE_BACK来处理，需要在这里进行拦截
                     val isPressed = event.action == KeyEvent.ACTION_DOWN
                     //然后发送真实的鼠标右键
-                    handler.sendMouseRight(isPressed)
+                    runIfHandlerInitialized { it.sendMouseRight(isPressed) }
                     return false
                 }
             }
         }
-        if (handler.shouldIgnoreKeyEvent(event)) {
+        if (this::handler.isInitialized && handler.shouldIgnoreKeyEvent(event)) {
             return super.dispatchKeyEvent(event)
         }
         return true
@@ -233,10 +239,12 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
         isRunning = true
 
-        handler.mIsSurfaceDestroyed = false
+        runIfHandlerInitialized { it.mIsSurfaceDestroyed = false }
         refreshSize()
-        lifecycleScope.launch(Dispatchers.Default) {
-            handler.execute(Surface(surface), lifecycleScope)
+        runIfHandlerInitialized { handler ->
+            lifecycleScope.launch(Dispatchers.Default) {
+                handler.execute(Surface(surface), lifecycleScope)
+            }
         }
     }
 
@@ -245,12 +253,12 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-        handler.mIsSurfaceDestroyed = true
+        runIfHandlerInitialized { it.mIsSurfaceDestroyed = true }
         return true
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        handler.onGraphicOutput()
+        runIfHandlerInitialized { it.onGraphicOutput() }
     }
 
     override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
@@ -259,46 +267,57 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     private fun Screen(
         content: @Composable () -> Unit = {}
     ) {
-        val imeInsets = WindowInsets.ime
-        val density = LocalDensity.current
-        val inputArea by handler.inputArea.collectAsState()
-        AndroidView(
-            modifier = Modifier
-                .fillMaxSize()
-                .offset {
-                    val area = inputArea ?: return@offset IntOffset.Zero
-                    val imeHeight = imeInsets.getBottom(density)
-                    val bottomDistance = CallbackBridge.windowHeight - area.bottom
-                    val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
-                    IntOffset(0, -bottomPadding)
-                },
-            factory = { context ->
-                TextureView(context).apply {
-                    isOpaque = true
-                    alpha = 1.0f
+        if (this::handler.isInitialized) {
+            val imeInsets = WindowInsets.ime
+            val density = LocalDensity.current
+            val inputArea by handler.inputArea.collectAsState()
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset {
+                        val area = inputArea ?: return@offset IntOffset.Zero
+                        val imeHeight = imeInsets.getBottom(density)
+                        val bottomDistance = CallbackBridge.windowHeight - area.bottom
+                        val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
+                        IntOffset(0, -bottomPadding)
+                    },
+                factory = { context ->
+                    TextureView(context).apply {
+                        isOpaque = true
+                        alpha = 1.0f
 
-                    surfaceTextureListener = this@VMActivity
-                }.also { view ->
-                    mTextureView = view
+                        surfaceTextureListener = this@VMActivity
+                    }.also { view ->
+                        mTextureView = view
+                    }
                 }
-            }
-        )
+            )
 
-        content()
+            content()
+        }
     }
 
     private fun refreshWindowSize() {
-        val displayMetrics = getDisplayMetrics()
+        runIfHandlerInitialized { handler ->
+            val displayMetrics = getDisplayMetrics()
 
-        val width = getDisplayPixels(displayMetrics.widthPixels)
-        val height = getDisplayPixels(displayMetrics.heightPixels)
-        if (width < 1 || height < 1) {
-            lError("Impossible resolution : $width x $height")
-            return
+            fun getDisplayPixels(pixels: Int): Int {
+                return when (handler.type) {
+                    HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
+                    HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
+                }
+            }
+
+            val width = getDisplayPixels(displayMetrics.widthPixels)
+            val height = getDisplayPixels(displayMetrics.heightPixels)
+            if (width < 1 || height < 1) {
+                lError("Impossible resolution : $width x $height")
+                return@runIfHandlerInitialized
+            }
+            CallbackBridge.windowWidth = width
+            CallbackBridge.windowHeight = height
+            ZLBridgeStates.onWindowChange()
         }
-        CallbackBridge.windowWidth = width
-        CallbackBridge.windowHeight = height
-        ZLBridgeStates.onWindowChange()
     }
 
     private fun refreshSize() {
@@ -310,13 +329,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             return
         }
         CallbackBridge.sendUpdateWindowSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
-    }
-
-    private fun getDisplayPixels(pixels: Int): Int {
-        return when (handler.type) {
-            HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
-            HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
-        }
     }
 }
 

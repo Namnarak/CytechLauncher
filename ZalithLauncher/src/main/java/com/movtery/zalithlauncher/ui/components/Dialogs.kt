@@ -397,7 +397,7 @@ fun SimpleCheckEditDialog(
 
 /**
  * 一个很简单的列表Dialog
- * @param itemsProvider 提供需要列出的items
+ * @param items 需要列出的items
  * @param itemTextProvider 提供单个item的展示文本
  * @param onItemSelected item被点击的回调
  * @param onDismissRequest dialog被关闭的回调
@@ -406,14 +406,19 @@ fun SimpleCheckEditDialog(
 @Composable
 fun <T> SimpleListDialog(
     title: String,
-    itemsProvider: () -> List<T>,
-    itemTextProvider: (T) -> String,
+    items: List<T>,
+    itemTextProvider: @Composable (T) -> String,
     onItemSelected: (T) -> Unit,
-    onDismissRequest: () -> Unit,
+    onDismissRequest: (selected: Boolean) -> Unit,
+    isCurrent: (T) -> Boolean = { false },
     showConfirmAndCancel: Boolean = false
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
-    Dialog(onDismissRequest = onDismissRequest) {
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest(false)
+        }
+    ) {
         Box(
             modifier = Modifier.fillMaxHeight(),
             contentAlignment = Alignment.Center
@@ -437,16 +442,16 @@ fun <T> SimpleListDialog(
                     LazyColumn(
                         modifier = Modifier.weight(1f, fill = false)
                     ) {
-                        items(itemsProvider()) { item ->
+                        items(items) { item ->
                             SimpleListItem(
-                                selected = false,
+                                selected = isCurrent(item),
                                 itemName = itemTextProvider(item),
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
                                     selectedItem = item
-                                    if (!showConfirmAndCancel) {
+                                    if (!showConfirmAndCancel && !isCurrent(item)) {
                                         onItemSelected(item)
-                                        onDismissRequest()
+                                        onDismissRequest(true)
                                     }
                                 }
                             )
@@ -459,7 +464,7 @@ fun <T> SimpleListDialog(
                             onClick = {
                                 if (selectedItem != null) {
                                     onItemSelected(selectedItem!!)
-                                    onDismissRequest()
+                                    onDismissRequest(true)
                                 }
                             }
                         ) {

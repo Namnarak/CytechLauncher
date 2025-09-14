@@ -10,10 +10,12 @@ import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
-import com.movtery.zalithlauncher.game.account.microsoft.MicrosoftAuthenticator
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
+import com.movtery.zalithlauncher.game.account.microsoft.fetchDeviceCodeResponse
+import com.movtery.zalithlauncher.game.account.microsoft.getTokenResponse
+import com.movtery.zalithlauncher.game.account.microsoft.microsoftAuthAsync
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.utils.copyText
@@ -84,7 +86,7 @@ fun microsoftLogin(
         dispatcher = Dispatchers.IO,
         task = { task ->
             task.updateProgress(-1f, R.string.account_microsoft_fetch_device_code)
-            val deviceCode = MicrosoftAuthenticator.fetchDeviceCodeResponse(coroutineContext)
+            val deviceCode = fetchDeviceCodeResponse(coroutineContext)
             copyText(null, deviceCode.userCode, context)
             withContext(Dispatchers.Main) {
                 Toast.makeText(
@@ -95,7 +97,7 @@ fun microsoftLogin(
             }
             toWeb(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
-            val tokenResponse = MicrosoftAuthenticator.getTokenResponse(deviceCode, coroutineContext) {
+            val tokenResponse = getTokenResponse(deviceCode, coroutineContext) {
                 !checkIfInWebScreen()
             }
             backToMain()
@@ -156,7 +158,7 @@ private suspend fun authAsync(
     coroutineContext: CoroutineContext,
     updateProgress: (Float, Int) -> Unit
 ): Account {
-    return MicrosoftAuthenticator.authAsync(authType, refreshToken, accessToken, coroutineContext) { asyncStatus ->
+    return microsoftAuthAsync(authType, refreshToken, accessToken, coroutineContext) { asyncStatus ->
         when (asyncStatus) {
             AsyncStatus.GETTING_ACCESS_TOKEN ->     updateProgress(0.25f, R.string.account_microsoft_getting_access_token)
             AsyncStatus.GETTING_XBL_TOKEN ->        updateProgress(0.4f, R.string.account_microsoft_getting_xbl_token)
@@ -291,7 +293,7 @@ fun getAccountTypeName(context: Context, account: Account): String {
 }
 
 /**
- * 修改自源代码：[HMCL Core: AuthlibInjectorServer.java](https://github.com/HMCL-dev/HMCL/blob/main/HMCLCore/src/main/java/org/jackhuang/hmcl/auth/authlibinjector/AuthlibInjectorServer.java#L60-#L76)
+ * 修改自源代码：[HMCL Core: AuthlibInjectorServer.java](https://github.com/HMCL-dev/HMCL/blob/b38076f/HMCLCore/src/main/java/org/jackhuang/hmcl/auth/authlibinjector/AuthlibInjectorServer.java#L53-L85)
  * <br>原项目版权归原作者所有，遵循GPL v3协议
  */
 fun tryGetFullServerUrl(baseUrl: String): String {
@@ -300,25 +302,35 @@ fun tryGetFullServerUrl(baseUrl: String): String {
         return this
     }
 
-    var url = addHttpsIfMissing(baseUrl)
-    runCatching {
-        var conn = URL(url).openConnection() as HttpURLConnection
-        conn.getHeaderField("x-authlib-injector-api-location")?.let { ali ->
-            val absoluteAli = URL(conn.url, ali)
-            url = url.addSlashIfMissing()
-            val absoluteUrl = absoluteAli.toString().addSlashIfMissing()
-            if (url != absoluteUrl) {
-                conn.disconnect()
-                url = absoluteUrl
-                conn = absoluteAli.openConnection() as HttpURLConnection
-            }
-        }
+    val initialUrl = addHttpsIfMissing(baseUrl)
+    return runCatching {
+        var finalUrl = initialUrl
 
-        return url.addSlashIfMissing()
+        fun open(url: String): HttpURLConnection =
+            (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 5000
+                readTimeout = 5000
+            }
+
+        var conn: HttpURLConnection? = null
+        try {
+            conn = open(finalUrl)
+            conn.getHeaderField("x-authlib-injector-api-location")?.let { ali ->
+                val absoluteAli = URL(conn.url, ali).toString().addSlashIfMissing()
+                if (absoluteAli != finalUrl.addSlashIfMissing()) {
+                    conn.disconnect()
+                    conn = open(absoluteAli)
+                    finalUrl = absoluteAli
+                }
+            }
+            finalUrl.addSlashIfMissing()
+        } finally {
+            conn?.disconnect()
+        }
     }.getOrElse { e ->
         lError("Failed to get full server url", e)
+        initialUrl
     }
-    return baseUrl
 }
 
 /**
