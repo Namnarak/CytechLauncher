@@ -96,7 +96,7 @@ class JVMHandler(
     }
 
     @Composable
-    override fun getComposableLayout(eventViewModel: EventViewModel): @Composable (() -> Unit) = @Composable {
+    override fun ComposableLayout(eventViewModel: EventViewModel) {
         JVMScreen(
             logState = logState,
             onLogStateChange = { logState = it },

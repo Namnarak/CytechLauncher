@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.game.launch.handler
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.KeyEvent
 import android.view.Surface
@@ -131,9 +130,8 @@ class GameHandler(
         CallbackBridge.sendMouseButton(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_RIGHT.toInt(), isPressed)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Composable
-    override fun getComposableLayout(eventViewModel: EventViewModel): @Composable (() -> Unit) = @Composable {
+    override fun ComposableLayout(eventViewModel: EventViewModel) {
         GameScreen(
             version = version,
             isGameRendering = isGameRendering,

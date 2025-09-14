@@ -162,7 +162,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         setContent {
             ZalithLauncherTheme {
-                Screen(content = handler.getComposableLayout(eventViewModel))
+                Screen {
+                    handler.ComposableLayout(eventViewModel)
+                }
             }
         }
     }
