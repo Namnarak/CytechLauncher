@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.database.AppDatabase
@@ -9,6 +10,7 @@ import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServerDao
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -124,6 +126,28 @@ object AccountsManager {
             }
             else -> null
         }
+
+    /**
+     * 刷新账号
+     */
+    fun refreshAccount(
+        context: Context,
+        account: Account,
+        onFailed: (th: Throwable) -> Unit = {},
+    ) {
+        if (NetWorkUtils.isNetworkAvailable(context)) {
+            performLogin(
+                context = context,
+                account = account,
+                onSuccess = { account, task ->
+                    task.updateMessage(R.string.account_logging_in_saving)
+                    account.downloadSkin()
+                    suspendSaveAccount(account)
+                },
+                onFailed = onFailed
+            )
+        }
+    }
 
     /**
      * 获取当前已登录的账号

@@ -337,6 +337,11 @@
     <string name="account_change_skin_reset_skin_message">您確定要重設目前帳號的皮膚嗎？</string>
     <string name="account_change_skin_not_supported_alex">目前 Minecraft 版本不支援使用 Alex 模型的皮膚，如果您將目前帳號的皮膚設定為 Alex 模型，遊戲內將只會顯示 Steve 的皮膚！</string>
     <string name="account_change_skin_compatibility_warning">因技術限制，在目前 Minecraft 版本使用自訂皮膚可能不會生效。</string>
+    <string name="account_change_skin_failed_to_import">無法快取目標檔案</string>
+    <string name="account_change_skin_invalid">皮膚像素尺寸無效，應為 64x32 像素或 64x64 像素</string>
+    <string name="account_change_skin_uploading">上傳皮膚檔案中</string>
+    <string name="account_change_skin_failed_to_upload">(%d) 上傳皮膚檔案失敗</string>
+    <string name="account_change_skin_update_local">更新本地皮膚</string>
     <string name="account_supporting_username_invalid_title">此使用者名稱無效</string>
     <string name="account_supporting_username_invalid_local_message_hint1">正常的使用者名稱僅支援英文字母（大小寫均可）、數字以及底線，長度不得少於 3 個字元或超過 16 個字元。</string>
     <string name="account_supporting_username_invalid_local_message_hint2">否則可能導致遊戲無法正常執行。</string>

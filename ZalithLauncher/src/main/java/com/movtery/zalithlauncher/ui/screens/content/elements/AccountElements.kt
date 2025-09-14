@@ -89,6 +89,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -103,6 +104,19 @@ sealed interface MicrosoftLoginOperation {
     data object Tip : MicrosoftLoginOperation
     /** 正式开始登陆微软账号流程 */
     data object RunTask: MicrosoftLoginOperation
+}
+
+/**
+ * 微软账号更改玩家皮肤的操作状态
+ */
+sealed interface MicrosoftChangeSkinOperation {
+    data object None : MicrosoftChangeSkinOperation
+    /** 导入缓存皮肤文件 */
+    data class ImportFile(val account: Account, val uri: Uri): MicrosoftChangeSkinOperation
+    /** 选择皮肤模型 */
+    data class SelectSkinModel(val account: Account, val file: File): MicrosoftChangeSkinOperation
+    /** 开始上传皮肤 */
+    data class RunTask(val account: Account, val file: File, val skinModel: SkinModelType): MicrosoftChangeSkinOperation
 }
 
 /**
@@ -138,7 +152,6 @@ sealed interface ServerOperation {
 sealed interface AccountOperation {
     data object None : AccountOperation
     data class Delete(val account: Account) : AccountOperation
-    data class Refresh(val account: Account) : AccountOperation
     data class OnFailed(val th: Throwable) : AccountOperation
 }
 
@@ -236,7 +249,7 @@ fun PlayerFace(
     refreshKey: Any? = null
 ) {
     val context = LocalContext.current
-    val avatarBitmap = remember(account, refreshKey) {
+    val avatarBitmap = remember(account, refreshKey, account.refreshSkinFile) {
         getAvatarFromAccount(context, account, avatarSize).asImageBitmap()
     }
 
