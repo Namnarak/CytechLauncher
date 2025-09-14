@@ -399,6 +399,33 @@
     <string name="account_other_login_select_role">選擇角色進行登入</string>
     <string name="account_other_login_select_role_logging">登入角色 %s 中</string>
     <string name="account_other_login_role_not_found">找不到與目前帳號相符的角色，請在您使用的伺服器上檢查此角色是否存在！</string>
+    <!-- 披風在地化 -->
+    <string name="cape_name_none">無披風</string>
+    <string name="cape_name_migrator">遷移者披風</string>
+    <string name="cape_name_mapmaker">Realms 地圖製作者披風</string>
+    <string name="cape_name_moderator">Mojira 管理員披風</string>
+    <string name="cape_name_translator_chinese">Crowdin 中文翻譯者披風</string>
+    <string name="cape_name_translator">Crowdin 翻譯者披風</string>
+    <string name="cape_name_cobalt">Cobalt 披風</string>
+    <string name="cape_name_vanilla">原版披風</string>
+    <string name="cape_name_minecon2011">Minecon 2011 參與者披風</string>
+    <string name="cape_name_minecon2012">Minecon 2012 參與者披風</string>
+    <string name="cape_name_minecon2013">Minecon 2013 參與者披風</string>
+    <string name="cape_name_minecon2015">Minecon 2015 參與者披風</string>
+    <string name="cape_name_minecon2016">Minecon 2016 參與者披風</string>
+    <string name="cape_name_cherry_blossom">櫻花披風</string>
+    <string name="cape_name_15_th_anniversary">15 週年紀念披風</string>
+    <string name="cape_name_purple_heart">紫色心形披風</string>
+    <string name="cape_name_follower_s">追隨者披風</string>
+    <string name="cape_name_mcc_15_th_year">MCC 15 週年披風</string>
+    <string name="cape_name_minecraft_experience">村民救援披風</string>
+    <string name="cape_name_mojang_office">Mojang 辦公室披風</string>
+    <string name="cape_name_home">家園披風</string>
+    <string name="cape_name_menace">入侵披風</string>
+    <string name="cape_name_yearn">渴望披風</string>
+    <string name="cape_name_common">普通披風</string>
+    <string name="cape_name_pan">薄煎餅披風</string>
+    <string name="cape_name_founder_s">創始人披風</string>
     <!--  檔案管理  -->
     <string name="files_back_to_parent">返回上一層</string>
     <string name="files_create_dir">建立目錄</string>

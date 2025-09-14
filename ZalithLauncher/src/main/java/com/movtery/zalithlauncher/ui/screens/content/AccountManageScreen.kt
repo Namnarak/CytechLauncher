@@ -65,9 +65,10 @@ import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftEx
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.game.account.microsoftLogin
+import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
-import com.movtery.zalithlauncher.game.account.yggdrasil.EmptyCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
@@ -537,9 +538,7 @@ private fun MicrosoftChangeCapeOperation(
                 title = stringResource(R.string.account_change_cape_select_cape),
                 items = capes,
                 itemTextProvider = { cape ->
-                    if (cape == EmptyCape) {
-                        stringResource(R.string.generic_reset)
-                    } else cape.alias
+                    cape.capeTranslatedName()
                 },
                 onItemSelected = { cape ->
                     updateOperation(MicrosoftChangeCapeOperation.RunTask(account, cape))
@@ -557,6 +556,7 @@ private fun MicrosoftChangeCapeOperation(
         is MicrosoftChangeCapeOperation.RunTask -> {
             val account = operation.account
             val cape = operation.cape
+            val capeName = cape.capeTranslatedName()
             val capeId: String? = cape.takeIf { it != EmptyCape }?.id
 
             val task = Task.runTask(
@@ -573,7 +573,7 @@ private fun MicrosoftChangeCapeOperation(
                         val text = if (cape == EmptyCape) {
                             context.getString(R.string.account_change_cape_apply_reset)
                         } else {
-                            context.getString(R.string.account_change_cape_apply_success, cape.alias)
+                            context.getString(R.string.account_change_cape_apply_success, capeName)
                         }
 
                         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()

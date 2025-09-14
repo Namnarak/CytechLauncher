@@ -28,8 +28,3 @@ data class PlayerProfile(
         val alias: String
     )
 }
-
-/**
- * 空披风，可用来表示不选择、重置披风
- */
-val EmptyCape = PlayerProfile.Cape("", "", "", "")

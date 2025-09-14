@@ -438,6 +438,33 @@
     <string name="account_other_login_select_role">Select Role</string>
     <string name="account_other_login_select_role_logging">Logging in as %s</string>
     <string name="account_other_login_role_not_found">No role matching the current account was found. Please check on the server you are using to see if this role exists!</string>
+    <!--  Cape localization  -->
+    <string name="cape_name_none">No Cape</string>
+    <string name="cape_name_migrator">Migrator</string>
+    <string name="cape_name_mapmaker">MapMaker</string>
+    <string name="cape_name_moderator">Moderator</string>
+    <string name="cape_name_translator_chinese">Translator-Chinese</string>
+    <string name="cape_name_translator">Translator</string>
+    <string name="cape_name_cobalt">Cobalt</string>
+    <string name="cape_name_vanilla">Vanilla</string>
+    <string name="cape_name_minecon2011">Minecon2011</string>
+    <string name="cape_name_minecon2012">Minecon2012</string>
+    <string name="cape_name_minecon2013">Minecon2013</string>
+    <string name="cape_name_minecon2015">Minecon2015</string>
+    <string name="cape_name_minecon2016">Minecon2016</string>
+    <string name="cape_name_cherry_blossom">Cherry Blossom</string>
+    <string name="cape_name_15_th_anniversary">15th Anniversary</string>
+    <string name="cape_name_purple_heart">Purple Heart</string>
+    <string name="cape_name_follower_s">Follower\'s</string>
+    <string name="cape_name_mcc_15_th_year">MCC 15th Year</string>
+    <string name="cape_name_minecraft_experience">Minecraft Experience</string>
+    <string name="cape_name_mojang_office">Mojang Office</string>
+    <string name="cape_name_home">Home</string>
+    <string name="cape_name_menace">Menace</string>
+    <string name="cape_name_yearn">Yearn</string>
+    <string name="cape_name_common">Common</string>
+    <string name="cape_name_pan">Pan</string>
+    <string name="cape_name_founder_s">Founder\'s</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Back</string>
     <string name="files_create_dir">Create Folder</string>
