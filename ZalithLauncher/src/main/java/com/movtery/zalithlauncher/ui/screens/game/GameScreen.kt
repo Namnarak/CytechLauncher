@@ -18,11 +18,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,8 @@ import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
 import com.movtery.zalithlauncher.ui.control.control.MinecraftHotbar
 import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
+import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
+import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
@@ -232,7 +236,11 @@ fun GameScreen(
     onInputAreaRectUpdated: (IntRect?) -> Unit = {},
     eventViewModel: EventViewModel
 ) {
+    val context = LocalContext.current
     val viewModel = rememberGameViewModel(version)
+    val isGrabbing = remember(ZLBridgeStates.cursorMode) {
+        ZLBridgeStates.cursorMode == CURSOR_DISABLED
+    }
 
     SendKeycodeOperation(
         operation = viewModel.sendKeycodeState,
@@ -336,10 +344,29 @@ fun GameScreen(
                 onClickSlot = { keycode ->
                     CallbackBridge.sendKeyPress(keycode)
                 },
-                isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+                isGrabbing = isGrabbing,
                 resolutionRatio = AllSettings.resolutionRatio.state,
                 onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
                 onReleasePointer = { viewModel.occupiedPointers.remove(it) }
+            )
+        }
+
+        //陀螺仪控制
+        val isGyroscopeAvailable = remember(context) {
+            isGyroscopeAvailable(context = context)
+        }
+        if (isGrabbing && isGyroscopeAvailable && AllSettings.gyroscopeControl.state) {
+            GyroscopeReader(
+                xEvent = { delta ->
+                    CallbackBridge.sendCursorDelta(if (AllSettings.gyroscopeInvertX.state) -delta else delta, 0f)
+                },
+                yEvent = { delta ->
+                    CallbackBridge.sendCursorDelta(0f, if (AllSettings.gyroscopeInvertY.state) delta else -delta)
+                },
+                sampleRate = AllSettings.gyroscopeSampleRate.state,
+                smoothing = AllSettings.gyroscopeSmoothing.state,
+                smoothingWindow = AllSettings.gyroscopeSmoothingWindow.state,
+                sensitivity = AllSettings.gyroscopeSensitivity.state / 100f
             )
         }
 

@@ -10,8 +10,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
@@ -25,6 +27,7 @@ import com.movtery.zalithlauncher.ui.components.MenuSubscreen
 import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.control.control.HotbarRule
+import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 
 @Composable
 fun GameMenuSubscreen(
@@ -37,6 +40,12 @@ fun GameMenuSubscreen(
     onSendKeycode: () -> Unit,
     onReplacementControl: () -> Unit
 ) {
+    //检查陀螺仪是否可用
+    val context = LocalContext.current
+    val isGyroscopeAvailable = remember(context) {
+        isGyroscopeAvailable(context = context)
+    }
+
     MenuSubscreen(
         state = state,
         closeScreen = closeScreen
@@ -321,6 +330,95 @@ fun GameMenuSubscreen(
                     onValueChange = { AllSettings.gestureLongPressDelay.updateState(it) },
                     onValueChangeFinished = { AllSettings.gestureLongPressDelay.save(it) },
                     suffix = "ms"
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            //陀螺仪控制
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.settings_control_gyroscope_title),
+                    switch = AllSettings.gyroscopeControl.state,
+                    onSwitch = { AllSettings.gyroscopeControl.save(it) },
+                    enabled = isGyroscopeAvailable
+                )
+            }
+
+            //陀螺仪控制灵敏度
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
+                    value = AllSettings.gyroscopeSensitivity.state,
+                    valueRange = 25f..300f,
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                    onValueChange = { AllSettings.gyroscopeSensitivity.updateState(it) },
+                    onValueChangeFinished = { AllSettings.gyroscopeSensitivity.save(it) },
+                    suffix = "%"
+                )
+            }
+
+            //陀螺仪采样率
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
+                    value = AllSettings.gyroscopeSampleRate.state,
+                    valueRange = 5f..50f,
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                    onValueChange = { AllSettings.gyroscopeSampleRate.updateState(it) },
+                    onValueChangeFinished = { AllSettings.gyroscopeSampleRate.save(it) },
+                    suffix = "ms"
+                )
+            }
+
+            //陀螺仪数值平滑
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.settings_control_gyroscope_smoothing_title),
+                    switch = AllSettings.gyroscopeSmoothing.state,
+                    onSwitch = { AllSettings.gyroscopeSmoothing.save(it) },
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                )
+            }
+
+            //陀螺仪平滑处理的窗口大小
+            item {
+                MenuSliderLayout(
+                    modifier = itemCommonModifier,
+                    title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
+                    value = AllSettings.gyroscopeSmoothingWindow.state,
+                    valueRange = 2f..10f,
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state,
+                    onValueChange = { AllSettings.gyroscopeSmoothingWindow.updateState(it) },
+                    onValueChangeFinished = { AllSettings.gyroscopeSmoothingWindow.save(it) },
+                )
+            }
+
+            //反转 X 轴
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.settings_control_gyroscope_invert_x_title),
+                    switch = AllSettings.gyroscopeInvertX.state,
+                    onSwitch = { AllSettings.gyroscopeInvertX.save(it) },
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                )
+            }
+
+            //反转 Y 轴
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.settings_control_gyroscope_invert_y_title),
+                    switch = AllSettings.gyroscopeInvertY.state,
+                    onSwitch = { AllSettings.gyroscopeInvertY.save(it) },
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
                 )
             }
         }

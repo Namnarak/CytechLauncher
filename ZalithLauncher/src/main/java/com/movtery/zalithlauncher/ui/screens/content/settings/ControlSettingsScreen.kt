@@ -50,6 +50,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.infiniteShimmer
+import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -91,10 +92,7 @@ fun ControlSettingsScreen(
             SettingsBackground(
                 modifier = Modifier
                     .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset1.roundToPx()
-                        )
+                        IntOffset(x = 0, y = yOffset1.roundToPx())
                     }
             ) {
                 SwitchSettingsLayout(
@@ -136,10 +134,7 @@ fun ControlSettingsScreen(
             SettingsBackground(
                 modifier = Modifier
                     .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset2.roundToPx()
-                        )
+                        IntOffset(x = 0, y = yOffset2.roundToPx())
                     }
             ) {
                 SwitchSettingsLayout(
@@ -210,10 +205,7 @@ fun ControlSettingsScreen(
             SettingsBackground(
                 modifier = Modifier
                     .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset3.roundToPx()
-                        )
+                        IntOffset(x = 0, y = yOffset3.roundToPx())
                     }
             ) {
                 SwitchSettingsLayout(
@@ -248,6 +240,97 @@ fun ControlSettingsScreen(
                     suffix = "ms",
                     enabled = AllSettings.gestureControl.state,
                     fineTuningControl = true
+                )
+            }
+
+            val yOffset4 by swapAnimateDpAsState(
+                targetValue = (-40).dp,
+                swapIn = isVisible,
+                delayMillis = 150
+            )
+
+            SettingsBackground(
+                modifier = Modifier
+                    .offset {
+                        IntOffset(x = 0, y = yOffset4.roundToPx())
+                    }
+            ) {
+                //检查陀螺仪是否可用
+                val context = LocalContext.current
+                val isGyroscopeAvailable = remember(context) {
+                    isGyroscopeAvailable(context = context)
+                }
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.gyroscopeControl,
+                    title = stringResource(R.string.settings_control_gyroscope_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_summary),
+                    enabled = isGyroscopeAvailable,
+                    trailingIcon = if (!isGyroscopeAvailable) {
+                        @Composable {
+                            TooltipIconButton(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .padding(horizontal = 8.dp),
+                                tooltipTitle = stringResource(R.string.generic_warning),
+                                tooltipMessage = stringResource(R.string.settings_control_gyroscope_unsupported)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = stringResource(R.string.generic_warning),
+                                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                    } else null
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.gyroscopeSensitivity,
+                    title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
+                    valueRange = 25f..300f,
+                    suffix = "%",
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                    fineTuningControl = true
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.gyroscopeSampleRate,
+                    title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_sample_rate_summary),
+                    valueRange = 5f..50f,
+                    suffix = "ms",
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                    fineTuningControl = true
+                )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.gyroscopeSmoothing,
+                    title = stringResource(R.string.settings_control_gyroscope_smoothing_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_smoothing_summary),
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                )
+
+                SliderSettingsLayout(
+                    unit = AllSettings.gyroscopeSmoothingWindow,
+                    title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_smoothing_window_summary),
+                    valueRange = 2f..10f,
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state
+                )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.gyroscopeInvertX,
+                    title = stringResource(R.string.settings_control_gyroscope_invert_x_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_invert_x_summary),
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                )
+
+                SwitchSettingsLayout(
+                    unit = AllSettings.gyroscopeInvertY,
+                    title = stringResource(R.string.settings_control_gyroscope_invert_y_title),
+                    summary = stringResource(R.string.settings_control_gyroscope_invert_y_summary),
+                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
                 )
             }
         }
