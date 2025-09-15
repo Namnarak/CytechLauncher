@@ -41,5 +41,5 @@ abstract class AbstractHandler(
     abstract fun sendMouseRight(isPressed: Boolean)
 
     @Composable
-    abstract fun getComposableLayout(eventViewModel: EventViewModel): @Composable () -> Unit
+    abstract fun ComposableLayout(eventViewModel: EventViewModel)
 }

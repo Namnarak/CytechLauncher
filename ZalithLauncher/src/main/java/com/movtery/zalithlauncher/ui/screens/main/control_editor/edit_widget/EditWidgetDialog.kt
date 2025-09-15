@@ -179,6 +179,9 @@ fun EditWidgetDialog(
                                 MarqueeText(text = stringResource(dialogTransparent.buttonText))
                             }
                             Spacer(Modifier.width(16.dp))
+                        } else {
+                            //占位用，防止右侧按钮向左靠齐
+                            Spacer(Modifier)
                         }
 
                         Row(

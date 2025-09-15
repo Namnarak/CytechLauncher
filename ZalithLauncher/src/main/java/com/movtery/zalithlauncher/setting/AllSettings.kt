@@ -172,6 +172,41 @@ object AllSettings : SettingsRegistry() {
      */
     val gestureLongPressDelay = intSetting("gestureLongPressDelay", 300)
 
+    /**
+     * 陀螺仪控制
+     */
+    val gyroscopeControl = boolSetting("gyroscopeControl", false)
+
+    /**
+     * 陀螺仪控制灵敏度
+     */
+    val gyroscopeSensitivity = intSetting("gyroscopeSensitivity", 100)
+
+    /**
+     * 陀螺仪采样率
+     */
+    val gyroscopeSampleRate = intSetting("gyroscopeSampleRate", 16)
+
+    /**
+     * 陀螺仪数值平滑
+     */
+    val gyroscopeSmoothing = boolSetting("gyroscopeSmoothing", true)
+
+    /**
+     * 陀螺仪平滑处理的窗口大小
+     */
+    val gyroscopeSmoothingWindow = intSetting("gyroscopeSmoothingWindow", 4)
+
+    /**
+     * 反转 X 轴
+     */
+    val gyroscopeInvertX = boolSetting("gyroscopeInvertX", false)
+
+    /**
+     * 反转 Y 轴
+     */
+    val gyroscopeInvertY = boolSetting("gyroscopeInvertY", false)
+
     //Launcher
     /**
      * 颜色主题色
