@@ -784,4 +784,21 @@
     <string name="control_editor_menu_widget_snap_mode_fullscreen">Snapping Layar Penuh</string>
     <string name="control_editor_menu_widget_snap_mode_local">Snapping lokal</string>
     <string name="control_editor_menu_save_and_exit">Simpan dan Keluar</string>
+    <string name="microphone_check_title">Periksa Input Mikrofon</string>
+    <string name="microphone_check_no_permissions">Izin Mikrofon Tidak Diberikan ke Peluncur</string>
+    <string name="game_menu_option_replacement_control">Ganti Tata Letak Kontrol</string>
+    <string name="account_change_skin_failed_to_import">Gagal menyimpan file target dalam cache</string>
+    <string name="account_change_skin_invalid">Ukuran piksel skin tidak valid, seharusnya 64x32 piksel atau 64x64 piksel</string>
+    <string name="account_change_skin_uploading">Mengunggah file skin</string>
+    <string name="account_change_skin_failed_to_upload">(%d) Gagal mengunggah file skin</string>
+    <string name="account_change_skin_update_local">Perbarui skin lokal</string>
+    <string name="account_change_skin_update_toast">Skin berhasil diunggah. Jika tidak ada perubahan, silakan refresh akun Anda setelah beberapa waktu</string>
+    <string name="account_change_cape">Ganti jubah</string>
+    <string name="account_change_cape_fetch_all">Ambil semua jubah</string>
+    <string name="account_change_cape_fetch_all_failed">Tidak dapat mengambil jubah</string>
+    <string name="account_change_cape_select_cape">Pilih jubah</string>
+    <string name="account_change_cape_apply">Menerapkan jubah</string>
+    <string name="account_change_cape_apply_success">Berhasil mengubah jubah Anda menjadi: %s</string>
+    <string name="account_change_cape_apply_reset">Berhasil mengatur ulang jubah Anda</string>
+    <string name="account_change_cape_apply_failed">(%d) Gagal mengganti jubah</string>
 </resources>
