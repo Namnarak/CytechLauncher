@@ -31,8 +31,8 @@
     <string name="generic_input_too_large">Значение не может быть больше %s</string>
     <string name="generic_unpacking">Распаковка %s</string>
     <string name="generic_unknown">Неизвестно</string>
-    <string name="generic_follow_global">Следовать глобальному</string>
-    <string name="generic_custom">Пользовательский</string>
+    <string name="generic_follow_global">Следовать общим настройкам</string>
+    <string name="generic_custom">Кастом</string>
     <string name="generic_search">Поиск</string>
     <string name="generic_loading">Загрузка</string>
     <string name="generic_in_progress">В процессе</string>
@@ -41,22 +41,22 @@
     <string name="generic_file_name">Имя файла: %s</string>
     <string name="generic_file_size">Размер файла: %s</string>
     <!-- Launcher Version -->
-    <string name="launcher_version_debug_warning">Вы используете тестовую версию %s! Эта версия может быть нестабильной и предназначена в первую очередь для тестирования функций и раннего доступа. Не рекомендуется для длительного использования! Если вы столкнулись с проблемами во время тестирования, пожалуйста, сообщите о них через GitHub, и мы устраним их как можно скорее.</string>
+    <string name="launcher_version_debug_warning">Вы используете тестовую версию %s! Эта версия может быть нестабильной и предназначена в первую очередь для тестирования функций и раннего доступа. Не рекомендуется для основного использования! Если вы столкнулись с проблемами во время тестирования, пожалуйста, сообщите о них через GitHub, и мы устраним их как можно скорее.</string>
     <string name="launcher_version_debug_warning_cant_close">Это предупреждение нельзя закрыть</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Динамическая (Android 12+)</string>
-    <string name="theme_color_embermire">Тлеющий уголь</string>
-    <string name="theme_color_velvet_rose">Бархатная роза</string>
-    <string name="theme_color_mistwave">Туманная волна</string>
-    <string name="theme_color_glacier">Ледник</string>
-    <string name="theme_color_verdant_field">Зелёные сумерки</string>
-    <string name="theme_color_urban_ash">Городской пепел</string>
-    <string name="theme_color_verdant_dawn">Тихий лесной рассвет</string>
+    <string name="theme_color_embermire">Embermire</string>
+    <string name="theme_color_velvet_rose">Velvet Rose</string>
+    <string name="theme_color_mistwave">Mistwave</string>
+    <string name="theme_color_glacier">Glacier</string>
+    <string name="theme_color_verdant_field">Verdant Twilight</string>
+    <string name="theme_color_urban_ash">Urban Ash</string>
+    <string name="theme_color_verdant_dawn">Silent Forest Dawn</string>
     <string name="theme_color_picker_title">Выбор цвета</string>
     <!-- Animations -->
-    <string name="animate_type_bounce">Подпрыгивание</string>
-    <string name="animate_type_jelly_bounce">Желейное подпрыгивание</string>
-    <string name="animate_type_slice_in">Скольжение</string>
+    <string name="animate_type_bounce">Подпрыгивающая</string>
+    <string name="animate_type_jelly_bounce">Желейно подпрыгивающая</string>
+    <string name="animate_type_slice_in">Скользящая</string>
     <!-- Crash Handling -->
     <string name="crash_launcher_title">%s столкнулся с критической ошибкой</string>
     <string name="crash_launcher_message">Приложение неожиданно завершило работу. Подробности ошибки ниже помогут разработчикам улучшить приложение.</string>
@@ -100,7 +100,7 @@
     <string name="main_task_menu">Меню задач</string>
     <!-- Download -->
     <string name="download_category_game">Игра</string>
-    <string name="download_category_modpack">Модпак</string>
+    <string name="download_category_modpack">Мод-пак</string>
     <string name="download_category_mod">Мод</string>
     <string name="download_category_resource_pack">Ресурс-пак</string>
     <string name="download_category_saves">Сохранения</string>
@@ -152,7 +152,7 @@
     <string name="game_dialog_force_close_message">Вы уверены, что хотите принудительно закрыть игру и вернуться в главное меню?</string>
     <!-- Renderers -->
     <string name="renderer_version_support">Поддержка версий MC:</string>
-    <string name="renderer_version_unsupported_warning">Текущий рендерер %s не поддерживает эту версию игры. Продолжение использования может вызвать ошибки рендеринга или сбои! Вы уверены, что хотите продолжить?</string>
+    <string name="renderer_version_unsupported_warning">Текущий визуализатор %s не поддерживает эту версию игры. Продолжение использования может вызвать ошибки рендеринга или сбои! Вы уверены, что хотите продолжить?</string>
     <!-- Accounts -->
     <string name="account_no_account">Нет доступных аккаунтов</string>
     <string name="account_login">Войти</string>
@@ -303,7 +303,7 @@
     <string name="versions_config_support_settings">Дополнительные настройки поддержки</string>
     <string name="versions_config_isolation_title">Изоляция версии</string>
     <string name="versions_config_isolation_summary">Изолировать текущую версию, чтобы её данные не пересекались с другими версиями</string>
-    <string name="versions_config_renderer">Рендерер</string>
+    <string name="versions_config_renderer">Визуализатор</string>
     <string name="versions_config_vulkan_driver">Драйвер Vulkan</string>
     <string name="versions_config_java_runtime_summary">Указать среду Java, используемую текущей версией</string>
     <string name="versions_config_auto_join_server_ip_title">Автоматическое подключение к серверу</string>
@@ -363,15 +363,15 @@
     <!-- Settings -->
     <string name="settings_element_selected">Выбрано: %s</string>
     <string name="settings_label_ignore_if_blank">Оставьте пустым для игнорирования</string>
-    <string name="settings_tab_renderer">Рендерер</string>
+    <string name="settings_tab_renderer">Визуализатор</string>
     <string name="settings_tab_game">Игра</string>
     <string name="settings_tab_control">Управление</string>
     <string name="settings_tab_launcher">Лаунчер</string>
     <string name="settings_tab_java_manage">Java</string>
     <string name="settings_tab_control_manage">Управление</string>
     <string name="settings_tab_info_about">О программе</string>
-    <string name="settings_renderer_global_renderer_title">Глобальный рендерер</string>
-    <string name="settings_renderer_global_renderer_summary">Глобальный рендерер по умолчанию использует динамический слой трансляции библиотек для обеспечения плавной работы игры на мобильных устройствах</string>
+    <string name="settings_renderer_global_renderer_title">Визуализатор</string>
+    <string name="settings_renderer_global_renderer_summary">Визуализатор по умолчанию использует динамический слой трансляции библиотек для обеспечения плавной работы игры на мобильных устройствах</string>
     <string name="settings_renderer_global_vulkan_driver_title">Драйвер Vulkan</string>
     <string name="settings_renderer_from_plugins">Из плагина %s</string>
     <string name="settings_renderer_resolution_scale_title">Масштаб разрешения</string>
@@ -384,12 +384,12 @@
     <string name="settings_renderer_shader_dump_summary">Выводить преобразованный код шейдеров во время работы игры в лог-файл для упрощения отладки и анализа рендеринга графики</string>
     <string name="settings_renderer_vulkan_driver_system_title">Использовать системный драйвер Vulkan</string>
     <string name="settings_renderer_vulkan_driver_system_summary">При включении лаунчер будет использовать встроенный системный драйвер Vulkan (для GPU Adreno) вместо драйвера Turnip по умолчанию. Эта настройка влияет только на бэкенд Zink и связанные моды, использующие рендеринг Vulkan</string>
-    <string name="settings_renderer_zink_driver_adreno">Лаунчер обнаружил, что ваше устройство имеет GPU Adreno. Включение этой опции может привести к сбоям в работе рендерера Zink. Вы уверены, что хотите включить её?</string>
+    <string name="settings_renderer_zink_driver_adreno">Лаунчер обнаружил, что ваше устройство имеет GPU Adreno. Включение этой опции может привести к сбоям в работе визуализатора Zink. Вы уверены, что хотите включить её?</string>
     <string name="settings_renderer_vsync_in_zink_title">Вертикальная синхронизация Zink</string>
-    <string name="settings_renderer_vsync_in_zink_summary">Включить вертикальную синхронизацию для рендерера Zink через системный интерфейс</string>
+    <string name="settings_renderer_vsync_in_zink_summary">Включить вертикальную синхронизацию для визуализатора Zink через системный интерфейс</string>
     <string name="settings_renderer_force_big_core_title">Принудительное использование мощных ядер</string>
     <string name="settings_renderer_force_big_core_summary">Привязать поток рендеринга Minecraft к мощным ядрам процессора (большим ядрам). Включение этой опции может увеличить энергопотребление и нагрев</string>
-    <string name="settings_game_version_isolation_title">Глобальная изоляция версий</string>
+    <string name="settings_game_version_isolation_title">Изоляция версий</string>
     <string name="settings_game_version_isolation_summary">Изолировать все версии, чтобы их данные не пересекались друг с другом</string>
     <string name="settings_game_skip_game_integrity_check_title">Пропустить проверку целостности</string>
     <string name="settings_game_skip_game_integrity_check_summary">При запуске игры существующие игровые файлы не будут перезагружаться, даже если они не соответствуют фактическим файлам</string>
@@ -407,8 +407,8 @@
     <string name="settings_game_log_text_size_summary">Настроить размер текста на экране логов</string>
     <string name="settings_game_log_buffer_flush_interval_title">Интервал обновления буфера логов</string>
     <string name="settings_game_log_buffer_flush_interval_summary">Установить, как часто обновляется буфер логов. Слишком частое или редкое обновление может повлиять на производительность</string>
-    <string name="settings_control_mouse_physical_mouse_mode_title">Физическая мышь</string>
-    <string name="settings_control_mouse_physical_mouse_mode_summary">При подключении физической мыши отключить виртуальный указатель мыши и использовать системный указатель мыши для управления</string>
+    <string name="settings_control_mouse_physical_mouse_mode_title">При подключении мыши использовать системный курсор</string>
+    <string name="settings_control_mouse_physical_mouse_mode_summary">При подключении физической мыши курсор в игре заменяется на системный</string>
     <string name="settings_control_mouse_physical_mouse_warning">Если ваше устройство интерпретирует правый клик физической мыши как «Назад» или средний клик как «Домой», вы можете перейти в Настройки системы &gt; Параметры разработчика и включить «Отключить мониторинг разрешений», это, вероятно, решит проблему.</string>
     <string name="settings_control_mouse_size_title">Размер виртуальной мыши</string>
     <string name="settings_control_mouse_sensitivity_title">Чувствительность виртуальной мыши</string>
@@ -491,7 +491,7 @@
     <string name="download_assets_category_worldgen">Генерация мира</string>
     <string name="download_assets_category_biomes">Биомы</string>
     <string name="download_assets_category_dimensions">Измерения</string>
-    <string name="generic_all">все</string>
+    <string name="generic_all">Все</string>
     <string name="generic_input_length">Длина текста: %1$d/%2$d</string>
     <string name="generic_unspecified">Не указано</string>
     <string name="generic_save">Сохранить</string>
@@ -620,8 +620,8 @@
     <string name="game_menu_option_hotbar_rule_custom">Кастом</string>
     <string name="game_menu_option_hotbar_width">Ширина хотбара</string>
     <string name="game_menu_option_hotbar_height">Высота хотбара</string>
-    <string name="renderer_version_storage_permissions">Текущий рендер %s можно настроить через файл конфигурации. Пожалуйста, сначала предоставьте лаунчеру разрешение на доступ к внешнему хранилищу, иначе он не сможет прочитать и загрузить настройки рендера!</string>
-    <string name="renderer_version_storage_permissions_sdk30">Текущий рендер %s можно настроить через файл конфигурации. Пожалуйста, сначала предоставьте лаунчеру разрешение «Управление всеми файлами», иначе он не сможет прочитать и загрузить настройки рендера!</string>
+    <string name="renderer_version_storage_permissions">Текущий визуализатор %s можно настроить через файл конфигурации. Пожалуйста, сначала предоставьте лаунчеру разрешение на доступ к внешнему хранилищу, иначе он не сможет прочитать и загрузить настройки рендера!</string>
+    <string name="renderer_version_storage_permissions_sdk30">Текущий визуализатор %s можно настроить через файл конфигурации. Пожалуйста, сначала предоставьте лаунчеру разрешение «Управление всеми файлами», иначе он не сможет прочитать и загрузить настройки рендера!</string>
     <string name="account_logging_xbox_banned">Ваша учётная запись была заблокирована за нарушение правил сообщества Xbox и больше не может быть использована!</string>
     <string name="account_logging_xbox_restricted">Ваша учётная запись ограничена. Опекун не предоставил вам разрешение на игру в онлайн-режиме.</string>
     <string name="account_logging_xbox_unregistered">Для вашей учётной записи ещё не создан профиль Xbox. Перейдите по адресу https://signup.live.com/signup, чтобы зарегистрироваться.</string>
@@ -851,4 +851,18 @@
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
     <string name="about_acknowledgements_mcmod_text">%s использует упрощённые китайские переводы модов и сборок из MCMod</string>
     <string name="about_acknowledgements_bangbang93_text">%s использует зеркало BMCL API</string>
+    <string name="settings_control_gyroscope_title">Управление гироскопом</string>
+    <string name="settings_control_gyroscope_unsupported">Гироскоп устройства недоступен</string>
+    <string name="settings_control_gyroscope_summary">Управляйте камерой, поворачивая устройство во время игры.</string>
+    <string name="settings_control_gyroscope_sensitivity_title">Чувствительность гироскопа</string>
+    <string name="settings_control_gyroscope_sample_rate_title">Частота считывания гироскопа</string>
+    <string name="settings_control_gyroscope_sample_rate_summary">Частота считывания определяет, как часто обновляются данные гироскопа. Высокая частота обеспечивает данные в реальном времени, но увеличивает расход ресурсов устройства.</string>
+    <string name="settings_control_gyroscope_smoothing_title">Сглаживание показаний гироскопа</string>
+    <string name="settings_control_gyroscope_smoothing_summary">Сглаживает полученные показания гироскопа для уменьшения рваных поворотов камеры, но увеличивает задержку.</string>
+    <string name="settings_control_gyroscope_smoothing_window_title">Размер окна сглаживания гироскопа</string>
+    <string name="settings_control_gyroscope_smoothing_window_summary">Определяет интенсивность сглаживания. Высокие значения уберут рваные движения, но добавят задержки в управлении.</string>
+    <string name="settings_control_gyroscope_invert_x_title">Инвертировать ось X</string>
+    <string name="settings_control_gyroscope_invert_x_summary">Если включено, поворот устройства влево или вправо будет управлять камерой в противоположном направлении.</string>
+    <string name="settings_control_gyroscope_invert_y_title">Инвертировать ось Y</string>
+    <string name="settings_control_gyroscope_invert_y_summary">Если включено, поворот устройства вверх или вниз будет управлять камерой в противоположном направлении.</string>
 </resources>
