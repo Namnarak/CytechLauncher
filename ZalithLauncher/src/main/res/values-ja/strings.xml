@@ -535,4 +535,27 @@
     <string name="control_editor_edit_size_type">サイズのタイプ</string>
     <string name="control_editor_edit_size_type_dp">絶対値</string>
     <string name="control_editor_edit_size_type_percentage">パーセント</string>
+    <string name="control_editor_edit_size_type_wrap_content">コンテンツをラップ</string>
+    <string name="control_editor_edit_size_width">横幅をコントロール</string>
+    <string name="control_editor_edit_size_height">縦幅をコントロール</string>
+    <string name="control_editor_edit_size_width_reference">コントロールの横幅の参照</string>
+    <string name="control_editor_edit_size_height_reference">コントロールの高さの参照</string>
+    <string name="control_editor_edit_size_reference_screen_width">スクリーンの横幅</string>
+    <string name="control_editor_edit_size_reference_screen_height">スクリーンの高さ</string>
+    <string name="control_editor_edit_event_basic">基本</string>
+    <string name="control_editor_edit_event_launcher">ランチャーのイベント</string>
+    <string name="control_editor_edit_event_launcher_switch_menu">メニューを切り替え</string>
+    <string name="control_editor_edit_event_launcher_mouse_left">マウスの左ボタン</string>
+    <string name="control_editor_edit_event_launcher_mouse_middle">マウスの中央ボタン</string>
+    <string name="control_editor_edit_event_launcher_mouse_right">マウスの右ボタン</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_up">マウスの連続スクロールアップ</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_up_single">マウスの単一スクロールアップ</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_down">マウスの連続スクロールダウン</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">マウスの単一スクロールダウン</string>
+    <string name="control_editor_edit_event_key">キー</string>
+    <string name="control_editor_edit_event_key_new">新しいキートリガー値を追加</string>
+    <string name="control_editor_edit_event_key_value">キートリガー値: %s</string>
+    <string name="control_editor_edit_event_swipple">スワイプしてトリガー</string>
+    <string name="control_editor_edit_event_penetrable">マウスを移動</string>
+    <string name="control_editor_edit_event_toggleable">切り替え可能</string>
 </resources>
