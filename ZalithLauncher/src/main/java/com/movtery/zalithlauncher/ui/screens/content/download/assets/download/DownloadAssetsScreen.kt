@@ -83,6 +83,7 @@ import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyO
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private class DownloadScreenViewModel(
@@ -362,6 +363,7 @@ private fun Versions(
                 val scrollState = rememberLazyListState()
 
                 LaunchedEffect(Unit) {
+                    delay(100)
                     versions.result.indexOfFirst { it.isAdapt }.takeIf { it != -1 }?.let { index ->
                         //自动滚动到适配的资源版本
                         scrollState.animateScrollToItem(index)
