@@ -101,7 +101,7 @@ fun microsoftLogin(
                 !checkIfInWebScreen()
             }
             backToMain()
-            val account = authAsync(
+            val account = microsoftAuth(
                 AuthType.Access,
                 tokenResponse.refreshToken,
                 tokenResponse.accessToken,
@@ -151,7 +151,7 @@ fun microsoftLogin(
     TaskSystem.submitTask(task)
 }
 
-private suspend fun authAsync(
+private suspend fun microsoftAuth(
     authType: AuthType,
     refreshToken: String,
     accessToken: String = "NULL",
@@ -182,21 +182,7 @@ fun microsoftRefresh(
         id = account.profileId,
         dispatcher = Dispatchers.IO,
         task = { task ->
-            val newAcc = authAsync(
-                AuthType.Refresh,
-                account.refreshToken,
-                account.accessToken,
-                coroutineContext = coroutineContext,
-                updateProgress = task::updateProgress
-            )
-            account.apply {
-                this.accessToken = newAcc.accessToken
-                this.clientToken = newAcc.clientToken
-                this.profileId = newAcc.profileId
-                this.username = newAcc.username
-                this.refreshToken = newAcc.refreshToken
-                this.xUid = newAcc.xUid
-            }
+            account.refreshMicrosoft(task, coroutineContext)
             onSuccess(account, task)
         },
         onError = { e ->
@@ -205,6 +191,27 @@ fun microsoftRefresh(
         },
         onFinally = onFinally
     )
+}
+
+suspend fun Account.refreshMicrosoft(
+    task: Task,
+    coroutineContext: CoroutineContext = Dispatchers.IO
+) {
+    val newAcc = microsoftAuth(
+        AuthType.Refresh,
+        refreshToken,
+        accessToken,
+        coroutineContext = coroutineContext,
+        updateProgress = task::updateProgress
+    )
+    apply {
+        this.accessToken = newAcc.accessToken
+        this.clientToken = newAcc.clientToken
+        this.profileId = newAcc.profileId
+        this.username = newAcc.username
+        this.refreshToken = newAcc.refreshToken
+        this.xUid = newAcc.xUid
+    }
 }
 
 fun otherLogin(

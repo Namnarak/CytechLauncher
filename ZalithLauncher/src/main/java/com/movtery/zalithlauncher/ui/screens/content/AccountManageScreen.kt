@@ -65,11 +65,13 @@ import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftEx
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
 import com.movtery.zalithlauncher.game.account.microsoft.toLocal
 import com.movtery.zalithlauncher.game.account.microsoftLogin
+import com.movtery.zalithlauncher.game.account.refreshMicrosoft
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
+import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
@@ -423,15 +425,22 @@ private fun MicrosoftChangeSkinOperation(
             val skinModel = operation.skinModel
 
             val task = Task.runTask(
-                id = account.uniqueUUID,
                 dispatcher = Dispatchers.IO,
                 task = { task ->
-                    task.updateMessage(R.string.account_change_skin_uploading)
-                    uploadSkin(
-                        apiUrl = MINECRAFT_SERVICES_URL,
-                        accessToken = account.accessToken,
-                        file = skinFile,
-                        modelType = skinModel
+                    executeWithAuthorization(
+                        block = {
+                            task.updateProgress(-1f, R.string.account_change_skin_uploading)
+                            uploadSkin(
+                                apiUrl = MINECRAFT_SERVICES_URL,
+                                accessToken = account.accessToken,
+                                file = skinFile,
+                                modelType = skinModel
+                            )
+                        },
+                        onRefreshRequest = {
+                            account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
+                            AccountsManager.suspendSaveAccount(account)
+                        }
                     )
                     //刷新本地皮肤
                     task.updateMessage(R.string.account_change_skin_update_local)
@@ -504,12 +513,20 @@ private fun MicrosoftChangeCapeOperation(
                 id = account.uniqueUUID,
                 dispatcher = Dispatchers.IO,
                 task = { task ->
-                    task.updateMessage(R.string.account_change_cape_fetch_all)
-                    val profile = getPlayerProfile(
-                        apiUrl = MINECRAFT_SERVICES_URL,
-                        accessToken = account.accessToken
+                    executeWithAuthorization(
+                        block = {
+                            task.updateProgress(-1f, R.string.account_change_cape_fetch_all)
+                            val profile = getPlayerProfile(
+                                apiUrl = MINECRAFT_SERVICES_URL,
+                                accessToken = account.accessToken
+                            )
+                            updateOperation(MicrosoftChangeCapeOperation.SelectCape(account, profile))
+                        },
+                        onRefreshRequest = {
+                            account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
+                            AccountsManager.suspendSaveAccount(account)
+                        }
                     )
-                    updateOperation(MicrosoftChangeCapeOperation.SelectCape(account, profile))
                 },
                 onError = { th ->
                     summitError(
@@ -562,11 +579,19 @@ private fun MicrosoftChangeCapeOperation(
             val task = Task.runTask(
                 dispatcher = Dispatchers.IO,
                 task = { task ->
-                    task.updateMessage(R.string.account_change_cape_apply)
-                    changeCape(
-                        apiUrl = MINECRAFT_SERVICES_URL,
-                        accessToken = account.accessToken,
-                        capeId = capeId
+                    executeWithAuthorization(
+                        block = {
+                            task.updateMessage(R.string.account_change_cape_apply)
+                            changeCape(
+                                apiUrl = MINECRAFT_SERVICES_URL,
+                                accessToken = account.accessToken,
+                                capeId = capeId
+                            )
+                        },
+                        onRefreshRequest = {
+                            account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
+                            AccountsManager.suspendSaveAccount(account)
+                        }
                     )
                     //已变更披风，展示一条Toast反馈用户
                     withContext(Dispatchers.Main) {
