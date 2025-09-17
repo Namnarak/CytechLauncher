@@ -801,4 +801,6 @@
     <string name="account_change_cape_apply_success">Berhasil mengubah jubah Anda menjadi: %s</string>
     <string name="account_change_cape_apply_reset">Berhasil mengatur ulang jubah Anda</string>
     <string name="account_change_cape_apply_failed">(%d) Gagal mengganti jubah</string>
+    <string name="versions_config_microphone_check_summary">Cek apakah mikrofon sistem tersedia atau pastikan launcher sudah dikasih izin mikrofon. Pengecekan ini buat memastikan kamu bisa pakai mod seperti Simple Voice Chat yang butuh mikrofon.</string>
+    <string name="microphone_check_volume">Volume: %d</string>
 </resources>
