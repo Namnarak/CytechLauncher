@@ -760,4 +760,15 @@
     <string name="control_editor_edit_style_config_border_width">Độ rộng Viện</string>
     <string name="control_editor_edit_style_config_border_color">Màu Viền</string>
     <string name="control_editor_edit_style_config_widget_radius">Điều khiển Bán kính Góc</string>
+    <string name="microphone_check_title">Kiểm tra micro</string>
+    <string name="microphone_check_volume">Âm lượng: %d</string>
+    <string name="microphone_check_no_permissions">Launcher chưa có quyền truy cập micro</string>
+    <string name="game_menu_option_replacement_control">Thay thế bố cục điều khiển</string>
+    <string name="account_change_skin_failed_to_import">Không thể lưu vào bộ nhớ đệm file</string>
+    <string name="account_change_skin_invalid">Kích thước pixel ảnh của skin không hợp lệ là 64x32 hoặc 64x64 pixels</string>
+    <string name="account_change_skin_uploading">Đang tải skin lên</string>
+    <string name="account_change_skin_failed_to_upload">(%d) Lỗi khi tải lên skin</string>
+    <string name="account_change_skin_update_local">Cập nhật skin cục bộ</string>
+    <string name="account_change_skin_update_toast">Đã tải skin lên thành công. Nếu không có thay đổi, hãy làm mới tài khoản của bạn sau một thời gian</string>
+    <string name="account_change_cape">Thay áo choàng</string>
 </resources>
