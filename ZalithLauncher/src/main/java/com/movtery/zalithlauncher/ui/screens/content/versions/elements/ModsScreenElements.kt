@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
@@ -49,12 +50,13 @@ fun ModsOperation(
  * 根据名称，筛选模组
  */
 fun List<RemoteMod>.filterMods(
-    nameFilter: String
+    nameFilter: String,
+    context: Context? = null
 ) = this.filter { mod ->
     nameFilter.isEmpty() || (
             mod.localMod.file.name.contains(nameFilter, true) ||
             mod.localMod.name.contains(nameFilter, true) ||
             mod.projectInfo?.title?.contains(nameFilter, true) == true ||
-            mod.mcMod?.getMcmodTitle(mod.localMod.name)?.contains(nameFilter, true) == true
+            mod.mcMod?.getMcmodTitle(mod.localMod.name, context)?.contains(nameFilter, true) == true
     )
 }
