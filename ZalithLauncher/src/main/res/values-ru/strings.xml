@@ -101,14 +101,14 @@
     <!-- Download -->
     <string name="download_category_game">Игра</string>
     <string name="download_category_modpack">Мод-пак</string>
-    <string name="download_category_mod">Мод</string>
+    <string name="download_category_mod">Моды</string>
     <string name="download_category_resource_pack">Ресурс-пак</string>
     <string name="download_category_saves">Миры</string>
     <string name="download_category_shaders">Шейдеры</string>
     <string name="download_game_failed_to_get_versions">Не удалось получить версию: %s. Нажмите для повторной попытки.</string>
-    <string name="download_game_type_release">Релиз</string>
-    <string name="download_game_type_snapshot">Снимок</string>
-    <string name="download_game_type_old">Старая версия</string>
+    <string name="download_game_type_release">Релизы</string>
+    <string name="download_game_type_snapshot">Снапшоты</string>
+    <string name="download_game_type_old">Древние версии</string>
     <string name="download_game_type_old_alpha">Альфа</string>
     <string name="download_game_type_old_beta">Бета</string>
     <string name="download_game_version_name">Название версии</string>
@@ -865,4 +865,6 @@
     <string name="settings_control_gyroscope_invert_x_summary">Если включено, поворот устройства влево или вправо будет управлять камерой в противоположном направлении.</string>
     <string name="settings_control_gyroscope_invert_y_title">Инвертировать ось Y</string>
     <string name="settings_control_gyroscope_invert_y_summary">Если включено, поворот устройства вверх или вниз будет управлять камерой в противоположном направлении.</string>
+    <string name="game_menu_option_show_menu">Включить наложение меню</string>
+    <string name="game_menu_option_show_menu_hided">Наложение игрового меню отключено. Вы можете открыть игровое меню с помощью системной кнопки «Назад».</string>
 </resources>
