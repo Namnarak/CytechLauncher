@@ -40,7 +40,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +49,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -611,29 +609,10 @@ private fun ControlLayoutItem(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MarqueeText(
-                        modifier = Modifier.weight(0.4f, fill = false),
+                        modifier = Modifier.weight(1f, fill = false),
                         text = if (data.isSupport) info.name.translate(locale) else data.file.name,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    if (data.isSupport) {
-                        //作者名称
-                        val authorName = info.author.translate(locale)
-                        if (!authorName.isEmptyOrBlank()) {
-                            VerticalDivider(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .padding(vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                            )
-                            MarqueeText(
-                                modifier = Modifier
-                                    .weight(0.6f, fill = false)
-                                    .alpha(0.7f),
-                                text = authorName,
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        }
-                    }
                 }
 
                 if (data.isSupport) {
