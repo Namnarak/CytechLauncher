@@ -286,6 +286,11 @@ object AllSettings : SettingsRegistry() {
     val showFPS = boolSetting("showFPS", true)
 
     /**
+     * 在游戏画面上展示菜单悬浮窗
+     */
+    val showMenuBall = boolSetting("showMenuBall", true)
+
+    /**
      * 快捷栏判定箱计算规则
      */
     val hotbarRule = enumSetting("hotbarRule", HotbarRule.Auto)

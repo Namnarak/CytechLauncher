@@ -556,9 +556,7 @@ private fun OptiFineList(
     val items = remember(addonList.optifineList, currentAddon.forgeVersion) {
         addonList.optifineList?.filter { version ->
             currentAddon.forgeVersion?.let { forgeVersion ->
-                version.forgeVersion?.let { required ->
-                    required.isEmpty() || forgeVersion.forgeBuildVersion.compareOptiFineRequired(required)
-                } ?: false
+                isOptiFineCompatibleWithForge(version, forgeVersion)
             } ?: true
         }
     }
@@ -627,14 +625,10 @@ private fun ForgeList(
     refreshIcon: () -> Unit,
     onReload: () -> Unit = {}
 ) {
-    val items = addonList.forgeList?.filter {
+    val items = addonList.forgeList?.filter { version ->
         //选择 OptiFine 之后，根据 OptiFine 需求的 Forge 版本进行过滤
         currentAddon.optifineVersion?.let { optifineVersion ->
-            val requiredForgeVersion = optifineVersion.forgeVersion ?: return@filter false //null：不兼容任何Forge
-            when {
-                requiredForgeVersion.isEmpty() -> true //字符串为空：兼容所有
-                else -> it.forgeBuildVersion.compareOptiFineRequired(requiredForgeVersion)
-            }
+            isOptiFineCompatibleWithForge(optifineVersion, version)
         } ?: true
     }
 

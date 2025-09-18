@@ -328,6 +328,8 @@
     <string name="game_menu_option_hotbar_rule_custom">自定义</string>
     <string name="game_menu_option_hotbar_width">快捷栏宽度</string>
     <string name="game_menu_option_hotbar_height">快捷栏高度</string>
+    <string name="game_menu_option_show_menu">开启菜单悬浮窗</string>
+    <string name="game_menu_option_show_menu_hided">已关闭游戏菜单悬浮窗，您可以通过系统返回键调用游戏菜单</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支持：</string>
     <string name="renderer_version_unsupported_warning">当前渲染器 %s 不支持该游戏版本，继续使用可能导致渲染错误或游戏崩溃！您确定要无视风险坚持访问吗？</string>

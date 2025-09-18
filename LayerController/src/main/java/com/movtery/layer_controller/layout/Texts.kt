@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -17,7 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
 @Composable
-public fun RtLText(
+fun RtLText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -36,6 +37,13 @@ public fun RtLText(
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
+    val configuration = LocalConfiguration.current
+    val textDirection = if (configuration.layoutDirection == android.util.LayoutDirection.RTL) {
+        TextDirection.Rtl
+    } else {
+        TextDirection.Ltr
+    }
+
     Text(
         text = text,
         modifier = modifier,
@@ -54,7 +62,7 @@ public fun RtLText(
         minLines = minLines,
         onTextLayout = onTextLayout,
         style = style.copy(
-            textDirection = TextDirection.ContentOrRtl
+            textDirection = textDirection
         )
     )
 }

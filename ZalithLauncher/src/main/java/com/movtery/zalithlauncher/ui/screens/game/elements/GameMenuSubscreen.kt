@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -128,13 +129,32 @@ fun GameMenuSubscreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
+            //开启菜单悬浮窗
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.game_menu_option_show_menu),
+                    switch = AllSettings.showMenuBall.state,
+                    onSwitch = { value ->
+                        AllSettings.showMenuBall.save(value)
+                        if (!value) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.game_menu_option_show_menu_hided),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                )
+            }
             //帧率显示
             item {
                 MenuSwitchButton(
                     modifier = itemCommonModifier,
                     text = stringResource(R.string.game_menu_option_switch_fps),
                     switch = AllSettings.showFPS.state,
-                    onSwitch = { AllSettings.showFPS.save(it) }
+                    onSwitch = { AllSettings.showFPS.save(it) },
+                    enabled = AllSettings.showMenuBall.state
                 )
             }
             //游戏窗口分辨率

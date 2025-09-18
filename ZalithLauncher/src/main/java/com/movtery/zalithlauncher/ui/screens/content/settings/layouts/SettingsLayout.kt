@@ -109,6 +109,7 @@ class SettingsLayoutScope {
         summary: String? = null,
         getRadioText: @Composable (E) -> String,
         getRadioEnable: (E) -> Boolean,
+        maxItemsInEachRow: Int = Int.MAX_VALUE,
         onRadioClick: (E) -> Unit = {},
         onValueChange: (E) -> Unit = {}
     ) {
@@ -127,6 +128,7 @@ class SettingsLayoutScope {
                     .fillMaxWidth()
                     .animateContentSize(animationSpec = getAnimateTween()),
                 horizontalArrangement = Arrangement.SpaceEvenly,
+                maxItemsInEachRow = maxItemsInEachRow
             ) {
                 entries.forEach { enum ->
                     Row {

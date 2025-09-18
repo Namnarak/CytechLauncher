@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -136,13 +138,13 @@ private class ModsManageViewModel(
 
     private var job: Job? = null
 
-    fun refresh() {
+    fun refresh(context: Context? = null) {
         job?.cancel()
         job = viewModelScope.launch {
             modsState = LoadingState.Loading
             try {
                 allMods = modReader.readAllMods()
-                filterMods()
+                filterMods(context)
             } catch (_: CancellationException) {
                 //已取消
             }
@@ -155,13 +157,13 @@ private class ModsManageViewModel(
         startQueueProcessor()
     }
 
-    fun updateFilter(name: String) {
+    fun updateFilter(name: String, context: Context? = null) {
         this.nameFilter = name
-        filterMods()
+        filterMods(context)
     }
 
-    private fun filterMods() {
-        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter)
+    private fun filterMods(context: Context? = null) {
+        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, context)
     }
 
     /** 在ViewModel的生命周期协程内调用 */
@@ -260,6 +262,8 @@ fun ModsManagerScreen(
     swapToDownload: () -> Unit = {},
     onSwapMoreInfo: (id: String, Platform) -> Unit
 ) {
+    val context = LocalContext.current
+
     if (!version.isValid()) {
         backToMainScreen()
         return
@@ -297,7 +301,7 @@ fun ModsManagerScreen(
                                 modsOperation = ModsOperation.Progress
                                 task()
                                 modsOperation = ModsOperation.None
-                                viewModel.refresh()
+                                viewModel.refresh(context)
                             }
                         }
                     }
@@ -320,9 +324,9 @@ fun ModsManagerScreen(
                             inputFieldColor = itemColor,
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
-                            onNameFilterChange = { viewModel.updateFilter(it) },
+                            onNameFilterChange = { viewModel.updateFilter(it, context) },
                             swapToDownload = swapToDownload,
-                            refresh = { viewModel.refresh() }
+                            refresh = { viewModel.refresh(context) }
                         )
 
                         ModsList(
@@ -504,6 +508,7 @@ private fun ModItemLayout(
     LaunchedEffect(Unit) {
         scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
     }
+    val context = LocalContext.current
 
     val projectInfo = mod.projectInfo
 
@@ -567,7 +572,7 @@ private fun ModItemLayout(
                             ) {
                                 val displayTitle = if (projectInfo != null) {
                                     val title = projectInfo.title
-                                    mod.mcMod?.getMcmodTitle(title) ?: title
+                                    mod.mcMod?.getMcmodTitle(title, context) ?: title
                                 } else {
                                     localMod.name
                                 }

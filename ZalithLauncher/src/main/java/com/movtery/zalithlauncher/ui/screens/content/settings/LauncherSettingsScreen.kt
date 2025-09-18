@@ -105,6 +105,7 @@ fun LauncherSettingsScreen(
                             ColorThemeType.CUSTOM -> stringResource(R.string.generic_custom)
                         }
                     },
+                    maxItemsInEachRow = 5,
                     onRadioClick = { enum ->
                         if (enum == ColorThemeType.CUSTOM) customColorOperation = CustomColorOperation.Dialog
                     }

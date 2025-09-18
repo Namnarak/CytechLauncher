@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.utils
 
+import android.content.Context
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
@@ -31,8 +32,8 @@ fun PlatformProject.getMcMod(
 /**
  * 获取 mcmod 模组翻译标题，若当前环境非中文环境，则返回原始模组名称
  */
-fun ModTranslations.McMod?.getMcmodTitle(originTitle: String): String {
-    return this?.displayName?.takeIf { isChinese() } ?: originTitle
+fun ModTranslations.McMod?.getMcmodTitle(originTitle: String, context: Context? = null): String {
+    return this?.displayName?.takeIf { isChinese(context) } ?: originTitle
 }
 
 /**

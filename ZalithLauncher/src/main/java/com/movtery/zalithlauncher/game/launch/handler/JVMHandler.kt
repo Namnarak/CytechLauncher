@@ -24,9 +24,10 @@ import kotlinx.coroutines.launch
 
 class JVMHandler(
     jvmLauncher: JvmLauncher,
+    eventViewModel: EventViewModel,
     getWindowSize: () -> IntSize,
     onExit: (code: Int) -> Unit
-) : AbstractHandler(HandlerType.JVM, getWindowSize, jvmLauncher, onExit) {
+) : AbstractHandler(HandlerType.JVM, eventViewModel, getWindowSize, jvmLauncher, onExit) {
 
     /**
      * 日志展示状态
@@ -96,7 +97,7 @@ class JVMHandler(
     }
 
     @Composable
-    override fun ComposableLayout(eventViewModel: EventViewModel) {
+    override fun ComposableLayout() {
         JVMScreen(
             logState = logState,
             onLogStateChange = { logState = it },

@@ -253,6 +253,7 @@ private fun ResultList(
     mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
+    val context = LocalContext.current
     LazyColumn(
         modifier = modifier,
         state = state,
@@ -289,7 +290,7 @@ private fun ResultList(
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.MODRINTH,
-                        title = mcmod.getMcmodTitle(item.title ?: ""),
+                        title = mcmod.getMcmodTitle(item.title ?: "", context),
                         description = item.description ?: "",
                         iconUrl = item.iconUrl,
                         author = item.author,
@@ -314,7 +315,7 @@ private fun ResultList(
                     ResultItemLayout(
                         modifier = itemModifier,
                         platform = Platform.CURSEFORGE,
-                        title = mcmod.getMcmodTitle(item.name),
+                        title = mcmod.getMcmodTitle(item.name, context),
                         description = item.summary,
                         iconUrl = item.logo.url,
                         author = item.authors[0].name,
