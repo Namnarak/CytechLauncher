@@ -113,7 +113,13 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 getWindowSize = getWindowSize,
                 onExit = exitListener
             ).also { launcher ->
-                handler = GameHandler(this, version, getWindowSize, launcher) { code ->
+                handler = GameHandler(
+                    context = this,
+                    version = version,
+                    eventViewModel = eventViewModel,
+                    getWindowSize = getWindowSize,
+                    gameLauncher = launcher,
+                ) { code ->
                     exitListener(code, false)
                 }
             }
@@ -126,7 +132,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 jvmLaunchInfo = jvmLaunchInfo,
                 onExit = exitListener
             ).also { launcher ->
-                handler = JVMHandler(launcher, getWindowSize) { code ->
+                handler = JVMHandler(
+                    jvmLauncher = launcher,
+                    eventViewModel = eventViewModel,
+                    getWindowSize = getWindowSize
+                ) { code ->
                     exitListener(code, false)
                 }
             }
@@ -163,7 +173,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         setContent {
             ZalithLauncherTheme {
                 Screen {
-                    handler.ComposableLayout(eventViewModel)
+                    handler.ComposableLayout()
                 }
             }
         }

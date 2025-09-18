@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 
 abstract class AbstractHandler(
     val type: HandlerType,
+    protected val eventViewModel: EventViewModel,
     protected val getWindowSize: () -> IntSize,
     val launcher: Launcher,
     val onExit: (code: Int) -> Unit
@@ -41,5 +42,5 @@ abstract class AbstractHandler(
     abstract fun sendMouseRight(isPressed: Boolean)
 
     @Composable
-    abstract fun ComposableLayout(eventViewModel: EventViewModel)
+    abstract fun ComposableLayout()
 }

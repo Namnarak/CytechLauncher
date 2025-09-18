@@ -387,18 +387,28 @@ fun GameScreen(
         )
     }
 
-    DraggableGameBall(
-        showGameFps = AllSettings.showFPS.state,
-        onClick = {
-            viewModel.switchMenu()
-        }
-    )
+    if (AllSettings.showMenuBall.state) {
+        DraggableGameBall(
+            showGameFps = AllSettings.showFPS.state,
+            onClick = {
+                viewModel.switchMenu()
+            }
+        )
+    }
 
     LaunchedEffect(Unit) {
         eventViewModel.events
-            .filterIsInstance<EventViewModel.Event.Game.ShowIme>()
-            .collect {
-                viewModel.textInputMode = TextInputMode.ENABLE
+            .filterIsInstance<EventViewModel.Event.Game>()
+            .collect { event ->
+                when (event) {
+                    is EventViewModel.Event.Game.ShowIme -> {
+                        viewModel.textInputMode = TextInputMode.ENABLE
+                    }
+                    is EventViewModel.Event.Game.SwitchMenu -> {
+                        viewModel.switchMenu()
+                    }
+                    else -> { /*忽略*/ }
+                }
             }
     }
 }
