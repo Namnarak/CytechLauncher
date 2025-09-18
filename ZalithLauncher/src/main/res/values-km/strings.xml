@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">បោះបង់</string>
+    <string name="generic_confirm">បញ្ជាក់</string>
+    <string name="generic_error">កំហុស</string>
+    <string name="generic_warning">Warning</string>
 </resources>
