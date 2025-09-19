@@ -1,7 +1,7 @@
 package com.movtery.zalithlauncher.setting
 
 import android.content.Context
-import com.movtery.zalithlauncher.game.launch.Launcher
+import com.movtery.zalithlauncher.game.launch.parseJavaArguments
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.platform.bytesToMB
@@ -19,7 +19,7 @@ fun loadAllSettings(context: Context, reloadAll: Boolean = false) {
         AllSettings.ramAllocation.save(ram)
     }
     val jvmArgs = AllSettings.jvmArgs.getValue()
-    Launcher.parseJavaArguments(jvmArgs).find { it.startsWith(LWJGL_LIB_NAME_ARG) }?.let { arg ->
+    parseJavaArguments(jvmArgs).find { it.startsWith(LWJGL_LIB_NAME_ARG) }?.let { arg ->
         AllSettings.jvmArgs.save(jvmArgs.replace(arg, ""))
     }
 }

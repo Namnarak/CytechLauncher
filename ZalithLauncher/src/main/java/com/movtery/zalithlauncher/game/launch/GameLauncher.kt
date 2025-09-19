@@ -14,6 +14,7 @@ import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
@@ -28,9 +29,11 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectorySilently
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.isEqualTo
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import javax.microedition.khronos.egl.EGL10
@@ -77,6 +80,16 @@ class GameLauncher(
             javaRuntime = javaRuntime,
             customArgs = customArgs
         )
+    }
+
+    override fun MutableMap<String, String>.putJavaArgs() {
+        val versionInfo = version.getVersionInfo()
+        //Fix Forge 1.7.2
+        val is172 = (versionInfo?.minecraftVersion ?: "0.0").isEqualTo("1.7.2")
+        if (is172 && (versionInfo?.loaderInfo?.loader == ModLoader.FORGE)) {
+            lDebug("Is Forge 1.7.2, use the patched sorting method.")
+            put("sort.patch", "true")
+        }
     }
 
     override fun chdir(): String {
@@ -243,161 +256,159 @@ class GameLauncher(
             }
         }
     }
+}
 
-    companion object {
-        private fun checkAndUsedJSPH(envMap: MutableMap<String, String>, runtime: Runtime) {
-            if (runtime.javaVersion < 11) return //onUseJSPH
-            val dir = File(PathManager.DIR_NATIVE_LIB).takeIf { it.isDirectory } ?: return
-            val jsphHome = if (runtime.javaVersion == 17) "libjsph17" else "libjsph21"
-            dir.listFiles { _, name -> name.startsWith(jsphHome) }?.takeIf { it.isNotEmpty() }?.let {
-                val libName = "${PathManager.DIR_NATIVE_LIB}/$jsphHome.so"
-                envMap["JSP"] = libName
-            }
+private fun checkAndUsedJSPH(envMap: MutableMap<String, String>, runtime: Runtime) {
+    if (runtime.javaVersion < 11) return //onUseJSPH
+    val dir = File(PathManager.DIR_NATIVE_LIB).takeIf { it.isDirectory } ?: return
+    val jsphHome = if (runtime.javaVersion == 17) "libjsph17" else "libjsph21"
+    dir.listFiles { _, name -> name.startsWith(jsphHome) }?.takeIf { it.isNotEmpty() }?.let {
+        val libName = "${PathManager.DIR_NATIVE_LIB}/$jsphHome.so"
+        envMap["JSP"] = libName
+    }
+}
+
+private fun setRendererEnv(envMap: MutableMap<String, String>) {
+    val renderer = Renderers.getCurrentRenderer()
+    val rendererId = renderer.getRendererId()
+
+    if (rendererId.startsWith("opengles2")) {
+        envMap["LIBGL_ES"] = "2"
+        envMap["LIBGL_MIPMAP"] = "3"
+        envMap["LIBGL_NOERROR"] = "1"
+        envMap["LIBGL_NOINTOVLHACK"] = "1"
+        envMap["LIBGL_NORMALIZE"] = "1"
+    }
+
+    envMap += renderer.getRendererEnv().value
+
+    renderer.getRendererEGL()?.let { eglName ->
+        envMap["POJAVEXEC_EGL"] = eglName
+    }
+
+    envMap["POJAV_RENDERER"] = rendererId
+
+    if (RendererPluginManager.selectedRendererPlugin != null) return
+
+    if (!rendererId.startsWith("opengles")) {
+        envMap["MESA_LOADER_DRIVER_OVERRIDE"] = "zink"
+        envMap["MESA_GLSL_CACHE_DIR"] = PathManager.DIR_CACHE.absolutePath
+        envMap["force_glsl_extensions_warn"] = "true"
+        envMap["allow_higher_compat_version"] = "true"
+        envMap["allow_glsl_extension_directive_midshader"] = "true"
+        envMap["LIB_MESA_NAME"] = loadGraphicsLibrary() ?: "null"
+    }
+
+    if (!envMap.containsKey("LIBGL_ES")) {
+        val glesMajor = getDetectedVersion()
+        lInfo("GLES version detected: $glesMajor")
+
+        envMap["LIBGL_ES"] = if (glesMajor < 3) {
+            //fallback to 2 since it's the minimum for the entire app
+            "2"
+        } else if (rendererId.startsWith("opengles")) {
+            rendererId.replace("opengles", "").replace("_5", "")
+        } else {
+            // TODO if can: other backends such as Vulkan.
+            // Sure, they should provide GLES 3 support.
+            "3"
         }
+    }
+}
 
-        private fun setRendererEnv(envMap: MutableMap<String, String>) {
-            val renderer = Renderers.getCurrentRenderer()
-            val rendererId = renderer.getRendererId()
-
-            if (rendererId.startsWith("opengles2")) {
-                envMap["LIBGL_ES"] = "2"
-                envMap["LIBGL_MIPMAP"] = "3"
-                envMap["LIBGL_NOERROR"] = "1"
-                envMap["LIBGL_NOINTOVLHACK"] = "1"
-                envMap["LIBGL_NORMALIZE"] = "1"
-            }
-
-            envMap += renderer.getRendererEnv().value
-
-            renderer.getRendererEGL()?.let { eglName ->
-                envMap["POJAVEXEC_EGL"] = eglName
-            }
-
-            envMap["POJAV_RENDERER"] = rendererId
-
-            if (RendererPluginManager.selectedRendererPlugin != null) return
-
-            if (!rendererId.startsWith("opengles")) {
-                envMap["MESA_LOADER_DRIVER_OVERRIDE"] = "zink"
-                envMap["MESA_GLSL_CACHE_DIR"] = PathManager.DIR_CACHE.absolutePath
-                envMap["force_glsl_extensions_warn"] = "true"
-                envMap["allow_higher_compat_version"] = "true"
-                envMap["allow_glsl_extension_directive_midshader"] = "true"
-                envMap["LIB_MESA_NAME"] = loadGraphicsLibrary() ?: "null"
-            }
-
-            if (!envMap.containsKey("LIBGL_ES")) {
-                val glesMajor = getDetectedVersion()
-                lInfo("GLES version detected: $glesMajor")
-
-                envMap["LIBGL_ES"] = if (glesMajor < 3) {
-                    //fallback to 2 since it's the minimum for the entire app
-                    "2"
-                } else if (rendererId.startsWith("opengles")) {
-                    rendererId.replace("opengles", "").replace("_5", "")
-                } else {
-                    // TODO if can: other backends such as Vulkan.
-                    // Sure, they should provide GLES 3 support.
-                    "3"
-                }
-            }
+/**
+ * Open the render library in accordance to the settings.
+ * It will fallback if it fails to load the library.
+ * @return The name of the loaded library
+ */
+private fun loadGraphicsLibrary(): String? {
+    if (!Renderers.isCurrentRendererValid()) return null
+    else {
+        val rendererPlugin = RendererPluginManager.selectedRendererPlugin
+        return if (rendererPlugin != null) {
+            "${rendererPlugin.path}/${rendererPlugin.glName}"
+        } else {
+            Renderers.getCurrentRenderer().getRendererLibrary()
         }
+    }
+}
 
-        /**
-         * Open the render library in accordance to the settings.
-         * It will fallback if it fails to load the library.
-         * @return The name of the loaded library
-         */
-        private fun loadGraphicsLibrary(): String? {
-            if (!Renderers.isCurrentRendererValid()) return null
-            else {
-                val rendererPlugin = RendererPluginManager.selectedRendererPlugin
-                return if (rendererPlugin != null) {
-                    "${rendererPlugin.path}/${rendererPlugin.glName}"
-                } else {
-                    Renderers.getCurrentRenderer().getRendererLibrary()
-                }
-            }
+/**
+ * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L505-L516)
+ */
+private fun hasExtension(extensions: String, name: String): Boolean {
+    var start = extensions.indexOf(name)
+    while (start >= 0) {
+        // check that we didn't find a prefix of a longer extension name
+        val end = start + name.length
+        if (end == extensions.length || extensions[end] == ' ') {
+            return true
         }
+        start = extensions.indexOf(name, end)
+    }
+    return false
+}
 
-        /**
-         * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/98947f2/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/utils/JREUtils.java#L505-L516)
-         */
-        private fun hasExtension(extensions: String, name: String): Boolean {
-            var start = extensions.indexOf(name)
-            while (start >= 0) {
-                // check that we didn't find a prefix of a longer extension name
-                val end = start + name.length
-                if (end == extensions.length || extensions[end] == ' ') {
-                    return true
-                }
-                start = extensions.indexOf(name, end)
-            }
-            return false
-        }
+private const val EGL_OPENGL_ES_BIT: Int = 0x0001
+private const val EGL_OPENGL_ES2_BIT: Int = 0x0004
+private const val EGL_OPENGL_ES3_BIT_KHR: Int = 0x0040
 
-        private const val EGL_OPENGL_ES_BIT: Int = 0x0001
-        private const val EGL_OPENGL_ES2_BIT: Int = 0x0004
-        private const val EGL_OPENGL_ES3_BIT_KHR: Int = 0x0040
-
-        fun getDetectedVersion(): Int {
-            val egl = EGLContext.getEGL() as EGL10
-            val display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY)
-            val numConfigs = IntArray(1)
-            if (egl.eglInitialize(display, null)) {
-                try {
-                    val checkES3: Boolean = hasExtension(egl.eglQueryString(display, EGL10.EGL_EXTENSIONS), "EGL_KHR_create_context")
-                    if (egl.eglGetConfigs(display, null, 0, numConfigs)) {
-                        val configs = arrayOfNulls<EGLConfig>(
-                            numConfigs[0]
-                        )
-                        if (egl.eglGetConfigs(display, configs, numConfigs[0], numConfigs)) {
-                            var highestEsVersion = 0
-                            val value = IntArray(1)
-                            for (i in 0..<numConfigs[0]) {
-                                if (egl.eglGetConfigAttrib(
-                                        display, configs[i],
-                                        EGL10.EGL_RENDERABLE_TYPE, value
-                                    )
-                                ) {
-                                    if (checkES3 && ((value[0] and EGL_OPENGL_ES3_BIT_KHR) == EGL_OPENGL_ES3_BIT_KHR)) {
-                                        if (highestEsVersion < 3) highestEsVersion = 3
-                                    } else if ((value[0] and EGL_OPENGL_ES2_BIT) == EGL_OPENGL_ES2_BIT) {
-                                        if (highestEsVersion < 2) highestEsVersion = 2
-                                    } else if ((value[0] and EGL_OPENGL_ES_BIT) == EGL_OPENGL_ES_BIT) {
-                                        if (highestEsVersion < 1) highestEsVersion = 1
-                                    }
-                                } else {
-                                    lWarning(
-                                        ("Getting config attribute with "
-                                                + "EGL10#eglGetConfigAttrib failed "
-                                                + "(" + i + "/" + numConfigs[0] + "): "
-                                                + egl.eglGetError())
-                                    )
-                                }
-                            }
-                            return highestEsVersion
-                        } else {
-                            lError(
-                                "Getting configs with EGL10#eglGetConfigs failed: "
-                                        + egl.eglGetError()
+private fun getDetectedVersion(): Int {
+    val egl = EGLContext.getEGL() as EGL10
+    val display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY)
+    val numConfigs = IntArray(1)
+    if (egl.eglInitialize(display, null)) {
+        try {
+            val checkES3: Boolean = hasExtension(egl.eglQueryString(display, EGL10.EGL_EXTENSIONS), "EGL_KHR_create_context")
+            if (egl.eglGetConfigs(display, null, 0, numConfigs)) {
+                val configs = arrayOfNulls<EGLConfig>(
+                    numConfigs[0]
+                )
+                if (egl.eglGetConfigs(display, configs, numConfigs[0], numConfigs)) {
+                    var highestEsVersion = 0
+                    val value = IntArray(1)
+                    for (i in 0..<numConfigs[0]) {
+                        if (egl.eglGetConfigAttrib(
+                                display, configs[i],
+                                EGL10.EGL_RENDERABLE_TYPE, value
                             )
-                            return -1
+                        ) {
+                            if (checkES3 && ((value[0] and EGL_OPENGL_ES3_BIT_KHR) == EGL_OPENGL_ES3_BIT_KHR)) {
+                                if (highestEsVersion < 3) highestEsVersion = 3
+                            } else if ((value[0] and EGL_OPENGL_ES2_BIT) == EGL_OPENGL_ES2_BIT) {
+                                if (highestEsVersion < 2) highestEsVersion = 2
+                            } else if ((value[0] and EGL_OPENGL_ES_BIT) == EGL_OPENGL_ES_BIT) {
+                                if (highestEsVersion < 1) highestEsVersion = 1
+                            }
+                        } else {
+                            lWarning(
+                                ("Getting config attribute with "
+                                        + "EGL10#eglGetConfigAttrib failed "
+                                        + "(" + i + "/" + numConfigs[0] + "): "
+                                        + egl.eglGetError())
+                            )
                         }
-                    } else {
-                        lError(
-                            "Getting number of configs with EGL10#eglGetConfigs failed: "
-                                    + egl.eglGetError()
-                        )
-                        return -2
                     }
-                } finally {
-                    egl.eglTerminate(display)
+                    return highestEsVersion
+                } else {
+                    lError(
+                        "Getting configs with EGL10#eglGetConfigs failed: "
+                                + egl.eglGetError()
+                    )
+                    return -1
                 }
             } else {
-                lError("Couldn't initialize EGL.")
-                return -3
+                lError(
+                    "Getting number of configs with EGL10#eglGetConfigs failed: "
+                            + egl.eglGetError()
+                )
+                return -2
             }
+        } finally {
+            egl.eglTerminate(display)
         }
+    } else {
+        lError("Couldn't initialize EGL.")
+        return -3
     }
 }

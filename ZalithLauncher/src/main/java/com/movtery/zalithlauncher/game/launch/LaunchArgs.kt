@@ -104,7 +104,7 @@ class LaunchArgs(
 
         val configFilePath = version.getVersionPath().child("log4j2.xml")
         if (!configFilePath.exists()) {
-            val is7 = (gameManifest.id ?: "0.0").isLowerTo("1.12")
+            val is7 = (version.getVersionInfo()?.minecraftVersion ?: "0.0").isLowerTo("1.12")
             runCatching {
                 val content = if (is7) {
                     readAssetsFile("components/log4j-1.7.xml")

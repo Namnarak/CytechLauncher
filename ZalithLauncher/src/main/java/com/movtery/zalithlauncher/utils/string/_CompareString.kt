@@ -68,6 +68,13 @@ fun String.isLowerTo(otherVer: String): Boolean {
 }
 
 /**
+ * 是否等于另一个版本
+ */
+fun String.isEqualTo(otherVer: String): Boolean {
+    return ComparableVersion(this) == ComparableVersion(otherVer)
+}
+
+/**
  * 是否在某个版本区间之内（闭区间）
  */
 fun String.isBetween(min: String, max: String): Boolean {
