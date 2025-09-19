@@ -5,7 +5,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -64,7 +64,7 @@ class ModDownloader(
                         val urls = file.downloadUrls!!
                         val outputFile = file.outputFile!!
                         runCatching {
-                            NetWorkUtils.downloadFromMirrorListSuspend(
+                            downloadFromMirrorListSuspend(
                                 urls = urls,
                                 sha1 = file.sha1,
                                 outputFile = outputFile

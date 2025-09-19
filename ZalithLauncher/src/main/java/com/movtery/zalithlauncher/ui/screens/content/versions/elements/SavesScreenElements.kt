@@ -7,8 +7,8 @@ import com.movtery.zalithlauncher.utils.nbt.asCompoundTag
 import com.movtery.zalithlauncher.utils.nbt.asInt
 import com.movtery.zalithlauncher.utils.nbt.asLong
 import com.movtery.zalithlauncher.utils.nbt.asString
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.stripColorCodes
 import com.movtery.zalithlauncher.utils.string.isBiggerOrEqualTo
+import com.movtery.zalithlauncher.utils.string.stripColorCodes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.querz.nbt.io.NBTUtil

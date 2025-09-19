@@ -47,7 +47,7 @@ import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.context.getFileName
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.game.launch.JvmLauncher
+import com.movtery.zalithlauncher.game.launch.executeJarWithUri
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -63,8 +63,8 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBa
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
-import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.throwableToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 
@@ -149,7 +149,7 @@ fun JavaManageScreen(
                             }
                             (context as? Activity)?.let { activity ->
                                 val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
-                                JvmLauncher.executeJarWithUri(activity, uri, jreName)
+                                executeJarWithUri(activity, uri, jreName)
                             }
                         }
                     },
@@ -274,7 +274,7 @@ private fun progressRuntimeUri(
                 )
             },
             onError = {
-                showError(message = StringUtils.throwableToString(it))
+                showError(message = throwableToString(it))
             },
             onFinally = callRefresh,
             onCancel = {

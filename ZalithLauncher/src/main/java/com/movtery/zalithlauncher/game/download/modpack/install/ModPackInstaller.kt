@@ -24,7 +24,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -144,7 +144,7 @@ class ModPackInstaller(
                         fun updateProgress() {
                             task.updateProgress((downloadedSize.toDouble() / info.fileSize.toDouble()).toFloat())
                         }
-                        NetWorkUtils.downloadFileSuspend(
+                        downloadFileSuspend(
                             url = info.downloadUrl,
                             sha1 = info.sha1,
                             outputFile = installerFile,
@@ -156,7 +156,7 @@ class ModPackInstaller(
                         //下载icon图片
                         task.updateProgress(-1f, null)
                         info.iconUrl?.let { iconUrl ->
-                            NetWorkUtils.downloadFileSuspend(
+                            downloadFileSuspend(
                                 url = iconUrl,
                                 outputFile = tempIconFile
                             )

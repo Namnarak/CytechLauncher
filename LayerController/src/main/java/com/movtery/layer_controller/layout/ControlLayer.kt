@@ -29,15 +29,13 @@ data class ControlLayer(
     val normalButtons: List<NormalData> = emptyList(),
     @SerialName("textBoxes")
     val textBoxes: List<TextData> = emptyList()
-) {
-    companion object {
-        public fun createNew(defaultLayerName: String = ""): ControlLayer {
-            return ControlLayer(
-                name = defaultLayerName,
-                uuid = randomUUID(),
-                hide = false,
-                visibilityType = VisibilityType.ALWAYS
-            )
-        }
-    }
+)
+
+public fun createNewLayer(defaultLayerName: String = ""): ControlLayer {
+    return ControlLayer(
+        name = defaultLayerName,
+        uuid = randomUUID(),
+        hide = false,
+        visibilityType = VisibilityType.ALWAYS
+    )
 }

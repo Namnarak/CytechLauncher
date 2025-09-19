@@ -14,7 +14,7 @@ import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
@@ -61,7 +61,7 @@ object LaunchGame {
             TaskSystem.submitTask(downloadTask) { isLaunching = false }
         }
 
-        val loginTask = if (NetWorkUtils.isNetworkAvailable(context)) {
+        val loginTask = if (isNetworkAvailable(context)) {
             AccountsManager.performLoginTask(
                 context = context,
                 account = account,

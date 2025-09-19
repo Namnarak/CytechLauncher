@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.TextData
-import com.movtery.layer_controller.data.TextData.Companion.cloneNew
+import com.movtery.layer_controller.data.cloneNew
 
 /**
  * 可观察的TextData包装类
@@ -27,10 +27,8 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
             visibilityType = visibilityType
         )
     }
+}
 
-    companion object {
-        fun ObservableTextData.cloneText(): ObservableTextData {
-            return ObservableTextData(packText().cloneNew())
-        }
-    }
+public fun ObservableTextData.cloneText(): ObservableTextData {
+    return ObservableTextData(packText().cloneNew())
 }

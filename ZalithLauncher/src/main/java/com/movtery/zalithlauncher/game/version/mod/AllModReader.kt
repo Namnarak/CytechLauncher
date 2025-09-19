@@ -1,7 +1,5 @@
 package com.movtery.zalithlauncher.game.version.mod
 
-import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isDisabled
-import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader.Companion.READERS
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -13,14 +11,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.coroutineContext
 
-class AllModReader(val modsDir: File) {
-    companion object {
-        /**
-         * 最大并行任务数
-         */
-        const val PARALLELISM = 8
-    }
+const val READER_PARALLELISM = 8
 
+class AllModReader(val modsDir: File) {
     private val tasks = mutableListOf<ReadTask>()
 
     private fun scanFiles() {
@@ -42,7 +35,7 @@ class AllModReader(val modsDir: File) {
         val results = mutableListOf<RemoteMod>()
         val taskChannel = Channel<ReadTask>(Channel.UNLIMITED)
 
-        val workers = List(PARALLELISM) {
+        val workers = List(READER_PARALLELISM) {
             launch(Dispatchers.IO) {
                 for (task in taskChannel) {
                     val mod = task.execute()
@@ -72,7 +65,7 @@ class AllModReader(val modsDir: File) {
                     file.extension
                 }
 
-                return READERS[extension]?.firstNotNullOfOrNull { reader ->
+                return MOD_READERS[extension]?.firstNotNullOfOrNull { reader ->
                     runCatching {
                         RemoteMod(
                             localMod = reader.fromLocal(file)
@@ -86,7 +79,7 @@ class AllModReader(val modsDir: File) {
                     else -> {
                         lWarning("Failed to read mod: $file", e)
                         return RemoteMod(
-                            localMod = LocalMod.createNotMod(file)
+                            localMod = createNotMod(file)
                         )
                     }
                 }

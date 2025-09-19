@@ -8,7 +8,7 @@ import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,7 +36,7 @@ suspend fun <T> downloadAndParseJson(
     suspend fun downloadAndParse(): T {
         val json = withContext(Dispatchers.IO) {
             val string = withRetry(UTILS_LOG_TAG, maxRetries = 1) {
-                NetWorkUtils.fetchStringFromUrls(
+                fetchStringFromUrls(
                     url.mapMirrorableUrls()
                 )
             }

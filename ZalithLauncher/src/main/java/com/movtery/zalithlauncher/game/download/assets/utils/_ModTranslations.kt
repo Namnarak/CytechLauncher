@@ -9,8 +9,9 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.utils.isChinese
-import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.containsChinese
+import com.movtery.zalithlauncher.utils.string.LevCalculator
+import com.movtery.zalithlauncher.utils.string.containsChinese
+import com.movtery.zalithlauncher.utils.string.tokenize
 import kotlin.math.max
 
 private const val CONTAIN_CHINESE_WEIGHT = 10
@@ -21,7 +22,7 @@ private const val CONTAIN_CHINESE_WEIGHT = 10
 fun PlatformProject.getMcMod(
     classes: PlatformClasses
 ): ModTranslations.McMod? {
-    val translations = ModTranslations.getTranslationsByRepositoryType(classes)
+    val translations = classes.getTranslations()
     return when (this) {
         is ModrinthSingleProject -> translations.getModBySlugId(slug)
         is CurseForgeProject -> translations.getModBySlugId(data.slug)
@@ -47,10 +48,10 @@ fun String.localizedModSearchKeywords(
     if (!this.containsChinese()) return false to null
     val englishSearchFiltersSet: MutableSet<String> = HashSet(16)
 
-    for ((count, mod) in ModTranslations.getTranslationsByRepositoryType(classes)
+    for ((count, mod) in classes.getTranslations()
         .searchMod(this).withIndex()
     ) {
-        for (englishWord in StringUtils.tokenize(mod.subname.ifBlank { mod.name })) {
+        for (englishWord in tokenize(mod.subname.ifBlank { mod.name })) {
             if (englishSearchFiltersSet.contains(englishWord)) continue
             englishSearchFiltersSet.add(englishWord)
         }
@@ -71,15 +72,15 @@ fun PlatformSearchResult.processChineseSearchResults(
 ): PlatformSearchResult {
     fun <T> List<T>.processList(getSlug: (T) -> String?): List<T> {
         val (chineseResults, englishResults) = partition { mod ->
-            ModTranslations.getTranslationsByRepositoryType(classes)
+            classes.getTranslations()
                 .getModBySlugId(getSlug(mod))
                 ?.name
                 ?.takeIf { it.isNotBlank() && it.containsChinese() } != null
         }
 
-        val levCalculator = StringUtils.LevCalculator()
+        val levCalculator = LevCalculator()
         val sortedChineseResults = chineseResults.map { mod ->
-            val translation = ModTranslations.getTranslationsByRepositoryType(classes)
+            val translation = classes.getTranslations()
                 .getModBySlugId(getSlug(mod))!!
             val modName = translation.name
 

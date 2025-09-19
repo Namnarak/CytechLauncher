@@ -21,7 +21,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperatio
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils.Companion.openLink
+import com.movtery.zalithlauncher.utils.network.openLink
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel

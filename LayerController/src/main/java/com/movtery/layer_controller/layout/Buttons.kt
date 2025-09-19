@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.movtery.layer_controller.observable.DefaultObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
@@ -57,7 +58,7 @@ internal fun TextButton(
         }
 
         val style = remember(data, buttonStyle) {
-            getStyle() ?: ObservableButtonStyle.Default
+            getStyle() ?: DefaultObservableButtonStyle
         }
 
         val locale = LocalConfiguration.current.locales[0]

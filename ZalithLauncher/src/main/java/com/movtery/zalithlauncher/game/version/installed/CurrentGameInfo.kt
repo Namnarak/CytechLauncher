@@ -30,38 +30,36 @@ data class CurrentGameInfo(
             lError("Save failed: ${infoFile.absolutePath}", e)
         }
     }
+}
 
-    companion object {
-        private fun getInfoFile() = File(getGameHome(), "zalith-game.cfg")
+private fun getInfoFile() = File(getGameHome(), "zalith-game.cfg")
 
-        /**
-         * 刷新并返回最新的游戏信息（自动处理旧配置迁移）
-         */
-        fun refreshCurrentInfo(): CurrentGameInfo {
-            val infoFile = getInfoFile()
+/**
+ * 刷新并返回最新的游戏信息（自动处理旧配置迁移）
+ */
+fun refreshCurrentInfo(): CurrentGameInfo {
+    val infoFile = getInfoFile()
 
-            return runCatching {
-                when {
-                    infoFile.exists() -> loadFromJsonFile(infoFile)
-                    else -> createNewConfig()
-                }
-            }.getOrElse { e ->
-                lError("Refresh failed", e)
-                createNewConfig()
-            }
+    return runCatching {
+        when {
+            infoFile.exists() -> loadFromJsonFile(infoFile)
+            else -> createNewConfig()
         }
-
-        private fun loadFromJsonFile(infoFile: File): CurrentGameInfo {
-            return GSON.fromJson(infoFile.readText(), CurrentGameInfo::class.java).also { info ->
-                checkNotNull(info) { "Deserialization returned null" }
-            }
-        }
-
-        private fun createNewConfig() = CurrentGameInfo().applyPostActions()
-
-        private fun CurrentGameInfo.applyPostActions(): CurrentGameInfo {
-            saveCurrentInfo()
-            return this
-        }
+    }.getOrElse { e ->
+        lError("Refresh failed", e)
+        createNewConfig()
     }
+}
+
+private fun loadFromJsonFile(infoFile: File): CurrentGameInfo {
+    return GSON.fromJson(infoFile.readText(), CurrentGameInfo::class.java).also { info ->
+        checkNotNull(info) { "Deserialization returned null" }
+    }
+}
+
+private fun createNewConfig() = CurrentGameInfo().applyPostActions()
+
+private fun CurrentGameInfo.applyPostActions(): CurrentGameInfo {
+    saveCurrentInfo()
+    return this
 }

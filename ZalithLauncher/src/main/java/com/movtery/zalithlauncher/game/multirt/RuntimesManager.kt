@@ -10,8 +10,8 @@ import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.math.findNearestPositive
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.extractUntilCharacter
 import com.movtery.zalithlauncher.utils.string.compareVersion
+import com.movtery.zalithlauncher.utils.string.extractUntilCharacter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext

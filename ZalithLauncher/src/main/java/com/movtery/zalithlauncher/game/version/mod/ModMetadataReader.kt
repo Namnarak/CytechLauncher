@@ -10,22 +10,20 @@ import java.io.File
 
 interface ModMetadataReader {
     suspend fun fromLocal(modFile: File): LocalMod
-
-    companion object {
-        private val NORMAL_READERS = arrayOf(
-            ForgeOldModMetadataReader,
-            ForgeNewModMetadataReader,
-            FabricModMetadataReader,
-            QuiltModMetadataReader,
-            PackMcMetadataReader
-        )
-
-        val READERS = mapOf<String, Array<ModMetadataReader>>(
-            "zip" to NORMAL_READERS,
-            "jar" to NORMAL_READERS,
-            "litemod" to arrayOf(
-                LiteModMetadataReader
-            )
-        )
-    }
 }
+
+private val NORMAL_READERS = arrayOf(
+    ForgeOldModMetadataReader,
+    ForgeNewModMetadataReader,
+    FabricModMetadataReader,
+    QuiltModMetadataReader,
+    PackMcMetadataReader
+)
+
+val MOD_READERS = mapOf<String, Array<ModMetadataReader>>(
+    "zip" to NORMAL_READERS,
+    "jar" to NORMAL_READERS,
+    "litemod" to arrayOf(
+        LiteModMetadataReader
+    )
+)

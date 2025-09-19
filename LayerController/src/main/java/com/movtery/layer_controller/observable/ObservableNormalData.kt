@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.NormalData
-import com.movtery.layer_controller.data.NormalData.Companion.cloneNew
+import com.movtery.layer_controller.data.cloneNew
 import com.movtery.layer_controller.event.ClickEvent
 
 /**
@@ -60,10 +60,8 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
             isToggleable = isToggleable
         )
     }
+}
 
-    companion object {
-        fun ObservableNormalData.cloneNormal(): ObservableNormalData {
-            return ObservableNormalData(packNormal().cloneNew())
-        }
-    }
+public fun ObservableNormalData.cloneNormal(): ObservableNormalData {
+    return ObservableNormalData(packNormal().cloneNew())
 }

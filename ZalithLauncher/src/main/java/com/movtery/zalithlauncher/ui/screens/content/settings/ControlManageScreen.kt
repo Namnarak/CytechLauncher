@@ -64,8 +64,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.movtery.layer_controller.data.lang.TranslatableString
+import com.movtery.layer_controller.data.lang.createTranslatable
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.layout.EmptyControlLayout
+import com.movtery.layer_controller.layout.EmptyLayoutInfo
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.utils.AUTHOR_NAME_LENGTH
 import com.movtery.layer_controller.utils.NAME_LENGTH
@@ -96,8 +98,8 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatab
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -178,10 +180,10 @@ fun ControlManageScreen(
         operation = viewModel.operation,
         changeOperation = { viewModel.operation = it },
         onCreate = { name, author, versionName ->
-            val layout = ControlLayout.Empty.copy(
-                info = ControlLayout.Info.Empty.copy(
-                    name = TranslatableString.create(default = name),
-                    author = TranslatableString.create(default = author),
+            val layout = EmptyControlLayout.copy(
+                info = EmptyLayoutInfo.copy(
+                    name = createTranslatable(default = name),
+                    author = createTranslatable(default = author),
                     versionName = versionName
                 )
             )

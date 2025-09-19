@@ -1,6 +1,7 @@
 package com.movtery.layer_controller.data
 
 import androidx.compose.ui.graphics.Color
+import com.movtery.layer_controller.data.ButtonStyle.StyleConfig
 import com.movtery.layer_controller.utils.randomUUID
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -65,45 +66,41 @@ data class ButtonStyle(
         val borderRadius: ButtonShape,
         @SerialName("pressedBorderRadius")
         val pressedBorderRadius: ButtonShape
-    ) {
-        companion object {
-            public val Default = StyleConfig(
-                alpha = 1f,
-                backgroundColor = Color.Black.copy(alpha = 0.5f),
-                contentColor = Color.White,
-                borderWidth = 0,
-                borderColor = Color.White,
-                borderRadius = ButtonShape(0f),
-                pressedAlpha = 1f,
-                pressedBackgroundColor = Color.Gray.copy(alpha = 0.7f),
-                pressedContentColor = Color.White,
-                pressedBorderWidth = 0,
-                pressedBorderColor = Color.White,
-                pressedBorderRadius = ButtonShape(0f)
-            )
-        }
-    }
-
-    companion object {
-        public val Default = ButtonStyle(
-            name = "Default",
-            uuid = randomUUID(),
-            animateSwap = false,
-            lightStyle = StyleConfig.Default,
-            darkStyle = StyleConfig.Default
-        )
-
-        fun createNew(name: String): ButtonStyle = Default.copy(name = name, uuid = randomUUID())
-
-        /**
-         * 克隆一个新的ButtonStyle对象（UUID不同）
-         */
-        fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
-            name = name,
-            uuid = randomUUID(),
-            animateSwap = animateSwap,
-            lightStyle = lightStyle,
-            darkStyle = darkStyle
-        )
-    }
+    )
 }
+
+public val DefaultStyleConfig = StyleConfig(
+    alpha = 1f,
+    backgroundColor = Color.Black.copy(alpha = 0.5f),
+    contentColor = Color.White,
+    borderWidth = 0,
+    borderColor = Color.White,
+    borderRadius = ButtonShape(0f),
+    pressedAlpha = 1f,
+    pressedBackgroundColor = Color.Gray.copy(alpha = 0.7f),
+    pressedContentColor = Color.White,
+    pressedBorderWidth = 0,
+    pressedBorderColor = Color.White,
+    pressedBorderRadius = ButtonShape(0f)
+)
+
+public val DefaultStyle = ButtonStyle(
+    name = "Default",
+    uuid = randomUUID(),
+    animateSwap = false,
+    lightStyle = DefaultStyleConfig,
+    darkStyle = DefaultStyleConfig
+)
+
+public fun createNewStyle(name: String): ButtonStyle = DefaultStyle.copy(name = name, uuid = randomUUID())
+
+/**
+ * 克隆一个新的ButtonStyle对象（UUID不同）
+ */
+public fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
+    name = name,
+    uuid = randomUUID(),
+    animateSwap = animateSwap,
+    lightStyle = lightStyle,
+    darkStyle = darkStyle
+)

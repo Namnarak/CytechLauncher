@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.context.copyAssetFile
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.splitPreservingQuotes
+import com.movtery.zalithlauncher.utils.string.splitPreservingQuotes
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 

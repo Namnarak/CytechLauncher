@@ -80,8 +80,8 @@ import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColo
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 

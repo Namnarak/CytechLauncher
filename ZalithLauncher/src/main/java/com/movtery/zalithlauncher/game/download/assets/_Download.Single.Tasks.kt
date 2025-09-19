@@ -11,7 +11,7 @@ import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -114,7 +114,7 @@ private fun downloadSingleFile(
                 }
                 updateProgress()
 
-                NetWorkUtils.downloadFileSuspend(
+                downloadFileSuspend(
                     url = info.downloadUrl,
                     sha1 = info.sha1,
                     outputFile = file.ensureParentDirectory(),

@@ -2,8 +2,8 @@ package com.movtery.zalithlauncher.game.version.mod.reader
 
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
-import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
+import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.meta.PackMcMeta
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.UnpackZipException

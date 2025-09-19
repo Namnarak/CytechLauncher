@@ -89,32 +89,30 @@ class LocalMod(
             false
         }
     }
-
-    companion object {
-        /**
-         * 模组是否启用
-         */
-        fun File.isEnabled(): Boolean = !absolutePath.endsWith(".disabled", ignoreCase = true)
-
-        /**
-         * 模组是否禁用
-         */
-        fun File.isDisabled(): Boolean = !this.isEnabled()
-
-        /**
-         * 创建一个非模组文件
-         */
-        fun createNotMod(file: File): LocalMod = LocalMod(
-            modFile = file,
-            fileSize = FileUtils.sizeOf(file),
-            id = "",
-            loader = ModLoader.UNKNOWN,
-            name = file.name,
-            description = null,
-            version = null,
-            authors = emptyList(),
-            icon = null,
-            notMod = true
-        )
-    }
 }
+
+/**
+ * 模组是否启用
+ */
+fun File.isEnabled(): Boolean = !absolutePath.endsWith(".disabled", ignoreCase = true)
+
+/**
+ * 模组是否禁用
+ */
+fun File.isDisabled(): Boolean = !this.isEnabled()
+
+/**
+ * 创建一个非模组文件
+ */
+fun createNotMod(file: File): LocalMod = LocalMod(
+    modFile = file,
+    fileSize = FileUtils.sizeOf(file),
+    id = "",
+    loader = ModLoader.UNKNOWN,
+    name = file.name,
+    description = null,
+    version = null,
+    authors = emptyList(),
+    icon = null,
+    notMod = true
+)

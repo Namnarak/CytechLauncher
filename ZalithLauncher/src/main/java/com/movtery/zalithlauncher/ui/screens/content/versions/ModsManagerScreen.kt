@@ -78,9 +78,9 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.mod.AllModReader
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
-import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isDisabled
-import com.movtery.zalithlauncher.game.version.mod.LocalMod.Companion.isEnabled
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
+import com.movtery.zalithlauncher.game.version.mod.isDisabled
+import com.movtery.zalithlauncher.game.version.mod.isEnabled
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -100,7 +100,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers

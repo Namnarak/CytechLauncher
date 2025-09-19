@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.library
 
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.library.License.Companion.LICENSE_APACHE_2
 
 /**
  * Android Open Source Project

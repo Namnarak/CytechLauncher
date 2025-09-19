@@ -18,15 +18,13 @@ class ObservableLocalizedString(string: LocalizedString): Packable<LocalizedStri
             value = value
         )
     }
+}
 
-    companion object {
-        /**
-         * 尝试检查语言是否匹配
-         */
-        fun ObservableLocalizedString.check(
-            locale: Locale = Locale.getDefault()
-        ): String? = value.takeIf {
-            locale.toLanguageTag() == languageTag
-        }
-    }
+/**
+ * 尝试检查语言是否匹配
+ */
+public fun ObservableLocalizedString.check(
+    locale: Locale = Locale.getDefault()
+): String? = value.takeIf {
+    locale.toLanguageTag() == languageTag
 }

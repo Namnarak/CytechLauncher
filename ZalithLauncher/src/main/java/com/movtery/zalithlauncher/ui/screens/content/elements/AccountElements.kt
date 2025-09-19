@@ -85,7 +85,7 @@ import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.URL_MINECRAFT_PURCHASE
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -511,7 +511,7 @@ fun MicrosoftLoginTipDialog(
             FlowRow {
                 IconTextButton(
                     onClick = {
-                        openLink(UrlManager.URL_MINECRAFT_PURCHASE)
+                        openLink(URL_MINECRAFT_PURCHASE)
                     },
                     imageVector = Icons.Outlined.Link,
                     contentDescription = null,
@@ -602,7 +602,7 @@ fun LocalLoginDialog(
             ) {
                 IconTextButton(
                     onClick = {
-                        openLink(UrlManager.URL_MINECRAFT_PURCHASE)
+                        openLink(URL_MINECRAFT_PURCHASE)
                     },
                     imageVector = Icons.Outlined.Link,
                     contentDescription = null,

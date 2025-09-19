@@ -43,7 +43,7 @@ import com.movtery.layer_controller.observable.ObservableLocalizedString
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 
 /**
  * 编辑可翻译文本

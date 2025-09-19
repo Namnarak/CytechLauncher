@@ -39,7 +39,7 @@ import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -568,7 +568,7 @@ class GameInstaller(
     ) = Task.runTask(
         id = "Download.Mods",
         task = {
-            NetWorkUtils.downloadFileSuspend(
+            downloadFileSuspend(
                 url = modVersion.file.url,
                 sha1 = modVersion.file.hashes.sha1,
                 outputFile = File(tempModsDir, modVersion.file.fileName)

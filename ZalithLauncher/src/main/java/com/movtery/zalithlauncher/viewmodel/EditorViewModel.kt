@@ -5,16 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.movtery.layer_controller.data.ButtonStyle
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableNormalData.Companion.cloneNormal
 import com.movtery.layer_controller.observable.ObservableTextData
-import com.movtery.layer_controller.observable.ObservableTextData.Companion.cloneText
 import com.movtery.layer_controller.observable.ObservableWidget
+import com.movtery.layer_controller.observable.cloneNormal
+import com.movtery.layer_controller.observable.cloneText
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorOperation
@@ -118,7 +117,7 @@ class EditorViewModel() : ViewModel() {
      */
     fun createNewStyle(name: String) {
         observableLayout.addStyle(
-            ButtonStyle.createNew(name)
+            com.movtery.layer_controller.data.createNewStyle(name)
         )
     }
 

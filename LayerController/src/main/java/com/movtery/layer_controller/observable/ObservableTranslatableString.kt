@@ -4,9 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.movtery.layer_controller.data.lang.EmptyLocalizedString
 import com.movtery.layer_controller.data.lang.LocalizedString
 import com.movtery.layer_controller.data.lang.TranslatableString
-import com.movtery.layer_controller.observable.ObservableLocalizedString.Companion.check
 import java.util.Locale
 
 class ObservableTranslatableString(private val text: TranslatableString): Packable<TranslatableString> {
@@ -46,7 +46,7 @@ class ObservableTranslatableString(private val text: TranslatableString): Packab
     /**
      * 添加可翻译的字符串
      */
-    fun addLocalizedString(string: LocalizedString = LocalizedString.Empty) {
+    fun addLocalizedString(string: LocalizedString = EmptyLocalizedString) {
         if (matchQueue.any { it.languageTag == string.languageTag && it.value == string.value }) return
         matchQueue.add(ObservableLocalizedString(string))
     }

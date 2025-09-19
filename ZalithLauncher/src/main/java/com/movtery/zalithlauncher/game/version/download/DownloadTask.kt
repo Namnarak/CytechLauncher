@@ -2,7 +2,7 @@ package com.movtery.zalithlauncher.game.version.download
 
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFromMirrorList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runInterruptible
 import org.apache.commons.io.FileUtils
@@ -31,7 +31,7 @@ class DownloadTask(
 
         runCatching {
             runInterruptible {
-                NetWorkUtils.downloadFromMirrorList(
+                downloadFromMirrorList(
                     urls = urls,
                     sha1 = sha1,
                     outputFile = targetFile,

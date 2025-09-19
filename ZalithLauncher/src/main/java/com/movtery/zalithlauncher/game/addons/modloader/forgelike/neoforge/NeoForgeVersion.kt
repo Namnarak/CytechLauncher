@@ -25,36 +25,34 @@ class NeoForgeVersion(
 
     val isBeta: Boolean
         get() = rawVersion.contains("beta")
+}
 
-    companion object {
-        private fun parseVersion(rawVersion: String): ForgeBuildVersion {
-            return when {
-                rawVersion.contains("1.20.1") -> {
-                    val versionPart = rawVersion.replace("1.20.1-", "")
-                    ForgeBuildVersion.parse("19.$versionPart")
-                }
-                else -> ForgeBuildVersion.parse(rawVersion.substringBefore("-"))
-            }
+private fun parseVersion(rawVersion: String): ForgeBuildVersion {
+    return when {
+        rawVersion.contains("1.20.1") -> {
+            val versionPart = rawVersion.replace("1.20.1-", "")
+            ForgeBuildVersion.parse("19.$versionPart")
         }
+        else -> ForgeBuildVersion.parse(rawVersion.substringBefore("-"))
+    }
+}
 
-        private fun parseVersionName(rawVersion: String): String {
-            return if (rawVersion.contains("1.20.1")) {
-                rawVersion.replace("1.20.1-", "")
-            } else {
-                rawVersion
-            }
-        }
+private fun parseVersionName(rawVersion: String): String {
+    return if (rawVersion.contains("1.20.1")) {
+        rawVersion.replace("1.20.1-", "")
+    } else {
+        rawVersion
+    }
+}
 
-        private fun parseInherit(rawVersion: String): String {
-            return if (rawVersion.contains("1.20.1")) {
-                "1.20.1"
-            } else {
-                val version = parseVersion(rawVersion)
-                buildString {
-                    append("1.").append(version.major)
-                    if (version.minor != 0) append(".").append(version.minor)
-                }
-            }
+private fun parseInherit(rawVersion: String): String {
+    return if (rawVersion.contains("1.20.1")) {
+        "1.20.1"
+    } else {
+        val version = parseVersion(rawVersion)
+        buildString {
+            append("1.").append(version.major)
+            if (version.minor != 0) append(".").append(version.minor)
         }
     }
 }

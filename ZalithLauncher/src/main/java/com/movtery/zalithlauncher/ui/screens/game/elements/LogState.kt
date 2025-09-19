@@ -3,6 +3,8 @@ package com.movtery.zalithlauncher.ui.screens.game.elements
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState.CLOSE
+import com.movtery.zalithlauncher.ui.screens.game.elements.LogState.SHOW_BEFORE_LOADING
 
 /**
  * 控制日志的显示状态
@@ -30,13 +32,11 @@ enum class LogState(val value: Boolean) {
     };
 
     abstract fun next(): LogState
+}
 
-    companion object {
-        fun mutableStateOfLog(): MutableState<LogState> {
-            return mutableStateOf(
-                if (AllSettings.showLogAutomatic.getValue()) SHOW_BEFORE_LOADING
-                else CLOSE
-            )
-        }
-    }
+fun mutableStateOfLog(): MutableState<LogState> {
+    return mutableStateOf(
+        if (AllSettings.showLogAutomatic.getValue()) SHOW_BEFORE_LOADING
+        else CLOSE
+    )
 }

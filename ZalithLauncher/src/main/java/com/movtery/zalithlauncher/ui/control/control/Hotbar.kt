@@ -41,15 +41,13 @@ enum class HotbarRule(val nameRes: Int) {
     /**
      * 完全自定义大小
      */
-    Custom(R.string.game_menu_option_hotbar_rule_custom);
-
-    companion object {
-        /**
-         * 自定义大小：0~1000比例下，计算百分比值
-         */
-        fun Int.hotbarPercentage() = this / 1000f
-    }
+    Custom(R.string.game_menu_option_hotbar_rule_custom)
 }
+
+/**
+ * 自定义大小：0~1000比例下，计算百分比值
+ */
+fun Int.hotbarPercentage() = this / 1000f
 
 /**
  * 快捷栏按键绑定键

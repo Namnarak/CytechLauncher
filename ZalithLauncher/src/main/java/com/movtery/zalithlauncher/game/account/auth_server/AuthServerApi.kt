@@ -7,10 +7,10 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.auth_server.models.Refresh
-import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.decodeUnicode
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -138,7 +138,7 @@ class AuthServerApi(private var baseUrl: String) {
                 else -> "Unknown error"
             }
             if (message.contains("\\u")) {
-                message = StringUtils.decodeUnicode(message.replace("\\\\u", "\\u"))
+                message = decodeUnicode(message.replace("\\\\u", "\\u"))
             }
             message
         } catch (e: Exception) {
@@ -146,15 +146,13 @@ class AuthServerApi(private var baseUrl: String) {
             "Unknown error"
         }
     }
+}
 
-    companion object {
-        suspend fun getServeInfo(url: String): String? = withContext(Dispatchers.IO) {
-            val response = GLOBAL_CLIENT.get(url)
-            if (response.status == HttpStatusCode.OK) {
-                response.bodyAsText()
-            } else {
-                null
-            }
-        }
+suspend fun getAuthServeInfo(url: String): String? = withContext(Dispatchers.IO) {
+    val response = GLOBAL_CLIENT.get(url)
+    if (response.status == HttpStatusCode.OK) {
+        response.bodyAsText()
+    } else {
+        null
     }
 }

@@ -55,19 +55,20 @@ interface RendererInterface {
      * 获取EGL名称
      */
     fun getRendererEGL(): String? = null
+}
 
-    companion object {
-        fun RendererPlugin.toInterface() = object : RendererInterface {
-            override fun getRendererId(): String = id
-            override fun getUniqueIdentifier(): String = uniqueIdentifier
-            override fun getRendererName(): String = displayName
-            override fun getRendererSummary(): String? = summary
-            override fun getMinMCVersion(): String? = minMCVer
-            override fun getMaxMCVersion(): String? = maxMCVer
-            override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { env }
-            override fun getDlopenLibrary(): Lazy<List<String>> = lazy { dlopen }
-            override fun getRendererLibrary(): String = glName
-            override fun getRendererEGL(): String = eglName
-        }
-    }
+/**
+ * 转换为渲染器通用接口
+ */
+fun RendererPlugin.toInterface() = object : RendererInterface {
+    override fun getRendererId(): String = id
+    override fun getUniqueIdentifier(): String = uniqueIdentifier
+    override fun getRendererName(): String = displayName
+    override fun getRendererSummary(): String? = summary
+    override fun getMinMCVersion(): String? = minMCVer
+    override fun getMaxMCVersion(): String? = maxMCVer
+    override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { env }
+    override fun getDlopenLibrary(): Lazy<List<String>> = lazy { dlopen }
+    override fun getRendererLibrary(): String = glName
+    override fun getRendererEGL(): String = eglName
 }

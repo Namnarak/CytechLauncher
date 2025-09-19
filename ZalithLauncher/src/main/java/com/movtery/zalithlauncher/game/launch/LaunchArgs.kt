@@ -19,10 +19,10 @@ import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.ServerAddress
-import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.toUnicodeEscaped
+import com.movtery.zalithlauncher.utils.string.insertJSONValueList
 import com.movtery.zalithlauncher.utils.string.isLowerTo
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.toUnicodeEscaped
 import java.io.File
 
 class LaunchArgs(
@@ -171,7 +171,7 @@ class LaunchArgs(
             ?.toTypedArray()
             ?: emptyArray()
 
-        val replacedArgs = StringUtils.insertJSONValueList(jvmArgs, varArgMap)
+        val replacedArgs = insertJSONValueList(jvmArgs, varArgMap)
         return if (hasClasspath) {
             replacedArgs
         } else {
@@ -259,7 +259,7 @@ class LaunchArgs(
             game.forEach { if (it is String) minecraftArgs.add(it) }
         }
 
-        return StringUtils.insertJSONValueList(
+        return insertJSONValueList(
             splitAndFilterEmpty(
                 gameManifest.minecraftArguments ?:
                 minecraftArgs.toTypedArray().joinToString(" ")

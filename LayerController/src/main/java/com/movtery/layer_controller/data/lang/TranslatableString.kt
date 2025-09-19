@@ -1,6 +1,5 @@
 package com.movtery.layer_controller.data.lang
 
-import com.movtery.layer_controller.data.lang.LocalizedString.Companion.check
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Locale
@@ -23,12 +22,10 @@ data class TranslatableString(
         }
         return default
     }
+}
 
-    companion object {
-        public val Empty = TranslatableString("", emptyList())
+public val EmptyTranslatableString = TranslatableString("", emptyList())
 
-        fun create(default: String, vararg matchQueue: LocalizedString): TranslatableString {
-            return TranslatableString(default = default, matchQueue = matchQueue.toList())
-        }
-    }
+public fun createTranslatable(default: String, vararg matchQueue: LocalizedString): TranslatableString {
+    return TranslatableString(default = default, matchQueue = matchQueue.toList())
 }

@@ -37,7 +37,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 
 @Composable
 fun StyleListDialog(

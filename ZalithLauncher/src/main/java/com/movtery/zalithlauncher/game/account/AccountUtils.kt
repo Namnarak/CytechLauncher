@@ -5,9 +5,9 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.game.account.auth_server.AuthServerApi
 import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
+import com.movtery.zalithlauncher.game.account.auth_server.getAuthServeInfo
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
@@ -256,7 +256,7 @@ fun addOtherServer(
             ensureActive()
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             runCatching {
-                AuthServerApi.getServeInfo(fullServerUrl)
+                getAuthServeInfo(fullServerUrl)
             }.onFailure { th ->
                 lError("Failed to get server info", th)
                 onThrowable(th)

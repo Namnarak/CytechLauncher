@@ -10,12 +10,10 @@ import com.movtery.zalithlauncher.R
 data class License(
     val name: String,
     val raw: Int
-) {
-    companion object {
-        /**
-         * Apache License 2.0
-         * @see <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a>
-         */
-        val LICENSE_APACHE_2 = License("Apache License 2.0", R.raw.apache_license_2)
-    }
-}
+)
+
+/**
+ * Apache License 2.0
+ * @see <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a>
+ */
+val LICENSE_APACHE_2 = License("Apache License 2.0", R.raw.apache_license_2)

@@ -28,9 +28,29 @@ data class ButtonPosition(
     fun yPercentage(): Float {
         return (y / 10000f).coerceAtMost(1f).coerceAtLeast(0f)
     }
-
-    companion object {
-        public val Zero = ButtonPosition(0, 0)
-        public val Center = ButtonPosition(5000, 5000)
-    }
 }
+
+/**
+ * 位于屏幕左上角
+ */
+public val TopStartPosition = ButtonPosition(0, 0)
+
+/**
+ * 位于屏幕右上角
+ */
+public val TopEndPosition = ButtonPosition(10000, 0)
+
+/**
+ * 位于屏幕中心
+ */
+public val CenterPosition = ButtonPosition(5000, 5000)
+
+/**
+ * 位于屏幕左下角
+ */
+public val BottomStartPosition = ButtonPosition(0, 10000)
+
+/**
+ * 位于屏幕右下角
+ */
+public val BottomEndPosition = ButtonPosition(10000, 10000)

@@ -27,19 +27,17 @@ class ForgeVersion(
     versionName = versionName,
     inherit = inherit,
     fileExtension = if (category == "installer") "jar" else "zip"
-) {
-    companion object {
-        /**
-         * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L588-L598)
-         */
-        private fun parseVersion(version: String, branch: String?, inherit: String): ForgeBuildVersion {
-            val specialVersions = listOf("11.15.1.2318", "11.15.1.1902", "11.15.1.1890")
-            val modifiedBranch = when {
-                version in specialVersions -> "1.8.9"
-                branch == null && inherit == "1.7.10" && version.split(".")[3].toInt() >= 1300 -> "1.7.10"
-                else -> branch
-            }
-            return ForgeBuildVersion.parse(version + (modifiedBranch?.let { "-$it" } ?: ""))
-        }
+)
+
+/**
+ * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L588-L598)
+ */
+private fun parseVersion(version: String, branch: String?, inherit: String): ForgeBuildVersion {
+    val specialVersions = listOf("11.15.1.2318", "11.15.1.1902", "11.15.1.1890")
+    val modifiedBranch = when {
+        version in specialVersions -> "1.8.9"
+        branch == null && inherit == "1.7.10" && version.split(".")[3].toInt() >= 1300 -> "1.7.10"
+        else -> branch
     }
+    return ForgeBuildVersion.parse(version + (modifiedBranch?.let { "-$it" } ?: ""))
 }

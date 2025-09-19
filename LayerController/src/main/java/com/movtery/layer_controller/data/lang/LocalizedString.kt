@@ -14,17 +14,15 @@ data class LocalizedString(
     val languageTag: String,
     @SerialName("value")
     val value: String
-) {
-    companion object {
-        public val Empty = LocalizedString(languageTag = "", value = "")
+)
 
-        /**
-         * 尝试检查语言是否匹配
-         */
-        fun LocalizedString.check(
-            locale: Locale = Locale.getDefault()
-        ): String? = value.takeIf {
-            locale.toLanguageTag() == languageTag
-        }
-    }
+public val EmptyLocalizedString = LocalizedString(languageTag = "", value = "")
+
+/**
+ * 尝试检查语言是否匹配
+ */
+public fun LocalizedString.check(
+    locale: Locale = Locale.getDefault()
+): String? = value.takeIf {
+    locale.toLanguageTag() == languageTag
 }

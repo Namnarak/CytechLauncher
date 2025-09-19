@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.Box
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_CAN_RESTART
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_EXIT_TYPE
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.BUNDLE_THROWABLE
-import com.movtery.zalithlauncher.ui.activities.ErrorActivity.Companion.EXIT_LAUNCHER
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.ErrorScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -21,55 +17,52 @@ import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import com.movtery.zalithlauncher.utils.getSerializableSafely
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.throwableToString
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
 
-class ErrorActivity : BaseComponentActivity(refreshData = false) {
+private const val BUNDLE_EXIT_TYPE = "BUNDLE_EXIT_TYPE"
+private const val BUNDLE_THROWABLE = "BUNDLE_THROWABLE"
+private const val BUNDLE_JVM_CRASH = "BUNDLE_JVM_CRASH"
+private const val BUNDLE_CAN_RESTART = "BUNDLE_CAN_RESTART"
+private const val EXIT_JVM = "EXIT_JVM"
+private const val EXIT_LAUNCHER = "EXIT_LAUNCHER"
 
-    companion object {
-        const val BUNDLE_EXIT_TYPE = "BUNDLE_EXIT_TYPE"
-        const val BUNDLE_THROWABLE = "BUNDLE_THROWABLE"
-        const val BUNDLE_JVM_CRASH = "BUNDLE_JVM_CRASH"
-        const val BUNDLE_CAN_RESTART = "BUNDLE_CAN_RESTART"
-        const val EXIT_JVM = "EXIT_JVM"
-        const val EXIT_LAUNCHER = "EXIT_LAUNCHER"
+fun showExitMessage(context: Context, code: Int, isSignal: Boolean) {
+    val intent = Intent(context, ErrorActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(BUNDLE_EXIT_TYPE, EXIT_JVM)
+        putExtra(BUNDLE_JVM_CRASH, JvmCrash(code, isSignal))
+    }
+    context.startActivity(intent)
+}
 
-        @JvmStatic
-        fun showExitMessage(context: Context, code: Int, isSignal: Boolean) {
-            val intent = Intent(context, ErrorActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                putExtra(BUNDLE_EXIT_TYPE, EXIT_JVM)
-                putExtra(BUNDLE_JVM_CRASH, JvmCrash(code, isSignal))
-            }
-            context.startActivity(intent)
+private data class JvmCrash(val code: Int, val isSignal: Boolean) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readInt().toBoolean()
+    )
+
+    override fun describeContents(): Int = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(code)
+        dest.writeInt(isSignal.getInt())
+    }
+
+    companion object CREATOR : Parcelable.Creator<JvmCrash> {
+        override fun createFromParcel(parcel: Parcel): JvmCrash {
+            return JvmCrash(parcel)
         }
 
-        private data class JvmCrash(val code: Int, val isSignal: Boolean) : Parcelable {
-            constructor(parcel: Parcel) : this(
-                parcel.readInt(),
-                parcel.readInt().toBoolean()
-            )
-
-            override fun describeContents(): Int = 0
-
-            override fun writeToParcel(dest: Parcel, flags: Int) {
-                dest.writeInt(code)
-                dest.writeInt(isSignal.getInt())
-            }
-
-            companion object CREATOR : Parcelable.Creator<JvmCrash> {
-                override fun createFromParcel(parcel: Parcel): JvmCrash {
-                    return JvmCrash(parcel)
-                }
-
-                override fun newArray(size: Int): Array<JvmCrash?> {
-                    return arrayOfNulls(size)
-                }
-            }
+        override fun newArray(size: Int): Array<JvmCrash?> {
+            return arrayOfNulls(size)
         }
     }
+}
+
+class ErrorActivity : BaseComponentActivity(refreshData = false) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +86,7 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
             else -> {
                 val throwable = extras.getSerializableSafely(BUNDLE_THROWABLE, Throwable::class.java) ?: return runFinish()
                 val message = getString(R.string.crash_launcher_message)
-                val messageBody = StringUtils.throwableToString(throwable)
+                val messageBody = throwableToString(throwable)
                 ErrorMessage(
                     message = message,
                     messageBody = messageBody,

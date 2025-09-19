@@ -2,7 +2,7 @@ package com.movtery.zalithlauncher.game.download.game.forge
 
 import com.movtery.zalithlauncher.game.download.game.models.fromDescriptor
 import com.movtery.zalithlauncher.game.download.game.models.toPath
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isSurrounded
+import com.movtery.zalithlauncher.utils.string.isSurrounded
 import java.io.File
 
 /**

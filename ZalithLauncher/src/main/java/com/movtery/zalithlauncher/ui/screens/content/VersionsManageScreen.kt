@@ -59,8 +59,8 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
-import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
@@ -229,7 +229,7 @@ private fun LeftMenu(
                                 GamePathManager.saveDefaultPath()
                             } else {
                                 (context as? MainActivity)?.let { activity ->
-                                    StoragePermissionsUtils.checkPermissions(
+                                    checkStoragePermissions(
                                         activity = activity,
                                         message = activity.getString(R.string.versions_manage_game_storage_permissions),
                                         messageSdk30 = activity.getString(R.string.versions_manage_game_storage_permissions_sdk30),
@@ -258,7 +258,7 @@ private fun LeftMenu(
                 .fillMaxWidth(),
             onClick = {
                 (context as? MainActivity)?.let { activity ->
-                    StoragePermissionsUtils.checkPermissions(
+                    checkStoragePermissions(
                         activity = activity,
                         message = activity.getString(R.string.versions_manage_game_path_storage_permissions),
                         messageSdk30 = activity.getString(R.string.versions_manage_game_path_storage_permissions_sdk30),
