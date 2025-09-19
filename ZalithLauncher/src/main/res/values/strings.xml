@@ -606,6 +606,8 @@
     <string name="saves_manage_quick_play">Quick Play</string>
     <string name="saves_manage_quick_play_disabled">Quick Play (1.20+ only)</string>
     <string name="saves_manage_no_saves">No saves for this version</string>
+    <string name="saves_manage_import_unpacking">Unpacking save: %s</string>
+    <string name="saves_manage_import_failed">An error occurred while importing the save</string>
     <string name="resource_pack_manage">Resource Packs</string>
     <string name="resource_pack_manage_info">Resource Pack Information</string>
     <string name="resource_pack_manage_invalid">Invalid Resource Pack Format</string>

@@ -73,6 +73,7 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
@@ -88,6 +89,7 @@ import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
@@ -103,6 +105,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.formatDate
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -196,7 +199,8 @@ fun SavesManagerScreen(
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
     backToMainScreen: () -> Unit,
-    swapToDownload: () -> Unit = {}
+    swapToDownload: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
         backToMainScreen()
@@ -281,8 +285,10 @@ fun SavesManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             savesFilter = viewModel.savesFilter,
                             onSavesFilterChange = { viewModel.updateFilter(it) },
+                            savesDir = savesDir,
                             swapToDownload = swapToDownload,
-                            refreshSaves = { viewModel.refresh() }
+                            refreshSaves = { viewModel.refresh() },
+                            submitError = submitError
                         )
 
                         SavesList(
@@ -314,9 +320,11 @@ private fun SavesActionsHeader(
     inputFieldColor: Color,
     inputFieldContentColor: Color,
     savesFilter: SavesFilter,
-    onSavesFilterChange: (SavesFilter) -> Unit = {},
-    swapToDownload: () -> Unit = {},
-    refreshSaves: () -> Unit = {}
+    onSavesFilterChange: (SavesFilter) -> Unit,
+    savesDir: File,
+    swapToDownload: () -> Unit,
+    refreshSaves: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(modifier = modifier) {
         Row(
@@ -350,6 +358,18 @@ private fun SavesActionsHeader(
             }
 
             Spacer(modifier = Modifier.width(12.dp))
+
+            ImportFileButton(
+                extension = "zip",
+                targetDir = savesDir,
+                errorMessage = stringResource(R.string.saves_manage_import_failed),
+                onFileCopied = { task, file ->
+                    task.updateProgress(-1f, R.string.saves_manage_import_unpacking, file.name)
+                    unpackSaveZip(file, savesDir)
+                },
+                onImported = refreshSaves,
+                submitError = submitError
+            )
 
             IconTextButton(
                 onClick = swapToDownload,

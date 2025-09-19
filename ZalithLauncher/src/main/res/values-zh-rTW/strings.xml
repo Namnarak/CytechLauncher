@@ -566,6 +566,8 @@
     <string name="saves_manage_quick_play">快速啟動</string>
     <string name="saves_manage_quick_play_disabled">快速啟動（僅限 1.20+）</string>
     <string name="saves_manage_no_saves">目前版本尚無存檔</string>
+    <string name="saves_manage_import_unpacking">正在解壓存檔：%s</string>
+    <string name="saves_manage_import_failed">匯入存檔時遇到問題</string>
     <!--  遊戲  -->
     <string name="minecraft_download_stat_download_task">統計下載任務</string>
     <string name="minecraft_download_stat_verify_task">統計驗證任務</string>

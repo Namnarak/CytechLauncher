@@ -67,6 +67,7 @@ fun ImportFileButton(
     errorTitle: String = stringResource(R.string.generic_error),
     errorMessage: String? = stringResource(R.string.error_import_file),
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {},
+    onFileCopied: suspend (Task, File) -> Unit = { _, _ -> },
     onImported: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -89,6 +90,8 @@ fun ImportFileButton(
                                 task.updateProgress(-1f, R.string.empty_holder, fileName)
                                 val outputFile = File(targetDir, fileName)
                                 context.copyLocalFile(uri, outputFile)
+                                //成功复制，如调用者有额外操作，可使用回调运行
+                                onFileCopied(task, outputFile)
                             } catch (e: Exception) {
                                 val eString = e.getMessageOrToString()
                                 val messageString = if (errorMessage != null) {

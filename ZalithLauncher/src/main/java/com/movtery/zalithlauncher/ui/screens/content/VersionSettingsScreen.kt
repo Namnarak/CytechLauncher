@@ -245,7 +245,8 @@ private fun NavigationUI(
                             backScreenViewModel.navigateToDownload(
                                 targetScreen = backScreenViewModel.downloadSavesScreen
                             )
-                        }
+                        },
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.Versions.ResourcePackManager> {
