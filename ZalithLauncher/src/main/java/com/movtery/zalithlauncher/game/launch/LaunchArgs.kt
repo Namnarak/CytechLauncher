@@ -212,7 +212,7 @@ class LaunchArgs(
     private fun generateLibClasspath(gameManifest: GameManifest): Array<String> {
         val libDir: MutableList<String> = ArrayList()
         for (libItem in gameManifest.libraries) {
-            if (!checkRules(libItem.rules)) continue
+            if (!(GameManifest.Rule.checkRules(libItem.rules) && !libItem.isNative)) continue
             val libArtifactPath: String = libItem.progressLibrary() ?: continue
             libDir.add(getLibrariesHome() + "/" + libArtifactPath)
         }
@@ -234,20 +234,6 @@ class LaunchArgs(
         }
 
         return path
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L815-L823)
-     */
-    private fun checkRules(rules: List<GameManifest.Rule>?): Boolean {
-        if (rules == null) return true // always allow
-
-        for (rule in rules) {
-            if (rule.action.equals("allow") && rule.os != null && rule.os.name.equals("osx")) {
-                return false //disallow
-            }
-        }
-        return true // allow if none match
     }
 
     private fun getMinecraftClientArgs(): Array<String> {
