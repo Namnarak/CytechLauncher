@@ -185,7 +185,7 @@ fun LaunchGameOperation(
     launchGameOperation: LaunchGameOperation,
     updateOperation: (LaunchGameOperation) -> Unit,
     exitActivity: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {}
 ) {
@@ -281,7 +281,7 @@ fun LaunchGameOperation(
                 offlineAccountLogin = false
                 quickPlaySingle = quickPlay
             }
-            LaunchGame.launchGame(activity, version, exitActivity, summitError)
+            LaunchGame.launchGame(activity, version, exitActivity, submitError)
             updateOperation(LaunchGameOperation.None)
         }
     }

@@ -38,7 +38,7 @@ fun downloadSingleForVersions(
     folder: String,
     onFileCopied: suspend (zip: File, folder: File) -> Unit = { _, _ -> },
     onFileCancelled: (zip: File, folder: File) -> Unit = { _, _ -> },
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val cacheFile = File(File(PathManager.DIR_CACHE, "assets"), info.sha1 ?: info.fileName)
 
@@ -65,7 +65,7 @@ fun downloadSingleForVersions(
                     context.getString(pair.first)
                 }
             }
-            summitError(
+            submitError(
                 ErrorViewModel.ThrowableMessage(
                     title = context.getString(R.string.download_assets_install_failed),
                     message = message

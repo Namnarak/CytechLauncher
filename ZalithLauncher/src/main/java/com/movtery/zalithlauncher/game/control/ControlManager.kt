@@ -167,7 +167,7 @@ object ControlManager {
      */
     fun saveControl(
         data: ControlData,
-        summitError: (Exception) -> Unit
+        submitError: (Exception) -> Unit
     ) {
         scope.launch(Dispatchers.IO) {
             if (!data.file.exists()) {
@@ -178,7 +178,7 @@ object ControlManager {
             try {
                 layout.saveToFile(data.file)
             } catch (e: Exception) {
-                summitError(e)
+                submitError(e)
                 FileUtils.deleteQuietly(data.file)
             }
             refresh()

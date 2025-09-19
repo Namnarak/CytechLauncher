@@ -112,7 +112,7 @@ class MainActivity : BaseComponentActivity() {
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,
-                        summitError = {
+                        submitError = {
                             errorViewModel.showError(it)
                         }
                     )
@@ -125,7 +125,7 @@ class MainActivity : BaseComponentActivity() {
                         exitActivity = {
                             this@MainActivity.finish()
                         },
-                        summitError = {
+                        submitError = {
                             errorViewModel.showError(it)
                         },
                         toAccountManageScreen = {

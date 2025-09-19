@@ -29,7 +29,7 @@ object LaunchGame {
         context: Context,
         version: Version,
         exitActivity: () -> Unit,
-        summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+        submitError: (ErrorViewModel.ThrowableMessage) -> Unit
     ) {
         if (isLaunching) return
 
@@ -48,7 +48,7 @@ object LaunchGame {
                 exitActivity()
             },
             onError = { message ->
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = context.getString(R.string.minecraft_download_failed),
                         message = message
@@ -93,7 +93,7 @@ object LaunchGame {
                         }
                     }
 
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = context.getString(R.string.account_logging_in_failed),
                             message = message

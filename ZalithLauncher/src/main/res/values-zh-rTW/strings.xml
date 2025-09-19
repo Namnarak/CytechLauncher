@@ -80,6 +80,7 @@
     <string name="crash_launch_crash_message">啟動器在啟動過程中遇到嚴重問題並崩潰了</string>
     <!--  錯誤  -->
     <string name="error_import_image">匯入圖片時發生問題</string>
+    <string name="error_import_file">匯入檔案時發生問題</string>
     <string name="error_create_dir">無法建立資料夾：%s</string>
     <string name="error_timeout">連線逾時</string>
     <string name="error_network_unreachable">網路無法使用</string>

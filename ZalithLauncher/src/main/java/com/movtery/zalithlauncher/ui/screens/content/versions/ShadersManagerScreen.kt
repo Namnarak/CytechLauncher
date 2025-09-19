@@ -66,6 +66,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ShaderOperation
@@ -75,6 +76,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -153,7 +155,8 @@ fun ShadersManagerScreen(
     versionsScreenKey: NavKey?,
     version: Version,
     backToMainScreen: () -> Unit,
-    swapToDownload: () -> Unit = {}
+    swapToDownload: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
         backToMainScreen()
@@ -167,7 +170,6 @@ fun ShadersManagerScreen(
         Triple(NormalNavKey.Versions.ShadersManager, versionsScreenKey, false),
     ) { isVisible ->
         val shadersDir = File(version.getGameDir(), VersionFolders.SHADERS.folderName)
-
         val viewModel = rememberShadersManageViewModel(shadersDir, version)
 
         val yOffset by swapAnimateDpAsState(
@@ -225,8 +227,10 @@ fun ShadersManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it) },
+                            shadersDir = shadersDir,
                             swapToDownload = swapToDownload,
-                            refresh = { viewModel.refresh() }
+                            refresh = { viewModel.refresh() },
+                            submitError = submitError
                         )
 
                         ShadersList(
@@ -256,9 +260,11 @@ private fun ShadersActionsHeader(
     inputFieldColor: Color,
     inputFieldContentColor: Color,
     nameFilter: String,
-    onNameFilterChange: (String) -> Unit = {},
-    swapToDownload: () -> Unit = {},
-    refresh: () -> Unit = {}
+    onNameFilterChange: (String) -> Unit,
+    shadersDir: File,
+    swapToDownload: () -> Unit,
+    refresh: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(modifier = modifier) {
         Row(
@@ -282,6 +288,13 @@ private fun ShadersActionsHeader(
             )
 
             Spacer(modifier = Modifier.width(12.dp))
+
+            ImportFileButton(
+                extension = "zip",
+                targetDir = shadersDir,
+                submitError = submitError,
+                onImported = refresh
+            )
 
             IconTextButton(
                 onClick = swapToDownload,

@@ -36,7 +36,7 @@ fun DownloadModScreen(
     downloadScreenKey: NavKey?,
     downloadModScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     eventViewModel: EventViewModel
 ) {
     val backStack = key.backStack
@@ -58,7 +58,7 @@ fun DownloadModScreen(
                 info = info,
                 versions = versions,
                 folder = info.classes.versionFolder.folderName,
-                summitError = summitError
+                submitError = submitError
             )
         }
     )

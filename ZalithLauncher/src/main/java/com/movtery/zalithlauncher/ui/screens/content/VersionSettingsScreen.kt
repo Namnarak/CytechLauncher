@@ -68,7 +68,7 @@ fun VersionSettingsScreen(
     backScreenViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         screenKey = key,
@@ -93,7 +93,7 @@ fun VersionSettingsScreen(
                 backToMainScreen = backToMainScreen,
                 launchGameViewModel = launchGameViewModel,
                 version = key.version,
-                summitError = summitError
+                submitError = submitError
             )
         }
     }
@@ -175,7 +175,7 @@ private fun NavigationUI(
     backToMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val mainScreenKey = backScreenViewModel.mainScreen.currentKey
 
@@ -199,7 +199,7 @@ private fun NavigationUI(
                         versionsScreenKey = versionsScreenKey,
                         backToMainScreen = backToMainScreen,
                         version = version,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.Versions.Config> {
@@ -208,7 +208,7 @@ private fun NavigationUI(
                         versionsScreenKey = versionsScreenKey,
                         version = version,
                         backToMainScreen = backToMainScreen,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry(NormalNavKey.Versions.ModsManager) {
@@ -230,7 +230,8 @@ private fun NavigationUI(
                                     )
                                 }
                             )
-                        }
+                        },
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.Versions.SavesManager> {
@@ -239,36 +240,41 @@ private fun NavigationUI(
                         versionsScreenKey = versionsScreenKey,
                         launchGameViewModel = launchGameViewModel,
                         version = version,
-                        backToMainScreen = backToMainScreen
-                    ) {
-                        backScreenViewModel.navigateToDownload(
-                            targetScreen = backScreenViewModel.downloadSavesScreen
-                        )
-                    }
+                        backToMainScreen = backToMainScreen,
+                        swapToDownload = {
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = backScreenViewModel.downloadSavesScreen
+                            )
+                        }
+                    )
                 }
                 entry<NormalNavKey.Versions.ResourcePackManager> {
                     ResourcePackManageScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version,
-                        backToMainScreen = backToMainScreen
-                    ) {
-                        backScreenViewModel.navigateToDownload(
-                            targetScreen = backScreenViewModel.downloadResourcePackScreen
-                        )
-                    }
+                        backToMainScreen = backToMainScreen,
+                        swapToDownload =  {
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = backScreenViewModel.downloadResourcePackScreen
+                            )
+                        },
+                        submitError = submitError
+                    )
                 }
                 entry<NormalNavKey.Versions.ShadersManager> {
                     ShadersManagerScreen(
                         mainScreenKey = mainScreenKey,
                         versionsScreenKey = versionsScreenKey,
                         version = version,
-                        backToMainScreen = backToMainScreen
-                    ) {
-                        backScreenViewModel.navigateToDownload(
-                            targetScreen = backScreenViewModel.downloadShadersScreen
-                        )
-                    }
+                        backToMainScreen = backToMainScreen,
+                        swapToDownload = {
+                            backScreenViewModel.navigateToDownload(
+                                targetScreen = backScreenViewModel.downloadShadersScreen
+                            )
+                        },
+                        submitError = submitError
+                    )
                 }
             }
         )

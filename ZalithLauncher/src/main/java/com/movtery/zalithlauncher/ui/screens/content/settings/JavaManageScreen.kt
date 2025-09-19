@@ -83,7 +83,7 @@ fun JavaManageScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -100,7 +100,7 @@ fun JavaManageScreen(
             runtimeOperation = runtimeOperation,
             updateOperation = { runtimeOperation = it },
             callRefresh = { runtimes = getRuntimes(true) },
-            summitError = summitError
+            submitError = submitError
         )
 
         val runtimePicker = rememberLauncherForActivityResult(
@@ -192,7 +192,7 @@ private fun RuntimeOperation(
     runtimeOperation: RuntimeOperation,
     updateOperation: (RuntimeOperation) -> Unit,
     callRefresh: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when(runtimeOperation) {
         is RuntimeOperation.None -> {}
@@ -217,7 +217,7 @@ private fun RuntimeOperation(
                         RuntimesManager.removeRuntime(runtime.name)
                     },
                     onError = {
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = failedMessage,
                                 message = it.getMessageOrToString()
@@ -236,7 +236,7 @@ private fun RuntimeOperation(
                     context = context,
                     uri = uri,
                     callRefresh = callRefresh,
-                    summitError = summitError
+                    submitError = submitError
                 )
             }
             updateOperation(RuntimeOperation.None)
@@ -261,13 +261,13 @@ private fun progressRuntimeUri(
     context: Context,
     uri: Uri,
     callRefresh: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     fun showError(
         title: String = context.getString(R.string.multirt_runtime_import_failed),
         message: String
     ) {
-        summitError(
+        submitError(
             ErrorViewModel.ThrowableMessage(
                 title = title,
                 message = message

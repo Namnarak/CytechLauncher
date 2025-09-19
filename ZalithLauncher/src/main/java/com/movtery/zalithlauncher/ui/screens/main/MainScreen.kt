@@ -92,7 +92,7 @@ fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxHeight()
@@ -146,7 +146,7 @@ fun MainScreen(
                 toMainScreen = toMainScreen,
                 launchGameViewModel = launchGameViewModel,
                 eventViewModel = eventViewModel,
-                summitError = summitError
+                submitError = submitError
             )
 
             TaskMenu(
@@ -322,7 +322,7 @@ private fun NavigationUI(
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreen.backStack
     val currentKey = backStack.lastOrNull()
@@ -362,7 +362,7 @@ private fun NavigationUI(
                             backStack.navigateTo(NormalNavKey.License(raw))
                         },
                         eventViewModel = eventViewModel,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.License> { key ->
@@ -380,7 +380,7 @@ private fun NavigationUI(
                         openLink = { url ->
                             eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
                         },
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.WebScreen> { key ->
@@ -393,7 +393,7 @@ private fun NavigationUI(
                     VersionsManageScreen(
                         backScreenViewModel = screenBackStackModel,
                         navigateToVersions = navigateToVersions,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry<NormalNavKey.FileSelector> { key ->
@@ -410,7 +410,7 @@ private fun NavigationUI(
                         backScreenViewModel = screenBackStackModel,
                         backToMainScreen = toMainScreen,
                         launchGameViewModel = launchGameViewModel,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
                 entry<NestedNavKey.Download> { key ->
@@ -418,7 +418,7 @@ private fun NavigationUI(
                         key = key,
                         backScreenViewModel = screenBackStackModel,
                         eventViewModel = eventViewModel,
-                        summitError = summitError
+                        submitError = submitError
                     )
                 }
             }

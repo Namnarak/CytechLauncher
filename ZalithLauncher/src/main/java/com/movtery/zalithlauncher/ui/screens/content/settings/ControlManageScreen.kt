@@ -139,14 +139,14 @@ private class ControlViewModel : ViewModel() {
 
     fun createNew(
         layout: ControlLayout,
-        summitError: (Exception) -> Unit
+        submitError: (Exception) -> Unit
     ) {
         viewModelScope.launch {
             val file = File(PathManager.DIR_CONTROL_LAYOUTS, "${newRandomFileName()}.json")
             try {
                 layout.saveToFile(file)
             } catch (e: Exception) {
-                summitError(e)
+                submitError(e)
                 FileUtils.deleteQuietly(file)
             }
             ControlManager.refresh()
@@ -170,7 +170,7 @@ fun ControlManageScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberControlViewModel()
     val dataList by ControlManager.dataList.collectAsState()
@@ -200,7 +200,7 @@ fun ControlManageScreen(
                 )
             )
             viewModel.createNew(layout) { e ->
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = context.getString(R.string.control_manage_failed_to_save),
                         message = e.getMessageOrToString()
@@ -219,7 +219,7 @@ fun ControlManageScreen(
                 )
             }
         },
-        summitError = summitError
+        submitError = submitError
     )
 
     BaseScreen(
@@ -307,7 +307,7 @@ private fun ControlOperation(
     onCreate: (name: String, author: String, versionName: String) -> Unit,
     onDelete: (ControlData) -> Unit,
     onSave: (ControlData) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -406,7 +406,7 @@ private fun ControlOperation(
                 title: String = context.getString(R.string.control_manage_import_failed),
                 message: String
             ) {
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = title,
                         message = message

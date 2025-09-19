@@ -91,6 +91,7 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
@@ -100,6 +101,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -243,13 +245,13 @@ private class ModsManageViewModel(
 
 @Composable
 private fun rememberModsManageViewModel(
-    version: Version
+    version: Version,
+    modsDir: File,
 ): ModsManageViewModel {
-    val folderName = VersionFolders.MOD.folderName
     return viewModel(
-        key = version.toString() + "_" + folderName
+        key = version.toString() + "_" + VersionFolders.MOD.folderName
     ) {
-        ModsManageViewModel(File(version.getGameDir(), folderName))
+        ModsManageViewModel(modsDir)
     }
 }
 
@@ -259,8 +261,9 @@ fun ModsManagerScreen(
     versionsScreenKey: NavKey?,
     version: Version,
     backToMainScreen: () -> Unit,
-    swapToDownload: () -> Unit = {},
-    onSwapMoreInfo: (id: String, Platform) -> Unit
+    swapToDownload: () -> Unit,
+    onSwapMoreInfo: (id: String, Platform) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -275,7 +278,8 @@ fun ModsManagerScreen(
         ),
         Triple(NormalNavKey.Versions.ModsManager, versionsScreenKey, false)
     ) { isVisible ->
-        val viewModel = rememberModsManageViewModel(version)
+        val modsDir = File(version.getGameDir(), VersionFolders.MOD.folderName)
+        val viewModel = rememberModsManageViewModel(version, modsDir)
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -325,8 +329,10 @@ fun ModsManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
+                            modsDir = modsDir,
                             swapToDownload = swapToDownload,
-                            refresh = { viewModel.refresh(context) }
+                            refresh = { viewModel.refresh(context) },
+                            submitError = submitError
                         )
 
                         ModsList(
@@ -379,9 +385,11 @@ private fun ModsActionsHeader(
     inputFieldColor: Color,
     inputFieldContentColor: Color,
     nameFilter: String,
-    onNameFilterChange: (String) -> Unit = {},
-    swapToDownload: () -> Unit = {},
-    refresh: () -> Unit = {}
+    onNameFilterChange: (String) -> Unit,
+    modsDir: File,
+    swapToDownload: () -> Unit,
+    refresh: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {}
 ) {
     Column(modifier = modifier) {
         Row(
@@ -405,6 +413,13 @@ private fun ModsActionsHeader(
             )
 
             Spacer(modifier = Modifier.width(12.dp))
+
+            ImportFileButton(
+                extension = "jar",
+                targetDir = modsDir,
+                submitError = submitError,
+                onImported = refresh
+            )
 
             IconTextButton(
                 onClick = swapToDownload,

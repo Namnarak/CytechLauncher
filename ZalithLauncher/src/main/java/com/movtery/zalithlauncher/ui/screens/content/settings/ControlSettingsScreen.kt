@@ -71,7 +71,7 @@ fun ControlSettingsScreen(
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
     eventViewModel: EventViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         Triple(key, mainScreenKey, false),
@@ -157,7 +157,7 @@ fun ControlSettingsScreen(
                     mouseSize = AllSettings.mouseSize.state,
                     mouseOperation = mouseOperation,
                     changeOperation = { mouseOperation = it },
-                    summitError = summitError
+                    submitError = submitError
                 )
 
                 SliderSettingsLayout(
@@ -444,7 +444,7 @@ private fun MousePointerLayout(
     mouseSize: Int,
     mouseOperation: MousePointerOperation,
     changeOperation: (MousePointerOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -482,7 +482,7 @@ private fun MousePointerLayout(
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(mousePointerFile)
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = th.getMessageOrToString()

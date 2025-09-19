@@ -79,7 +79,7 @@ fun microsoftLogin(
     backToMain: () -> Unit,
     checkIfInWebScreen: () -> Boolean,
     updateOperation: (MicrosoftLoginOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val task = Task.runTask(
         id = MICROSOFT_LOGGING_TASK,
@@ -135,7 +135,7 @@ fun microsoftLogin(
                     context.getString(R.string.error_unknown, errorMessage)
                 }
             }?.let { message ->
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = context.getString(R.string.account_logging_in_failed),
                         message = message
