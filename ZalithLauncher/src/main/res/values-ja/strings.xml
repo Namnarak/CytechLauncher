@@ -647,10 +647,6 @@
     <string name="account_logging_blocked_ip">現在のIPアドレスはログインがブロックされています。</string>
     <string name="account_logging_profile_not_exists">まずMinecraftプレイヤープロファイルを作成してから、再度ログインしてください！</string>
     <string name="account_logging_not_purchased_minecraft">Minecraftの所有が確認されません。Mojangの公式サイトで購入してください。</string>
-    <string name="account_change_skin_select_model_alert_auth_server">authサーバーを使用</string>
-    <string name="account_change_skin_select_model_alert_custom_skin_loader">CustomSkinLoaderモードを使用</string>
-    <string name="account_change_skin_select_model_alert_hint5">代替方法:</string>
-    <string name="account_change_skin_select_model_alert_hint4">現在の技術的な制約により、この機能は1.19.2以前でのみ動作することが保証されています！</string>
     <string name="account_change_skin_update_local">ローカルスキンを更新</string>
     <string name="account_change_cape">マントを変更</string>
     <string name="account_change_cape_fetch_all">全てのマントを取得中</string>
@@ -668,9 +664,6 @@
     <string name="account_logging_xbox_reached_playtime_limit">アカウントのプレイ時間制限に達したためログインがブロックされました。</string>
     <string name="account_logging_xbox_underage">アカウントの生年月日によるとユーザーは18歳以下です。保護者がこのアカウントをファミリーグループに追加して使えるようにしてください。</string>
     <string name="account_logging_frequent">ログインの試行が多すぎます。後ほどお試しください。</string>
-    <string name="account_change_skin_select_model_alert_hint1">ランチャーはゲーム起動中にリソースパックを自動的に生成してオフラインアカウントのカスタムスキンを有効にします。</string>
-    <string name="account_change_skin_select_model_alert_hint2">ただし、この方法は全てMinecarftのバージョンに互換性がないことに注意してください。</string>
-    <string name="account_change_skin_select_model_alert_hint3">Minecraft 1.19.3以降は、スキンの種類とキャラクターモデルはより明確に区別されるようになりました。</string>
     <string name="account_change_skin_failed_to_import">対象ファイルのキャッシュに失敗しました</string>
     <string name="account_change_skin_invalid">スキンのピクセルサイズが無効です、64x32ピクセルまたは64x64ピクセルにしてください</string>
     <string name="account_change_skin_uploading">スキンファイルをアップロード中</string>
