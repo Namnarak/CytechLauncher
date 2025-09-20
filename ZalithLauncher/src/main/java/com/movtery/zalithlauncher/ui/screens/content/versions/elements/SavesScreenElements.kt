@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.querz.nbt.io.NBTUtil
 import net.querz.nbt.tag.CompoundTag
-import org.apache.commons.io.FileUtils
 import java.io.File
 
 sealed interface SavesOperation {
@@ -68,8 +67,9 @@ fun SaveData.isCompatible(minecraftVersion: String) =
 data class SaveData(
     /** 存档文件夹 */
     val saveFile: File,
-    /** 提前计算好的存档大小 */
-    val saveSize: Long,
+// 性能、速度考虑，不再计算存档的大小
+//    /** 提前计算好的存档大小 */
+//    val saveSize: Long,
     /** 该存档是否有效 */
     val isValid: Boolean,
     /** 存档真正的名字 */
@@ -127,7 +127,7 @@ enum class Difficulty(val levelCode: Int, val nameRes: Int) {
  * @param levelDatFile level.dat 文件
  */
 suspend fun parseLevelDatFile(saveFile: File, levelDatFile: File): SaveData = withContext(Dispatchers.IO) {
-    val fileSize = FileUtils.sizeOf(saveFile)
+//    val fileSize = FileUtils.sizeOf(saveFile)
     runCatching {
         if (!levelDatFile.exists()) error("The ${levelDatFile.absolutePath} file does not exist!")
 
@@ -167,7 +167,7 @@ suspend fun parseLevelDatFile(saveFile: File, levelDatFile: File): SaveData = wi
 
         SaveData(
             saveFile = saveFile,
-            saveSize = fileSize,
+//            saveSize = fileSize,
             isValid = true,
             levelName = levelName,
             levelMCVersion = levelMCVersion,
@@ -187,7 +187,7 @@ suspend fun parseLevelDatFile(saveFile: File, levelDatFile: File): SaveData = wi
         //读取出现异常，返回一个无效数据
         SaveData(
             saveFile = saveFile,
-            saveSize = fileSize,
+//            saveSize = fileSize,
             isValid = false
         )
     }
