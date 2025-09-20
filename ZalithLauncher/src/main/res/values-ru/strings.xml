@@ -867,4 +867,11 @@
     <string name="settings_control_gyroscope_invert_y_summary">Если включено, поворот устройства вверх или вниз будет управлять камерой в противоположном направлении.</string>
     <string name="game_menu_option_show_menu">Включить наложение меню</string>
     <string name="game_menu_option_show_menu_hided">Наложение игрового меню отключено. Вы можете открыть игровое меню с помощью системной кнопки «Назад».</string>
+    <string name="error_import_file">При импорте файла произошла ошибка</string>
+    <string name="saves_manage_import_unpacking">Распаковка мира: %s</string>
+    <string name="saves_manage_import_failed">При импорте мира произошла ошибка</string>
+    <string name="about_acknowledgements_github_community">Сообщество GitHub</string>
+    <string name="about_acknowledgements_github_community_text">Все, кто сообщал о проблемах и вносил свой вклад в развитие проекта на GitHub.</string>
+    <string name="about_acknowledgements_weblate_community">Сообщество Weblate</string>
+    <string name="about_acknowledgements_weblate_community_text">Все переводчики, принявшие участие в локализации проекта</string>
 </resources>
