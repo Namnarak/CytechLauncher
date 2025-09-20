@@ -28,6 +28,10 @@ open class JvmLauncher(
     private val jvmLaunchInfo: JvmLaunchInfo,
     onExit: (code: Int, isSignal: Boolean) -> Unit
 ) : Launcher(onExit) {
+    override fun exit() {
+
+    }
+
     override suspend fun launch(): Int {
         generateLauncherProfiles(jvmLaunchInfo.userHome)
         val (runtime, argList) = getStartupNeeded()

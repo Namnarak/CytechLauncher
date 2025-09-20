@@ -14,6 +14,7 @@ import com.movtery.zalithlauncher.context.readAssetFile
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
+import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
 import com.movtery.zalithlauncher.game.multirt.Runtime
@@ -49,6 +50,11 @@ class GameLauncher(
     onExit: (code: Int, isSignal: Boolean) -> Unit
 ) : Launcher(onExit) {
     private lateinit var gameManifest: GameManifest
+    private val offlineServer = OfflineYggdrasilServer(0)
+
+    override fun exit() {
+        offlineServer.stop()
+    }
 
     override suspend fun launch(): Int {
         if (!Renderers.isCurrentRendererValid()) {
@@ -170,6 +176,7 @@ class GameLauncher(
         val launchArgs = LaunchArgs(
             launcher = this,
             account = account,
+            offlineServer = offlineServer,
             gameDirPath = gameDirPath,
             version = version,
             gameManifest = gameManifest,

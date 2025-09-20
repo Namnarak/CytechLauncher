@@ -75,7 +75,7 @@ class GameHandler(
             set("overrideWidth", CallbackBridge.windowWidth.toString())
             set("overrideHeight", CallbackBridge.windowHeight.toString())
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)
-            localSkinResourcePack()
+//            localSkinResourcePack()
             save()
         }
 

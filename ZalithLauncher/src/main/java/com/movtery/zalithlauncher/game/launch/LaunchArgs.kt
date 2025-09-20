@@ -4,6 +4,8 @@ import androidx.collection.ArrayMap
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.isAuthServerAccount
+import com.movtery.zalithlauncher.game.account.isLocalAccount
+import com.movtery.zalithlauncher.game.account.offline.OfflineYggdrasilServer
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.path.getAssetsHome
 import com.movtery.zalithlauncher.game.path.getLibrariesHome
@@ -17,6 +19,7 @@ import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.ServerAddress
 import com.movtery.zalithlauncher.utils.string.insertJSONValueList
@@ -28,6 +31,7 @@ import java.io.File
 class LaunchArgs(
     private val launcher: Launcher,
     private val account: Account,
+    private val offlineServer: OfflineYggdrasilServer,
     private val gameDirPath: File,
     private val version: Version,
     private val gameManifest: GameManifest,
@@ -91,7 +95,23 @@ class LaunchArgs(
     private fun getJavaArgs(): List<String> {
         val argsList: MutableList<String> = ArrayList()
 
-        if (account.isAuthServerAccount()) {
+        if (account.isLocalAccount()) {
+            if (account.hasSkinFile) {
+                //该离线账号拥有本地皮肤，启用离线yggdrasil服务器
+                offlineServer.start()
+                offlineServer.addCharacter(account)
+                offlineServer.getPort()?.let { port ->
+                    lInfo("Using offline Yggdrasil server on port $port")
+                    argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=http://localhost:$port")
+                    argsList.add("-Dauthlibinjector.side=client")
+                } ?: run {
+                    //无法获取端口号，说明服务器未成功启动
+                    lWarning("Failed to start offline Yggdrasil server!")
+                    //本次启动将被忽略，为避免浪费性能，关停服务器
+                    offlineServer.stop()
+                }
+            }
+        } else if (account.isAuthServerAccount()) {
             if (account.otherBaseUrl!!.contains("auth.mc-user.com")) {
                 argsList.add("-javaagent:${LibPath.NIDE_8_AUTH.absolutePath}=${account.otherBaseUrl!!.replace("https://auth.mc-user.com:233/", "")}")
                 argsList.add("-Dnide8auth.client=true")
