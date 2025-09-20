@@ -73,6 +73,7 @@ import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinMode
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
+import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -561,7 +562,7 @@ private fun MicrosoftChangeCapeOperation(
                     updateOperation(MicrosoftChangeCapeOperation.RunTask(account, cape))
                 },
                 isCurrent = { cape ->
-                    cape.state == "ACTIVE" //ACTIVE表示当前正在使用
+                    cape.isUsing()
                 },
                 onDismissRequest = { selected ->
                     if (!selected) {

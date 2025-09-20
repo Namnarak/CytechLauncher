@@ -61,8 +61,7 @@ class GameLauncher(
         val currentAccount = AccountsManager.currentAccountFlow.value!!
         val account = if (version.offlineAccountLogin) {
             //使用临时离线账号启动游戏
-            Account(
-                username = currentAccount.username,
+            currentAccount.copy(
                 accountType = AccountType.LOCAL.tag
             )
         } else {
