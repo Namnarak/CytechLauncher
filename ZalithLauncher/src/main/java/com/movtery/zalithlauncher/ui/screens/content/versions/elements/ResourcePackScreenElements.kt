@@ -45,8 +45,8 @@ fun List<ResourcePackInfo>.filterPacks(filter: ResourcePackFilter) = this.filter
 data class ResourcePackInfo(
     /** 资源包文件 */
     val file: File,
-    /** 提前计算好的文件大小 */
-    val fileSize: Long,
+    /** 提前计算好的文件大小（文件夹形式的资源包不计算文件大小） */
+    val fileSize: Long? = null,
     /** 清除颜色替换符后的文件名 */
     val rawName: String = file.name.stripColorCodes(),
     /** 显示名称（如果是压缩包类型的资源包，将被去掉扩展名） */
@@ -97,7 +97,7 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
         var isValid = false
         var metaContent: String? = null
         var iconBytes: ByteArray? = null
-        val fileSize = FileUtils.sizeOf(file)
+        var fileSize: Long? = null
 
         if (file.isDirectory) { //文件夹形式的资源包
             //资源包元数据
@@ -109,6 +109,9 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
                 iconBytes = iconFile.readBytes()
             }
         } else if (file.extension == "zip") { //压缩包形式的资源包
+            //性能、速度考虑，仅压缩包形式的资源包可以计算文件大小
+            fileSize = FileUtils.sizeOf(file)
+
             ZipFile(file).use { zip ->
                 //资源包元数据
                 zip.getEntry("pack.mcmeta")?.let { metaEntry ->
