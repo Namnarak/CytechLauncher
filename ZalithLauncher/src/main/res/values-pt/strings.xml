@@ -709,4 +709,10 @@
     <string name="control_editor_edit_translatable_other_value">Conteúdo do Texto</string>
     <string name="control_editor_edit_position_x">Coordenada X</string>
     <string name="control_editor_edit_position_y">Coordenada Y</string>
+    <string name="control_editor_edit_category_info">Informação</string>
+    <string name="control_editor_edit_button_default">Botão</string>
+    <string name="control_editor_edit_size_type_percentage">Porcentagem</string>
+    <string name="control_editor_edit_event_basic">Básico</string>
+    <string name="control_editor_edit_event_key">Chave</string>
+    <string name="control_editor_edit_style_config_normal">Normal</string>
 </resources>
