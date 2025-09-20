@@ -611,6 +611,7 @@ private fun ResourcePackInfoTooltip(
     resourcePackInfo: ResourcePackInfo
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        //资源包类型
         Text(
             text = stringResource(
                 R.string.resource_pack_manage_type,
@@ -621,8 +622,13 @@ private fun ResourcePackInfoTooltip(
                 }
             )
         )
+        //文件名称
         Text(text = stringResource(R.string.generic_file_name, resourcePackInfo.file.name))
-        Text(text = stringResource(R.string.generic_file_size, formatFileSize(resourcePackInfo.fileSize)))
+        //文件大小
+        resourcePackInfo.fileSize?.let { fileSize ->
+            Text(text = stringResource(R.string.generic_file_size, formatFileSize(fileSize)))
+        }
+        //格式版本
         resourcePackInfo.packFormat?.let { packFormat ->
             Text(text = stringResource(R.string.resource_pack_manage_formats, packFormat.toString()))
         }

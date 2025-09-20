@@ -103,7 +103,6 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -667,8 +666,8 @@ private fun SaveInfoTooltip(
     Column {
         //文件名
         Text(text = stringResource(R.string.generic_file_name, saveData.saveFile.name))
-        //存档大小
-        Text(text = stringResource(R.string.generic_file_size, formatFileSize(saveData.saveSize)))
+//        //存档大小
+//        Text(text = stringResource(R.string.generic_file_size, formatFileSize(saveData.saveSize)))
         //游戏模式，不存在则展示为未知
         Text(
             text = stringResource(

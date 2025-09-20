@@ -325,7 +325,6 @@
     <string name="game_auto_pick_runtime_failed">Nenhum iniciador encontrado. Usando o iniciador da versão instalada.</string>
     <string name="game_menu_title">Menu do jogo</string>
     <string name="account_add_new_server_button">Adicionar conta Auth</string>
-    <string name="account_change_skin_select_model_alert_hint5">Solução Alternativa:</string>
     <string name="account_change_skin_model_steve">Modelo do Steve</string>
     <string name="account_change_skin_model_alex">Modelo da Alex</string>
     <string name="account_supporting_username_invalid_title">Nome de usuário inválido</string>
@@ -383,14 +382,7 @@
     <string name="account_logging_xbox_restricted">Sua conta foi restrita. O guardião/responsável não autoriza jogos online.</string>
     <string name="account_logging_xbox_unregistered">Sua conta não criou um perfil Xbox. Por favor, acesse https://signup.live.com/signup para registrar.</string>
     <string name="account_change_skin_select_model_message">Essa é uma skin Steve (braços grandes) ou Alex (braços pequenos)?</string>
-    <string name="account_change_skin_select_model_alert_hint1">O launcher permitirá skins personalizadas para contas offiline ao carregar os pacotes de recurso durante o processo de inicialização.</string>
-    <string name="account_change_skin_select_model_alert_hint2">Entretanto, esse método não é compatível com todas as versões do Minecraft.</string>
-    <string name="account_change_skin_select_model_alert_hint3">Apartir da versão 1.19.3, tipos de skin e modelos de personagem serão mais discernidos.</string>
-    <string name="account_change_skin_select_model_alert_hint4">Devido às limitações técnicas, esse recurso funcionará apenas nas versões anteriores à 1.19.2!</string>
-    <string name="account_change_skin_select_model_alert_auth_server">Usar servidor auth</string>
     <string name="account_change_skin_reset_skin_message">Tem certeza que deseja redefinir a skin da conta atual?</string>
-    <string name="account_change_skin_not_supported_alex">Esta versão do Minecraft não suporta skins que utilizam o modelo Alex. Skins desse modelo aparecerão no jogo como modelo Steve!</string>
-    <string name="account_change_skin_compatibility_warning">Devido às limitações técnicas, skins personalizadas poderão não funcionar nessa versão do Minecraft.</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Nomes de usuário válidos apenas aceitam letras (sem distinção de maiúsculas), números, sublinhado, e possuem tamanho de 3 a 16 caracteres.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Caso contrário, o jogo pode não iniciar adequadamente.</string>
     <string name="account_supporting_username_invalid_local_message_hint3">Nomes de usuário válidos: Name, Name_, Name123</string>
@@ -444,7 +436,6 @@
     <string name="versions_manage_copy_version_tip">Copiar essa versão com isolamento habilitado. Ative \"Copiar todos os arquivos\" para incluir os recursos.</string>
     <string name="versions_manage_copy_version_all">Copiar todos os arquivos</string>
     <string name="versions_manage_delete_version">Apagar versão</string>
-    <string name="account_change_skin_select_model_alert_custom_skin_loader">Usar o mod CustomSkinLoader</string>
     <string name="account_microsoft_get_token">Busca em andamento, tentando obter o token; código do dispositivo: %s</string>
     <string name="account_other_login_baseurl_not_set">URL base não definida</string>
     <string name="versions_manage_game_path_error_title">Ocorreu um problema ao acessar o diretório do jogo</string>

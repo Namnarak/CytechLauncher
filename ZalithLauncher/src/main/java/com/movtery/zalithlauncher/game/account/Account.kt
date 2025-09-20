@@ -60,7 +60,9 @@ data class Account(
         if (skinFile.exists()) FileUtils.deleteQuietly(skinFile) //清除一次皮肤文件
 
         runCatching {
-            SkinFileDownloader().yggdrasil(url, skinFile, profileId)
+            SkinFileDownloader().yggdrasil(url, skinFile, profileId) { modelType ->
+                this.skinModelType = modelType
+            }
             lInfo("Update skin success")
         }.onFailure { e ->
             lError("Could not update skin", e)

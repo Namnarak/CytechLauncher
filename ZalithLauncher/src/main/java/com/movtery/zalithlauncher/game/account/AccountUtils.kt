@@ -39,7 +39,7 @@ import java.util.Objects
 import kotlin.coroutines.CoroutineContext
 
 fun Account.isAuthServerAccount(): Boolean {
-    return !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
+    return !isLocalAccount() && !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
 }
 
 fun Account.isMicrosoftAccount(): Boolean {

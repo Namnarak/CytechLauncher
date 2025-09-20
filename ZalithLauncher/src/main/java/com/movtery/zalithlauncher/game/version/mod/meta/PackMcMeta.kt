@@ -58,7 +58,8 @@ private class DescriptionContentAdapter : JsonDeserializer<DescriptionContent> {
             json.isJsonPrimitive -> DescriptionContent.Text(json.asString)
             json.isJsonObject -> {
                 val obj = json.asJsonObject
-                DescriptionContent.Text(obj.get("text")?.asString ?: "")
+                val str = (obj.get("text")?.asString ?: obj.get("fallback")?.asString) ?: ""
+                DescriptionContent.Text(str)
             }
             json.isJsonArray -> {
                 val parts = mutableListOf<DescriptionContent.Part>()

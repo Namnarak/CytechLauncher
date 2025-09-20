@@ -40,8 +40,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.info.InfoDistributor
@@ -52,7 +50,6 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountAvatar
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionIconImage
-import com.movtery.zalithlauncher.ui.screens.content.elements.getLocalSkinWarningButton
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
@@ -95,15 +92,6 @@ fun LauncherScreen(
                     VersionsManager.currentVersion?.let { version ->
                         navigateToVersions(version)
                     }
-                },
-                toDownloadScreen = { projectId, platform, classes ->
-                    backStackViewModel.navigateToDownload(
-                        targetScreen = backStackViewModel.downloadModScreen.apply {
-                            navigateTo(
-                                NormalNavKey.DownloadAssets(platform, projectId, classes)
-                            )
-                        }
-                    )
                 }
             )
         }
@@ -164,8 +152,7 @@ private fun RightMenu(
     launchGameViewModel: LaunchGameViewModel,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {},
-    toVersionSettingsScreen: () -> Unit = {},
-    toDownloadScreen: (id: String, Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
+    toVersionSettingsScreen: () -> Unit = {}
 ) {
     val xOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
@@ -183,7 +170,7 @@ private fun RightMenu(
         ConstraintLayout(
             modifier = Modifier.fillMaxSize()
         ) {
-            val (accountAvatar, skinWarningLayout, versionManagerLayout, launchButton) = createRefs()
+            val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
 
             AccountAvatar(
                 modifier = Modifier
@@ -196,30 +183,6 @@ private fun RightMenu(
                 account = account,
                 onClick = toAccountManageScreen
             )
-
-            val skinWarning: (@Composable () -> Unit)? = version?.getVersionInfo()?.let { versionInfo ->
-                account?.let { acc1 ->
-                    //离线账号皮肤相关的警告
-                    getLocalSkinWarningButton(
-                        account = acc1,
-                        versionInfo = versionInfo,
-                        swapToAccountScreen = toAccountManageScreen,
-                        swapToDownloadScreen = toDownloadScreen
-                    )
-                }
-            }
-
-            skinWarning?.let { button ->
-                Column(
-                    modifier = Modifier
-                        .constrainAs(skinWarningLayout) {
-                            top.linkTo(accountAvatar.top, margin = 50.dp)
-                            start.linkTo(accountAvatar.start, margin = 50.dp)
-                        }
-                ) {
-                    button()
-                }
-            }
 
             Row(
                 modifier = Modifier.constrainAs(versionManagerLayout) {

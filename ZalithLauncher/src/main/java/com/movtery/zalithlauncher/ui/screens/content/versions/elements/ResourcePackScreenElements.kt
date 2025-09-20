@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
-import com.movtery.zalithlauncher.utils.json.parseToJson
+import com.movtery.zalithlauncher.game.version.mod.meta.PackMcMeta
+import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
 import kotlinx.coroutines.Dispatchers
@@ -45,8 +46,8 @@ fun List<ResourcePackInfo>.filterPacks(filter: ResourcePackFilter) = this.filter
 data class ResourcePackInfo(
     /** 资源包文件 */
     val file: File,
-    /** 提前计算好的文件大小 */
-    val fileSize: Long,
+    /** 提前计算好的文件大小（文件夹形式的资源包不计算文件大小） */
+    val fileSize: Long? = null,
     /** 清除颜色替换符后的文件名 */
     val rawName: String = file.name.stripColorCodes(),
     /** 显示名称（如果是压缩包类型的资源包，将被去掉扩展名） */
@@ -97,7 +98,7 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
         var isValid = false
         var metaContent: String? = null
         var iconBytes: ByteArray? = null
-        val fileSize = FileUtils.sizeOf(file)
+        var fileSize: Long? = null
 
         if (file.isDirectory) { //文件夹形式的资源包
             //资源包元数据
@@ -109,6 +110,9 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
                 iconBytes = iconFile.readBytes()
             }
         } else if (file.extension == "zip") { //压缩包形式的资源包
+            //性能、速度考虑，仅压缩包形式的资源包可以计算文件大小
+            fileSize = FileUtils.sizeOf(file)
+
             ZipFile(file).use { zip ->
                 //资源包元数据
                 zip.getEntry("pack.mcmeta")?.let { metaEntry ->
@@ -121,17 +125,23 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
             }
         }
 
-        val pack = metaContent?.parseToJson()?.get("pack")?.also {
-            //这个pack必须存在，否则将不是有效的格式
+        val meta = metaContent?.let { content ->
+            runCatching {
+                GSON.fromJson(content, PackMcMeta::class.java)
+            }.onFailure {
+                lWarning("Failed to parse the resource package metadata: ${file.absolutePath}", it)
+            }.getOrNull()
+        }?.also {
+            //解析成功，则代表其是一个有效的格式
             isValid = true
-        }?.asJsonObject
+        }
 
         ResourcePackInfo(
             file = file,
             fileSize = fileSize,
             isValid = isValid,
-            description = pack?.get("description")?.asString,
-            packFormat = pack?.get("pack_format")?.asInt,
+            description = meta?.pack?.description?.toPlainText(),
+            packFormat = meta?.pack?.packFormat,
             icon = iconBytes
         )
     }.onFailure {

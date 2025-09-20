@@ -21,15 +21,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Checkroom
-import androidx.compose.material.icons.outlined.Dns
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,12 +69,10 @@ import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinMode
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
+import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
-import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -160,19 +154,6 @@ fun AccountManageScreen(
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
                     .weight(7.5f),
                 submitError = submitError,
-                onAddAuthClicked = {
-                    //打开添加认证服务器的对话框
-                    serverOperation = ServerOperation.AddNew
-                },
-                swapToDownloadScreen = { projectId, platform, classes ->
-                    backStackViewModel.navigateToDownload(
-                        targetScreen = backStackViewModel.downloadModScreen.apply {
-                            navigateTo(
-                                NormalNavKey.DownloadAssets(platform, projectId, classes)
-                            )
-                        }
-                    )
-                },
                 onMicrosoftChangeSkin = { account, result ->
                     microsoftChangeSkinOperation = MicrosoftChangeSkinOperation.ImportFile(account, result)
                 },
@@ -561,7 +542,7 @@ private fun MicrosoftChangeCapeOperation(
                     updateOperation(MicrosoftChangeCapeOperation.RunTask(account, cape))
                 },
                 isCurrent = { cape ->
-                    cape.state == "ACTIVE" //ACTIVE表示当前正在使用
+                    cape.isUsing()
                 },
                 onDismissRequest = { selected ->
                     if (!selected) {
@@ -841,8 +822,6 @@ private fun AccountsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    onAddAuthClicked: () -> Unit,
-    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit,
     onMicrosoftChangeSkin: (Account, Uri) -> Unit,
     onMicrosoftChangeCape: (Account) -> Unit
 ) {
@@ -887,9 +866,7 @@ private fun AccountsLayout(
                         accountSkinOperation = accountSkinOperation,
                         updateOperation = { accountSkinOperation = it },
                         submitError = submitError,
-                        onAddAuthClicked = onAddAuthClicked,
-                        onRefreshAvatar = { refreshAvatar = !refreshAvatar },
-                        swapToDownloadScreen = swapToDownloadScreen
+                        onRefreshAvatar = { refreshAvatar = !refreshAvatar }
                     )
 
                     val skinPicker = rememberLauncherForActivityResult(
@@ -962,38 +939,37 @@ private fun AccountSkinOperation(
     accountSkinOperation: AccountSkinOperation,
     updateOperation: (AccountSkinOperation) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    onAddAuthClicked: () -> Unit = {},
-    onRefreshAvatar: () -> Unit = {},
-    swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
+    onRefreshAvatar: () -> Unit = {}
 ) {
     val context = LocalContext.current
     when (accountSkinOperation) {
         is AccountSkinOperation.None -> {}
         is AccountSkinOperation.SaveSkin -> {
-            val skinFile = account.getSkinFile()
-            TaskSystem.submitTask(
-                Task.runTask(
-                    dispatcher = Dispatchers.IO,
-                    task = {
-                        context.copyLocalFile(accountSkinOperation.uri, skinFile)
-                        AccountsManager.suspendSaveAccount(account)
-                        onRefreshAvatar()
-                        //警告用户关于自定义皮肤的一些注意事项
-                        updateOperation(AccountSkinOperation.AlertModel)
-                    },
-                    onError = { th ->
-                        FileUtils.deleteQuietly(skinFile)
-                        submitError(
-                            ErrorViewModel.ThrowableMessage(
-                                title = context.getString(R.string.error_import_image),
-                                message = th.getMessageOrToString()
+            LaunchedEffect(Unit) {
+                val skinFile = account.getSkinFile()
+                TaskSystem.submitTask(
+                    Task.runTask(
+                        dispatcher = Dispatchers.IO,
+                        task = {
+                            context.copyLocalFile(accountSkinOperation.uri, skinFile)
+                            AccountsManager.suspendSaveAccount(account)
+                            onRefreshAvatar()
+                            updateOperation(AccountSkinOperation.None)
+                        },
+                        onError = { th ->
+                            FileUtils.deleteQuietly(skinFile)
+                            submitError(
+                                ErrorViewModel.ThrowableMessage(
+                                    title = context.getString(R.string.error_import_image),
+                                    message = th.getMessageOrToString()
+                                )
                             )
-                        )
-                        onRefreshAvatar()
-                        updateOperation(AccountSkinOperation.None)
-                    }
+                            onRefreshAvatar()
+                            updateOperation(AccountSkinOperation.None)
+                        }
+                    )
                 )
-            )
+            }
         }
         is AccountSkinOperation.SelectSkinModel -> {
             SelectSkinModelDialog(
@@ -1004,61 +980,6 @@ private fun AccountSkinOperation(
                     account.skinModelType = type
                     account.profileId = getLocalUUIDWithSkinModel(account.username, type)
                     updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri))
-                }
-            )
-        }
-        is AccountSkinOperation.AlertModel -> {
-            AlertDialog(
-                onDismissRequest = {},
-                title = {
-                    Text(
-                        text = stringResource(R.string.generic_warning),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                text = {
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        Text(text = stringResource(R.string.account_change_skin_select_model_alert_hint1))
-                        Text(
-                            text = stringResource(R.string.account_change_skin_select_model_alert_hint2),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(text = stringResource(R.string.account_change_skin_select_model_alert_hint3))
-                        Text(text = stringResource(R.string.account_change_skin_select_model_alert_hint4))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.account_change_skin_select_model_alert_hint5),
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        IconTextButton(
-                            onClick = {
-                                onAddAuthClicked()
-                                updateOperation(AccountSkinOperation.None)
-                            },
-                            imageVector = Icons.Outlined.Dns,
-                            contentDescription = null,
-                            text = stringResource(R.string.account_change_skin_select_model_alert_auth_server)
-                        )
-                        IconTextButton(
-                            onClick = {
-                                swapToDownloadScreen("idMHQ4n2", Platform.MODRINTH, PlatformClasses.MOD)
-                                updateOperation(AccountSkinOperation.None)
-                            },
-                            imageVector = Icons.Outlined.Checkroom,
-                            contentDescription = null,
-                            text = stringResource(R.string.account_change_skin_select_model_alert_custom_skin_loader)
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            updateOperation(AccountSkinOperation.None)
-                        }
-                    ) {
-                        MarqueeText(text = stringResource(R.string.generic_go_it))
-                    }
                 }
             )
         }
