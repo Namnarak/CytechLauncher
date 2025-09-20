@@ -119,13 +119,6 @@ class LaunchArgs(
         argsList.add("-Dlog4j.configurationFile=${configFilePath.absolutePath}")
         argsList.add("-Dminecraft.client.jar=${version.getClientJar().absolutePath}")
 
-        val versionSpecificNativesDir = File(PathManager.DIR_CACHE, "natives/${version.getVersionName()}")
-        if (versionSpecificNativesDir.exists()) {
-            val dirPath = versionSpecificNativesDir.absolutePath
-            argsList.add("-Djava.library.path=$dirPath:${PathManager.DIR_NATIVE_LIB}")
-            argsList.add("-Djna.boot.library.path=$dirPath")
-        }
-
         return argsList
     }
 

@@ -15,6 +15,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
@@ -24,6 +25,7 @@ import com.movtery.zalithlauncher.game.support.touch_controller.ControllerProxy
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.getGameManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
+import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.device.Architecture
@@ -89,6 +91,20 @@ class GameLauncher(
         if (is172 && (versionInfo?.loaderInfo?.loader == ModLoader.FORGE)) {
             lDebug("Is Forge 1.7.2, use the patched sorting method.")
             put("sort.patch", "true")
+        }
+
+        //jna
+        gameManifest.libraries?.find { library ->
+            library.name.startsWith("net.java.dev.jna:jna:")
+        }?.let { library ->
+            parseLibraryComponents(library.name).version
+        }?.let { jnaVersion ->
+            val jnaDir = File(LibPath.JNA, jnaVersion)
+            if (jnaDir.exists()) {
+                val dirPath = jnaDir.absolutePath
+                put("java.library.path", "$dirPath:${PathManager.DIR_NATIVE_LIB}")
+                put("jna.boot.library.path", dirPath) //覆盖父类添加的jna路径
+            }
         }
     }
 
