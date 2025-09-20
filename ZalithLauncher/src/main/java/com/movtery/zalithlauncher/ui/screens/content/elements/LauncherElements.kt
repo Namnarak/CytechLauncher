@@ -2,52 +2,20 @@ package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import android.app.Activity
 import android.widget.Toast
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Checkroom
-import androidx.compose.material.icons.outlined.Dns
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RichTooltip
-import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
-import com.movtery.zalithlauncher.game.account.isLocalAccount
-import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
-import com.movtery.zalithlauncher.game.account.wardrobe.isOfflineSkinCompatible
-import com.movtery.zalithlauncher.game.account.wardrobe.isSkinModelUuidSupported
-import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
 import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.Version
-import com.movtery.zalithlauncher.game.version.installed.VersionInfo
-import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
-import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
-import kotlinx.coroutines.launch
 
 sealed interface LaunchGameOperation {
     data object None : LaunchGameOperation
@@ -81,102 +49,6 @@ sealed interface LaunchGameOperation {
         val version: Version,
         val quickPlay: String?
     ) : LaunchGameOperation
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun getLocalSkinWarningButton(
-    modifier: Modifier = Modifier,
-    account: Account,
-    versionInfo: VersionInfo,
-    swapToAccountScreen: () -> Unit = {},
-    swapToDownloadScreen: (id: String, Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
-): (@Composable () -> Unit)? {
-    val warningIcon = @Composable {
-        Icon(
-            imageVector = Icons.Default.Warning,
-            contentDescription = stringResource(R.string.generic_warning),
-            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-        )
-    }
-
-    if (!(account.isLocalAccount() && account.hasSkinFile)) return null
-
-    return if (
-        account.skinModelType == SkinModelType.ALEX &&
-        isSkinModelUuidSupported(versionInfo)
-    ) {
-        @Composable {
-            TooltipIconButton(
-                modifier = modifier,
-                tooltipTitle = stringResource(R.string.generic_warning),
-                tooltipMessage = stringResource(R.string.account_change_skin_not_supported_alex)
-            ) {
-                warningIcon()
-            }
-        }
-    } else if (isOfflineSkinCompatible(versionInfo)) {
-        @Composable {
-            val tooltipState = rememberTooltipState(isPersistent = true)
-            val coroutineScope = rememberCoroutineScope()
-
-            TooltipBox(
-                modifier = modifier,
-                positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-                tooltip = {
-                    RichTooltip(
-                        modifier = Modifier.padding(all = 3.dp),
-                        title = { Text(text = stringResource(R.string.generic_warning)) },
-                        shadowElevation = 3.dp
-                    ) {
-                        Column {
-                            Text(text = stringResource(R.string.account_change_skin_compatibility_warning))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.account_change_skin_select_model_alert_hint5),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            IconTextButton(
-                                onClick = {
-                                    swapToAccountScreen()
-                                    tooltipState.dismiss()
-                                },
-                                imageVector = Icons.Outlined.Dns,
-                                contentDescription = null,
-                                text = stringResource(R.string.account_change_skin_select_model_alert_auth_server)
-                            )
-                            IconTextButton(
-                                onClick = {
-                                    swapToDownloadScreen("idMHQ4n2", Platform.MODRINTH, PlatformClasses.MOD)
-                                    tooltipState.dismiss()
-                                },
-                                imageVector = Icons.Outlined.Checkroom,
-                                contentDescription = null,
-                                text = stringResource(R.string.account_change_skin_select_model_alert_custom_skin_loader)
-                            )
-                        }
-                    }
-                },
-                state = tooltipState,
-                enableUserInput = false
-            ) {
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            if (tooltipState.isVisible) {
-                                tooltipState.dismiss()
-                            } else {
-                                tooltipState.show()
-                            }
-                        }
-                    }
-                ) {
-                    warningIcon()
-                }
-            }
-        }
-    } else null
 }
 
 @Composable

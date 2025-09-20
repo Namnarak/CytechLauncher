@@ -162,6 +162,7 @@ class GameHandler(
         refreshControls()
     }
 
+    @Suppress("unused")
     private suspend fun localSkinResourcePack() {
         AccountsManager.getCurrentAccount()?.takeIf {
             it.isLocalAccount() &&
