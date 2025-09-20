@@ -165,7 +165,8 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.ic_github),
                             title = stringResource(R.string.about_acknowledgements_github_community),
                             text = stringResource(R.string.about_acknowledgements_github_community_text),
-                            openLink = { openLink(URL_COMMUNITY) }
+                            openLink = { openLink(URL_COMMUNITY) },
+                            useImage = false
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_weblate),
@@ -265,6 +266,7 @@ private fun LinkIconItem(
     openLink: (() -> Unit)? = null,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    useImage: Boolean = true
 ) {
     Surface(
         modifier = modifier,
@@ -281,14 +283,23 @@ private fun LinkIconItem(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                modifier = Modifier
-                    .size(34.dp)
-                    .clip(shape = RoundedCornerShape(6.dp)),
-                painter = icon,
-                contentDescription = null,
-                contentScale = ContentScale.Fit
-            )
+            val iconModifier = Modifier
+                .size(34.dp)
+                .clip(shape = RoundedCornerShape(6.dp))
+            if (useImage) {
+                Image(
+                    modifier = iconModifier,
+                    painter = icon,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Icon(
+                    modifier = iconModifier,
+                    painter = icon,
+                    contentDescription = null
+                )
+            }
 
             Column(
                 modifier = Modifier.weight(1f)
