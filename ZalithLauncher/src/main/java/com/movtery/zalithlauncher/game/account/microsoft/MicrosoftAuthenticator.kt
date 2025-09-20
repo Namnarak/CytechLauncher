@@ -23,7 +23,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSProperties
 import com.movtery.zalithlauncher.game.account.microsoft.models.XSTSRequest
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.submitForm

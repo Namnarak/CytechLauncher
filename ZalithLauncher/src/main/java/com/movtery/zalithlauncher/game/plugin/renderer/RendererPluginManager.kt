@@ -7,7 +7,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
 import com.movtery.zalithlauncher.game.renderer.Renderers
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 
 /**
  * FCL、ZalithLauncher 渲染器插件，同时支持使用本地渲染器插件

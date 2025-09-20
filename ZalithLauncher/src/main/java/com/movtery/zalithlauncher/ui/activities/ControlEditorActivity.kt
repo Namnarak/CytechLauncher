@@ -9,8 +9,8 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.layout.loadLayoutFromFile
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ui.activities.ControlEditorActivity.Companion.BUNDLE_CONTROL
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.ControlEditor
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -19,11 +19,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-class ControlEditorActivity : BaseComponentActivity() {
-    companion object {
-        const val BUNDLE_CONTROL = "BUNDLE_CONTROL"
-    }
+private const val BUNDLE_CONTROL = "BUNDLE_CONTROL"
 
+class ControlEditorActivity : BaseComponentActivity() {
     /** 编辑器 */
     private val editorViewModel: EditorViewModel by viewModels()
 
@@ -35,7 +33,7 @@ class ControlEditorActivity : BaseComponentActivity() {
         val controlFile: File = File(controlPath).takeIf { it.isFile && it.exists() } ?: return runFinish()
         /** 控制布局 */
         val layout: ControlLayout = runCatching {
-            ControlLayout.loadFromFile(controlFile)
+            loadLayoutFromFile(controlFile)
         }.getOrNull() ?: return runFinish()
 
         //初始化控制布局

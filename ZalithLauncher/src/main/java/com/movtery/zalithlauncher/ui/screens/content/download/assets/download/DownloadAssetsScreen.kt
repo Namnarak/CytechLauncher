@@ -58,6 +58,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
+import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -71,16 +72,16 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.As
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsVersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo.Urls.Companion.isAllNull
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ScreenshotItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.VersionInfoMap
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.isAllNull
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapToInfos
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.mapWithVersions
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.isChinese
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.cancel
@@ -157,7 +158,7 @@ private class DownloadScreenViewModel(
                 platform = platform,
                 onSuccess = { result ->
                     val info = result.toInfo(classes)
-                    val mod = ModTranslations.getTranslationsByRepositoryType(classes)
+                    val mod = classes.getTranslations()
                     val mcmod = when (result) {
                         is ModrinthSingleProject -> {
                             mod.getModBySlugId(result.slug)

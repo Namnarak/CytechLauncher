@@ -1,6 +1,6 @@
 package com.movtery.zalithlauncher.utils.network
 
-import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException

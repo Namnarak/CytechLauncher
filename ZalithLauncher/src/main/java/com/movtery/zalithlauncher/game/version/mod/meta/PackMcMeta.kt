@@ -5,6 +5,7 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.movtery.zalithlauncher.game.version.mod.meta.PackMcMeta.DescriptionContent
 
 data class PackMcMeta(
     @SerializedName("pack")
@@ -14,7 +15,7 @@ data class PackMcMeta(
         @SerializedName("pack_format")
         val packFormat: Int,
 
-        @JsonAdapter(Adapter::class)
+        @JsonAdapter(DescriptionContentAdapter::class)
         @SerializedName("description")
         val description: DescriptionContent
     )
@@ -45,43 +46,41 @@ data class PackMcMeta(
             }
         }
     }
-    
-    companion object {
-        class Adapter : JsonDeserializer<DescriptionContent> {
-            override fun deserialize(
-                json: JsonElement,
-                type: java.lang.reflect.Type,
-                context: JsonDeserializationContext
-            ): DescriptionContent {
-                return when {
-                    json.isJsonPrimitive -> DescriptionContent.Text(json.asString)
-                    json.isJsonObject -> {
-                        val obj = json.asJsonObject
-                        DescriptionContent.Text(obj.get("text")?.asString ?: "")
-                    }
-                    json.isJsonArray -> {
-                        val parts = mutableListOf<DescriptionContent.Part>()
-                        for (element in json.asJsonArray) {
-                            when {
-                                element.isJsonPrimitive -> parts.add(
-                                    DescriptionContent.Part(element.asString)
-                                )
-                                element.isJsonObject -> {
-                                    val partObj = element.asJsonObject
-                                    parts.add(
-                                        DescriptionContent.Part(
-                                            text = partObj.get("text")?.asString ?: "",
-                                            color = partObj.get("color")?.asString
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                        DescriptionContent.Formatted(parts)
-                    }
-                    else -> DescriptionContent.Text("")
-                }
+}
+
+private class DescriptionContentAdapter : JsonDeserializer<DescriptionContent> {
+    override fun deserialize(
+        json: JsonElement,
+        type: java.lang.reflect.Type,
+        context: JsonDeserializationContext
+    ): DescriptionContent {
+        return when {
+            json.isJsonPrimitive -> DescriptionContent.Text(json.asString)
+            json.isJsonObject -> {
+                val obj = json.asJsonObject
+                DescriptionContent.Text(obj.get("text")?.asString ?: "")
             }
+            json.isJsonArray -> {
+                val parts = mutableListOf<DescriptionContent.Part>()
+                for (element in json.asJsonArray) {
+                    when {
+                        element.isJsonPrimitive -> parts.add(
+                            DescriptionContent.Part(element.asString)
+                        )
+                        element.isJsonObject -> {
+                            val partObj = element.asJsonObject
+                            parts.add(
+                                DescriptionContent.Part(
+                                    text = partObj.get("text")?.asString ?: "",
+                                    color = partObj.get("color")?.asString
+                                )
+                            )
+                        }
+                    }
+                }
+                DescriptionContent.Formatted(parts)
+            }
+            else -> DescriptionContent.Text("")
         }
     }
 }

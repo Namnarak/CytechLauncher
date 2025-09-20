@@ -30,7 +30,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
-import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
+import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
@@ -72,10 +72,10 @@ private class SearchScreenViewModel(
         //将平台项目搜索结果与 mcmod 信息打包在一起
         val data = when (result) {
             is CurseForgeSearchResult -> result.data.map {
-                it to ModTranslations.getTranslationsByRepositoryType(platformClasses).getModBySlugId(it.slug)
+                it to platformClasses.getTranslations().getModBySlugId(it.slug)
             }
             is ModrinthSearchResult -> result.hits.map {
-                it to ModTranslations.getTranslationsByRepositoryType(platformClasses).getModBySlugId(it.slug)
+                it to platformClasses.getTranslations().getModBySlugId(it.slug)
             }
             else -> error("Unknown result type $result")
         }

@@ -26,7 +26,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
-import com.movtery.zalithlauncher.ui.screens.game.elements.LogState.Companion.mutableStateOfLog
+import com.movtery.zalithlauncher.ui.screens.game.elements.mutableStateOfLog
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive

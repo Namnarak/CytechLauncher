@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge
 
+import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersionToken.ForgeFile
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,11 +15,9 @@ data class ForgeVersionToken(
         val category: String,
         val format: String,
         val hash: String
-    ) {
-        companion object {
-            fun ForgeFile.isInstallerJar() = category == "installer" && format == "jar"
-            fun ForgeFile.isUniversalZip() = category == "universal" && format == "zip"
-            fun ForgeFile.isClientZip() = category == "client" && format == "zip"
-        }
-    }
+    )
 }
+
+fun ForgeFile.isInstallerJar() = category == "installer" && format == "jar"
+fun ForgeFile.isUniversalZip() = category == "universal" && format == "zip"
+fun ForgeFile.isClientZip() = category == "client" && format == "zip"

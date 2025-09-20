@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public class GameManifest {
     private Arguments arguments;
@@ -410,6 +411,7 @@ public class GameManifest {
     public static class Library {
         private DownloadsX downloads;
         private String name;
+        @Nullable private Map<OperatingSystem, String> natives;
         private List<Rule> rules;
         private String url;
         @Nullable private String sha1;
@@ -429,6 +431,14 @@ public class GameManifest {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public @Nullable Map<OperatingSystem, String> getNatives() {
+            return natives;
+        }
+
+        public void setNatives(@Nullable Map<OperatingSystem, String> natives) {
+            this.natives = natives;
         }
 
         public List<Rule> getRules() {
@@ -461,6 +471,10 @@ public class GameManifest {
 
         public void setSize(long size) {
             this.size = size;
+        }
+
+        public boolean isNative() {
+            return this.natives != null && Rule.checkRules(rules);
         }
     }
 
@@ -515,16 +529,16 @@ public class GameManifest {
     }
 
     public static class Rule {
-        private String action;
+        private Action action;
         private Os os;
         private Features features;
         private List<Object> value;
 
-        public String getAction() {
+        public Action getAction() {
             return action;
         }
 
-        public void setAction(String action) {
+        public void setAction(Action action) {
             this.action = action;
         }
 
@@ -551,6 +565,27 @@ public class GameManifest {
         public void setValue(List<Object> value) {
             this.value = value;
         }
+
+        /**
+         * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L815-L823)
+         */
+        public static boolean checkRules(@Nullable List<Rule> rules) {
+            if (rules == null || rules.isEmpty()) return true; // always allow
+
+            for (Rule rule : rules) {
+                if (rule.action == Action.ALLOW && rule.os != null && rule.os.name.equals("osx")) {
+                    return false; //disallow
+                }
+            }
+            return true; // allow if none match
+        }
+    }
+
+    public enum Action {
+        @SerializedName("allow")
+        ALLOW,
+        @SerializedName("disallow")
+        DISALLOW
     }
 
     public static class Os {

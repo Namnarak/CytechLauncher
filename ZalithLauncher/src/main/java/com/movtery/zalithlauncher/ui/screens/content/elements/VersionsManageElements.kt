@@ -80,8 +80,8 @@ import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColo
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 
@@ -216,7 +216,7 @@ fun GamePathItemLayout(
 fun GamePathOperation(
     gamePathOperation: GamePathOperation,
     changeState: (GamePathOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     runCatching {
         when(gamePathOperation) {
@@ -264,7 +264,7 @@ fun GamePathOperation(
             }
         }
     }.onFailure { e ->
-        summitError(
+        submitError(
             ErrorViewModel.ThrowableMessage(
                 title = stringResource(R.string.versions_manage_game_path_error_title),
                 message = e.getMessageOrToString()
@@ -343,7 +343,7 @@ private fun NameEditPathDialog(
 fun VersionsOperation(
     versionsOperation: VersionsOperation,
     updateVersionsOperation: (VersionsOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when(versionsOperation) {
         is VersionsOperation.None -> {}
@@ -410,7 +410,7 @@ fun VersionsOperation(
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
                     lError("Failed to run task.", e)
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = errorMessage,
                             message = e.getMessageOrToString()
@@ -550,7 +550,7 @@ fun CleanupOperation(
     cleaner: GameAssetCleaner?,
     onClean: () -> Unit,
     onCancel: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when(operation) {
         is CleanupOperation.None -> {}
@@ -613,7 +613,7 @@ fun CleanupOperation(
                 )
             } else {
                 changeOperation(CleanupOperation.None)
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = stringResource(R.string.versions_manage_cleanup_failed),
                         message = error.getMessageOrToString()

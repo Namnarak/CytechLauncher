@@ -59,8 +59,8 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategory
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionCategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
-import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
@@ -112,7 +112,7 @@ private fun rememberVersionViewModel() : VersionsScreenViewModel {
 fun VersionsManageScreen(
     backScreenViewModel: ScreenBackStackViewModel,
     navigateToVersions: (Version) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
     val context = LocalContext.current
@@ -134,7 +134,7 @@ fun VersionsManageScreen(
                 onCleanupGameFiles = {
                     viewModel.cleanupOperation = CleanupOperation.Tip
                 },
-                summitError = summitError,
+                submitError = submitError,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(2.5f)
@@ -150,7 +150,7 @@ fun VersionsManageScreen(
                     .weight(7.5f)
                     .padding(vertical = 12.dp)
                     .padding(end = 12.dp),
-                summitError = summitError,
+                submitError = submitError,
                 onRefresh = {
                     if (!VersionsManager.isRefreshing) {
                         VersionsManager.refresh()
@@ -171,7 +171,7 @@ fun VersionsManageScreen(
                 onCancel = {
                     viewModel.cancelCleaner()
                 },
-                summitError = summitError
+                submitError = submitError
             )
         }
     }
@@ -182,7 +182,7 @@ private fun LeftMenu(
     isVisible: Boolean,
     swapToFileSelector: (path: String) -> Unit,
     onCleanupGameFiles: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
@@ -203,7 +203,7 @@ private fun LeftMenu(
     GamePathOperation(
         gamePathOperation = gamePathOperation,
         changeState = { gamePathOperation = it },
-        summitError = summitError
+        submitError = submitError
     )
 
     Column(
@@ -229,7 +229,7 @@ private fun LeftMenu(
                                 GamePathManager.saveDefaultPath()
                             } else {
                                 (context as? MainActivity)?.let { activity ->
-                                    StoragePermissionsUtils.checkPermissions(
+                                    checkStoragePermissions(
                                         activity = activity,
                                         message = activity.getString(R.string.versions_manage_game_storage_permissions),
                                         messageSdk30 = activity.getString(R.string.versions_manage_game_storage_permissions_sdk30),
@@ -258,7 +258,7 @@ private fun LeftMenu(
                 .fillMaxWidth(),
             onClick = {
                 (context as? MainActivity)?.let { activity ->
-                    StoragePermissionsUtils.checkPermissions(
+                    checkStoragePermissions(
                         activity = activity,
                         message = activity.getString(R.string.versions_manage_game_path_storage_permissions),
                         messageSdk30 = activity.getString(R.string.versions_manage_game_path_storage_permissions_sdk30),
@@ -290,7 +290,7 @@ private fun VersionsLayout(
     versionCategory: VersionCategory,
     onCategoryChange: (VersionCategory) -> Unit,
     navigateToVersions: (Version) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onRefresh: () -> Unit,
     onInstall: () -> Unit
 ) {
@@ -321,7 +321,7 @@ private fun VersionsLayout(
             VersionsOperation(
                 versionsOperation = versionsOperation,
                 updateVersionsOperation = { versionsOperation = it },
-                summitError = summitError
+                submitError = submitError
             )
 
             Column(modifier = Modifier.fillMaxSize()) {

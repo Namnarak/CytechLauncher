@@ -21,7 +21,7 @@ import com.movtery.zalithlauncher.utils.file.readText
 import com.movtery.zalithlauncher.utils.json.merge
 import com.movtery.zalithlauncher.utils.json.parseToJson
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.fetchStringFromUrl
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -256,7 +256,7 @@ private suspend fun parseProcessors(
         val versionManifest = MinecraftVersions.getVersionManifest()
         versionManifest.versions.find { it.id == version }?.let { vanilla ->
             val manifest = withRetry(FORGE_LIKE_ANALYSE_ID, maxRetries = 1) {
-                NetWorkUtils.fetchStringFromUrl(vanilla.url).parseTo(GameManifest::class.java)
+                fetchStringFromUrl(vanilla.url).parseTo(GameManifest::class.java)
             }
             manifest.downloads?.clientMappings?.let { mappings ->
                 schedule(mappings.url.mapMirrorableUrls(), mappings.sha1, File(output), mappings.size)

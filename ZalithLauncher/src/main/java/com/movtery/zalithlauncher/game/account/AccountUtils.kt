@@ -5,9 +5,9 @@ import android.widget.Toast
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.game.account.auth_server.AuthServerApi
 import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
+import com.movtery.zalithlauncher.game.account.auth_server.getAuthServeInfo
 import com.movtery.zalithlauncher.game.account.microsoft.AsyncStatus
 import com.movtery.zalithlauncher.game.account.microsoft.AuthType
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
@@ -79,7 +79,7 @@ fun microsoftLogin(
     backToMain: () -> Unit,
     checkIfInWebScreen: () -> Boolean,
     updateOperation: (MicrosoftLoginOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val task = Task.runTask(
         id = MICROSOFT_LOGGING_TASK,
@@ -135,7 +135,7 @@ fun microsoftLogin(
                     context.getString(R.string.error_unknown, errorMessage)
                 }
             }?.let { message ->
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = context.getString(R.string.account_logging_in_failed),
                         message = message
@@ -256,7 +256,7 @@ fun addOtherServer(
             ensureActive()
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             runCatching {
-                AuthServerApi.getServeInfo(fullServerUrl)
+                getAuthServeInfo(fullServerUrl)
             }.onFailure { th ->
                 lError("Failed to get server info", th)
                 onThrowable(th)

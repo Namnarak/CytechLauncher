@@ -42,7 +42,7 @@ fun DownloadSavesScreen(
     downloadScreenKey: NavKey?,
     downloadSavesScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     eventViewModel: EventViewModel
 ) {
     val backStack = key.backStack
@@ -77,7 +77,7 @@ fun DownloadSavesScreen(
                         )
                     }
                 },
-                summitError = summitError
+                submitError = submitError
             )
         }
     )

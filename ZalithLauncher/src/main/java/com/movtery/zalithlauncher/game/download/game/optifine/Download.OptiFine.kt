@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersions
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -42,7 +42,7 @@ fun getOptiFineDownloadTask(
             val optifineUrl = getOFUrlMirrorable(optifine)
 
             task.updateProgress(-1f, R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion)
-            NetWorkUtils.downloadFileSuspend(optifineUrl, targetTempInstaller)
+            downloadFileSuspend(optifineUrl, targetTempInstaller)
         }
     )
 }
@@ -59,7 +59,7 @@ fun getOptiFineModsDownloadTask(
 
             //开始下载为 Mod
             task.updateProgress(-1f, R.string.download_game_install_base_download_file, ModLoader.OPTIFINE.displayName, optifine.realVersion)
-            NetWorkUtils.downloadFileSuspend(optifineUrl, File(tempModsDir, optifine.fileName))
+            downloadFileSuspend(optifineUrl, File(tempModsDir, optifine.fileName))
         }
     )
 }

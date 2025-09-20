@@ -19,21 +19,19 @@ data class ButtonShape public constructor(
     val bottomStart: Float
 ) {
     constructor(size: Float) : this(size, size, size, size)
-
-    companion object {
-        /**
-         * 形状有效值范围
-         */
-        val valueRange = 0f..100f
-
-        /**
-         * 转换为 RoundedCornerShape
-         */
-        fun ButtonShape.toAndroidShape() = RoundedCornerShape(
-            topStart = topStart,
-            topEnd = topEnd,
-            bottomEnd = bottomEnd,
-            bottomStart = bottomStart
-        )
-    }
 }
+
+/**
+ * 形状有效值范围
+ */
+val buttonShapeRange = 0f..100f
+
+/**
+ * 转换为 RoundedCornerShape
+ */
+fun ButtonShape.toAndroidShape() = RoundedCornerShape(
+    topStart = topStart,
+    topEnd = topEnd,
+    bottomEnd = bottomEnd,
+    bottomStart = bottomStart
+)

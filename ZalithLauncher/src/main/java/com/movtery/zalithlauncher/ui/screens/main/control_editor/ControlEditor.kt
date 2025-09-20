@@ -10,14 +10,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import com.movtery.layer_controller.ControlEditorLayer
-import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
+import com.movtery.layer_controller.data.CenterPosition
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.data.VisibilityType
-import com.movtery.layer_controller.data.Widget.Companion.createWithUUID
-import com.movtery.layer_controller.data.lang.TranslatableString
-import com.movtery.layer_controller.layout.ControlLayer
+import com.movtery.layer_controller.data.createAdaptiveButtonSize
+import com.movtery.layer_controller.data.createWidgetWithUUID
+import com.movtery.layer_controller.data.lang.createTranslatable
+import com.movtery.layer_controller.layout.createNewLayer
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableWidget
@@ -34,7 +35,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style.Styl
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectLayers
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import java.io.File
 
@@ -80,7 +81,7 @@ fun ControlEditor(
             viewModel.selectedLayer = layer
         },
         createLayer = {
-            viewModel.observableLayout.addLayer(ControlLayer.createNew(defaultLayerName = defaultLayerName))
+            viewModel.observableLayout.addLayer(createNewLayer(defaultLayerName = defaultLayerName))
         },
         onAttribute = { layer ->
             viewModel.editorOperation = EditorOperation.EditLayer(layer)
@@ -88,12 +89,12 @@ fun ControlEditor(
         addNewButton = {
             viewModel.addWidget(layers) { layer ->
                 layer.addNormalButton(
-                    createWithUUID { uuid ->
+                    createWidgetWithUUID { uuid ->
                         NormalData(
-                            text = TranslatableString.create(default = defaultButtonName),
+                            text = createTranslatable(default = defaultButtonName),
                             uuid = uuid,
-                            position = ButtonPosition.Center,
-                            buttonSize = ButtonSize.createAdaptiveButtonSize(
+                            position = CenterPosition,
+                            buttonSize = createAdaptiveButtonSize(
                                 referenceLength = screenHeight,
                                 density = density
                             ),
@@ -109,12 +110,12 @@ fun ControlEditor(
         addNewText = {
             viewModel.addWidget(layers) { layer ->
                 layer.addTextBox(
-                    createWithUUID { uuid ->
+                    createWidgetWithUUID { uuid ->
                         TextData(
-                            text = TranslatableString.create(default = defaultTextName),
+                            text = createTranslatable(default = defaultTextName),
                             uuid = uuid,
-                            position = ButtonPosition.Center,
-                            buttonSize = ButtonSize.createAdaptiveButtonSize(
+                            position = CenterPosition,
+                            buttonSize = createAdaptiveButtonSize(
                                 referenceLength = screenHeight,
                                 density = density,
                                 type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容

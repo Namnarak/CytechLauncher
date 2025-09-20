@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Terminal
@@ -47,10 +45,9 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.context.getFileName
-import com.movtery.zalithlauncher.contract.ExtensionFilteredDocumentPicker
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.game.launch.JvmLauncher
+import com.movtery.zalithlauncher.game.launch.executeJarWithUri
 import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -61,12 +58,13 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
-import com.movtery.zalithlauncher.utils.string.StringUtils
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.throwableToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 
@@ -74,8 +72,6 @@ private sealed interface RuntimeOperation {
     data object None: RuntimeOperation
     data class PreDelete(val runtime: Runtime): RuntimeOperation
     data class Delete(val runtime: Runtime): RuntimeOperation
-    data class ProgressUri(val uris: List<Uri>): RuntimeOperation
-    data class ExecuteJar(val uri: Uri): RuntimeOperation
 }
 
 @Composable
@@ -83,8 +79,10 @@ fun JavaManageScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val context = LocalContext.current
+
     BaseScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.JavaManager, settingsScreenKey, false)
@@ -100,24 +98,8 @@ fun JavaManageScreen(
             runtimeOperation = runtimeOperation,
             updateOperation = { runtimeOperation = it },
             callRefresh = { runtimes = getRuntimes(true) },
-            summitError = summitError
+            submitError = submitError
         )
-
-        val runtimePicker = rememberLauncherForActivityResult(
-            contract = ExtensionFilteredDocumentPicker(extension = "xz", allowMultiple = true)
-        ) { uris ->
-            uris.takeIf { it.isNotEmpty() }?.let {
-                runtimeOperation = RuntimeOperation.ProgressUri(it)
-            }
-        }
-
-        val jarPicker = rememberLauncherForActivityResult(
-            contract = ExtensionFilteredDocumentPicker(extension = "jar", allowMultiple = false)
-        ) { uris ->
-            uris.takeIf { it.isNotEmpty() }?.get(0)?.let { uri ->
-                runtimeOperation = RuntimeOperation.ExecuteJar(uri)
-            }
-        }
 
         SettingsBackground(
             modifier = Modifier
@@ -144,17 +126,36 @@ fun JavaManageScreen(
                     contentDescription = stringResource(R.string.generic_refresh),
                     text = stringResource(R.string.generic_refresh),
                 )
-                IconTextButton(
-                    onClick = { runtimePicker.launch("") },
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.generic_import),
-                    text = stringResource(R.string.generic_import),
+                ImportFileButton(
+                    extension = "xz",
+                    progressUris = { uris ->
+                        uris.forEach { uri ->
+                            progressRuntimeUri(
+                                context = context,
+                                uri = uri,
+                                callRefresh = { runtimes = getRuntimes(true) },
+                                submitError = submitError
+                            )
+                        }
+                    }
                 )
-                IconTextButton(
-                    onClick = { jarPicker.launch("") },
+                ImportFileButton(
+                    extension = "jar",
+                    progressUris = { uris ->
+                        uris[0].let { uri ->
+                            RuntimesManager.getExactJreName(8) ?: run {
+                                Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
+                                return@ImportFileButton
+                            }
+                            (context as? Activity)?.let { activity ->
+                                val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
+                                executeJarWithUri(activity, uri, jreName)
+                            }
+                        }
+                    },
                     imageVector = Icons.Default.Terminal,
-                    contentDescription = stringResource(R.string.execute_jar_title),
                     text = stringResource(R.string.execute_jar_title),
+                    allowMultiple = false
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -192,7 +193,7 @@ private fun RuntimeOperation(
     runtimeOperation: RuntimeOperation,
     updateOperation: (RuntimeOperation) -> Unit,
     callRefresh: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when(runtimeOperation) {
         is RuntimeOperation.None -> {}
@@ -217,7 +218,7 @@ private fun RuntimeOperation(
                         RuntimesManager.removeRuntime(runtime.name)
                     },
                     onError = {
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = failedMessage,
                                 message = it.getMessageOrToString()
@@ -229,31 +230,6 @@ private fun RuntimeOperation(
             )
             updateOperation(RuntimeOperation.None)
         }
-        is RuntimeOperation.ProgressUri -> {
-            val context = LocalContext.current
-            runtimeOperation.uris.forEach { uri ->
-                progressRuntimeUri(
-                    context = context,
-                    uri = uri,
-                    callRefresh = callRefresh,
-                    summitError = summitError
-                )
-            }
-            updateOperation(RuntimeOperation.None)
-        }
-        is RuntimeOperation.ExecuteJar -> {
-            val context = LocalContext.current
-            RuntimesManager.getExactJreName(8) ?: run {
-                Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
-                updateOperation(RuntimeOperation.None)
-                return
-            }
-            (context as? Activity)?.let { activity ->
-                val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
-                JvmLauncher.executeJarWithUri(activity, runtimeOperation.uri, jreName)
-            }
-            updateOperation(RuntimeOperation.None)
-        }
     }
 }
 
@@ -261,13 +237,13 @@ private fun progressRuntimeUri(
     context: Context,
     uri: Uri,
     callRefresh: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     fun showError(
         title: String = context.getString(R.string.multirt_runtime_import_failed),
         message: String
     ) {
-        summitError(
+        submitError(
             ErrorViewModel.ThrowableMessage(
                 title = title,
                 message = message
@@ -298,7 +274,7 @@ private fun progressRuntimeUri(
                 )
             },
             onError = {
-                showError(message = StringUtils.throwableToString(it))
+                showError(message = throwableToString(it))
             },
             onFinally = callRefresh,
             onCancel = {

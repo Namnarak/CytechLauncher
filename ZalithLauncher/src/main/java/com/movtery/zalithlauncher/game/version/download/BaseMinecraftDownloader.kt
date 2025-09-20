@@ -12,7 +12,7 @@ import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest.Versio
 import com.movtery.zalithlauncher.utils.classes.Quadruple
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import java.io.File
 
 const val DOWNLOADER_TAG = "MinecraftDownloader"

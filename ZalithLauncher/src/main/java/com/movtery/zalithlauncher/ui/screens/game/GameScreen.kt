@@ -33,7 +33,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.ControlBoxLayout
 import com.movtery.layer_controller.event.ClickEvent
-import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.layout.EmptyControlLayout
+import com.movtery.layer_controller.layout.loadLayoutFromFile
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
@@ -46,7 +47,6 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.components.MenuState
-import com.movtery.zalithlauncher.ui.control.control.HotbarRule.Companion.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
@@ -54,6 +54,7 @@ import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SI
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
 import com.movtery.zalithlauncher.ui.control.control.MinecraftHotbar
+import com.movtery.zalithlauncher.ui.control.control.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
 import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
@@ -124,12 +125,12 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         currentControlFile = layoutFile
         val layout = layoutFile?.let { file ->
             try {
-                ControlLayout.loadFromFile(file)
+                loadLayoutFromFile(file)
             } catch (e: Exception) {
                 lWarning("Failed to load control layout: $file", e)
                 null
             }
-        } ?: ControlLayout.Empty
+        } ?: EmptyControlLayout
         //将控制布局加载为可供Compose加载的形式
         observableLayout = ObservableControlLayout(layout)
     }

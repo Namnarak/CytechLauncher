@@ -40,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.layer_controller.data.ButtonShape
+import com.movtery.layer_controller.data.buttonShapeRange
 import com.movtery.layer_controller.layout.RendererStyleBox
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableStyleConfig
@@ -419,7 +420,7 @@ private fun LazyListScope.commonStyleConfig(
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_left_top),
                 value = borderRadius.topStart,
                 onValueChange = { onBorderRadiusChange(borderRadius.copy(topStart = it)) },
-                valueRange = ButtonShape.valueRange,
+                valueRange = buttonShapeRange,
                 suffix = "Dp"
             )
             //右上角
@@ -428,7 +429,7 @@ private fun LazyListScope.commonStyleConfig(
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_right_top),
                 value = borderRadius.topEnd,
                 onValueChange = { onBorderRadiusChange(borderRadius.copy(topEnd = it)) },
-                valueRange = ButtonShape.valueRange,
+                valueRange = buttonShapeRange,
                 suffix = "Dp"
             )
             //左下角
@@ -437,7 +438,7 @@ private fun LazyListScope.commonStyleConfig(
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_left_bottom),
                 value = borderRadius.bottomStart,
                 onValueChange = { onBorderRadiusChange(borderRadius.copy(bottomStart = it)) },
-                valueRange = ButtonShape.valueRange,
+                valueRange = buttonShapeRange,
                 suffix = "Dp"
             )
             //右下角
@@ -446,7 +447,7 @@ private fun LazyListScope.commonStyleConfig(
                 title = stringResource(R.string.control_editor_edit_style_config_widget_radius_right_bottom),
                 value = borderRadius.bottomEnd,
                 onValueChange = { onBorderRadiusChange(borderRadius.copy(bottomEnd = it)) },
-                valueRange = ButtonShape.valueRange,
+                valueRange = buttonShapeRange,
                 suffix = "Dp"
             )
         }

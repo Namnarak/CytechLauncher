@@ -57,7 +57,7 @@ import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import org.apache.commons.io.FileUtils
@@ -69,7 +69,7 @@ fun VersionOverViewScreen(
     versionsScreenKey: NavKey?,
     backToMainScreen: () -> Unit,
     version: Version,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
         backToMainScreen()
@@ -92,7 +92,7 @@ fun VersionOverViewScreen(
         VersionsOperation(
             versionsOperation = versionsOperation,
             updateOperation = { versionsOperation = it },
-            summitError = summitError,
+            submitError = submitError,
             onIconPicked = {
                 refreshVersionIcon++
                 iconFileExists = VersionsManager.getVersionIconFile(version).exists()
@@ -160,7 +160,7 @@ fun VersionOverViewScreen(
                     runCatching {
                         folder.ensureDirectory()
                     }.onFailure { e ->
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_create_dir, folder.absolutePath),
                                 message = e.getMessageOrToString()
@@ -179,7 +179,7 @@ fun VersionOverViewScreen(
 private fun PickIcon(
     version: Version,
     onDone: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -197,7 +197,7 @@ private fun PickIcon(
                     onError = { e ->
                         lError("Failed to import icon!", e)
                         FileUtils.deleteQuietly(iconFile)
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = e.getMessageOrToString()
@@ -413,7 +413,7 @@ sealed interface VersionsOperation {
 private fun VersionsOperation(
     versionsOperation: VersionsOperation,
     updateOperation: (VersionsOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onIconPicked: () -> Unit = {},
     resetIcon: () -> Unit = {},
     onVersionRefreshed: () -> Unit = {},
@@ -426,7 +426,7 @@ private fun VersionsOperation(
             PickIcon(
                 version = versionsOperation.version,
                 onDone = onIconPicked,
-                summitError = summitError
+                submitError = submitError
             )
         }
         is VersionsOperation.ResetIconAlert -> {
@@ -500,7 +500,7 @@ private fun VersionsOperation(
                 onDismiss = { updateOperation(VersionsOperation.None) },
                 onError = { e ->
                     lError("Failed to run task.", e)
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = errorMessage,
                             message = e.getMessageOrToString()

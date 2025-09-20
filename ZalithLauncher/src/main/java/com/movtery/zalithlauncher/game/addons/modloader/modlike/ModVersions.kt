@@ -1,8 +1,8 @@
 package com.movtery.zalithlauncher.game.addons.modloader.modlike
 
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFile.Companion.getPrimary
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.getPrimary
 import com.movtery.zalithlauncher.utils.logging.Logger
 import kotlinx.coroutines.CancellationException
 

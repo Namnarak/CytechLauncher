@@ -5,6 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.layout.ControlLayout
+import com.movtery.layer_controller.layout.loadLayoutFromFile
+import com.movtery.layer_controller.layout.loadLayoutFromFileUncheck
+import com.movtery.layer_controller.layout.loadLayoutFromString
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.layer_controller.utils.newRandomFileName
 import com.movtery.layer_controller.utils.saveToFile
@@ -81,11 +84,11 @@ object ControlManager {
 
                 var isSupport = true
                 val layout: ControlLayout = try {
-                    ControlLayout.loadFromFile(file)
+                    loadLayoutFromFile(file)
                 } catch (_: IllegalArgumentException) {
                     isSupport = false
                     runCatching {
-                        ControlLayout.loadFromFileUncheck(file)
+                        loadLayoutFromFileUncheck(file)
                     }.onFailure { e ->
                         lWarning("Failed to load control layout! file = $file", e)
                     }.getOrNull() ?: return@mapNotNull null
@@ -167,7 +170,7 @@ object ControlManager {
      */
     fun saveControl(
         data: ControlData,
-        summitError: (Exception) -> Unit
+        submitError: (Exception) -> Unit
     ) {
         scope.launch(Dispatchers.IO) {
             if (!data.file.exists()) {
@@ -178,7 +181,7 @@ object ControlManager {
             try {
                 layout.saveToFile(data.file)
             } catch (e: Exception) {
-                summitError(e)
+                submitError(e)
                 FileUtils.deleteQuietly(data.file)
             }
             refresh()
@@ -197,7 +200,7 @@ object ControlManager {
         try {
             inputStream.use { stream ->
                 val jsonString = stream.readString()
-                val layout = ControlLayout.loadFromString(jsonString)
+                val layout = loadLayoutFromString(jsonString)
                 layout.saveToFile(file)
             }
         } catch (e: SerializationException) {

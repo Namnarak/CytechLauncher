@@ -43,7 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
-import com.movtery.zalithlauncher.utils.StoragePermissionsUtils
+import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -185,7 +185,7 @@ fun LaunchGameOperation(
     launchGameOperation: LaunchGameOperation,
     updateOperation: (LaunchGameOperation) -> Unit,
     exitActivity: () -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     toAccountManageScreen: () -> Unit = {},
     toVersionManageScreen: () -> Unit = {}
 ) {
@@ -205,7 +205,7 @@ fun LaunchGameOperation(
             val renderer = launchGameOperation.renderer
             val version = launchGameOperation.version
             val quickPlay = launchGameOperation.quickPlay
-            StoragePermissionsUtils.checkPermissions(
+            checkStoragePermissions(
                 activity = activity,
                 message = activity.getString(R.string.renderer_version_storage_permissions, renderer.getRendererName()),
                 messageSdk30 = activity.getString(R.string.renderer_version_storage_permissions_sdk30, renderer.getRendererName()),
@@ -264,7 +264,7 @@ fun LaunchGameOperation(
 
             //为可配置的渲染器检查文件管理权限
             if (
-                !StoragePermissionsUtils.checkPermissions() &&
+                !checkStoragePermissions() &&
                 RendererPluginManager.isConfigurablePlugin(version.getRenderer())
             ) {
                 updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
@@ -281,7 +281,7 @@ fun LaunchGameOperation(
                 offlineAccountLogin = false
                 quickPlaySingle = quickPlay
             }
-            LaunchGame.launchGame(activity, version, exitActivity, summitError)
+            LaunchGame.launchGame(activity, version, exitActivity, submitError)
             updateOperation(LaunchGameOperation.None)
         }
     }

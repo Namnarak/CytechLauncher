@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.ButtonPosition
-import com.movtery.layer_controller.data.ButtonShape.Companion.toAndroidShape
 import com.movtery.layer_controller.data.ButtonSize
+import com.movtery.layer_controller.data.toAndroidShape
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData

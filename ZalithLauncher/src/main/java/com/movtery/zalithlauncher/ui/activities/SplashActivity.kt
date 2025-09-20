@@ -36,11 +36,11 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
         initUnpackItems()
         checkAllTask()
 
-        setContent {
-            if (checkTasksToMain()) {
-                return@setContent
-            }
+        if (checkTasksToMain()) {
+            return
+        }
 
+        setContent {
             ZalithLauncherTheme {
                 Box {
                     SplashScreen(

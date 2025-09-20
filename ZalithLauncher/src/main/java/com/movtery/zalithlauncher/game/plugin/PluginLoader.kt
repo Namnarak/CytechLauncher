@@ -7,8 +7,8 @@ import android.content.pm.PackageManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.plugin.ffmpeg.FFmpegPluginManager
 import com.movtery.zalithlauncher.game.plugin.renderer.RendererPluginManager
-import com.movtery.zalithlauncher.game.renderer.RendererInterface.Companion.toInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
+import com.movtery.zalithlauncher.game.renderer.toInterface
 
 /**
  * 统一插件的加载，保证仅获取一次应用列表

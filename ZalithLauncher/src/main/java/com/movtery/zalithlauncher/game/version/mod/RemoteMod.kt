@@ -13,6 +13,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcMod
+import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.utils.file.calculateFileSha1
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -87,7 +88,7 @@ class RemoteMod(
 
                     if (loadFromCache && modProjectCache.containsKey(sha1)) {
                         modProjectCache.decodeParcelable(sha1, ModProject::class.java)?.let { project ->
-                            mcMod = ModTranslations.getTranslationsByRepositoryType(PlatformClasses.MOD).getModBySlugId(project.slug)
+                            mcMod = PlatformClasses.MOD.getTranslations().getModBySlugId(project.slug)
                             return@runCatching project.also {
                                 isLoaded = true
                             }

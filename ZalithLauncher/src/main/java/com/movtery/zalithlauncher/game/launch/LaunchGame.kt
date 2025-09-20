@@ -14,7 +14,7 @@ import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.activities.runGame
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
@@ -29,7 +29,7 @@ object LaunchGame {
         context: Context,
         version: Version,
         exitActivity: () -> Unit,
-        summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+        submitError: (ErrorViewModel.ThrowableMessage) -> Unit
     ) {
         if (isLaunching) return
 
@@ -48,7 +48,7 @@ object LaunchGame {
                 exitActivity()
             },
             onError = { message ->
-                summitError(
+                submitError(
                     ErrorViewModel.ThrowableMessage(
                         title = context.getString(R.string.minecraft_download_failed),
                         message = message
@@ -61,7 +61,7 @@ object LaunchGame {
             TaskSystem.submitTask(downloadTask) { isLaunching = false }
         }
 
-        val loginTask = if (NetWorkUtils.isNetworkAvailable(context)) {
+        val loginTask = if (isNetworkAvailable(context)) {
             AccountsManager.performLoginTask(
                 context = context,
                 account = account,
@@ -93,7 +93,7 @@ object LaunchGame {
                         }
                     }
 
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = context.getString(R.string.account_logging_in_failed),
                             message = message

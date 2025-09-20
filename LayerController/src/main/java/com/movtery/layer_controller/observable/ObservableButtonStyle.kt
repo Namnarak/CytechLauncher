@@ -4,7 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.ButtonStyle
-import com.movtery.layer_controller.data.ButtonStyle.Companion.cloneNew
+import com.movtery.layer_controller.data.DefaultStyle
+import com.movtery.layer_controller.data.cloneNew
 
 /**
  * 可观察的ButtonStyle包装类
@@ -25,12 +26,10 @@ class ObservableButtonStyle(style: ButtonStyle): Packable<ButtonStyle> {
             darkStyle = this.darkStyle.pack()
         )
     }
+}
 
-    companion object {
-        public val Default = ObservableButtonStyle(ButtonStyle.Default)
+public val DefaultObservableButtonStyle = ObservableButtonStyle(DefaultStyle)
 
-        fun ObservableButtonStyle.cloneNew(): ObservableButtonStyle {
-            return ObservableButtonStyle(pack().cloneNew())
-        }
-    }
+public fun ObservableButtonStyle.cloneNew(): ObservableButtonStyle {
+    return ObservableButtonStyle(pack().cloneNew())
 }

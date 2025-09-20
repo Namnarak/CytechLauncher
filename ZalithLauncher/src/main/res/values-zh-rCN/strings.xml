@@ -89,6 +89,7 @@
     <string name="crash_launch_crash_message">启动器在启动的过程中遇到了严重的问题崩溃了</string>
     <!--  错误  -->
     <string name="error_import_image">导入图片时出现问题</string>
+    <string name="error_import_file">导入文件时出现问题</string>
     <string name="error_create_dir">无法创建文件夹：%s</string>
     <string name="error_timeout">访问超时</string>
     <string name="error_network_unreachable">网络不可用</string>
@@ -604,6 +605,8 @@
     <string name="saves_manage_quick_play">快速启动</string>
     <string name="saves_manage_quick_play_disabled">快速启动（仅限 1.20+）</string>
     <string name="saves_manage_no_saves">当前版本还没有存档</string>
+    <string name="saves_manage_import_unpacking">正在解压存档：%s</string>
+    <string name="saves_manage_import_failed">导入存档时遇到问题</string>
     <string name="resource_pack_manage">资源包管理</string>
     <string name="resource_pack_manage_info">资源包信息</string>
     <string name="resource_pack_manage_invalid">资源包格式无效</string>
@@ -868,6 +871,10 @@
     <string name="about_acknowledgements_mcmod">MC 百科（mcmod.cn）</string>
     <string name="about_acknowledgements_mcmod_text">%s 使用了来自 MC 百科 的模组、整合包翻译</string>
     <string name="about_acknowledgements_bangbang93_text">%s 使用了 BMCL API 镜像源</string>
+    <string name="about_acknowledgements_github_community">GitHub 社区</string>
+    <string name="about_acknowledgements_github_community_text">GitHub 社区的所有议题提出者和贡献者</string>
+    <string name="about_acknowledgements_weblate_community">Weblate 社区</string>
+    <string name="about_acknowledgements_weblate_community_text">所有参与社区语言本地化的翻译者</string>
     <string name="about_plugin_title">已加载的插件</string>
     <string name="about_library_title">额外引入的依赖项目</string>
     <!--  Url  -->

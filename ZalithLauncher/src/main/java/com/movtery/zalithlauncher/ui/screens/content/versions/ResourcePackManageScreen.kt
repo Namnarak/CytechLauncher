@@ -72,6 +72,7 @@ import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
@@ -85,6 +86,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSet
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -108,7 +110,6 @@ private class ResourcePackManageViewModel(
         private set
 
     fun refresh() {
-        println("Test: refreshing")
         viewModelScope.launch {
             packState = LoadingState.Loading
 
@@ -162,7 +163,8 @@ fun ResourcePackManageScreen(
     versionsScreenKey: NavKey?,
     version: Version,
     backToMainScreen: () -> Unit,
-    swapToDownload: () -> Unit = {}
+    swapToDownload: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
         backToMainScreen()
@@ -176,7 +178,6 @@ fun ResourcePackManageScreen(
         Triple(NormalNavKey.Versions.ResourcePackManager, versionsScreenKey, false)
     ) { isVisible ->
         val resourcePackDir = File(version.getGameDir(), VersionFolders.RESOURCE_PACK.folderName)
-
         val viewModel = rememberResourcePackManageViewModel(resourcePackDir, version)
 
         val yOffset by swapAnimateDpAsState(
@@ -236,10 +237,12 @@ fun ResourcePackManageScreen(
                             inputFieldContentColor = itemContentColor,
                             packFilter = viewModel.packFilter,
                             changePackFilter = { viewModel.updateFilter(it) },
+                            resourcePackDir = resourcePackDir,
                             swapToDownload = swapToDownload,
                             onRefresh = {
                                 viewModel.refresh()
-                            }
+                            },
+                            submitError = submitError,
                         )
 
                         ResourcePackList(
@@ -270,8 +273,10 @@ private fun ResourcePackHeader(
     inputFieldContentColor: Color,
     packFilter: ResourcePackFilter,
     changePackFilter: (ResourcePackFilter) -> Unit,
-    swapToDownload: () -> Unit = {},
-    onRefresh: () -> Unit = {}
+    resourcePackDir: File,
+    swapToDownload: () -> Unit,
+    onRefresh: () -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(modifier = modifier) {
         Row(
@@ -305,6 +310,13 @@ private fun ResourcePackHeader(
             }
 
             Spacer(modifier = Modifier.width(12.dp))
+
+            ImportFileButton(
+                extension = "zip",
+                targetDir = resourcePackDir,
+                submitError = submitError,
+                onImported = onRefresh
+            )
 
             IconTextButton(
                 onClick = swapToDownload,

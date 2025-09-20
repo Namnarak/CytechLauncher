@@ -103,7 +103,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import io.ktor.client.call.body
@@ -126,7 +126,7 @@ fun AccountManageScreen(
     backStackViewModel: ScreenBackStackViewModel,
     backToMainScreen: () -> Unit,
     openLink: (url: String) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     var microsoftLoginOperation by remember { mutableStateOf<MicrosoftLoginOperation>(MicrosoftLoginOperation.None) }
     var microsoftChangeSkinOperation by remember { mutableStateOf<MicrosoftChangeSkinOperation>(MicrosoftChangeSkinOperation.None) }
@@ -159,7 +159,7 @@ fun AccountManageScreen(
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
                     .weight(7.5f),
-                summitError = summitError,
+                submitError = submitError,
                 onAddAuthClicked = {
                     //打开添加认证服务器的对话框
                     serverOperation = ServerOperation.AddNew
@@ -195,21 +195,21 @@ fun AccountManageScreen(
         microsoftLoginOperation = microsoftLoginOperation,
         updateOperation = { microsoftLoginOperation = it },
         openLink = openLink,
-        summitError = summitError
+        submitError = submitError
     )
 
     //微软账号更改皮肤操作逻辑
     MicrosoftChangeSkinOperation(
         operation = microsoftChangeSkinOperation,
         updateOperation = { microsoftChangeSkinOperation = it },
-        summitError = summitError
+        submitError = submitError
     )
 
     //微软账号更改披风操作逻辑
     MicrosoftChangeCapeOperation(
         operation = microsoftChangeCapeOperation,
         updateOperation = { microsoftChangeCapeOperation = it },
-        summitError = summitError
+        submitError = submitError
     )
 
     //离线账号操作逻辑
@@ -223,7 +223,7 @@ fun AccountManageScreen(
     OtherLoginOperation(
         otherLoginOperation = otherLoginOperation,
         updateOperation = { otherLoginOperation = it },
-        summitError = summitError,
+        submitError = submitError,
         openLink = openLink
     )
 
@@ -231,7 +231,7 @@ fun AccountManageScreen(
     ServerTypeOperation(
         serverOperation = serverOperation,
         updateServerOperation = { serverOperation = it },
-        summitError = summitError
+        submitError = submitError
     )
 }
 
@@ -316,7 +316,7 @@ private fun MicrosoftLoginOperation(
     microsoftLoginOperation: MicrosoftLoginOperation,
     updateOperation: (MicrosoftLoginOperation) -> Unit,
     openLink: (url: String) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -336,7 +336,7 @@ private fun MicrosoftLoginOperation(
                 backToMain = backToMainScreen,
                 checkIfInWebScreen = checkIfInWebScreen,
                 updateOperation = { updateOperation(it) },
-                summitError = summitError
+                submitError = submitError
             )
             updateOperation(MicrosoftLoginOperation.None)
         }
@@ -347,7 +347,7 @@ private fun MicrosoftLoginOperation(
 private fun MicrosoftChangeSkinOperation(
     operation: MicrosoftChangeSkinOperation,
     updateOperation: (MicrosoftChangeSkinOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
     when (operation) {
@@ -376,7 +376,7 @@ private fun MicrosoftChangeSkinOperation(
                         updateOperation(MicrosoftChangeSkinOperation.SelectSkinModel(account, cacheFile))
                     } else {
                         //像素尺寸不符合要求
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.generic_warning),
                                 message = context.getString(R.string.account_change_skin_invalid)
@@ -386,7 +386,7 @@ private fun MicrosoftChangeSkinOperation(
                     }
                 },
                 onError = { th ->
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = context.getString(R.string.generic_error),
                             message = context.getString(R.string.account_change_skin_failed_to_import) + "\r\n" + th.getMessageOrToString()
@@ -447,7 +447,7 @@ private fun MicrosoftChangeSkinOperation(
                     runCatching {
                         account.downloadSkin()
                     }.onFailure { th ->
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.account_logging_in_failed),
                                 message = context.formatAccountError(th)
@@ -477,7 +477,7 @@ private fun MicrosoftChangeSkinOperation(
                         else -> context.getString(R.string.generic_error) to context.formatAccountError(th)
                     }
 
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = title,
                             message = message
@@ -502,7 +502,7 @@ private fun MicrosoftChangeSkinOperation(
 private fun MicrosoftChangeCapeOperation(
     operation: MicrosoftChangeCapeOperation,
     updateOperation: (MicrosoftChangeCapeOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
     when (operation) {
@@ -529,7 +529,7 @@ private fun MicrosoftChangeCapeOperation(
                     )
                 },
                 onError = { th ->
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = context.getString(R.string.generic_error),
                             message = context.getString(R.string.account_change_cape_fetch_all_failed) + "\r\n" + th.getMessageOrToString()
@@ -617,7 +617,7 @@ private fun MicrosoftChangeCapeOperation(
                         else -> context.getString(R.string.generic_error) to context.formatAccountError(th)
                     }
 
-                    summitError(
+                    submitError(
                         ErrorViewModel.ThrowableMessage(
                             title = title,
                             message = message
@@ -699,7 +699,7 @@ private fun LocalLoginOperation(
 private fun OtherLoginOperation(
     otherLoginOperation: OtherLoginOperation,
     updateOperation: (OtherLoginOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     openLink: (link: String) -> Unit
 ) {
     val context = LocalContext.current
@@ -758,7 +758,7 @@ private fun OtherLoginOperation(
                 }
             }
 
-            summitError(
+            submitError(
                 ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
                     message = message
@@ -782,7 +782,7 @@ private fun OtherLoginOperation(
 private fun ServerTypeOperation(
     serverOperation: ServerOperation,
     updateServerOperation: (ServerOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     when (serverOperation) {
         is ServerOperation.AddNew -> {
@@ -824,7 +824,7 @@ private fun ServerTypeOperation(
             )
         }
         is ServerOperation.OnThrowable -> {
-            summitError(
+            submitError(
                 ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_other_login_adding_failure),
                     message = serverOperation.throwable.getMessageOrToString()
@@ -840,7 +840,7 @@ private fun ServerTypeOperation(
 private fun AccountsLayout(
     isVisible: Boolean,
     modifier: Modifier = Modifier,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit,
     swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit,
     onMicrosoftChangeSkin: (Account, Uri) -> Unit,
@@ -860,7 +860,7 @@ private fun AccountsLayout(
     AccountOperation(
         accountOperation = accountOperation,
         updateAccountOperation = { accountOperation = it },
-        summitError = summitError
+        submitError = submitError
     )
 
     Card(
@@ -886,7 +886,7 @@ private fun AccountsLayout(
                         account = account,
                         accountSkinOperation = accountSkinOperation,
                         updateOperation = { accountSkinOperation = it },
-                        summitError = summitError,
+                        submitError = submitError,
                         onAddAuthClicked = onAddAuthClicked,
                         onRefreshAvatar = { refreshAvatar = !refreshAvatar },
                         swapToDownloadScreen = swapToDownloadScreen
@@ -961,7 +961,7 @@ private fun AccountSkinOperation(
     account: Account,
     accountSkinOperation: AccountSkinOperation,
     updateOperation: (AccountSkinOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     onAddAuthClicked: () -> Unit = {},
     onRefreshAvatar: () -> Unit = {},
     swapToDownloadScreen: (id: String, platform: Platform, classes: PlatformClasses) -> Unit = { _, _, _ -> }
@@ -983,7 +983,7 @@ private fun AccountSkinOperation(
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(skinFile)
-                        summitError(
+                        submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
                                 message = th.getMessageOrToString()
@@ -1094,7 +1094,7 @@ private fun AccountSkinOperation(
 private fun AccountOperation(
     accountOperation: AccountOperation,
     updateAccountOperation: (AccountOperation) -> Unit,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
     when (accountOperation) {
@@ -1114,7 +1114,7 @@ private fun AccountOperation(
         is AccountOperation.OnFailed -> {
             val message: String = context.formatAccountError(accountOperation.th)
 
-            summitError(
+            submitError(
                 ErrorViewModel.ThrowableMessage(
                     title = stringResource(R.string.account_logging_in_failed),
                     message = message

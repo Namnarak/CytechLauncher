@@ -4,7 +4,7 @@ import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileExcepti
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.FREQUENT
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.PROFILE_NOT_EXISTS
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
-import com.movtery.zalithlauncher.path.UrlManager.Companion.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.call.body

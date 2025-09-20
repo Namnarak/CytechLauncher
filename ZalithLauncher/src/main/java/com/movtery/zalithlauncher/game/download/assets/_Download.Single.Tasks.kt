@@ -11,7 +11,7 @@ import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -38,7 +38,7 @@ fun downloadSingleForVersions(
     folder: String,
     onFileCopied: suspend (zip: File, folder: File) -> Unit = { _, _ -> },
     onFileCancelled: (zip: File, folder: File) -> Unit = { _, _ -> },
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val cacheFile = File(File(PathManager.DIR_CACHE, "assets"), info.sha1 ?: info.fileName)
 
@@ -65,7 +65,7 @@ fun downloadSingleForVersions(
                     context.getString(pair.first)
                 }
             }
-            summitError(
+            submitError(
                 ErrorViewModel.ThrowableMessage(
                     title = context.getString(R.string.download_assets_install_failed),
                     message = message
@@ -114,7 +114,7 @@ private fun downloadSingleFile(
                 }
                 updateProgress()
 
-                NetWorkUtils.downloadFileSuspend(
+                downloadFileSuspend(
                     url = info.downloadUrl,
                     sha1 = info.sha1,
                     outputFile = file.ensureParentDirectory(),

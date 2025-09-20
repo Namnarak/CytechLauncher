@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServerDao
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,7 +135,7 @@ object AccountsManager {
         account: Account,
         onFailed: (th: Throwable) -> Unit = {},
     ) {
-        if (NetWorkUtils.isNetworkAvailable(context)) {
+        if (isNetworkAvailable(context)) {
             performLogin(
                 context = context,
                 account = account,

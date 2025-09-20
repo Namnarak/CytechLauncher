@@ -23,22 +23,20 @@ data class NormalData(
     val isSwipple: Boolean,
     val isPenetrable: Boolean,
     val isToggleable: Boolean
-): Widget {
-    companion object {
-        /**
-         * 克隆一个新的NormalData对象（UUID、位置不同）
-         */
-        fun NormalData.cloneNew(): NormalData = NormalData(
-            text = this.text,
-            uuid = getAButtonUUID(),
-            position = ButtonPosition.Center,
-            buttonSize = buttonSize,
-            buttonStyle = buttonStyle,
-            visibilityType = visibilityType,
-            clickEvents = clickEvents,
-            isSwipple = isSwipple,
-            isPenetrable = isPenetrable,
-            isToggleable = isToggleable
-        )
-    }
-}
+): Widget
+
+/**
+ * 克隆一个新的NormalData对象（UUID、位置不同）
+ */
+public fun NormalData.cloneNew(): NormalData = NormalData(
+    text = this.text,
+    uuid = getAButtonUUID(),
+    position = CenterPosition,
+    buttonSize = buttonSize,
+    buttonStyle = buttonStyle,
+    visibilityType = visibilityType,
+    clickEvents = clickEvents,
+    isSwipple = isSwipple,
+    isPenetrable = isPenetrable,
+    isToggleable = isToggleable
+)

@@ -62,14 +62,13 @@ import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
 
+private const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
+private const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
+private const val INTENT_VERSION = "INTENT_VERSION"
+private const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
+private var isRunning = false
+
 class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
-    companion object {
-        const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
-        const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
-        const val INTENT_VERSION = "INTENT_VERSION"
-        const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
-        private var isRunning = false
-    }
     private val eventViewModel: EventViewModel by viewModels()
 
     private var mTextureView: TextureView? = null
@@ -92,7 +91,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         val exitListener = { exitCode: Int, isSignal: Boolean ->
             if (exitCode != 0) {
-                ErrorActivity.showExitMessage(this, exitCode, isSignal)
+                showExitMessage(this, exitCode, isSignal)
             } else {
                 //重启启动器
                 startActivity(Intent(this@VMActivity, MainActivity::class.java))
@@ -350,8 +349,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
  */
 fun runGame(context: Context, version: Version) {
     val intent = Intent(context, VMActivity::class.java).apply {
-        putExtra(VMActivity.INTENT_RUN_GAME, true)
-        putExtra(VMActivity.INTENT_VERSION, version)
+        putExtra(INTENT_RUN_GAME, true)
+        putExtra(INTENT_VERSION, version)
         addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
     context.startActivity(intent)
@@ -383,8 +382,8 @@ fun runJar(
     )
 
     val intent = Intent(context, VMActivity::class.java).apply {
-        putExtra(VMActivity.INTENT_RUN_JAR, true)
-        putExtra(VMActivity.INTENT_JAR_INFO, jvmLaunchInfo)
+        putExtra(INTENT_RUN_JAR, true)
+        putExtra(INTENT_JAR_INFO, jvmLaunchInfo)
         addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
     context.startActivity(intent)

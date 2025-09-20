@@ -2,12 +2,13 @@ package com.movtery.zalithlauncher.game.version.download
 
 import com.movtery.zalithlauncher.game.addons.mirror.mapMirrorableUrls
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
+import com.movtery.zalithlauncher.game.versioninfo.models.OperatingSystem
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,7 +36,7 @@ suspend fun <T> downloadAndParseJson(
     suspend fun downloadAndParse(): T {
         val json = withContext(Dispatchers.IO) {
             val string = withRetry(UTILS_LOG_TAG, maxRetries = 1) {
-                NetWorkUtils.fetchStringFromUrls(
+                fetchStringFromUrls(
                     url.mapMirrorableUrls()
                 )
             }
@@ -77,24 +78,29 @@ fun artifactToPath(library: GameManifest.Library): String? {
     val groupId = libInfos[0].replace('.', '/')
     val artifactId = libInfos[1]
     val version = libInfos[2]
-    val classifier = if (libInfos.size > 3) "-${libInfos[3]}" else ""
+
+    var classifier = if (libInfos.size > 3) "-${libInfos[3]}" else ""
+    if (library.isNative) run {
+        val natives = library.natives ?: return@run
+        if (natives.isNotEmpty()) {
+            //Android，在这里使用Linux
+            val native = natives[OperatingSystem.Linux] ?: return@run
+            classifier = "-$native"
+        }
+    }
 
     return "$groupId/$artifactId/$version/$artifactId-$version$classifier.jar"
 }
 
 fun processLibraries(libraries: () -> List<GameManifest.Library>) {
     libraries().forEach { library ->
-        processLibrary(library)
-    }
-}
+        val versionSegment = library.name.split(":").getOrNull(2) ?: return
+        val versionParts = versionSegment.split(".")
 
-private fun processLibrary(library: GameManifest.Library) {
-    val versionSegment = library.name.split(":").getOrNull(2) ?: return
-    val versionParts = versionSegment.split(".")
-
-    getLibraryReplacement(library.name, versionParts)?.let { replacement ->
-        lDebug("Library ${library.name} has been changed to version ${replacement.newName.split(":").last()}")
-        updateLibrary(library, replacement)
+        getLibraryReplacement(library.name, versionParts)?.let { replacement ->
+            lDebug("Library ${library.name} has been changed to version ${replacement.newName.split(":").last()}")
+            updateLibrary(library, replacement)
+        }
     }
 }
 

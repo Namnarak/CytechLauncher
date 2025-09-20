@@ -1,5 +1,7 @@
 package com.movtery.layer_controller.data
 
+import com.movtery.layer_controller.data.ButtonSize.Reference
+import com.movtery.layer_controller.data.ButtonSize.Type
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -60,42 +62,40 @@ data class ButtonSize(
          */
         @SerialName("screen_height") ScreenHeight,
     }
+}
 
-    companion object {
-        /**
-         * 默认大小：以百分比值进行存储
-         */
-        public val Default = ButtonSize(
-            type = Type.Percentage,
-            widthDp = 50f,
-            heightDp = 50f,
-            widthPercentage = 1400,
-            heightPercentage = 1400,
-            widthReference = Reference.ScreenHeight,
-            heightReference = Reference.ScreenHeight
-        )
+/**
+ * 默认大小：以百分比值进行存储
+ */
+public val DefaultSize = ButtonSize(
+    type = Type.Percentage,
+    widthDp = 50f,
+    heightDp = 50f,
+    widthPercentage = 1400,
+    heightPercentage = 1400,
+    widthReference = Reference.ScreenHeight,
+    heightReference = Reference.ScreenHeight
+)
 
-        /**
-         * 创建一个默认的百分比尺寸，根据参考尺寸计算出合适的值
-         */
-        fun createAdaptiveButtonSize(
-            referenceLength: Int,
-            type: Type = Type.Percentage,
-            reference: Reference = Reference.ScreenHeight,
-            density: Float = 1f,
-            targetDpSize: Float = 50f
-        ): ButtonSize {
-            val percentage = ((targetDpSize * density) / referenceLength * 10000).toInt()
+/**
+ * 创建一个默认的百分比尺寸，根据参考尺寸计算出合适的值
+ */
+public fun createAdaptiveButtonSize(
+    referenceLength: Int,
+    type: Type = Type.Percentage,
+    reference: Reference = Reference.ScreenHeight,
+    density: Float = 1f,
+    targetDpSize: Float = 50f
+): ButtonSize {
+    val percentage = ((targetDpSize * density) / referenceLength * 10000).toInt()
 
-            return ButtonSize(
-                type = type,
-                widthDp = targetDpSize,
-                heightDp = targetDpSize,
-                widthPercentage = percentage,
-                heightPercentage = percentage,
-                widthReference = reference,
-                heightReference = reference
-            )
-        }
-    }
+    return ButtonSize(
+        type = type,
+        widthDp = targetDpSize,
+        heightDp = targetDpSize,
+        widthPercentage = percentage,
+        heightPercentage = percentage,
+        widthReference = reference,
+        heightReference = reference
+    )
 }

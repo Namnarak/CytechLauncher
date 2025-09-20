@@ -2,10 +2,10 @@ package com.movtery.zalithlauncher.game.versioninfo
 
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.URL_MINECRAFT_VERSION_REPOS
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.fetchStringFromUrl
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,7 +49,7 @@ object MinecraftVersions {
     private suspend fun downloadVersionManifest(): VersionManifest {
         return withContext(Dispatchers.IO) {
             withRetry("MinecraftVersions", maxRetries = 1) {
-                val rawJson = NetWorkUtils.fetchStringFromUrl(UrlManager.URL_MINECRAFT_VERSION_REPOS)
+                val rawJson = fetchStringFromUrl(URL_MINECRAFT_VERSION_REPOS)
                 val versionManifest = GSON.fromJson(rawJson, VersionManifest::class.java)
                 PathManager.FILE_MINECRAFT_VERSIONS.writeText(rawJson)
                 versionManifest

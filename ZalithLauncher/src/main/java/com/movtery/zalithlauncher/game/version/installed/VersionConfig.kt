@@ -9,7 +9,7 @@ import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getStringNotNull
+import com.movtery.zalithlauncher.utils.string.getStringNotNull
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
 import java.io.FileWriter

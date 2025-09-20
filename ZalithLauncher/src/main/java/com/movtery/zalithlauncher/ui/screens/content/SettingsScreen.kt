@@ -64,7 +64,7 @@ fun SettingsScreen(
     backStackViewModel: ScreenBackStackViewModel,
     openLicenseScreen: (raw: Int) -> Unit,
     eventViewModel: EventViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
         screenKey = key,
@@ -89,7 +89,7 @@ fun SettingsScreen(
                 },
                 openLicenseScreen = openLicenseScreen,
                 eventViewModel = eventViewModel,
-                summitError = summitError,
+                submitError = submitError,
                 modifier = Modifier.fillMaxHeight()
             )
         }
@@ -171,7 +171,7 @@ private fun NavigationUI(
     onCurrentKeyChange: (NavKey?) -> Unit,
     openLicenseScreen: (raw: Int) -> Unit,
     eventViewModel: EventViewModel,
-    summitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val backStack = key.backStack
@@ -195,16 +195,16 @@ private fun NavigationUI(
                     GameSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.Control> {
-                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey, eventViewModel, summitError)
+                    ControlSettingsScreen(key, settingsScreenKey, mainScreenKey, eventViewModel, submitError)
                 }
                 entry<NormalNavKey.Settings.Launcher> {
                     LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.JavaManager> {
-                    JavaManageScreen(key, settingsScreenKey, mainScreenKey, summitError)
+                    JavaManageScreen(key, settingsScreenKey, mainScreenKey, submitError)
                 }
                 entry<NormalNavKey.Settings.ControlManager> {
-                    ControlManageScreen(key, settingsScreenKey, mainScreenKey, summitError)
+                    ControlManageScreen(key, settingsScreenKey, mainScreenKey, submitError)
                 }
                 entry<NormalNavKey.Settings.AboutInfo> {
                     AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen) { url ->

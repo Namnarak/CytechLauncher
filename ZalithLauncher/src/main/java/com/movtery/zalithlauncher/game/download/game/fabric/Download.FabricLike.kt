@@ -4,7 +4,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.mirror.mapMirrorableUrls
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
-import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -31,7 +31,7 @@ private suspend fun downloadJson(
     fabricLikeVersion: FabricLikeVersion,
     outputFile: File
 ) = withContext(Dispatchers.IO) {
-    val loaderJson = NetWorkUtils.fetchStringFromUrls(fabricLikeVersion.loaderJsonUrl.mapMirrorableUrls())
+    val loaderJson = fetchStringFromUrls(fabricLikeVersion.loaderJsonUrl.mapMirrorableUrls())
     outputFile
         .ensureParentDirectory()
         .writeText(loaderJson)

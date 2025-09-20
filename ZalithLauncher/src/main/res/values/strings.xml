@@ -56,6 +56,7 @@
     <string name="days_ago">%d days ago</string>
     <string name="months_ago">%d months ago</string>
     <string name="years_ago">%d years ago</string>
+    <string name="empty_holder" translatable="false">%s</string>
     <!-- Launcher Version -->
     <string name="launcher_version_debug_warning">You are using a test version of %s! This version may be unstable and is primarily intended for feature testing and early access. It is not recommended for long-term use! If you encounter any issues during testing, please report them to us via GitHub and we will address them as soon as possible.</string>
     <string name="launcher_version_debug_warning_cant_close">This warning cannot be dismissed</string>
@@ -89,6 +90,7 @@
     <string name="crash_launch_crash_message">The launcher encountered a serious problem and crashed during startup</string>
     <!-- Errors -->
     <string name="error_import_image">Failed to import image</string>
+    <string name="error_import_file">An error occurred while importing the file</string>
     <string name="error_create_dir">Failed to create directory: %s</string>
     <string name="error_timeout">Request timed out</string>
     <string name="error_network_unreachable">Network unavailable</string>
@@ -604,6 +606,8 @@
     <string name="saves_manage_quick_play">Quick Play</string>
     <string name="saves_manage_quick_play_disabled">Quick Play (1.20+ only)</string>
     <string name="saves_manage_no_saves">No saves for this version</string>
+    <string name="saves_manage_import_unpacking">Unpacking save: %s</string>
+    <string name="saves_manage_import_failed">An error occurred while importing the save</string>
     <string name="resource_pack_manage">Resource Packs</string>
     <string name="resource_pack_manage_info">Resource Pack Information</string>
     <string name="resource_pack_manage_invalid">Invalid Resource Pack Format</string>
@@ -868,6 +872,10 @@
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
     <string name="about_acknowledgements_mcmod_text">%s uses Simplified Chinese translations of mods and modpacks from MCMod</string>
     <string name="about_acknowledgements_bangbang93_text">%s uses the BMCL API mirror source</string>
+    <string name="about_acknowledgements_github_community">GitHub Community</string>
+    <string name="about_acknowledgements_github_community_text">All issue reporters and contributors from the GitHub community</string>
+    <string name="about_acknowledgements_weblate_community">Weblate Community</string>
+    <string name="about_acknowledgements_weblate_community_text">All translators who participated in community language localization</string>
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!--  Url  -->

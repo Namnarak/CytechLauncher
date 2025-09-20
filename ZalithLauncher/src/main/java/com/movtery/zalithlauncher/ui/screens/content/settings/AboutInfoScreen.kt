@@ -52,7 +52,11 @@ import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.library.LibraryInfo
 import com.movtery.zalithlauncher.library.libraryData
-import com.movtery.zalithlauncher.path.UrlManager
+import com.movtery.zalithlauncher.path.URL_COMMUNITY
+import com.movtery.zalithlauncher.path.URL_MCMOD
+import com.movtery.zalithlauncher.path.URL_PROJECT
+import com.movtery.zalithlauncher.path.URL_SUPPORT
+import com.movtery.zalithlauncher.path.URL_WEBLATE
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -92,7 +96,7 @@ fun AboutInfoScreen(
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
                             buttonText = stringResource(R.string.about_launcher_project_link),
-                            onButtonClick = { openLink(UrlManager.URL_PROJECT) }
+                            onButtonClick = { openLink(URL_PROJECT) }
                         )
 
                         ButtonIconItem(
@@ -100,7 +104,7 @@ fun AboutInfoScreen(
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
                             buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { openLink(UrlManager.URL_SUPPORT) }
+                            onButtonClick = { openLink(URL_SUPPORT) }
                         )
                     }
                 }
@@ -142,7 +146,7 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.img_platform_mcmod),
                             title = stringResource(R.string.about_acknowledgements_mcmod),
                             text = stringResource(R.string.about_acknowledgements_mcmod_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            openLink = { openLink(UrlManager.URL_MCMOD) }
+                            openLink = { openLink(URL_MCMOD) }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_pcl2),
@@ -156,6 +160,18 @@ fun AboutInfoScreen(
                             text = stringResource(R.string.about_acknowledgements_pojav_text, InfoDistributor.LAUNCHER_SHORT_NAME),
                             openLicense = { openLicense(R.raw.lgpl_3_license) },
                             openLink = { openLink("https://github.com/PojavLauncherTeam/PojavLauncher") }
+                        )
+                        LinkIconItem(
+                            icon = painterResource(R.drawable.ic_github),
+                            title = stringResource(R.string.about_acknowledgements_github_community),
+                            text = stringResource(R.string.about_acknowledgements_github_community_text),
+                            openLink = { openLink(URL_COMMUNITY) }
+                        )
+                        LinkIconItem(
+                            icon = painterResource(R.drawable.img_weblate),
+                            title = stringResource(R.string.about_acknowledgements_weblate_community),
+                            text = stringResource(R.string.about_acknowledgements_weblate_community_text),
+                            openLink = { openLink(URL_WEBLATE) }
                         )
                     }
                 }

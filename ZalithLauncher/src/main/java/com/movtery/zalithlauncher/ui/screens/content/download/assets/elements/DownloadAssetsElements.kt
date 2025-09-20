@@ -75,16 +75,17 @@ import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.model
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.getSHA1
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFile.Companion.getPrimary
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.getPrimary
 import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo.Urls
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
@@ -146,16 +147,7 @@ class DownloadProjectInfo(
         val sourceUrl: String? = null,
         val issuesUrl: String? = null,
         val wikiUrl: String? = null
-    ) {
-        companion object {
-            fun Urls.isAllNull(): Boolean {
-                return projectUrl == null &&
-                        sourceUrl == null &&
-                        issuesUrl == null &&
-                        wikiUrl   == null
-            }
-        }
-    }
+    )
 
     /**
      * 屏幕截图
@@ -168,6 +160,16 @@ class DownloadProjectInfo(
         val title: String? = null,
         val description: String? = null
     )
+}
+
+/**
+ * 所有的链接是否都为null
+ */
+fun Urls.isAllNull(): Boolean {
+    return projectUrl == null &&
+            sourceUrl == null &&
+            issuesUrl == null &&
+            wikiUrl   == null
 }
 
 /**
