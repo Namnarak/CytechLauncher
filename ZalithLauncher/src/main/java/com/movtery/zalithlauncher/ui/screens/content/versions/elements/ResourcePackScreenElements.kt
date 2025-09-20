@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
-import com.movtery.zalithlauncher.utils.json.parseToJson
+import com.movtery.zalithlauncher.game.version.mod.meta.PackMcMeta
+import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
 import kotlinx.coroutines.Dispatchers
@@ -124,17 +125,23 @@ suspend fun parseResourcePack(file: File): ResourcePackInfo? = withContext(Dispa
             }
         }
 
-        val pack = metaContent?.parseToJson()?.get("pack")?.also {
-            //这个pack必须存在，否则将不是有效的格式
+        val meta = metaContent?.let { content ->
+            runCatching {
+                GSON.fromJson(content, PackMcMeta::class.java)
+            }.onFailure {
+                lWarning("Failed to parse the resource package metadata: ${file.absolutePath}", it)
+            }.getOrNull()
+        }?.also {
+            //解析成功，则代表其是一个有效的格式
             isValid = true
-        }?.asJsonObject
+        }
 
         ResourcePackInfo(
             file = file,
             fileSize = fileSize,
             isValid = isValid,
-            description = pack?.get("description")?.asString,
-            packFormat = pack?.get("pack_format")?.asInt,
+            description = meta?.pack?.description?.toPlainText(),
+            packFormat = meta?.pack?.packFormat,
             icon = iconBytes
         )
     }.onFailure {
