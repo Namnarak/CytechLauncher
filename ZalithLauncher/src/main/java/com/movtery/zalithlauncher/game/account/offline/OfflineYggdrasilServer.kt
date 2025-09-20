@@ -47,7 +47,10 @@ import java.util.concurrent.TimeUnit
  * [Reference from HMCL](https://github.com/HMCL-dev/HMCL/blob/15e490f/HMCLCore/src/main/java/org/jackhuang/hmcl/auth/offline/YggdrasilServer.java)
  */
 class OfflineYggdrasilServer(
-    private val port: Int = 0
+    private val port: Int = 0,
+    val serverName: String = "${InfoDistributor.LAUNCHER_IDENTIFIER}_Offline",
+    val implementationName: String = InfoDistributor.LAUNCHER_SHORT_NAME,
+    val implementationVersion: String = "1.0"
 ) {
     private val charactersByUuid = ConcurrentHashMap<String, Character>()
     private val charactersByName = ConcurrentHashMap<String, Character>()
@@ -179,9 +182,9 @@ class OfflineYggdrasilServer(
         return buildJsonObject {
             put("skinDomains", JsonArray(listOf(JsonPrimitive("127.0.0.1"), JsonPrimitive("localhost"))))
             put("meta", buildJsonObject {
-                put("serverName", JsonPrimitive("${InfoDistributor.LAUNCHER_IDENTIFIER}-OfflineSkinServer"))
-                put("implementationName", JsonPrimitive(InfoDistributor.LAUNCHER_SHORT_NAME))
-                put("implementationVersion", JsonPrimitive("1.0"))
+                put("serverName", JsonPrimitive(serverName))
+                put("implementationName", JsonPrimitive(implementationName))
+                put("implementationVersion", JsonPrimitive(implementationVersion))
                 put("feature.non_email_login", JsonPrimitive(true))
             })
             put("signaturePublickey", JsonPrimitive(keyPair.public.toPEMPublicKey()))
