@@ -48,5 +48,22 @@
     <string name="generic_save">حفظ</string>
     <string name="generic_share">مشاركة</string>
     <string name="unit_day">يوم</string>
-    <string name="just_now">ارسل الان</string>
+    <string name="just_now">الآن للتو</string>
+    <string name="date_format">يوم الشهر السنة، الساعة:الدقيقة:الثانية ص/م</string>
+    <string name="minutes_ago">منذ دقيقة</string>
+    <string name="hours_ago">منذ ساعة</string>
+    <string name="days_ago">منذ يوم</string>
+    <string name="months_ago">منذ شهر</string>
+    <string name="years_ago">منذ سنة</string>
+    <string name="launcher_version_debug_warning">أنت تستخدم نسخة تجريبية من %s! قد تكون هذه النسخة غير مستقرة وهي مخصصة بشكل أساسي لاختبار الميزات والوصول المبكر. لا يُنصح باستخدامها على المدى الطويل! إذا واجهت أي مشاكل أثناء الاختبار، يرجى الإبلاغ عنها لنا عبر GitHub وسنتعامل معها في أقرب وقت ممكن.</string>
+    <string name="launcher_version_debug_warning_cant_close">لا يمكن تجاهل هذا التحذير</string>
+    <string name="theme_color_dynamic">ديناميكي (أندرويد 12 فأعلى)</string>
+    <string name="theme_color_embermire">إمبرماير</string>
+    <string name="theme_color_velvet_rose">فلڤيت روز</string>
+    <string name="theme_color_mistwave">ميست ويف</string>
+    <string name="theme_color_glacier">غلاسيير</string>
+    <string name="theme_color_verdant_field">الغسق الأخضر (فيردانت تويلات)</string>
+    <string name="theme_color_urban_ash">أربان آش</string>
+    <string name="theme_color_verdant_dawn">فجر الغابة الصامتة (سايلنت فورست دون)</string>
+    <string name="theme_color_picker_title">أداة اختيار اللون</string>
 </resources>
