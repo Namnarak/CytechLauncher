@@ -61,7 +61,7 @@
     <string name="crash_launcher_title">%s столкнулся с критической ошибкой</string>
     <string name="crash_launcher_message">Лаунчер крашнул. Подробности ошибки ниже могут помочь разработчикам улучшить приложение.</string>
     <string name="crash_exit_message">JVM крашнул с кодом %d.</string>
-    <string name="crash_singnal_message">JVM прервал работу из-за фатального сигнала %d.</string>
+    <string name="crash_singnal_message">JVM крашнул из-за fatal signal %d.</string>
     <string name="crash_exit_note">Для получения подробностей, пожалуйста, проверьте логи. Если вы не можете решить эту проблему самостоятельно, отправьте логи человеку, который сможет его проанализировать. Возможно, он сможет помочь вам диагностировать и исправить проблему. Пожалуйста, не делайте скриншот текущего экрана, так как скриншот этого экрана не содержать достаточной информации для решения проблемы.</string>
     <string name="crash_restart">Перезапустить</string>
     <string name="crash_exit">Выйти</string>
