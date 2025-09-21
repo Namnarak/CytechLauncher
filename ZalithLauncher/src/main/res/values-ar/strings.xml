@@ -74,4 +74,5 @@
     <string name="crash_exit_message">انتهت JVM برمز %d.</string>
     <string name="crash_singnal_message">JVM aborted due to fatal signal %d.</string>
     <string name="crash_exit_note">للاطلاع على تفاصيل السبب، يرجى مراجعة ملف السجل. إذا لم تتمكن من حل المشكلة بنفسك، يرجى إرسال ملف السجل إلى شخص قادر على تحليله. قد يتمكن من مساعدتك في تشخيص المشكلة وإصلاحها. الرجاء عدم أخذ لقطة شاشة للشاشة الحالية، حيث أن لقطات الشاشة قد لا توفر معلومات كافية لحل المشكلة.</string>
+    <string name="crash_type">Crash Type: %s</string>
 </resources>
