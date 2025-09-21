@@ -66,4 +66,12 @@
     <string name="theme_color_urban_ash">أربان آش</string>
     <string name="theme_color_verdant_dawn">فجر الغابة الصامتة (سايلنت فورست دون)</string>
     <string name="theme_color_picker_title">أداة اختيار اللون</string>
+    <string name="animate_type_bounce">ارتداد</string>
+    <string name="animate_type_jelly_bounce">‌جيلي باونس</string>
+    <string name="animate_type_slice_in">شريحة في</string>
+    <string name="crash_launcher_title">%s قد واجه خطأً قاتلًا</string>
+    <string name="crash_launcher_message">توقف التطبيق عن العمل بشكل غير متوقع. التفاصيل أدناه ستساعد المطورين على تحسين التطبيق.</string>
+    <string name="crash_exit_message">انتهت JVM برمز %d.</string>
+    <string name="crash_singnal_message">تم إيقاف JVM بسبب إشارة قاتلة %d.</string>
+    <string name="crash_exit_note">للاطلاع على تفاصيل السبب، يرجى مراجعة ملف السجل. إذا لم تتمكن من حل المشكلة بنفسك، يرجى إرسال ملف السجل إلى شخص قادر على تحليله. قد يتمكن من مساعدتك في تشخيص المشكلة وإصلاحها. الرجاء عدم أخذ لقطة شاشة للشاشة الحالية، حيث أن لقطات الشاشة قد لا توفر معلومات كافية لحل المشكلة.</string>
 </resources>
