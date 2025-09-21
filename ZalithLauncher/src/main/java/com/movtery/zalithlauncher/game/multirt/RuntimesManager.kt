@@ -7,6 +7,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.math.findNearestPositive
@@ -175,6 +176,16 @@ object RuntimesManager {
         if (!dest.exists() || forceReload(name).versionString == null) {
             throw RuntimeException("Selected runtime is broken!")
         }
+        val jreDir = dest.child("jre")
+        val jreBinDir = jreDir.child("bin")
+        val jreLibDir = jreDir.child("lib")
+        if (jreDir.exists() && jreBinDir.exists() && jreLibDir.exists()) {
+            //Fix JDK8
+            lDebug("Found the following directories in ${dest.absolutePath}: ")
+            lDebug("jre, jre/bin, and jre/lib. Determined to be a JDK environment, using jre as the root directory.")
+            return jreDir
+        }
+
         return dest
     }
 
