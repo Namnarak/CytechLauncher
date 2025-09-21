@@ -149,7 +149,7 @@
     <string name="download_install_success_message">Game mu telah berhasil diinstal!</string>
     <string name="download_install_clear_temp">Membersihkan file cache</string>
     <string name="download_install_input_version_name">Menunggu pengguna memasukkan nama versi</string>
-    <string name="download_install_input_version_name_title">Masukkan nama versi pra-instal</string>
+    <string name="download_install_input_version_name_title">Masukkan nama versi sebelum menginstal</string>
     <string name="download_assets_filter_search_name">Nama Pencarian</string>
     <string name="download_assets_filter_search_platform">Platform Target</string>
     <string name="download_assets_filter_game_version">Versi Game</string>
@@ -668,7 +668,7 @@
     <string name="control_editor_layers_attribute_name">Nama Lapisan Kontrol</string>
     <string name="control_editor_layers_attribute_hide">Sembunyikan Lapisan Kontrol secara Default</string>
     <string name="control_editor_edit_dialog_open_preview">Buka Pratinjau</string>
-    <string name="control_editor_edit_dialog_close_preview">Buka Pratinjau</string>
+    <string name="control_editor_edit_dialog_close_preview">Tutup Pratinjau</string>
     <string name="control_editor_edit_dialog_clone_widget">Salin kontrol</string>
     <string name="control_editor_edit_dialog_clone_widget_title">Salin ke Lapisan Kontrol</string>
     <string name="control_editor_edit_category_info">Informasi</string>
@@ -795,4 +795,28 @@
     <string name="versions_config_microphone_check_summary">Cek apakah mikrofon sistem tersedia atau pastikan launcher sudah dikasih izin mikrofon. Pengecekan ini buat memastikan kamu bisa pakai mod seperti Simple Voice Chat yang butuh mikrofon.</string>
     <string name="microphone_check_volume">Volume: %d</string>
     <string name="error_import_file">Terjadi kesalahan saat mengimpor file</string>
+    <string name="game_menu_option_show_menu">Aktifkan menu jendela mengambang</string>
+    <string name="game_menu_option_show_menu_hided">Menu jendela mengambang game telah ditutup. Anda dapat membuka menu permainan dengan menekan tombol kembali sistem</string>
+    <string name="settings_control_gyroscope_title">Kontrol Giroskop</string>
+    <string name="settings_control_gyroscope_unsupported">Giroskop perangkat tidak tersedia</string>
+    <string name="settings_control_gyroscope_summary">Kontrol kamera dengan memutar perangkat selama bermain game</string>
+    <string name="settings_control_gyroscope_sensitivity_title">Sensitivitas Giroskop</string>
+    <string name="settings_control_gyroscope_sample_rate_title">Laju Pengambilan Sampel Giroskop</string>
+    <string name="settings_control_gyroscope_sample_rate_summary">Laju pengambilan sampel menentukan frekuensi pembaruan data giroskop. Semakin tinggi frekuensinya, semakin real-time datanya, tetapi semakin besar pula daya yang dikonsumsi</string>
+    <string name="settings_control_gyroscope_smoothing_title">Menghaluskan gerakan giroskop</string>
+    <string name="settings_control_gyroscope_smoothing_summary">Haluskan gerakan yang terdeteksi oleh giroskop untuk mengurangi jitter, tetapi meningkatkan latensi</string>
+    <string name="settings_control_gyroscope_smoothing_window_title">Ukuran Jendela Penghalusan Giroskop</string>
+    <string name="settings_control_gyroscope_smoothing_window_summary">Menentukan jumlah data yang akan dihaluskan dan dirata-ratakan. Semakin besar nilainya, semakin halus hasilnya, tetapi semakin lambat responsnya</string>
+    <string name="settings_control_gyroscope_invert_x_title">Membalikkan Sumbu X</string>
+    <string name="settings_control_gyroscope_invert_x_summary">Saat diaktifkan, memutar perangkat ke kiri atau kanan akan mengontrol kamera ke arah yang berlawanan</string>
+    <string name="settings_control_gyroscope_invert_y_title">Membalikkan Sumbu Y</string>
+    <string name="settings_control_gyroscope_invert_y_summary">Saat diaktifkan, memutar perangkat ke atas atau ke bawah akan mengontrol kamera ke arah yang berlawanan</string>
+    <string name="about_acknowledgements_github_community">Komunitas GitHub</string>
+    <string name="about_acknowledgements_github_community_text">Semua pelapor masalah dan kontributor dari komunitas GitHub</string>
+    <string name="about_acknowledgements_weblate_community">Komunitas Weblate</string>
+    <string name="about_acknowledgements_weblate_community_text">Semua penerjemah yang berpartisipasi dalam lokalisasi project</string>
+    <string name="versions_config_microphone_check_title">Periksa Mikrofon</string>
+    <string name="saves_manage_import_unpacking">Membongkar dunia: %s</string>
+    <string name="saves_manage_import_failed">Terjadi kesalahan saat mengimpor dunia</string>
+    <string name="control_editor_layers_merge_downward">Gabungkan Lapisan Kebawah</string>
 </resources>
