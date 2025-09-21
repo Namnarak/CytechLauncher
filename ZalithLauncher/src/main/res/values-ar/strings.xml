@@ -72,6 +72,6 @@
     <string name="crash_launcher_title">%s قد واجه خطأً قاتلًا</string>
     <string name="crash_launcher_message">توقف التطبيق عن العمل بشكل غير متوقع. التفاصيل أدناه ستساعد المطورين على تحسين التطبيق.</string>
     <string name="crash_exit_message">انتهت JVM برمز %d.</string>
-    <string name="crash_singnal_message">تم إيقاف JVM بسبب إشارة قاتلة %d.</string>
+    <string name="crash_singnal_message">JVM aborted due to fatal signal %d.</string>
     <string name="crash_exit_note">للاطلاع على تفاصيل السبب، يرجى مراجعة ملف السجل. إذا لم تتمكن من حل المشكلة بنفسك، يرجى إرسال ملف السجل إلى شخص قادر على تحليله. قد يتمكن من مساعدتك في تشخيص المشكلة وإصلاحها. الرجاء عدم أخذ لقطة شاشة للشاشة الحالية، حيث أن لقطات الشاشة قد لا توفر معلومات كافية لحل المشكلة.</string>
 </resources>
