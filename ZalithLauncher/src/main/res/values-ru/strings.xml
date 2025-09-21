@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="generic_cancel">Отмена</string>
-    <string name="generic_confirm">Подтвердить</string>
+    <string name="generic_confirm">Ок</string>
     <string name="generic_error">Ошибка</string>
     <string name="generic_warning">Предупреждение</string>
     <string name="generic_back">Назад</string>
@@ -59,10 +59,10 @@
     <string name="animate_type_slice_in">Скользящая</string>
     <!-- Crash Handling -->
     <string name="crash_launcher_title">%s столкнулся с критической ошибкой</string>
-    <string name="crash_launcher_message">Приложение неожиданно завершило работу. Подробности ошибки ниже помогут разработчикам улучшить приложение.</string>
-    <string name="crash_exit_message">JVM завершил работу с кодом %d.</string>
+    <string name="crash_launcher_message">Лаунчер крашнул. Подробности ошибки ниже могут помочь разработчикам улучшить приложение.</string>
+    <string name="crash_exit_message">JVM крашнул с кодом %d.</string>
     <string name="crash_singnal_message">JVM прервал работу из-за фатального сигнала %d.</string>
-    <string name="crash_exit_note">Для уточнения причины, пожалуйста, проверьте файл журнала. Если вы не можете решить эту проблему самостоятельно, отправьте файл журнала человеку, который сможет его проанализировать. Возможно, он сможет помочь вам диагностировать и исправить проблему. Пожалуйста, не делайте скриншот текущего экрана, так как скриншоты могут не содержать достаточной информации для решения проблемы.</string>
+    <string name="crash_exit_note">Для получения подробностей, пожалуйста, проверьте логи. Если вы не можете решить эту проблему самостоятельно, отправьте логи человеку, который сможет его проанализировать. Возможно, он сможет помочь вам диагностировать и исправить проблему. Пожалуйста, не делайте скриншот текущего экрана, так как скриншот этого экрана не содержать достаточной информации для решения проблемы.</string>
     <string name="crash_restart">Перезапустить</string>
     <string name="crash_exit">Выйти</string>
     <!-- Errors -->
@@ -99,10 +99,10 @@
     <string name="main_launch_game">Запустить</string>
     <string name="main_task_menu">Меню задач</string>
     <!-- Download -->
-    <string name="download_category_game">Игра</string>
-    <string name="download_category_modpack">Мод-пак</string>
+    <string name="download_category_game">Версии</string>
+    <string name="download_category_modpack">Мод-паки</string>
     <string name="download_category_mod">Моды</string>
-    <string name="download_category_resource_pack">Ресурс-пак</string>
+    <string name="download_category_resource_pack">Ресурс-паки</string>
     <string name="download_category_saves">Миры</string>
     <string name="download_category_shaders">Шейдеры</string>
     <string name="download_game_failed_to_get_versions">Не удалось получить версию: %s. Нажмите для повторной попытки.</string>
@@ -285,9 +285,9 @@
     <string name="versions_overview_version_folder">Папка версии</string>
     <string name="versions_overview_saves_folder">Папка сохранений</string>
     <string name="versions_overview_resource_pack_folder">Папка с ресурсным паком</string>
-    <string name="versions_overview_shaders_pack_folder">Папка с шейдер-паком</string>
-    <string name="versions_overview_screenshot_folder">Папка скриншотов</string>
-    <string name="versions_overview_logs_folder">Папка с журналами</string>
+    <string name="versions_overview_shaders_pack_folder">Папка с шейдерами</string>
+    <string name="versions_overview_screenshot_folder">Папка с скриншотами</string>
+    <string name="versions_overview_logs_folder">Папка с логами</string>
     <string name="versions_overview_crash_report_folder">Папка с отчетами о сбоях</string>
     <string name="versions_config_version_settings">Настройки версии</string>
     <string name="versions_config_game_settings">Индивидуальные настройки игры</string>
@@ -360,7 +360,7 @@
     <string name="settings_tab_launcher">Лаунчер</string>
     <string name="settings_tab_java_manage">Java</string>
     <string name="settings_tab_control_manage">Раскладка</string>
-    <string name="settings_tab_info_about">О программе</string>
+    <string name="settings_tab_info_about">О проекте</string>
     <string name="settings_renderer_global_renderer_title">Визуализатор</string>
     <string name="settings_renderer_global_renderer_summary">Визуализатор по умолчанию использует динамический слой трансляции библиотек для обеспечения плавной работы игры на мобильных устройствах</string>
     <string name="settings_renderer_global_vulkan_driver_title">Драйвер Vulkan</string>
@@ -450,7 +450,7 @@
     <string name="crash_share_logs">Поделиться логом</string>
     <string name="download_assets_filter_sort_field">Сортировать по</string>
     <string name="download_assets_filter_category">Категория</string>
-    <string name="download_assets_filter_modloader">Мод лоудер</string>
+    <string name="download_assets_filter_modloader">Мод-лоудер</string>
     <string name="download_assets_filter_none">Ничего не выбрано</string>
     <string name="download_assets_filter_sort_by_relevant">Релевантность</string>
     <string name="download_assets_filter_sort_by_total_downloads">Всего загрузок</string>
@@ -492,7 +492,7 @@
     <string name="crash_type_game">Краш игры</string>
     <string name="crash_launch_crash_title">Не удалось запустить приложение</string>
     <string name="crash_launch_crash_message">Лаунчер столкнулся с серьёзной проблемой и крашнул при запуске</string>
-    <string name="microphone_check_title">Проверьте микрофон</string>
+    <string name="microphone_check_title">Проверка микрофона</string>
     <string name="microphone_check_volume">Громкость:%d</string>
     <string name="microphone_check_no_permissions">Лаунчер не получил разрешение на использование микрофона</string>
     <string name="download_game_addon_request_addon">Пожалуйста, сначала выберите версию %s</string>
@@ -504,18 +504,18 @@
     <string name="download_assets_filter_search_platform">Целевая платформа</string>
     <string name="download_assets_filter_game_version">Версия игры</string>
     <string name="download_assets_result_authors">От %s</string>
-    <string name="download_modpack_warning1">Перед установкой необходимо понимать, что большинство модпаков создано под нормальный ПК, и существует высокая вероятность сбоев или других проблем при их запуске. Эти проблемы часто находятся вне возможностей лаунчера.</string>
+    <string name="download_modpack_warning1">Перед установкой необходимо понимать, что большинство мод-паков создано под нормальный ПК, и существует высокая вероятность сбоев или других проблем при их запуске. Эти проблемы часто находятся вне возможностей лаунчера.</string>
     <string name="download_modpack_warning2">При возникновении проблем вам необходимо иметь соответствующие знания, чтобы попытаться решить проблему самостоятельно; также вы можете обратиться к знающим людям.</string>
-    <string name="download_modpack_warning3">Примечание: разработчики лаунчера, как правило, не занимаются решением проблем, вызванных модпаками.</string>
-    <string name="download_modpack_install_title">Установка модпака</string>
-    <string name="download_modpack_install_parse">Разбор модпака</string>
+    <string name="download_modpack_warning3">Примечание: разработчики лаунчера, как правило, не занимаются решением проблем, вызванных мод-паками.</string>
+    <string name="download_modpack_install_title">Установка мод-пака</string>
+    <string name="download_modpack_install_parse">Разбор мод-пака</string>
     <string name="download_modpack_install_get_mod_url">Получить ссылку на скачивание мода (%1$d/%2$d)</string>
-    <string name="download_modpack_install_overrides">Распаковка файлов модпака</string>
-    <string name="download_modpack_download">Скачать необходимые файлы для модпака</string>
+    <string name="download_modpack_install_overrides">Распаковка файлов мод-пака</string>
+    <string name="download_modpack_download">Скачать необходимые файлы для мод-пака</string>
     <string name="download_modpack_download_mods">Скачать все моды (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_download_mods_retry">Повторить загрузку всех модов (%1$d/%2$d, %3$s)</string>
-    <string name="download_modpack_get_loaders">Получение информации о загрузчике</string>
-    <string name="download_modpack_final_move">Перемещение файлов модпака</string>
+    <string name="download_modpack_get_loaders">Получение информации о мод-лоудере</string>
+    <string name="download_modpack_final_move">Перемещение файлов мод-пака</string>
     <string name="download_assets_category_ores_resources">Руды и ресурсы</string>
     <string name="download_assets_category_structures">Структуры</string>
     <string name="download_assets_category_technology">Технологии</string>
@@ -602,9 +602,9 @@
     <string name="game_menu_title">Меню игры</string>
     <string name="game_menu_option_force_close_text">Принудительное закрытие запущенной игры может привести к повреждению данных. Не выполняйте это действие, если в этом нет необходимости.</string>
     <string name="game_menu_option_switch_log">Вывод лога</string>
-    <string name="game_menu_option_input_method">Сменить метод ввода</string>
+    <string name="game_menu_option_input_method">Открыть ввод текста</string>
     <string name="game_menu_option_switch_fps">Отображение FPS</string>
-    <string name="game_menu_option_send_keycode">Отправить код клавиши</string>
+    <string name="game_menu_option_send_keycode">Нажать на клавишу</string>
     <string name="game_menu_option_replacement_control">Заменить раскладку</string>
     <string name="game_menu_option_hotbar_rule">Правило позиционирования хотбара</string>
     <string name="game_menu_option_hotbar_rule_auto">Адаптивная (может быть неточной)</string>
@@ -669,7 +669,7 @@
     <string name="versions_manage_game_storage_permissions">Хотите использовать внешний путь для игры? Пожалуйста, сначала предоставьте лаунчеру разрешение на доступ к внешнему хранилищу, иначе он не сможет получить доступ к внешним игровым файлам!</string>
     <string name="versions_manage_game_storage_permissions_sdk30">Хотите использовать внешний путь для игры? Пожалуйста, сначала предоставьте лаунчеру разрешение «Управление всеми файлами на устройстве», иначе он не сможет получить доступ к внешним игровым файлам!</string>
     <string name="versions_manage_category_vanilla">Vanilla</string>
-    <string name="versions_manage_category_modloader">Модлоудеры</string>
+    <string name="versions_manage_category_modloader">Мод-лоудеры</string>
     <string name="versions_manage_cleanup">Очистить игровые файлы</string>
     <string name="versions_manage_cleanup_tip">Лаунчер проверит установленные игровые файлы, сравнит их с файлами, необходимыми для существующих версий, а затем удалит не необходимые файлы. Это может значительно сэкономить место на вашем устройстве.</string>
     <string name="versions_manage_cleanup_warning">Внимание: Лаунчер будет сканировать только следующие папки в текущем игровом каталоге:</string>
@@ -716,7 +716,7 @@
     <string name="settings_launcher_log_share_title">Поделиться логами лаунчера</string>
     <string name="settings_launcher_log_share_summary">Нажмите, чтобы поделиться файлами логов лаунчера. Это поможет разработчикам выявить и исправить проблемы в его работе.</string>
     <string name="settings_launcher_log_share_packing">Упаковка файлов логов лаунчера</string>
-    <string name="settings_launcher_mirror_modloader_title">Источник версий модлоудера</string>
+    <string name="settings_launcher_mirror_modloader_title">Источник версий мод-лоудера</string>
     <string name="settings_launcher_mirror_file_download_title">Источник загрузки файлов</string>
     <string name="settings_launcher_mirror_official_first">Предпочитать официальный источник</string>
     <string name="settings_launcher_mirror_mirror_first">Предпочитать зеркало</string>
