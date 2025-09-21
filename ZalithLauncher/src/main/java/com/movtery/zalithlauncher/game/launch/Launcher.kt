@@ -50,7 +50,7 @@ abstract class Launcher(
     private var dirNameHomeJre: String = "lib"
     private var jvmLibraryPath: String = ""
 
-    private fun getJDKJavaHome() = if (checkJDK()) "$runtimeHome/jre" else runtimeHome
+    private fun getJavaHome() = if (checkJDK()) "$runtimeHome/jre" else runtimeHome
     private fun checkJDK() = runtime.isJDK && File(runtimeHome, "jre").exists()
 
     abstract suspend fun launch(): Int
@@ -138,7 +138,7 @@ abstract class Launcher(
         val resolvFile = File(PathManager.DIR_FILES_PRIVATE.parent, "resolv.conf").absolutePath
 
         val overridableArguments = mutableMapOf<String, String>().apply {
-            put("java.home", getJDKJavaHome())
+            put("java.home", getJavaHome())
             put("java.io.tmpdir", PathManager.DIR_CACHE.absolutePath)
             put("jna.boot.library.path", PathManager.DIR_NATIVE_LIB)
             put("user.home", userHome ?: GamePathManager.getUserHome())
@@ -262,9 +262,9 @@ abstract class Launcher(
     }
 
     private fun initLdLibraryPath() {
-        val runtimeDir = File(getJDKJavaHome())
+        val runtimeDir = File(getJavaHome())
         val serverFile = runtimeDir.child(dirNameHomeJre, "server", "libjvm.so")
-        jvmLibraryPath = "${getJDKJavaHome()}/$dirNameHomeJre/${if (serverFile.exists()) "server" else "client"}"
+        jvmLibraryPath = "${getJavaHome()}/$dirNameHomeJre/${if (serverFile.exists()) "server" else "client"}"
         lDebug("Base libraryPath: $libraryPath")
         lDebug("Internal libraryPath: $jvmLibraryPath:$libraryPath")
         ZLBridge.setLdLibraryPath("$jvmLibraryPath:$libraryPath")
@@ -328,7 +328,7 @@ abstract class Launcher(
 
         envMap().let { map ->
             map["POJAV_NATIVEDIR"] = PathManager.DIR_NATIVE_LIB
-            map["JAVA_HOME"] = getJDKJavaHome()
+            map["JAVA_HOME"] = getJavaHome()
             map["HOME"] = PathManager.DIR_FILES_EXTERNAL.absolutePath
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath
             map["LD_LIBRARY_PATH"] = libraryPath
