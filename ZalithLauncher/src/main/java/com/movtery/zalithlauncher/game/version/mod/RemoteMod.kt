@@ -68,6 +68,7 @@ class RemoteMod(
             mcMod = null
         }
 
+        isLoaded = false
         isLoading = true
 
         try {

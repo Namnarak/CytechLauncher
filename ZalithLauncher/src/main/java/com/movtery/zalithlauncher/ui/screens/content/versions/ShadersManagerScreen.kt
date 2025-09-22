@@ -287,7 +287,7 @@ private fun ShadersActionsHeader(
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(6.dp))
 
             ImportFileButton(
                 extension = "zip",
