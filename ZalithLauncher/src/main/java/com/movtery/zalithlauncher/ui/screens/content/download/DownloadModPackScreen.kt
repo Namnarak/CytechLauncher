@@ -50,9 +50,9 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.common.ModPackInstallOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.common.VersionNameOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
@@ -282,8 +282,8 @@ private fun ModPackInstallOperation(
             if (installer != null) {
                 val tasks = installer.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {
-                    //安装整合包的弹窗
-                    GameInstallingDialog(
+                    //安装整合包流程对话框
+                    TitleTaskFlowDialog(
                         title = stringResource(R.string.download_modpack_install_title),
                         tasks = tasks.value,
                         onCancel = {
