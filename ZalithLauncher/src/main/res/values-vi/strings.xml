@@ -838,4 +838,11 @@
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">­Góc trên bên duới</string>
     <string name="control_editor_exit_message">Bạn có chắc chắn muốn thoát trực tiếp không? Thao tác này sẽ hủy lưu mọi thay đổi. Nếu cần lưu, vui lòng kiểm tra menu trình soạn thảo.</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">Góc dưới bên trái</string>
+    <string name="error_import_file">Đã xảy ra lỗi khi nhập tệp</string>
+    <string name="saves_manage_import_unpacking">Giải nén dữ liệu lưu: %s</string>
+    <string name="saves_manage_import_failed">Có lỗi xảy ra trong quá trình nhập tệp lưu</string>
+    <string name="about_acknowledgements_github_community">Cộng đồng Github</string>
+    <string name="about_acknowledgements_github_community_text">Toàn bộ người báo lỗi và đóng góp từ cộng đồng GitHub</string>
+    <string name="about_acknowledgements_weblate_community">Cộng đồng Weblate</string>
+    <string name="about_acknowledgements_weblate_community_text">Tất cả những người dịch đã tham gia bản địa hóa ngôn ngữ cho cộng đồng</string>
 </resources>
