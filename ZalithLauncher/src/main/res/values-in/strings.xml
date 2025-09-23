@@ -90,7 +90,7 @@
     <string name="notification_data_jvm_service_message">Agar instalasi berjalan lancar, peluncur perlu menjalankan penginstal di latar depan. Kami akan mencoba memulai layanan latar depan untuk memastikan stabilitas, tetapi ini memerlukan izin notifikasi. Bersediakah Anda mengaktifkan izin notifikasi untuk kami? Ini akan mencegah gangguan instalasi!</string>
     <string name="notification_data_jvm_service_name">Layanan Instalasi Latar Depan</string>
     <string name="notification_data_jvm_service_running">Menginstal game melalui layanan Latar Depan</string>
-    <string name="unpack_screen_jre8">Lingkungan Java 8 (diperlukan untuk Minecraft 1.16 kebawah)</string>
+    <string name="unpack_screen_jre8">Lingkungan Java 8 (diperlukan untuk Minecraft 1.16 ke bawah)</string>
     <string name="unpack_screen_jre17">Lingkungan Java 17 (diperlukan untuk Minecraft 1.17+)</string>
     <string name="unpack_screen_jre21">Lingkungan Java 21 (diperlukan untuk Minecraft 1.20.5+)</string>
     <string name="unpack_screen_authlib_injector">Modifikasi authlib untuk login eksternal</string>
@@ -818,5 +818,5 @@
     <string name="versions_config_microphone_check_title">Periksa Mikrofon</string>
     <string name="saves_manage_import_unpacking">Membongkar dunia: %s</string>
     <string name="saves_manage_import_failed">Terjadi kesalahan saat mengimpor dunia</string>
-    <string name="control_editor_layers_merge_downward">Gabungkan Lapisan Kebawah</string>
+    <string name="control_editor_layers_merge_downward">Gabungkan Lapisan Ke bawah</string>
 </resources>
