@@ -484,4 +484,5 @@
     <string name="download_modpack_download_mods">Tüm modları indir (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_download_mods_retry">Tüm modları yüklemeyi tekrar dene (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_get_loaders">Yükleyici bilgilerini al</string>
+    <string name="generic_input_length">"Yazı uzunluğu:  %1$d/%2$d"</string>
 </resources>
