@@ -548,9 +548,9 @@
     <string name="control_editor_edit_event_launcher_mouse_left">マウスの左ボタン</string>
     <string name="control_editor_edit_event_launcher_mouse_middle">マウスの中央ボタン</string>
     <string name="control_editor_edit_event_launcher_mouse_right">マウスの右ボタン</string>
-    <string name="control_editor_edit_event_launcher_mouse_scroll_up">マウスの連続スクロールアップ</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_up">マウスの継続的なスクロールアップ</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_up_single">マウスの単一スクロールアップ</string>
-    <string name="control_editor_edit_event_launcher_mouse_scroll_down">マウスの連続スクロールダウン</string>
+    <string name="control_editor_edit_event_launcher_mouse_scroll_down">マウスの継続的なスクロールダウン</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">マウスの単一スクロールダウン</string>
     <string name="control_editor_edit_event_key">キー</string>
     <string name="control_editor_edit_event_key_new">新しいキートリガー値を追加</string>
