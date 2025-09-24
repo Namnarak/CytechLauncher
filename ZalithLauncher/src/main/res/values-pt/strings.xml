@@ -715,4 +715,24 @@
     <string name="control_editor_edit_event_basic">Básico</string>
     <string name="control_editor_edit_event_key">Chave</string>
     <string name="control_editor_edit_style_config_normal">Normal</string>
+    <string name="control_editor_edit_event_toggleable">Alternável</string>
+    <string name="cape_name_migrator">Migrador</string>
+    <string name="cape_name_mapmaker">MapMaker</string>
+    <string name="cape_name_moderator">Moderador</string>
+    <string name="cape_name_translator_chinese">Tradutor-Chinês</string>
+    <string name="cape_name_translator">Tradutor</string>
+    <string name="cape_name_cobalt">Cobalto</string>
+    <string name="cape_name_vanilla">Vanilla</string>
+    <string name="cape_name_minecon2011">Minecon2011</string>
+    <string name="cape_name_minecon2012">Minecon2012</string>
+    <string name="cape_name_minecon2013">Minecon2013</string>
+    <string name="cape_name_minecon2015">Minecon2015</string>
+    <string name="cape_name_minecon2016">Minecon2016</string>
+    <string name="cape_name_follower_s">Seguidor</string>
+    <string name="cape_name_home">Casa</string>
+    <string name="cape_name_menace">Caótico</string>
+    <string name="cape_name_yearn">Desejo</string>
+    <string name="cape_name_common">Comum</string>
+    <string name="cape_name_pan">Pan</string>
+    <string name="cape_name_founder_s">Fundador</string>
 </resources>
