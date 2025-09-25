@@ -27,7 +27,7 @@
     <string name="generic_search">Cari</string>
     <string name="generic_loading">Memuat</string>
     <string name="generic_in_progress">Dalam Proses</string>
-    <string name="generic_anyway">Tetap gunakan</string>
+    <string name="generic_anyway">Tetap Gunakan</string>
     <string name="generic_go_it">Paham</string>
     <string name="generic_ignore">Abaikan</string>
     <string name="generic_save">Simpan</string>
@@ -59,7 +59,7 @@
     <string name="animate_type_jelly_bounce">Melambung (Jeli)</string>
     <string name="animate_type_slice_in">Memotong</string>
     <string name="crash_launcher_title">%sTerjadi kesalahan fatal</string>
-    <string name="crash_launcher_message">Aplikasi ini tiba-tiba crash . Rincian kesalahan di bawah ini akan membantu pengembang memperbaiki aplikasi.</string>
+    <string name="crash_launcher_message">Aplikasi ini tiba-tiba crash. Rincian kesalahan di bawah ini akan membantu pengembang memperbaiki aplikasi.</string>
     <string name="crash_exit_message">JVM keluar dengan kode %d.</string>
     <string name="crash_singnal_message">JVM digugurkan karena sinyal fatal %d.</string>
     <string name="crash_exit_note">Untuk detail penyebabnya, silahkan periksa file log. Jika Kamu tidak bisa menyelesaikan masalah sendiri, silakan kirim file log kepada seseorang yang dapat menganalisisnya. Mereka dapat membantumu mendiagnosis dan memperbaiki masalah. Jangan ambil screenshot dari layar saat ini, karena screenshot tidak bisa memberikan informasi yang cukup untuk menyelesaikan masalah.</string>
@@ -114,7 +114,7 @@
     <string name="download_game_version_name">Nama Versi</string>
     <string name="download_game_addon_list_load_error">Gagal memuat daftar: %s</string>
     <string name="download_game_addon_available">Tersedia</string>
-    <string name="download_game_addon_unavailable">Tidak tersedia</string>
+    <string name="download_game_addon_unavailable">Tidak Tersedia</string>
     <string name="download_game_addon_incompatible_with">Tidak kompatibel dengan %s</string>
     <string name="download_game_addon_compatible_with">Kompatibel dengan %s</string>
     <string name="download_game_addon_request_addon">Silahkan pilih versi %s terlebih dahulu</string>
@@ -131,7 +131,7 @@
     <string name="download_game_install_base_download_file2">Unduh file utama untuk %s</string>
     <string name="download_game_install_base_install">Instal %s</string>
     <string name="download_game_install_base_installing">Menginstal %s dilatar depan</string>
-    <string name="download_game_install_optifine_fetch_download_url">URL unduhan untuk OptiFine %s</string>
+    <string name="download_game_install_optifine_fetch_download_url">Mendapatkan URL unduhan untuk OptiFine %s</string>
     <string name="download_assets_category_library">Pustaka</string>
     <string name="minecraft_download_failed_notfound">Beberapa file dependensi tidak bisa diunduh. Kalau masalah ini terus muncul setelah dicoba beberapa kali, kemungkinan ada file pustaka yang dibutuhkan game tidak ada. Disarankan buat install ulang gamenya.</string>
     <string name="settings_renderer_from_plugins">Dari plugin %s</string>
