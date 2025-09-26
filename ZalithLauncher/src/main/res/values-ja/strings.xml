@@ -298,8 +298,8 @@
     <string name="account_supporting_microsoft_tip_title">Microsoftアカウントを追加</string>
     <string name="download_game_addon_stable">安定版</string>
     <string name="generic_input_invalid_character">名前に無効な文字が含まれています: \"%s\"</string>
-    <string name="generic_input_too_small">値は %s より小さくできません</string>
-    <string name="generic_input_too_large">値は %s より大きくできません</string>
+    <string name="generic_input_too_small">入力値は %s 未満にできません</string>
+    <string name="generic_input_too_large">入力値は %s より大きくできません</string>
     <string name="generic_unpacking">%s を解凍中</string>
     <string name="generic_unknown">不明</string>
     <string name="generic_in_progress">進行中</string>
@@ -320,7 +320,7 @@
     <string name="crash_launch_crash_title">アプリケーションの起動に失敗</string>
     <string name="crash_launch_crash_message">ランチャーに深刻な問題が発生しクラッシュしました</string>
     <string name="game_menu_option_switch_log">ログを出力</string>
-    <string name="launcher_version_debug_warning">現在、 %s のテスト版を使用しています！このバージョンは安定していない可能性があり、主に機能テストや早期アクセス向けです。長期使用は推奨されません。テスト中に問題が発生した場合は、GitHub を通じてご報告ください。できるだけ早く対応いたします。</string>
+    <string name="launcher_version_debug_warning">%s のベータ版を使用しています！このバージョンは安定していない可能性があり、主に機能テストや早期アクセス向けです。長期使用は推奨されません。テスト中に問題が発生した場合は、GitHub を通じてご報告ください。できるだけ早く対応いたします。</string>
     <string name="launcher_version_debug_warning_cant_close">この警告は閉じることができません</string>
     <string name="error_parse_failed">データの解析に失敗しました</string>
     <string name="download_category_saves">セーブ</string>
