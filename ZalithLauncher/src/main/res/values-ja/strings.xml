@@ -75,7 +75,7 @@
     <string name="animate_type_jelly_bounce">弾む</string>
     <string name="animate_type_slice_in">切り込む</string>
     <string name="crash_launcher_title">%s 致命的な問題が発生しました</string>
-    <string name="crash_launcher_message">アプリケーションが予期せずクラッシュしました。以下のエラー情報は、開発者がアプリの改善に役立てます。</string>
+    <string name="crash_launcher_message">アプリケーションが予期せずクラッシュしました。以下のエラー情報は、開発者がアプリの改善をするのに役立ちます。</string>
     <string name="crash_exit_message">JVMがコード %d で終了しました。</string>
     <string name="crash_singnal_message">致命的なシグナル %d のためJVMが終了しました。</string>
     <string name="crash_exit_note">具体的な原因については、ログファイルを確認してください。ご自身で問題を解決できない場合は、ログファイルを解析できる人に送ってください。問題の特定や修正の手助けになるかもしれません。現在の画面をスクリーンショットしないでください。スクリーンショットでは問題解決に十分な情報が得られない可能性があります。</string>
