@@ -235,8 +235,11 @@ object AccountsManager {
     /**
      * 通过账号的profileId读取账号
      */
-    fun loadFromProfileID(profileId: String): Account? =
-        _accounts.find { it.profileId == profileId }
+    fun loadFromProfileID(
+        profileId: String,
+        accountType: String? = null
+    ): Account? =
+        _accounts.find { it.profileId == profileId && it.accountType == accountType }
 
     /**
      * 账号是否存在
