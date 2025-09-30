@@ -6,7 +6,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.getSHA1
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.getGameVersion

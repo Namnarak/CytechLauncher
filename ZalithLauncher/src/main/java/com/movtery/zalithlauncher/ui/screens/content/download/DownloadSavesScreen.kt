@@ -58,12 +58,12 @@ fun DownloadSavesScreen(
     DownloadSingleOperation(
         operation = operation,
         changeOperation = { operation = it },
-        doInstall = { info, versions ->
+        doInstall = { classes, version, versions ->
             downloadSingleForVersions(
                 context = context,
-                info = info,
+                version = version,
                 versions = versions,
-                folder = info.classes.versionFolder.folderName,
+                folder = classes.versionFolder.folderName,
                 onFileCopied = { file, folder ->
                     unpackSaveZip(
                         zipFile = file,
@@ -115,12 +115,12 @@ fun DownloadSavesScreen(
                         currentKey = downloadSavesScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { info ->
-                            operation = DownloadSingleOperation.SelectVersion(info)
+                        onItemClicked = { classes, version, _ ->
+                            operation = DownloadSingleOperation.SelectVersion(classes, version)
                         },
                         onDependencyClicked = { dep, classes ->
                             backStack.navigateTo(
-                                NormalNavKey.DownloadAssets(dep.platform, dep.projectID, classes)
+                                NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
                             )
                         }
                     )

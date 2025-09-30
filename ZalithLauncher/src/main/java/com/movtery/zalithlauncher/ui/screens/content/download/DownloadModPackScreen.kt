@@ -35,6 +35,7 @@ import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInstaller
@@ -48,7 +49,6 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.common.ModPackInstallOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.common.VersionNameOperation
@@ -98,11 +98,13 @@ private class ModPackViewModel: ViewModel() {
 
     fun install(
         context: Context,
-        info: DownloadVersionInfo,
+        version: PlatformVersion,
+        iconUrl: String?
     ) {
         installer = ModPackInstaller(
             context = context,
-            info = info,
+            version = version,
+            iconUrl = iconUrl,
             scope = viewModelScope,
             waitForVersionName = ::waitForVersionName
         ).also {
@@ -163,8 +165,8 @@ fun DownloadModPackScreen(
         operation = viewModel.installOperation,
         updateOperation = { viewModel.installOperation = it },
         installer = viewModel.installer,
-        onInstall = { info ->
-            viewModel.install(context, info)
+        onInstall = { version, iconUrl ->
+            viewModel.install(context, version, iconUrl)
         },
         onCancel = {
             viewModel.cancel()
@@ -211,16 +213,16 @@ fun DownloadModPackScreen(
                         currentKey = downloadModPackScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { info ->
+                        onItemClicked = { _, version, iconUrl ->
                             if (viewModel.installOperation !is ModPackInstallOperation.None) {
                                 //不是待安装状态，拒绝此次安装
                                 return@DownloadAssetsScreen
                             }
                             viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
                                 //警告通知权限
-                                ModPackInstallOperation.WarningForNotification(info)
+                                ModPackInstallOperation.WarningForNotification(version, iconUrl)
                             } else {
-                                ModPackInstallOperation.Warning(info)
+                                ModPackInstallOperation.Warning(version, iconUrl)
                             }
                         }
                     )
@@ -237,7 +239,7 @@ private fun ModPackInstallOperation(
     operation: ModPackInstallOperation,
     updateOperation: (ModPackInstallOperation) -> Unit,
     installer: ModPackInstaller?,
-    onInstall: (DownloadVersionInfo) -> Unit,
+    onInstall: (PlatformVersion, iconUrl: String?) -> Unit,
     onCancel: () -> Unit
 ) {
     when (operation) {
@@ -246,11 +248,11 @@ private fun ModPackInstallOperation(
             NotificationCheck(
                 onGranted = {
                     //权限被授予，开始安装
-                    updateOperation(ModPackInstallOperation.Warning(operation.info))
+                    updateOperation(ModPackInstallOperation.Warning(operation.version, operation.iconUrl))
                 },
                 onIgnore = {
                     //用户不想授权，但是支持继续进行安装
-                    updateOperation(ModPackInstallOperation.Warning(operation.info))
+                    updateOperation(ModPackInstallOperation.Warning(operation.version, operation.iconUrl))
                 },
                 onDismiss = {
                     updateOperation(ModPackInstallOperation.None)
@@ -274,7 +276,7 @@ private fun ModPackInstallOperation(
                     updateOperation(ModPackInstallOperation.None)
                 },
                 onConfirm = {
-                    updateOperation(ModPackInstallOperation.Install(operation.info))
+                    updateOperation(ModPackInstallOperation.Install(operation.version, operation.iconUrl))
                 }
             )
         }
@@ -293,7 +295,7 @@ private fun ModPackInstallOperation(
                     )
                 }
             } else {
-                onInstall(operation.info)
+                onInstall(operation.version, operation.iconUrl)
             }
         }
         is ModPackInstallOperation.Error -> {

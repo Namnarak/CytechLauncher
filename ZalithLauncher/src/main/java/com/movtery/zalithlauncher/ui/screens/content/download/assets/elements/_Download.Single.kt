@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -49,16 +51,23 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoL
 sealed interface DownloadSingleOperation {
     data object None : DownloadSingleOperation
     /** 选择版本 */
-    data class SelectVersion(val info: DownloadVersionInfo) : DownloadSingleOperation
+    data class SelectVersion(
+        val classes: PlatformClasses,
+        val version: PlatformVersion
+    ) : DownloadSingleOperation
     /** 安装 */
-    data class Install(val info: DownloadVersionInfo, val versions: List<Version>) : DownloadSingleOperation
+    data class Install(
+        val classes: PlatformClasses,
+        val version: PlatformVersion,
+        val versions: List<Version>
+    ) : DownloadSingleOperation
 }
 
 @Composable
 fun DownloadSingleOperation(
     operation: DownloadSingleOperation,
     changeOperation: (DownloadSingleOperation) -> Unit,
-    doInstall: (DownloadVersionInfo, List<Version>) -> Unit
+    doInstall: (PlatformClasses, PlatformVersion, List<Version>) -> Unit
 ) {
     when (operation) {
         DownloadSingleOperation.None -> {}
@@ -68,12 +77,12 @@ fun DownloadSingleOperation(
                     changeOperation(DownloadSingleOperation.None)
                 },
                 onInstall = { versions ->
-                    changeOperation(DownloadSingleOperation.Install(operation.info, versions))
+                    changeOperation(DownloadSingleOperation.Install(operation.classes, operation.version, versions))
                 }
             )
         }
         is DownloadSingleOperation.Install -> {
-            doInstall(operation.info, operation.versions)
+            doInstall(operation.classes, operation.version, operation.versions)
             changeOperation(DownloadSingleOperation.None)
         }
     }

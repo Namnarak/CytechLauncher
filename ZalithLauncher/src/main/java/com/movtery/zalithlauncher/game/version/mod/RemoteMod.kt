@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.game.version.mod
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
@@ -14,7 +15,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcMod
 import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.toInfo
 import com.movtery.zalithlauncher.utils.file.calculateFileSha1
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.tencent.mmkv.MMKV
@@ -33,9 +33,9 @@ class RemoteMod(
         private set
 
     /**
-     * 远端设置的加载器列表
+     * 平台对应的文件
      */
-    var remoteLoaders: ModVersionLoaders? by mutableStateOf(null)
+    var remoteFile: ModFile? by mutableStateOf(null)
         private set
 
     /**
@@ -63,7 +63,7 @@ class RemoteMod(
         if (loadFromCache && isLoaded) return
 
         if (!loadFromCache) {
-            remoteLoaders = null
+            remoteFile = null
             projectInfo = null
             mcMod = null
         }
@@ -75,51 +75,56 @@ class RemoteMod(
             withContext(Dispatchers.IO) {
                 val file = localMod.file
                 val modProjectCache = modProjectCache()
-                val modVersionCache = modVersionCache()
+                val modFileCache = modFileCache()
 
                 runCatching {
                     //获取文件 sha1，作为缓存的键
                     val sha1 = calculateFileSha1(file)
 
-                    if (loadFromCache && modVersionCache.containsKey(sha1)) {
-                        modVersionCache.decodeParcelable(sha1, ModVersionLoaders::class.java)?.let { loaders ->
-                            remoteLoaders = loaders
-                        }
-                    }
+                    //从缓存加载项目信息
+                    val cachedProject = if (loadFromCache) {
+                        modProjectCache.decodeParcelable(sha1, ModProject::class.java)
+                    } else null
 
-                    if (loadFromCache && modProjectCache.containsKey(sha1)) {
-                        modProjectCache.decodeParcelable(sha1, ModProject::class.java)?.let { project ->
-                            mcMod = PlatformClasses.MOD.getTranslations().getModBySlugId(project.slug)
-                            return@runCatching project.also {
-                                isLoaded = true
+                    //从缓存加载文件信息
+                    val cachedFile = if (loadFromCache) {
+                        modFileCache.decodeParcelable(sha1, ModFile::class.java)
+                    } else null
+
+                    if (loadFromCache && cachedFile != null) {
+                        remoteFile = cachedFile
+                    } else {
+                        getVersionByLocalFile(file, sha1)?.let { version ->
+                            updateRemoteFile(version)
+                            remoteFile?.let { modFile ->
+                                modFileCache.encode(sha1, modFile, MMKV.ExpireInDay)
                             }
                         }
                     }
 
-                    val version = getVersionByLocalFile(file, sha1)
-                    ensureActive()
+                    if (loadFromCache && cachedProject != null) {
+                        projectInfo = cachedProject
+                        mcMod = PlatformClasses.MOD.getTranslations().getModBySlugId(cachedProject.slug)
+                    } else {
+                        ensureActive()
+                        remoteFile?.let { modFile ->
+                            val project = getProjectByVersion(modFile.projectId, modFile.platform)
+                            val newProjectInfo = ModProject(
+                                id = project.platformId(),
+                                platform = project.platform(),
+                                iconUrl = project.platformIconUrl(),
+                                title = project.platformTitle(),
+                                slug = project.platformSlug()
+                            )
 
-                    version?.let { ver ->
-                        updateLoaders(sha1, ver, modVersionCache)
-                        getProjectByVersion(ver).let { project ->
+                            projectInfo = newProjectInfo
                             mcMod = project.getMcMod(PlatformClasses.MOD)
-                            project.toInfo(PlatformClasses.MOD).let { info ->
-                                ModProject(
-                                    id = info.id,
-                                    platform = info.platform,
-                                    iconUrl = info.iconUrl,
-                                    title = info.title,
-                                    slug = info.slug
-                                )
-                            }.also { project ->
-                                modProjectCache.encode(sha1, project, MMKV.ExpireInDay)
-                            }
+
+                            modProjectCache.encode(sha1, newProjectInfo, MMKV.ExpireInDay)
                         }
                     }
-                }.onSuccess { info ->
-                    projectInfo = info.also {
-                        isLoaded = true
-                    }
+
+                    isLoaded = true
                 }.onFailure { e ->
                     if (e is CancellationException) return@onFailure
                     lWarning("Failed to load project info for mod: ${file.name}", e)
@@ -130,32 +135,35 @@ class RemoteMod(
         }
     }
 
-    private fun updateLoaders(
-        fileSHA1: String,
-        version: PlatformVersion,
-        modVersionCache: MMKV,
+    private fun updateRemoteFile(
+        version: PlatformVersion
     ) {
-        remoteLoaders = null
-        remoteLoaders = when (version) {
+        remoteFile = when (version) {
             is ModrinthVersion -> {
-                ModVersionLoaders(
-                    version.loaders.mapNotNull { loaderName ->
+                ModFile(
+                    id = version.id,
+                    projectId = version.projectId,
+                    platform = Platform.MODRINTH,
+                    loaders = version.loaders.mapNotNull { loaderName ->
                         ModrinthModLoaderCategory.entries.find { it.facetValue() == loaderName }
-                    }.toTypedArray()
+                    }.toTypedArray(),
+                    datePublished = version.datePublished
                 )
             }
             is CurseForgeFile -> {
-                ModVersionLoaders(
-                    version.gameVersions.mapNotNull { loaderName ->
+                ModFile(
+                    id = version.id.toString(),
+                    projectId = version.modId.toString(),
+                    platform = Platform.CURSEFORGE,
+                    loaders = version.gameVersions.mapNotNull { loaderName ->
                         CurseForgeModLoader.entries.find {
                             it.getDisplayName().equals(loaderName, true)
                         }
-                    }.toTypedArray()
+                    }.toTypedArray(),
+                    datePublished = version.fileDate
                 )
             }
             else -> error("Unknown version type: $version")
-        }.also { loaders ->
-            modVersionCache.encode(fileSHA1, loaders, MMKV.ExpireInDay)
         }
     }
 }

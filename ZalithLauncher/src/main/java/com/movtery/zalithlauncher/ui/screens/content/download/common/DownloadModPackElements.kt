@@ -1,17 +1,17 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.common
 
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 
 /** 整合包安装状态操作 */
 sealed interface ModPackInstallOperation {
     data object None : ModPackInstallOperation
     /** 警告整合包的兼容性，同意后将进行安装 */
-    data class Warning(val info: DownloadVersionInfo) : ModPackInstallOperation
+    data class Warning(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
     /** 开始安装 */
-    data class Install(val info: DownloadVersionInfo) : ModPackInstallOperation
+    data class Install(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
     /** 警告通知权限，可以无视，并直接开始安装 */
-    data class WarningForNotification(val info: DownloadVersionInfo) : ModPackInstallOperation
+    data class WarningForNotification(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
     /** 整合包安装出现异常 */
     data class Error(val th: Throwable) : ModPackInstallOperation
     /** 整合包已成功安装 */

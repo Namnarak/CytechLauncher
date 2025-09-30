@@ -52,12 +52,12 @@ fun DownloadModScreen(
     DownloadSingleOperation(
         operation = operation,
         changeOperation = { operation = it },
-        doInstall = { info, versions ->
+        doInstall = { classes, version, gameVersions ->
             downloadSingleForVersions(
                 context = context,
-                info = info,
-                versions = versions,
-                folder = info.classes.versionFolder.folderName,
+                version = version,
+                versions = gameVersions,
+                folder = classes.versionFolder.folderName,
                 submitError = submitError
             )
         }
@@ -96,12 +96,12 @@ fun DownloadModScreen(
                         currentKey = downloadModScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { info ->
-                            operation = DownloadSingleOperation.SelectVersion(info)
+                        onItemClicked = { classes, version, _ ->
+                            operation = DownloadSingleOperation.SelectVersion(classes, version)
                         },
                         onDependencyClicked = { dep, classes ->
                             backStack.navigateTo(
-                                NormalNavKey.DownloadAssets(dep.platform, dep.projectID, classes)
+                                NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
                             )
                         }
                     )

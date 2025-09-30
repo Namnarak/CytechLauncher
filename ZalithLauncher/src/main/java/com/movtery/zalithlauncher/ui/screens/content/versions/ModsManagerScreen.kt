@@ -689,9 +689,9 @@ private fun ModItemLayout(
                                         .animateContentSize(),
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    val remoteLoaders = mod.remoteLoaders
-                                    if (remoteLoaders != null && remoteLoaders.loaders.isNotEmpty()) {
-                                        remoteLoaders.loaders.forEach { loader ->
+                                    val remoteLoaders = mod.remoteFile?.loaders
+                                    if (remoteLoaders != null && remoteLoaders.isNotEmpty()) {
+                                        remoteLoaders.forEach { loader ->
                                             LittleTextLabel(
                                                 text = loader.getDisplayName(),
                                                 shape = MaterialTheme.shapes.small

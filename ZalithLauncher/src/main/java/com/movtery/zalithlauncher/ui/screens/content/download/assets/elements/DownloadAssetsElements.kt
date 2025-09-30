@@ -62,38 +62,20 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.fixedFileUrl
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Companion.getSHA1
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeProject
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSingleProject
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.getPrimary
-import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadProjectInfo.Urls
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.compareVersion
-import kotlinx.serialization.SerializationException
-import java.io.FileNotFoundException
-import java.io.IOException
 
 sealed interface DownloadAssetsState<T> {
     class Getting<T> : DownloadAssetsState<T>
@@ -120,282 +102,56 @@ sealed interface DownloadAssetsState<T> {
 }
 
 /**
- * 下载资源项目通用详细信息
- */
-class DownloadProjectInfo(
-    val id: String,
-    val platform: Platform,
-    val classes: PlatformClasses,
-    val slug: String,
-    val iconUrl: String? = null,
-    val title: String,
-    val summary: String? = null,
-    val author: String? = null,
-    val downloadCount: Long,
-    val urls: Urls,
-    val screenshots: List<Screenshot> = emptyList()
-) {
-    /**
-     * 资源项目各类外链
-     * @param projectUrl 平台项目链接
-     * @param sourceUrl 源代码仓库链接
-     * @param issuesUrl 议题链接
-     * @param wikiUrl wiki链接
-     */
-    class Urls(
-        val projectUrl: String? = null,
-        val sourceUrl: String? = null,
-        val issuesUrl: String? = null,
-        val wikiUrl: String? = null
-    )
-
-    /**
-     * 屏幕截图
-     * @param imageUrl 图片链接
-     * @param title 截图标题
-     * @param description 截图描述
-     */
-    class Screenshot(
-        val imageUrl: String,
-        val title: String? = null,
-        val description: String? = null
-    )
-}
-
-/**
- * 所有的链接是否都为null
- */
-fun Urls.isAllNull(): Boolean {
-    return projectUrl == null &&
-            sourceUrl == null &&
-            issuesUrl == null &&
-            wikiUrl   == null
-}
-
-/**
- * 下载资源版本通用详细信息
- * @param iconUrl 下载整合包时，需要用到的项目icon链接
- */
-class DownloadVersionInfo(
-    val platform: Platform,
-    val classes: PlatformClasses,
-    val displayName: String,
-    val iconUrl: String? = null,
-    val fileName: String,
-    val gameVersion: Array<String>,
-    val loaders: List<PlatformDisplayLabel>,
-    val releaseType: PlatformReleaseType,
-    val dependencies: List<Dependency>,
-    val downloadCount: Long,
-    val downloadUrl: String,
-    val date: String,
-    val sha1: String? = null,
-    val fileSize: Long
-) {
-    class Dependency(
-        val platform: Platform,
-        val projectID: String,
-        val type: PlatformDependencyType
-    )
-}
-
-/**
  * 版本、模组加载器 版本信息分组
  */
 class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
-    val dependencies: List<DownloadVersionInfo.Dependency>,
-    val optionals: List<DownloadVersionInfo.Dependency>,
-    val infos: List<DownloadVersionInfo>,
+    val dependencies: List<PlatformVersion.PlatformDependency>,
+    val optionals: List<PlatformVersion.PlatformDependency>,
+    val versions: List<PlatformVersion>,
     val isAdapt: Boolean
 )
 
-suspend fun List<PlatformVersion>.mapToInfos(
-    classes: PlatformClasses,
+/**
+ * 初始化全部版本数据，并筛选出成功初始化的所有版本
+ */
+suspend fun List<PlatformVersion>.initAll(
     currentProjectId: String,
-    iconUrl: String? = null,
-    also: suspend (DownloadVersionInfo) -> Unit = {}
-): List<DownloadVersionInfo> {
+    also: suspend (PlatformVersion) -> Unit = {}
+): List<PlatformVersion> {
     return mapNotNull { version ->
-        when (version) {
-            is ModrinthVersion -> {
-                val file = version.files.getPrimary() ?: run {
-                    lWarning("No file list available, skipping -> ${version.name}")
-                    return@mapNotNull null
-                } //仅下载主文件
-                DownloadVersionInfo(
-                    platform = Platform.MODRINTH,
-                    classes = classes,
-                    displayName = version.name,
-                    iconUrl = iconUrl,
-                    fileName = file.fileName,
-                    gameVersion = version.gameVersions,
-                    loaders = version.loaders.mapNotNull { loaderName ->
-                        ModrinthModLoaderCategory.entries.find { it.facetValue() == loaderName }
-                    },
-                    releaseType = version.versionType,
-                    dependencies = version.dependencies.mapNotNull { dependency ->
-                        DownloadVersionInfo.Dependency(
-                            platform = Platform.MODRINTH,
-                            projectID = dependency.projectId ?: return@mapNotNull null,
-                            type = dependency.dependencyType
-                        )
-                    },
-                    downloadCount = version.downloads,
-                    downloadUrl = file.url,
-                    date = version.datePublished,
-                    sha1 = file.hashes.sha1,
-                    fileSize = file.size
-                )
-            }
-            is CurseForgeFile -> {
-                val file = version.takeIf { it.fileName != null && it.fixedFileUrl() != null }
-                // 文件名或者下载链接为空
-                // 单独获取该文件信息
-                    ?: run {
-                        val fileId = version.id.toString()
-                        runCatching {
-                            PlatformSearch.getVersionFromCurseForge(
-                                projectID = currentProjectId,
-                                fileID = fileId
-                            ).data
-                        }.onFailure { e ->
-                            when (e) {
-                                is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: $currentProjectId, $fileId", e)
-                                is IOException, is SerializationException -> lWarning("Unable to fetch the file name projectID=$currentProjectId, fileID=$fileId", e)
-                            }
-                        }.getOrNull() ?: return@mapNotNull null
-                    }
-
-                val downloadUrl = file.fixedFileUrl() ?: run {
-                    lWarning("No download link available, projectID=$currentProjectId, fileID=${file.id}")
-                    return@mapNotNull null
-                }
-
-                val gameVersions = file.gameVersions.filter { gameVersion ->
-                    RELEASE_REGEX.matcher(gameVersion).find()
-                }.toTypedArray()
-
-                DownloadVersionInfo(
-                    platform = Platform.CURSEFORGE,
-                    classes = classes,
-                    displayName = file.displayName,
-                    iconUrl = iconUrl,
-                    fileName = file.fileName!!,
-                    gameVersion = gameVersions,
-                    loaders = file.gameVersions.mapNotNull { loaderName ->
-                        CurseForgeModLoader.entries.find {
-                            it.getDisplayName().equals(loaderName, true)
-                        }
-                    },
-                    releaseType = file.releaseType,
-                    dependencies = file.dependencies.map { dependency ->
-                        DownloadVersionInfo.Dependency(
-                            platform = Platform.CURSEFORGE,
-                            projectID = dependency.modId.toString(),
-                            type = dependency.relationType
-                        )
-                    },
-                    downloadCount = file.downloadCount,
-                    downloadUrl = downloadUrl,
-                    date = file.fileDate,
-                    sha1 = file.getSHA1(),
-                    fileSize = file.fileLength
-                )
-            }
-            else -> error("Unknown version type: $version")
-        }.also {
+        if (!version.initFile(currentProjectId)) return@mapNotNull null
+        version.also {
             also(it)
         }
     }
 }
 
-fun PlatformProject.toInfo(
-    defaultClasses: PlatformClasses
-): DownloadProjectInfo {
-    return when (this) {
-        is ModrinthSingleProject -> {
-            DownloadProjectInfo(
-                id = id,
-                platform = Platform.MODRINTH,
-                classes = projectType.platform,
-                slug = slug,
-                iconUrl = iconUrl,
-                title = title,
-                summary = description,
-                downloadCount = downloads,
-                urls = DownloadProjectInfo.Urls(
-                    projectUrl = "https://modrinth.com/${projectType.platform.modrinth!!.facetValue()}/${slug}",
-                    sourceUrl = sourceUrl,
-                    issuesUrl = issuesUrl,
-                    wikiUrl = wikiUrl
-                ),
-                screenshots = gallery.map { gallery ->
-                    DownloadProjectInfo.Screenshot(
-                        imageUrl = gallery.url,
-                        title = gallery.title,
-                        description = gallery.description
-                    )
-                }
-            )
-        }
-        is CurseForgeProject -> {
-            val data = data
-            val classes = data.classId?.platform ?: defaultClasses
-            DownloadProjectInfo(
-                id = data.id.toString(),
-                platform = Platform.CURSEFORGE,
-                classes = classes,
-                slug = data.slug,
-                iconUrl = data.logo.url,
-                title = data.name,
-                summary = data.summary,
-                author = data.authors[0].name,
-                downloadCount = data.downloadCount,
-                urls = DownloadProjectInfo.Urls(
-                    projectUrl = "https://www.curseforge.com/minecraft/${classes.curseforge.slug}/${data.slug}",
-                    sourceUrl = data.links.sourceUrl,
-                    issuesUrl = data.links.issuesUrl,
-                    wikiUrl = data.links.wikiUrl
-                ),
-                screenshots = data.screenshots.map { screenshot ->
-                    DownloadProjectInfo.Screenshot(
-                        imageUrl = screenshot.url,
-                        title = screenshot.title,
-                        description = screenshot.description
-                    )
-                }
-            )
-        }
-        else -> error("Unknown project type: $this")
-    }
-}
+fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<VersionInfoMap> {
+    val grouped = mutableMapOf<Pair<String, PlatformDisplayLabel?>, MutableList<PlatformVersion>>()
 
-fun List<DownloadVersionInfo>.mapWithVersions(classes: PlatformClasses): List<VersionInfoMap> {
-    val grouped = mutableMapOf<Pair<String, PlatformDisplayLabel?>, MutableList<DownloadVersionInfo>>()
-
-    forEach { versionInfo ->
-        val labels = versionInfo.loaders.ifEmpty { listOf(null) }
-        versionInfo.gameVersion.forEach { gameVer ->
+    forEach { version ->
+        val labels = version.platformLoaders().ifEmpty { listOf(null) }
+        version.platformGameVersion().forEach { gameVer ->
             labels.forEach { loaderLabel ->
-                grouped.getOrPut(gameVer to loaderLabel) { mutableListOf() } += versionInfo
+                grouped.getOrPut(gameVer to loaderLabel) { mutableListOf() } += version
             }
         }
     }
 
-    return grouped.map { (key, infos) ->
+    return grouped.map { (key, versions) ->
         //去重依赖集合
-        val dependencies = infos
-            .flatMap { it.dependencies }
-            .distinctBy { dep -> Triple(dep.platform, dep.projectID, dep.type) }
+        val dependencies = versions
+            .flatMap { it.platformDependencies() }
+            .distinctBy { dep -> Pair(dep.projectId, dep.type) }
 
         VersionInfoMap(
             gameVersion = key.first,
             loader = key.second,
             dependencies = dependencies.filter { it.type == PlatformDependencyType.REQUIRED },
             optionals = dependencies.filter { it.type == PlatformDependencyType.OPTIONAL },
-            infos = infos,
+            versions = versions,
             isAdapt = when (classes) {
                 PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
                 else -> isVersionAdapt(key.first, key.second)
@@ -445,19 +201,23 @@ private fun isVersionAdapt(gameVersion: String, loader: PlatformDisplayLabel?): 
 
 /**
  * 资源版本分组可折叠列表
+ * @param defaultClasses    默认项目类型，跳转至依赖项目时。
+ *                          若无法获取项目类型，将使用这个默认的项目类型
+ * @param getDependency     根据项目Id获取依赖项目
  */
 @Composable
 fun AssetsVersionItemLayout(
     modifier: Modifier = Modifier,
     infoMap: VersionInfoMap,
-    getDependency: (projectId: String) -> DownloadProjectInfo?,
+    defaultClasses: PlatformClasses,
+    getDependency: (projectId: String) -> PlatformProject?,
     maxListHeight: Dp = rememberMaxHeight(),
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
-    onItemClicked: (DownloadVersionInfo) -> Unit = {},
-    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit
+    onItemClicked: (PlatformVersion) -> Unit = {},
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -477,7 +237,7 @@ fun AssetsVersionItemLayout(
                 onClick = { expanded = !expanded }
             )
 
-            if (infoMap.infos.isNotEmpty()) {
+            if (infoMap.versions.isNotEmpty()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AnimatedVisibility(
                         visible = expanded,
@@ -494,21 +254,23 @@ fun AssetsVersionItemLayout(
                         ) {
                             infoMap.dependencies.takeIf { it.isNotEmpty() }?.let { dependencies ->
                                 val required = dependencies.mapNotNull { dependency ->
-                                    getDependency(dependency.projectID)?.let { dependency to it }
+                                    getDependency(dependency.projectId)?.let { dependency to it }
                                 }
                                 dependencyLayout(
                                     list = required,
                                     titleRes = R.string.download_assets_dependency_projects,
+                                    defaultClasses = defaultClasses,
                                     onDependencyClicked = onDependencyClicked
                                 )
                             }
                             infoMap.optionals.takeIf { it.isNotEmpty() }?.let { optionals ->
                                 val optional = optionals.mapNotNull { dependency ->
-                                    getDependency(dependency.projectID)?.let { dependency to it }
+                                    getDependency(dependency.projectId)?.let { dependency to it }
                                 }
                                 dependencyLayout(
                                     list = optional,
                                     titleRes = R.string.download_assets_optional_projects,
+                                    defaultClasses = defaultClasses,
                                     onDependencyClicked = onDependencyClicked
                                 )
                             }
@@ -524,14 +286,14 @@ fun AssetsVersionItemLayout(
                                 }
                             }
 
-                            items(infoMap.infos) { info ->
+                            items(infoMap.versions) { version ->
                                 AssetsVersionListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(all = 4.dp),
-                                    info = info,
+                                    version = version,
                                     onClick = {
-                                        onItemClicked(info)
+                                        onItemClicked(version)
                                     }
                                 )
                             }
@@ -544,9 +306,10 @@ fun AssetsVersionItemLayout(
 }
 
 private fun LazyListScope.dependencyLayout(
-    list: List<Pair<DownloadVersionInfo.Dependency, DownloadProjectInfo>>,
+    list: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>,
     titleRes: Int,
-    onDependencyClicked: (DownloadVersionInfo.Dependency, PlatformClasses) -> Unit
+    defaultClasses: PlatformClasses,
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
 ) {
     if (list.isNotEmpty()) {
         item {
@@ -564,7 +327,7 @@ private fun LazyListScope.dependencyLayout(
                     .padding(all = 4.dp),
                 project = dependencyProject,
                 onClick = {
-                    onDependencyClicked(dependency, dependencyProject.classes)
+                    onDependencyClicked(dependency, dependencyProject.platformClasses(defaultClasses))
                 }
             )
         }
@@ -612,7 +375,7 @@ private fun AssetsVersionHeadLayout(
                 contentDescription = null
             )
         }
-        if (!infoMap.infos.isEmpty()) {
+        if (!infoMap.versions.isEmpty()) {
             Row(
                 modifier = Modifier.padding(end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -637,9 +400,16 @@ private fun AssetsVersionHeadLayout(
 @Composable
 private fun AssetsVersionDependencyItem(
     modifier: Modifier = Modifier,
-    project: DownloadProjectInfo,
+    project: PlatformProject,
     onClick: () -> Unit = {}
 ) {
+    //项目基本信息
+    val platform = remember { project.platform() }
+    val title = remember { project.platformTitle() }
+    val summary = remember { project.platformSummary() }
+    val author = remember { project.platformAuthor() }
+    val iconUrl = remember { project.platformIconUrl() }
+
     Row(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.medium)
@@ -652,17 +422,17 @@ private fun AssetsVersionDependencyItem(
                 .padding(all = 8.dp)
                 .clip(shape = RoundedCornerShape(10.dp)),
             size = 42.dp,
-            iconUrl = project.iconUrl
+            iconUrl = iconUrl
         )
         Column(
             modifier = Modifier.weight(1f)
         ) {
             ProjectTitleHead(
-                platform = project.platform,
-                title = project.title,
-                author = project.author
+                platform = platform,
+                title = title,
+                author = author
             )
-            project.summary?.let { summary ->
+            summary?.let { summary ->
                 Text(
                     text = summary,
                     style = MaterialTheme.typography.bodySmall,
@@ -678,7 +448,7 @@ private fun AssetsVersionDependencyItem(
 @Composable
 private fun AssetsVersionListItem(
     modifier: Modifier = Modifier,
-    info: DownloadVersionInfo,
+    version: PlatformVersion,
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -688,18 +458,23 @@ private fun AssetsVersionListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         //直观的版本状态
+        val releaseType = remember { version.platformReleaseType() }
+        val displayName = remember { version.platformDisplayName() }
+        val downloadCount = remember { version.platformDownloadCount() }
+        val date = remember { version.platformDatePublished() }
+
         Box(
             modifier = Modifier
                 .padding(start = 12.dp, end = 8.dp)
                 .size(34.dp)
                 .clip(shape = CircleShape)
-                .background(info.releaseType.color.copy(alpha = 0.2f)),
+                .background(releaseType.color.copy(alpha = 0.2f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = info.releaseType.name.take(1),
+                text = releaseType.name.take(1),
                 style = MaterialTheme.typography.labelLarge,
-                color = info.releaseType.color
+                color = releaseType.color
             )
         }
 
@@ -709,7 +484,7 @@ private fun AssetsVersionListItem(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = info.displayName,
+                text = displayName,
                 style = MaterialTheme.typography.labelLarge
             )
 
@@ -730,7 +505,7 @@ private fun AssetsVersionListItem(
                         contentDescription = null
                     )
                     Text(
-                        text = formatNumberByLocale(context, info.downloadCount),
+                        text = formatNumberByLocale(context, downloadCount),
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -747,7 +522,7 @@ private fun AssetsVersionListItem(
                     Text(
                         text = getTimeAgo(
                             context = LocalContext.current,
-                            dateString = info.date
+                            pastInstant = date
                         ),
                         style = MaterialTheme.typography.labelMedium
                     )
@@ -763,7 +538,7 @@ private fun AssetsVersionListItem(
                         contentDescription = null
                     )
                     Text(
-                        text = stringResource(info.releaseType.textRes),
+                        text = stringResource(releaseType.textRes),
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -778,7 +553,7 @@ private fun AssetsVersionListItem(
 @Composable
 fun ScreenshotItemLayout(
     modifier: Modifier = Modifier,
-    screenshot: DownloadProjectInfo.Screenshot
+    screenshot: PlatformProject.Screenshot
 ) {
     val context = LocalContext.current
 
