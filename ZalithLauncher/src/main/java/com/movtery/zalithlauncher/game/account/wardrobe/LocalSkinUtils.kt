@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.game.account.wardrobe
 
-import com.movtery.zalithlauncher.game.version.installed.VersionInfo
+import android.graphics.BitmapFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 fun legacyStrFill(str: String, code: Char, length: Int): String {
     return if (str.length > length) {
@@ -54,18 +57,18 @@ fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType): S
 }
 
 /**
- * @return 当前版本是否支持使用皮肤模型自定义
+ * 检查皮肤像素合法性，Minecraft仅支持使用64x64或64x32像素的皮肤
  */
-fun isSkinModelUuidSupported(versionInfo: VersionInfo): Boolean {
-    val code = versionInfo.getMcVersionCode()
-    return code.main in 2..7
-}
+suspend fun validateSkinFile(skinFile: File): Boolean {
+    return withContext(Dispatchers.IO) {
+        val options = BitmapFactory.Options()
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeFile(skinFile.absolutePath, options)
 
-/**
- * @return 当前版本是否兼容离线账号自定义皮肤包
- */
-fun isOfflineSkinCompatible(versionInfo: VersionInfo): Boolean {
-    val code = versionInfo.getMcVersionCode()
-    //      1.0 ~ 1.5                   1.19.3+
-    return code.main in 0..5 || (code.main == 19 && code.sub > 2) || code.main > 19
+        val width = options.outWidth
+        val height = options.outHeight
+
+        //像素尺寸是否满足 64x64 或 32x32
+        (width == 64 && height == 32) || (width == 64 && height == 64)
+    }
 }
