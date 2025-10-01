@@ -85,6 +85,13 @@ class AuthServerHelper(
     }
 
     /**
+     * 从账号管理中查找同一个配置Id的账号（当前账号类型）
+     */
+    private fun loadFromProfileID(profileId: String): Account {
+        return AccountsManager.loadFromProfileID(profileId, serverName) ?: Account()
+    }
+
+    /**
      * 通过账号密码，登录一个新的账号
      * @param selectRole 当账号拥有多个角色时，需要选择角色
      */
@@ -96,14 +103,14 @@ class AuthServerHelper(
             context,
             onlyOneRole = { authResult, task ->
                 val profileId = authResult.selectedProfile!!.id
-                val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
+                val account: Account = loadFromProfileID(profileId)
                 updateAccountInfo(account, authResult, authResult.selectedProfile!!.name, profileId)
                 onSuccess(account, task)
             },
             hasMultipleRoles = { authResult, _ ->
                 selectRole(authResult.availableProfiles!!) { selectedProfile ->
                     val profileId = selectedProfile.id
-                    val account: Account = AccountsManager.loadFromProfileID(profileId) ?: Account()
+                    val account: Account = loadFromProfileID(profileId)
                     updateAccountInfo(account, authResult, selectedProfile.name, profileId)
                     refresh(context, account)
                 }

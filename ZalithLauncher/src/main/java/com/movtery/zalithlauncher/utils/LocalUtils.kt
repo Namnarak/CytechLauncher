@@ -86,6 +86,16 @@ fun getTimeAgo(
         }
     }
 
+    return getTimeAgo(context, pastInstant)
+}
+
+/**
+ * 获取 xx 时间前 格式的字符串
+ */
+fun getTimeAgo(
+    context: Context,
+    pastInstant: Instant
+): String {
     val now = Instant.now()
     if (pastInstant.isAfter(now)) return context.getString(R.string.just_now)
 

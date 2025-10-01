@@ -332,7 +332,7 @@ private suspend fun createAccount(
 
     val profileId = profile.id
     //避免同一个账号反复添加
-    val account = AccountsManager.loadFromProfileID(profileId) ?: Account()
+    val account = AccountsManager.loadFromProfileID(profileId, AccountType.MICROSOFT.tag) ?: Account()
 
     return account.apply {
         this.username = profile.name

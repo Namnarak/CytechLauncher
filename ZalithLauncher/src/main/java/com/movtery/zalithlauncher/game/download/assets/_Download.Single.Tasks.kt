@@ -4,9 +4,9 @@ import android.content.Context
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
@@ -25,31 +25,31 @@ import java.nio.channels.UnresolvedAddressException
 
 /**
  * 为一些版本下载单独的资源文件
- * @param info 要下载单独资源文件信息
- * @param versions 为哪些版本下载
+ * @param version 要下载单独资源版本信息
+ * @param versions 为哪些游戏版本下载
  * @param folder 版本游戏目录下的相对路径
  * @param onFileCopied 文件已成功复制到版本游戏目录后 单独回调
  * @param onFileCancelled 文件安装已取消 单独回调
  */
 fun downloadSingleForVersions(
     context: Context,
-    info: DownloadVersionInfo,
+    version: PlatformVersion,
     versions: List<Version>,
     folder: String,
     onFileCopied: suspend (zip: File, folder: File) -> Unit = { _, _ -> },
     onFileCancelled: (zip: File, folder: File) -> Unit = { _, _ -> },
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val cacheFile = File(File(PathManager.DIR_CACHE, "assets"), info.sha1 ?: info.fileName)
+    val cacheFile = File(File(PathManager.DIR_CACHE, "assets"), version.platformSha1() ?: version.platformFileName())
 
     downloadSingleFile(
-        info = info,
+        version = version,
         file = cacheFile,
         onDownloaded = { task ->
-            task.updateProgress(-1f, R.string.download_assets_install_progress_installing, info.fileName)
-            versions.forEach { version ->
-                val targetFolder = File(version.getGameDir(), folder)
-                val targetFile = File(targetFolder, info.fileName)
+            task.updateProgress(-1f, R.string.download_assets_install_progress_installing, version.platformFileName())
+            versions.forEach { ver ->
+                val targetFolder = File(ver.getGameDir(), folder)
+                val targetFile = File(targetFolder, version.platformFileName())
                 if (targetFile.exists() && !targetFile.delete()) throw IOException("Failed to properly delete the existing target file.")
                 cacheFile.copyTo(targetFile)
                 onFileCopied(targetFile, targetFolder) //文件已复制回调
@@ -74,9 +74,9 @@ fun downloadSingleForVersions(
         },
         onCancel = {
             FileUtils.deleteQuietly(cacheFile)
-            versions.forEach { version ->
-                val targetFolder = File(version.getGameDir(), folder)
-                val targetFile = File(targetFolder, info.fileName)
+            versions.forEach { ver ->
+                val targetFolder = File(ver.getGameDir(), folder)
+                val targetFile = File(targetFolder, version.platformFileName())
                 if (targetFile.exists()) FileUtils.deleteQuietly(targetFile)
                 onFileCancelled(targetFile, targetFolder) //文件已取消回调
             }
@@ -89,7 +89,7 @@ fun downloadSingleForVersions(
 }
 
 private fun downloadSingleFile(
-    info: DownloadVersionInfo,
+    version: PlatformVersion,
     file: File,
     onDownloaded: suspend (Task) -> Unit,
     onError: (Throwable) -> Unit = {},
@@ -98,25 +98,26 @@ private fun downloadSingleFile(
 ) {
     TaskSystem.submitTask(
         Task.runTask(
-            id = info.sha1 ?: info.fileName,
+            id = version.platformSha1() ?: version.platformFileName(),
             task = { task ->
+                val totalFileSize = version.platformFileSize()
                 var downloadedSize = 0L
 
                 //更新下载任务进度
                 fun updateProgress() {
                     task.updateProgress(
-                        (downloadedSize.toDouble() / info.fileSize.toDouble()).toFloat(),
+                        (downloadedSize.toDouble() / totalFileSize.toDouble()).toFloat(),
                         R.string.download_assets_install_progress_downloading,
-                        info.fileName,
+                        version.platformFileName(),
                         formatFileSize(downloadedSize),
-                        formatFileSize(info.fileSize),
+                        formatFileSize(totalFileSize),
                     )
                 }
                 updateProgress()
 
                 downloadFileSuspend(
-                    url = info.downloadUrl,
-                    sha1 = info.sha1,
+                    url = version.platformDownloadUrl(),
+                    sha1 = version.platformSha1(),
                     outputFile = file.ensureParentDirectory(),
                     sizeCallback = { size ->
                         downloadedSize += size

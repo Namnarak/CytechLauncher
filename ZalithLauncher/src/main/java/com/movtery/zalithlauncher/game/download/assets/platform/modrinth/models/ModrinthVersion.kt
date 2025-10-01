@@ -1,10 +1,15 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.utils.string.parseInstant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import java.time.Instant
 
 @Serializable
 class ModrinthVersion(
@@ -91,4 +96,53 @@ class ModrinthVersion(
         @SerialName("dependency_type")
         val dependencyType: PlatformDependencyType
     )
+
+    /**
+     * 该版本的主要文件
+     */
+    @Transient
+    private lateinit var thisPrimaryFile: ModrinthFile
+
+    override suspend fun initFile(currentProjectId: String): Boolean {
+        val file = files.getPrimary() ?: return false
+        thisPrimaryFile = file
+        return true
+    }
+
+    override fun platform(): Platform = Platform.MODRINTH
+
+    override fun platformId(): String = id
+
+    override fun platformDisplayName(): String = name
+
+    override fun platformFileName(): String = thisPrimaryFile.fileName
+
+    override fun platformGameVersion(): Array<String> = gameVersions
+
+    override fun platformLoaders(): List<PlatformDisplayLabel> = loaders.mapNotNull { loaderName ->
+        ModrinthModLoaderCategory.entries.find { category ->
+            category.facetValue() == loaderName
+        }
+    }
+
+    override fun platformReleaseType(): PlatformReleaseType = versionType
+
+    override fun platformDependencies(): List<PlatformVersion.PlatformDependency> = dependencies.mapNotNull { dependency ->
+        PlatformVersion.PlatformDependency(
+            platform = platform(),
+            //若未提供项目Id，则判定其无效或被删除，跳过该依赖
+            projectId = dependency.projectId ?: return@mapNotNull null,
+            type = dependency.dependencyType
+        )
+    }
+
+    override fun platformDownloadCount(): Long = downloads
+
+    override fun platformDownloadUrl(): String = thisPrimaryFile.url
+
+    override fun platformDatePublished(): Instant = parseInstant(datePublished)
+
+    override fun platformSha1(): String? = thisPrimaryFile.hashes.sha1
+
+    override fun platformFileSize(): Long = thisPrimaryFile.size
 }

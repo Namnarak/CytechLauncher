@@ -119,8 +119,8 @@ class GameLauncher(
 
     override fun getLogName(): String = LogName.GAME.fileName
 
-    override fun initEnv(jreHome: String, runtime: Runtime): MutableMap<String, String> {
-        val envMap = super.initEnv(jreHome, runtime)
+    override fun initEnv(): MutableMap<String, String> {
+        val envMap = super.initEnv()
 
         DriverPluginManager.setDriverById(version.getDriver())
         envMap["DRIVER_PATH"] = DriverPluginManager.getDriver().path

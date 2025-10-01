@@ -12,11 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -52,12 +50,12 @@ fun DownloadModScreen(
     DownloadSingleOperation(
         operation = operation,
         changeOperation = { operation = it },
-        doInstall = { info, versions ->
+        doInstall = { classes, version, gameVersions ->
             downloadSingleForVersions(
                 context = context,
-                info = info,
-                versions = versions,
-                folder = info.classes.versionFolder.folderName,
+                version = version,
+                versions = gameVersions,
+                folder = classes.versionFolder.folderName,
                 submitError = submitError
             )
         }
@@ -71,7 +69,6 @@ fun DownloadModScreen(
                 onBack(backStack)
             },
             entryDecorators = listOf(
-                rememberSceneSetupNavEntryDecorator(),
                 rememberSavedStateNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
@@ -96,12 +93,12 @@ fun DownloadModScreen(
                         currentKey = downloadModScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { info ->
-                            operation = DownloadSingleOperation.SelectVersion(info)
+                        onItemClicked = { classes, version, _ ->
+                            operation = DownloadSingleOperation.SelectVersion(classes, version)
                         },
                         onDependencyClicked = { dep, classes ->
                             backStack.navigateTo(
-                                NormalNavKey.DownloadAssets(dep.platform, dep.projectID, classes)
+                                NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
                             )
                         }
                     )

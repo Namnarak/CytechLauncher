@@ -12,10 +12,10 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
+import io.ktor.server.cio.CIOApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.receive
 import io.ktor.server.response.header
@@ -61,10 +61,10 @@ class OfflineYggdrasilServer(
     private val serverStartedLatch = CountDownLatch(1)
     private var isServerRunning = false
 
-    private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
+    private var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>? = null
 
     fun start() {
-        server = embeddedServer(Netty, port = port) {
+        server = embeddedServer(CIO, port = port) {
             install(ContentNegotiation) {
                 json(Json {
                     prettyPrint = true

@@ -13,17 +13,19 @@ public class Runtime {
     public final String arch;
     public final int javaVersion;
     public final boolean isProvidedByLauncher;
+    public final boolean isJDK;
 
     public Runtime(String name) {
-        this(name, null, null, 0, false);
+        this(name, null, null, 0, false, false);
     }
 
-    Runtime(String name, String versionString, String arch, int javaVersion, boolean isProvidedByLauncher) {
+    Runtime(String name, String versionString, String arch, int javaVersion, boolean isProvidedByLauncher, boolean isJDK) {
         this.name = name;
         this.versionString = versionString;
         this.arch = arch;
         this.javaVersion = javaVersion;
         this.isProvidedByLauncher = isProvidedByLauncher;
+        this.isJDK = isJDK;
     }
 
     public boolean isCompatible() {

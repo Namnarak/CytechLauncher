@@ -14,13 +14,13 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.Fabric
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
-import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadVersionInfo
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
@@ -40,13 +40,15 @@ import java.io.File
 
 /**
  * 整合包安装器
- * @param info 选中的整合包的版本信息
+ * @param version 选中的整合包的版本信息
+ * @param iconUrl 整合包的图标链接
  * @param scope 在有生命周期管理的scope中执行安装任务
  * @param waitForVersionName 等待用户输入版本名称
  */
 class ModPackInstaller(
     private val context: Context,
-    private val info: DownloadVersionInfo,
+    private val version: PlatformVersion,
+    private val iconUrl: String?,
     private val scope: CoroutineScope,
     private val waitForVersionName: suspend (ModPackInfo) -> String
 ) {
@@ -136,17 +138,18 @@ class ModPackInstaller(
         //下载整合包安装包
         tasks.add(
             TitledTask(
-                title = context.getString(R.string.download_game_install_base_download_file2, info.displayName),
+                title = context.getString(R.string.download_game_install_base_download_file2, version.platformDisplayName()),
                 task = Task.runTask(
                     id = "Download.ModPack.Installer",
                     task = { task ->
+                        val totalFileSize = version.platformFileSize().toDouble()
                         var downloadedSize = 0L
                         fun updateProgress() {
-                            task.updateProgress((downloadedSize.toDouble() / info.fileSize.toDouble()).toFloat())
+                            task.updateProgress((downloadedSize.toDouble() / totalFileSize).toFloat())
                         }
                         downloadFileSuspend(
-                            url = info.downloadUrl,
-                            sha1 = info.sha1,
+                            url = version.platformDownloadUrl(),
+                            sha1 = version.platformSha1(),
                             outputFile = installerFile,
                             sizeCallback = { size ->
                                 downloadedSize += size
@@ -155,7 +158,7 @@ class ModPackInstaller(
                         )
                         //下载icon图片
                         task.updateProgress(-1f, null)
-                        info.iconUrl?.let { iconUrl ->
+                        iconUrl?.let { iconUrl ->
                             downloadFileSuspend(
                                 url = iconUrl,
                                 outputFile = tempIconFile
@@ -176,7 +179,7 @@ class ModPackInstaller(
                     task = { task ->
                         modpackInfo = parserModPack(
                             file = installerFile,
-                            platform = info.platform,
+                            platform = version.platform(),
                             targetFolder = tempVersionsDir,
                             task = task
                         )

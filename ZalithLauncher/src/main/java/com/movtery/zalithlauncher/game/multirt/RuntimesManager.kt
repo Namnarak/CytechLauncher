@@ -84,7 +84,8 @@ object RuntimesManager {
                     } else {
                         versionParts.first().toIntOrNull() ?: 0
                     }
-                    Runtime(name, javaVersion, osArch, majorVersion, Jre.entries.any { it.jreName == name })
+                    val isJDK = runtimeDir.child("bin/javac").exists()
+                    Runtime(name, javaVersion, osArch, majorVersion, Jre.entries.any { it.jreName == name }, isJDK)
                 } else {
                     Runtime(name)
                 }
@@ -175,6 +176,7 @@ object RuntimesManager {
         if (!dest.exists() || forceReload(name).versionString == null) {
             throw RuntimeException("Selected runtime is broken!")
         }
+
         return dest
     }
 

@@ -5,12 +5,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.s
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithModrinth
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeCategory
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFacet
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
 import com.movtery.zalithlauncher.game.download.assets.utils.localizedModSearchKeywords
 import com.movtery.zalithlauncher.game.download.assets.utils.processChineseSearchResults
@@ -96,6 +94,14 @@ suspend fun searchAssets(
     }
 }
 
+suspend fun getVersions(
+    projectID: String,
+    platform: Platform
+) = when (platform) {
+    Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID)
+    Platform.MODRINTH -> PlatformSearch.getVersionsFromModrinth(projectID)
+}
+
 suspend fun <E> getVersions(
     projectID: String,
     platform: Platform,
@@ -103,10 +109,7 @@ suspend fun <E> getVersions(
     onError: (DownloadAssetsState<List<E>>) -> Unit
 ) {
     runCatching {
-        val result = when (platform) {
-            Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID)
-            Platform.MODRINTH -> PlatformSearch.getVersionsFromModrinth(projectID)
-        }
+        val result = getVersions(projectID, platform)
         onSuccess(result)
     }.onFailure { e ->
         if (e !is CancellationException) {
@@ -147,12 +150,12 @@ suspend fun <E> getProject(
 }
 
 suspend fun getProjectByVersion(
-    version: PlatformVersion
+    projectId: String,
+    platform: Platform
 ): PlatformProject = withContext(Dispatchers.IO) {
-    when (version) {
-        is ModrinthVersion -> PlatformSearch.getProjectFromModrinth(projectID = version.projectId)
-        is CurseForgeFile -> PlatformSearch.getProjectFromCurseForge(projectID = version.modId.toString())
-        else -> error("Unknown version type: $version")
+    when (platform) {
+        Platform.MODRINTH -> PlatformSearch.getProjectFromModrinth(projectID = projectId)
+        Platform.CURSEFORGE -> PlatformSearch.getProjectFromCurseForge(projectID = projectId)
     }
 }
 

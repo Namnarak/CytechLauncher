@@ -25,11 +25,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
@@ -45,9 +43,9 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallOperation
-import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVersionScreen
+import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -145,7 +143,6 @@ fun DownloadGameScreen(
                 onBack(backStack)
             },
             entryDecorators = listOf(
-                rememberSceneSetupNavEntryDecorator(),
                 rememberSavedStateNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
@@ -218,8 +215,8 @@ private fun GameInstallOperation(
             if (installer != null) {
                 val installGame = installer.tasksFlow.collectAsState()
                 if (installGame.value.isNotEmpty()) {
-                    //安装游戏的弹窗
-                    GameInstallingDialog(
+                    //安装游戏流程对话框
+                    TitleTaskFlowDialog(
                         title = stringResource(R.string.download_game_install_title),
                         tasks = installGame.value,
                         onCancel = {

@@ -1,5 +1,7 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -216,4 +218,41 @@ class ModrinthSingleProject(
         @SerialName("ordering")
         val ordering: Int
     )
+
+    override fun platform(): Platform = Platform.MODRINTH
+
+    override fun platformId(): String = id
+
+    override fun platformClasses(defaultClasses: PlatformClasses): PlatformClasses = projectType.platform
+
+    override fun platformSlug(): String = slug
+
+    override fun platformIconUrl(): String? = iconUrl
+
+    override fun platformTitle(): String = title
+
+    override fun platformSummary(): String? = description
+
+    override fun platformAuthor(): String? = null
+
+    override fun platformDownloadCount(): Long = downloads
+
+    override fun platformUrls(defaultClasses: PlatformClasses): PlatformProject.Urls {
+        return PlatformProject.Urls(
+            projectUrl = "https://modrinth.com/${projectType.platform.modrinth!!.facetValue()}/${slug}",
+            sourceUrl = sourceUrl,
+            issuesUrl = issuesUrl,
+            wikiUrl = wikiUrl
+        )
+    }
+
+    override fun platformScreenshots(): List<PlatformProject.Screenshot> {
+        return gallery.map { gallery ->
+            PlatformProject.Screenshot(
+                imageUrl = gallery.url,
+                title = gallery.title,
+                description = gallery.description
+            )
+        }
+    }
 }

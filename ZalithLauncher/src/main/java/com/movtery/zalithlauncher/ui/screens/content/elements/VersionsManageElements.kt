@@ -77,7 +77,6 @@ import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.desaturate
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
-import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallingDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -572,8 +571,8 @@ fun CleanupOperation(
             if (cleaner != null) {
                 val tasks = cleaner.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {
-                    //功能差不多，直接复用了XD
-                    GameInstallingDialog(
+                    //清理无用游戏文件流程对话框
+                    TitleTaskFlowDialog(
                         title = stringResource(R.string.versions_manage_cleanup),
                         tasks = tasks.value,
                         onCancel = {
