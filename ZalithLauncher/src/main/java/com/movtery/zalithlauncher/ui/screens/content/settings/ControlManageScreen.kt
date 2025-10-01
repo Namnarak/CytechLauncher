@@ -83,6 +83,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedRow
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
@@ -96,7 +97,6 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
@@ -213,71 +213,58 @@ fun ControlManageScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.ControlManager, settingsScreenKey, false)
     ) { isVisible ->
-        Row(
+        AnimatedRow(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val xOffset1 by swapAnimateDpAsState(
-                targetValue = 40.dp,
-                swapIn = isVisible,
-                isHorizontal = true
-            )
-
-            ControlLayoutList(
-                modifier = Modifier
-                    .weight(0.5f)
-                    .offset {
-                        IntOffset(x = xOffset1.roundToPx(), y = 0)
+            isVisible = isVisible
+        ) { scope ->
+            AnimatedItem(scope) { xOffset ->
+                ControlLayoutList(
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
+                    dataList = dataList,
+                    locale = locale,
+                    isLoading = ControlManager.isRefreshing,
+                    onRefresh = {
+                        ControlManager.refresh()
                     },
-                dataList = dataList,
-                locale = locale,
-                isLoading = ControlManager.isRefreshing,
-                onRefresh = {
-                    ControlManager.refresh()
-                },
-                onCreate = {
-                    viewModel.operation = ControlOperation.CreateNew
-                },
-                onDelete = { data ->
-                    viewModel.operation = ControlOperation.Delete(data)
-                },
-                submitError = submitError
-            )
-
-            val xOffset2 by swapAnimateDpAsState(
-                targetValue = 40.dp,
-                swapIn = isVisible,
-                isHorizontal = true,
-                delayMillis = 50
-            )
-
-            ControlLayoutInfo(
-                modifier = Modifier
-                    .weight(0.5f)
-                    .offset {
-                        IntOffset(x = xOffset2.roundToPx(), y = 0)
+                    onCreate = {
+                        viewModel.operation = ControlOperation.CreateNew
                     },
-                isLoading = ControlManager.isRefreshing,
-                data = ControlManager.selectedLayout,
-                locale = locale,
-                onShareLayout = { data ->
-                    shareFile(context, data.file)
-                },
-                onEditLayout = { data ->
-                    startEditorActivity(context, data.file)
-                },
-                onEditText = { data, string, type ->
-                    viewModel.operation = ControlOperation.EditText(data, string, type)
-                },
-                onEditDescription = { data ->
-                    viewModel.operation = ControlOperation.EditDescription(data)
-                },
-                onEditVersion = { data ->
-                    viewModel.operation = ControlOperation.EditVersion(data)
-                }
-            )
+                    onDelete = { data ->
+                        viewModel.operation = ControlOperation.Delete(data)
+                    },
+                    submitError = submitError
+                )
+            }
+
+            AnimatedItem(scope) { xOffset ->
+                ControlLayoutInfo(
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
+                    isLoading = ControlManager.isRefreshing,
+                    data = ControlManager.selectedLayout,
+                    locale = locale,
+                    onShareLayout = { data ->
+                        shareFile(context, data.file)
+                    },
+                    onEditLayout = { data ->
+                        startEditorActivity(context, data.file)
+                    },
+                    onEditText = { data, string, type ->
+                        viewModel.operation = ControlOperation.EditText(data, string, type)
+                    },
+                    onEditDescription = { data ->
+                        viewModel.operation = ControlOperation.EditDescription(data)
+                    },
+                    onEditVersion = { data ->
+                        viewModel.operation = ControlOperation.EditVersion(data)
+                    }
+                )
+            }
         }
     }
 }

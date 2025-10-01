@@ -181,7 +181,7 @@ fun <E> AddonListLayout(
     }
 
     Surface(
-        modifier = modifier.padding(bottom = 12.dp),
+        modifier = modifier,
         shape = MaterialTheme.shapes.large,
         color = color,
         contentColor = contentColor,

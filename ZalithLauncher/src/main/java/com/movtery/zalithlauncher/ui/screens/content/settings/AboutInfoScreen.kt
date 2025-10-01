@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Copyright
@@ -26,7 +25,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +56,11 @@ import com.movtery.zalithlauncher.path.URL_PROJECT
 import com.movtery.zalithlauncher.path.URL_SUPPORT
 import com.movtery.zalithlauncher.path.URL_WEBLATE
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 
 @Composable
 fun AboutInfoScreen(
@@ -76,16 +74,12 @@ fun AboutInfoScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.AboutInfo, settingsScreenKey, false)
     ) { isVisible ->
-        LazyColumn(
+        AnimatedLazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            isVisible = isVisible,
             contentPadding = PaddingValues(all = 12.dp)
-        ) {
-            item {
-                val yOffset by swapAnimateDpAsState(
-                    targetValue = (-40).dp,
-                    swapIn = isVisible
-                )
+        ) { scope ->
+            animatedItem(scope) { yOffset ->
                 ChunkLayout(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_launcher_title)
@@ -110,12 +104,7 @@ fun AboutInfoScreen(
                 }
             }
 
-            item {
-                val yOffset by swapAnimateDpAsState(
-                    targetValue = (-40).dp,
-                    swapIn = isVisible,
-                    delayMillis = 50
-                )
+            animatedItem(scope) { yOffset ->
                 ChunkLayout(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_acknowledgements_title)
@@ -178,13 +167,8 @@ fun AboutInfoScreen(
                 }
             }
 
-            item {
-                val yOffset by swapAnimateDpAsState(
-                    targetValue = (-40).dp,
-                    swapIn = isVisible,
-                    delayMillis = 100
-                )
-                //额外依赖库板块
+            //额外依赖库板块
+            animatedItem(scope) { yOffset ->
                 ChunkLayout(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     title = stringResource(R.string.about_library_title)
@@ -197,14 +181,9 @@ fun AboutInfoScreen(
                 }
             }
 
+            //已加载插件板块
             PluginLoader.allPlugins.takeIf { it.isNotEmpty() }?.let { allPlugins ->
-                item {
-                    val yOffset by swapAnimateDpAsState(
-                        targetValue = (-40).dp,
-                        swapIn = isVisible,
-                        delayMillis = 150
-                    )
-                    //已加载插件板块
+                animatedItem(scope) { yOffset ->
                     ChunkLayout(
                         modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                         title = stringResource(R.string.about_plugin_title)

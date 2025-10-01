@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,6 +60,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -304,68 +304,78 @@ fun DownloadGameWithAddonScreen(
                 }
             )
 
-            Column(
+            AnimatedColumn(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
-                    .verticalScroll(state = rememberScrollState())
-            ) {
-                Spacer(modifier = Modifier.height(12.dp))
+                    .verticalScroll(state = rememberScrollState()),
+                isVisible = isVisible
+            ) { scope ->
+                Spacer(Modifier)
 
-                val yOffset1 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
-                OptiFineList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadOptiFine() }
+                AnimatedItem(scope) { yOffset ->
+                    OptiFineList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadOptiFine() }
+                }
 
-                val yOffset2 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 50)
-                ForgeList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadForge() }
+                AnimatedItem(scope) { yOffset ->
+                    ForgeList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadForge() }
+                }
 
-                val yOffset3 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 100)
-                NeoForgeList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadNeoForge() }
+                AnimatedItem(scope) { yOffset ->
+                    NeoForgeList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadNeoForge() }
+                }
 
-                val yOffset4 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 150)
-                FabricList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset4.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadFabric() }
+                AnimatedItem(scope) { yOffset ->
+                    FabricList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadFabric() }
+                }
 
-                val yOffset5 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 200)
-                FabricAPIList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset5.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadFabricAPI() }
+                AnimatedItem(scope) { yOffset ->
+                    FabricAPIList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadFabricAPI() }
+                }
 
-                val yOffset6 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 250)
-                QuiltList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset6.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadQuilt() }
+                AnimatedItem(scope) { yOffset ->
+                    QuiltList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadQuilt() }
+                }
 
-                val yOffset7 by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible, delayMillis = 300)
-                QuiltAPIList(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset7.roundToPx()) },
-                    currentAddon = viewModel.currentAddon,
-                    refreshIcon = { viewModel.refreshIcon() },
-                    addonList = viewModel.addonList
-                ) { viewModel.reloadQuiltAPI() }
+                AnimatedItem(scope) { yOffset ->
+                    QuiltAPIList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        refreshIcon = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadQuiltAPI() }
+                }
+
+                Spacer(Modifier)
             }
         }
     }
