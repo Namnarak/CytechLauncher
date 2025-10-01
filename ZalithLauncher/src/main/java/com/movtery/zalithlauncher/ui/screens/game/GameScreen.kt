@@ -118,7 +118,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     val pressedLauncherEvents = mutableStateMapOf<String, Int>()
 
     /** 虚拟鼠标滚动事件处理 */
-    val mouseScrollEvent = MouseScrollEvent(viewModelScope)
+    val mouseScrollUpEvent = MouseScrollEvent(viewModelScope, 1.0)
+    val mouseScrollDownEvent = MouseScrollEvent(viewModelScope, -1.0)
 
     fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
         observableLayout = null
@@ -154,67 +155,53 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     override fun onCleared() {
-        this.mouseScrollEvent.cancelAll()
+        this.mouseScrollUpEvent.cancel()
+        this.mouseScrollDownEvent.cancel()
     }
 }
 
-private class MouseScrollEvent(private val scope: CoroutineScope) {
-    /** 鼠标滚轮上 */
-    private var mouseScrollUpJob: Job? = null
-    /** 鼠标滚轮下 */
-    private var mouseScrollDownJob: Job? = null
+/**
+ * 鼠标滚轮事件管理
+ * @param offset 滚轮滚动距离
+ */
+private class MouseScrollEvent(
+    private val scope: CoroutineScope,
+    private val offset: Double
+) {
+    private var mouseScrollJob: Job? = null
 
-    private fun cancel(isUp: Boolean) {
-        if (isUp) {
-            mouseScrollUpJob?.cancel()
-            mouseScrollUpJob = null
-        } else {
-            mouseScrollDownJob?.cancel()
-            mouseScrollDownJob = null
-        }
-    }
-
-    private fun setJob(job: Job?, isUp: Boolean) {
-        if (isUp) {
-            mouseScrollUpJob = job
-        } else {
-            mouseScrollDownJob = job
-        }
+    /**
+     * 取消滚动事件，并重置状态
+     */
+    fun cancel() {
+        mouseScrollJob?.cancel()
+        mouseScrollJob = null
     }
 
     /**
      * 单击响应一次滚轮滚动事件
      */
-    fun scrollSingle(isUp: Boolean) {
-        CallbackBridge.sendScroll(0.0, if (isUp) 1.0 else -1.0)
+    fun scrollSingle() {
+        CallbackBridge.sendScroll(0.0, offset)
     }
 
     /**
      * 长按不间断触发滚轮滚动事件
      */
-    fun scrollLongPress(cancel: Boolean, isUp: Boolean) {
-        if (cancel) {
-            cancel(isUp)
-        } else {
-            val job = scope.launch {
-                while (true) {
-                    try {
-                        ensureActive()
-                        CallbackBridge.sendScroll(0.0, if (isUp) 1.0 else -1.0)
-                        delay(50)
-                    } catch (_: Exception) {
-                        break
-                    }
+    fun scrollLongPress() {
+        mouseScrollJob?.cancel()
+        mouseScrollJob = scope.launch {
+            while (true) {
+                try {
+                    ensureActive()
+                    CallbackBridge.sendScroll(0.0, offset)
+                    delay(50)
+                } catch (_: Exception) {
+                    break
                 }
-                setJob(null, isUp)
             }
-            setJob(job, isUp)
+            mouseScrollJob = null
         }
-    }
-
-    fun cancelAll() {
-        mouseScrollUpJob?.cancel()
-        mouseScrollDownJob?.cancel()
     }
 }
 
@@ -288,13 +275,25 @@ fun GameScreen(
                         when (key) {
                             LAUNCHER_EVENT_SWITCH_IME -> { viewModel.switchIME() }
                             LAUNCHER_EVENT_SWITCH_MENU -> { viewModel.switchMenu() }
-                            LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = true) }
-                            LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollEvent.scrollSingle(isUp = false) }
+                            LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollUpEvent.scrollSingle() }
+                            LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollDownEvent.scrollSingle() }
                         }
                     }
                     when (key) {
-                        LAUNCHER_EVENT_SCROLL_UP -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = true) }
-                        LAUNCHER_EVENT_SCROLL_DOWN -> { viewModel.mouseScrollEvent.scrollLongPress(cancel = !pressed, isUp = false) }
+                        LAUNCHER_EVENT_SCROLL_UP -> {
+                            if (pressed) {
+                                viewModel.mouseScrollUpEvent.scrollLongPress()
+                            } else {
+                                viewModel.mouseScrollUpEvent.cancel()
+                            }
+                        }
+                        LAUNCHER_EVENT_SCROLL_DOWN -> {
+                            if (pressed) {
+                                viewModel.mouseScrollDownEvent.scrollLongPress()
+                            } else {
+                                viewModel.mouseScrollDownEvent.cancel()
+                            }
+                        }
                     }
                 }
             }
