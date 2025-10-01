@@ -692,8 +692,12 @@
     <string name="settings_control_mouse_control_mode_summary">Choose the virtual mouse control method: swipe the screen to move the cursor, or tap the screen to specify the cursor position</string>
     <string name="settings_control_mouse_control_mode_slide">Swipe Control</string>
     <string name="settings_control_mouse_control_mode_click">Tap Control</string>
-    <string name="settings_control_mouse_pointer_title">Custom Pointer</string>
-    <string name="settings_control_mouse_pointer_summary">Customize the virtual mouse pointer image to suit your personal preferences</string>
+    <string name="settings_control_mouse_pointer_arrow_title">Virtual Mouse Pointer (Default)</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">Customize the default virtual mouse pointer image to match personal preferences</string>
+    <string name="settings_control_mouse_pointer_link_title">Virtual Mouse Pointer (Hand)</string>
+    <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ supports switching the mouse pointer to a hand shape when hovering over interactive components</string>
+    <string name="settings_control_mouse_pointer_ibeam_title">Virtual Mouse Pointer (Text Cursor)</string>
+    <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ supports switching the mouse pointer to a text cursor shape when hovering over input fields</string>
     <string name="settings_control_mouse_pointer_reset_message">Reset mouse pointer to default?</string>
     <string name="settings_control_mouse_long_press_delay_title">Long Press Delay</string>
     <string name="settings_control_mouse_long_press_delay_summary">Set the delay time for recognizing a long press on the screen (does not affect physical mouse long presses, even when physical mouse control is disabled)</string>

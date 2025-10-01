@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.changedToDown
@@ -23,6 +24,7 @@ import androidx.compose.ui.input.pointer.isForwardPressed
 import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.isTertiaryPressed
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
@@ -49,6 +51,7 @@ private data class DragState(
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
+ * @param pointerIcon               实体指针图标
  * @param onTouch                   触摸到鼠标层
  * @param onMouse                   实体鼠标交互事件
  * @param onTap                     点击回调，参数是触摸点在控件内的绝对坐标
@@ -69,6 +72,7 @@ fun TouchpadLayout(
     controlMode: MouseControlMode = MouseControlMode.SLIDE,
     longPressTimeoutMillis: Long = -1L,
     requestPointerCapture: Boolean = true,
+    pointerIcon: PointerIcon = PointerIcon.Default,
     onTouch: () -> Unit = {},
     onMouse: () -> Unit = {},
     onTap: (Offset) -> Unit = {},
@@ -99,6 +103,7 @@ fun TouchpadLayout(
     FocusableBox(
         modifier = modifier
             .hoverable(interactionSource)
+            .pointerHoverIcon(pointerIcon)
             .pointerInput(*inputChange) {
                 coroutineScope {
                     /** 所有被占用的指针 */

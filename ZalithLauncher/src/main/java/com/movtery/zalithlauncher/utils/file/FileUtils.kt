@@ -27,6 +27,8 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile as CompressZipFile
 
+fun File.ifExists() = this.takeIf { it.exists() }
+
 fun compareSHA1(file: File, sourceSHA: String?, default: Boolean = false): Boolean {
     if (!file.exists()) return false //文件不存在
 

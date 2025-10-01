@@ -12,6 +12,7 @@ import android.view.Choreographer;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
+import com.movtery.zalithlauncher.bridge.CursorShape;
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates;
 import com.movtery.zalithlauncher.bridge.ZLNativeInvoker;
 import com.movtery.zalithlauncher.context.ContextsKt;
@@ -27,6 +28,9 @@ public class CallbackBridge {
     private static boolean isGrabbing = false;
     private static final Consumer<Boolean> grabListener = isGrabbing ->
             ZLBridgeStates.setCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
+
+    private static int cursorShape = 0x36001;
+    private static final Consumer<CursorShape> cursorShapeListener = ZLBridgeStates::setCursorShape;
     
     public static final int CLIPBOARD_COPY = 2000;
     public static final int CLIPBOARD_PASTE = 2001;
@@ -197,7 +201,35 @@ public class CallbackBridge {
             }
 
         }, 16);
+    }
 
+    //Called from JRE side
+    @SuppressWarnings("unused")
+    private static void onCursorShapeChanged(final int shape) {
+        cursorShape = shape;
+        sChoreographer.postFrameCallbackDelayed((time) -> {
+            if (cursorShape != shape) return;
+
+            synchronized (cursorShapeListener) {
+                CursorShape shape1;
+                switch (cursorShape) {
+                    // IBeam
+                    case 0x36002: //GLFW_IBEAM_CURSOR
+                        shape1 = CursorShape.IBeam;
+                        break;
+                    // Hand
+                    case 0x36004: //GLFW_HAND_CURSOR
+                        shape1 = CursorShape.Hand;
+                        break;
+                    // Arrow
+                    case 0x36001: //GLFW_ARROW_CURSOR
+                    default:
+                        shape1 = CursorShape.Arrow;
+                }
+
+                cursorShapeListener.accept(shape1);
+            }
+        }, 16);
     }
 
     @Keep @CriticalNative public static native void nativeSetUseInputStackQueue(boolean useInputStackQueue);

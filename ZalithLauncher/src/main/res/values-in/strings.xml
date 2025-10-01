@@ -510,8 +510,6 @@
     <string name="settings_control_mouse_control_mode_summary">Pilih metode kontrol mouse virtual: geser layar buat mindahin kursor, atau tap layar buat nunjuk posisi kursor</string>
     <string name="settings_control_mouse_control_mode_slide">Kontrol Geser</string>
     <string name="settings_control_mouse_control_mode_click">Kontrol Sentuh</string>
-    <string name="settings_control_mouse_pointer_title">Kursor Kustom</string>
-    <string name="settings_control_mouse_pointer_summary">Sesuaikan gambar kursor mouse virtual yang cocok sama preferensimu</string>
     <string name="settings_launcher_full_screen_title">Mode layar penuh</string>
     <string name="minecraft_download_downloading_game_files">Mengunduh file\n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_progress_retry_downloading_files">Mencoba mengunduh ulang\n(%1$d/%2$d, %3$s/%4$s)</string>

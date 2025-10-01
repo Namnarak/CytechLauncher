@@ -247,7 +247,6 @@
     <string name="settings_control_gesture_trigger_mouse_right">右クリック</string>
     <string name="settings_control_mouse_control_mode_slide">スワイプコントロール</string>
     <string name="settings_control_mouse_control_mode_click">タップコントロール</string>
-    <string name="settings_control_mouse_pointer_title">カスタムポインター</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">物理マウス</string>
     <string name="settings_game_log_text_size_title">ログのフォントサイズ</string>
     <string name="settings_game_java_memory_title">メモリー割り当て</string>
@@ -839,7 +838,6 @@
     <string name="settings_control_mouse_capture_sensitivity_title">マウスの移動感度をキャプチャ</string>
     <string name="settings_control_mouse_capture_sensitivity_summary">ゲームの視界の移動感度などの、キャプチャ時のマウスの移動速度を調整します</string>
     <string name="settings_control_mouse_control_mode_summary">仮想マウスの操作方法を設定します: 画面をスワイプしてカーソルを動かすか、画面をタップしてカーソルの位置を指定します</string>
-    <string name="settings_control_mouse_pointer_summary">仮想マウスポインターの画像を個人的な好みによってカスタマイズします</string>
     <string name="settings_control_mouse_long_press_delay_summary">画面長押しを認識するための時間を設定します (物理マウスコントロールが無効になっていても、物理マウスの長押しには影響しません)</string>
     <string name="settings_control_gesture_control_summary">統合版と同様に、タップや長押ジェスチャーよるゲーム内操作をサポートします</string>
     <string name="settings_control_gyroscope_sample_rate_summary">サンプリングレートはジャイロスコープデータの更新頻度を設定します。頻度が高くなるほど、リアルタイムのデータは多くなりますが、バッテリー使用量は高くなります</string>

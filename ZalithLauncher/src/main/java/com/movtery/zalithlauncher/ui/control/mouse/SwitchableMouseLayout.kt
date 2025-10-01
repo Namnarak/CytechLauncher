@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.control.mouse
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,15 +11,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
+import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
+import com.movtery.zalithlauncher.utils.file.ifExists
 
 /**
  * 鼠标指针抓取模式
@@ -150,12 +150,16 @@ fun SwitchableMouseLayout(
     Box(modifier = modifier) {
         if (showMousePointer) {
             MousePointer(
-                modifier = Modifier.absoluteOffset(
-                    x = with(LocalDensity.current) { pointerPosition.x.toDp() },
-                    y = with(LocalDensity.current) { pointerPosition.y.toDp() }
+                modifier = Modifier.mouseFixedPosition(
+                    mouseSize = mouseSize,
+                    cursorShape = ZLBridgeStates.cursorShape,
+                    pointerPosition = pointerPosition
                 ),
+                cursorShape = ZLBridgeStates.cursorShape,
                 mouseSize = mouseSize,
-                mouseFile = getMousePointerFileAvailable()
+                arrowMouseFile = arrowPointerFile.ifExists(),
+                linkMouseFile = linkPointerFile.ifExists(),
+                iBeamMouseFile = iBeamPointerFile.ifExists()
             )
         }
 
@@ -169,6 +173,7 @@ fun SwitchableMouseLayout(
             },
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture1,
+            pointerIcon = ZLBridgeStates.cursorShape.composeIcon,
             onTouch = onTouch,
             onMouse = onMouse,
             onTap = { fingerPos ->

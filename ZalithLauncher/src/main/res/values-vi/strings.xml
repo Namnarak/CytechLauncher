@@ -574,8 +574,6 @@
     <string name="settings_control_mouse_control_mode_summary">Chọn phương pháp điều khiển chuột ảo: vuốt màn hình để di chuyển con trỏ hoặc chạm vào màn hình để chỉ định vị trí con trỏ</string>
     <string name="settings_control_mouse_control_mode_slide">Điều khiển vuốt</string>
     <string name="settings_control_mouse_control_mode_click">Chạm để điều khiển</string>
-    <string name="settings_control_mouse_pointer_title">Con trỏ tùy chỉnh</string>
-    <string name="settings_control_mouse_pointer_summary">Tùy chỉnh hình ảnh con trỏ chuột ảo để phù hợp với sở thích cá nhân của bạn</string>
     <string name="settings_control_mouse_pointer_reset_message">Đặt lại con trỏ chuột về mặc định?</string>
     <string name="settings_control_mouse_long_press_delay_title">Độ trễ nhấn lâu</string>
     <string name="settings_control_mouse_long_press_delay_summary">Đặt thời gian trễ để nhận dạng thao tác nhấn lâu trên màn hình (không ảnh hưởng đến thao tác nhấn lâu bằng chuột vật lý, ngay cả khi điều khiển chuột vật lý bị tắt)</string>
