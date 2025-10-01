@@ -12,11 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import com.movtery.zalithlauncher.game.download.assets.downloadSingleForVersions
 import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
@@ -90,7 +88,6 @@ fun DownloadSavesScreen(
                 onBack(backStack)
             },
             entryDecorators = listOf(
-                rememberSceneSetupNavEntryDecorator(),
                 rememberSavedStateNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
