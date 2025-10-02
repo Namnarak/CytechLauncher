@@ -415,7 +415,7 @@
     <string name="versions_manage_game_storage_permissions_sdk30">Ingin menggunakan jalur game eksternal? Harap aktifkan izin Kelola semua file di perangkat untuk peluncur terlebih dahulu, atau peluncur tidak akan dapat mengakses file game eksternal!</string>
     <string name="versions_manage_no_versions">Tidak ada versi yang terinstal</string>
     <string name="versions_manage_category_vanilla">Vanila</string>
-    <string name="versions_manage_category_modloader">Bisa diMod</string>
+    <string name="versions_manage_category_modloader">Bisa di Mod</string>
     <string name="versions_manage_install_cannot_use_mc_name">Jangan gunakan nama vanila untuk versi yang dimodifikasi.</string>
     <string name="versions_manage_install_exists">Nama versi sudah ada!</string>
     <string name="versions_manage_invalid">Versi tidak valid</string>
@@ -817,4 +817,6 @@
     <string name="saves_manage_import_unpacking">Membongkar dunia: %s</string>
     <string name="saves_manage_import_failed">Terjadi kesalahan saat mengimpor dunia</string>
     <string name="control_editor_layers_merge_downward">Gabungkan Lapisan Ke bawah</string>
+    <string name="cape_name_home">Beranda</string>
+    <string name="cape_name_mojang_office">Kantor Mojang</string>
 </resources>
