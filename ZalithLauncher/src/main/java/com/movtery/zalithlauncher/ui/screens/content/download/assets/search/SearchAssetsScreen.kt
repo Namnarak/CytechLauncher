@@ -23,14 +23,9 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.getPageInfo
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
-import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
@@ -69,29 +64,10 @@ private class SearchScreenViewModel(
     }
 
     private fun putResult(result: PlatformSearchResult) {
-        //将平台项目搜索结果与 mcmod 信息打包在一起
-        val data = when (result) {
-            is CurseForgeSearchResult -> result.data.map {
-                it to platformClasses.getTranslations().getModBySlugId(it.slug)
-            }
-            is ModrinthSearchResult -> result.hits.map {
-                it to platformClasses.getTranslations().getModBySlugId(it.slug)
-            }
-            else -> error("Unknown result type $result")
-        }
+        result.getAssetsPage(platformClasses).also { page ->
+            lInfo("Searched page info: {pageNumber: ${page.pageNumber}, pageIndex: ${page.pageIndex}, totalPage: ${page.totalPage}, isLastPage: ${page.isLastPage}}")
 
-        result.getPageInfo { pageNumber, pageIndex, totalPage, isLastPage ->
-            lInfo("Searched page info: {pageNumber: $pageNumber, pageIndex: $pageIndex, totalPage: $totalPage, isLastPage: $isLastPage}")
-
-            val page = AssetsPage(
-                pageNumber = pageNumber,
-                pageIndex = pageIndex,
-                totalPage = totalPage,
-                isLastPage = isLastPage,
-                data = data
-            )
-
-            val targetIndex = pageNumber - 1
+            val targetIndex = page.pageNumber - 1
 
             if (pages.size > targetIndex) {
                 pages[targetIndex] = page //替换已有页
@@ -206,13 +182,10 @@ fun SearchAssetsScreen(
                     .fillMaxHeight()
                     .weight(7f)
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                classes = platformClasses,
                 searchState = viewModel.searchResult,
                 onReload = {
                     viewModel.search()
-                },
-                mapCategories = mapCategories,
-                mapModLoaders = { string ->
-                    ModrinthModLoaderCategory.entries.find { it.facetValue() == string }
                 },
                 swapToDownload = swapToDownload,
                 onPreviousPage = { pageNumber ->

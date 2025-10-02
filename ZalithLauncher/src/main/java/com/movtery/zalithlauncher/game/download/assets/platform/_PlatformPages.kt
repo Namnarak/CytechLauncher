@@ -1,51 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform
 
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchResult
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
-
-/**
- * 获取分页信息
- */
-fun PlatformSearchResult.getPageInfo(
-    block: (pageNumber: Int, pageIndex: Int, totalPage: Int, isLastPage: Boolean) -> Unit
-) {
-    when (this) {
-        is CurseForgeSearchResult -> {
-            val pagination = this.pagination
-            val pageSize = pagination.pageSize
-            val totalPage = ((pagination.totalCount + pageSize - 1) / pageSize).toInt()
-            val pageNumber = pagination.index / pageSize + 1
-            val isLastPage = pagination.resultCount < pageSize ||
-                    (pagination.index + pagination.resultCount) >= pagination.totalCount
-            block(pageNumber, pagination.index, totalPage, isLastPage)
-        }
-
-        is ModrinthSearchResult -> {
-            val pageSize = this.limit
-            val totalPage = ((this.totalHits + pageSize - 1) / pageSize).toInt()
-            val pageNumber = this.offset / pageSize + 1
-            val isLastPage = (this.offset + this.limit) >= this.totalHits
-            block(pageNumber, this.offset, totalPage, isLastPage)
-        }
-    }
-}
-
-fun PlatformSearchResult.getIds() : Set<String> {
-    return when (this) {
-        is CurseForgeSearchResult -> {
-            data.mapTo(HashSet(data.size)) {
-                it.id.toString()
-            }
-        }
-        is ModrinthSearchResult -> {
-            hits.mapTo(HashSet(hits.size)) {
-                it.projectId
-            }
-        }
-        else -> error("Unknown result type: $this")
-    }
-}
 
 fun previousPage(
     pageNumber: Int,
