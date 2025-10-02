@@ -361,8 +361,6 @@
     <string name="settings_control_mouse_control_mode_summary">Sanal fare için işlem yöntemini seçin: imleci hareket ettirmek için ekranı kaydırın veya belirli bir konuma tıklayın</string>
     <string name="settings_control_mouse_control_mode_slide">Kaydırma Kontrolü</string>
     <string name="settings_control_mouse_control_mode_click">Tıkla Kontrolü</string>
-    <string name="settings_control_mouse_pointer_title">Özel İmleç</string>
-    <string name="settings_control_mouse_pointer_summary">Sanal fare imlecinin resmini kişisel ihtiyaçlarınıza göre özelleştirin</string>
     <string name="settings_control_mouse_pointer_reset_message">Mouse imlecini varsayılana döndür?</string>
     <string name="settings_control_mouse_long_press_delay_title">Uzun Basma Gecikmesi</string>
     <string name="settings_control_mouse_long_press_delay_summary">Ekranda uzun basmayı tanıma gecikme süresini ayarlayın (gerçek fare uzun basması bu ayardan etkilenmez, gerçek fare kontrolü devre dışı bırakılmış olsa bile)</string>

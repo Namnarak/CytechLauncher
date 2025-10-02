@@ -407,8 +407,6 @@
     <string name="settings_control_mouse_control_mode_summary">Выберите метод управления виртуальной мышью: проведите по экрану для перемещения курсора или коснитесь экрана, чтобы указать позицию курсора</string>
     <string name="settings_control_mouse_control_mode_slide">Управление смахиванием</string>
     <string name="settings_control_mouse_control_mode_click">Управление касанием</string>
-    <string name="settings_control_mouse_pointer_title">Кастомный курсор</string>
-    <string name="settings_control_mouse_pointer_summary">Выберете пикчу в качестве курсора виртуальной мыши</string>
     <string name="settings_control_mouse_pointer_reset_message">Сбросить указатель мыши на значение по умолчанию?</string>
     <string name="settings_control_mouse_long_press_delay_title">Задержка жеста длительного касания</string>
     <string name="settings_control_mouse_long_press_delay_summary">Установить время задержки для распознавания жеста длительного нажатия на экране (Работает только если собственно включены жесты)</string>

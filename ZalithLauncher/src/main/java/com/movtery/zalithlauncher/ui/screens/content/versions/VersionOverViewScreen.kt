@@ -44,6 +44,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
@@ -53,7 +54,6 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -115,62 +115,51 @@ fun VersionOverViewScreen(
             onVersionDeleted = backToMainScreen
         )
 
-        Column(
+        AnimatedColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val yOffset1 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
-            )
+            isVisible = isVisible
+        ) { scope ->
+            AnimatedItem(scope) { yOffset ->
+                VersionInfoLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    version, versionSummary, iconFileExists, refreshVersionIcon,
+                    pickIcon = { versionsOperation = VersionsOperation.PickIcon(version) },
+                    resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
+                )
+            }
 
-            VersionInfoLayout(
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
-                version, versionSummary, iconFileExists, refreshVersionIcon,
-                pickIcon = { versionsOperation = VersionsOperation.PickIcon(version) },
-                resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
-            )
+            AnimatedItem(scope) { yOffset ->
+                VersionManagementLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    onEditSummary = { versionsOperation = VersionsOperation.EditSummary(version) },
+                    onRename = { versionsOperation = VersionsOperation.Rename(version) },
+                    onDelete = { versionsOperation = VersionsOperation.Delete(version) }
+                )
+            }
 
-            val yOffset2 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 50
-            )
-
-            VersionManagementLayout(
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
-                onEditSummary = { versionsOperation = VersionsOperation.EditSummary(version) },
-                onRename = { versionsOperation = VersionsOperation.Rename(version) },
-                onDelete = { versionsOperation = VersionsOperation.Delete(version) }
-            )
-
-            val yOffset3 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 100
-            )
-
-            VersionQuickActions(
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
-                accessFolder = { path ->
-                    val folder = File(version.getGameDir(), path)
-                    runCatching {
-                        folder.ensureDirectory()
-                    }.onFailure { e ->
-                        submitError(
-                            ErrorViewModel.ThrowableMessage(
-                                title = context.getString(R.string.error_create_dir, folder.absolutePath),
-                                message = e.getMessageOrToString()
+            AnimatedItem(scope) { yOffset ->
+                VersionQuickActions(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    accessFolder = { path ->
+                        val folder = File(version.getGameDir(), path)
+                        runCatching {
+                            folder.ensureDirectory()
+                        }.onFailure { e ->
+                            submitError(
+                                ErrorViewModel.ThrowableMessage(
+                                    title = context.getString(R.string.error_create_dir, folder.absolutePath),
+                                    message = e.getMessageOrToString()
+                                )
                             )
-                        )
-                        return@VersionQuickActions
+                            return@VersionQuickActions
+                        }
+                        shareFile(context, folder)
                     }
-                    shareFile(context, folder)
-                }
-            )
+                )
+            }
         }
     }
 }

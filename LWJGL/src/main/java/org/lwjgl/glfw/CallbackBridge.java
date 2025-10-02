@@ -46,5 +46,6 @@ public class CallbackBridge {
     public static native boolean nativeSetInputReady(boolean ready);
     public static native String nativeClipboard(int action, byte[] copy);
     public static native void nativeSetGrabbing(boolean grab);
+    public static native void nativeSetCursorShape(int shape);
 }
 

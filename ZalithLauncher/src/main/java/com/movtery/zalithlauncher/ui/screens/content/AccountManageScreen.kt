@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -66,6 +65,7 @@ import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
+import com.movtery.zalithlauncher.game.account.wardrobe.validateSkinFile
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
@@ -346,14 +346,7 @@ private fun MicrosoftChangeSkinOperation(
                 task = {
                     context.copyLocalFile(uri, cacheFile)
                     //导入成功后，检查图片文件像素尺寸
-                    val options = BitmapFactory.Options()
-                    options.inJustDecodeBounds = true
-                    BitmapFactory.decodeFile(cacheFile.absolutePath, options)
-
-                    val width = options.outWidth
-                    val height = options.outHeight
-                    if ((width == 64 && height == 32) || (width == 64 && height == 64)) {
-                        //像素尺寸满足 64x64 或 32x32
+                    if (validateSkinFile(cacheFile)) {
                         updateOperation(MicrosoftChangeSkinOperation.SelectSkinModel(account, cacheFile))
                     } else {
                         //像素尺寸不符合要求
@@ -947,17 +940,32 @@ private fun AccountSkinOperation(
         is AccountSkinOperation.SaveSkin -> {
             LaunchedEffect(Unit) {
                 val skinFile = account.getSkinFile()
+                val cacheFile = File(PathManager.DIR_IMAGE_CACHE, skinFile.name)
                 TaskSystem.submitTask(
                     Task.runTask(
                         dispatcher = Dispatchers.IO,
                         task = {
-                            context.copyLocalFile(accountSkinOperation.uri, skinFile)
-                            AccountsManager.suspendSaveAccount(account)
-                            onRefreshAvatar()
-                            updateOperation(AccountSkinOperation.None)
+                            context.copyLocalFile(accountSkinOperation.uri, cacheFile)
+                            if (validateSkinFile(cacheFile)) {
+                                //覆盖原本皮肤文件
+                                cacheFile.copyTo(target = skinFile, overwrite = true)
+                                FileUtils.deleteQuietly(cacheFile) //清除缓存皮肤文件
+                                AccountsManager.suspendSaveAccount(account)
+                                onRefreshAvatar()
+                                updateOperation(AccountSkinOperation.None)
+                            } else {
+                                //像素尺寸不符合要求
+                                submitError(
+                                    ErrorViewModel.ThrowableMessage(
+                                        title = context.getString(R.string.generic_warning),
+                                        message = context.getString(R.string.account_change_skin_invalid)
+                                    )
+                                )
+                                updateOperation(AccountSkinOperation.None)
+                            }
                         },
                         onError = { th ->
-                            FileUtils.deleteQuietly(skinFile)
+                            FileUtils.deleteQuietly(cacheFile)
                             submitError(
                                 ErrorViewModel.ThrowableMessage(
                                     title = context.getString(R.string.error_import_image),

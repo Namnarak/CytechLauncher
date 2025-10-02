@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.bridge.CursorShape
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -43,6 +44,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -52,11 +54,12 @@ import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.infiniteShimmer
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
-import com.movtery.zalithlauncher.ui.control.mouse.mousePointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.arrowPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.iBeamPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.linkPointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatKeyCode
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -64,6 +67,7 @@ import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import org.apache.commons.io.FileUtils
+import java.io.File
 
 @Composable
 fun ControlSettingsScreen(
@@ -77,203 +81,28 @@ fun ControlSettingsScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.Control, settingsScreenKey, false)
     ) { isVisible ->
-        Column(
+        AnimatedColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val yOffset1 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
-            )
-
-            SettingsBackground(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(x = 0, y = yOffset1.roundToPx())
-                    }
-            ) {
-                SwitchSettingsLayout(
-                    unit = AllSettings.physicalMouseMode,
-                    title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
-                    summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
-                    trailingIcon = {
-                        TooltipIconButton(
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(horizontal = 8.dp),
-                            tooltipTitle = stringResource(R.string.generic_warning),
-                            tooltipMessage = stringResource(R.string.settings_control_mouse_physical_mouse_warning)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = stringResource(R.string.generic_warning),
-                                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-                            )
-                        }
-                    }
-                )
-
-                var operation by remember { mutableStateOf<PhysicalKeyOperation>(PhysicalKeyOperation.None) }
-                PhysicalKeyImeTrigger(
-                    modifier = Modifier.fillMaxWidth(),
-                    operation = operation,
-                    changeOperation = { operation = it },
-                    eventViewModel = eventViewModel
-                )
-            }
-
-            val yOffset2 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 50
-            )
-
-            SettingsBackground(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(x = 0, y = yOffset2.roundToPx())
-                    }
-            ) {
-                SwitchSettingsLayout(
-                    unit = AllSettings.hideMouse,
-                    title = stringResource(R.string.settings_control_mouse_hide_title),
-                    summary = stringResource(R.string.settings_control_mouse_hide_summary),
-                    enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
-                )
-
-                ListSettingsLayout(
-                    unit = AllSettings.mouseControlMode,
-                    items = MouseControlMode.entries,
-                    title = stringResource(R.string.settings_control_mouse_control_mode_title),
-                    summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
-                    getItemText = { stringResource(it.nameRes) }
-                )
-
-                var mouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                MousePointerLayout(
-                    mouseSize = AllSettings.mouseSize.state,
-                    mouseOperation = mouseOperation,
-                    changeOperation = { mouseOperation = it },
-                    submitError = submitError
-                )
-
-                SliderSettingsLayout(
-                    unit = AllSettings.mouseSize,
-                    title = stringResource(R.string.settings_control_mouse_size_title),
-                    valueRange = 5f..50f,
-                    suffix = "Dp",
-                    fineTuningControl = true
-                )
-
-                SliderSettingsLayout(
-                    unit = AllSettings.cursorSensitivity,
-                    title = stringResource(R.string.settings_control_mouse_sensitivity_title),
-                    summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
-                    valueRange = 25f..300f,
-                    suffix = "%",
-                    fineTuningControl = true
-                )
-
-                SliderSettingsLayout(
-                    unit = AllSettings.mouseCaptureSensitivity,
-                    title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
-                    summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
-                    valueRange = 25f..300f,
-                    suffix = "%",
-                    fineTuningControl = true
-                )
-
-                SliderSettingsLayout(
-                    unit = AllSettings.mouseLongPressDelay,
-                    title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
-                    summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
-                    valueRange = 100f..1000f,
-                    suffix = "ms",
-                    fineTuningControl = true
-                )
-            }
-
-            val yOffset3 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 100
-            )
-
-            SettingsBackground(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(x = 0, y = yOffset3.roundToPx())
-                    }
-            ) {
-                SwitchSettingsLayout(
-                    unit = AllSettings.gestureControl,
-                    title = stringResource(R.string.settings_control_gesture_control_title),
-                    summary = stringResource(R.string.settings_control_gesture_control_summary)
-                )
-
-                ListSettingsLayout(
-                    unit = AllSettings.gestureTapMouseAction,
-                    items = GestureActionType.entries,
-                    title = stringResource(R.string.settings_control_gesture_tap_action_title),
-                    summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
-                    getItemText = { stringResource(it.nameRes) },
-                    enabled = AllSettings.gestureControl.state
-                )
-
-                ListSettingsLayout(
-                    unit = AllSettings.gestureLongPressMouseAction,
-                    items = GestureActionType.entries,
-                    title = stringResource(R.string.settings_control_gesture_long_press_action_title),
-                    summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
-                    getItemText = { stringResource(it.nameRes) },
-                    enabled = AllSettings.gestureControl.state
-                )
-
-                SliderSettingsLayout(
-                    unit = AllSettings.gestureLongPressDelay,
-                    title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
-                    summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
-                    valueRange = 100f..1000f,
-                    suffix = "ms",
-                    enabled = AllSettings.gestureControl.state,
-                    fineTuningControl = true
-                )
-            }
-
-            val yOffset4 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 150
-            )
-
-            SettingsBackground(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(x = 0, y = yOffset4.roundToPx())
-                    }
-            ) {
-                //检查陀螺仪是否可用
-                val context = LocalContext.current
-                val isGyroscopeAvailable = remember(context) {
-                    isGyroscopeAvailable(context = context)
-                }
-
-                SwitchSettingsLayout(
-                    unit = AllSettings.gyroscopeControl,
-                    title = stringResource(R.string.settings_control_gyroscope_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_summary),
-                    enabled = isGyroscopeAvailable,
-                    trailingIcon = if (!isGyroscopeAvailable) {
-                        @Composable {
+            isVisible = isVisible
+        ) { scope ->
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsLayout(
+                        unit = AllSettings.physicalMouseMode,
+                        title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
+                        summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
+                        trailingIcon = {
                             TooltipIconButton(
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                                     .padding(horizontal = 8.dp),
                                 tooltipTitle = stringResource(R.string.generic_warning),
-                                tooltipMessage = stringResource(R.string.settings_control_gyroscope_unsupported)
+                                tooltipMessage = stringResource(R.string.settings_control_mouse_physical_mouse_warning)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Warning,
@@ -282,56 +111,238 @@ fun ControlSettingsScreen(
                                 )
                             }
                         }
-                    } else null
-                )
+                    )
 
-                SliderSettingsLayout(
-                    unit = AllSettings.gyroscopeSensitivity,
-                    title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
-                    valueRange = 25f..300f,
-                    suffix = "%",
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
-                    fineTuningControl = true
-                )
+                    var operation by remember { mutableStateOf<PhysicalKeyOperation>(PhysicalKeyOperation.None) }
+                    PhysicalKeyImeTrigger(
+                        modifier = Modifier.fillMaxWidth(),
+                        operation = operation,
+                        changeOperation = { operation = it },
+                        eventViewModel = eventViewModel
+                    )
+                }
+            }
 
-                SliderSettingsLayout(
-                    unit = AllSettings.gyroscopeSampleRate,
-                    title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_sample_rate_summary),
-                    valueRange = 5f..50f,
-                    suffix = "ms",
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
-                    fineTuningControl = true
-                )
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    var arrowMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_arrow_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_arrow_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = arrowPointerFile,
+                        cursorShape = CursorShape.Arrow,
+                        mouseOperation = arrowMouseOperation,
+                        changeOperation = { arrowMouseOperation = it },
+                        submitError = submitError
+                    )
 
-                SwitchSettingsLayout(
-                    unit = AllSettings.gyroscopeSmoothing,
-                    title = stringResource(R.string.settings_control_gyroscope_smoothing_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_smoothing_summary),
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
-                )
+                    var linkMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_link_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_link_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = linkPointerFile,
+                        cursorShape = CursorShape.Hand,
+                        mouseOperation = linkMouseOperation,
+                        changeOperation = { linkMouseOperation = it },
+                        submitError = submitError
+                    )
 
-                SliderSettingsLayout(
-                    unit = AllSettings.gyroscopeSmoothingWindow,
-                    title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_smoothing_window_summary),
-                    valueRange = 2f..10f,
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state
-                )
+                    var ibeamMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_ibeam_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_ibeam_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = iBeamPointerFile,
+                        cursorShape = CursorShape.IBeam,
+                        mouseOperation = ibeamMouseOperation,
+                        changeOperation = { ibeamMouseOperation = it },
+                        submitError = submitError
+                    )
 
-                SwitchSettingsLayout(
-                    unit = AllSettings.gyroscopeInvertX,
-                    title = stringResource(R.string.settings_control_gyroscope_invert_x_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_invert_x_summary),
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
-                )
+                    SliderSettingsLayout(
+                        unit = AllSettings.mouseSize,
+                        title = stringResource(R.string.settings_control_mouse_size_title),
+                        valueRange = 5f..50f,
+                        suffix = "Dp",
+                        fineTuningControl = true
+                    )
+                }
+            }
 
-                SwitchSettingsLayout(
-                    unit = AllSettings.gyroscopeInvertY,
-                    title = stringResource(R.string.settings_control_gyroscope_invert_y_title),
-                    summary = stringResource(R.string.settings_control_gyroscope_invert_y_summary),
-                    enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
-                )
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsLayout(
+                        unit = AllSettings.hideMouse,
+                        title = stringResource(R.string.settings_control_mouse_hide_title),
+                        summary = stringResource(R.string.settings_control_mouse_hide_summary),
+                        enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
+                    )
+
+                    ListSettingsLayout(
+                        unit = AllSettings.mouseControlMode,
+                        items = MouseControlMode.entries,
+                        title = stringResource(R.string.settings_control_mouse_control_mode_title),
+                        summary = stringResource(R.string.settings_control_mouse_control_mode_summary),
+                        getItemText = { stringResource(it.nameRes) }
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.cursorSensitivity,
+                        title = stringResource(R.string.settings_control_mouse_sensitivity_title),
+                        summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
+                        valueRange = 25f..300f,
+                        suffix = "%",
+                        fineTuningControl = true
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.mouseCaptureSensitivity,
+                        title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
+                        summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
+                        valueRange = 25f..300f,
+                        suffix = "%",
+                        fineTuningControl = true
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.mouseLongPressDelay,
+                        title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
+                        summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
+                        valueRange = 100f..1000f,
+                        suffix = "ms",
+                        fineTuningControl = true
+                    )
+                }
+            }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    SwitchSettingsLayout(
+                        unit = AllSettings.gestureControl,
+                        title = stringResource(R.string.settings_control_gesture_control_title),
+                        summary = stringResource(R.string.settings_control_gesture_control_summary)
+                    )
+
+                    ListSettingsLayout(
+                        unit = AllSettings.gestureTapMouseAction,
+                        items = GestureActionType.entries,
+                        title = stringResource(R.string.settings_control_gesture_tap_action_title),
+                        summary = stringResource(R.string.settings_control_gesture_tap_action_summary),
+                        getItemText = { stringResource(it.nameRes) },
+                        enabled = AllSettings.gestureControl.state
+                    )
+
+                    ListSettingsLayout(
+                        unit = AllSettings.gestureLongPressMouseAction,
+                        items = GestureActionType.entries,
+                        title = stringResource(R.string.settings_control_gesture_long_press_action_title),
+                        summary = stringResource(R.string.settings_control_gesture_long_press_action_summary),
+                        getItemText = { stringResource(it.nameRes) },
+                        enabled = AllSettings.gestureControl.state
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.gestureLongPressDelay,
+                        title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
+                        summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
+                        valueRange = 100f..1000f,
+                        suffix = "ms",
+                        enabled = AllSettings.gestureControl.state,
+                        fineTuningControl = true
+                    )
+                }
+            }
+
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    //检查陀螺仪是否可用
+                    val context = LocalContext.current
+                    val isGyroscopeAvailable = remember(context) {
+                        isGyroscopeAvailable(context = context)
+                    }
+
+                    SwitchSettingsLayout(
+                        unit = AllSettings.gyroscopeControl,
+                        title = stringResource(R.string.settings_control_gyroscope_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_summary),
+                        enabled = isGyroscopeAvailable,
+                        trailingIcon = if (!isGyroscopeAvailable) {
+                            @Composable {
+                                TooltipIconButton(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .padding(horizontal = 8.dp),
+                                    tooltipTitle = stringResource(R.string.generic_warning),
+                                    tooltipMessage = stringResource(R.string.settings_control_gyroscope_unsupported)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = stringResource(R.string.generic_warning),
+                                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                        } else null
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.gyroscopeSensitivity,
+                        title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
+                        valueRange = 25f..300f,
+                        suffix = "%",
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                        fineTuningControl = true
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.gyroscopeSampleRate,
+                        title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_sample_rate_summary),
+                        valueRange = 5f..50f,
+                        suffix = "ms",
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
+                        fineTuningControl = true
+                    )
+
+                    SwitchSettingsLayout(
+                        unit = AllSettings.gyroscopeSmoothing,
+                        title = stringResource(R.string.settings_control_gyroscope_smoothing_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_smoothing_summary),
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                    )
+
+                    SliderSettingsLayout(
+                        unit = AllSettings.gyroscopeSmoothingWindow,
+                        title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_smoothing_window_summary),
+                        valueRange = 2f..10f,
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state
+                    )
+
+                    SwitchSettingsLayout(
+                        unit = AllSettings.gyroscopeInvertX,
+                        title = stringResource(R.string.settings_control_gyroscope_invert_x_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_invert_x_summary),
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                    )
+
+                    SwitchSettingsLayout(
+                        unit = AllSettings.gyroscopeInvertY,
+                        title = stringResource(R.string.settings_control_gyroscope_invert_y_title),
+                        summary = stringResource(R.string.settings_control_gyroscope_invert_y_summary),
+                        enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
+                    )
+                }
             }
         }
     }
@@ -441,7 +452,11 @@ private sealed interface MousePointerOperation {
 
 @Composable
 private fun MousePointerLayout(
+    title: String,
+    summary: String,
     mouseSize: Int,
+    mousePointerFile: File,
+    cursorShape: CursorShape,
     mouseOperation: MousePointerOperation,
     changeOperation: (MousePointerOperation) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
@@ -504,8 +519,8 @@ private fun MousePointerLayout(
                 .padding(bottom = 4.dp)
         ) {
             TitleAndSummary(
-                title = stringResource(R.string.settings_control_mouse_pointer_title),
-                summary = stringResource(R.string.settings_control_mouse_pointer_summary)
+                title = title,
+                summary = summary
             )
         }
 
@@ -518,7 +533,10 @@ private fun MousePointerLayout(
             MousePointer(
                 modifier = Modifier.padding(all = 8.dp),
                 mouseSize = mouseSize.dp,
-                mouseFile = mousePointerFile,
+                cursorShape = cursorShape,
+                arrowMouseFile = mousePointerFile,
+                linkMouseFile = mousePointerFile,
+                iBeamMouseFile = mousePointerFile,
                 centerIcon = true,
                 triggerRefresh = triggerState
             )

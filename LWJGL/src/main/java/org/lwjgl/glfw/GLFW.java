@@ -1207,10 +1207,26 @@ public class GLFW
         return 4L;
     }
     public static long glfwCreateStandardCursor(int shape) {
-        return 4L;
+        switch (shape) {
+            case GLFW_IBEAM_CURSOR: return 5L;
+            case GLFW_HAND_CURSOR: return 6L;
+            //Default
+            case GLFW_ARROW_CURSOR:
+            default: return 4L;
+        }
     }
     public static void glfwDestroyCursor(@NativeType("GLFWcursor *") long cursor) {}
-    public static void glfwSetCursor(@NativeType("GLFWwindow *") long window, @NativeType("GLFWcursor *") long cursor) {}
+    public static void glfwSetCursor(@NativeType("GLFWwindow *") long window, @NativeType("GLFWcursor *") long cursor) {
+        if (cursor == 4L) {
+            CallbackBridge.nativeSetCursorShape(GLFW_ARROW_CURSOR);
+        } else if (cursor == 5L) {
+            CallbackBridge.nativeSetCursorShape(GLFW_IBEAM_CURSOR);
+        } else if (cursor == 6L) {
+            CallbackBridge.nativeSetCursorShape(GLFW_HAND_CURSOR);
+        } else {
+            CallbackBridge.nativeSetCursorShape(GLFW_ARROW_CURSOR);
+        }
+    }
 
     public static boolean glfwRawMouseMotionSupported() {
         // Should be not supported?

@@ -466,6 +466,7 @@
     <string name="files_current_path">当前路径：%s</string>
     <string name="files_no_selectable_content">该目录没有可选内容</string>
     <string name="file_invalid_length">名称过长！(当前长度：%d，最大长度：%d)</string>
+    <string name="file_invalid_leading_or_trailing_space">不能以空格开头或结尾！</string>
     <!--  Jre  -->
     <string name="multirt_runtime_corrupt">Java 运行环境损坏</string>
     <string name="multirt_runtime_incompatible_arch">不兼容的架构：%s</string>
@@ -691,8 +692,12 @@
     <string name="settings_control_mouse_control_mode_summary">选择虚拟鼠标的操作方式：滑动屏幕移动光标，或点击屏幕指定位置</string>
     <string name="settings_control_mouse_control_mode_slide">滑动控制</string>
     <string name="settings_control_mouse_control_mode_click">点击控制</string>
-    <string name="settings_control_mouse_pointer_title">虚拟鼠标指针</string>
-    <string name="settings_control_mouse_pointer_summary">自定义虚拟鼠标指针的图片以匹配个人需求</string>
+    <string name="settings_control_mouse_pointer_arrow_title">虚拟鼠标指针（默认）</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">自定义默认虚拟鼠标指针的图片以匹配个人需求</string>
+    <string name="settings_control_mouse_pointer_link_title">虚拟鼠标指针（手形）</string>
+    <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ 支持在可交互的组件上，让鼠标指针切换到手形</string>
+    <string name="settings_control_mouse_pointer_ibeam_title">虚拟鼠标指针（输入光标）</string>
+    <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ 支持在输入框组件上，让鼠标指针切换到输入光标的形状</string>
     <string name="settings_control_mouse_pointer_reset_message">您确定要重置虚拟鼠标指针的图片吗？</string>
     <string name="settings_control_mouse_long_press_delay_title">虚拟鼠标长按触发的延迟</string>
     <string name="settings_control_mouse_long_press_delay_summary">设置屏幕长按识别的延迟时间（实体鼠标长按不受此设置影响，包括禁用实体鼠标控制时）</string>

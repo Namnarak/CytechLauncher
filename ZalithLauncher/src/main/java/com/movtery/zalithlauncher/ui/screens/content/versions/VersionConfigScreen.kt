@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -35,6 +34,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
 import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
@@ -48,7 +48,6 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckSta
 import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
-import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -75,47 +74,36 @@ fun VersionConfigScreen(
     ) { isVisible ->
         val config = version.getVersionConfig()
 
-        Column(
+        AnimatedColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val yOffset1 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
-            )
+            isVisible = isVisible
+        ) { scope ->
+            AnimatedItem(scope) { yOffset ->
+                VersionConfigs(
+                    config = config,
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    submitError = submitError
+                )
+            }
 
-            VersionConfigs(
-                config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset1.roundToPx()) },
-                submitError = submitError
-            )
+            AnimatedItem(scope) { yOffset ->
+                GameConfigs(
+                    config = config,
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    submitError = submitError
+                )
+            }
 
-            val yOffset2 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 50
-            )
-
-            GameConfigs(
-                config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset2.roundToPx()) },
-                submitError = submitError
-            )
-
-            val yOffset3 by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible,
-                delayMillis = 100
-            )
-
-            SupportConfigs(
-                config = config,
-                modifier = Modifier.offset { IntOffset(x = 0, y = yOffset3.roundToPx()) },
-                submitError = submitError
-            )
+            AnimatedItem(scope) { yOffset ->
+                SupportConfigs(
+                    config = config,
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    submitError = submitError
+                )
+            }
         }
     }
 }

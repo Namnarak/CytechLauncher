@@ -27,22 +27,30 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.bridge.CursorShape
+import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.file.child
+import com.movtery.zalithlauncher.utils.file.ifExists
 import java.io.File
 
 /**
- * 鼠标指针图片文件
+ * 默认（箭头）鼠标指针图片文件
  */
-val mousePointerFile: File = PathManager.DIR_MOUSE_POINTER.child("default_pointer.image")
+val arrowPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("default_pointer.image")
 
 /**
- * 获取鼠标指针图片（检查是否存在）
+ * 手形鼠标指针图片文件
  */
-fun getMousePointerFileAvailable(): File? = mousePointerFile.takeIf { it.exists() }
+val linkPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("link_pointer.image")
+
+/**
+ * 输入鼠标指针图片文件
+ */
+val iBeamPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("ibeam_pointer.image")
 
 /**
  * 虚拟指针模拟层
@@ -122,12 +130,16 @@ fun VirtualPointerLayout(
     Box(modifier = modifier) {
         if (showMousePointer) {
             MousePointer(
-                modifier = Modifier.absoluteOffset(
-                    x = with(LocalDensity.current) { pointerPosition.x.toDp() },
-                    y = with(LocalDensity.current) { pointerPosition.y.toDp() }
+                modifier = Modifier.mouseFixedPosition(
+                    mouseSize = mouseSize,
+                    cursorShape = ZLBridgeStates.cursorShape,
+                    pointerPosition = pointerPosition
                 ),
+                cursorShape = ZLBridgeStates.cursorShape,
                 mouseSize = mouseSize,
-                mouseFile = getMousePointerFileAvailable()
+                arrowMouseFile = arrowPointerFile.ifExists(),
+                linkMouseFile = linkPointerFile.ifExists(),
+                iBeamMouseFile = iBeamPointerFile.ifExists()
             )
         }
 
@@ -136,6 +148,7 @@ fun VirtualPointerLayout(
             controlMode = controlMode,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
+            pointerIcon = ZLBridgeStates.cursorShape.composeIcon,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == MouseControlMode.CLICK) {
@@ -190,11 +203,34 @@ fun VirtualPointerLayout(
     }
 }
 
+/**
+ * 虚拟鼠标位置修饰，根据大小、指针形状，结合实际指针位置
+ * 计算出合适的指针位置
+ */
+@Composable
+fun Modifier.mouseFixedPosition(
+    mouseSize: Dp,
+    cursorShape: CursorShape,
+    pointerPosition: Offset
+): Modifier {
+    val sizePx = with(LocalDensity.current) { mouseSize.toPx() }
+    val x = if (cursorShape == CursorShape.IBeam) pointerPosition.x - sizePx / 2 else pointerPosition.x
+    val y = if (cursorShape == CursorShape.IBeam) pointerPosition.y - sizePx / 2 else pointerPosition.y
+
+    return this.absoluteOffset(
+        x = with(LocalDensity.current) { x.toDp() },
+        y = with(LocalDensity.current) { y.toDp() }
+    )
+}
+
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
-    mouseFile: File?,
+    cursorShape: CursorShape = CursorShape.Arrow,
+    arrowMouseFile: File?,
+    linkMouseFile: File? = null,
+    iBeamMouseFile: File? = null,
     centerIcon: Boolean = false,
     triggerRefresh: Any? = null
 ) {
@@ -206,38 +242,44 @@ fun MousePointer(
             .build()
     }
 
-    val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
-    val imageModifier = modifier.size(mouseSize)
+    val cursorImages = remember(triggerRefresh, arrowMouseFile, linkMouseFile, iBeamMouseFile, context) {
+        mapOf(
+            CursorShape.Arrow to (
+                    arrowMouseFile?.takeIf { it.exists() }?.let {
+                        ImageRequest.Builder(context).data(it).build()
+                    } ?: R.drawable.img_mouse_pointer_arrow
+            ),
 
-    val (model, defaultRes) = remember(mouseFile, triggerRefresh, context) {
-        val default = null to R.drawable.img_mouse_pointer
-        when {
-            mouseFile == null -> default
-            else -> {
-                if (mouseFile.exists()) {
-                    val model = ImageRequest.Builder(context)
-                        .data(mouseFile)
-                        .build()
-                    model to null
-                } else {
-                    default
-                }
-            }
-        }
+            CursorShape.IBeam to (
+                    iBeamMouseFile?.takeIf { it.exists() }?.let {
+                        ImageRequest.Builder(context).data(it).build()
+                    } ?: R.drawable.img_mouse_pointer_ibeam
+            ),
+
+            CursorShape.Hand to (
+                    linkMouseFile?.takeIf { it.exists() }?.let {
+                        ImageRequest.Builder(context).data(it).build()
+                    } ?: R.drawable.img_mouse_pointer_link
+            )
+        )
     }
 
-    if (model != null) {
-        AsyncImage(
-            model = model,
-            imageLoader = imageLoader,
+    val imageAlignment = if (centerIcon || cursorShape == CursorShape.IBeam) Alignment.Center else Alignment.TopStart
+    val imageModifier = modifier.size(mouseSize)
+
+    val modelOrRes = cursorImages[cursorShape]
+
+    when (modelOrRes) {
+        is Int -> Image(
+            painter = painterResource(id = modelOrRes),
             contentDescription = null,
             alignment = imageAlignment,
             contentScale = ContentScale.Fit,
             modifier = imageModifier
         )
-    } else {
-        Image(
-            painter = painterResource(id = defaultRes!!),
+        is ImageRequest -> AsyncImage(
+            model = modelOrRes,
+            imageLoader = imageLoader,
             contentDescription = null,
             alignment = imageAlignment,
             contentScale = ContentScale.Fit,
