@@ -17,6 +17,11 @@ public class InvalidFilenameException extends RuntimeException {
         this.invalidLength = invalidLength;
     }
 
+    public InvalidFilenameException(String message, @SuppressWarnings("unused") boolean isLeadingOrTrailingSpace) {
+        super(message);
+        this.type = FilenameErrorType.LEADING_OR_TRAILING_SPACE;
+    }
+
     public boolean containsIllegalCharacters() {
         return type == FilenameErrorType.CONTAINS_ILLEGAL_CHARACTERS;
     }
@@ -33,8 +38,22 @@ public class InvalidFilenameException extends RuntimeException {
         return invalidLength;
     }
 
+    public boolean isLeadingOrTrailingSpace() {
+        return type == FilenameErrorType.LEADING_OR_TRAILING_SPACE;
+    }
+
     private enum FilenameErrorType {
+        /**
+         * 包含非法字符
+         */
         CONTAINS_ILLEGAL_CHARACTERS,
-        INVALID_LENGTH
+        /**
+         * 长度不合法
+         */
+        INVALID_LENGTH,
+        /**
+         * 以空格开头或结尾
+         */
+        LEADING_OR_TRAILING_SPACE
     }
 }

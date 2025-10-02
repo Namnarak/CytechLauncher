@@ -104,6 +104,10 @@ fun checkFilenameValidity(str: String) {
     if (str.length > 255) {
         throw InvalidFilenameException("Invalid filename length", str.length)
     }
+
+    if (str.startsWith(" ") || str.endsWith(" ")) {
+        throw InvalidFilenameException("The filename starts or ends with a space", true)
+    }
 }
 
 /**
