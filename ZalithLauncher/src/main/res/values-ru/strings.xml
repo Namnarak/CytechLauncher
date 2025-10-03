@@ -31,7 +31,7 @@
     <string name="generic_input_too_large">Значение не может быть больше %s</string>
     <string name="generic_unpacking">Распаковка %s</string>
     <string name="generic_unknown">Неизвестно</string>
-    <string name="generic_follow_global">Следовать общим настройкам</string>
+    <string name="generic_follow_global">По умолчанию</string>
     <string name="generic_custom">Кастом</string>
     <string name="generic_search">Поиск</string>
     <string name="generic_loading">Загрузка</string>
@@ -283,7 +283,7 @@
     <string name="versions_overview_edit_version_summary">Редактировать описание</string>
     <string name="versions_overview_edit_version_summary_label">Оставьте пустым для значения по умолчанию</string>
     <string name="versions_overview_version_folder">Папка версии</string>
-    <string name="versions_overview_saves_folder">Папка сохранений</string>
+    <string name="versions_overview_saves_folder">Папка миров</string>
     <string name="versions_overview_resource_pack_folder">Папка с ресурсным паком</string>
     <string name="versions_overview_shaders_pack_folder">Папка с шейдерами</string>
     <string name="versions_overview_screenshot_folder">Папка с скриншотами</string>
@@ -329,7 +329,7 @@
     <string name="saves_manage_delete_warning">Вы уверены, что хотите удалить сохранение %s? Это действие нельзя отменить!</string>
     <string name="saves_manage_quick_play">Быстрая игра</string>
     <string name="saves_manage_quick_play_disabled">Быстрая игра (только для 1.20+)</string>
-    <string name="saves_manage_no_saves">Нет сохранений для этой версии</string>
+    <string name="saves_manage_no_saves">Нет миров для этой версии</string>
     <string name="resource_pack_manage">Управление ресурс-паками</string>
     <string name="resource_pack_manage_info">Информация о ресурс-паке</string>
     <string name="resource_pack_manage_invalid">Недопустимый формат ресурс-пака</string>
@@ -863,4 +863,28 @@
     <string name="about_acknowledgements_github_community_text">Все, кто сообщал о проблемах и вносил свой вклад в развитие проекта на GitHub.</string>
     <string name="about_acknowledgements_weblate_community">Сообщество Weblate</string>
     <string name="about_acknowledgements_weblate_community_text">Все переводчики, принявшие участие в локализации проекта</string>
+    <string name="file_invalid_leading_or_trailing_space">Не может начинаться или заканчиваться пробелом!</string>
+    <string name="mods_update">Обновить моды</string>
+    <string name="mods_update_warning_1">Перед проверкой модов на обновления учтите: обновление большого количества модов может вызвать совместимости и привести к проблемам на ранее стабильной сборке.</string>
+    <string name="mods_update_warning_2">Лаунчер пока не умеет показывать списки изменений в модах. Вы можете самостоятельно узнать, что изменилось в обновлениях.</string>
+    <string name="mods_update_warning_3">Лаунчер может обновить моды только до последней версии, и это действие необратимо. Пожалуйста, внимательно выберите, какие моды обновить.</string>
+    <string name="mods_update_task_filter">Фильтрование данных модов</string>
+    <string name="mods_update_task_check_update">Проверка на наличие обновлений для модов</string>
+    <string name="mods_update_task_wait_for_user">Ожидание подтверждения пользователя на обновление модов</string>
+    <string name="mods_update_task_show">Следующие моды будут обновлены</string>
+    <string name="mods_update_task_download">Скачивание новых версий модов</string>
+    <string name="mods_update_task_replace">Заменение файлов модов</string>
+    <string name="mods_update_no_mods_update">Все моды уже имеют последнюю версию, обновление не требуется.</string>
+    <string name="mods_update_updating">Обновление всех модов (%1$d/%2$d, %3$s)</string>
+    <string name="mods_update_updating_retry">Повторная попытка обновления всех модов (%1$d/%2$d, %3$s)</string>
+    <string name="mods_update_success">Обновление завершено успешно</string>
+    <string name="mods_update_success_text">Все выбранные моды были успешно обновлены до последней версии!</string>
+    <string name="mods_update_failed">Неудачное обновление модов</string>
+    <string name="mods_update_failed_text">При обновлении модов произошла ошибка:</string>
+    <string name="settings_control_mouse_pointer_arrow_title">Курсор виртуальной мыши (По умолчанию)</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">Настройте пикчу курсора виртуальной мыши по своим предпочтениям</string>
+    <string name="settings_control_mouse_pointer_link_title">Курсор виртуальной мыши (Рука)</string>
+    <string name="settings_control_mouse_pointer_link_summary">В Minecraft 1.21.9+ можно переключить указатель мыши на форму руки при наведении на интерактивные предметы</string>
+    <string name="settings_control_mouse_pointer_ibeam_title">Курсор виртуальной мыши (Текстовый курсор)</string>
+    <string name="settings_control_mouse_pointer_ibeam_summary">В Minecraft 1.21.9+ указатель мыши меняется на текстовый курсор (I-образный) при наведении на поля ввода</string>
 </resources>
