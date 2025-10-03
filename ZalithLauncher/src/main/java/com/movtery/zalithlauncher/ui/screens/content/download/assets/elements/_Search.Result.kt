@@ -53,11 +53,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeData
-import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.ModrinthSearchResult
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -90,13 +89,12 @@ sealed interface SearchAssetsState {
 
 /**
  * 资源搜索结果展示列表
- * @param mapCategories 通过平台获取类别本地化信息
- * @param mapModLoaders Modrinth将模组加载器信息包含在Categories内，单独获取
  * @param swapToDownload 跳转到下载详情页
  */
 @Composable
 fun ResultListLayout(
     modifier: Modifier = Modifier,
+    classes: PlatformClasses,
     searchState: SearchAssetsState,
     controllerHeight: Dp = 54.dp,
     controllerMinScale: Float = 0.9f,
@@ -104,8 +102,6 @@ fun ResultListLayout(
     onReload: () -> Unit = {},
     onPreviousPage: (pageNumber: Int) -> Unit,
     onNextPage: (pageNumber: Int, isLastPage: Boolean) -> Unit,
-    mapCategories: (Platform, String) -> PlatformFilterCode?,
-    mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     when (val state = searchState) {
@@ -138,9 +134,8 @@ fun ResultListLayout(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
                     contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 60.dp, bottom = 6.dp),
+                    classes = classes,
                     data = page.data,
-                    mapCategories = mapCategories,
-                    mapModLoaders = mapModLoaders,
                     swapToDownload = swapToDownload
                 )
 
@@ -248,9 +243,8 @@ private fun ResultList(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(),
+    classes: PlatformClasses,
     data: List<Pair<PlatformSearchData, ModTranslations.McMod?>>,
-    mapCategories: (Platform, String) -> PlatformFilterCode?,
-    mapModLoaders: (String) -> PlatformDisplayLabel? = { null },
     swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
@@ -260,74 +254,32 @@ private fun ResultList(
         contentPadding = contentPadding
     ) {
         items(data) { (item, mcmod) ->
-            val itemModifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp)
+            val title = remember(item) { item.platformTitle() }
+            val description = remember(item) { item.platformDescription() }
+            val iconUrl = remember(item) { item.platformIconUrl() }
+            val author = remember(item) { item.platformAuthor() }
+            val downloads = remember(item) { item.platformDownloadCount() }
+            val follows = remember(item) { item.platformFollows() }
+            val modloaders = remember(item) { item.platformModLoaders() }
+            val categories = remember(item, classes) { item.platformCategories(classes) }
 
-            when (item) {
-                is ModrinthSearchResult.ModrinthProject -> {
-                    val modloaders = item.displayCategories
-                        ?.mapNotNull {
-                            mapModLoaders(it)
-                        }
-                        ?.toSet()
-                        ?.takeIf { it.isNotEmpty() }
-
-                    val categories = item.displayCategories
-                        ?.mapNotNull {
-                            mapCategories(Platform.MODRINTH, it)
-                        }
-                        ?.toSet()
-                        ?.takeIf { it.isNotEmpty() }
-                        ?: item.categories
-                            ?.take(4) //没有主要类别，则展示前4个
-                            ?.mapNotNull {
-                                mapCategories(Platform.MODRINTH, it)
-                            }
-                            ?.toSet()
-                            ?.takeIf { it.isNotEmpty() }
-
-                    ResultItemLayout(
-                        modifier = itemModifier,
-                        platform = Platform.MODRINTH,
-                        title = mcmod.getMcmodTitle(item.title ?: "", context),
-                        description = item.description ?: "",
-                        iconUrl = item.iconUrl,
-                        author = item.author,
-                        downloads = item.downloads,
-                        follows = item.follows,
-                        modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
-                        categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
-                        onClick = {
-                            swapToDownload(Platform.MODRINTH, item.projectId, item.iconUrl)
-                        }
-                    )
+            ResultItemLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                platform = Platform.MODRINTH,
+                title = mcmod.getMcmodTitle(title, context),
+                description = description,
+                iconUrl = iconUrl,
+                author = author,
+                downloads = downloads,
+                follows = follows,
+                modloaders = modloaders,
+                categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
+                onClick = {
+                    swapToDownload(Platform.MODRINTH, item.platformId(), iconUrl)
                 }
-                is CurseForgeData -> {
-                    val modloaders: Set<PlatformDisplayLabel>? = item.latestFilesIndexes.mapNotNull {
-                        it.modLoader //通过最新文件获取模组加载器信息
-                    }.toSet().takeIf { it.isNotEmpty() }
-
-                    val categories = item.categories.mapNotNull {
-                        mapCategories(Platform.CURSEFORGE, it.id.toString())
-                    }.toSet().takeIf { it.isNotEmpty() }
-
-                    ResultItemLayout(
-                        modifier = itemModifier,
-                        platform = Platform.CURSEFORGE,
-                        title = mcmod.getMcmodTitle(item.name, context),
-                        description = item.summary,
-                        iconUrl = item.logo.url,
-                        author = item.authors[0].name,
-                        downloads = item.downloadCount,
-                        modloaders = modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() },
-                        categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
-                        onClick = {
-                            swapToDownload(Platform.CURSEFORGE, item.id.toString(), item.logo.url)
-                        }
-                    )
-                }
-            }
+            )
         }
     }
 }

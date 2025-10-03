@@ -288,6 +288,8 @@ class CurseForgeFile(
     override fun platformSha1(): String? = thisPrimaryFile.getSHA1()
 
     override fun platformFileSize(): Long = thisPrimaryFile.fileLength
+
+    override fun platformVersion(): String = displayName
 }
 
 /**

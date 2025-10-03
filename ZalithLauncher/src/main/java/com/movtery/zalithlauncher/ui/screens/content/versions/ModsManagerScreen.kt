@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
@@ -82,6 +84,7 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
@@ -90,6 +93,8 @@ import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.game.version.mod.isEnabled
+import com.movtery.zalithlauncher.game.version.mod.update.ModData
+import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -103,7 +108,9 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.As
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsConfirmOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsUpdateOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterMods
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -118,6 +125,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -125,6 +133,8 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.util.LinkedList
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 
 private class ModsManageViewModel(
     modsDir: File
@@ -260,15 +270,114 @@ private class ModsManageViewModel(
     }
 }
 
+
+// ------------
+// 模组更新
+// ------------
+private class ModsUpdaterViewModel(
+    private val modsDir: File,
+    private val version: Version
+) : ViewModel() {
+    var modsUpdateOperation by mutableStateOf<ModsUpdateOperation>(ModsUpdateOperation.None)
+    var modsConfirmOperation by mutableStateOf<ModsConfirmOperation>(ModsConfirmOperation.None)
+
+    //等待用户确认模组更新
+    private var waitingUserContinuation: (Continuation<Boolean>)? = null
+    suspend fun waitingForUserConfirm(map: Map<ModData, PlatformVersion>): Boolean {
+        return suspendCancellableCoroutine { cont ->
+            waitingUserContinuation = cont
+            modsConfirmOperation = ModsConfirmOperation.WaitingConfirm(map)
+        }
+    }
+
+    /**
+     * 用户确认更新模组
+     */
+    fun modsUserConfirm(confirm: Boolean) {
+        waitingUserContinuation?.resume(confirm)
+        waitingUserContinuation = null
+        modsConfirmOperation = ModsConfirmOperation.None
+    }
+
+    /**
+     * 模组更新器
+     */
+    var modsUpdater by mutableStateOf<ModUpdater?>(null)
+
+    fun update(
+        context: Context,
+        mods: List<RemoteMod>,
+        refreshMods: () -> Unit
+    ) {
+        val minecraftVer = version.getVersionInfo()!!.minecraftVersion
+        val modLoader = version.getVersionInfo()!!.loaderInfo!!.loader
+
+        modsUpdater = ModUpdater(
+            context = context,
+            mods = mods,
+            modsDir = modsDir,
+            minecraft = minecraftVer,
+            modLoader = modLoader,
+            scope = viewModelScope,
+            waitForUserConfirm = ::waitingForUserConfirm
+        ).also {
+            it.updateAll(
+                onUpdated = {
+                    modsUpdater = null
+                    refreshMods()
+                    modsUpdateOperation = ModsUpdateOperation.Success
+                },
+                onNoModUpdates = {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, context.getString(R.string.mods_update_no_mods_update), Toast.LENGTH_SHORT).show()
+                    }
+                    modsUpdater = null
+                    modsUpdateOperation = ModsUpdateOperation.None
+                },
+                onCancelled = {
+                    modsUpdater = null
+                    modsUpdateOperation = ModsUpdateOperation.None
+                },
+                onError = { th ->
+                    modsUpdater = null
+                    refreshMods()
+                    modsUpdateOperation = ModsUpdateOperation.Error(th)
+                }
+            )
+        }
+    }
+
+    fun cancel() {
+        modsUpdater?.cancel()
+        modsUpdater = null
+    }
+
+    override fun onCleared() {
+        cancel()
+    }
+}
+
 @Composable
 private fun rememberModsManageViewModel(
     version: Version,
-    modsDir: File,
+    modsDir: File
 ): ModsManageViewModel {
     return viewModel(
         key = version.toString() + "_" + VersionFolders.MOD.folderName
     ) {
         ModsManageViewModel(modsDir)
+    }
+}
+
+@Composable
+private fun rememberModsUpdaterViewModel(
+    version: Version,
+    modsDir: File
+): ModsUpdaterViewModel {
+    return viewModel(
+        key = version.toString() + "_ModsUpdater"
+    ) {
+        ModsUpdaterViewModel(modsDir = modsDir, version = version)
     }
 }
 
@@ -297,6 +406,33 @@ fun ModsManagerScreen(
     ) { isVisible ->
         val modsDir = File(version.getGameDir(), VersionFolders.MOD.folderName)
         val viewModel = rememberModsManageViewModel(version, modsDir)
+        val updaterViewModel = rememberModsUpdaterViewModel(version, modsDir)
+
+        ModsUpdateOperation(
+            operation = updaterViewModel.modsUpdateOperation,
+            changeOperation = { updaterViewModel.modsUpdateOperation = it },
+            modsUpdater = updaterViewModel.modsUpdater,
+            onUpdate = { mods ->
+                updaterViewModel.update(context, mods) {
+                    //刷新模组
+                    viewModel.refresh(context)
+                }
+            },
+            onCancel = {
+                updaterViewModel.cancel()
+            }
+        )
+
+        ModsConfirmOperation(
+            operation = updaterViewModel.modsConfirmOperation,
+            changeOperation = { updaterViewModel.modsConfirmOperation = it },
+            onCancel = {
+                updaterViewModel.modsUserConfirm(false)
+            },
+            onConfirm = {
+                updaterViewModel.modsUserConfirm(true)
+            }
+        )
 
         val yOffset by swapAnimateDpAsState(
             targetValue = (-40).dp,
@@ -346,6 +482,11 @@ fun ModsManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
+                            //模组加载器信息已确认的情况下，才能够确保模组能够正常更新
+                            canUpdateMods = version.getVersionInfo()?.loaderInfo != null,
+                            onUpdateMods = {
+                                updaterViewModel.modsUpdateOperation = ModsUpdateOperation.Warning(viewModel.selectedMods)
+                            },
                             modsDir = modsDir,
                             isModsSelected = viewModel.selectedMods.isNotEmpty(),
                             onClearModsSelected = { viewModel.selectedMods.clear() },
@@ -412,6 +553,8 @@ private fun ModsActionsHeader(
     inputFieldContentColor: Color,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit,
+    canUpdateMods: Boolean,
+    onUpdateMods: () -> Unit,
     modsDir: File,
     isModsSelected: Boolean,
     onClearModsSelected: () -> Unit,
@@ -445,6 +588,17 @@ private fun ModsActionsHeader(
                 visible = isModsSelected
             ) {
                 Row {
+                    if (canUpdateMods) {
+                        IconButton(
+                            onClick = onUpdateMods
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Update,
+                                contentDescription = null
+                            )
+                        }
+                    }
+
                     IconButton(
                         onClick = {
                             if (isModsSelected) onClearModsSelected()

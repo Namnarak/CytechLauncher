@@ -1,10 +1,23 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth
 
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthFeatures
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModpackCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthProjectType
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthResourcePackCategory
+import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthShadersCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthSide
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.MonetizationStatus
+import com.movtery.zalithlauncher.game.download.assets.platform.searchRankWithChineseBias
+import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsPage
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -36,7 +49,7 @@ class ModrinthSearchResult(
      */
     @SerialName("total_hits")
     val totalHits: Int
-) : PlatformSearchResult {
+): PlatformSearchResult {
     @Serializable
     class ModrinthProject(
         /**
@@ -176,5 +189,86 @@ class ModrinthSearchResult(
          */
         @SerialName("monetization_status")
         val monetizationStatus: MonetizationStatus? = null,
-    ) : PlatformSearchData
+    ) : PlatformSearchData {
+        override fun platform(): Platform = Platform.MODRINTH
+
+        override fun platformId(): String = projectId
+
+        override fun platformTitle(): String = title ?: ""
+
+        override fun platformDescription(): String = description ?: ""
+
+        override fun platformAuthor(): String = author
+
+        override fun platformIconUrl(): String? = iconUrl
+
+        override fun platformDownloadCount(): Long = downloads
+
+        override fun platformFollows(): Long? = follows
+
+        override fun platformModLoaders(): List<PlatformDisplayLabel>? {
+            val modloaders = displayCategories
+                ?.mapNotNull { string ->
+                    ModrinthModLoaderCategory.entries.find { it.facetValue() == string }
+                }
+                ?.toSet()
+                ?.takeIf { it.isNotEmpty() }
+
+            return modloaders?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+        }
+
+        override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
+            fun map(string: String): PlatformFilterCode? {
+                val mapValues = when (classes) {
+                    PlatformClasses.MOD -> ModrinthModCategory.entries
+                    PlatformClasses.MOD_PACK -> ModrinthModpackCategory.entries
+                    PlatformClasses.RESOURCE_PACK -> ModrinthResourcePackCategory.entries
+                    PlatformClasses.SAVES -> null
+                    PlatformClasses.SHADERS -> ModrinthShadersCategory.entries
+                }
+                return mapValues?.find { it.facetValue() == string }
+                    ?: ModrinthFeatures.entries.find { it.facetValue() == string }
+            }
+
+            val categories = displayCategories
+                ?.mapNotNull { string ->
+                    map(string)
+                }
+                ?.toSet()
+                ?.takeIf { it.isNotEmpty() }
+                ?: categories
+                    ?.take(4) //没有主要类别，则展示前4个
+                    ?.mapNotNull { string ->
+                        map(string)
+                    }
+                    ?.toSet()
+                    ?.takeIf { it.isNotEmpty() }
+
+            return categories?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+        }
+    }
+
+    override fun getAssetsPage(classes: PlatformClasses): AssetsPage {
+        val mcmodData = hits.map {
+            it to classes.getTranslations().getModBySlugId(it.slug)
+        }
+
+        return AssetsPage(
+            pageNumber = this.offset / this.limit + 1,
+            pageIndex = this.offset,
+            totalPage = (this.totalHits + this.limit - 1) / this.limit,
+            isLastPage = (this.offset + this.limit) >= this.totalHits,
+            data = mcmodData
+        )
+    }
+
+    override fun processChineseSearchResults(
+        searchFilter: String,
+        classes: PlatformClasses
+    ): PlatformSearchResult {
+        val newHits = hits.toList()
+            .searchRankWithChineseBias(searchFilter, classes) { it.slug }
+            .toTypedArray()
+        return ModrinthSearchResult(newHits, offset, limit, totalHits)
+    }
 }

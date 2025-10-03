@@ -11,7 +11,6 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModLoaderCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.VersionFacet
 import com.movtery.zalithlauncher.game.download.assets.utils.localizedModSearchKeywords
-import com.movtery.zalithlauncher.game.download.assets.utils.processChineseSearchResults
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError

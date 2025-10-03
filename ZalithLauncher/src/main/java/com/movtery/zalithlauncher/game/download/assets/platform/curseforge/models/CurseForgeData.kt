@@ -1,5 +1,9 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models
 
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -300,4 +304,46 @@ class CurseForgeData(
         @SerialName("url")
         val url: String
     )
+
+    override fun platform(): Platform = Platform.CURSEFORGE
+
+    override fun platformId(): String = id.toString()
+
+    override fun platformTitle(): String = name
+
+    override fun platformDescription(): String = summary
+
+    override fun platformAuthor(): String = authors[0].name
+
+    override fun platformIconUrl(): String? = logo.url
+
+    override fun platformDownloadCount(): Long = downloadCount
+
+    override fun platformFollows(): Long? = null
+
+    override fun platformModLoaders(): List<PlatformDisplayLabel>? {
+        return latestFilesIndexes.mapNotNull {
+            it.modLoader //通过最新文件获取模组加载器信息
+        }.toSet()
+            .takeIf { it.isNotEmpty() }
+            ?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
+
+    override fun platformCategories(classes: PlatformClasses): List<PlatformFilterCode>? {
+        fun map(string: String): PlatformFilterCode? {
+            val mapValues = when (classes) {
+                PlatformClasses.MOD -> CurseForgeModCategory.entries
+                PlatformClasses.MOD_PACK -> CurseForgeModpackCategory.entries
+                PlatformClasses.RESOURCE_PACK -> CurseForgeResourcePackCategory.entries
+                PlatformClasses.SAVES -> CurseForgeSavesCategory.entries
+                PlatformClasses.SHADERS -> CurseForgeShadersCategory.entries
+            }
+            return mapValues.find { it.describe() == string }
+        }
+
+        return categories.mapNotNull {
+            map(it.id.toString())
+        }.toSet().takeIf { it.isNotEmpty() }
+            ?.sortedWith { o1, o2 -> o1.index() - o2.index() }
+    }
 }

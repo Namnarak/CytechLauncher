@@ -145,4 +145,6 @@ class ModrinthVersion(
     override fun platformSha1(): String? = thisPrimaryFile.hashes.sha1
 
     override fun platformFileSize(): Long = thisPrimaryFile.size
+
+    override fun platformVersion(): String = versionNumber
 }
