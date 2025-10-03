@@ -79,6 +79,11 @@ interface PlatformVersion {
     fun platformFileSize(): Long
 
     /**
+     * 该版本在平台上标注的版本号名称
+     */
+    fun platformVersion(): String
+
+    /**
      * 平台版本依赖项目类，保存依赖项关键信息
      * @param type 依赖类型
      */
