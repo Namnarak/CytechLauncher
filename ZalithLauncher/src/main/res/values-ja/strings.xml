@@ -843,4 +843,11 @@
     <string name="settings_control_gyroscope_sample_rate_summary">サンプリングレートはジャイロスコープデータの更新頻度を設定します。頻度が高くなるほど、リアルタイムのデータは多くなりますが、バッテリー使用量は高くなります</string>
     <string name="settings_control_gyroscope_smoothing_summary">検出されたジャイロスコープの値を滑らかにしてシッターを減らしますが、遅延が増加します</string>
     <string name="settings_control_gyroscope_smoothing_window_summary">スムージングのために平均化されるデータポイントの数を指定します。値が大きくなるほどスムーズな結果になりますが、応答が遅くなります</string>
+    <string name="file_invalid_leading_or_trailing_space">先頭と末尾にスペースは使用できません！</string>
+    <string name="settings_control_mouse_pointer_arrow_title">仮想マウスポインター（デフォルト）</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">ニーズに合わせてデフォルトの仮想マウスポインターの画像をカスタマイズします</string>
+    <string name="settings_control_mouse_pointer_link_title">仮想マウスポインター（手形）</string>
+    <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを手の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_ibeam_title">仮想マウスポインター（テキストカーソル）</string>
+    <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターをテキストカーソルに切り替える機能をサポートしています</string>
 </resources>
