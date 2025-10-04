@@ -93,17 +93,22 @@ object PlatformSearch {
      * @param projectID 项目ID
      * @param apiKey CurseForge API 密钥
      * @param pageSize 每页请求数量
+     * @param pageCallback 加载每一页时都通过此函数回调
      */
     suspend fun getAllVersionsFromCurseForge(
         projectID: String,
         apiKey: String = InfoDistributor.CURSEFORGE_API,
         pageSize: Int = 100,
+        pageCallback: (Int) -> Unit = {},
         retry: Int = 3
     ): List<CurseForgeFile> {
         val allFiles = mutableListOf<CurseForgeFile>()
+        var page = 1
         var index = 0
 
         while (true) {
+            pageCallback(++page)
+
             val response: CurseForgeVersions = getVersionsFromCurseForge(
                 projectID = projectID,
                 apiKey = apiKey,

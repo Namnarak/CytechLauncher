@@ -95,20 +95,22 @@ suspend fun searchAssets(
 
 suspend fun getVersions(
     projectID: String,
-    platform: Platform
+    platform: Platform,
+    onCurseforgeCallback: (Int) -> Unit = {},
 ) = when (platform) {
-    Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID)
+    Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID, pageCallback = onCurseforgeCallback)
     Platform.MODRINTH -> PlatformSearch.getVersionsFromModrinth(projectID)
 }
 
 suspend fun <E> getVersions(
     projectID: String,
     platform: Platform,
+    onCurseforgeCallback: (Int) -> Unit = {},
     onSuccess: suspend (List<PlatformVersion>) -> Unit,
     onError: (DownloadAssetsState<List<E>>) -> Unit
 ) {
     runCatching {
-        val result = getVersions(projectID, platform)
+        val result = getVersions(projectID, platform, onCurseforgeCallback)
         onSuccess(result)
     }.onFailure { e ->
         if (e !is CancellationException) {
