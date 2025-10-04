@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.download
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,6 +73,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsVersionItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
+import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsVersionLoading
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.ScreenshotItemLayout
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.VersionInfoMap
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.initAll
@@ -93,6 +95,8 @@ private class DownloadScreenViewModel(
     //版本
     private var _versionsList by mutableStateOf<List<VersionInfoMap>>(emptyList())
     var versionsResult by mutableStateOf<DownloadAssetsState<List<VersionInfoMap>>>(DownloadAssetsState.Getting())
+    var versionsLoading by mutableStateOf<DownloadAssetsVersionLoading>(DownloadAssetsVersionLoading.None)
+        private set
 
     var showOnlyMCRelease by mutableStateOf(true)
     var searchMCVersion by mutableStateOf("")
@@ -104,6 +108,7 @@ private class DownloadScreenViewModel(
         this.showOnlyMCRelease = showOnlyMCRelease
         this.searchMCVersion = searchMCVersion
         viewModelScope.launch {
+            versionsLoading = DownloadAssetsVersionLoading.None
             val infos = _versionsList.filterInfos()
             versionsResult = DownloadAssetsState.Success(infos)
         }
@@ -122,6 +127,9 @@ private class DownloadScreenViewModel(
             getVersions(
                 projectID = projectId,
                 platform = platform,
+                onCurseforgeCallback = { page ->
+                    versionsLoading = DownloadAssetsVersionLoading.LoadingPage(page)
+                },
                 onSuccess = { result ->
                     val versions: List<PlatformVersion> = result.initAll(projectId) also@{ version ->
                         if (classes == PlatformClasses.MOD_PACK) return@also //整合包不支持获取依赖
@@ -134,9 +142,11 @@ private class DownloadScreenViewModel(
                     }
                     _versionsList = versions.mapWithVersions(classes)
                     versionsResult = DownloadAssetsState.Success(_versionsList.filterInfos())
+                    versionsLoading = DownloadAssetsVersionLoading.None
                 },
                 onError = {
                     versionsResult = it
+                    versionsLoading = DownloadAssetsVersionLoading.None
                 }
             )
         }
@@ -178,6 +188,9 @@ private class DownloadScreenViewModel(
         projectId: String
     ) {
         if (!notFoundDependencyProjects.contains(projectId) && !cachedDependencyProject.containsKey(projectId)) {
+            //加载并缓存依赖项目
+            versionsLoading = DownloadAssetsVersionLoading.LoadingDepProject(projectId)
+
             getProject<PlatformProject>(
                 projectID = projectId,
                 platform = platform,
@@ -302,8 +315,37 @@ private fun Versions(
 ) {
     when (val versions = viewModel.versionsResult) {
         is DownloadAssetsState.Getting -> {
-            Box(modifier.padding(all = 12.dp)) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            Box(
+                modifier.padding(all = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CircularProgressIndicator()
+                    Column(
+                        modifier = Modifier.animateContentSize()
+                    ) {
+                        when (val state = viewModel.versionsLoading) {
+                            is DownloadAssetsVersionLoading.None -> {}
+                            is DownloadAssetsVersionLoading.LoadingDepProject -> {
+                                Text(
+                                    text = stringResource(R.string.download_assets_loading_dep_project, state.projectId),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            is DownloadAssetsVersionLoading.LoadingPage -> {
+                                Text(
+                                    text = stringResource(R.string.download_assets_loading_page, state.page),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
         is DownloadAssetsState.Success -> {

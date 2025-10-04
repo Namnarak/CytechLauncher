@@ -101,6 +101,14 @@ sealed interface DownloadAssetsState<T> {
     }
 }
 
+sealed interface DownloadAssetsVersionLoading {
+    data object None: DownloadAssetsVersionLoading
+    /** 加载分页数据 */
+    data class LoadingPage(val page: Int): DownloadAssetsVersionLoading
+    /** 加载并缓存依赖项目 */
+    data class LoadingDepProject(val projectId: String): DownloadAssetsVersionLoading
+}
+
 /**
  * 版本、模组加载器 版本信息分组
  */
