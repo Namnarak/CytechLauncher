@@ -254,6 +254,7 @@ private fun ResultList(
         contentPadding = contentPadding
     ) {
         items(data) { (item, mcmod) ->
+            val platform = remember(item) { item.platform() }
             val title = remember(item) { item.platformTitle() }
             val description = remember(item) { item.platformDescription() }
             val iconUrl = remember(item) { item.platformIconUrl() }
@@ -267,7 +268,7 @@ private fun ResultList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),
-                platform = Platform.MODRINTH,
+                platform = platform,
                 title = mcmod.getMcmodTitle(title, context),
                 description = description,
                 iconUrl = iconUrl,
@@ -277,7 +278,7 @@ private fun ResultList(
                 modloaders = modloaders,
                 categories = categories?.sortedWith { o1, o2 -> o1.index() - o2.index() },
                 onClick = {
-                    swapToDownload(Platform.MODRINTH, item.platformId(), iconUrl)
+                    swapToDownload(platform, item.platformId(), iconUrl)
                 }
             )
         }
