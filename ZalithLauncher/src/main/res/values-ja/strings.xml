@@ -507,7 +507,7 @@
     <string name="control_editor_menu_widget_snap_mode">コントロールのスナップモード</string>
     <string name="control_editor_menu_widget_snap_mode_fullscreen">全画面でスナップ</string>
     <string name="control_editor_menu_widget_snap_mode_local">ローカルでスナップ</string>
-    <string name="control_editor_menu_save_and_exit">セーブして退出</string>
+    <string name="control_editor_menu_save_and_exit">保存して退出</string>
     <string name="control_editor_layers_title">コントロールレイヤー</string>
     <string name="control_editor_layers_create">新しく作成</string>
     <string name="control_editor_layers_attribute">コントロールレイヤーの属性</string>
@@ -843,4 +843,28 @@
     <string name="settings_control_gyroscope_sample_rate_summary">サンプリングレートはジャイロスコープデータの更新頻度を設定します。頻度が高くなるほど、リアルタイムのデータは多くなりますが、バッテリー使用量は高くなります</string>
     <string name="settings_control_gyroscope_smoothing_summary">検出されたジャイロスコープの値を滑らかにしてシッターを減らしますが、遅延が増加します</string>
     <string name="settings_control_gyroscope_smoothing_window_summary">スムージングのために平均化されるデータポイントの数を指定します。値が大きくなるほどスムーズな結果になりますが、応答が遅くなります</string>
+    <string name="file_invalid_leading_or_trailing_space">先頭と末尾にスペースは使用できません！</string>
+    <string name="settings_control_mouse_pointer_arrow_title">仮想マウスポインター（デフォルト）</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">ニーズに合わせてデフォルトの仮想マウスポインターの画像をカスタマイズします</string>
+    <string name="settings_control_mouse_pointer_link_title">仮想マウスポインター（手形）</string>
+    <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを手の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_ibeam_title">仮想マウスポインター（テキストカーソル）</string>
+    <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターをテキストカーソルに切り替える機能をサポートしています</string>
+    <string name="mods_update">モッドを更新</string>
+    <string name="mods_update_warning_1">モッドの更新を確認する前に、一度に大量のモッドが更新され互換性の問題が発生し、以前は正常に動作していたゲームが突然動作しなくなる可能性があることに注意してください。</string>
+    <string name="mods_update_warning_2">ランチャーは現在、モッドの更新履歴機能を提供していません。更新後も正常に使用できるように、モッドの更新内容を確認する必要があります。</string>
+    <string name="mods_update_warning_3">ランチャーはモッドを一括更新する機能のみを備えており、この操作は不可逆なので、慎重に更新するモッドを選択してください。</string>
+    <string name="mods_update_task_filter">モッドデータをフィルタリング</string>
+    <string name="mods_update_task_check_update">モッドの更新を確認</string>
+    <string name="mods_update_task_wait_for_user">モッド更新のユーザーの確認を待っています</string>
+    <string name="mods_update_task_show">以下のモッドが更新されます</string>
+    <string name="mods_update_task_download">モッドの新しいバージョンをダウンロード</string>
+    <string name="mods_update_task_replace">モッドファイルを置き換え</string>
+    <string name="mods_update_no_mods_update">すべてのモッドは既に更新済みなので、更新は不要です</string>
+    <string name="mods_update_updating">全てのモッドを更新 (%1$d/%2$d, %3$s)</string>
+    <string name="mods_update_updating_retry">全てのモッドの更新を再試行しています (%1$d/%2$d, %3$s)</string>
+    <string name="mods_update_success">更新に成功</string>
+    <string name="mods_update_success_text">選択したモッドが全て最新バージョンに更新されました！</string>
+    <string name="mods_update_failed">モッドの更新に失敗</string>
+    <string name="mods_update_failed_text">モッドの更新中にエラーが発生しました:</string>
 </resources>

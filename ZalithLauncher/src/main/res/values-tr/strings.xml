@@ -483,4 +483,26 @@
     <string name="download_modpack_download_mods_retry">Tüm modları yüklemeyi tekrar dene (%1$d/%2$d, %3$s)</string>
     <string name="download_modpack_get_loaders">Yükleyici bilgilerini al</string>
     <string name="generic_input_length">"Yazı uzunluğu:  %1$d/%2$d"</string>
+    <string name="generic_unspecified">Belirtilmemiş</string>
+    <string name="generic_save">Kaydet</string>
+    <string name="generic_share">Paylaş</string>
+    <string name="error_import_file">Dosyayı içe aktarırken bir problem meydana geldi</string>
+    <string name="microphone_check_title">Mikrofon</string>
+    <string name="microphone_check_volume">Ses: %d</string>
+    <string name="microphone_check_no_permissions">Launcher\'e mikrofon izinleri verilmedi (uygulama ayarlarını kontrol edin)</string>
+    <string name="download_modpack_final_move">Modpack dosyaları taşınıyor</string>
+    <string name="download_assets_category_utility">Araç</string>
+    <string name="download_assets_category_library">Kütüphane</string>
+    <string name="download_assets_category_game_mechanics">Oyun mekanikleri</string>
+    <string name="download_assets_category_optimization">Optimizasyon</string>
+    <string name="download_assets_category_multiplayer">Çok oyunculu</string>
+    <string name="download_assets_category_challenging">Zorlu</string>
+    <string name="download_assets_category_combat">Dövüş mekaniği</string>
+    <string name="download_assets_category_quests">Görevler</string>
+    <string name="download_assets_category_exploration">Keşif</string>
+    <string name="download_assets_category_mini_game">Mini oyunlar</string>
+    <string name="download_assets_category_sci_fi">Bilim</string>
+    <string name="download_assets_category_skyblock">Skyblok</string>
+    <string name="download_assets_category_vanilla">Vanilya ince ayarları</string>
+    <string name="download_assets_category_ftb">FTB Takımı</string>
 </resources>
