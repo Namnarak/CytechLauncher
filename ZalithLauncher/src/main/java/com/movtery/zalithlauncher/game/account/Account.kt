@@ -1,8 +1,5 @@
 package com.movtery.zalithlauncher.game.account
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinFileDownloader
@@ -41,9 +38,6 @@ data class Account(
 
     fun getSkinFile() = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
 
-    var refreshSkinFile by mutableStateOf(false)
-        private set
-
     /**
      * 下载并更新账号的皮肤文件
      */
@@ -67,6 +61,7 @@ data class Account(
         }.onFailure { e ->
             lError("Could not update skin", e)
         }
-        refreshSkinFile = !refreshSkinFile
+        //刷新头像
+        AccountsManager.refreshAccountsAvatar()
     }
 }

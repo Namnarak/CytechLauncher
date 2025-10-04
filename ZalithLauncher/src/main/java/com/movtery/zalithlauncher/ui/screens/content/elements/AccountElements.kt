@@ -76,6 +76,7 @@ import androidx.core.graphics.createBitmap
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
+import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.getAccountTypeName
@@ -264,7 +265,7 @@ fun PlayerFace(
     refreshKey: Any? = null
 ) {
     val context = LocalContext.current
-    val avatarBitmap = remember(account, refreshKey, account.refreshSkinFile) {
+    val avatarBitmap = remember(account, refreshKey, AccountsManager.refreshAccountAvatar) {
         getAvatarFromAccount(context, account, avatarSize).asImageBitmap()
     }
 
