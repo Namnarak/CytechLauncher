@@ -733,4 +733,19 @@
     <string name="cape_name_common">Comum</string>
     <string name="cape_name_pan">Pan</string>
     <string name="cape_name_founder_s">Fundador</string>
+    <string name="error_import_file">Um erro ocorreu enquanto o arquivo era importado</string>
+    <string name="control_editor_edit_size_type">Tipo de Tamanho</string>
+    <string name="control_editor_edit_size_type_dp">Valor Absoluto</string>
+    <string name="control_editor_edit_size_type_wrap_content">Envolver Conteúdo</string>
+    <string name="control_editor_edit_size_width">Largura do Controle</string>
+    <string name="control_editor_edit_size_height">Altura do Controle</string>
+    <string name="control_editor_edit_size_reference_screen_width">Largura da Tela</string>
+    <string name="control_editor_edit_size_reference_screen_height">Altura da Tela</string>
+    <string name="account_change_skin_update_toast">Skin subida com sucesso. Se não houve mudança, por favor recarregue sua conta após um tempo</string>
+    <string name="settings_control_gyroscope_smoothing_summary">Suaviza os valores detectados pelo giroscópio, mais adiciona latência</string>
+    <string name="account_change_skin_invalid">Tamanho da skin inválido, deve ser 64x32 ou 64x64</string>
+    <string name="settings_control_mouse_pointer_arrow_summary">Personalize o visual do mouse virtual padrão para suas preferências pessoais</string>
+    <string name="mods_update_no_mods_update">Todos os mods já estão atualizados, nenhuma atualização necessária</string>
+    <string name="mods_update_success_text">Todos os mods selecionados foram atualizados para versão mais recente!</string>
+    <string name="control_editor_menu_no_selected_layer_message">Por favor selecione uma camada de controles primeiro.</string>
 </resources>
