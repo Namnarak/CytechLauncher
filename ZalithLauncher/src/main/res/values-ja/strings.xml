@@ -376,7 +376,7 @@
     <string name="saves_manage_quick_play_disabled">クイックプレイ (1.20+ のみ)</string>
     <string name="saves_manage_no_saves">このバージョンにはセーブがありません</string>
     <string name="saves_manage_save_name">セーブ名</string>
-    <string name="saves_manage_backup">バックアップのセーブ</string>
+    <string name="saves_manage_backup">セーブをバックアップ</string>
     <string name="mods_manage_no_mods">このバージョンにはモッドがありません</string>
     <string name="saves_manage">セーブ</string>
     <string name="saves_manage_info">セーブ情報</string>
@@ -867,4 +867,6 @@
     <string name="mods_update_success_text">選択したモッドが全て最新バージョンに更新されました！</string>
     <string name="mods_update_failed">モッドの更新に失敗</string>
     <string name="mods_update_failed_text">モッドの更新中にエラーが発生しました:</string>
+    <string name="download_assets_loading_page">ページデータを読み込んでいます、ページ %d</string>
+    <string name="download_assets_loading_dep_project">依存プロジェクトを読み込んでキャッシュ、ID: %s</string>
 </resources>
