@@ -661,6 +661,9 @@
     <string name="settings_control_mouse_pointer_ibeam_title">虛擬滑鼠指標（輸入游標）</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ 支援在輸入框元件上，讓滑鼠指標切換成輸入游標的形狀</string>
     <string name="settings_control_mouse_pointer_reset_message">您確定要重設虛擬滑鼠指標的圖片嗎？</string>
+    <string name="settings_control_mouse_pointer_hotspot">設定熱點</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">X 座標</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y 座標</string>
     <string name="settings_control_mouse_long_press_delay_title">虛擬滑鼠長按觸發延遲</string>
     <string name="settings_control_mouse_long_press_delay_summary">設定螢幕長按辨識的延遲時間（實體滑鼠長按不受此設定影響，包括停用實體滑鼠控制時）</string>
     <string name="settings_control_gesture_control_title">手勢控制</string>

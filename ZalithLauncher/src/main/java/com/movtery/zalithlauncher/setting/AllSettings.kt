@@ -133,6 +133,36 @@ object AllSettings : SettingsRegistry() {
     val mouseSize = intSetting("mouseSize", 24)
 
     /**
+     * 虚拟鼠标箭头热点X坐标
+     */
+    val arrowMouseHotspotX = intSetting("arrowMouseHotspotX", 0)
+
+    /**
+     * 虚拟鼠标箭头热点Y坐标
+     */
+    val arrowMouseHotspotY = intSetting("arrowMouseHotspotY", 0)
+
+    /**
+     * 虚拟鼠标链接选择热点X坐标
+     */
+    val linkMouseHotspotX = intSetting("linkMouseHotspotX", 32)
+
+    /**
+     * 虚拟鼠标链接选择热点Y坐标
+     */
+    val linkMouseHotspotY = intSetting("linkMouseHotspotY", 0)
+
+    /**
+     * 虚拟鼠标输入选择热点X坐标
+     */
+    val iBeamMouseHotspotX = intSetting("iBeamMouseHotspotX", 50)
+
+    /**
+     * 虚拟鼠标输入选择热点Y坐标
+     */
+    val iBeamMouseHotspotY = intSetting("iBeamMouseHotspotY", 50)
+
+    /**
      * 虚拟鼠标灵敏度
      */
     val cursorSensitivity = intSetting("cursorSensitivity", 100)
