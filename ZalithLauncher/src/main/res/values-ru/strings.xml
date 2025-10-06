@@ -887,4 +887,6 @@
     <string name="settings_control_mouse_pointer_link_summary">В Minecraft 1.21.9+ можно переключить указатель мыши на форму руки при наведении на интерактивные предметы</string>
     <string name="settings_control_mouse_pointer_ibeam_title">Курсор виртуальной мыши (Текстовый курсор)</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">В Minecraft 1.21.9+ указатель мыши меняется на текстовый курсор (I-образный) при наведении на поля ввода</string>
+    <string name="download_assets_loading_page">Загрузка данных страницы, страница %d</string>
+    <string name="download_assets_loading_dep_project">Загрузка и кэширование зависимого проекта, ID: %s</string>
 </resources>
