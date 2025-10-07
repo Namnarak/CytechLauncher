@@ -889,4 +889,7 @@
     <string name="settings_control_mouse_pointer_ibeam_summary">В Minecraft 1.21.9+ указатель мыши меняется на текстовый курсор (I-образный) при наведении на поля ввода</string>
     <string name="download_assets_loading_page">Загрузка данных страницы, страница %d</string>
     <string name="download_assets_loading_dep_project">Загрузка и кэширование зависимого проекта, ID: %s</string>
+    <string name="settings_control_mouse_pointer_hotspot">Задать точку привязки</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">Координата X</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Координата Y</string>
 </resources>
