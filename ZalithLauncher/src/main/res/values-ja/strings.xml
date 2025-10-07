@@ -869,4 +869,7 @@
     <string name="mods_update_failed_text">モッドの更新中にエラーが発生しました:</string>
     <string name="download_assets_loading_page">ページデータを読み込んでいます、ページ %d</string>
     <string name="download_assets_loading_dep_project">依存プロジェクトを読み込んでキャッシュ、ID: %s</string>
+    <string name="settings_control_mouse_pointer_hotspot">ホットスポットを設定</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">X座標</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y座標</string>
 </resources>
