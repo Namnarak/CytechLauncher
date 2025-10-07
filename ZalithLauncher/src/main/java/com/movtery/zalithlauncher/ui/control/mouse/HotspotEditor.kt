@@ -172,9 +172,7 @@ private fun MouseHotspotPreview(
             MousePointer(
                 cursorShape = cursorShape,
                 mouseSize = mouseSize,
-                arrowMouseFile = arrowPointerFile.ifExists(),
-                linkMouseFile = linkPointerFile.ifExists(),
-                iBeamMouseFile = iBeamPointerFile.ifExists()
+                mouseFile = getMouseFile(cursorShape).ifExists()
             )
 
             //坐标预览

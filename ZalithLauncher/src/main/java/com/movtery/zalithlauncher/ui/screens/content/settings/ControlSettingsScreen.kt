@@ -542,9 +542,7 @@ private fun MousePointerLayout(
                 modifier = Modifier.padding(all = 8.dp),
                 mouseSize = mouseSize.dp,
                 cursorShape = cursorShape,
-                arrowMouseFile = mousePointerFile,
-                linkMouseFile = mousePointerFile,
-                iBeamMouseFile = mousePointerFile,
+                mouseFile = mousePointerFile,
                 centerIcon = true,
                 triggerRefresh = triggerState
             )
