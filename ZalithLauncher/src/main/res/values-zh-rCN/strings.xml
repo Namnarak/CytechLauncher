@@ -721,6 +721,7 @@
     <string name="settings_control_mouse_pointer_hotspot">设置热点</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X 坐标</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Y 坐标</string>
+    <string name="settings_control_mouse_long_press_delay_title">虚拟鼠标长按触发的延迟</string>
     <string name="settings_control_mouse_long_press_delay_summary">设置屏幕长按识别的延迟时间（实体鼠标长按不受此设置影响，包括禁用实体鼠标控制时）</string>
     <string name="settings_control_gesture_control_title">手势控制</string>
     <string name="settings_control_gesture_control_summary">支持通过点击和长按等手势，在游戏中进行交互，类似基岩版</string>
@@ -789,7 +790,7 @@
     <string name="control_editor_menu_new_widget_button">添加按钮</string>
     <string name="control_editor_menu_new_widget_text">添加文本框</string>
     <string name="control_editor_menu_no_layers_title">没有控件层</string>
-    <string name="control_editor_menu_no_layers_message">当前控制布局还创建没有控件层，请先创建一个控件层。</string>
+    <string name="control_editor_menu_no_layers_message">当前控制布局还没有创建控件层，请先创建一个控件层。</string>
     <string name="control_editor_menu_no_selected_layer_title">未选择控件层</string>
     <string name="control_editor_menu_no_selected_layer_message">请先选择一个控件层作为目标。</string>
     <string name="control_editor_menu_widget_snap">控件吸附</string>
