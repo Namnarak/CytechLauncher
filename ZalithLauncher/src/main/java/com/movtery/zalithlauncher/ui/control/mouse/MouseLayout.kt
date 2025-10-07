@@ -204,7 +204,7 @@ fun VirtualPointerLayout(
 }
 
 /**
- * 虚拟鼠标位置修饰，根据大小、指针形状，结合实际指针位置
+ * 虚拟鼠标位置修饰，根据大小、指针形状，结合实际指针位置、启动器指针热点设置
  * 计算出合适的指针位置
  */
 @Composable
@@ -214,8 +214,32 @@ fun Modifier.mouseFixedPosition(
     pointerPosition: Offset
 ): Modifier {
     val sizePx = with(LocalDensity.current) { mouseSize.toPx() }
-    val x = if (cursorShape == CursorShape.IBeam) pointerPosition.x - sizePx / 2 else pointerPosition.x
-    val y = if (cursorShape == CursorShape.IBeam) pointerPosition.y - sizePx / 2 else pointerPosition.y
+    val hotspotXPercent = remember(
+        cursorShape,
+        AllSettings.arrowMouseHotspotX.state,
+        AllSettings.iBeamMouseHotspotX.state,
+        AllSettings.linkMouseHotspotX.state
+    ) {
+        when (cursorShape) {
+            CursorShape.Arrow -> AllSettings.arrowMouseHotspotX.state
+            CursorShape.IBeam -> AllSettings.iBeamMouseHotspotX.state
+            CursorShape.Hand -> AllSettings.linkMouseHotspotX.state
+        }
+    }
+    val hotspotYPercent = remember(
+        cursorShape,
+        AllSettings.arrowMouseHotspotY.state,
+        AllSettings.iBeamMouseHotspotY.state,
+        AllSettings.linkMouseHotspotY.state
+    ) {
+        when (cursorShape) {
+            CursorShape.Arrow -> AllSettings.arrowMouseHotspotY.state
+            CursorShape.IBeam -> AllSettings.iBeamMouseHotspotY.state
+            CursorShape.Hand -> AllSettings.linkMouseHotspotY.state
+        }
+    }
+    val x = pointerPosition.x - sizePx * (hotspotXPercent.toFloat() / 100f)
+    val y = pointerPosition.y - sizePx * (hotspotYPercent.toFloat() / 100f)
 
     return this.absoluteOffset(
         x = with(LocalDensity.current) { x.toDp() },

@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -35,6 +38,10 @@ object AccountsManager {
     private val _authServersFlow = MutableStateFlow<List<AuthServer>>(emptyList())
     val authServersFlow: StateFlow<List<AuthServer>> = _authServersFlow
 
+    /** 控制刷新所有账号头像的变量 */
+    var refreshAccountAvatar by mutableStateOf(false)
+        private set
+
     private lateinit var database: AppDatabase
     private lateinit var accountDao: AccountDao
     private lateinit var authServerDao: AuthServerDao
@@ -55,6 +62,13 @@ object AccountsManager {
         scope.launch {
             suspendReloadAccounts()
         }
+    }
+
+    /**
+     * 刷新所有账号的头像
+     */
+    fun refreshAccountsAvatar() {
+        this.refreshAccountAvatar = !this.refreshAccountAvatar
     }
 
     private suspend fun suspendReloadAccounts() {

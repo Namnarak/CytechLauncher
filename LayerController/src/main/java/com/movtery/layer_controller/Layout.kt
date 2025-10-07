@@ -107,7 +107,8 @@ private fun BaseControlBoxLayout(
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
 
-    val layers by observedLayout.layers.collectAsState()
+    val layers1 by observedLayout.layers.collectAsState()
+    val layers = remember(layers1) { layers1.reversed() }
     val styles by observedLayout.styles.collectAsState()
 
     val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
@@ -162,9 +163,12 @@ private fun BaseControlBoxLayout(
                             val isPressed = change.pressed
 
                             //在可见控件层中，收集所有可见的按钮
-                            val visibleWidgets = layers
+                            val visibleWidgets = layers1 //使用原始控件层顺序，保证触摸逻辑正常
                                 .filter { !it.hide && checkVisibility(isCursorGrabbing1, it.visibilityType) }
-                                .flatMap { layer -> layer.normalButtons.value }
+                                .flatMap { layer ->
+                                    //顶向下的顺序影响控件层的处理优先级
+                                    layer.normalButtons.value.reversed()
+                                }
 
                             //查找当前指针在哪些按钮上
                             val targetButtons = visibleWidgets
@@ -206,8 +210,7 @@ private fun BaseControlBoxLayout(
 //                                            )
 //                                        }
 //                                    }
-                                }.reversed()
-                                .let { list ->
+                                }.let { list ->
                                     val nonSwippleButtons = list.filter { !it.isSwipple || !(it.isSwipple && it.isPenetrable) }
 
                                     when {

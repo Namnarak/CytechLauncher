@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -53,6 +55,7 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.infiniteShimmer
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
+import com.movtery.zalithlauncher.ui.control.mouse.MouseHotspotEditorDialog
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.arrowPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.iBeamPointerFile
@@ -134,6 +137,8 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = arrowPointerFile,
                         cursorShape = CursorShape.Arrow,
+                        xPercent = AllSettings.arrowMouseHotspotX,
+                        yPercent = AllSettings.arrowMouseHotspotY,
                         mouseOperation = arrowMouseOperation,
                         changeOperation = { arrowMouseOperation = it },
                         submitError = submitError
@@ -146,6 +151,8 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = linkPointerFile,
                         cursorShape = CursorShape.Hand,
+                        xPercent = AllSettings.linkMouseHotspotX,
+                        yPercent = AllSettings.linkMouseHotspotY,
                         mouseOperation = linkMouseOperation,
                         changeOperation = { linkMouseOperation = it },
                         submitError = submitError
@@ -158,6 +165,8 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = iBeamPointerFile,
                         cursorShape = CursorShape.IBeam,
+                        xPercent = AllSettings.iBeamMouseHotspotX,
+                        yPercent = AllSettings.iBeamMouseHotspotY,
                         mouseOperation = ibeamMouseOperation,
                         changeOperation = { ibeamMouseOperation = it },
                         submitError = submitError
@@ -446,8 +455,12 @@ private fun PhysicalKeyImeTrigger(
 
 private sealed interface MousePointerOperation {
     data object None: MousePointerOperation
+    /** 重置鼠标指针前的提醒 */
+    data object PreReset: MousePointerOperation
+    /** 重置鼠标指针 */
     data object Reset: MousePointerOperation
-    data object Refresh: MousePointerOperation
+    /** 变更鼠标热点 */
+    data object Hotspot: MousePointerOperation
 }
 
 @Composable
@@ -457,32 +470,26 @@ private fun MousePointerLayout(
     mouseSize: Int,
     mousePointerFile: File,
     cursorShape: CursorShape,
+    xPercent: IntSettingUnit,
+    yPercent: IntSettingUnit,
     mouseOperation: MousePointerOperation,
     changeOperation: (MousePointerOperation) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
-
     var triggerState by remember { mutableIntStateOf(0) }
 
-    when (mouseOperation) {
-        is MousePointerOperation.None -> {}
-        is MousePointerOperation.Reset -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.settings_control_mouse_pointer_reset_message),
-                onConfirm = {
-                    FileUtils.deleteQuietly(mousePointerFile)
-                    changeOperation(MousePointerOperation.Refresh)
-                },
-                onDismiss = { changeOperation(MousePointerOperation.None) }
-            )
-        }
-        is MousePointerOperation.Refresh -> {
+    MousePointerOperation(
+        operation = mouseOperation,
+        changeOperation = changeOperation,
+        mousePointerFile = mousePointerFile,
+        xPercent = xPercent,
+        yPercent = yPercent,
+        cursorShape = cursorShape,
+        onRefresh = {
             triggerState++
-            changeOperation(MousePointerOperation.None)
         }
-    }
+    )
 
     val filePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -493,7 +500,8 @@ private fun MousePointerLayout(
                     dispatcher = Dispatchers.IO,
                     task = {
                         context.copyLocalFile(result, mousePointerFile)
-                        changeOperation(MousePointerOperation.Refresh)
+                        triggerState++
+                        changeOperation(MousePointerOperation.None)
                     },
                     onError = { th ->
                         FileUtils.deleteQuietly(mousePointerFile)
@@ -541,18 +549,76 @@ private fun MousePointerLayout(
                 triggerRefresh = triggerState
             )
 
+            IconTextButton(
+                onClick = {
+                    if (mouseOperation == MousePointerOperation.None) {
+                        changeOperation(MousePointerOperation.Hotspot)
+                    }
+                },
+                painter = painterResource(R.drawable.ic_highlight_mouse_cursor),
+                contentDescription = stringResource(R.string.settings_control_mouse_pointer_hotspot),
+                text = stringResource(R.string.settings_control_mouse_pointer_hotspot)
+            )
+
             val mouseExists = remember(triggerState) { mousePointerFile.exists() }
 
             if (mouseExists) {
                 IconTextButton(
                     onClick = {
-                        changeOperation(MousePointerOperation.Reset)
+                        if (mouseOperation == MousePointerOperation.None) {
+                            changeOperation(MousePointerOperation.PreReset)
+                        }
                     },
                     imageVector = Icons.Default.RestartAlt,
                     contentDescription = stringResource(R.string.generic_reset),
                     text = stringResource(R.string.generic_reset)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun MousePointerOperation(
+    operation: MousePointerOperation,
+    changeOperation: (MousePointerOperation) -> Unit,
+    mousePointerFile: File,
+    xPercent: IntSettingUnit,
+    yPercent: IntSettingUnit,
+    cursorShape: CursorShape,
+    onRefresh: () -> Unit
+) {
+    when (operation) {
+        is MousePointerOperation.None -> {}
+        is MousePointerOperation.PreReset -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.settings_control_mouse_pointer_reset_message),
+                onConfirm = {
+                    //正式开始重置鼠标指针
+                    changeOperation(MousePointerOperation.Reset)
+                },
+                onDismiss = {
+                    changeOperation(MousePointerOperation.None)
+                }
+            )
+        }
+        is MousePointerOperation.Reset -> {
+            LaunchedEffect(Unit) {
+                FileUtils.deleteQuietly(mousePointerFile)
+                onRefresh()
+                changeOperation(MousePointerOperation.None)
+            }
+        }
+        is MousePointerOperation.Hotspot -> {
+            MouseHotspotEditorDialog(
+                xPercent = xPercent,
+                yPercent = yPercent,
+                cursorShape = cursorShape,
+                onClose = {
+                    changeOperation(MousePointerOperation.None)
+                }
+            )
         }
     }
 }

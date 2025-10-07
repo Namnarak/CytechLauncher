@@ -719,6 +719,9 @@
     <string name="settings_control_mouse_pointer_ibeam_title">Virtual Mouse Pointer (Text Cursor)</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ supports switching the mouse pointer to a text cursor shape when hovering over input fields</string>
     <string name="settings_control_mouse_pointer_reset_message">Reset mouse pointer to default?</string>
+    <string name="settings_control_mouse_pointer_hotspot">Set Hotspot</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">X Coordinate</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y Coordinate</string>
     <string name="settings_control_mouse_long_press_delay_title">Long Press Delay</string>
     <string name="settings_control_mouse_long_press_delay_summary">Set the delay time for recognizing a long press on the screen (does not affect physical mouse long presses, even when physical mouse control is disabled)</string>
     <string name="settings_control_gesture_control_title">Gesture Controls</string>
