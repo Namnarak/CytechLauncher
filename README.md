@@ -33,8 +33,8 @@ Feedback, suggestions, and issue reports are very welcome. As it's a personal pr
 
 * Android Studio **Bumblebee** or newer
 * Android SDK:
-  * **Minimum API level**: 26 (Android 8.0)
-  * **Target API level**: 35 (Android 14)
+  * **Minimum API level**: 26
+  * **Target API level**: 35
 * JDK 11
 
 ### Build Steps

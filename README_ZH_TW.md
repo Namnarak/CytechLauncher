@@ -42,8 +42,8 @@
 
 * Android Studio Bumblebee 以上
 * Android SDK：
-    * **最低 API**：26（Android 8.0）
-    * **目標 API**：35（Android 14）
+    * **最低 API**：26
+    * **目標 API**：35
 * JDK 11
 
 ### 構建步驟
