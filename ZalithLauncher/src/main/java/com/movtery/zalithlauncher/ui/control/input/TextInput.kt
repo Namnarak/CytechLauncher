@@ -109,7 +109,11 @@ private class TextInputNode(
                             info.inputType = InputType.TYPE_CLASS_TEXT or
                                     InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
                                     InputType.TYPE_TEXT_VARIATION_NORMAL
-                            info.imeOptions = EditorInfo.IME_ACTION_DONE
+                            info.imeOptions = EditorInfo.IME_ACTION_DONE or
+                                    //尽量不要进入全屏模式
+                                    EditorInfo.IME_FLAG_NO_FULLSCREEN or
+                                    //尽量不要显示额外的辅助UI
+                                    EditorInfo.IME_FLAG_NO_EXTRACT_UI
                             connection
                         }
                     }
