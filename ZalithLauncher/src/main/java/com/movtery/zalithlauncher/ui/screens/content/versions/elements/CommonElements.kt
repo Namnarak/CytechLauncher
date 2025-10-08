@@ -29,14 +29,92 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import kotlinx.coroutines.Dispatchers
+import org.apache.commons.io.FileUtils
+import java.io.File
 
 /** 加载状态 */
 sealed interface LoadingState {
     data object None : LoadingState
     /** 正在加载 */
     data object Loading : LoadingState
+}
+
+sealed interface DeleteAllOperation {
+    data object None : DeleteAllOperation
+    /** 警告用户是否真的要批量删除资源 */
+    data class Warning(val files: List<File>): DeleteAllOperation
+    /** 开始删除所有选中的资源 */
+    data class Delete(val files: List<File>): DeleteAllOperation
+    /** 已成功删除所有选中的资源 */
+    data object Success : DeleteAllOperation
+}
+
+@Composable
+fun DeleteAllOperation(
+    operation: DeleteAllOperation,
+    changeOperation: (DeleteAllOperation) -> Unit,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    onRefresh: () -> Unit
+) {
+    when (operation) {
+        is DeleteAllOperation.None -> {}
+        is DeleteAllOperation.Warning -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.manage_delete_all),
+                text = {
+                    Text(text = stringResource(R.string.manage_delete_all_message))
+                },
+                confirmText = stringResource(R.string.generic_delete),
+                onCancel = {
+                    changeOperation(DeleteAllOperation.None)
+                },
+                onConfirm = {
+                    changeOperation(DeleteAllOperation.Delete(operation.files))
+                }
+            )
+        }
+        is DeleteAllOperation.Delete -> {
+            val context = LocalContext.current
+            SimpleTaskDialog(
+                title = stringResource(R.string.manage_delete_all),
+                task = {
+                    //开始删除所有文件
+                    operation.files.forEach { file ->
+                        FileUtils.delete(file)
+                    }
+
+                    changeOperation(DeleteAllOperation.Success)
+                    onRefresh()
+                },
+                context = Dispatchers.IO,
+                onDismiss = {},
+                onError = { th ->
+                    val message = context.getString(R.string.manage_delete_all_error)
+                    submitError(
+                        ErrorViewModel.ThrowableMessage(
+                            title = context.getString(R.string.generic_error),
+                            message = message + "\r\n" + th.getMessageOrToString()
+                        )
+                    )
+                }
+            )
+        }
+        is DeleteAllOperation.Success -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.manage_delete_all),
+                text = stringResource(R.string.manage_delete_all_success)
+            ) {
+                changeOperation(DeleteAllOperation.None)
+            }
+        }
+    }
 }
 
 /**

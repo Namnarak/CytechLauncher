@@ -107,6 +107,7 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsConfirmOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
@@ -152,6 +153,11 @@ private class ModsManageViewModel(
      * 已选择的模组
      */
     val selectedMods = mutableStateListOf<RemoteMod>()
+
+    /**
+     * 删除所有已选择模组的操作流程
+     */
+    var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
 
     /** 作为标记，记录哪些模组已被加载 */
     private val modsToLoad = mutableListOf<RemoteMod>()
@@ -408,6 +414,13 @@ fun ModsManagerScreen(
         val viewModel = rememberModsManageViewModel(version, modsDir)
         val updaterViewModel = rememberModsUpdaterViewModel(version, modsDir)
 
+        DeleteAllOperation(
+            operation = viewModel.deleteAllOperation,
+            changeOperation = { viewModel.deleteAllOperation = it },
+            submitError = submitError,
+            onRefresh = { viewModel.refresh(context) }
+        )
+
         ModsUpdateOperation(
             operation = updaterViewModel.modsUpdateOperation,
             changeOperation = { updaterViewModel.modsUpdateOperation = it },
@@ -485,9 +498,27 @@ fun ModsManagerScreen(
                             //模组加载器信息已确认的情况下，才能够确保模组能够正常更新
                             canUpdateMods = version.getVersionInfo()?.loaderInfo != null,
                             onUpdateMods = {
-                                updaterViewModel.modsUpdateOperation = ModsUpdateOperation.Warning(viewModel.selectedMods)
+                                if (
+                                    updaterViewModel.modsUpdateOperation == ModsUpdateOperation.None &&
+                                    viewModel.deleteAllOperation == DeleteAllOperation.None
+                                ) {
+                                    updaterViewModel.modsUpdateOperation = ModsUpdateOperation.Warning(viewModel.selectedMods)
+                                }
                             },
                             modsDir = modsDir,
+                            onDeleteAll = {
+                                if (
+                                    updaterViewModel.modsUpdateOperation == ModsUpdateOperation.None &&
+                                    viewModel.deleteAllOperation == DeleteAllOperation.None &&
+                                    viewModel.selectedMods.isNotEmpty()
+                                ) {
+                                    viewModel.deleteAllOperation = DeleteAllOperation.Warning(
+                                        files = viewModel.selectedMods.map { mod ->
+                                            mod.localMod.file
+                                        }
+                                    )
+                                }
+                            },
                             isModsSelected = viewModel.selectedMods.isNotEmpty(),
                             onClearModsSelected = { viewModel.selectedMods.clear() },
                             swapToDownload = swapToDownload,
@@ -556,6 +587,7 @@ private fun ModsActionsHeader(
     canUpdateMods: Boolean,
     onUpdateMods: () -> Unit,
     modsDir: File,
+    onDeleteAll: () -> Unit,
     isModsSelected: Boolean,
     onClearModsSelected: () -> Unit,
     swapToDownload: () -> Unit,
@@ -597,6 +629,15 @@ private fun ModsActionsHeader(
                                 contentDescription = null
                             )
                         }
+                    }
+
+                    IconButton(
+                        onClick = onDeleteAll
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Delete,
+                            contentDescription = null
+                        )
                     }
 
                     IconButton(

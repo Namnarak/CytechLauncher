@@ -568,6 +568,10 @@
     <string name="versions_config_microphone_check_title">Check Microphone</string>
     <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
     <string name="manage_only_show_valid">Available</string>
+    <string name="manage_delete_all">Delete All</string>
+    <string name="manage_delete_all_message">Are you sure you want to delete all selected resource files? This action cannot be undone. Please proceed with caution.</string>
+    <string name="manage_delete_all_error">An error occurred while deleting resources</string>
+    <string name="manage_delete_all_success">Successfully deleted the selected resource files!</string>
     <string name="mods_manage">Mods</string>
     <string name="mods_manage_info">Mod Information</string>
     <string name="mods_manage_authors">Mod Authors:</string>
