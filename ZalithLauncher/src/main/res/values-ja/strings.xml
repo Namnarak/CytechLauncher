@@ -872,4 +872,17 @@
     <string name="settings_control_mouse_pointer_hotspot">ホットスポットを設定</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X座標</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Y座標</string>
+    <string name="manage_delete_all">全削除</string>
+    <string name="manage_delete_all_message">選択したリソースファイルを全削除して良いですか？この操作は元に戻せません。慎重に選択してください。</string>
+    <string name="manage_delete_all_error">リソースの削除中にエラーが発生しました</string>
+    <string name="manage_delete_all_success">選択したリソースファイルが正常に削除されました！</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">仮想マウスポインター（クロスヘア）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">仮想マウスポインター（上下）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを上下矢印の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">仮想マウスポインター（左右）</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを左右矢印の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">仮想マウスポインター（移動）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">仮想マウスポインター（禁止）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを禁止の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ はこのマウスポインターをサポートしています</string>
 </resources>
