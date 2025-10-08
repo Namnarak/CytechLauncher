@@ -718,6 +718,15 @@
     <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ supports switching the mouse pointer to a hand shape when hovering over interactive components</string>
     <string name="settings_control_mouse_pointer_ibeam_title">Virtual Mouse Pointer (Text Cursor)</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ supports switching the mouse pointer to a text cursor shape when hovering over input fields</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">Virtual Mouse Pointer (Crosshair)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">Virtual Mouse Pointer (Up/Down)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ supports switching the mouse pointer to an up/down arrow shape over scrollbar components</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">Virtual Mouse Pointer (Left/Right)</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ supports switching the mouse pointer to a left/right arrow shape over slider components</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">Virtual Mouse Pointer (Move)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">Virtual Mouse Pointer (Not Allowed)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ supports switching the mouse pointer to a "not allowed" shape over disabled components</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ supports this mouse pointer</string>
     <string name="settings_control_mouse_pointer_reset_message">Reset mouse pointer to default?</string>
     <string name="settings_control_mouse_pointer_hotspot">Set Hotspot</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X Coordinate</string>

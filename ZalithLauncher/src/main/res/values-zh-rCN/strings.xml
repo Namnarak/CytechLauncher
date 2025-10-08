@@ -717,6 +717,15 @@
     <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ 支持在可交互的组件上，让鼠标指针切换到手形</string>
     <string name="settings_control_mouse_pointer_ibeam_title">虚拟鼠标指针（输入光标）</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ 支持在输入框组件上，让鼠标指针切换到输入光标的形状</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">虚拟鼠标指针（十字）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">虚拟鼠标指针（上下）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ 支持在滚动条组件上，让鼠标指针切换到上下箭头的形状</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">虚拟鼠标指针（左右）</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ 支持在滑块组件上，让鼠标指针切换到左右箭头的形状</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">虚拟鼠标指针（移动）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">虚拟鼠标指针（禁止）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ 支持在禁用的组件上，让鼠标指针切换到禁止的形状</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ 支持了该鼠标指针</string>
     <string name="settings_control_mouse_pointer_reset_message">您确定要重置虚拟鼠标指针的图片吗？</string>
     <string name="settings_control_mouse_pointer_hotspot">设置热点</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X 坐标</string>

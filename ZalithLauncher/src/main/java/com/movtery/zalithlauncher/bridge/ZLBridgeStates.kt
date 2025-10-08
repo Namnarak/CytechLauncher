@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.PointerIcon
+import android.view.PointerIcon as NativePointerIcon
 
 object ZLBridgeStates {
     /**
@@ -60,5 +61,30 @@ enum class CursorShape(
     /**
      * 手形
      */
-    Hand(PointerIcon.Hand)
+    Hand(PointerIcon.Hand),
+
+    /**
+     * 十字
+     */
+    CrossHair(PointerIcon.Crosshair),
+
+    /**
+     * 调整大小（上下）
+     */
+    ResizeNS(PointerIcon(NativePointerIcon.TYPE_VERTICAL_DOUBLE_ARROW)),
+
+    /**
+     * 调整大小（左右）
+     */
+    ResizeEW(PointerIcon(NativePointerIcon.TYPE_HORIZONTAL_DOUBLE_ARROW)),
+
+    /**
+     * 调整大小（全部方向）
+     */
+    ResizeAll(PointerIcon(NativePointerIcon.TYPE_ALL_SCROLL)),
+
+    /**
+     * 禁止/无效操作
+     */
+    NotAllowed(PointerIcon(NativePointerIcon.TYPE_NO_DROP))
 }

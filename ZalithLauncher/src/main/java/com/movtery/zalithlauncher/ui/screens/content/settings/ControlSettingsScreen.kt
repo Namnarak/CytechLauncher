@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +45,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
-import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
+import com.movtery.zalithlauncher.setting.unit.ParcelableSettingUnit
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -55,11 +56,17 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.infiniteShimmer
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
+import com.movtery.zalithlauncher.ui.control.mouse.CursorHotspot
 import com.movtery.zalithlauncher.ui.control.mouse.MouseHotspotEditorDialog
 import com.movtery.zalithlauncher.ui.control.mouse.MousePointer
 import com.movtery.zalithlauncher.ui.control.mouse.arrowPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.crossHairPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.iBeamPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.linkPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.notAllowedPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.resizeAllPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.resizeEWPointerFile
+import com.movtery.zalithlauncher.ui.control.mouse.resizeNSPointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
@@ -137,8 +144,7 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = arrowPointerFile,
                         cursorShape = CursorShape.Arrow,
-                        xPercent = AllSettings.arrowMouseHotspotX,
-                        yPercent = AllSettings.arrowMouseHotspotY,
+                        hotspot = AllSettings.arrowMouseHotspot,
                         mouseOperation = arrowMouseOperation,
                         changeOperation = { arrowMouseOperation = it },
                         submitError = submitError
@@ -151,8 +157,7 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = linkPointerFile,
                         cursorShape = CursorShape.Hand,
-                        xPercent = AllSettings.linkMouseHotspotX,
-                        yPercent = AllSettings.linkMouseHotspotY,
+                        hotspot = AllSettings.linkMouseHotspot,
                         mouseOperation = linkMouseOperation,
                         changeOperation = { linkMouseOperation = it },
                         submitError = submitError
@@ -165,10 +170,74 @@ fun ControlSettingsScreen(
                         mouseSize = AllSettings.mouseSize.state,
                         mousePointerFile = iBeamPointerFile,
                         cursorShape = CursorShape.IBeam,
-                        xPercent = AllSettings.iBeamMouseHotspotX,
-                        yPercent = AllSettings.iBeamMouseHotspotY,
+                        hotspot = AllSettings.iBeamMouseHotspot,
                         mouseOperation = ibeamMouseOperation,
                         changeOperation = { ibeamMouseOperation = it },
+                        submitError = submitError
+                    )
+
+                    var crosshairMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_crosshair_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = crossHairPointerFile,
+                        cursorShape = CursorShape.CrossHair,
+                        hotspot = AllSettings.crossHairMouseHotspot,
+                        mouseOperation = crosshairMouseOperation,
+                        changeOperation = { crosshairMouseOperation = it },
+                        submitError = submitError
+                    )
+
+                    var resizeNSMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_resize_ns_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_resize_ns_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = resizeNSPointerFile,
+                        cursorShape = CursorShape.ResizeNS,
+                        hotspot = AllSettings.resizeNSMouseHotspot,
+                        mouseOperation = resizeNSMouseOperation,
+                        changeOperation = { resizeNSMouseOperation = it },
+                        submitError = submitError
+                    )
+
+                    var resizeEWMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_resize_ew_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_resize_ew_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = resizeEWPointerFile,
+                        cursorShape = CursorShape.ResizeEW,
+                        hotspot = AllSettings.resizeEWMouseHotspot,
+                        mouseOperation = resizeEWMouseOperation,
+                        changeOperation = { resizeEWMouseOperation = it },
+                        submitError = submitError
+                    )
+
+                    var resizeAllMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_resize_all_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = resizeAllPointerFile,
+                        cursorShape = CursorShape.ResizeAll,
+                        hotspot = AllSettings.resizeAllMouseHotspot,
+                        mouseOperation = resizeAllMouseOperation,
+                        changeOperation = { resizeAllMouseOperation = it },
+                        submitError = submitError
+                    )
+
+                    var notAllowedMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
+                    MousePointerLayout(
+                        title = stringResource(R.string.settings_control_mouse_pointer_not_allowed_title),
+                        summary = stringResource(R.string.settings_control_mouse_pointer_not_allowed_summary),
+                        mouseSize = AllSettings.mouseSize.state,
+                        mousePointerFile = notAllowedPointerFile,
+                        cursorShape = CursorShape.NotAllowed,
+                        hotspot = AllSettings.notAllowedMouseHotspot,
+                        mouseOperation = notAllowedMouseOperation,
+                        changeOperation = { notAllowedMouseOperation = it },
                         submitError = submitError
                     )
 
@@ -470,8 +539,7 @@ private fun MousePointerLayout(
     mouseSize: Int,
     mousePointerFile: File,
     cursorShape: CursorShape,
-    xPercent: IntSettingUnit,
-    yPercent: IntSettingUnit,
+    hotspot: ParcelableSettingUnit<CursorHotspot>,
     mouseOperation: MousePointerOperation,
     changeOperation: (MousePointerOperation) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
@@ -483,8 +551,7 @@ private fun MousePointerLayout(
         operation = mouseOperation,
         changeOperation = changeOperation,
         mousePointerFile = mousePointerFile,
-        xPercent = xPercent,
-        yPercent = yPercent,
+        hotspot = hotspot,
         cursorShape = cursorShape,
         onRefresh = {
             triggerState++
@@ -559,8 +626,9 @@ private fun MousePointerLayout(
             )
 
             val mouseExists = remember(triggerState) { mousePointerFile.exists() }
-
-            if (mouseExists) {
+            AnimatedVisibility(
+                visible = mouseExists
+            ) {
                 IconTextButton(
                     onClick = {
                         if (mouseOperation == MousePointerOperation.None) {
@@ -581,8 +649,7 @@ private fun MousePointerOperation(
     operation: MousePointerOperation,
     changeOperation: (MousePointerOperation) -> Unit,
     mousePointerFile: File,
-    xPercent: IntSettingUnit,
-    yPercent: IntSettingUnit,
+    hotspot: ParcelableSettingUnit<CursorHotspot>,
     cursorShape: CursorShape,
     onRefresh: () -> Unit
 ) {
@@ -610,8 +677,7 @@ private fun MousePointerOperation(
         }
         is MousePointerOperation.Hotspot -> {
             MouseHotspotEditorDialog(
-                xPercent = xPercent,
-                yPercent = yPercent,
+                hotspot = hotspot,
                 cursorShape = cursorShape,
                 onClose = {
                     changeOperation(MousePointerOperation.None)

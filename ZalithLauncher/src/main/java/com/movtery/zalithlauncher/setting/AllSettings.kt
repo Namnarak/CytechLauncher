@@ -10,6 +10,9 @@ import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.ui.control.control.HotbarRule
+import com.movtery.zalithlauncher.ui.control.mouse.CENTER_HOTSPOT
+import com.movtery.zalithlauncher.ui.control.mouse.CursorHotspot
+import com.movtery.zalithlauncher.ui.control.mouse.LEFT_TOP_HOTSPOT
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -133,34 +136,44 @@ object AllSettings : SettingsRegistry() {
     val mouseSize = intSetting("mouseSize", 24)
 
     /**
-     * 虚拟鼠标箭头热点X坐标
+     * 虚拟鼠标箭头热点坐标
      */
-    val arrowMouseHotspotX = intSetting("arrowMouseHotspotX", 0)
+    val arrowMouseHotspot = parcelableSetting("arrowMouseHotspot", LEFT_TOP_HOTSPOT)
 
     /**
-     * 虚拟鼠标箭头热点Y坐标
+     * 虚拟鼠标链接选择热点坐标
      */
-    val arrowMouseHotspotY = intSetting("arrowMouseHotspotY", 0)
+    val linkMouseHotspot = parcelableSetting("linkMouseHotspot", CursorHotspot(xPercent = 23, yPercent = 0))
 
     /**
-     * 虚拟鼠标链接选择热点X坐标
+     * 虚拟鼠标输入选择热点坐标
      */
-    val linkMouseHotspotX = intSetting("linkMouseHotspotX", 32)
+    val iBeamMouseHotspot = parcelableSetting("iBeamMouseHotspot", CENTER_HOTSPOT)
 
     /**
-     * 虚拟鼠标链接选择热点Y坐标
+     * 虚拟鼠标十字热点坐标
      */
-    val linkMouseHotspotY = intSetting("linkMouseHotspotY", 0)
+    val crossHairMouseHotspot = parcelableSetting("crossHairMouseHotspot", CENTER_HOTSPOT)
 
     /**
-     * 虚拟鼠标输入选择热点X坐标
+     * 虚拟鼠标调整大小（上下）热点坐标
      */
-    val iBeamMouseHotspotX = intSetting("iBeamMouseHotspotX", 50)
+    val resizeNSMouseHotspot = parcelableSetting("resizeNSMouseHotspot", CENTER_HOTSPOT)
 
     /**
-     * 虚拟鼠标输入选择热点Y坐标
+     * 虚拟鼠标调整大小（左右）热点坐标
      */
-    val iBeamMouseHotspotY = intSetting("iBeamMouseHotspotY", 50)
+    val resizeEWMouseHotspot = parcelableSetting("resizeEWMouseHotspot", CENTER_HOTSPOT)
+
+    /**
+     * 虚拟鼠标调整大小（全部方向）热点坐标
+     */
+    val resizeAllMouseHotspot = parcelableSetting("resizeAllMouseHotspot", CENTER_HOTSPOT)
+
+    /**
+     * 虚拟鼠标禁止/无效操作热点坐标
+     */
+    val notAllowedMouseHotspot = parcelableSetting("notAllowedMouseHotspot", CENTER_HOTSPOT)
 
     /**
      * 虚拟鼠标灵敏度

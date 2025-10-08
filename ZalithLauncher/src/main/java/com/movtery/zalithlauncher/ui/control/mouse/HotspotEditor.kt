@@ -39,20 +39,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
-import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
+import com.movtery.zalithlauncher.setting.unit.ParcelableSettingUnit
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.utils.file.ifExists
 
 /**
  * 鼠标热点位置编辑对话框，编辑热点X、Y坐标百分比位置值
- * @param xPercent X坐标百分比值
- * @param yPercent Y坐标百分比值
+ * @param hotspot 热点坐标百分比值
  * @param cursorShape 指针形状，用于自动选择鼠标图片
  */
 @Composable
 fun MouseHotspotEditorDialog(
-    xPercent: IntSettingUnit,
-    yPercent: IntSettingUnit,
+    hotspot: ParcelableSettingUnit<CursorHotspot>,
     cursorShape: CursorShape,
     onClose: () -> Unit
 ) {
@@ -80,8 +78,8 @@ fun MouseHotspotEditorDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     MouseHotspotPreview(
-                        xPercent = xPercent.state,
-                        yPercent = yPercent.state,
+                        xPercent = hotspot.state.xPercent,
+                        yPercent = hotspot.state.yPercent,
                         cursorShape = cursorShape,
                         mouseSize = 68.dp
                     )
@@ -100,12 +98,14 @@ fun MouseHotspotEditorDialog(
                         //X坐标
                         InfoLayoutSliderItem(
                             title = stringResource(R.string.settings_control_mouse_pointer_hotspot_x_percent),
-                            value = xPercent.state.toFloat(),
+                            value = hotspot.state.xPercent.toFloat(),
                             onValueChange = { value ->
-                                xPercent.updateState(value.toInt())
+                                hotspot.updateState(
+                                    hotspot.state.copy(xPercent = value.toInt())
+                                )
                             },
                             onValueChangeFinished = {
-                                xPercent.save(xPercent.state)
+                                hotspot.save(hotspot.state)
                             },
                             decimalFormat = "#0",
                             suffix = "%",
@@ -116,12 +116,14 @@ fun MouseHotspotEditorDialog(
                         //Y坐标
                         InfoLayoutSliderItem(
                             title = stringResource(R.string.settings_control_mouse_pointer_hotspot_y_percent),
-                            value = yPercent.state.toFloat(),
+                            value = hotspot.state.yPercent.toFloat(),
                             onValueChange = { value ->
-                                yPercent.updateState(value.toInt())
+                                hotspot.updateState(
+                                    hotspot.state.copy(yPercent = value.toInt())
+                                )
                             },
                             onValueChangeFinished = {
-                                yPercent.save(yPercent.state)
+                                hotspot.save(hotspot.state)
                             },
                             decimalFormat = "#0",
                             suffix = "%",

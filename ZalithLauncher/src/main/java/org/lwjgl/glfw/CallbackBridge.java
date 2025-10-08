@@ -221,6 +221,26 @@ public class CallbackBridge {
                     case 0x36004: //GLFW_HAND_CURSOR
                         shape1 = CursorShape.Hand;
                         break;
+                    // Cross Hair
+                    case 0x36003: //GLFW_CROSSHAIR_CURSOR
+                        shape1 = CursorShape.CrossHair;
+                        break;
+                    // Resize NS
+                    case 0x36006: //GLFW_RESIZE_NS_CURSOR
+                        shape1 = CursorShape.ResizeNS;
+                        break;
+                    // Resize EW
+                    case 0x36005: //GLFW_RESIZE_EW_CURSOR
+                        shape1 = CursorShape.ResizeEW;
+                        break;
+                    // Resize All
+                    case 0x36009: //GLFW_RESIZE_ALL_CURSOR
+                        shape1 = CursorShape.ResizeAll;
+                        break;
+                    // Not Allowed
+                    case 0x3600A: // GLFW_NOT_ALLOWED_CURSOR
+                        shape1 = CursorShape.NotAllowed;
+                        break;
                     // Arrow
                     case 0x36001: //GLFW_ARROW_CURSOR
                     default:

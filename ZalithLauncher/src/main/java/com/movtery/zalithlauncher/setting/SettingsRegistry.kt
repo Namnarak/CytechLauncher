@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.setting
 
+import android.os.Parcelable
 import com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.FloatSettingUnit
@@ -8,6 +9,7 @@ import com.movtery.zalithlauncher.setting.unit.LongSettingUnit
 import com.movtery.zalithlauncher.setting.unit.NullableIntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.setting.unit.enumSettingUnit
+import com.movtery.zalithlauncher.setting.unit.parcelableSettingUnit
 
 abstract class SettingsRegistry {
     protected val refreshableList = mutableListOf<AbstractSettingUnit<*>>()
@@ -34,4 +36,7 @@ abstract class SettingsRegistry {
 
     protected inline fun <reified E : Enum<E>> enumSetting(key: String, def: E) =
         enumSettingUnit(key, def).also { refreshableList.add(it) }
+
+    protected inline fun <reified E: Parcelable> parcelableSetting(key: String, def: E) =
+        parcelableSettingUnit(key, def).also { refreshableList.add(it) }
 }
