@@ -892,4 +892,17 @@
     <string name="settings_control_mouse_pointer_hotspot">Задать точку привязки</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">Координата X</string>
     <string name="settings_control_mouse_pointer_hotspot_y_percent">Координата Y</string>
+    <string name="manage_delete_all">Удалить всё</string>
+    <string name="manage_delete_all_message">Вы уверены, что хотите удалить все выбранные файлы ресурсов? Это действие необратимо. Пожалуйста, действуйте осторожно.</string>
+    <string name="manage_delete_all_error">При удалении ресурсов произошла ошибка</string>
+    <string name="manage_delete_all_success">Выбранные файлы ресурсов успешно удалены!</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">Курсор виртуальной мыши (Прицел)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">Курсор виртуальной мыши (Вверх/Вниз)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">В Minecraft 1.21.9+ курсор мыши меняется на стрелку «Вверх/Вниз» при наведении на полосы прокрутки</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">Курсор виртуальной мыши (Влево/Вправо)</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">В Minecraft 1.21.9+ курсор мыши меняется на стрелку «Влево/Вправо» при наведении на слайдеры</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">Курсор виртуальной мыши (Перемещение)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">Указатель виртуальной мыши (Недоступно)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">В Minecraft 1.21.9+ указатель мыши меняется на значок «Недоступно» при наведении на отключённые компоненты</string>
+    <string name="settings_control_mouse_pointer_common_summary">Эта форма указателя мыши поддерживается в Minecraft 1.21.9+</string>
 </resources>
