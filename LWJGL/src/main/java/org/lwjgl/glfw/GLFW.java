@@ -20,6 +20,9 @@ import static org.lwjgl.system.Checks.*;
 import static org.lwjgl.system.JNI.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
+
+import com.movtery.zalithlauncher.CursorRegistry;
+
 import java.util.*;
 
 public class GLFW
@@ -1204,28 +1207,14 @@ public class GLFW
     }*/
 
     public static long glfwCreateCursor(@NativeType("const GLFWimage *") GLFWImage image, int xhot, int yhot) {
-        return 4L;
+        return CursorRegistry.getDefaultCursor();
     }
     public static long glfwCreateStandardCursor(int shape) {
-        switch (shape) {
-            case GLFW_IBEAM_CURSOR: return 5L;
-            case GLFW_HAND_CURSOR: return 6L;
-            //Default
-            case GLFW_ARROW_CURSOR:
-            default: return 4L;
-        }
+        return CursorRegistry.registerCursor(shape);
     }
     public static void glfwDestroyCursor(@NativeType("GLFWcursor *") long cursor) {}
     public static void glfwSetCursor(@NativeType("GLFWwindow *") long window, @NativeType("GLFWcursor *") long cursor) {
-        if (cursor == 4L) {
-            CallbackBridge.nativeSetCursorShape(GLFW_ARROW_CURSOR);
-        } else if (cursor == 5L) {
-            CallbackBridge.nativeSetCursorShape(GLFW_IBEAM_CURSOR);
-        } else if (cursor == 6L) {
-            CallbackBridge.nativeSetCursorShape(GLFW_HAND_CURSOR);
-        } else {
-            CallbackBridge.nativeSetCursorShape(GLFW_ARROW_CURSOR);
-        }
+        CallbackBridge.nativeSetCursorShape(CursorRegistry.getShape(cursor));
     }
 
     public static boolean glfwRawMouseMotionSupported() {

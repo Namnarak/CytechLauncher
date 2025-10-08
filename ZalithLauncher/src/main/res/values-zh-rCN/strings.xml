@@ -567,6 +567,10 @@
     <string name="versions_config_microphone_check_title">检查麦克风</string>
     <string name="versions_config_microphone_check_summary">检查系统麦克风是否可用，或确认启动器是否已获得麦克风权限。这项检查将确保您可以使用像“简单的语音聊天”这样的需要使用麦克风的模组。</string>
     <string name="manage_only_show_valid">可用的</string>
+    <string name="manage_delete_all">全部删除</string>
+    <string name="manage_delete_all_message">您确定要删除全部选中的资源文件吗？此操作将不可撤销，请谨慎选择。</string>
+    <string name="manage_delete_all_error">删除资源时遇到了问题</string>
+    <string name="manage_delete_all_success">成功删除了已选中的资源文件！</string>
     <string name="mods_manage">模组管理</string>
     <string name="mods_manage_info">模组信息</string>
     <string name="mods_manage_authors">模组作者：</string>
@@ -717,6 +721,15 @@
     <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ 支持在可交互的组件上，让鼠标指针切换到手形</string>
     <string name="settings_control_mouse_pointer_ibeam_title">虚拟鼠标指针（输入光标）</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ 支持在输入框组件上，让鼠标指针切换到输入光标的形状</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">虚拟鼠标指针（十字）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">虚拟鼠标指针（上下）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ 支持在滚动条组件上，让鼠标指针切换到上下箭头的形状</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">虚拟鼠标指针（左右）</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ 支持在滑块组件上，让鼠标指针切换到左右箭头的形状</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">虚拟鼠标指针（移动）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">虚拟鼠标指针（禁止）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ 支持在禁用的组件上，让鼠标指针切换到禁止的形状</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ 支持了该鼠标指针</string>
     <string name="settings_control_mouse_pointer_reset_message">您确定要重置虚拟鼠标指针的图片吗？</string>
     <string name="settings_control_mouse_pointer_hotspot">设置热点</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X 坐标</string>

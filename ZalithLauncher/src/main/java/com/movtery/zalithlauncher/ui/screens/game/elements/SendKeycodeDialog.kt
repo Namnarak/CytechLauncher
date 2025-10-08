@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import com.movtery.zalithlauncher.ui.control.control.Keyboard
 import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 sealed interface SendKeycodeState {
@@ -25,11 +24,9 @@ fun SendKeycodeOperation(
                 onDismissRequest = {
                     onChange(SendKeycodeState.None)
                 },
-                onClick = { keyString ->
+                onTouch = { keyString, pressed ->
                     lifecycleScope.launch {
-                        lwjglEvent(keyString, isMouse = false, isPressed = true)
-                        delay(50)
-                        lwjglEvent(keyString, isMouse = false, isPressed = false)
+                        lwjglEvent(keyString, isMouse = false, isPressed = pressed)
                     }
                 }
             )

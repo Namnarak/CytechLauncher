@@ -53,6 +53,31 @@ val linkPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("link_pointer.im
 val iBeamPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("ibeam_pointer.image")
 
 /**
+ * 十字鼠标指针图片文件
+ */
+val crossHairPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("crosshair_pointer.image")
+
+/**
+ * 上下鼠标指针图标文件
+ */
+val resizeNSPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("resize_NS_pointer.image")
+
+/**
+ * 左右鼠标指针图标文件
+ */
+val resizeEWPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("resize_EW_pointer.image")
+
+/**
+ * 全部方向鼠标指针图标文件
+ */
+val resizeAllPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("resize_ALL_pointer.image")
+
+/**
+ * 禁止/无效操作鼠标指针图标文件
+ */
+val notAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("not_allowed_pointer.image")
+
+/**
  * 虚拟指针模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
  * @param longPressTimeoutMillis    长按触发检测时长
@@ -128,18 +153,18 @@ fun VirtualPointerLayout(
     }
 
     Box(modifier = modifier) {
+        val cursorShape = ZLBridgeStates.cursorShape
+
         if (showMousePointer) {
             MousePointer(
                 modifier = Modifier.mouseFixedPosition(
                     mouseSize = mouseSize,
-                    cursorShape = ZLBridgeStates.cursorShape,
+                    cursorShape = cursorShape,
                     pointerPosition = pointerPosition
                 ),
-                cursorShape = ZLBridgeStates.cursorShape,
+                cursorShape = cursorShape,
                 mouseSize = mouseSize,
-                arrowMouseFile = arrowPointerFile.ifExists(),
-                linkMouseFile = linkPointerFile.ifExists(),
-                iBeamMouseFile = iBeamPointerFile.ifExists()
+                mouseFile = getMouseFile(cursorShape).ifExists(),
             )
         }
 
@@ -148,7 +173,7 @@ fun VirtualPointerLayout(
             controlMode = controlMode,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
-            pointerIcon = ZLBridgeStates.cursorShape.composeIcon,
+            pointerIcon = cursorShape.composeIcon,
             onTap = { fingerPos ->
                 onTap(
                     if (controlMode == MouseControlMode.CLICK) {
@@ -214,32 +239,23 @@ fun Modifier.mouseFixedPosition(
     pointerPosition: Offset
 ): Modifier {
     val sizePx = with(LocalDensity.current) { mouseSize.toPx() }
-    val hotspotXPercent = remember(
-        cursorShape,
-        AllSettings.arrowMouseHotspotX.state,
-        AllSettings.iBeamMouseHotspotX.state,
-        AllSettings.linkMouseHotspotX.state
+    val hotspotUnit = remember(
+        cursorShape
     ) {
         when (cursorShape) {
-            CursorShape.Arrow -> AllSettings.arrowMouseHotspotX.state
-            CursorShape.IBeam -> AllSettings.iBeamMouseHotspotX.state
-            CursorShape.Hand -> AllSettings.linkMouseHotspotX.state
+            CursorShape.Arrow -> AllSettings.arrowMouseHotspot
+            CursorShape.IBeam -> AllSettings.iBeamMouseHotspot
+            CursorShape.Hand -> AllSettings.linkMouseHotspot
+            CursorShape.CrossHair -> AllSettings.crossHairMouseHotspot
+            CursorShape.ResizeNS -> AllSettings.resizeNSMouseHotspot
+            CursorShape.ResizeEW -> AllSettings.resizeEWMouseHotspot
+            CursorShape.ResizeAll -> AllSettings.resizeAllMouseHotspot
+            CursorShape.NotAllowed -> AllSettings.notAllowedMouseHotspot
         }
     }
-    val hotspotYPercent = remember(
-        cursorShape,
-        AllSettings.arrowMouseHotspotY.state,
-        AllSettings.iBeamMouseHotspotY.state,
-        AllSettings.linkMouseHotspotY.state
-    ) {
-        when (cursorShape) {
-            CursorShape.Arrow -> AllSettings.arrowMouseHotspotY.state
-            CursorShape.IBeam -> AllSettings.iBeamMouseHotspotY.state
-            CursorShape.Hand -> AllSettings.linkMouseHotspotY.state
-        }
-    }
-    val x = pointerPosition.x - sizePx * (hotspotXPercent.toFloat() / 100f)
-    val y = pointerPosition.y - sizePx * (hotspotYPercent.toFloat() / 100f)
+    val hotspot = hotspotUnit.state
+    val x = pointerPosition.x - sizePx * (hotspot.xPercent.toFloat() / 100f)
+    val y = pointerPosition.y - sizePx * (hotspot.yPercent.toFloat() / 100f)
 
     return this.absoluteOffset(
         x = with(LocalDensity.current) { x.toDp() },
@@ -247,14 +263,33 @@ fun Modifier.mouseFixedPosition(
     )
 }
 
+/**
+ * 根据指针形状返回不同的鼠标图片文件
+ */
+@Composable
+fun getMouseFile(
+    cursorShape: CursorShape
+): File {
+    return remember(cursorShape) {
+        when (cursorShape) {
+            CursorShape.Arrow -> arrowPointerFile
+            CursorShape.IBeam -> iBeamPointerFile
+            CursorShape.Hand -> linkPointerFile
+            CursorShape.CrossHair -> crossHairPointerFile
+            CursorShape.ResizeNS -> resizeNSPointerFile
+            CursorShape.ResizeEW -> resizeEWPointerFile
+            CursorShape.ResizeAll -> resizeAllPointerFile
+            CursorShape.NotAllowed -> notAllowedPointerFile
+        }
+    }
+}
+
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
     cursorShape: CursorShape = CursorShape.Arrow,
-    arrowMouseFile: File?,
-    linkMouseFile: File? = null,
-    iBeamMouseFile: File? = null,
+    mouseFile: File?,
     centerIcon: Boolean = false,
     triggerRefresh: Any? = null
 ) {
@@ -266,32 +301,24 @@ fun MousePointer(
             .build()
     }
 
-    val cursorImages = remember(triggerRefresh, arrowMouseFile, linkMouseFile, iBeamMouseFile, context) {
-        mapOf(
-            CursorShape.Arrow to (
-                    arrowMouseFile?.takeIf { it.exists() }?.let {
-                        ImageRequest.Builder(context).data(it).build()
-                    } ?: R.drawable.img_mouse_pointer_arrow
-            ),
-
-            CursorShape.IBeam to (
-                    iBeamMouseFile?.takeIf { it.exists() }?.let {
-                        ImageRequest.Builder(context).data(it).build()
-                    } ?: R.drawable.img_mouse_pointer_ibeam
-            ),
-
-            CursorShape.Hand to (
-                    linkMouseFile?.takeIf { it.exists() }?.let {
-                        ImageRequest.Builder(context).data(it).build()
-                    } ?: R.drawable.img_mouse_pointer_link
-            )
-        )
+    val modelOrRes = remember(triggerRefresh, cursorShape, mouseFile, context) {
+        val defaultRes = when (cursorShape) {
+            CursorShape.Arrow -> R.drawable.img_mouse_pointer_arrow
+            CursorShape.IBeam -> R.drawable.img_mouse_pointer_ibeam
+            CursorShape.Hand -> R.drawable.img_mouse_pointer_link
+            CursorShape.CrossHair -> R.drawable.img_mouse_pointer_crosshair
+            CursorShape.ResizeNS -> R.drawable.img_mouse_pointer_resize_ns
+            CursorShape.ResizeEW -> R.drawable.img_mouse_pointer_resize_ew
+            CursorShape.ResizeAll -> R.drawable.img_mouse_pointer_resize_move
+            CursorShape.NotAllowed -> R.drawable.img_mouse_pointer_not_allowed
+        }
+        mouseFile?.takeIf { it.exists() }?.let {
+            ImageRequest.Builder(context).data(it).build()
+        } ?: defaultRes
     }
 
-    val imageAlignment = if (centerIcon || cursorShape == CursorShape.IBeam) Alignment.Center else Alignment.TopStart
+    val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
     val imageModifier = modifier.size(mouseSize)
-
-    val modelOrRes = cursorImages[cursorShape]
 
     when (modelOrRes) {
         is Int -> Image(

@@ -148,18 +148,18 @@ fun SwitchableMouseLayout(
     }
 
     Box(modifier = modifier) {
+        val cursorShape = ZLBridgeStates.cursorShape
+
         if (showMousePointer) {
             MousePointer(
                 modifier = Modifier.mouseFixedPosition(
                     mouseSize = mouseSize,
-                    cursorShape = ZLBridgeStates.cursorShape,
+                    cursorShape = cursorShape,
                     pointerPosition = pointerPosition
                 ),
-                cursorShape = ZLBridgeStates.cursorShape,
+                cursorShape = cursorShape,
                 mouseSize = mouseSize,
-                arrowMouseFile = arrowPointerFile.ifExists(),
-                linkMouseFile = linkPointerFile.ifExists(),
-                iBeamMouseFile = iBeamPointerFile.ifExists()
+                mouseFile = getMouseFile(cursorShape).ifExists(),
             )
         }
 
@@ -173,7 +173,7 @@ fun SwitchableMouseLayout(
             },
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture1,
-            pointerIcon = ZLBridgeStates.cursorShape.composeIcon,
+            pointerIcon = cursorShape.composeIcon,
             onTouch = onTouch,
             onMouse = onMouse,
             onTap = { fingerPos ->

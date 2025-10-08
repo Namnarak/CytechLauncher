@@ -526,6 +526,10 @@
     <string name="versions_config_microphone_check_title">檢查麥克風</string>
     <string name="versions_config_microphone_check_summary">檢查系統麥克風是否可用，或確認啟動器是否已獲得麥克風權限。此檢查將確保您可以使用像 Simple Voice Chat 這樣需要使用麥克風的模組。</string>
     <string name="manage_only_show_valid">可用的</string>
+    <string name="manage_delete_all">全部刪除</string>
+    <string name="manage_delete_all_message">您確定要刪除所有選取的資源檔案嗎？此操作將無法復原，請謹慎選擇。</string>
+    <string name="manage_delete_all_error">刪除資源時遇到問題</string>
+    <string name="manage_delete_all_success">成功刪除了已選取的資源檔案！</string>
     <string name="mods_manage">模組管理</string>
     <string name="mods_manage_info">模組資訊</string>
     <string name="mods_manage_authors">模組作者：</string>
@@ -660,6 +664,15 @@
     <string name="settings_control_mouse_pointer_link_summary">MC 1.21.9+ 支援在可互動的元件上，讓滑鼠指標切換成手形</string>
     <string name="settings_control_mouse_pointer_ibeam_title">虛擬滑鼠指標（輸入游標）</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">MC 1.21.9+ 支援在輸入框元件上，讓滑鼠指標切換成輸入游標的形狀</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">虛擬滑鼠指標（十字）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">虛擬滑鼠指標（上下）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ 支援在滾動條元件上，讓滑鼠指標切換成上下箭頭形狀</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">虛擬滑鼠指標（左右）</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ 支援在滑塊元件上，讓滑鼠指標切換成左右箭頭形狀</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">虛擬滑鼠指標（移動）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">虛擬滑鼠指標（禁止）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ 支援在禁用的元件上，讓滑鼠指標切換成禁止的形狀</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ 支援此滑鼠指標</string>
     <string name="settings_control_mouse_pointer_reset_message">您確定要重設虛擬滑鼠指標的圖片嗎？</string>
     <string name="settings_control_mouse_pointer_hotspot">設定熱點</string>
     <string name="settings_control_mouse_pointer_hotspot_x_percent">X 座標</string>
