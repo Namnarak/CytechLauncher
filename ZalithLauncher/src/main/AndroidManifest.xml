@@ -77,6 +77,16 @@
             android:process=":jvm" />
 
         <provider
+            android:name=".provider.FolderProvider"
+            android:authorities="${packageName}.document.provider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+        <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${packageName}.provider"
             android:exported="false"

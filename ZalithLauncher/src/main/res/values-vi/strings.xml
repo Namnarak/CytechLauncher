@@ -87,7 +87,6 @@
     <string name="splash_screen_agree">Tải</string>
     <string name="notification_title">Kiểm tra quyền gửi thông báo</string>
     <string name="notification_request">Yêu cầu cấp quyền</string>
-    <string name="notification_ignore">Dell quan tâm</string>
     <string name="notification_data_jvm_service_message">Để đảm bảo được quá trình tải xuống được thuận lợi, trình khởi chạy cần phải chạy trình tải ở tiền cảnh. Chúng tôi sẽ cố gắng bắt đầu một dịch vụ tiền cảnh để giúp cho app ko bị crash, nhưng bạn cần cho app quyền gửi thông báo. Bạn giúp chúng tôi bật nó lên đc ko? Nó sẽ giúp cho nhưng lần tải lần sau tránh bị gián đoạn!</string>
     <string name="notification_data_jvm_service_name">Trình tải ở tiền cảnh</string>
     <string name="notification_data_jvm_service_running">Tải game bằng trình tải ở tiền cảnh</string>
