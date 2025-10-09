@@ -106,7 +106,6 @@
     <!--  通知  -->
     <string name="notification_title">检查通知权限</string>
     <string name="notification_request">申请权限</string>
-    <string name="notification_ignore">忽略</string>
     <string name="notification_data_jvm_service_message">为了让安装顺利进行，启动器需要在前台运行安装器。我们会尝试启动一个前台服务来确保稳定性，不过这需要开启通知权限。能帮我们开启通知权限吗？这样可以避免安装中断哦！</string>
     <string name="notification_data_jvm_service_name">前台安装服务</string>
     <string name="notification_data_jvm_service_running">正在前台服务安装游戏中</string>

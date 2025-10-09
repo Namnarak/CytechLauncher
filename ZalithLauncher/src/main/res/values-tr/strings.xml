@@ -76,7 +76,6 @@
     <!--  Notification  -->
     <string name="notification_title">Bildirim İzni Kontrolü</string>
     <string name="notification_request">İzin İste</string>
-    <string name="notification_ignore">Yoksay</string>
     <string name="notification_data_jvm_service_name">Ön Plan Yükleme Servisi</string>
     <string name="notification_data_jvm_service_running">Ön planda oyun kuruluyor</string>
     <!-- Unpacking -->

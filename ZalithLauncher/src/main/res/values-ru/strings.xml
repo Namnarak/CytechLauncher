@@ -83,7 +83,6 @@
     <!-- Notification -->
     <string name="notification_title">Проверка разрешений на уведомления</string>
     <string name="notification_request">Запросить разрешение</string>
-    <string name="notification_ignore">Игнорировать</string>
     <string name="notification_data_jvm_service_message">Для обеспечения стабильной установки лаунчеру необходимо запустить установщик в фоновом режиме. Мы попытаемся запустить службу переднего плана для поддержания стабильности, но для этого требуются разрешения на уведомления. Не могли бы вы включить уведомления? Это поможет избежать прерываний установки!</string>
     <string name="notification_data_jvm_service_name">Служба установки в фоновом режиме</string>
     <string name="notification_data_jvm_service_running">Установка игры через службу переднего плана</string>

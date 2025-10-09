@@ -86,7 +86,6 @@
     <string name="splash_screen_agree">Pasang</string>
     <string name="notification_title">Cek Izin Pemberitahuan</string>
     <string name="notification_request">Minta Perizinan</string>
-    <string name="notification_ignore">Abaikan</string>
     <string name="notification_data_jvm_service_message">Agar instalasi berjalan lancar, peluncur perlu menjalankan penginstal di latar depan. Kami akan mencoba memulai layanan latar depan untuk memastikan stabilitas, tetapi ini memerlukan izin notifikasi. Bersediakah Anda mengaktifkan izin notifikasi untuk kami? Ini akan mencegah gangguan instalasi!</string>
     <string name="notification_data_jvm_service_name">Layanan Instalasi Latar Depan</string>
     <string name="notification_data_jvm_service_running">Menginstal game melalui layanan Latar Depan</string>

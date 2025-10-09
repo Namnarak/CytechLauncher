@@ -40,7 +40,7 @@ fun NotificationCheck(
             Text(text = stringResource(R.string.notification_data_jvm_service_message))
         },
         confirmText = stringResource(R.string.notification_request),
-        dismissText = stringResource(R.string.notification_ignore),
+        dismissText = stringResource(R.string.generic_ignore),
         onConfirm = {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 //13- 跳转至设置，让用户自行开启通知权限

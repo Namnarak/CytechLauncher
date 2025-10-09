@@ -107,7 +107,6 @@
     <!--  Notification  -->
     <string name="notification_title">Check Notification Permission</string>
     <string name="notification_request">Request Permission</string>
-    <string name="notification_ignore">Ignore</string>
     <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the foreground. We\'ll try to start a foreground service to maintain stability, but this requires notification permissions. Could you help us enable notification permissions? This will help prevent installation interruptions!</string>
     <string name="notification_data_jvm_service_name">Foreground Installation Service</string>
     <string name="notification_data_jvm_service_running">Installing the game via foreground service</string>
