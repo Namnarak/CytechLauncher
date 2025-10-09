@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,7 +56,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -68,10 +66,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -618,44 +613,17 @@ private fun SaveIcon(
     val context = LocalContext.current
     val iconFile = File(saveData.saveFile, "icon.png")
 
-    val imageLoader = remember(triggerRefresh, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
+    val model = remember(triggerRefresh, context) {
+        iconFile.takeIf { it.exists() && it.isFile } ?: R.drawable.ic_unknown_save
     }
 
-    val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to R.drawable.ic_unknown_save
-        val file = iconFile.takeIf { it.exists() && it.isFile }
-        when {
-            file == null -> default //不存在则使用默认
-            else -> {
-                val model = ImageRequest.Builder(context)
-                    .data(file)
-                    .build()
-                model to null
-            }
-        }
-    }
-
-    if (model != null) {
-        AsyncImage(
-            model = model,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
-    } else {
-        Image(
-            painter = painterResource(id = defaultRes!!),
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            modifier = modifier
-        )
-    }
+    AsyncImage(
+        model = model,
+        contentDescription = null,
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Fit,
+        modifier = modifier
+    )
 }
 
 @Composable

@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.control.mouse
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -19,13 +19,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
@@ -35,6 +34,8 @@ import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ifExists
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -284,6 +285,10 @@ fun getMouseFile(
     }
 }
 
+/**
+ * 在屏幕上显示虚拟鼠标指针
+ * @param useGlobalImageLoader 是否使用应用全局设置的图片加载器
+ */
 @Composable
 fun MousePointer(
     modifier: Modifier = Modifier,
@@ -291,50 +296,46 @@ fun MousePointer(
     cursorShape: CursorShape = CursorShape.Arrow,
     mouseFile: File?,
     centerIcon: Boolean = false,
-    triggerRefresh: Any? = null
+    triggerRefresh: Any? = null,
+    useGlobalImageLoader: Boolean = false
 ) {
     val context = LocalContext.current
-
-    val imageLoader = remember(triggerRefresh, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
+    val loader = remember(useGlobalImageLoader, triggerRefresh, context) {
+        if (useGlobalImageLoader) {
+            SingletonImageLoader.get(context)
+        } else {
+            ImageLoader.Builder(context)
+                .components { add(GifDecoder.Factory()) }
+                .build()
+        }
     }
 
-    val modelOrRes = remember(triggerRefresh, cursorShape, mouseFile, context) {
-        val defaultRes = when (cursorShape) {
-            CursorShape.Arrow -> R.drawable.img_mouse_pointer_arrow
-            CursorShape.IBeam -> R.drawable.img_mouse_pointer_ibeam
-            CursorShape.Hand -> R.drawable.img_mouse_pointer_link
-            CursorShape.CrossHair -> R.drawable.img_mouse_pointer_crosshair
-            CursorShape.ResizeNS -> R.drawable.img_mouse_pointer_resize_ns
-            CursorShape.ResizeEW -> R.drawable.img_mouse_pointer_resize_ew
-            CursorShape.ResizeAll -> R.drawable.img_mouse_pointer_resize_move
-            CursorShape.NotAllowed -> R.drawable.img_mouse_pointer_not_allowed
-        }
-        mouseFile?.takeIf { it.exists() }?.let {
-            ImageRequest.Builder(context).data(it).build()
-        } ?: defaultRes
+    val fileExists by produceState(initialValue = false, triggerRefresh, mouseFile) {
+        value = withContext(Dispatchers.IO) { mouseFile?.exists() == true }
+    }
+    val defaultRes = when (cursorShape) {
+        CursorShape.Arrow -> R.drawable.img_mouse_pointer_arrow
+        CursorShape.IBeam -> R.drawable.img_mouse_pointer_ibeam
+        CursorShape.Hand -> R.drawable.img_mouse_pointer_link
+        CursorShape.CrossHair -> R.drawable.img_mouse_pointer_crosshair
+        CursorShape.ResizeNS -> R.drawable.img_mouse_pointer_resize_ns
+        CursorShape.ResizeEW -> R.drawable.img_mouse_pointer_resize_ew
+        CursorShape.ResizeAll -> R.drawable.img_mouse_pointer_resize_move
+        CursorShape.NotAllowed -> R.drawable.img_mouse_pointer_not_allowed
+    }
+
+    val model = remember(fileExists, triggerRefresh, cursorShape) {
+        if (fileExists && mouseFile != null) mouseFile else defaultRes
     }
 
     val imageAlignment = if (centerIcon) Alignment.Center else Alignment.TopStart
-    val imageModifier = modifier.size(mouseSize)
 
-    when (modelOrRes) {
-        is Int -> Image(
-            painter = painterResource(id = modelOrRes),
-            contentDescription = null,
-            alignment = imageAlignment,
-            contentScale = ContentScale.Fit,
-            modifier = imageModifier
-        )
-        is ImageRequest -> AsyncImage(
-            model = modelOrRes,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            alignment = imageAlignment,
-            contentScale = ContentScale.Fit,
-            modifier = imageModifier
-        )
-    }
+    AsyncImage(
+        model = model,
+        imageLoader = loader,
+        contentDescription = null,
+        alignment = imageAlignment,
+        contentScale = ContentScale.Fit,
+        modifier = modifier.size(mouseSize)
+    )
 }

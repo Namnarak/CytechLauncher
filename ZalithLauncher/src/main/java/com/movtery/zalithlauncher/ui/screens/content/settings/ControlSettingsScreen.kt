@@ -76,6 +76,7 @@ import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 
@@ -137,11 +138,13 @@ fun ControlSettingsScreen(
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
+                    val mouseSize = AllSettings.mouseSize.state
+
                     var arrowMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_arrow_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_arrow_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = arrowPointerFile,
                         cursorShape = CursorShape.Arrow,
                         hotspot = AllSettings.arrowMouseHotspot,
@@ -154,7 +157,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_link_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_link_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = linkPointerFile,
                         cursorShape = CursorShape.Hand,
                         hotspot = AllSettings.linkMouseHotspot,
@@ -167,7 +170,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_ibeam_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_ibeam_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = iBeamPointerFile,
                         cursorShape = CursorShape.IBeam,
                         hotspot = AllSettings.iBeamMouseHotspot,
@@ -180,7 +183,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_crosshair_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = crossHairPointerFile,
                         cursorShape = CursorShape.CrossHair,
                         hotspot = AllSettings.crossHairMouseHotspot,
@@ -193,7 +196,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_ns_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_resize_ns_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = resizeNSPointerFile,
                         cursorShape = CursorShape.ResizeNS,
                         hotspot = AllSettings.resizeNSMouseHotspot,
@@ -206,7 +209,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_ew_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_resize_ew_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = resizeEWPointerFile,
                         cursorShape = CursorShape.ResizeEW,
                         hotspot = AllSettings.resizeEWMouseHotspot,
@@ -219,7 +222,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_all_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = resizeAllPointerFile,
                         cursorShape = CursorShape.ResizeAll,
                         hotspot = AllSettings.resizeAllMouseHotspot,
@@ -232,7 +235,7 @@ fun ControlSettingsScreen(
                     MousePointerLayout(
                         title = stringResource(R.string.settings_control_mouse_pointer_not_allowed_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_not_allowed_summary),
-                        mouseSize = AllSettings.mouseSize.state,
+                        mouseSize = mouseSize,
                         mousePointerFile = notAllowedPointerFile,
                         cursorShape = CursorShape.NotAllowed,
                         hotspot = AllSettings.notAllowedMouseHotspot,
@@ -546,6 +549,11 @@ private fun MousePointerLayout(
 ) {
     val context = LocalContext.current
     var triggerState by remember { mutableIntStateOf(0) }
+    var fileExists by remember { mutableStateOf(false) }
+
+    LaunchedEffect(triggerState) {
+        fileExists = withContext(Dispatchers.IO) { mousePointerFile.exists() }
+    }
 
     MousePointerOperation(
         operation = mouseOperation,
@@ -611,7 +619,8 @@ private fun MousePointerLayout(
                 cursorShape = cursorShape,
                 mouseFile = mousePointerFile,
                 centerIcon = true,
-                triggerRefresh = triggerState
+                triggerRefresh = triggerState,
+                useGlobalImageLoader = true
             )
 
             IconTextButton(
@@ -625,9 +634,8 @@ private fun MousePointerLayout(
                 text = stringResource(R.string.settings_control_mouse_pointer_hotspot)
             )
 
-            val mouseExists = remember(triggerState) { mousePointerFile.exists() }
             AnimatedVisibility(
-                visible = mouseExists
+                visible = fileExists
             ) {
                 IconTextButton(
                     onClick = {

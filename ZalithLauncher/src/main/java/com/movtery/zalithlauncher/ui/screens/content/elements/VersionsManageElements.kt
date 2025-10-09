@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,15 +50,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.path.GamePath
@@ -832,45 +827,19 @@ fun VersionIconImage(
 ) {
     val context = LocalContext.current
 
-    val imageLoader = remember(version, refreshKey, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
+    val defaultRes = R.drawable.img_minecraft
+    val model = remember(version, refreshKey, context) {
+        if (version == null) return@remember defaultRes
+        val iconFile = VersionsManager.getVersionIconFile(version)
+        if (iconFile.exists()) iconFile else getLoaderIconRes(version)
     }
 
-    val (model, fallbackRes) = remember(version, refreshKey, context) {
-        when {
-            version == null -> null to R.drawable.img_minecraft
-            else -> {
-                val iconFile = VersionsManager.getVersionIconFile(version)
-                if (iconFile.exists()) {
-                    val imageModel = ImageRequest.Builder(context)
-                        .data(iconFile)
-                        .build()
-                    imageModel to null
-                } else {
-                    null to getLoaderIconRes(version)
-                }
-            }
-        }
-    }
-
-    if (model != null) {
-        AsyncImage(
-            model = model,
-            imageLoader = imageLoader,
-            modifier = modifier,
-            contentScale = ContentScale.Fit,
-            contentDescription = null
-        )
-    } else {
-        Image(
-            painter = painterResource(id = fallbackRes ?: R.drawable.img_minecraft),
-            modifier = modifier,
-            contentScale = ContentScale.Fit,
-            contentDescription = null
-        )
-    }
+    AsyncImage(
+        model = model,
+        modifier = modifier,
+        contentScale = ContentScale.Fit,
+        contentDescription = null
+    )
 }
 
 private fun getLoaderIconRes(version: Version): Int {
