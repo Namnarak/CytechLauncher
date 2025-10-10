@@ -390,6 +390,7 @@ fun GameScreen(
     if (AllSettings.showMenuBall.state) {
         DraggableGameBall(
             showGameFps = AllSettings.showFPS.state,
+            showMemory = AllSettings.showMemory.state,
             onClick = {
                 viewModel.switchMenu()
             }

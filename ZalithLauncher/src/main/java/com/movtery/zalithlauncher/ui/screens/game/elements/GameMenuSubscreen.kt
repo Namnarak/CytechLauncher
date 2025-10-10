@@ -157,6 +157,16 @@ fun GameMenuSubscreen(
                     enabled = AllSettings.showMenuBall.state
                 )
             }
+            //内存显示
+            item {
+                MenuSwitchButton(
+                    modifier = itemCommonModifier,
+                    text = stringResource(R.string.game_menu_option_switch_memory),
+                    switch = AllSettings.showMemory.state,
+                    onSwitch = { AllSettings.showMemory.save(it) },
+                    enabled = AllSettings.showMenuBall.state
+                )
+            }
             //游戏窗口分辨率
             item {
                 MenuSliderLayout(

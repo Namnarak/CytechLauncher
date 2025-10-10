@@ -329,6 +329,11 @@ object AllSettings : SettingsRegistry() {
     val showFPS = boolSetting("showFPS", true)
 
     /**
+     * 在游戏菜单悬浮窗上显示内存
+     */
+    val showMemory = boolSetting("showMemory", false)
+
+    /**
      * 在游戏画面上展示菜单悬浮窗
      */
     val showMenuBall = boolSetting("showMenuBall", true)
