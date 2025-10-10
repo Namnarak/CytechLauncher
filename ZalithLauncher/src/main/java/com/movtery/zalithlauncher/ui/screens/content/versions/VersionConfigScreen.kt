@@ -1,9 +1,12 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -43,13 +46,14 @@ import com.movtery.zalithlauncher.ui.components.TextInputLayout
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckState
 import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.platform.MemoryUtils
+import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 
@@ -243,16 +247,45 @@ private fun GameConfigs(
             }
         )
 
+        /**
+         * 临时已分配内存，用于UI状态更新
+         */
+        var ramAllocation by remember { mutableIntStateOf(config.ramAllocation) }
         ToggleableSliderSetting(
             currentValue = config.ramAllocation,
-            valueRange = 256f..MemoryUtils.getMaxMemoryForSettings(LocalContext.current).toFloat(),
+            valueRange = 256f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
             defaultValue = AllSettings.ramAllocation.getValue(),
             title = stringResource(R.string.settings_game_java_memory_title),
             summary = stringResource(R.string.settings_game_java_memory_summary),
             suffix = "MB",
-            onValueChange = { config.ramAllocation = it },
+            onValueChange = {
+                config.ramAllocation = it
+                ramAllocation = it
+            },
             onValueChangeFinished = { config.saveOrShowError(context, submitError) }
         )
+
+        AnimatedVisibility(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(start = 2.dp),
+            visible = ramAllocation >= 256
+        ) {
+            Column {
+                MemoryPreview(
+                    modifier = Modifier.fillMaxWidth(),
+                    preview = ramAllocation.takeIf { it >= 256 }?.toDouble(),
+                    usedText = { usedMemory, totalMemory ->
+                        stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
+                    },
+                    previewText = { preview ->
+                        stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
+                    }
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+        }
 
         TextInputLayout(
             currentValue = config.customInfo,

@@ -10,7 +10,7 @@ import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.getInt
-import com.movtery.zalithlauncher.utils.platform.MemoryUtils
+import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
@@ -133,7 +133,7 @@ class Version(
     fun getServerIp(): String? = versionConfig.serverIp.takeIf { it.isNotEmptyOrBlank() }
 
     fun getRamAllocation(context: Context = GlobalContext): Int = versionConfig.ramAllocation.takeIf { it >= 256 }?.let {
-        min(it, MemoryUtils.getMaxMemoryForSettings(context))
+        min(it, getMaxMemoryForSettings(context))
     } ?: AllSettings.ramAllocation.getValue()
 
     fun isTouchProxyEnabled(): Boolean = versionConfig.enableTouchProxy

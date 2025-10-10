@@ -324,6 +324,7 @@
     <string name="game_menu_option_switch_log">Log Output</string>
     <string name="game_menu_option_input_method">Switch Input Method</string>
     <string name="game_menu_option_switch_fps">FPS Display</string>
+    <string name="game_menu_option_switch_memory">Memory Display</string>
     <string name="game_menu_option_send_keycode">Send Keycode</string>
     <string name="game_menu_option_replacement_control">Replace Control Layout</string>
     <string name="game_menu_option_hotbar_rule">Hotbar Positioning Rule</string>
@@ -689,6 +690,8 @@
     <string name="settings_game_java_runtime_summary">Specify the default Java environment to use</string>
     <string name="settings_game_java_memory_title">Memory Allocation</string>
     <string name="settings_game_java_memory_summary">Adjust Minecraft\'s memory usage</string>
+    <string name="settings_game_java_memory_used_text">Used: %1$dMB / %2$dMB</string>
+    <string name="settings_game_java_memory_allocation_text">Allocated: %dMB</string>
     <string name="settings_game_jvm_args_title">JVM Arguments</string>
     <string name="settings_game_jvm_args_summary">Additional JVM arguments added when starting the JVM. Modifying these without proper knowledge is not recommended, as it may cause crashes</string>
     <string name="settings_game_show_log_automatic_title">Automatically Show Logs</string>
