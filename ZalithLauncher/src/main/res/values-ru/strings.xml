@@ -904,4 +904,7 @@
     <string name="settings_control_mouse_pointer_not_allowed_title">Указатель виртуальной мыши (Недоступно)</string>
     <string name="settings_control_mouse_pointer_not_allowed_summary">В Minecraft 1.21.9+ указатель мыши меняется на значок «Недоступно» при наведении на отключённые компоненты</string>
     <string name="settings_control_mouse_pointer_common_summary">Эта форма указателя мыши поддерживается в Minecraft 1.21.9+</string>
+    <string name="game_menu_option_switch_memory">Отображение памяти</string>
+    <string name="settings_game_java_memory_used_text">Использовано: %1$d МБ / %2$d МБ</string>
+    <string name="settings_game_java_memory_allocation_text">Выделено: %d МБ</string>
 </resources>
