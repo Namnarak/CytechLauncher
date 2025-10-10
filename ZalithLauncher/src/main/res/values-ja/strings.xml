@@ -884,4 +884,7 @@
     <string name="settings_control_mouse_pointer_not_allowed_title">仮想マウスポインター（禁止）</string>
     <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを禁止の形に切り替える機能をサポートしています</string>
     <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ はこのマウスポインターをサポートしています</string>
+    <string name="game_menu_option_switch_memory">メモリを表示</string>
+    <string name="settings_game_java_memory_used_text">使用量: %1$dMB/ %2$dMB</string>
+    <string name="settings_game_java_memory_allocation_text">割り当て済み: %dMB</string>
 </resources>
