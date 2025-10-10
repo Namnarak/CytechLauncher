@@ -886,4 +886,25 @@
     <string name="settings_control_mouse_pointer_link_summary">В Minecraft 1.21.9+ можно переключить указатель мыши на форму руки при наведении на интерактивные предметы</string>
     <string name="settings_control_mouse_pointer_ibeam_title">Курсор виртуальной мыши (Текстовый курсор)</string>
     <string name="settings_control_mouse_pointer_ibeam_summary">В Minecraft 1.21.9+ указатель мыши меняется на текстовый курсор (I-образный) при наведении на поля ввода</string>
+    <string name="download_assets_loading_page">Загрузка данных страницы, страница %d</string>
+    <string name="download_assets_loading_dep_project">Загрузка и кэширование зависимого проекта, ID: %s</string>
+    <string name="settings_control_mouse_pointer_hotspot">Задать точку привязки</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">Координата X</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Координата Y</string>
+    <string name="manage_delete_all">Удалить всё</string>
+    <string name="manage_delete_all_message">Вы уверены, что хотите удалить все выбранные файлы ресурсов? Это действие необратимо. Пожалуйста, действуйте осторожно.</string>
+    <string name="manage_delete_all_error">При удалении ресурсов произошла ошибка</string>
+    <string name="manage_delete_all_success">Выбранные файлы ресурсов успешно удалены!</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">Курсор виртуальной мыши (Прицел)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">Курсор виртуальной мыши (Вверх/Вниз)</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">В Minecraft 1.21.9+ курсор мыши меняется на стрелку «Вверх/Вниз» при наведении на полосы прокрутки</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">Курсор виртуальной мыши (Влево/Вправо)</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">В Minecraft 1.21.9+ курсор мыши меняется на стрелку «Влево/Вправо» при наведении на слайдеры</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">Курсор виртуальной мыши (Перемещение)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">Указатель виртуальной мыши (Недоступно)</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">В Minecraft 1.21.9+ указатель мыши меняется на значок «Недоступно» при наведении на отключённые компоненты</string>
+    <string name="settings_control_mouse_pointer_common_summary">Эта форма указателя мыши поддерживается в Minecraft 1.21.9+</string>
+    <string name="game_menu_option_switch_memory">Отображение памяти</string>
+    <string name="settings_game_java_memory_used_text">Использовано: %1$d МБ / %2$d МБ</string>
+    <string name="settings_game_java_memory_allocation_text">Выделено: %d МБ</string>
 </resources>

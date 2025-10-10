@@ -376,7 +376,7 @@
     <string name="saves_manage_quick_play_disabled">クイックプレイ (1.20+ のみ)</string>
     <string name="saves_manage_no_saves">このバージョンにはセーブがありません</string>
     <string name="saves_manage_save_name">セーブ名</string>
-    <string name="saves_manage_backup">バックアップのセーブ</string>
+    <string name="saves_manage_backup">セーブをバックアップ</string>
     <string name="mods_manage_no_mods">このバージョンにはモッドがありません</string>
     <string name="saves_manage">セーブ</string>
     <string name="saves_manage_info">セーブ情報</string>
@@ -866,4 +866,25 @@
     <string name="mods_update_success_text">選択したモッドが全て最新バージョンに更新されました！</string>
     <string name="mods_update_failed">モッドの更新に失敗</string>
     <string name="mods_update_failed_text">モッドの更新中にエラーが発生しました:</string>
+    <string name="download_assets_loading_page">ページデータを読み込んでいます、ページ %d</string>
+    <string name="download_assets_loading_dep_project">依存プロジェクトを読み込んでキャッシュ、ID: %s</string>
+    <string name="settings_control_mouse_pointer_hotspot">ホットスポットを設定</string>
+    <string name="settings_control_mouse_pointer_hotspot_x_percent">X座標</string>
+    <string name="settings_control_mouse_pointer_hotspot_y_percent">Y座標</string>
+    <string name="manage_delete_all">全削除</string>
+    <string name="manage_delete_all_message">選択したリソースファイルを全削除して良いですか？この操作は元に戻せません。慎重に選択してください。</string>
+    <string name="manage_delete_all_error">リソースの削除中にエラーが発生しました</string>
+    <string name="manage_delete_all_success">選択したリソースファイルが正常に削除されました！</string>
+    <string name="settings_control_mouse_pointer_crosshair_title">仮想マウスポインター（クロスヘア）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_title">仮想マウスポインター（上下）</string>
+    <string name="settings_control_mouse_pointer_resize_ns_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを上下矢印の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_resize_ew_title">仮想マウスポインター（左右）</string>
+    <string name="settings_control_mouse_pointer_resize_ew_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを左右矢印の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_resize_all_title">仮想マウスポインター（移動）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_title">仮想マウスポインター（禁止）</string>
+    <string name="settings_control_mouse_pointer_not_allowed_summary">MC 1.21.9+ では、インタラクティブできるコンポーネント上でマウスポインターを禁止の形に切り替える機能をサポートしています</string>
+    <string name="settings_control_mouse_pointer_common_summary">MC 1.21.9+ はこのマウスポインターをサポートしています</string>
+    <string name="game_menu_option_switch_memory">メモリを表示</string>
+    <string name="settings_game_java_memory_used_text">使用量: %1$dMB/ %2$dMB</string>
+    <string name="settings_game_java_memory_allocation_text">割り当て済み: %dMB</string>
 </resources>
