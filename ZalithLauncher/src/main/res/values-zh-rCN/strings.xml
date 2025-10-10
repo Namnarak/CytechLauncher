@@ -323,6 +323,7 @@
     <string name="game_menu_option_switch_log">日志输出</string>
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
+    <string name="game_menu_option_switch_memory">内存显示</string>
     <string name="game_menu_option_send_keycode">发送键值</string>
     <string name="game_menu_option_replacement_control">更换控制布局</string>
     <string name="game_menu_option_hotbar_rule">快捷栏定位规则</string>
@@ -688,6 +689,8 @@
     <string name="settings_game_java_runtime_summary">指定默认使用的 Java 环境</string>
     <string name="settings_game_java_memory_title">内存分配</string>
     <string name="settings_game_java_memory_summary">控制给 Minecraft 分配多少内存</string>
+    <string name="settings_game_java_memory_used_text">已使用：%1$dMB/ %2$dMB</string>
+    <string name="settings_game_java_memory_allocation_text">已分配：%dMB</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>
     <string name="settings_game_jvm_args_summary">启动 JVM 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致崩溃</string>
     <string name="settings_game_show_log_automatic_title">自动显示日志</string>

@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.elements
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
@@ -17,17 +16,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
-import coil3.ImageLoader
 import coil3.compose.AsyncImage
-import coil3.gif.GifDecoder
-import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
@@ -343,43 +338,16 @@ fun ByteArrayIcon(
 ) {
     val context = LocalContext.current
 
-    val imageLoader = remember(triggerRefresh, context) {
-        ImageLoader.Builder(context)
-            .components { add(GifDecoder.Factory()) }
-            .build()
+    val model = remember(triggerRefresh, context) {
+        icon ?: defaultIcon
     }
 
-    val (model, defaultRes) = remember(triggerRefresh, context) {
-        val default = null to defaultIcon
-        when {
-            icon == null -> default //不存在则使用默认
-            else -> {
-                val model = ImageRequest.Builder(context)
-                    .data(icon)
-                    .build()
-                model to null
-            }
-        }
-    }
-
-    if (model != null) {
-        AsyncImage(
-            modifier = modifier,
-            model = model,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            colorFilter = colorFilter
-        )
-    } else {
-        Image(
-            modifier = modifier,
-            painter = painterResource(id = defaultRes!!),
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            colorFilter = colorFilter
-        )
-    }
+    AsyncImage(
+        modifier = modifier,
+        model = model,
+        contentDescription = null,
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Fit,
+        colorFilter = colorFilter
+    )
 }

@@ -19,8 +19,9 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.utils.platform.MemoryUtils.getMaxMemoryForSettings
+import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 
 @Composable
 fun GameSettingsScreen(
@@ -89,6 +90,20 @@ fun GameSettingsScreen(
                         valueRange = 256f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
                         suffix = "MB",
                         fineTuningControl = true
+                    )
+
+                    MemoryPreview(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .padding(start = 2.dp, bottom = 12.dp),
+                        preview = AllSettings.ramAllocation.state.toDouble(),
+                        usedText = { usedMemory, totalMemory ->
+                            stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
+                        },
+                        previewText = { preview ->
+                            stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
+                        }
                     )
 
                     TextInputSettingsLayout(
