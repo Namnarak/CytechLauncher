@@ -20,9 +20,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -100,7 +100,7 @@ fun Keyboard(
             ) {
                 Column {
                     //顶贴标签栏
-                    TabRow(selectedTabIndex = selectedTabIndex) {
+                    SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
                         tabs.forEachIndexed { index, item ->
                             Tab(
                                 selected = index == selectedTabIndex,
