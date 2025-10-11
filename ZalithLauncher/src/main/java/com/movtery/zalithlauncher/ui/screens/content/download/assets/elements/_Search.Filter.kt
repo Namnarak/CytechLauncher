@@ -28,6 +28,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,9 +50,11 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortField
 import com.movtery.zalithlauncher.game.download.assets.utils.allGameVersions
+import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
 /**
  * 搜索资源过滤器UI
@@ -144,9 +148,19 @@ fun SearchFilter(
         }
 
         item {
+            val versions by MinecraftVersions.releasesFlow.collectAsState()
+            //刷新真实的版本列表
+            LaunchedEffect(Unit) {
+                runCatching {
+                    MinecraftVersions.refreshReleaseVersions(force = false)
+                }.onFailure {
+                    lWarning("Failed to refresh Minecraft versions")
+                }
+            }
+
             FilterListLayout(
                 modifier = Modifier.fillMaxWidth(),
-                items = allGameVersions,
+                items = versions ?: allGameVersions,
                 selectedItem = gameVersion,
                 onItemSelected = {
                     onGameVersionChange(it)

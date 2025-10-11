@@ -54,6 +54,7 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
+import com.movtery.zalithlauncher.game.versioninfo.models.isType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -263,14 +264,14 @@ fun SelectGameVersionScreen(
  */
 private fun List<VersionManifest.Version>.filterVersions(
     versionFilter: VersionFilter
-) = this.filter {
-    val type = when (it.type) {
-        "release" -> versionFilter.release
-        "snapshot" -> versionFilter.snapshot
-        else -> versionFilter.old && it.type.startsWith("old")
-    }
+) = this.filter { version ->
+    val type = version.isType(
+        release = versionFilter.release,
+        snapshot = versionFilter.snapshot,
+        old = versionFilter.old
+    )
     val versionId = versionFilter.id
-    val id = (versionId.isEmptyOrBlank()) || it.id.contains(versionId)
+    val id = (versionId.isEmptyOrBlank()) || version.id.contains(versionId)
     (type && id)
 }
 
