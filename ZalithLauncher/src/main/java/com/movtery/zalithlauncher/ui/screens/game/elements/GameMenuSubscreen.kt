@@ -103,6 +103,18 @@ fun GameMenuSubscreen(
                         }
                     )
                 }
+                //控制布局不透明度
+                item {
+                    MenuSliderLayout(
+                        modifier = itemCommonModifier,
+                        title = stringResource(R.string.game_menu_option_controls_opacity),
+                        value = AllSettings.controlsOpacity.state,
+                        valueRange = 0f..100f,
+                        onValueChange = { AllSettings.controlsOpacity.updateState(it) },
+                        onValueChangeFinished = { AllSettings.controlsOpacity.save(it) },
+                        suffix = "%"
+                    )
+                }
 
                 item {
                     Spacer(modifier = Modifier.height(8.dp))

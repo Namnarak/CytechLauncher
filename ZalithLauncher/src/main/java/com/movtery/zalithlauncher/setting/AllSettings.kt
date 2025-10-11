@@ -356,6 +356,12 @@ object AllSettings : SettingsRegistry() {
     val hotbarHeight = intSetting("hotbarHeight", 100)
 
     /**
+     * 游戏内控制布局的整体不透明度
+     * 0~100
+     */
+    val controlsOpacity = intSetting("controlsOpacity", 100)
+
+    /**
      * 控制布局编辑器：是否开启控件吸附功能
      */
     val editorEnableWidgetSnap = boolSetting("editorEnableWidgetSnap", true)

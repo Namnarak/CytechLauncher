@@ -304,6 +304,7 @@
     <string name="game_menu_option_hotbar_height">快捷列高度</string>
     <string name="game_menu_option_show_menu">開啟選單懸浮窗</string>
     <string name="game_menu_option_show_menu_hided">已關閉遊戲選單懸浮窗，您可以透過系統返回鍵呼叫遊戲選單</string>
+    <string name="game_menu_option_controls_opacity">控制佈局不透明度</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>
