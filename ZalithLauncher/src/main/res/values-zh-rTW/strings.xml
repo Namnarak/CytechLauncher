@@ -502,6 +502,7 @@
     <string name="versions_overview_saves_folder">存檔資料夾</string>
     <string name="versions_overview_resource_pack_folder">資源包資料夾</string>
     <string name="versions_overview_shaders_pack_folder">光影包資料夾</string>
+    <string name="versions_overview_mod_folder">模組資料夾</string>
     <string name="versions_overview_screenshot_folder">螢幕擷圖資料夾</string>
     <string name="versions_overview_logs_folder">日誌資料夾</string>
     <string name="versions_overview_crash_report_folder">崩潰報告資料夾</string>

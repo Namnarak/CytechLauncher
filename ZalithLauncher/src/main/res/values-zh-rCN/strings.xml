@@ -543,6 +543,7 @@
     <string name="versions_overview_saves_folder">存档文件夹</string>
     <string name="versions_overview_resource_pack_folder">资源包文件夹</string>
     <string name="versions_overview_shaders_pack_folder">光影包文件夹</string>
+    <string name="versions_overview_mod_folder">模组文件夹</string>
     <string name="versions_overview_screenshot_folder">屏幕截图文件夹</string>
     <string name="versions_overview_logs_folder">日志文件夹</string>
     <string name="versions_overview_crash_report_folder">崩溃报告文件夹</string>

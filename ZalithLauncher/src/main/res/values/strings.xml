@@ -544,6 +544,7 @@
     <string name="versions_overview_saves_folder">Saves Folder</string>
     <string name="versions_overview_resource_pack_folder">Resource Pack Folder</string>
     <string name="versions_overview_shaders_pack_folder">Shader Pack Folder</string>
+    <string name="versions_overview_mod_folder">Mod Folder</string>
     <string name="versions_overview_screenshot_folder">Screenshot Folder</string>
     <string name="versions_overview_logs_folder">Log Folder</string>
     <string name="versions_overview_crash_report_folder">Crash Report Folder</string>
