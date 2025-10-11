@@ -446,12 +446,11 @@ private fun EditKeyEvent(
             onDismissRequest = {
                 showKeyboard = false
             },
-            onTouch = { selectedKey, pressed ->
-                if (pressed) {
-                    val event = ClickEvent(type = ClickEvent.Type.Key, key = selectedKey)
-                    data.addEvent(event)
-                    showKeyboard = false
-                }
+            isTapMode = true,
+            onTap = { selectedKey ->
+                val event = ClickEvent(type = ClickEvent.Type.Key, key = selectedKey)
+                data.addEvent(event)
+                showKeyboard = false
             }
         )
     }
