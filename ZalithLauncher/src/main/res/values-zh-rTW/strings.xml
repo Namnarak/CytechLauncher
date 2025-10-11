@@ -289,6 +289,7 @@
     <string name="game_loading_version_name">遊戲版本：%s</string>
     <string name="game_loading_version_info">遊戲資訊：%s</string>
     <string name="game_menu_title">遊戲選單</string>
+    <string name="game_menu_control_title">控制選單</string>
     <string name="game_menu_option_force_close_text">強制關閉正在執行的遊戲可能會導致存檔損壞或設定無法儲存，除非特殊情況請避免此操作。</string>
     <string name="game_menu_option_switch_log">日誌輸出</string>
     <string name="game_menu_option_input_method">切換輸入法</string>

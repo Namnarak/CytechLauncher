@@ -320,6 +320,7 @@
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
     <string name="game_menu_title">Game Menu</string>
+    <string name="game_menu_control_title">Control Menu</string>
     <string name="game_menu_option_force_close_text">Forcing the currently running game to close may cause save data corruption or prevent settings from being saved. Avoid this action unless necessary.</string>
     <string name="game_menu_option_switch_log">Log Output</string>
     <string name="game_menu_option_input_method">Switch Input Method</string>
