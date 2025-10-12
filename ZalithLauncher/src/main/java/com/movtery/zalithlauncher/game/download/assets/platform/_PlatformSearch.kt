@@ -1,8 +1,6 @@
 package com.movtery.zalithlauncher.game.download.assets.platform
 
 import com.movtery.zalithlauncher.game.download.assets.mapExceptionToMessage
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithCurseforge
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch.searchWithModrinth
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearchRequest
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
@@ -98,8 +96,8 @@ suspend fun getVersions(
     platform: Platform,
     onCurseforgeCallback: (Int) -> Unit = {},
 ) = when (platform) {
-    Platform.CURSEFORGE -> PlatformSearch.getAllVersionsFromCurseForge(projectID, pageCallback = onCurseforgeCallback)
-    Platform.MODRINTH -> PlatformSearch.getVersionsFromModrinth(projectID)
+    Platform.CURSEFORGE -> getAllVersionsFromCurseForge(projectID, pageCallback = onCurseforgeCallback)
+    Platform.MODRINTH -> getVersionsFromModrinth(projectID)
 }
 
 suspend fun <E> getVersions(
@@ -132,8 +130,8 @@ suspend fun <E> getProject(
 ) {
     runCatching {
         when (platform) {
-            Platform.CURSEFORGE -> PlatformSearch.getProjectFromCurseForge(projectID)
-            Platform.MODRINTH -> PlatformSearch.getProjectFromModrinth(projectID)
+            Platform.CURSEFORGE -> getProjectFromCurseForge(projectID)
+            Platform.MODRINTH -> getProjectFromModrinth(projectID)
         }
     }.fold(
         onSuccess = onSuccess,
@@ -155,21 +153,21 @@ suspend fun getProjectByVersion(
     platform: Platform
 ): PlatformProject = withContext(Dispatchers.IO) {
     when (platform) {
-        Platform.MODRINTH -> PlatformSearch.getProjectFromModrinth(projectID = projectId)
-        Platform.CURSEFORGE -> PlatformSearch.getProjectFromCurseForge(projectID = projectId)
+        Platform.MODRINTH -> getProjectFromModrinth(projectID = projectId)
+        Platform.CURSEFORGE -> getProjectFromCurseForge(projectID = projectId)
     }
 }
 
 suspend fun getVersionByLocalFile(file: File, sha1: String): PlatformVersion? = coroutineScope {
     val modrinthDeferred = async(Dispatchers.IO) {
         runCatching {
-            PlatformSearch.getVersionByLocalFileFromModrinth(sha1)
+            getVersionByLocalFileFromModrinth(sha1)
         }.getOrNull()
     }
 
     val curseForgeDeferred = async(Dispatchers.IO) {
         runCatching {
-            PlatformSearch.getVersionByLocalFileFromCurseForge(file)
+            getVersionByLocalFileFromCurseForge(file)
                 .data.exactMatches
                 ?.takeIf { it.isNotEmpty() }
                 ?.firstOrNull()
