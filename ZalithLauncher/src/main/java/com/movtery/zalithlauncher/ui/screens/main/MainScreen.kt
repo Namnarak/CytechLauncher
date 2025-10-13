@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -249,14 +251,18 @@ private fun TopBar(
                 }
             }
 
-            Text(
-                text = InfoDistributor.LAUNCHER_IDENTIFIER,
+            AnimatedVisibility(
                 modifier = Modifier
                     .constrainAs(title) {
                         centerVerticallyTo(parent)
                         start.linkTo(backCenter.end, margin = 16.dp)
-                    }
-            )
+                    },
+                enter = fadeIn(),
+                exit = fadeOut(),
+                visible = inLauncherScreen //仅在启动器主屏幕显示
+            ) {
+                Text(text = InfoDistributor.LAUNCHER_IDENTIFIER)
+            }
 
             Row(
                 modifier = Modifier
