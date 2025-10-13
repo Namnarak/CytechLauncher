@@ -61,7 +61,7 @@ object NeoForgeVersions {
      */
     private fun fetchListWithBMCLAPI(delayMillis: Long): MirrorSource<List<NeoForgeVersion>?> = MirrorSource(
         delayMillis = delayMillis,
-        type = SourceType.OFFICIAL
+        type = SourceType.BMCLAPI
     ) {
         fetchListWithSource(
             neoforgeUrl = "https://bmclapi2.bangbang93.com/neoforge/meta/api/maven/details/releases/net/neoforged/neoforge",
