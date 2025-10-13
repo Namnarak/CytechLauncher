@@ -33,7 +33,7 @@ val GLOBAL_CLIENT = HttpClient(CIO) {
     install(ContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true
-            explicitNulls = false
+            explicitNulls = true
             coerceInputValues = true
         })
     }
