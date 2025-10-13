@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -27,25 +28,24 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
- * A navigation rail item, which can contain an icon and text. It features a selection
- * animation where a capsule-shaped background expands from the center when the item is selected.
+ * 导航栏item组件，可包含图标与文字。当item被选中时，
+ * 会触发一个从中心向外扩展的胶囊形背景动画。
  *
- * This component is designed to be a flexible building block for navigation rails.
- *
- * @param text The composable lambda that defines the text to be displayed inside the item.
- * @param onClick The callback to be invoked when this item is clicked.
- * @param selected A boolean indicating whether this item is currently selected. The selection
- *                 animation is driven by this state.
- * @param modifier The [Modifier] to be applied to the component.
- * @param icon The composable lambda for the icon to be displayed. Appears before the text.
- * @param paddingValues The padding to be applied to the content (icon and text) inside the item.
- * @param shape The shape used for clipping the item's bounds and defining its clickable area.
- * @param backgroundColor The color of the animated background that appears when the item is selected.
- * @param selectedContentColor The color for the icon and text when the item is selected.
- * @param unselectedContentColor The color for the icon and text when the item is not selected.
+ * @param text 用于定义item中文字内容的可组合函数
+ * @param onClick 当该item被点击时调用的回调函数
+ * @param selected 指示该item当前是否处于选中状态
+ *                 选中动画的播放由此状态控制
+ * @param icon 用于定义显示图标的可组合函数，图标显示在文字之前。
+ * @param selectedPadding item被选中时，其内部内容的内边距
+ * @param unSelectedPadding item未被选中时，其内部内容的内边距
+ * @param shape 定义item裁剪边界与点击区域的形状。
+ * @param backgroundColor item被选中时，显示的动画背景颜色。
+ * @param selectedContentColor item被选中时，图标与文字的颜色。
+ * @param unselectedContentColor item未被选中时，图标与文字的颜色。
  */
 @Composable
 fun TextRailItem(
@@ -54,7 +54,8 @@ fun TextRailItem(
     onClick: () -> Unit,
     icon: @Composable RowScope.() -> Unit = {},
     selected: Boolean,
-    paddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    selectedPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    unSelectedPadding: PaddingValues = selectedPadding,
     shape: Shape = MaterialTheme.shapes.extraLarge,
     backgroundColor: Color = NavigationRailItemDefaults.colors().selectedIndicatorColor,
     selectedContentColor: Color = NavigationRailItemDefaults.colors().selectedIconColor,
@@ -92,8 +93,26 @@ fun TextRailItem(
             )
         }
 
+        val paddingLeft by animateDpAsState(
+            if (selected) selectedPadding.calculateLeftPadding(LayoutDirection.Ltr) else unSelectedPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        )
+        val paddingRight by animateDpAsState(
+            if (selected) selectedPadding.calculateRightPadding(LayoutDirection.Ltr) else unSelectedPadding.calculateRightPadding(LayoutDirection.Ltr)
+        )
+        val paddingTop by animateDpAsState(
+            if (selected) selectedPadding.calculateTopPadding() else unSelectedPadding.calculateTopPadding()
+        )
+        val paddingBottom by animateDpAsState(
+            if (selected) selectedPadding.calculateBottomPadding() else unSelectedPadding.calculateBottomPadding()
+        )
+
         Row(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier.padding(
+                start = paddingLeft,
+                end = paddingRight,
+                top = paddingTop,
+                bottom = paddingBottom
+            ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
