@@ -1,6 +1,11 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.game
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,13 +23,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -56,7 +63,6 @@ import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.isType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -197,12 +203,10 @@ fun SelectGameVersionScreen(
             swapIn = isVisible
         )
 
-        Card(
+        Column(
             modifier = Modifier
-                .padding(all = 12.dp)
                 .fillMaxSize()
-                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-            shape = MaterialTheme.shapes.extraLarge
+                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
         ) {
             when (val state = viewModel.versionState) {
                 is VersionState.Loading -> {
@@ -289,42 +293,36 @@ private fun VersionHeader(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row {
-                ContentCheckBox(
-                    checked = versionFilter.release,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(release = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_release),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-                ContentCheckBox(
-                    checked = versionFilter.snapshot,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(snapshot = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_snapshot),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-                ContentCheckBox(
-                    checked = versionFilter.old,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(old = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_old),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-            }
+            //版本筛选条件
+            VersionTypeItem(
+                selected = versionFilter.release,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
+                },
+                text = stringResource(R.string.download_game_type_release)
+            )
+            VersionTypeItem(
+                selected = versionFilter.snapshot,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
+                },
+                text = stringResource(R.string.download_game_type_snapshot)
+            )
+            VersionTypeItem(
+                selected = versionFilter.old,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
+                },
+                text = stringResource(R.string.download_game_type_old)
+            )
 
+            //搜索、刷新
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SimpleTextInputField(
                     modifier = Modifier.weight(1f),
@@ -336,13 +334,16 @@ private fun VersionHeader(
                     hint = {
                         Text(
                             text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                            style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
                         )
                     }
                 )
 
                 IconButton(
-                    onClick = onRefreshClick
+                    onClick = onRefreshClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = itemContentColor
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -353,12 +354,40 @@ private fun VersionHeader(
         }
 
         HorizontalDivider(
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+private fun VersionTypeItem(
+    selected: Boolean,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    FilterChip(
+        modifier = modifier,
+        selected = selected,
+        onClick = onClick,
+        leadingIcon = {
+            AnimatedVisibility(
+                visible = selected,
+                enter = expandIn(expandFrom = Alignment.CenterStart) + fadeIn(),
+                exit = shrinkOut(shrinkTowards = Alignment.CenterStart) + fadeOut()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = text,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        },
+        label = {
+            Text(text)
+        },
+    )
 }
 
 @Composable

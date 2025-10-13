@@ -359,7 +359,6 @@ private fun TopBarRailItem(
         },
         selected = selected,
         paddingValues = PaddingValues(horizontal = 8.dp, vertical = paddingV),
-        selectedContentColor = color,
         unselectedContentColor = color
     )
 }

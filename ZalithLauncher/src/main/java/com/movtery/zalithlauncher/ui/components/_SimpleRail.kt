@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -29,18 +30,22 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
- * A navigation rail item that primarily displays text. It features a selection animation
- * where a capsule-shaped background expands from the center when the item is selected.
+ * A navigation rail item, which can contain an icon and text. It features a selection
+ * animation where a capsule-shaped background expands from the center when the item is selected.
  *
- * @param modifier The [Modifier] to be applied to the component.
+ * This component is designed to be a flexible building block for navigation rails.
+ *
  * @param text The composable lambda that defines the text to be displayed inside the item.
  * @param onClick The callback to be invoked when this item is clicked.
  * @param selected A boolean indicating whether this item is currently selected. The selection
  *                 animation is driven by this state.
+ * @param modifier The [Modifier] to be applied to the component.
+ * @param icon The composable lambda for the icon to be displayed. Appears before the text.
+ * @param paddingValues The padding to be applied to the content (icon and text) inside the item.
  * @param shape The shape used for clipping the item's bounds and defining its clickable area.
- *              Defaults to [MaterialTheme.shapes.extraLarge].
  * @param backgroundColor The color of the animated background that appears when the item is selected.
- *                        Defaults to a desaturated version of [MaterialTheme.colorScheme.secondaryContainer].
+ * @param selectedContentColor The color for the icon and text when the item is selected.
+ * @param unselectedContentColor The color for the icon and text when the item is not selected.
  */
 @Composable
 fun TextRailItem(
@@ -51,9 +56,9 @@ fun TextRailItem(
     selected: Boolean,
     paddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f),
-    selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface
+    backgroundColor: Color = NavigationRailItemDefaults.colors().selectedIndicatorColor,
+    selectedContentColor: Color = NavigationRailItemDefaults.colors().selectedIconColor,
+    unselectedContentColor: Color = NavigationRailItemDefaults.colors().unselectedIconColor
 ) {
     val animationProgress by animateFloatAsState(
         targetValue = if (selected) 1f else 0f,

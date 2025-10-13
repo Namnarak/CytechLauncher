@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -34,7 +33,7 @@ fun SimpleTextInputField(
     shadowElevation: Dp = 1.dp,
     height: Dp = 32.dp,
     contextPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-    textStyle: TextStyle = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp),
+    textStyle: TextStyle = TextStyle(color = contentColor).copy(fontSize = 12.sp),
     cursorBrush: Brush = SolidColor(LocalTextSelectionColors.current.handleColor),
     singleLine: Boolean = false,
 ) {

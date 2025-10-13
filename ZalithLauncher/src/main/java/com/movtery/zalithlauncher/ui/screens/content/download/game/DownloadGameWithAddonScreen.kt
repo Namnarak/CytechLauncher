@@ -15,11 +15,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -268,12 +267,10 @@ fun DownloadGameWithAddonScreen(
             swapIn = isVisible
         )
 
-        Card(
+        Column(
             modifier = Modifier
-                .padding(all = 12.dp)
                 .fillMaxSize()
-                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-            shape = MaterialTheme.shapes.extraLarge
+                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
         ) {
             val itemContainerColor = itemLayoutColor()
             val itemContentColor = MaterialTheme.colorScheme.onSurface
@@ -450,7 +447,7 @@ private fun ScreenHeader(
                     hint = {
                         Text(
                             text = stringResource(R.string.download_game_version_name),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                            style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
                         )
                     }
                 )
@@ -472,7 +469,10 @@ private fun ScreenHeader(
                     if (!isError) {
                         onInstall(nameValue)
                     }
-                }
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = itemContentColor
+                )
             ) {
                 Icon(
                     imageVector = Icons.Filled.Download,
