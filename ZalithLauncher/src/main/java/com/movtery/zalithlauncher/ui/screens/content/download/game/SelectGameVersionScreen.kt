@@ -1,11 +1,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.game
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,11 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,6 +56,7 @@ import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.isType
 import com.movtery.zalithlauncher.game.versioninfo.models.mapVersion
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -390,23 +383,10 @@ private fun VersionTypeItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FilterChip(
+    CheckChip(
         modifier = modifier,
         selected = selected,
         onClick = onClick,
-        leadingIcon = {
-            AnimatedVisibility(
-                visible = selected,
-                enter = expandIn(expandFrom = Alignment.CenterStart) + fadeIn(),
-                exit = shrinkOut(shrinkTowards = Alignment.CenterStart) + fadeOut()
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Check,
-                    contentDescription = text,
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        },
         label = {
             Text(text)
         },
