@@ -46,13 +46,22 @@ private fun parseVersionName(rawVersion: String): String {
 }
 
 private fun parseInherit(rawVersion: String): String {
-    return if (rawVersion.contains("1.20.1")) {
-        "1.20.1"
-    } else {
-        val version = parseVersion(rawVersion)
-        buildString {
-            append("1.").append(version.major)
-            if (version.minor != 0) append(".").append(version.minor)
+    return when {
+        rawVersion.contains("1.20.1") -> "1.20.1"
+        //暂时认为0开头代表特殊版本
+        rawVersion.startsWith("0.") -> {
+            //特殊版本
+            val versionPart = rawVersion.replace("0.", "").substringBefore("-")
+            //"25w14craftmine.3" -> "25w14craftmine"
+            val version = versionPart.substringBeforeLast(".")
+            version
+        }
+        else -> {
+            val version = parseVersion(rawVersion)
+            buildString {
+                append("1.").append(version.major)
+                if (version.minor != 0) append(".").append(version.minor)
+            }
         }
     }
 }
