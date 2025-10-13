@@ -135,6 +135,7 @@
     <string name="download_game_failed_to_get_versions">Failed to get version: %s. Tap to retry.</string>
     <string name="download_game_type_release">Release</string>
     <string name="download_game_type_snapshot">Snapshot</string>
+    <string name="download_game_type_april_fools">April Fools</string>
     <string name="download_game_type_old">Old Version</string>
     <string name="download_game_type_old_alpha">Alpha</string>
     <string name="download_game_type_old_beta">Beta</string>
@@ -306,6 +307,15 @@
     <string name="download_assets_features_items">Items</string>
     <string name="download_assets_features_locale">Locale</string>
     <string name="download_assets_features_models">Models</string>
+    <!--  Version Summary  -->
+    <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
+    <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>
+    <string name="version_summary_fools_3d_shareware">We\'ve dug up this "1994 DOS version" of Minecraft from the basement!</string>
+    <string name="version_summary_fools_infinite">We\'ve added 2 billion (exactly 2,147,483,647) new dimensions!</string>
+    <string name="version_summary_fools_one_block_at_time">We\'ve stripped the game down to its purest form: one block at a time.</string>
+    <string name="version_summary_fools_a_or_b">Research shows players love making choices, so we let you vote on everything!</string>
+    <string name="version_summary_fools_potato">For years, the poisonous potato was ignored and underestimated, so we gave it an epic buff!</string>
+    <string name="version_summary_fools_creaft_mine">Now you can craft anything—even an entire world!</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>

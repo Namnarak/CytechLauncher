@@ -125,6 +125,7 @@
     <string name="download_game_failed_to_get_versions">獲取版本失敗：%s，點擊重試。</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
+    <string name="download_game_type_april_fools">愚人節版</string>
     <string name="download_game_type_old">遠古版</string>
     <string name="download_game_type_old_alpha">Alpha 版</string>
     <string name="download_game_type_old_beta">Beta 版</string>
@@ -275,6 +276,15 @@
     <string name="download_assets_features_items">物品</string>
     <string name="download_assets_features_locale">在地化</string>
     <string name="download_assets_features_models">模型</string>
+    <!--  版本描述  -->
+    <string name="version_summary_fools_the_love_and_hugs_update">愛與擁抱更新，讓世界充滿和平與彩虹。</string>
+    <string name="version_summary_fools_trendy_update">未來已來！我們為 Minecraft 加入了現代科技！</string>
+    <string name="version_summary_fools_3d_shareware">我們從地下室深處挖出了這款「1994 年 DOS 版」Minecraft！</string>
+    <string name="version_summary_fools_infinite">我們加入了 20 億個（準確地說是 2,147,483,647 個）新維度！</string>
+    <string name="version_summary_fools_one_block_at_time">我們精簡了遊戲到最純粹的形態：一次只能拿一個方塊。</string>
+    <string name="version_summary_fools_a_or_b">研究表明：玩家最喜歡作出選擇，所以我們讓你為一切投票！</string>
+    <string name="version_summary_fools_potato">多年來，毒馬鈴薯一直被玩家忽視和低估，於是我們史詩級加強了它！</string>
+    <string name="version_summary_fools_creaft_mine">現在你可以合成任何東西，甚至合成整個世界！</string>
     <!--  啟動遊戲  -->
     <string name="game_launch_no_version">未選擇遊戲版本！</string>
     <string name="game_launch_no_account">未登入遊戲帳號！</string>
