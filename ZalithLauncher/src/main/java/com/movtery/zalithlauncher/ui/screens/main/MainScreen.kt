@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -51,7 +50,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -66,6 +67,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -119,12 +121,16 @@ fun MainScreen(
             taskRunning = tasks.isEmpty(),
             isTasksExpanded = isTaskMenuExpanded,
             color = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             onScreenBack = {
                 screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
             },
             toMainScreen = toMainScreen,
             toSettingsScreen = {
-                screenBackStackModel.mainScreen.navigateTo(screenBackStackModel.settingsScreen)
+                screenBackStackModel.mainScreen.removeAndNavigateTo(
+                    remove = NestedNavKey.Settings::class,
+                    screenKey = screenBackStackModel.settingsScreen
+                )
             },
             toDownloadScreen = {
                 screenBackStackModel.navigateToDownload()
@@ -170,6 +176,7 @@ private fun TopBar(
     isTasksExpanded: Boolean,
     modifier: Modifier = Modifier,
     color: Color,
+    contentColor: Color,
     onScreenBack: () -> Unit,
     toMainScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
@@ -178,58 +185,76 @@ private fun TopBar(
 ) {
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
+    val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
 
     Surface(
         modifier = modifier,
         color = color,
+        contentColor = contentColor,
         tonalElevation = 3.dp
     ) {
         ConstraintLayout {
-            val (backButton, title, endButtons) = createRefs()
+            val (backCenter, title, endButtons) = createRefs()
 
-            val backButtonX by animateDpAsState(
-                targetValue = if (inLauncherScreen) -(60).dp else 0.dp,
-                animationSpec = getAnimateTween()
-            )
             val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
-            IconButton(
+            Row(
                 modifier = Modifier
-                    .offset { IntOffset(x = backButtonX.roundToPx(), y = 0) }
-                    .constrainAs(backButton) {
-                        start.linkTo(parent.start, margin = 12.dp)
+                    .constrainAs(backCenter) {
+                        start.linkTo(parent.start)
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                     }
-                    .fillMaxHeight(),
-                onClick = {
-                    if (!inLauncherScreen) {
-                        //不在主屏幕时才允许返回
-                        backDispatcher?.onBackPressed() ?: run {
-                            onScreenBack()
+                    .fillMaxHeight()
+            ) {
+                AnimatedVisibility(
+                    visible = !inLauncherScreen
+                ) {
+                    Row(modifier = Modifier.fillMaxHeight()) {
+                        Spacer(Modifier.width(12.dp))
+
+                        IconButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            onClick = {
+                                if (!inLauncherScreen) {
+                                    //不在主屏幕时才允许返回
+                                    backDispatcher?.onBackPressed() ?: run {
+                                        onScreenBack()
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
+                                contentDescription = stringResource(R.string.generic_back)
+                            )
+                        }
+
+                        IconButton(
+                            modifier = Modifier.fillMaxHeight(),
+                            onClick = {
+                                if (!inLauncherScreen) {
+                                    //不在主屏幕时才允许回到主页面
+                                    toMainScreen()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Home,
+                                contentDescription = stringResource(R.string.generic_main_menu)
+                            )
                         }
                     }
                 }
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardBackspace,
-                    contentDescription = stringResource(R.string.generic_back)
-                )
             }
-
-            val appTitleX by animateDpAsState(
-                targetValue = if (inLauncherScreen) 0.dp else 48.dp,
-                animationSpec = getAnimateTween()
-            )
 
             Text(
                 text = InfoDistributor.LAUNCHER_IDENTIFIER,
                 modifier = Modifier
-                    .offset { IntOffset(x = appTitleX.roundToPx(), y = 0) }
                     .constrainAs(title) {
                         centerVerticallyTo(parent)
-                        start.linkTo(parent.start, margin = 18.dp)
+                        start.linkTo(backCenter.end, margin = 16.dp)
                     }
             )
 
@@ -239,7 +264,9 @@ private fun TopBar(
                         top.linkTo(parent.top)
                         bottom.linkTo(parent.bottom)
                         end.linkTo(parent.end, margin = 12.dp)
-                    }
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val taskLayoutY by animateDpAsState(
                     targetValue = if (isTasksExpanded || taskRunning) (-50).dp else 0.dp,
@@ -253,11 +280,10 @@ private fun TopBar(
                         .clickable { changeExpandedState() }
                         .padding(all = 8.dp)
                         .width(120.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    LinearProgressIndicator(modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically))
+                    LinearProgressIndicator(modifier = Modifier.weight(1f))
                     Icon(
                         modifier = Modifier.size(22.dp),
                         imageVector = Icons.Filled.Task,
@@ -267,52 +293,69 @@ private fun TopBar(
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                AnimatedVisibility(
-                    visible = !inDownloadScreen,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    IconButton(
-                        onClick = toDownloadScreen
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Download,
-                            contentDescription = stringResource(R.string.generic_download)
-                        )
-                    }
-                }
-
-                IconButton(
-                    modifier = Modifier.fillMaxHeight(),
+                TopBarRailItem(
+                    selected = inDownloadScreen,
+                    icon = Icons.Filled.Download,
+                    text = stringResource(R.string.generic_download),
                     onClick = {
-                        if (inLauncherScreen) {
-                            toSettingsScreen()
-                        } else {
-                            toMainScreen()
-                        }
-                    }
-                ) {
-                    Crossfade(
-                        targetState = inLauncherScreen,
-                        label = "SettingsIconCrossfade",
-                        animationSpec = getAnimateTween()
-                    ) { isLauncherScreen ->
-                        Icon(
-                            imageVector = if (isLauncherScreen) {
-                                Icons.Filled.Settings
-                            } else {
-                                Icons.Filled.Home
-                            },
-                            contentDescription = if (isLauncherScreen) {
-                                stringResource(R.string.generic_setting)
-                            } else {
-                                stringResource(R.string.generic_main_menu)
-                            }
-                        )
-                    }
-                }
+                        if (!inDownloadScreen) toDownloadScreen()
+                    },
+                    color = contentColor
+                )
+
+                TopBarRailItem(
+                    selected = inSettingsScreen,
+                    icon = Icons.Filled.Settings,
+                    text = stringResource(R.string.generic_setting),
+                    onClick = {
+                        if (!inSettingsScreen) toSettingsScreen()
+                    },
+                    color = contentColor
+                )
             }
         }
     }
+}
+
+@Composable
+private fun TopBarRailItem(
+    selected: Boolean,
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    color: Color = MaterialTheme.colorScheme.onSurface,
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium
+) {
+    val paddingV by animateDpAsState(
+        if (selected) 4.dp else 8.dp
+    )
+
+    TextRailItem(
+        modifier = modifier,
+        onClick = onClick,
+        text = {
+            AnimatedVisibility(visible = selected) {
+                Row {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = text,
+                        style = textStyle
+                    )
+                }
+            }
+        },
+        icon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = text
+            )
+        },
+        selected = selected,
+        paddingValues = PaddingValues(horizontal = 8.dp, vertical = paddingV),
+        selectedContentColor = color,
+        unselectedContentColor = color
+    )
 }
 
 @Composable

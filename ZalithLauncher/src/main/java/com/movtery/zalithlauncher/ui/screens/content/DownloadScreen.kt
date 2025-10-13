@@ -63,7 +63,8 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
  */
 fun ScreenBackStackViewModel.navigateToDownload(targetScreen: NavKey? = null) {
     downloadScreen.clearWith(targetScreen ?: downloadGameScreen)
-    mainScreen.navigateTo(
+    mainScreen.removeAndNavigateTo(
+        remove = NestedNavKey.Download::class,
         screenKey = downloadScreen,
         useClassEquality = true
     )
