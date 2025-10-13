@@ -60,6 +60,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.version.installed.cleanup.CleanFailedException
 import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleaner
+import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
@@ -778,32 +779,28 @@ fun CommonVersionInfoLayout(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (!version.isValid()) {
-                    Text(
+                    LittleTextLabel(
                         text = stringResource(R.string.versions_manage_invalid),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.labelSmall
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        textStyle = MaterialTheme.typography.labelSmall
                     )
-                }
-                if (version.getVersionConfig().isIsolation()) {
-                    Text(
-                        text = stringResource(R.string.versions_manage_isolation_enabled),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                version.getVersionInfo()?.let { versionInfo ->
-                    Text(
-                        text = versionInfo.minecraftVersion,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    versionInfo.loaderInfo?.let { loaderInfo ->
+                } else {
+                    version.getVersionInfo()?.let { versionInfo ->
                         Text(
-                            text = loaderInfo.loader.displayName,
-                            style = MaterialTheme.typography.labelSmall
+                            text = versionInfo.minecraftVersion,
+                            style = MaterialTheme.typography.labelSmall,
                         )
-                        Text(
-                            text = loaderInfo.version,
-                            style = MaterialTheme.typography.labelSmall
-                        )
+                        versionInfo.loaderInfo?.let { loaderInfo ->
+                            Text(
+                                text = loaderInfo.loader.displayName,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                text = loaderInfo.version,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
                     }
                 }
             }
