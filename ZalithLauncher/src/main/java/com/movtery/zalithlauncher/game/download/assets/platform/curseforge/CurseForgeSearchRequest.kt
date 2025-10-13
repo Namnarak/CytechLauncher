@@ -81,7 +81,6 @@ data class CurseForgeSearchRequest(
                 c1.mapNotNull { it.toString(it) }
                     .takeIf { it.isNotEmpty() }
                     ?.let { categoryStrings ->
-                        //官方文档没有细说应该如何配置（头大）
                         //多过滤器的配置方式：name=[aaa,bbb,...]
                         append(mutableName, categoryStrings.joinToString(separator = ",", prefix = "[", postfix = "]") { it })
                     }

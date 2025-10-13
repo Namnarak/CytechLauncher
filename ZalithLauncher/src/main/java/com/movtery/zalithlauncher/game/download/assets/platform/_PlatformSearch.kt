@@ -33,13 +33,15 @@ suspend fun searchAssets(
         val query = englishKeywords?.joinToString(" ") ?: searchFilter.searchName
         val result = when (searchPlatform) {
             Platform.CURSEFORGE -> {
+                val curseforgeCategories = searchFilter.categories.map { category ->
+                    category as? CurseForgeCategory
+                }.toTypedArray()
+
                 searchWithCurseforge(
                     request = CurseForgeSearchRequest(
                         classId = platformClasses.curseforge.classID,
                         categories = setOfNotNull(
-                            searchFilter.category?.let { category ->
-                                category as? CurseForgeCategory
-                            }
+                            *curseforgeCategories
                         ),
                         searchFilter = query,
                         gameVersion = searchFilter.gameVersion,
@@ -52,20 +54,24 @@ suspend fun searchAssets(
                 )
             }
             Platform.MODRINTH -> {
+                val modrinthVersion = searchFilter.gameVersion?.let { version ->
+                    VersionFacet(version)
+                }
+                val modrinthCategories = searchFilter.categories.map { category ->
+                    category as? ModrinthFacet
+                }.toTypedArray()
+                val modrinthModLoader = searchFilter.modloader?.let { modloader ->
+                    modloader as? ModrinthModLoaderCategory
+                }
+
                 searchWithModrinth(
                     request = ModrinthSearchRequest(
                         query = query,
                         facets = listOfNotNull(
                             platformClasses.modrinth!!, //必须为非空处理
-                            searchFilter.gameVersion?.let { version ->
-                                VersionFacet(version)
-                            },
-                            searchFilter.category?.let { category ->
-                                category as? ModrinthFacet
-                            },
-                            searchFilter.modloader?.let { modloader ->
-                                modloader as? ModrinthModLoaderCategory
-                            }
+                            modrinthVersion,
+                            *modrinthCategories,
+                            modrinthModLoader
                         ),
                         index = searchFilter.sortField,
                         offset = searchFilter.index,
