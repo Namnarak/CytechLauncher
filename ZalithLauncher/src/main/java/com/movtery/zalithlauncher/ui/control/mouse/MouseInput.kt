@@ -307,12 +307,22 @@ private fun SimpleMouseCapture(
             val pointerListener = View.OnCapturedPointerListener { _, event ->
                 when (event.actionMasked) {
                     MotionEvent.ACTION_HOVER_MOVE, MotionEvent.ACTION_MOVE -> {
-                        currentOnMouse()
+                        var deltaX = 0f
+                        var deltaY = 0f
+
                         val relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X)
                         val relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y)
-                        val dx = if (relX != 0f) relX else event.x
-                        val dy = if (relY != 0f) relY else event.y
-                        currentOnMouseMove(Offset(dx, dy))
+                        deltaX += if (relX != 0f) relX else event.x
+                        deltaY += if (relY != 0f) relY else event.y
+
+                        val historySize = event.historySize
+                        for (i in 0 until historySize) {
+                            deltaX += event.getHistoricalAxisValue(MotionEvent.AXIS_RELATIVE_X, i)
+                            deltaY += event.getHistoricalAxisValue(MotionEvent.AXIS_RELATIVE_Y, i)
+                        }
+
+                        currentOnMouse()
+                        currentOnMouseMove(Offset(deltaX, deltaY))
                         true
                     }
                     MotionEvent.ACTION_SCROLL -> {
