@@ -452,7 +452,7 @@ private fun VersionItemLayout(
         Row(
             modifier = Modifier
                 .clip(shape = MaterialTheme.shapes.large)
-                .padding(all = 8.dp),
+                .padding(all = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let { versionIcon ->
@@ -461,7 +461,7 @@ private fun VersionItemLayout(
                     painter = versionIcon,
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
             }
 
             Column(
