@@ -230,13 +230,13 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
     implementation(libs.coil.network.ktor3)
-    implementation(libs.compose.colorpicker)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
     implementation(libs.material.color.utilities)
     implementation(libs.reorderable)
     //Project
     implementation(project(":LayerController"))
+    implementation(project(":ColorPicker"))
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)

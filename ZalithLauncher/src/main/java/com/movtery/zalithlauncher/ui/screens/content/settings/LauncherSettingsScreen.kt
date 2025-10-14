@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
+import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -221,18 +222,28 @@ private fun CustomColorOperation(
     when (customColorOperation) {
         is CustomColorOperation.None -> {}
         is CustomColorOperation.Dialog -> {
+            var tempColor by remember {
+                mutableStateOf(Color(AllSettings.launcherCustomColor.getValue()))
+            }
+            val colorController = rememberColorPickerController(initialColor = tempColor)
+
+            val currentColor by remember(colorController) { colorController.color }
+
             ColorPickerDialog(
-                initialColor = Color(AllSettings.launcherCustomColor.getValue()),
-                realTimeUpdate = false,
-                onDismissRequest = {
+                colorController = colorController,
+                onChangeFinished = {
+                    AllSettings.launcherCustomColor.updateState(currentColor.toArgb())
+                },
+                onCancel = {
+                    //还原颜色
+                    AllSettings.launcherCustomColor.updateState(colorController.getOriginalColor().toArgb())
                     updateOperation(CustomColorOperation.None)
                 },
-                onConfirm = { color ->
-                    AllSettings.launcherCustomColor.save(color.toArgb())
+                onConfirm = { selectedColor ->
+                    AllSettings.launcherCustomColor.save(selectedColor.toArgb())
                     updateOperation(CustomColorOperation.None)
                 },
-                showAlpha = false,
-                showBrightness = false
+                showAlpha = false
             )
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.buttonShapeRange
 import com.movtery.layer_controller.layout.RendererStyleBox
@@ -477,13 +478,21 @@ private fun InfoLayoutColorItem(
     )
 
     if (showColorDialog) {
-        val initialColor = remember { color }
+        var tempColor by remember { mutableStateOf(color) }
+        val colorController = rememberColorPickerController(initialColor = tempColor)
+
+        val currentColor by remember(colorController) { colorController.color }
+
+        LaunchedEffect(currentColor) {
+            onColorChanged(currentColor)
+        }
+
         ColorPickerDialog(
-            onDismissRequest = {
+            colorController = colorController,
+            onCancel = {
+                onColorChanged(colorController.getOriginalColor())
                 showColorDialog = false
             },
-            initialColor = initialColor,
-            onColorChanged = onColorChanged,
             onConfirm = { color ->
                 showColorDialog = false
                 onColorChanged(color)
