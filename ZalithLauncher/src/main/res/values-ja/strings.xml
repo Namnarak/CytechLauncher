@@ -887,4 +887,20 @@
     <string name="game_menu_option_switch_memory">メモリを表示</string>
     <string name="settings_game_java_memory_used_text">使用量: %1$dMB/ %2$dMB</string>
     <string name="settings_game_java_memory_allocation_text">割り当て済み: %dMB</string>
+    <string name="theme_color_picker_edit_hex">Hexを編集</string>
+    <string name="theme_color_picker_edit_hex_invalid">Hexが無効</string>
+    <string name="download_game_type_april_fools">エイプリルフール</string>
+    <string name="version_summary_fools_the_love_and_hugs_update">愛と抱擁のアップデートで、世界を平和と虹で満たしましょう。</string>
+    <string name="version_summary_fools_trendy_update">未来はここに！Minecraftに最新技術を追加しました！</string>
+    <string name="version_summary_fools_3d_shareware">地下室の奥深くから「1994年 DOS版」Minecraftを発掘しました！</string>
+    <string name="version_summary_fools_infinite">20億（正確には2,147,483,647）の新しい次元を追加しました！</string>
+    <string name="version_summary_fools_one_block_at_time">ゲームを最も単純な形: つまり1つのブロックのみにしました。</string>
+    <string name="version_summary_fools_a_or_b">調査によるとプレイヤーは選択することが好きなので、全てを投票できます！</string>
+    <string name="version_summary_fools_potato">長年、青くなったジャガイモはプレイヤーに見過ごされ過小評価されていましたが、今回は大幅強化をしました！</string>
+    <string name="version_summary_fools_creaft_mine">今ならなんでも作ることができます、世界全体までも！</string>
+    <string name="game_menu_control_title">コントロールメニュー</string>
+    <string name="game_menu_option_controls_opacity">コントロールレイアウトの不透明度</string>
+    <string name="account_microsoft_exit_by_user">ウェブページを閉じたため、Microsoftのログインプロセスはキャンセルされました。</string>
+    <string name="cape_name_copper">Copperマント</string>
+    <string name="versions_overview_mod_folder">モッドフォルダ</string>
 </resources>
