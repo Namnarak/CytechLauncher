@@ -97,4 +97,14 @@ class ColorPickerController internal constructor(
     fun setAlpha(alpha: Float) {
         _alpha.floatValue = alpha.coerceIn(0f, 1f)
     }
+
+    fun setColor(color: Color) {
+        val hsv = FloatArray(3)
+        NativeColor.colorToHSV(color.toArgb(), hsv)
+
+        _hue.floatValue = hsv[0]
+        _saturation.floatValue = hsv[1]
+        _value.floatValue = hsv[2]
+        _alpha.floatValue = color.alpha
+    }
 }

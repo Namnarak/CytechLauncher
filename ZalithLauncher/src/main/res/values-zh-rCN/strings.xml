@@ -69,6 +69,8 @@
     <string name="theme_color_urban_ash">钛影</string>
     <string name="theme_color_verdant_dawn">静林之晨</string>
     <string name="theme_color_picker_title">颜色选择器</string>
+    <string name="theme_color_picker_edit_hex">编辑 Hex</string>
+    <string name="theme_color_picker_edit_hex_invalid">无效 Hex</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
     <string name="animate_type_jelly_bounce">回弹</string>
