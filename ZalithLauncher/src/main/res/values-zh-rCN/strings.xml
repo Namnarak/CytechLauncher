@@ -475,6 +475,7 @@
     <string name="cape_name_common">普通披风</string>
     <string name="cape_name_pan">薄煎饼披风</string>
     <string name="cape_name_founder_s">创始人披风</string>
+    <string name="cape_name_copper">铜披风</string>
     <!--  文件管理  -->
     <string name="files_back_to_parent">返回上一级</string>
     <string name="files_create_dir">创建目录</string>

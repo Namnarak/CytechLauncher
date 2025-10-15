@@ -434,6 +434,7 @@
     <string name="cape_name_common">普通披風</string>
     <string name="cape_name_pan">薄煎餅披風</string>
     <string name="cape_name_founder_s">創始人披風</string>
+    <string name="cape_name_copper">銅披風</string>
     <!--  檔案管理  -->
     <string name="files_back_to_parent">返回上一層</string>
     <string name="files_create_dir">建立目錄</string>

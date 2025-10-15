@@ -476,6 +476,7 @@
     <string name="cape_name_common">Common</string>
     <string name="cape_name_pan">Pan</string>
     <string name="cape_name_founder_s">Founder\'s</string>
+    <string name="cape_name_copper">Copper</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Back</string>
     <string name="files_create_dir">Create Folder</string>
