@@ -97,8 +97,18 @@ fun microsoftLogin(
             }
             toWeb(deviceCode.verificationUrl)
             task.updateProgress(-1f, R.string.account_microsoft_get_token, deviceCode.userCode)
-            val tokenResponse = getTokenResponse(deviceCode, coroutineContext) {
-                !checkIfInWebScreen()
+            val tokenResponse = getTokenResponse(deviceCode, coroutineContext) { time ->
+                (!checkIfInWebScreen()).also { exit ->
+                    if (exit && time > 0) withContext(Dispatchers.Main) {
+                        //如果已退出网页，则视为用户想要退出登录
+                        //弹出提示
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.account_microsoft_exit_by_user),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
             backToMain()
             val account = microsoftAuth(

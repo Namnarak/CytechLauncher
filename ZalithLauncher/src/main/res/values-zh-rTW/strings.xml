@@ -395,6 +395,7 @@
     <string name="account_microsoft_authenticate_minecraft">驗證 Minecraft 基本資訊</string>
     <string name="account_microsoft_verify_game_ownership">驗證是否擁有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">獲取玩家帳號資訊</string>
+    <string name="account_microsoft_exit_by_user">您離開了網頁畫面，已為您取消了微軟登入流程</string>
     <string name="account_local_create_account">建立離線帳號</string>
     <string name="account_other_login_baseurl_not_set">未設定基礎 URL</string>
     <string name="account_other_login_getting_full_url">嘗試解析完整 URL 中</string>

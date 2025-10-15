@@ -90,14 +90,14 @@ suspend fun fetchDeviceCodeResponse(context: CoroutineContext): DeviceCodeRespon
 suspend fun getTokenResponse(
     codeResponse: DeviceCodeResponse,
     context: CoroutineContext,
-    checkCancelled: () -> Boolean
+    checkCancelled: suspend (time: Int) -> Boolean
 ): TokenResponse = coroutineScope {
     var pollingInterval = codeResponse.interval * 1000L
     val expireTime = System.currentTimeMillis() + codeResponse.expiresIn * 1000L
 
     var cancelled = 0
-    fun checkIsReallyCancelled(): Boolean {
-        if (checkCancelled()) cancelled++
+    suspend fun checkIsReallyCancelled(): Boolean {
+        if (checkCancelled(cancelled)) cancelled++
         return cancelled > 1
     }
 
