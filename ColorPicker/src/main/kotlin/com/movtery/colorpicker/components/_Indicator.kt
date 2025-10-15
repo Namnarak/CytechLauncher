@@ -13,20 +13,23 @@ import androidx.compose.ui.unit.dp
  * @param xPos 横向位置
  * @param height 竖条高度
  * @param width 竖条宽度
+ * @param overshoot 让指示器上下各超出的距离
  */
 internal fun DrawScope.drawVerticalIndicator(
     currentColor: Color,
     xPos: Float,
     height: Float,
-    width: Dp = 2.dp
+    width: Dp = 2.dp,
+    overshoot: Dp = 2.dp
 ) {
     //计算反色
     val invertedColor = invertColor(currentColor)
+    val overshootPx = overshoot.toPx()
 
     drawLine(
         color = invertedColor,
-        start = Offset(xPos, 0f),
-        end = Offset(xPos, height),
+        start = Offset(xPos, -overshootPx),
+        end = Offset(xPos, height + overshootPx),
         strokeWidth = width.toPx()
     )
 }

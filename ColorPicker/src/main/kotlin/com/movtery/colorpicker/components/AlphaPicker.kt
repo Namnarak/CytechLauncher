@@ -65,6 +65,11 @@ fun AlphaBarPicker(
                 onChangeFinished = onChangeFinished
             )
     ) {
+        transparentCheckerBackground(
+            width = size.width,
+            height = size.height
+        )
+
         drawRect(
             brush = Brush.horizontalGradient(colors = colors),
             size = size
