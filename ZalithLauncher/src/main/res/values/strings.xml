@@ -70,6 +70,8 @@
     <string name="theme_color_urban_ash">Urban Ash</string>
     <string name="theme_color_verdant_dawn">Silent Forest Dawn</string>
     <string name="theme_color_picker_title">Color Picker</string>
+    <string name="theme_color_picker_edit_hex">Edit Hex</string>
+    <string name="theme_color_picker_edit_hex_invalid">Invalid Hex</string>
     <!-- Animations -->
     <string name="animate_type_bounce">Bounce</string>
     <string name="animate_type_jelly_bounce">Jelly Bounce</string>
@@ -135,6 +137,7 @@
     <string name="download_game_failed_to_get_versions">Failed to get version: %s. Tap to retry.</string>
     <string name="download_game_type_release">Release</string>
     <string name="download_game_type_snapshot">Snapshot</string>
+    <string name="download_game_type_april_fools">April Fools</string>
     <string name="download_game_type_old">Old Version</string>
     <string name="download_game_type_old_alpha">Alpha</string>
     <string name="download_game_type_old_beta">Beta</string>
@@ -306,6 +309,15 @@
     <string name="download_assets_features_items">Items</string>
     <string name="download_assets_features_locale">Locale</string>
     <string name="download_assets_features_models">Models</string>
+    <!--  Version Summary  -->
+    <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
+    <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>
+    <string name="version_summary_fools_3d_shareware">We\'ve dug up this "1994 DOS version" of Minecraft from the basement!</string>
+    <string name="version_summary_fools_infinite">We\'ve added 2 billion (exactly 2,147,483,647) new dimensions!</string>
+    <string name="version_summary_fools_one_block_at_time">We\'ve stripped the game down to its purest form: one block at a time.</string>
+    <string name="version_summary_fools_a_or_b">Research shows players love making choices, so we let you vote on everything!</string>
+    <string name="version_summary_fools_potato">For years, the poisonous potato was ignored and underestimated, so we gave it an epic buff!</string>
+    <string name="version_summary_fools_creaft_mine">Now you can craft anything—even an entire world!</string>
     <!-- Game Launch -->
     <string name="game_launch_no_version">No game version selected!</string>
     <string name="game_launch_no_account">No account logged in!</string>
@@ -320,6 +332,7 @@
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
     <string name="game_menu_title">Game Menu</string>
+    <string name="game_menu_control_title">Control Menu</string>
     <string name="game_menu_option_force_close_text">Forcing the currently running game to close may cause save data corruption or prevent settings from being saved. Avoid this action unless necessary.</string>
     <string name="game_menu_option_switch_log">Log Output</string>
     <string name="game_menu_option_input_method">Switch Input Method</string>
@@ -334,6 +347,7 @@
     <string name="game_menu_option_hotbar_height">Hotbar Height</string>
     <string name="game_menu_option_show_menu">Enable Menu Overlay</string>
     <string name="game_menu_option_show_menu_hided">Game menu overlay has been disabled. You can open the game menu using the system back button</string>
+    <string name="game_menu_option_controls_opacity">Control Layout Opacity</string>
     <!-- Renderers -->
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>
@@ -423,6 +437,7 @@
     <string name="account_microsoft_authenticate_minecraft">Verifying Minecraft</string>
     <string name="account_microsoft_verify_game_ownership">Checking game ownership</string>
     <string name="account_microsoft_getting_player_profile">Fetching profile</string>
+    <string name="account_microsoft_exit_by_user">You left the webpage, so the Microsoft login process has been canceled for you.</string>
     <string name="account_local_create_account">Create Offline Account</string>
     <string name="account_other_login_baseurl_not_set">Base URL not set</string>
     <string name="account_other_login_getting_full_url">Resolving URL</string>
@@ -462,6 +477,7 @@
     <string name="cape_name_common">Common</string>
     <string name="cape_name_pan">Pan</string>
     <string name="cape_name_founder_s">Founder\'s</string>
+    <string name="cape_name_copper">Copper</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Back</string>
     <string name="files_create_dir">Create Folder</string>
@@ -544,6 +560,7 @@
     <string name="versions_overview_saves_folder">Saves Folder</string>
     <string name="versions_overview_resource_pack_folder">Resource Pack Folder</string>
     <string name="versions_overview_shaders_pack_folder">Shader Pack Folder</string>
+    <string name="versions_overview_mod_folder">Mod Folder</string>
     <string name="versions_overview_screenshot_folder">Screenshot Folder</string>
     <string name="versions_overview_logs_folder">Log Folder</string>
     <string name="versions_overview_crash_report_folder">Crash Report Folder</string>

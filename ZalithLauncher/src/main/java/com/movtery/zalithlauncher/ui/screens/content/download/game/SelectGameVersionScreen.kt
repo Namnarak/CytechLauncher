@@ -19,12 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,10 +51,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
-import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
+import com.movtery.zalithlauncher.game.versioninfo.models.isType
+import com.movtery.zalithlauncher.game.versioninfo.models.mapVersion
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
@@ -64,6 +65,7 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.classes.Quadruple
 import com.movtery.zalithlauncher.utils.formatDate
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -83,7 +85,7 @@ private sealed interface VersionState {
     /** 加载中 */
     data object Loading : VersionState
     /** 加载完成 */
-    data class None(val versions: List<VersionManifest.Version>) : VersionState
+    data class None(val versions: List<MinecraftVersion>) : VersionState
     /** 加载出现异常 */
     data class Failure(val message: Int, val args: Array<Any>? = null) : VersionState {
         override fun equals(other: Any?): Boolean {
@@ -109,17 +111,30 @@ private sealed interface VersionState {
     }
 }
 
-private data class VersionFilter(val release: Boolean, val snapshot: Boolean, val old: Boolean, val id: String = "")
+/**
+ * 版本过滤条件
+ * @param release 是否保留正式版本
+ * @param snapshot 是否保留快照版本
+ * @param old 是否保留旧版本
+ * @param id 搜索并过滤版本ID
+ */
+private data class VersionFilter(
+    val release: Boolean = true,
+    val snapshot: Boolean = false,
+    val aprilFools: Boolean = false,
+    val old: Boolean = false,
+    val id: String = ""
+)
 
 private class VersionsViewModel(): ViewModel() {
     var versionState by mutableStateOf<VersionState>(VersionState.Loading)
         private set
 
     //简易版本类型过滤器
-    var versionFilter by mutableStateOf(VersionFilter(release = true, snapshot = false, old = false))
+    var versionFilter by mutableStateOf(VersionFilter())
         private set
 
-    private var allVersions by mutableStateOf<List<VersionManifest.Version>>(emptyList())
+    private var allVersions by mutableStateOf<List<MinecraftVersion>>(emptyList())
 
     fun filterWith(filter: VersionFilter) {
         versionFilter = filter
@@ -132,7 +147,7 @@ private class VersionsViewModel(): ViewModel() {
         viewModelScope.launch {
             versionState = VersionState.Loading
             versionState = runCatching {
-                allVersions = MinecraftVersions.getVersionManifest(forceReload).versions
+                allVersions = MinecraftVersions.getVersionManifest(forceReload).versions.mapVersion()
                 VersionState.None(allVersions.filterVersions(versionFilter))
             }.getOrElse { e ->
                 lWarning("Failed to get version manifest!", e)
@@ -196,12 +211,10 @@ fun SelectGameVersionScreen(
             swapIn = isVisible
         )
 
-        Card(
+        Column(
             modifier = Modifier
-                .padding(all = 12.dp)
                 .fillMaxSize()
-                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-            shape = MaterialTheme.shapes.extraLarge
+                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
         ) {
             when (val state = viewModel.versionState) {
                 is VersionState.Loading -> {
@@ -261,16 +274,17 @@ fun SelectGameVersionScreen(
 /**
  * 简易过滤器，过滤特定类型的版本
  */
-private fun List<VersionManifest.Version>.filterVersions(
+private fun List<MinecraftVersion>.filterVersions(
     versionFilter: VersionFilter
-) = this.filter {
-    val type = when (it.type) {
-        "release" -> versionFilter.release
-        "snapshot" -> versionFilter.snapshot
-        else -> versionFilter.old && it.type.startsWith("old")
-    }
+) = this.filter { version ->
+    val type = version.isType(
+        release = versionFilter.release,
+        snapshot = versionFilter.snapshot,
+        aprilFools = versionFilter.aprilFools,
+        old = versionFilter.old
+    )
     val versionId = versionFilter.id
-    val id = (versionId.isEmptyOrBlank()) || it.id.contains(versionId)
+    val id = (versionId.isEmptyOrBlank()) || version.version.id.contains(versionId)
     (type && id)
 }
 
@@ -288,42 +302,43 @@ private fun VersionHeader(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row {
-                ContentCheckBox(
-                    checked = versionFilter.release,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(release = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_release),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-                ContentCheckBox(
-                    checked = versionFilter.snapshot,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(snapshot = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_snapshot),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-                ContentCheckBox(
-                    checked = versionFilter.old,
-                    onCheckedChange = { onVersionFilterChange(versionFilter.copy(old = it)) }
-                ) {
-                    Text(
-                        text = stringResource(R.string.download_game_type_old),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-            }
+            //版本筛选条件
+            VersionTypeItem(
+                selected = versionFilter.release,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
+                },
+                text = stringResource(R.string.download_game_type_release)
+            )
+            VersionTypeItem(
+                selected = versionFilter.snapshot,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
+                },
+                text = stringResource(R.string.download_game_type_snapshot)
+            )
+            VersionTypeItem(
+                selected = versionFilter.aprilFools,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(aprilFools = versionFilter.aprilFools.not()))
+                },
+                text = stringResource(R.string.download_game_type_april_fools)
+            )
+            VersionTypeItem(
+                selected = versionFilter.old,
+                onClick = {
+                    onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
+                },
+                text = stringResource(R.string.download_game_type_old)
+            )
 
+            //搜索、刷新
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SimpleTextInputField(
                     modifier = Modifier.weight(1f),
@@ -335,13 +350,16 @@ private fun VersionHeader(
                     hint = {
                         Text(
                             text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                            style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
                         )
                     }
                 )
 
                 IconButton(
-                    onClick = onRefreshClick
+                    onClick = onRefreshClick,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = itemContentColor
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -352,12 +370,27 @@ private fun VersionHeader(
         }
 
         HorizontalDivider(
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+@Composable
+private fun VersionTypeItem(
+    selected: Boolean,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    CheckChip(
+        modifier = modifier,
+        selected = selected,
+        onClick = onClick,
+        label = {
+            Text(text)
+        },
+    )
 }
 
 @Composable
@@ -365,7 +398,7 @@ private fun VersionList(
     modifier: Modifier = Modifier,
     itemContainerColor: Color,
     itemContentColor: Color,
-    versions: List<VersionManifest.Version>,
+    versions: List<MinecraftVersion>,
     onVersionSelect: (String) -> Unit,
     openLink: (url: String) -> Unit
 ) {
@@ -380,7 +413,7 @@ private fun VersionList(
                     .padding(vertical = 6.dp),
                 version = version,
                 onClick = {
-                    onVersionSelect(version.id)
+                    onVersionSelect(version.version.id)
                 },
                 onAccessWiki = { wikiUrl ->
                     openLink(wikiUrl)
@@ -395,7 +428,7 @@ private fun VersionList(
 @Composable
 private fun VersionItemLayout(
     modifier: Modifier = Modifier,
-    version: VersionManifest.Version,
+    version: MinecraftVersion,
     onClick: () -> Unit = {},
     onAccessWiki: (String) -> Unit = {},
     color: Color,
@@ -406,7 +439,7 @@ private fun VersionItemLayout(
         scale.animateTo(targetValue = 1f, animationSpec = getAnimateTween())
     }
 
-    val (icon, versionType, wikiUrl) = getVersionComponents(version)
+    val (icon, versionType, wikiUrl, summary) = getVersionComponents(version)
 
     Surface(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
@@ -419,7 +452,7 @@ private fun VersionItemLayout(
         Row(
             modifier = Modifier
                 .clip(shape = MaterialTheme.shapes.large)
-                .padding(all = 8.dp),
+                .padding(all = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon?.let { versionIcon ->
@@ -428,7 +461,7 @@ private fun VersionItemLayout(
                     painter = versionIcon,
                     contentDescription = null
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
             }
 
             Column(
@@ -440,7 +473,7 @@ private fun VersionItemLayout(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = version.id,
+                        text = version.version.id,
                         style = MaterialTheme.typography.labelLarge
                     )
 
@@ -449,10 +482,18 @@ private fun VersionItemLayout(
                     )
                 }
 
+                summary?.let { text ->
+                    Text(
+                        modifier = Modifier.alpha(0.7f),
+                        text = text,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+
                 Text(
                     modifier = Modifier.alpha(0.7f),
                     text = formatDate(
-                        input = version.releaseTime,
+                        input = version.version.releaseTime,
                         pattern = stringResource(R.string.date_format)
                     ),
                     style = MaterialTheme.typography.labelMedium
@@ -476,42 +517,58 @@ private fun VersionItemLayout(
 
 @Composable
 private fun getVersionComponents(
-    version: VersionManifest.Version
-): Triple<Painter?, String, String?> {
+    version: MinecraftVersion
+): Quadruple<Painter?, String, String?, String?> {
+    val vmVer = version.version
+    val summary = version.summary?.let { stringResource(it) }
+
     return when (version.type) {
-        "release" -> {
-            Triple(
+        MinecraftVersion.Type.Release -> {
+            Quadruple(
                 painterResource(R.drawable.img_minecraft),
                 stringResource(R.string.download_game_type_release),
-                stringResource(R.string.url_wiki_minecraft_game_release, version.id)
+                stringResource(R.string.url_wiki_minecraft_game_release, vmVer.id),
+                summary
             )
         }
-        "snapshot" -> {
-            Triple(
+        MinecraftVersion.Type.Snapshot -> {
+            Quadruple(
                 painterResource(R.drawable.img_command_block),
                 stringResource(R.string.download_game_type_snapshot),
-                stringResource(R.string.url_wiki_minecraft_game_snapshot, version.id)
+                stringResource(R.string.url_wiki_minecraft_game_snapshot, vmVer.id),
+                summary
             )
         }
-        "old_beta" -> {
-            Triple(
+        MinecraftVersion.Type.AprilFools -> {
+            Quadruple(
+                painterResource(R.drawable.img_diamond_block),
+                stringResource(R.string.download_game_type_april_fools),
+                stringResource(R.string.url_wiki_minecraft_game_snapshot, vmVer.id),
+                summary
+            )
+        }
+        MinecraftVersion.Type.OldBeta -> {
+            Quadruple(
                 painterResource(R.drawable.img_old_cobblestone),
                 stringResource(R.string.download_game_type_old_beta),
-                null
+                null,
+                summary
             )
         }
-        "old_alpha" -> {
-            Triple(
+        MinecraftVersion.Type.OldAlpha -> {
+            Quadruple(
                 painterResource(R.drawable.img_old_grass_block),
                 stringResource(R.string.download_game_type_old_alpha),
-                null
+                null,
+                summary
             )
         }
         else -> {
-            Triple(
+            Quadruple(
                 null,
                 stringResource(R.string.generic_unknown),
-                null
+                null,
+                version.summary?.let { stringResource(it) }
             )
         }
     }

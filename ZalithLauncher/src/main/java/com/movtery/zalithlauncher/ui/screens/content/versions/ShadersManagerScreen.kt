@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -61,6 +62,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -119,6 +121,16 @@ private class ShadersManageViewModel(
      * 删除所有已选择文件的操作流程
      */
     var deleteAllOperation by mutableStateOf<DeleteAllOperation>(DeleteAllOperation.None)
+
+    /**
+     * 全选所有文件
+     */
+    fun selectAllFiles() {
+        allShaders.fastForEach { info ->
+            val file = info.file
+            if (!selectedFiles.contains(file)) selectedFiles.add(file)
+        }
+    }
 
     fun refresh() {
         viewModelScope.launch {
@@ -269,6 +281,7 @@ fun ShadersManagerScreen(
                                 }
                             },
                             isFilesSelected = viewModel.selectedFiles.isNotEmpty(),
+                            onSelectAll = { viewModel.selectAllFiles() },
                             onClearFilesSelected = { viewModel.selectedFiles.clear() },
                             swapToDownload = swapToDownload,
                             refresh = { viewModel.refresh() },
@@ -309,6 +322,7 @@ private fun ShadersActionsHeader(
     shadersDir: File,
     onDeleteAll: () -> Unit,
     isFilesSelected: Boolean,
+    onSelectAll: () -> Unit,
     onClearFilesSelected: () -> Unit,
     swapToDownload: () -> Unit,
     refresh: () -> Unit,
@@ -346,6 +360,15 @@ private fun ShadersActionsHeader(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
+                            contentDescription = null
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onSelectAll
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SelectAll,
                             contentDescription = null
                         )
                     }

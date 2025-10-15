@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -28,14 +27,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -63,6 +60,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.game.version.installed.cleanup.CleanFailedException
 import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleaner
+import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
@@ -283,27 +281,22 @@ fun VersionCategoryItem(
     TextRailItem(
         modifier = modifier,
         text = {
-            val contentColor by animateColorAsState(
-                targetValue = if (selected) selectedContentColor else unselectedContentColor
+            Text(
+                text = stringResource(value.textRes),
+                style = style
             )
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor
-            ) {
-                Text(
-                    text = stringResource(value.textRes),
-                    style = style
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "($versionsCount)",
-                    style = style
-                )
-            }
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "($versionsCount)",
+                style = style
+            )
         },
         onClick = onClick,
         selected = selected,
         shape = shape,
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        selectedContentColor = selectedContentColor,
+        unselectedContentColor = unselectedContentColor
     )
 }
 
@@ -786,32 +779,28 @@ fun CommonVersionInfoLayout(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (!version.isValid()) {
-                    Text(
+                    LittleTextLabel(
                         text = stringResource(R.string.versions_manage_invalid),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.labelSmall
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        textStyle = MaterialTheme.typography.labelSmall
                     )
-                }
-                if (version.getVersionConfig().isIsolation()) {
-                    Text(
-                        text = stringResource(R.string.versions_manage_isolation_enabled),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                version.getVersionInfo()?.let { versionInfo ->
-                    Text(
-                        text = versionInfo.minecraftVersion,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    versionInfo.loaderInfo?.let { loaderInfo ->
+                } else {
+                    version.getVersionInfo()?.let { versionInfo ->
                         Text(
-                            text = loaderInfo.loader.displayName,
-                            style = MaterialTheme.typography.labelSmall
+                            text = versionInfo.minecraftVersion,
+                            style = MaterialTheme.typography.labelSmall,
                         )
-                        Text(
-                            text = loaderInfo.version,
-                            style = MaterialTheme.typography.labelSmall
-                        )
+                        versionInfo.loaderInfo?.let { loaderInfo ->
+                            Text(
+                                text = loaderInfo.loader.displayName,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                text = loaderInfo.version,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
                     }
                 }
             }

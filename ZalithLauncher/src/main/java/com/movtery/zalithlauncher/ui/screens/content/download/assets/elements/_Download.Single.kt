@@ -94,9 +94,10 @@ fun SelectVersionToDownloadDialog(
     onInstall: (List<Version>) -> Unit
 ) {
     val versions by VersionsManager.versions.collectAsState()
+    val versions1 = remember(versions) { versions.filter { it.isValid() } }
     val version = VersionsManager.currentVersion
 
-    if (version == null || versions.isEmpty()) {
+    if (version == null || versions1.isEmpty()) {
         SimpleAlertDialog(
             title = stringResource(R.string.generic_warning),
             text = stringResource(R.string.download_assets_no_installed_versions),
@@ -139,7 +140,7 @@ fun SelectVersionToDownloadDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f, fill = false),
-                            versions = versions,
+                            versions = versions1,
                             selectedVersions = selectedVersions,
                             onVersionSelected = { selectedVersions.add(it) },
                             onVersionUnSelected = { selectedVersions.remove(it) }

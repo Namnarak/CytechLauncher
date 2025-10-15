@@ -85,9 +85,7 @@ fun <E> getAnimateTweenJellyBounce(
 ): FiniteAnimationSpec<E> = tween(
     durationMillis = durationMillis,
     delayMillis = delayMillis,
-    easing = { fraction ->
-        JellyBounceInterpolator().getInterpolation(fraction)
-    }
+    easing = JellyBounce
 )
 
 /**

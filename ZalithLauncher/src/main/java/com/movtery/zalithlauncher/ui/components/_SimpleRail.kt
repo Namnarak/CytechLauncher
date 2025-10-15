@@ -1,16 +1,23 @@
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,16 +28,38 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
+/**
+ * 导航栏item组件，可包含图标与文字。当item被选中时，
+ * 会触发一个从中心向外扩展的胶囊形背景动画。
+ *
+ * @param text 用于定义item中文字内容的可组合函数
+ * @param onClick 当该item被点击时调用的回调函数
+ * @param selected 指示该item当前是否处于选中状态
+ *                 选中动画的播放由此状态控制
+ * @param icon 用于定义显示图标的可组合函数，图标显示在文字之前。
+ * @param selectedPadding item被选中时，其内部内容的内边距
+ * @param unSelectedPadding item未被选中时，其内部内容的内边距
+ * @param shape 定义item裁剪边界与点击区域的形状。
+ * @param backgroundColor item被选中时，显示的动画背景颜色。
+ * @param selectedContentColor item被选中时，图标与文字的颜色。
+ * @param unselectedContentColor item未被选中时，图标与文字的颜色。
+ */
 @Composable
 fun TextRailItem(
     modifier: Modifier = Modifier,
-    text: @Composable () -> Unit,
+    text: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
+    icon: @Composable RowScope.() -> Unit = {},
     selected: Boolean,
-    shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer.desaturate(0.5f)
+    selectedPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+    unSelectedPadding: PaddingValues = selectedPadding,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
+    backgroundColor: Color = NavigationRailItemDefaults.colors().selectedIndicatorColor,
+    selectedContentColor: Color = NavigationRailItemDefaults.colors().selectedIconColor,
+    unselectedContentColor: Color = NavigationRailItemDefaults.colors().unselectedIconColor
 ) {
     val animationProgress by animateFloatAsState(
         targetValue = if (selected) 1f else 0f,
@@ -64,12 +93,38 @@ fun TextRailItem(
             )
         }
 
+        val paddingLeft by animateDpAsState(
+            if (selected) selectedPadding.calculateLeftPadding(LayoutDirection.Ltr) else unSelectedPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        )
+        val paddingRight by animateDpAsState(
+            if (selected) selectedPadding.calculateRightPadding(LayoutDirection.Ltr) else unSelectedPadding.calculateRightPadding(LayoutDirection.Ltr)
+        )
+        val paddingTop by animateDpAsState(
+            if (selected) selectedPadding.calculateTopPadding() else unSelectedPadding.calculateTopPadding()
+        )
+        val paddingBottom by animateDpAsState(
+            if (selected) selectedPadding.calculateBottomPadding() else unSelectedPadding.calculateBottomPadding()
+        )
+
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(
+                start = paddingLeft,
+                end = paddingRight,
+                top = paddingTop,
+                bottom = paddingBottom
+            ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            text()
+            val contentColor by animateColorAsState(
+                targetValue = if (selected) selectedContentColor else unselectedContentColor
+            )
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor
+            ) {
+                icon()
+                text()
+            }
         }
     }
 }

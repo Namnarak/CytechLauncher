@@ -329,6 +329,11 @@ object AllSettings : SettingsRegistry() {
     val showFPS = boolSetting("showFPS", true)
 
     /**
+     * 在游戏菜单悬浮窗上显示内存
+     */
+    val showMemory = boolSetting("showMemory", false)
+
+    /**
      * 在游戏画面上展示菜单悬浮窗
      */
     val showMenuBall = boolSetting("showMenuBall", true)
@@ -349,6 +354,12 @@ object AllSettings : SettingsRegistry() {
      * 0~1000
      */
     val hotbarHeight = intSetting("hotbarHeight", 100)
+
+    /**
+     * 游戏内控制布局的整体不透明度
+     * 0~100
+     */
+    val controlsOpacity = intSetting("controlsOpacity", 100)
 
     /**
      * 控制布局编辑器：是否开启控件吸附功能

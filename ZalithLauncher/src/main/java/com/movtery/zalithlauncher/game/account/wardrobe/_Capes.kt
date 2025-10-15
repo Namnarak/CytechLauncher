@@ -43,6 +43,7 @@ fun PlayerProfile.Cape.capeTranslatedName(): String {
         "Common" -> R.string.cape_name_common
         "Pan" -> R.string.cape_name_pan
         "Founder's" -> R.string.cape_name_founder_s
+        "Copper" -> R.string.cape_name_copper
         else -> null
     }
 

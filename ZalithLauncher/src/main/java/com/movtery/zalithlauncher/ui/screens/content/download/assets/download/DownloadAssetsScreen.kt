@@ -58,11 +58,11 @@ import com.movtery.zalithlauncher.game.download.assets.platform.getProject
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.isAllNull
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
-import com.movtery.zalithlauncher.game.download.assets.utils.RELEASE_REGEX
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
+import com.movtery.zalithlauncher.game.versioninfo.RELEASE_REGEX
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
@@ -354,24 +354,24 @@ private fun Versions(
             ) {
                 //简单过滤条件
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ContentCheckBox(
-                        checked = viewModel.showOnlyMCRelease,
-                        onCheckedChange = { viewModel.filterWith(showOnlyMCRelease = it) }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.download_assets_show_only_mc_release),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    CheckChip(
+                        selected = viewModel.showOnlyMCRelease,
+                        onClick = {
+                            viewModel.filterWith(showOnlyMCRelease = viewModel.showOnlyMCRelease.not())
+                        },
+                        label = {
+                            Text(text = stringResource(R.string.download_assets_show_only_mc_release))
+                        },
+                    )
 
                     SimpleTextInputField(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 12.dp),
+                        modifier = Modifier.weight(1f),
                         value = viewModel.searchMCVersion,
                         onValueChange = { viewModel.filterWith(searchMCVersion = it) },
                         color = itemLayoutColor(),

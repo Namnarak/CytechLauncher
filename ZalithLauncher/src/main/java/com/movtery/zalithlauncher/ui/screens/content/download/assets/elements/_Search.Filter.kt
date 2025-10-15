@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
@@ -8,7 +9,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +31,8 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,15 +47,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortField
-import com.movtery.zalithlauncher.game.download.assets.utils.allGameVersions
+import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
+import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
 /**
  * 搜索资源过滤器UI
@@ -59,8 +67,8 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
  * @param searchName 搜索名称
  * @param gameVersion 游戏版本
  * @param sortField 排序方式
- * @param categories 可用资源类别列表
- * @param category 资源类别
+ * @param allCategories 可用资源类别列表
+ * @param categories 已选择的资源类别
  * @param enableModLoader 是否启用模组加载器过滤
  * @param modloaders 可用模组加载器列表
  * @param modloader 模组加载器
@@ -78,9 +86,9 @@ fun SearchFilter(
     onGameVersionChange: (String?) -> Unit = {},
     sortField: PlatformSortField,
     onSortFieldChange: (PlatformSortField) -> Unit = {},
+    allCategories: List<PlatformFilterCode>,
     categories: List<PlatformFilterCode>,
-    category: PlatformFilterCode?,
-    onCategoryChange: (PlatformFilterCode?) -> Unit = {},
+    onCategoryChanged: (List<PlatformFilterCode>) -> Unit = {},
     enableModLoader: Boolean = true,
     modloaders: List<PlatformDisplayLabel> = emptyList(),
     modloader: PlatformDisplayLabel? = null,
@@ -109,17 +117,21 @@ fun SearchFilter(
                 FilterListLayout(
                     modifier = Modifier.fillMaxWidth(),
                     items = Platform.entries,
-                    selectedItem = searchPlatform,
-                    onItemSelected = {
-                        onPlatformChange(it!!)
-                    },
-                    selectedLayout = { platform ->
-                        platform?.let {
-                            PlatformIdentifier(
-                                platform = it,
-                                shape = MaterialTheme.shapes.small
-                            )
+                    selectionMode = FilterSelectionMode.Single,
+                    selectedItems = listOfNotNull(searchPlatform),
+                    onSelectionChange = { new ->
+                        new.first().takeIf { it != searchPlatform }?.let { value ->
+                            onPlatformChange(value)
                         }
+                    },
+                    getItemLabel = { item ->
+                        item.displayName
+                    },
+                    selectedLabel = { item ->
+                        PlatformIdentifier(
+                            platform = item,
+                            shape = MaterialTheme.shapes.small
+                        )
                     },
                     itemLayout = { platform ->
                         Row(
@@ -144,14 +156,27 @@ fun SearchFilter(
         }
 
         item {
+            val versions by MinecraftVersions.releasesFlow.collectAsState()
+            //刷新真实的版本列表
+            LaunchedEffect(Unit) {
+                runCatching {
+                    MinecraftVersions.refreshReleaseVersions(force = false)
+                }.onFailure {
+                    lWarning("Failed to refresh Minecraft versions")
+                }
+            }
+
             FilterListLayout(
                 modifier = Modifier.fillMaxWidth(),
-                items = allGameVersions,
-                selectedItem = gameVersion,
-                onItemSelected = {
-                    onGameVersionChange(it)
+                items = versions ?: allGameVersions,
+                selectionMode = FilterSelectionMode.Single,
+                selectedItems = listOfNotNull(gameVersion),
+                onSelectionChange = { new ->
+                    new.firstOrNull().takeIf { it != gameVersion }?.let { value ->
+                        onGameVersionChange(value)
+                    }
                 },
-                getItemName = { it },
+                getItemLabel = { it },
                 title = stringResource(R.string.download_assets_filter_game_version)
             )
         }
@@ -160,12 +185,15 @@ fun SearchFilter(
             FilterListLayout(
                 modifier = Modifier.fillMaxWidth(),
                 items = PlatformSortField.entries,
-                selectedItem = sortField,
-                onItemSelected = {
-                    onSortFieldChange(it!!)
+                selectionMode = FilterSelectionMode.Single,
+                selectedItems = listOfNotNull(sortField),
+                onSelectionChange = { new ->
+                    new.first().takeIf { it != sortField }?.let { value ->
+                        onSortFieldChange(value)
+                    }
                 },
-                getItemName = {
-                    stringResource(it.getDisplayName())
+                getItemLabel = { item ->
+                    stringResource(item.getDisplayName())
                 },
                 title = stringResource(R.string.download_assets_filter_sort_field),
                 cancelable = false
@@ -175,13 +203,16 @@ fun SearchFilter(
         item {
             FilterListLayout(
                 modifier = Modifier.fillMaxWidth(),
-                items = categories,
-                selectedItem = category,
-                onItemSelected = {
-                    onCategoryChange(it)
+                items = allCategories,
+                selectionMode = FilterSelectionMode.Multiple,
+                selectedItems = categories,
+                onSelectionChange = { news ->
+                    news.takeIf { it.toSet() != categories.toSet() }?.let { value ->
+                        onCategoryChanged(value)
+                    }
                 },
-                getItemName = {
-                    stringResource(it.getDisplayName())
+                getItemLabel = { item ->
+                    stringResource(item.getDisplayName())
                 },
                 title = stringResource(R.string.download_assets_filter_category)
             )
@@ -192,12 +223,15 @@ fun SearchFilter(
                 FilterListLayout(
                     modifier = Modifier.fillMaxWidth(),
                     items = modloaders,
-                    selectedItem = modloader,
-                    onItemSelected = {
-                        onModLoaderChange(it)
+                    selectionMode = FilterSelectionMode.Single,
+                    selectedItems = listOfNotNull(modloader),
+                    onSelectionChange = { new ->
+                        new.firstOrNull().takeIf { it != modloader }?.let { value ->
+                            onModLoaderChange(value)
+                        }
                     },
-                    getItemName = {
-                        it.getDisplayName()
+                    getItemLabel = { item ->
+                        item.getDisplayName()
                     },
                     title = stringResource(R.string.download_assets_filter_modloader)
                 )
@@ -206,73 +240,41 @@ fun SearchFilter(
     }
 }
 
-/**
- * 过滤器列表UI
- * @param items 可选的item
- * @param selectedItem 当前选中的item
- * @param onItemSelected 选中item时的回调
- * @param getItemName 获取item的显示名称
- * @param cancelable 是否允许取消选择（清除已选择的item）
- */
-@Composable
-private fun <E> FilterListLayout(
-    modifier: Modifier = Modifier,
-    items: List<E>,
-    selectedItem: E?,
-    onItemSelected: (E?) -> Unit,
-    getItemName: @Composable (E) -> String,
-    title: String,
-    cancelable: Boolean = true,
-    maxListHeight: Dp = 200.dp,
-    shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp
-) {
-    FilterListLayout(
-        modifier = modifier,
-        items = items,
-        selectedItem = selectedItem,
-        onItemSelected = onItemSelected,
-        selectedLayout = { item ->
-            LittleTextLabel(
-                text = item?.let { getItemName(it) } ?: stringResource(R.string.download_assets_filter_none),
-                shape = MaterialTheme.shapes.small
-            )
-        },
-        itemLayout = { item ->
-            Text(
-                text = getItemName(item),
-                style = MaterialTheme.typography.labelMedium
-            )
-        },
-        title = title,
-        cancelable = cancelable,
-        maxListHeight = maxListHeight,
-        shape = shape,
-        color = color,
-        contentColor = contentColor,
-        shadowElevation = shadowElevation
-    )
+
+
+enum class FilterSelectionMode {
+    /**
+     * 一次性只能选择一个项
+     */
+    Single,
+
+    /**
+     * 支持选择更多项
+     */
+    Multiple
 }
 
-/**
- * 过滤器列表UI
- * @param items 可选的item
- * @param selectedItem 当前选中的item
- * @param onItemSelected 选中item时的回调
- * @param selectedLayout 控制item的显示外观
- * @param cancelable 是否允许取消选择（清除已选择的item）
- */
 @Composable
 private fun <E> FilterListLayout(
-    modifier: Modifier = Modifier,
-    items: List<E>,
-    selectedItem: E?,
-    onItemSelected: (E?) -> Unit,
-    selectedLayout: @Composable ColumnScope.(E?) -> Unit,
-    itemLayout: @Composable ColumnScope.(E) -> Unit,
     title: String,
+    items: List<E>,
+    selectionMode: FilterSelectionMode,
+    selectedItems: List<E>,
+    onSelectionChange: (List<E>) -> Unit,
+    getItemLabel: @Composable (E) -> String,
+    modifier: Modifier = Modifier,
+    selectedLabel: @Composable FlowRowScope.(E) -> Unit = { item ->
+        LittleTextLabel(
+            text = getItemLabel(item),
+            shape = MaterialTheme.shapes.small
+        )
+    },
+    itemLayout: @Composable (E) -> Unit = { item ->
+        Text(
+            text = getItemLabel(item),
+            style = MaterialTheme.typography.labelMedium
+        )
+    },
     cancelable: Boolean = true,
     maxListHeight: Dp = 200.dp,
     shape: Shape = MaterialTheme.shapes.large,
@@ -282,6 +284,9 @@ private fun <E> FilterListLayout(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    val selected = selectedItems.isNotEmpty()
+    val isSingle = selectionMode == FilterSelectionMode.Single
+
     Surface(
         modifier = modifier,
         shape = shape,
@@ -290,49 +295,60 @@ private fun <E> FilterListLayout(
         shadowElevation = shadowElevation
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            FilterListHeader(
-                modifier = Modifier.fillMaxWidth(),
-                items = items,
+            FilterHeader(
                 title = title,
-                selected = selectedItem != null,
-                selectedItemLayout = { selectedLayout(selectedItem) },
                 expanded = expanded,
+                selected = selected,
+                selectedLabels = {
+                    if (selectedItems.isEmpty()) {
+                        LittleTextLabel(
+                            text = stringResource(R.string.download_assets_filter_none),
+                            shape = MaterialTheme.shapes.small
+                        )
+                    } else {
+                        selectedItems.fastForEach { item ->
+                            selectedLabel(item)
+                        }
+                    }
+                },
                 cancelable = cancelable,
-                onClick = { expanded = !expanded },
-                onClear = { onItemSelected(null) }
+                onExpandToggle = { expanded = !expanded },
+                onClear = { onSelectionChange(emptyList()) }
             )
 
-            if (items.isNotEmpty()) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = expandVertically(animationSpec = getAnimateTween()),
-                        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        LazyColumn(
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(animationSpec = getAnimateTween()),
+                exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut()
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = maxListHeight)
+                        .padding(vertical = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
+                    items(items) { item ->
+                        val isSelected = selectedItems.contains(item)
+                        FilterListItem(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = maxListHeight)
-                                .padding(vertical = 4.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
-                        ) {
-                            items(items) { item ->
-                                FilterListItem(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(all = 4.dp),
-                                    selected = selectedItem == item,
-                                    itemLayout = { itemLayout(item) },
-                                    onClick = {
-                                        if (expanded && selectedItem != item) {
-                                            onItemSelected(item)
-                                            expanded = false
-                                        }
-                                    }
-                                )
+                                .padding(all = 4.dp),
+                            selected = isSelected,
+                            selectionMode = selectionMode,
+                            onCheckedChange = { checked ->
+                                val newSelection = when {
+                                    isSingle && checked -> listOf(item)
+                                    !isSingle && checked -> selectedItems + item
+                                    !isSingle && !checked -> selectedItems - item
+                                    else -> emptyList()
+                                }
+                                onSelectionChange(newSelection)
+                            },
+                            itemLayout = {
+                                itemLayout(item)
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -341,20 +357,18 @@ private fun <E> FilterListLayout(
 }
 
 @Composable
-private fun <E> FilterListHeader(
-    modifier: Modifier = Modifier,
-    items: List<E>,
+private fun FilterHeader(
     title: String,
-    selected: Boolean,
-    selectedItemLayout: @Composable ColumnScope.() -> Unit,
     expanded: Boolean,
-    cancelable: Boolean = true,
-    onClick: () -> Unit = {},
-    onClear: () -> Unit = {}
+    selected: Boolean,
+    selectedLabels: @Composable FlowRowScope.() -> Unit,
+    cancelable: Boolean,
+    onExpandToggle: () -> Unit,
+    onClear: () -> Unit
 ) {
     Row(
-        modifier = modifier
-            .clickable(onClick = onClick)
+        modifier = Modifier
+            .clickable(onClick = onExpandToggle)
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -364,42 +378,36 @@ private fun <E> FilterListHeader(
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall
+            Text(title, style = MaterialTheme.typography.titleSmall)
+            FlowRow(
+                modifier = Modifier.animateContentSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                content = selectedLabels
             )
-            selectedItemLayout()
         }
 
-        if (!items.isEmpty()) {
-            Row(
-                modifier = Modifier.padding(end = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                val rotation by animateFloatAsState(
-                    targetValue = if (expanded) -180f else 0f,
-                    animationSpec = getAnimateTween()
-                )
-                Icon(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .rotate(rotation),
-                    imageVector = Icons.Rounded.ArrowDropDown,
-                    contentDescription = stringResource(if (expanded) R.string.generic_expand else R.string.generic_collapse)
-                )
-                if (selected && cancelable) {
-                    IconButton(
-                        modifier = Modifier
-                            .size(28.dp),
-                        onClick = onClear
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(18.dp),
-                            imageVector = Icons.Outlined.Clear,
-                            contentDescription = stringResource(R.string.generic_clear)
-                        )
-                    }
+        Row(
+            modifier = Modifier.padding(end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val rotation by animateFloatAsState(
+                targetValue = if (expanded) -180f else 0f,
+                animationSpec = getAnimateTween()
+            )
+            Icon(
+                modifier = Modifier
+                    .size(28.dp)
+                    .rotate(rotation),
+                imageVector = Icons.Rounded.ArrowDropDown,
+                contentDescription = null
+            )
+            if (selected && cancelable) {
+                IconButton(onClick = onClear) {
+                    Icon(
+                        imageVector = Icons.Outlined.Clear,
+                        contentDescription = stringResource(R.string.generic_clear)
+                    )
                 }
             }
         }
@@ -410,22 +418,25 @@ private fun <E> FilterListHeader(
 private fun FilterListItem(
     modifier: Modifier = Modifier,
     selected: Boolean,
-    itemLayout: @Composable ColumnScope.() -> Unit,
-    onClick: () -> Unit = {}
+    selectionMode: FilterSelectionMode,
+    itemLayout: @Composable () -> Unit,
+    onCheckedChange: (Boolean) -> Unit
 ) {
+    val onClick = {
+        val newValue = if (selectionMode == FilterSelectionMode.Multiple) !selected else true
+        onCheckedChange(newValue)
+    }
+
     Row(
         modifier = modifier
-            .clip(shape = MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            content = itemLayout
-        )
+        when (selectionMode) {
+            FilterSelectionMode.Single -> RadioButton(selected = selected, onClick = onClick)
+            FilterSelectionMode.Multiple -> Checkbox(checked = selected, onCheckedChange = onCheckedChange)
+        }
+        itemLayout()
     }
 }

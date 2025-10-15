@@ -6,22 +6,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.buttonShapeRange
 import com.movtery.layer_controller.layout.RendererStyleBox
@@ -137,7 +137,7 @@ fun EditStyleDialog(
                             .fillMaxHeight()
                     ) {
                         //顶贴标签栏
-                        TabRow(selectedTabIndex = selectedTabIndex) {
+                        SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
                             tabs.forEachIndexed { index, item ->
                                 Tab(
                                     selected = index == selectedTabIndex,
@@ -302,7 +302,13 @@ private fun StyleConfigEditor(
         )
 
         item {
-            Spacer(Modifier.height(4.dp))
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .padding(vertical = 6.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
         }
 
         //按下
@@ -472,13 +478,21 @@ private fun InfoLayoutColorItem(
     )
 
     if (showColorDialog) {
-        val initialColor = remember { color }
+        var tempColor by remember { mutableStateOf(color) }
+        val colorController = rememberColorPickerController(initialColor = tempColor)
+
+        val currentColor by remember(colorController) { colorController.color }
+
+        LaunchedEffect(currentColor) {
+            onColorChanged(currentColor)
+        }
+
         ColorPickerDialog(
-            onDismissRequest = {
+            colorController = colorController,
+            onCancel = {
+                onColorChanged(colorController.getOriginalColor())
                 showColorDialog = false
             },
-            initialColor = initialColor,
-            onColorChanged = onColorChanged,
             onConfirm = { color ->
                 showColorDialog = false
                 onColorChanged(color)

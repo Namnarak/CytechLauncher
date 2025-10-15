@@ -1,5 +1,6 @@
 package com.movtery.layer_controller
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -45,6 +47,7 @@ import kotlin.math.sqrt
  * 控制布局画布
  * @param observedLayout 需要监听并绘制的控制布局
  * @param checkOccupiedPointers 检查已占用的指针，防止底层正在被使用的指针仍被控制布局画布处理
+ * @param opacity 控制布局画布整体不透明度 0f~1f
  * @param onClickEvent 控制按键点击事件回调（切换层级事件已优先处理）
  * @param markPointerAsMoveOnly 标记指针为仅接受滑动处理
  * @param enabled 是否启用
@@ -55,6 +58,7 @@ fun ControlBoxLayout(
     observedLayout: ObservableControlLayout? = null,
     isCursorGrabbing: Boolean,
     checkOccupiedPointers: (PointerId) -> Boolean,
+    @FloatRange(0.0, 1.0) opacity: Float = 1f,
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit = { _, _ -> },
     markPointerAsMoveOnly: (PointerId) -> Unit = {},
     enabled: Boolean = true,
@@ -79,6 +83,7 @@ fun ControlBoxLayout(
                         modifier = modifier,
                         observedLayout = observedLayout,
                         checkOccupiedPointers = checkOccupiedPointers,
+                        opacity = opacity,
                         onClickEvent = onClickEvent,
                         markPointerAsMoveOnly = markPointerAsMoveOnly,
                         isCursorGrabbing = isCursorGrabbing,
@@ -99,6 +104,7 @@ private fun BaseControlBoxLayout(
     modifier: Modifier = Modifier,
     observedLayout: ObservableControlLayout,
     checkOccupiedPointers: (PointerId) -> Boolean,
+    @FloatRange(0.0, 1.0) opacity: Float,
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit,
     markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
@@ -294,6 +300,7 @@ private fun BaseControlBoxLayout(
 
         if (enabled) {
             ControlsRendererLayer(
+                opacity = opacity,
                 layers = layers,
                 styles = styles,
                 sizes = sizes,
@@ -309,6 +316,7 @@ private fun BaseControlBoxLayout(
 
 @Composable
 private fun ControlsRendererLayer(
+    @FloatRange(0.0, 1.0) opacity: Float,
     layers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     sizes: Map<ObservableWidget, IntSize>,
@@ -317,6 +325,7 @@ private fun ControlsRendererLayer(
     isCursorGrabbing: Boolean
 ) {
     Layout(
+        modifier = Modifier.alpha(alpha = opacity),
         content = {
             //按图层顺序渲染所有可见的控件
             layers.forEach { layer ->

@@ -237,7 +237,7 @@ fun SearchAssetsScreen(
                 onPlatformChange = {
                     viewModel.searchPlatform = it
                     viewModel.researchWithFilter(
-                        viewModel.searchFilter.copy(category = null, modloader = null)
+                        viewModel.searchFilter.copy(categories = emptyList(), modloader = null)
                     )
                 },
                 searchName = viewModel.searchFilter.searchName,
@@ -258,11 +258,11 @@ fun SearchAssetsScreen(
                         viewModel.searchFilter.copy(sortField = it)
                     )
                 },
-                categories = categories,
-                category = viewModel.searchFilter.category,
-                onCategoryChange = {
+                allCategories = categories,
+                categories = viewModel.searchFilter.categories,
+                onCategoryChanged = { categories ->
                     viewModel.researchWithFilter(
-                        viewModel.searchFilter.copy(category = it)
+                        viewModel.searchFilter.copy(categories = categories)
                     )
                 },
                 enableModLoader = enableModLoader,

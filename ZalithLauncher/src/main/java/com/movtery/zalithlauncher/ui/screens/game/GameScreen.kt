@@ -303,6 +303,7 @@ fun GameScreen(
             modifier = Modifier.fillMaxSize(),
             observedLayout = viewModel.observableLayout,
             checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
+            opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
             onClickEvent = { event, pressed ->
                 val events = when (event.type) {
                     ClickEvent.Type.Key -> viewModel.pressedKeyEvents
@@ -390,6 +391,7 @@ fun GameScreen(
     if (AllSettings.showMenuBall.state) {
         DraggableGameBall(
             showGameFps = AllSettings.showFPS.state,
+            showMemory = AllSettings.showMemory.state,
             onClick = {
                 viewModel.switchMenu()
             }

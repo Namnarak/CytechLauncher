@@ -60,6 +60,8 @@
     <string name="theme_color_urban_ash">鈦影</string>
     <string name="theme_color_verdant_dawn">靜林之晨</string>
     <string name="theme_color_picker_title">顏色選擇器</string>
+    <string name="theme_color_picker_edit_hex">編輯 Hex</string>
+    <string name="theme_color_picker_edit_hex_invalid">無效 Hex</string>
     <!--  動畫  -->
     <string name="animate_type_bounce">彈跳</string>
     <string name="animate_type_jelly_bounce">回彈</string>
@@ -125,6 +127,7 @@
     <string name="download_game_failed_to_get_versions">獲取版本失敗：%s，點擊重試。</string>
     <string name="download_game_type_release">正式版</string>
     <string name="download_game_type_snapshot">快照版</string>
+    <string name="download_game_type_april_fools">愚人節版</string>
     <string name="download_game_type_old">遠古版</string>
     <string name="download_game_type_old_alpha">Alpha 版</string>
     <string name="download_game_type_old_beta">Beta 版</string>
@@ -275,6 +278,15 @@
     <string name="download_assets_features_items">物品</string>
     <string name="download_assets_features_locale">在地化</string>
     <string name="download_assets_features_models">模型</string>
+    <!--  版本描述  -->
+    <string name="version_summary_fools_the_love_and_hugs_update">愛與擁抱更新，讓世界充滿和平與彩虹。</string>
+    <string name="version_summary_fools_trendy_update">未來已來！我們為 Minecraft 加入了現代科技！</string>
+    <string name="version_summary_fools_3d_shareware">我們從地下室深處挖出了這款「1994 年 DOS 版」Minecraft！</string>
+    <string name="version_summary_fools_infinite">我們加入了 20 億個（準確地說是 2,147,483,647 個）新維度！</string>
+    <string name="version_summary_fools_one_block_at_time">我們精簡了遊戲到最純粹的形態：一次只能拿一個方塊。</string>
+    <string name="version_summary_fools_a_or_b">研究表明：玩家最喜歡作出選擇，所以我們讓你為一切投票！</string>
+    <string name="version_summary_fools_potato">多年來，毒馬鈴薯一直被玩家忽視和低估，於是我們史詩級加強了它！</string>
+    <string name="version_summary_fools_creaft_mine">現在你可以合成任何東西，甚至合成整個世界！</string>
     <!--  啟動遊戲  -->
     <string name="game_launch_no_version">未選擇遊戲版本！</string>
     <string name="game_launch_no_account">未登入遊戲帳號！</string>
@@ -289,6 +301,7 @@
     <string name="game_loading_version_name">遊戲版本：%s</string>
     <string name="game_loading_version_info">遊戲資訊：%s</string>
     <string name="game_menu_title">遊戲選單</string>
+    <string name="game_menu_control_title">控制選單</string>
     <string name="game_menu_option_force_close_text">強制關閉正在執行的遊戲可能會導致存檔損壞或設定無法儲存，除非特殊情況請避免此操作。</string>
     <string name="game_menu_option_switch_log">日誌輸出</string>
     <string name="game_menu_option_input_method">切換輸入法</string>
@@ -303,6 +316,7 @@
     <string name="game_menu_option_hotbar_height">快捷列高度</string>
     <string name="game_menu_option_show_menu">開啟選單懸浮窗</string>
     <string name="game_menu_option_show_menu_hided">已關閉遊戲選單懸浮窗，您可以透過系統返回鍵呼叫遊戲選單</string>
+    <string name="game_menu_option_controls_opacity">控制佈局不透明度</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>
@@ -381,6 +395,7 @@
     <string name="account_microsoft_authenticate_minecraft">驗證 Minecraft 基本資訊</string>
     <string name="account_microsoft_verify_game_ownership">驗證是否擁有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">獲取玩家帳號資訊</string>
+    <string name="account_microsoft_exit_by_user">您離開了網頁畫面，已為您取消了微軟登入流程</string>
     <string name="account_local_create_account">建立離線帳號</string>
     <string name="account_other_login_baseurl_not_set">未設定基礎 URL</string>
     <string name="account_other_login_getting_full_url">嘗試解析完整 URL 中</string>
@@ -420,6 +435,7 @@
     <string name="cape_name_common">普通披風</string>
     <string name="cape_name_pan">薄煎餅披風</string>
     <string name="cape_name_founder_s">創始人披風</string>
+    <string name="cape_name_copper">銅披風</string>
     <!--  檔案管理  -->
     <string name="files_back_to_parent">返回上一層</string>
     <string name="files_create_dir">建立目錄</string>
@@ -502,6 +518,7 @@
     <string name="versions_overview_saves_folder">存檔資料夾</string>
     <string name="versions_overview_resource_pack_folder">資源包資料夾</string>
     <string name="versions_overview_shaders_pack_folder">光影包資料夾</string>
+    <string name="versions_overview_mod_folder">模組資料夾</string>
     <string name="versions_overview_screenshot_folder">螢幕擷圖資料夾</string>
     <string name="versions_overview_logs_folder">日誌資料夾</string>
     <string name="versions_overview_crash_report_folder">崩潰報告資料夾</string>

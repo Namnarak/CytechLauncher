@@ -363,6 +363,7 @@ fun SimpleIntSliderLayout(
     onValueChange: (Int) -> Unit = {},
     onValueChangeFinished: () -> Unit = {},
     enabled: Boolean = true,
+    shorter: Boolean = true,
     fineTuningControl: Boolean = false,
     appendContent: @Composable () -> Unit = {}
 ) {
@@ -385,6 +386,7 @@ fun SimpleIntSliderLayout(
         SimpleTextSlider(
             modifier = Modifier.fillMaxWidth(),
             value = value.toFloat(),
+            shorter = shorter,
             enabled = enabled,
             onValueChange = { onValueChange(it.toInt()) },
             onValueChangeFinished = { onValueChangeFinished() },

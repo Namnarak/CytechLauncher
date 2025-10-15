@@ -357,6 +357,14 @@ private fun VersionQuickActions(
                 }
                 OutlinedButton(
                     modifier = Modifier.padding(end = 12.dp),
+                    onClick = { accessFolder(VersionFolders.MOD.folderName) }
+                ) {
+                    Text(
+                        text = stringResource(R.string.versions_overview_mod_folder)
+                    )
+                }
+                OutlinedButton(
+                    modifier = Modifier.padding(end = 12.dp),
                     onClick = { accessFolder("screenshots") }
                 ) {
                     Text(

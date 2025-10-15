@@ -32,7 +32,7 @@ class PlatformSearchJsonTest {
             pageSize = 50
         )
 
-        val result = PlatformSearch.searchWithCurseforge(request)
+        val result = searchWithCurseforge(request)
         assertNotNull(result)
         result.let { r ->
             r.data.forEach { project ->
@@ -50,7 +50,7 @@ class PlatformSearchJsonTest {
 
     @Test
     fun testGetProjectFromCurseForge() = runBlocking(Dispatchers.IO) {
-        val result = PlatformSearch.getProjectFromCurseForge("419699")
+        val result = getProjectFromCurseForge("419699")
         assertNotNull(result)
         result.let {
             val data = it.data
@@ -63,7 +63,7 @@ class PlatformSearchJsonTest {
 
     @Test
     fun testGetAllVersionsFromCurseForge() = runBlocking(Dispatchers.IO) {
-        val result = PlatformSearch.getAllVersionsFromCurseForge(projectID = "238222")
+        val result = getAllVersionsFromCurseForge(projectID = "238222")
         result.forEach { file ->
             println("id = ${file.id}")
             println("fileName = ${file.fileName}")
@@ -82,7 +82,7 @@ class PlatformSearchJsonTest {
             "F:\\Download\\geckolib-forge-1.21.8-5.2.2.jar"
         )
         files.forEach { file ->
-            val result = PlatformSearch.getVersionByLocalFileFromCurseForge(
+            val result = getVersionByLocalFileFromCurseForge(
                 file = File(file)
             )
             println(result.data.toString())
@@ -105,7 +105,7 @@ class PlatformSearchJsonTest {
             offset = 0,
             limit = 20
         )
-        val result = PlatformSearch.searchWithModrinth(request)
+        val result = searchWithModrinth(request)
         assertNotNull(result)
         result.let { r ->
             r.hits.forEach { project ->
@@ -123,7 +123,7 @@ class PlatformSearchJsonTest {
 
     @Test
     fun testGetProjectFromModrinth() = runBlocking(Dispatchers.IO) {
-        val result = PlatformSearch.getProjectFromModrinth("TMVdoKxw")
+        val result = getProjectFromModrinth("TMVdoKxw")
         println("id = ${result.id}")
         println("projectType = ${result.projectType}")
         println("title = ${result.title}")
@@ -132,7 +132,7 @@ class PlatformSearchJsonTest {
 
     @Test
     fun testGetVersionsFromProject() = runBlocking(Dispatchers.IO) {
-        val result = PlatformSearch.getVersionsFromModrinth("AANobbMI")
+        val result = getVersionsFromModrinth("AANobbMI")
         result.forEach { version ->
             println("id = ${version.id}")
             println("name = ${version.name}")
@@ -151,7 +151,7 @@ class PlatformSearchJsonTest {
             "F:\\Download\\geckolib-forge-1.21.8-5.2.2.jar"
         )
         files.forEach { file ->
-            val result = PlatformSearch.getVersionByLocalFileFromModrinth(
+            val result = getVersionByLocalFileFromModrinth(
                 sha1 = calculateFileSha1(File(file))
             )
             println(result.toString())

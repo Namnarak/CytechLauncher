@@ -16,17 +16,24 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +55,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
+import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
@@ -280,31 +288,55 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     ) {
         if (this::handler.isInitialized) {
             val imeInsets = WindowInsets.ime
-            val density = LocalDensity.current
             val inputArea by handler.inputArea.collectAsState()
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset {
-                        val area = inputArea ?: return@offset IntOffset.Zero
-                        val imeHeight = imeInsets.getBottom(density)
-                        val bottomDistance = CallbackBridge.windowHeight - area.bottom
-                        val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
-                        IntOffset(0, -bottomPadding)
-                    },
-                factory = { context ->
-                    TextureView(context).apply {
-                        isOpaque = true
-                        alpha = 1.0f
 
-                        surfaceTextureListener = this@VMActivity
-                    }.also { view ->
-                        mTextureView = view
+            //半屏输入时，触摸以更改游戏画面位置
+            var offset by remember { mutableStateOf(Offset.Zero) }
+            val transformableState = rememberTransformableState { _, offsetChange, _ ->
+                offset += offsetChange.copy(x = 0f) //固定X坐标，只允许移动Y坐标
+            }
+
+            TopOverlayAboveIme(
+                content = {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .absoluteOffset {
+                                val area = inputArea ?: return@absoluteOffset IntOffset.Zero
+                                val imeHeight = imeInsets.getBottom(this@absoluteOffset)
+                                val bottomDistance = CallbackBridge.windowHeight - area.bottom
+                                val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
+                                IntOffset(0, -bottomPadding)
+                            }
+                            .absoluteOffset(x = 0.dp, y = offset.y.dp),
+                        factory = { context ->
+                            TextureView(context).apply {
+                                isOpaque = true
+                                alpha = 1.0f
+
+                                surfaceTextureListener = this@VMActivity
+                            }.also { view ->
+                                mTextureView = view
+                            }
+                        }
+                    )
+
+                    content()
+                },
+                emptyAreaContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .transformable(state = transformableState)
+                    )
+                },
+                onAreaChanged = { show ->
+                    if (!show) {
+                        //关闭顶部空闲区域时，重置游戏画面位置
+                        offset = Offset.Zero
                     }
                 }
             )
-
-            content()
         }
     }
 

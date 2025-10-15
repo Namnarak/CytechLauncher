@@ -5,8 +5,9 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearch
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
+import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCurseForge
+import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.getGameVersion
@@ -69,12 +70,12 @@ private suspend fun curseforge(
                 ModFile(
                     getFile = {
                         runCatching {
-                            val version = PlatformSearch.getVersionFromCurseForge(
+                            val version = getVersionFromCurseForge(
                                 projectID = manifestFile.projectID.toString(),
                                 fileID = manifestFile.fileID.toString()
                             ).data
                             //获取项目
-                            val project = PlatformSearch.getProjectFromCurseForge(
+                            val project = getProjectFromCurseForge(
                                 projectID = manifestFile.projectID.toString()
                             ).data
                             //通过项目类型指定目标下载目录
