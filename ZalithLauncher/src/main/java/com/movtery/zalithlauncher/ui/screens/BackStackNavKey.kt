@@ -30,6 +30,10 @@ abstract class BackStackNavKey<E: NavKey> : NavKey {
         backStack.removeAndNavigateTo(remove, screenKey, useClassEquality)
     }
 
+    fun removeAndNavigateTo(removes: List<KClass<*>>, screenKey: E, useClassEquality: Boolean = false) {
+        backStack.removeAndNavigateTo(removes, screenKey, useClassEquality)
+    }
+
     fun clearWith(navKey: E) {
         backStack.clearWith(navKey)
     }

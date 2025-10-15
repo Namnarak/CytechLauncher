@@ -47,6 +47,13 @@ fun <E: NavKey> NavBackStack<E>.removeAndNavigateTo(remove: KClass<*>, screenKey
     navigateTo(screenKey, useClassEquality)
 }
 
+fun <E: NavKey> NavBackStack<E>.removeAndNavigateTo(removes: List<KClass<*>>, screenKey: E, useClassEquality: Boolean = false) {
+    removeIf { key ->
+        key::class in removes
+    }
+    navigateTo(screenKey, useClassEquality)
+}
+
 /**
  * 清除所有栈，并加入指定的key
  */

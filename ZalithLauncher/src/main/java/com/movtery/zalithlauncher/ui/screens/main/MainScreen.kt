@@ -130,7 +130,7 @@ fun MainScreen(
             toMainScreen = toMainScreen,
             toSettingsScreen = {
                 screenBackStackModel.mainScreen.removeAndNavigateTo(
-                    remove = NestedNavKey.Settings::class,
+                    removes = screenBackStackModel.clearBeforeNavKeys,
                     screenKey = screenBackStackModel.settingsScreen
                 )
             },
