@@ -185,7 +185,10 @@ fun EditorMenu(
                     MenuTextButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_edit_style_config),
-                        onClick = openStyleList
+                        onClick = {
+                            openStyleList()
+                            closeScreen()
+                        }
                     )
                 }
 
