@@ -806,7 +806,7 @@
     <string name="download_assets_search_mc_versions">搜尋 MC 版本</string>
     <string name="download_assets_dependency_projects">前置依賴</string>
     <string name="download_assets_optional_projects">可選項目</string>
-    <string name="download_assets_loading_page">載入分頁資料，第 %d 頁</string>
+    <string name="download_assets_loaded_chunk_page">已加載分頁資料，第 %1$d 區間，第 %2$d 頁</string>
     <string name="download_assets_loading_dep_project">載入並快取相依專案，ID：%s</string>
     <string name="download_assets_links">相關連結</string>
     <string name="download_assets_project_link">項目頁面</string>

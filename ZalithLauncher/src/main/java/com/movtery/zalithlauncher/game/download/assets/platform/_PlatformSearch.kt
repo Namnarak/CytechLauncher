@@ -100,7 +100,7 @@ suspend fun searchAssets(
 suspend fun getVersions(
     projectID: String,
     platform: Platform,
-    onCurseforgeCallback: (Int) -> Unit = {},
+    onCurseforgeCallback: (chunk: Int, page: Int) -> Unit = { _, _ -> },
 ) = when (platform) {
     Platform.CURSEFORGE -> getAllVersionsFromCurseForge(projectID, pageCallback = onCurseforgeCallback)
     Platform.MODRINTH -> getVersionsFromModrinth(projectID)
@@ -109,7 +109,7 @@ suspend fun getVersions(
 suspend fun <E> getVersions(
     projectID: String,
     platform: Platform,
-    onCurseforgeCallback: (Int) -> Unit = {},
+    onCurseforgeCallback: (chunk: Int, page: Int) -> Unit = { _, _ -> },
     onSuccess: suspend (List<PlatformVersion>) -> Unit,
     onError: (DownloadAssetsState<List<E>>) -> Unit
 ) {

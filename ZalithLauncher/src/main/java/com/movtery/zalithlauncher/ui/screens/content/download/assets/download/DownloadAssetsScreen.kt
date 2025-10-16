@@ -127,8 +127,8 @@ private class DownloadScreenViewModel(
             getVersions(
                 projectID = projectId,
                 platform = platform,
-                onCurseforgeCallback = { page ->
-                    versionsLoading = DownloadAssetsVersionLoading.LoadingPage(page)
+                onCurseforgeCallback = { chunk, page ->
+                    versionsLoading = DownloadAssetsVersionLoading.LoadingPage(chunk, page)
                 },
                 onSuccess = { result ->
                     val versions: List<PlatformVersion> = result.initAll(projectId) also@{ version ->
@@ -338,7 +338,7 @@ private fun Versions(
                             }
                             is DownloadAssetsVersionLoading.LoadingPage -> {
                                 Text(
-                                    text = stringResource(R.string.download_assets_loading_page, state.page),
+                                    text = stringResource(R.string.download_assets_loaded_chunk_page, state.chunk, state.page),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
