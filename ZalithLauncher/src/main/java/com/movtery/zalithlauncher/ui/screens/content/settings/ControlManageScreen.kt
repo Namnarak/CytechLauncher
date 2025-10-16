@@ -897,10 +897,12 @@ private fun CreateNewLayoutDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    val scrollState = rememberScrollState()
                     Column(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(state = scrollState)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {

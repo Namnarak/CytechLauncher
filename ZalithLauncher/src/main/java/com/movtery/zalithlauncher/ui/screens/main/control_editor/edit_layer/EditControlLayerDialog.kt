@@ -32,6 +32,7 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
@@ -69,11 +70,13 @@ fun EditControlLayerDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    val scrollState = rememberScrollState()
                     Column(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(state = scrollState),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         val focusManager = LocalFocusManager.current

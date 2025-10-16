@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
 
@@ -207,9 +208,9 @@ private fun ChoseGameVersionLayout(
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                contentPadding = PaddingValues(horizontal = 4.dp),
+                    .fadeEdge(state = listState)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(all = 4.dp),
                 state = listState
             ) {
                 items(versions) { version ->

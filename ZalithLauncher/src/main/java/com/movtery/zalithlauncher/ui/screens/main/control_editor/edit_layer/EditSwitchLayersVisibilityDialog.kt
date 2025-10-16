@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 
@@ -90,10 +92,13 @@ fun EditSwitchLayersVisibilityDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    val scrollState = rememberLazyListState()
                     LazyColumn(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
                             .fillMaxWidth(),
+                        state = scrollState,
                         contentPadding = PaddingValues(horizontal = 2.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {

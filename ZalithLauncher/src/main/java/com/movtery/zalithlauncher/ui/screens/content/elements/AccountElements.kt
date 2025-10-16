@@ -95,6 +95,7 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -658,10 +659,12 @@ fun OtherServerLoginDialog(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
 
+                    val scrollState = rememberScrollState()
                     Column(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(state = scrollState)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -802,8 +805,12 @@ fun SelectSkinModelDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    val scrollState = rememberScrollState()
                     Column(
-                        modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .weight(1f, fill = false)
+                            .verticalScroll(state = scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(

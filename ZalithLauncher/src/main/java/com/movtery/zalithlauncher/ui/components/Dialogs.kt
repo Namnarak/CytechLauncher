@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -73,7 +74,12 @@ fun SimpleAlertDialog(
             )
         },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fadeEdge(state = scrollState)
+                    .verticalScroll(state = scrollState)
+            ) {
                 Text(text = text)
             }
         },
@@ -113,7 +119,12 @@ fun SimpleAlertDialog(
             )
         },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fadeEdge(state = scrollState)
+                    .verticalScroll(state = scrollState)
+            ) {
                 Text(text = text)
             }
         },
@@ -144,7 +155,12 @@ fun SimpleAlertDialog(
             )
         },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fadeEdge(state = scrollState)
+                    .verticalScroll(state = scrollState)
+            ) {
                 text()
             }
         },
@@ -305,10 +321,12 @@ private fun simpleEditDialogBody(
         style = MaterialTheme.typography.titleMedium
     )
 
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
+            .fadeEdge(state = scrollState)
             .weight(1f, fill = false)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(state = scrollState)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -440,8 +458,13 @@ fun <T> SimpleListDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.size(16.dp))
+
+                    val state = rememberLazyListState()
                     LazyColumn(
-                        modifier = Modifier.weight(1f, fill = false)
+                        modifier = Modifier
+                            .fadeEdge(state = state)
+                            .weight(1f, fill = false),
+                        state = state
                     ) {
                         items(items) { item ->
                             SimpleListItem(

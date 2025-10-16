@@ -41,6 +41,7 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallOperation
@@ -255,8 +256,11 @@ private fun GameInstallOperation(
                     Text(text = stringResource(R.string.download_install_error_title))
                 },
                 text = {
+                    val scrollState = rememberScrollState()
                     Column(
-                        modifier = Modifier.verticalScroll(rememberScrollState()),
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .verticalScroll(state = scrollState),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(text = stringResource(R.string.download_install_error_message))

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -53,6 +54,7 @@ import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
@@ -188,8 +190,11 @@ fun ModsUpdateOperation(
                     Text(text = stringResource(R.string.mods_update_failed))
                 },
                 text = {
+                    val scrollState = rememberScrollState()
                     Column(
-                        modifier = Modifier.verticalScroll(rememberScrollState()),
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .verticalScroll(state = scrollState),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(text = stringResource(R.string.mods_update_failed_text))
@@ -272,8 +277,12 @@ private fun ModsUpdateListDialog(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
 
+                    val scrollState = rememberLazyListState()
                     LazyColumn(
-                        modifier = Modifier.weight(1f, fill = false),
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .weight(1f, fill = false),
+                        state = scrollState,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(vertical = 12.dp)
                     ) {

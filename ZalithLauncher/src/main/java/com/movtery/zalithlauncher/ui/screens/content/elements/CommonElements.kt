@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -62,6 +63,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.platform.bytesToMB
 import com.movtery.zalithlauncher.utils.platform.getTotalMemory
@@ -226,8 +228,12 @@ fun TitleTaskFlowDialog(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
 
+                    val scrollState = rememberLazyListState()
                     LazyColumn(
-                        modifier = Modifier.weight(1f, fill = false)
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .weight(1f, fill = false),
+                        state = scrollState
                     ) {
                         items(tasks) { task ->
                             InstallingTaskItem(

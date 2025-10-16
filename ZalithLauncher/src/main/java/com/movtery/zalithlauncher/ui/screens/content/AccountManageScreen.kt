@@ -141,7 +141,7 @@ fun AccountManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(all = 12.dp)
-                    .weight(2.5f),
+                    .weight(3f),
                 updateMicrosoftOperation = { microsoftLoginOperation = it },
                 updateLocalLoginOperation = { localLoginOperation = it },
                 updateOtherLoginOperation = { otherLoginOperation = it },
@@ -152,7 +152,7 @@ fun AccountManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
-                    .weight(7.5f),
+                    .weight(7f),
                 submitError = submitError,
                 onMicrosoftChangeSkin = { account, result ->
                     microsoftChangeSkinOperation = MicrosoftChangeSkinOperation.ImportFile(account, result)
@@ -234,54 +234,49 @@ private fun ServerTypeMenu(
     Card(
         modifier = modifier
             .offset {
-                IntOffset(
-                    x = xOffset.roundToPx(),
-                    y = 0
-                )
+                IntOffset(x = xOffset.roundToPx(), y = 0)
             }
             .fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column {
-            Column(
-                modifier = Modifier
-                    .padding(all = 12.dp)
-                    .verticalScroll(state = rememberScrollState())
-                    .weight(1f)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(all = 12.dp)
+                .verticalScroll(state = rememberScrollState())
+        ) {
+            LoginItem(
+                modifier = Modifier.fillMaxWidth(),
+                serverName = stringResource(R.string.account_type_microsoft),
             ) {
-                LoginItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    serverName = stringResource(R.string.account_type_microsoft),
-                ) {
-                    if (!isMicrosoftLogging()) {
-                        updateMicrosoftOperation(MicrosoftLoginOperation.Tip)
-                    }
-                }
-                LoginItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    serverName = stringResource(R.string.account_type_local)
-                ) {
-                    updateLocalLoginOperation(LocalLoginOperation.Edit)
-                }
-
-                val authServers by AccountsManager.authServersFlow.collectAsState()
-                authServers.forEach { server ->
-                    ServerItem(
-                        server = server,
-                        onClick = { updateOtherLoginOperation(OtherLoginOperation.OnLogin(server)) },
-                        onDeleteClick = { updateServerOperation(ServerOperation.Delete(server)) }
-                    )
+                if (!isMicrosoftLogging()) {
+                    updateMicrosoftOperation(MicrosoftLoginOperation.Tip)
                 }
             }
-
-            ScalingActionButton(
-                modifier = Modifier
-                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                    .fillMaxWidth(),
-                onClick = { updateServerOperation(ServerOperation.AddNew) }
+            LoginItem(
+                modifier = Modifier.fillMaxWidth(),
+                serverName = stringResource(R.string.account_type_local)
             ) {
-                MarqueeText(text = stringResource(R.string.account_add_new_server_button))
+                updateLocalLoginOperation(LocalLoginOperation.Edit)
             }
+
+            val authServers by AccountsManager.authServersFlow.collectAsState()
+            authServers.forEach { server ->
+                ServerItem(
+                    server = server,
+                    onClick = { updateOtherLoginOperation(OtherLoginOperation.OnLogin(server)) },
+                    onDeleteClick = { updateServerOperation(ServerOperation.Delete(server)) }
+                )
+            }
+        }
+
+        ScalingActionButton(
+            modifier = Modifier
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .fillMaxWidth(),
+            onClick = { updateServerOperation(ServerOperation.AddNew) }
+        ) {
+            MarqueeText(text = stringResource(R.string.account_add_new_server_button))
         }
     }
 }
