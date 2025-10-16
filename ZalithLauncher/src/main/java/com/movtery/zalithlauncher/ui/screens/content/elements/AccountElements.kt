@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -70,6 +72,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -689,6 +692,8 @@ fun OtherServerLoginDialog(
                             shape = MaterialTheme.shapes.large
                         )
                         Spacer(modifier = Modifier.size(8.dp))
+                        /** 是否显示密码 */
+                        var showPassword by rememberSaveable { mutableStateOf(false) }
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -697,10 +702,22 @@ fun OtherServerLoginDialog(
                             onValueChange = { password = it },
                             isError = password.isEmpty(),
                             label = { Text(text = stringResource(R.string.account_label_password)) },
-                            visualTransformation = PasswordVisualTransformation(),
+                            visualTransformation = if (showPassword) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
                             colors = TextFieldDefaults.colors(
                                 unfocusedContainerColor = Transparent,
                             ),
+                            trailingIcon = {
+                                IconButton(onClick = { showPassword = !showPassword }) {
+                                    Icon(
+                                        imageVector = if (showPassword) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                        contentDescription = stringResource(R.string.account_label_password)
+                                    )
+                                }
+                            },
                             supportingText = {
                                 if (password.isEmpty()) {
                                     Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
