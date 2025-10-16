@@ -7,7 +7,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +32,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -69,6 +67,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -146,16 +145,16 @@ fun MainScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            NavigationUI(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surface),
-                screenBackStackModel = screenBackStackModel,
-                toMainScreen = toMainScreen,
-                launchGameViewModel = launchGameViewModel,
-                eventViewModel = eventViewModel,
-                submitError = submitError
-            )
+            Surface(modifier = Modifier.fillMaxSize()) {
+                NavigationUI(
+                    modifier = Modifier.fillMaxSize(),
+                    screenBackStackModel = screenBackStackModel,
+                    toMainScreen = toMainScreen,
+                    launchGameViewModel = launchGameViewModel,
+                    eventViewModel = eventViewModel,
+                    submitError = submitError
+                )
+            }
 
             TaskMenu(
                 tasks = tasks,
@@ -490,7 +489,7 @@ private fun TaskMenu(
         animationSpec = getAnimateTween()
     )
 
-    Card(
+    BackgroundCard(
         modifier = modifier
             .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
             .alpha(surfaceAlpha)

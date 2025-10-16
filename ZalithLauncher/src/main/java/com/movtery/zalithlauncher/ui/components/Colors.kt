@@ -7,6 +7,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -24,11 +25,9 @@ fun Color.desaturate(factor: Float): Color {
 @Composable
 fun itemLayoutColor(): Color {
     return if (isSystemInDarkTheme()) {
-        //暗色模式下如果用 surfaceColorAtElevation(1.dp) 就会太黑太突出
-        MaterialTheme.colorScheme.surfaceVariant
+        lerp(MaterialTheme.colorScheme.surfaceVariant, Color.Black, 0.15f)
     } else {
-        //浅色模式下用这个颜色刚刚好
-        itemLayoutColorOnSurface(1.dp)
+        MaterialTheme.colorScheme.surface
     }
 }
 

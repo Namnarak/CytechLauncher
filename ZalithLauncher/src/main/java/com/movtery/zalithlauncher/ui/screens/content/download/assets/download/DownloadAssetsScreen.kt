@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -62,12 +61,13 @@ import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.game.versioninfo.RELEASE_REGEX
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
@@ -374,7 +374,7 @@ private fun Versions(
                         modifier = Modifier.weight(1f),
                         value = viewModel.searchMCVersion,
                         onValueChange = { viewModel.filterWith(searchMCVersion = it) },
-                        color = itemLayoutColor(),
+                        color = itemLayoutColorOnSurface(),
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         singleLine = true,
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface).copy(fontSize = 12.sp),
@@ -458,7 +458,7 @@ private fun ProjectInfo(
     openLink: (url: String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    Card(
+    BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge
     ) {

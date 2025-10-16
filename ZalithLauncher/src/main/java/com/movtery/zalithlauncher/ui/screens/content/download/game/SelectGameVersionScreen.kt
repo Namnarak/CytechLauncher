@@ -27,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -66,7 +65,7 @@ import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.fadeEdge
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -253,7 +252,7 @@ fun SelectGameVersionScreen(
                             modifier = Modifier.fillMaxWidth(),
                             versionFilter = viewModel.versionFilter,
                             onVersionFilterChange = { viewModel.filterWith(it) },
-                            itemContainerColor = itemLayoutColor(),
+                            itemContainerColor = itemLayoutColorOnSurface(),
                             itemContentColor = MaterialTheme.colorScheme.onSurface,
                             onRefreshClick = {
                                 viewModel.refresh(true)
@@ -262,7 +261,7 @@ fun SelectGameVersionScreen(
 
                         VersionList(
                             modifier = Modifier.weight(1f),
-                            itemContainerColor = itemLayoutColor(),
+                            itemContainerColor = itemLayoutColorOnSurface(),
                             itemContentColor = MaterialTheme.colorScheme.onSurface,
                             versions = state.versions,
                             onVersionSelect = onVersionSelect,
@@ -376,10 +375,7 @@ private fun VersionHeader(
                     )
 
                     IconButton(
-                        onClick = onRefreshClick,
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = itemContentColor
-                        )
+                        onClick = onRefreshClick
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,

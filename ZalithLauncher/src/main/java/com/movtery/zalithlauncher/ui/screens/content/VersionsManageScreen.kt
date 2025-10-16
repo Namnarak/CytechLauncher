@@ -19,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +46,7 @@ import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleane
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -301,11 +301,8 @@ private fun VersionsLayout(
         swapIn = isVisible
     )
 
-    Card(
-        modifier = modifier
-            .offset {
-                IntOffset(x = 0, y = surfaceYOffset.roundToPx())
-            },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = 0, y = surfaceYOffset.roundToPx()) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         if (VersionsManager.isRefreshing) { //版本正在刷新中

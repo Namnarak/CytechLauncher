@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,6 +72,7 @@ import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -231,19 +231,17 @@ private fun ServerTypeMenu(
         isHorizontal = true
     )
 
-    Card(
+    BackgroundCard(
         modifier = modifier
-            .offset {
-                IntOffset(x = xOffset.roundToPx(), y = 0)
-            }
+            .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(all = 12.dp)
                 .verticalScroll(state = rememberScrollState())
+                .padding(all = 12.dp)
         ) {
             LoginItem(
                 modifier = Modifier.fillMaxWidth(),
@@ -830,13 +828,8 @@ private fun AccountsLayout(
         submitError = submitError
     )
 
-    Card(
-        modifier = modifier.offset {
-            IntOffset(
-                x = 0,
-                y = yOffset.roundToPx()
-            )
-        },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         if (accounts.isNotEmpty()) {

@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -85,6 +84,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -388,7 +388,7 @@ private fun ControlLayoutList(
     onDelete: (ControlData) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
@@ -633,7 +633,7 @@ private fun ControlLayoutInfo(
     onEditDescription: (ControlData) -> Unit,
     onEditVersion: (ControlData) -> Unit
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {

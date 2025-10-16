@@ -20,7 +20,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -116,7 +116,7 @@ private fun ContentMenu(
     ) {
         if (BuildConfig.DEBUG) {
             //debug版本关不掉的警告，防止有人把测试版当正式版用 XD
-            Card(
+            BackgroundCard(
                 modifier = Modifier.padding(all = 12.dp),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
@@ -160,7 +160,7 @@ private fun RightMenu(
         isHorizontal = true
     )
 
-    Card(
+    BackgroundCard(
         modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
