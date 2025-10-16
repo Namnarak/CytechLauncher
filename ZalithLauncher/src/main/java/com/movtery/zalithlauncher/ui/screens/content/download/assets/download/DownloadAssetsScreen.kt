@@ -255,10 +255,10 @@ fun DownloadAssetsScreen(
 
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.Download::class.java, mainScreenKey),
-            Pair(NormalNavKey.DownloadAssets::class.java, currentKey)
+            Pair(NestedNavKey.Download::class.java, mainScreenKey)
         ),
-        Triple(parentScreenKey, parentCurrentKey, false)
+        Triple(parentScreenKey, parentCurrentKey, false),
+        Triple(key, currentKey, false),
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
