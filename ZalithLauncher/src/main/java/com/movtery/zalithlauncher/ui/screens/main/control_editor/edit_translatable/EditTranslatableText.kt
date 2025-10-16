@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -187,7 +188,7 @@ fun EditTranslatableTextDialog(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             onDismissRequest?.let { request ->
-                                Button(
+                                FilledTonalButton(
                                     modifier = Modifier.weight(1f, fill = false),
                                     onClick = request
                                 ) {

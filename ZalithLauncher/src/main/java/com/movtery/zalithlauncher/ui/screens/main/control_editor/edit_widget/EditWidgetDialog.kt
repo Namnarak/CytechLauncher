@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
@@ -199,13 +200,13 @@ fun EditWidgetDialog(
                                 .horizontalScroll(state = scrollState),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Button(
+                            FilledTonalButton(
                                 onClick = onDelete
                             ) {
                                 MarqueeText(text = stringResource(R.string.generic_delete))
                             }
 
-                            Button(
+                            FilledTonalButton(
                                 onClick = onClone
                             ) {
                                 MarqueeText(text = stringResource(R.string.control_editor_edit_dialog_clone_widget))

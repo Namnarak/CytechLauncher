@@ -37,6 +37,7 @@ import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -740,7 +741,7 @@ fun OtherServerLoginDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.weight(1f),
                             onClick = onDismissRequest
                         ) {
@@ -815,7 +816,7 @@ fun SelectSkinModelDialog(
                         ) {
                             MarqueeText(text = stringResource(R.string.account_change_skin_model_alex))
                         }
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = onDismissRequest
                         ) {

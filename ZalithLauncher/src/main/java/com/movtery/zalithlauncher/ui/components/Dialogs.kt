@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -82,7 +83,7 @@ fun SimpleAlertDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            FilledTonalButton(onClick = onDismiss) {
                 MarqueeText(text = dismissText)
             }
         }
@@ -153,7 +154,7 @@ fun SimpleAlertDialog(
             }
         },
         dismissButton = {
-            Button(onClick = onCancel) {
+            FilledTonalButton(onClick = onCancel) {
                 MarqueeText(text = dismissText)
             }
         }
@@ -209,7 +210,7 @@ fun SimpleEditDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.weight(1f),
                             onClick = onDismissRequest
                         ) {

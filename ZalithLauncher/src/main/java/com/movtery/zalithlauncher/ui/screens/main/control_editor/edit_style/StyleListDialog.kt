@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -107,14 +108,15 @@ fun StyleListDialog(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.weight(1f, fill = false),
                             onClick = onCreate
                         ) {
                             MarqueeText(text = stringResource(R.string.control_manage_create_new))
                         }
+                        Spacer(Modifier.width(16.dp))
                         Button(
                             modifier = Modifier.weight(1f, fill = false),
                             onClick = onClose
