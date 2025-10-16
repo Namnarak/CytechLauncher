@@ -84,14 +84,15 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
@@ -455,12 +456,20 @@ private fun ControlListHeader(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(state = rememberAutoScrollToEndState())
-            .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+        modifier = Modifier
+            .fadeEdge(
+                state = scrollState,
+                length = 32.dp,
+                direction = EdgeDirection.Horizontal
+            )
+            .then(
+                modifier
+                    .horizontalScroll(state = scrollState)
+                    .padding(all = 8.dp)
+            ),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -47,10 +47,12 @@ import com.movtery.zalithlauncher.game.version.installed.cleanup.GameAssetCleane
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CleanupOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.GamePathItemLayout
@@ -325,11 +327,17 @@ private fun VersionsLayout(
             )
 
             Column(modifier = Modifier.fillMaxSize()) {
+                val scrollState = rememberScrollState()
                 Row(
                     modifier = Modifier
+                        .fadeEdge(
+                            state = scrollState,
+                            length = 32.dp,
+                            direction = EdgeDirection.Horizontal
+                        )
                         .fillMaxWidth()
-                        .horizontalScroll(state = rememberScrollState())
-                        .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+                        .horizontalScroll(state = scrollState)
+                        .padding(all = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

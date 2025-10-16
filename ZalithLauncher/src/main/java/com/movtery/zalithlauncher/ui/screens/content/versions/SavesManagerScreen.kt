@@ -2,8 +2,10 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -16,8 +18,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -74,6 +78,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
@@ -81,6 +86,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -321,63 +327,79 @@ private fun SavesActionsHeader(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SimpleTextInputField(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp),
-                value = savesFilter.saveName,
-                onValueChange = { onSavesFilterChange(savesFilter.copy(saveName = it)) },
-                hint = {
-                    Text(
-                        text = stringResource(R.string.generic_search),
-                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                SimpleTextInputField(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    value = savesFilter.saveName,
+                    onValueChange = { onSavesFilterChange(savesFilter.copy(saveName = it)) },
+                    hint = {
+                        Text(
+                            text = stringResource(R.string.generic_search),
+                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                        )
+                    },
+                    color = inputFieldColor,
+                    contentColor = inputFieldContentColor,
+                    singleLine = true
+                )
+
+                val scrollState = rememberScrollState()
+                LaunchedEffect(Unit) {
+                    scrollState.scrollTo(scrollState.maxValue)
+                }
+                Row(
+                    modifier = Modifier
+                        .fadeEdge(
+                            state = scrollState,
+                            length = 32.dp,
+                            direction = EdgeDirection.Horizontal
+                        )
+                        .widthIn(max = this@BoxWithConstraints.maxWidth / 2)
+                        .horizontalScroll(scrollState),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ContentCheckBox(
+                        checked = savesFilter.onlyShowCompatible,
+                        onCheckedChange = { onSavesFilterChange(savesFilter.copy(onlyShowCompatible = it)) }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.manage_only_show_valid),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    ImportFileButton(
+                        extension = "zip",
+                        targetDir = savesDir,
+                        errorMessage = stringResource(R.string.saves_manage_import_failed),
+                        onFileCopied = { task, file ->
+                            task.updateProgress(-1f, R.string.saves_manage_import_unpacking, file.name)
+                            unpackSaveZip(file, savesDir)
+                        },
+                        onImported = refreshSaves,
+                        submitError = submitError
                     )
-                },
-                color = inputFieldColor,
-                contentColor = inputFieldContentColor,
-                singleLine = true
-            )
 
-            ContentCheckBox(
-                checked = savesFilter.onlyShowCompatible,
-                onCheckedChange = { onSavesFilterChange(savesFilter.copy(onlyShowCompatible = it)) }
-            ) {
-                Text(
-                    text = stringResource(R.string.manage_only_show_valid),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
+                    IconTextButton(
+                        onClick = swapToDownload,
+                        imageVector = Icons.Default.Download,
+                        text = stringResource(R.string.generic_download)
+                    )
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            ImportFileButton(
-                extension = "zip",
-                targetDir = savesDir,
-                errorMessage = stringResource(R.string.saves_manage_import_failed),
-                onFileCopied = { task, file ->
-                    task.updateProgress(-1f, R.string.saves_manage_import_unpacking, file.name)
-                    unpackSaveZip(file, savesDir)
-                },
-                onImported = refreshSaves,
-                submitError = submitError
-            )
-
-            IconTextButton(
-                onClick = swapToDownload,
-                imageVector = Icons.Default.Download,
-                text = stringResource(R.string.generic_download)
-            )
-
-            IconButton(
-                onClick = refreshSaves
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = stringResource(R.string.generic_refresh)
-                )
+                    IconButton(
+                        onClick = refreshSaves
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.generic_refresh)
+                        )
+                    }
+                }
             }
         }
 

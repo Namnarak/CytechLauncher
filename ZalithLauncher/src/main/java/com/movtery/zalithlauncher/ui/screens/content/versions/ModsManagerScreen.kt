@@ -11,8 +11,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -27,6 +29,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -96,11 +99,13 @@ import com.movtery.zalithlauncher.game.version.mod.isEnabled
 import com.movtery.zalithlauncher.game.version.mod.update.ModData
 import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -595,95 +600,113 @@ private fun ModsActionsHeader(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {}
 ) {
     Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SimpleTextInputField(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp),
-                value = nameFilter,
-                onValueChange = { onNameFilterChange(it) },
-                hint = {
-                    Text(
-                        text = stringResource(R.string.generic_search),
-                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
-                    )
-                },
-                color = inputFieldColor,
-                contentColor = inputFieldContentColor,
-                singleLine = true
-            )
-
-            AnimatedVisibility(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                visible = isModsSelected
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row {
-                    if (canUpdateMods) {
+                SimpleTextInputField(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    value = nameFilter,
+                    onValueChange = { onNameFilterChange(it) },
+                    hint = {
+                        Text(
+                            text = stringResource(R.string.generic_search),
+                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                        )
+                    },
+                    color = inputFieldColor,
+                    contentColor = inputFieldContentColor,
+                    singleLine = true
+                )
+
+                AnimatedVisibility(
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                    visible = isModsSelected
+                ) {
+                    Row {
+                        if (canUpdateMods) {
+                            IconButton(
+                                onClick = onUpdateMods
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Update,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+
                         IconButton(
-                            onClick = onUpdateMods
+                            onClick = onDeleteAll
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Update,
+                                imageVector = Icons.Outlined.Delete,
                                 contentDescription = null
                             )
                         }
-                    }
 
-                    IconButton(
-                        onClick = onDeleteAll
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = null
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            if (isModsSelected) onClearModsSelected()
+                        IconButton(
+                            onClick = {
+                                if (isModsSelected) onClearModsSelected()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Deselect,
+                                contentDescription = null
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Deselect,
-                            contentDescription = null
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        VerticalDivider(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(vertical = 12.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                         )
                     }
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    VerticalDivider(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(vertical = 12.dp),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
-            ImportFileButton(
-                extension = "jar",
-                targetDir = modsDir,
-                submitError = submitError,
-                onImported = refresh
-            )
+                val scrollState = rememberScrollState()
+                LaunchedEffect(Unit) {
+                    scrollState.scrollTo(scrollState.maxValue)
+                }
+                Row(
+                    modifier = Modifier
+                        .fadeEdge(
+                            state = scrollState,
+                            length = 32.dp,
+                            direction = EdgeDirection.Horizontal
+                        )
+                        .widthIn(max = this@BoxWithConstraints.maxWidth / 2)
+                        .horizontalScroll(scrollState),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ImportFileButton(
+                        extension = "jar",
+                        targetDir = modsDir,
+                        submitError = submitError,
+                        onImported = refresh
+                    )
 
-            IconTextButton(
-                onClick = swapToDownload,
-                imageVector = Icons.Default.Download,
-                text = stringResource(R.string.generic_download)
-            )
+                    IconTextButton(
+                        onClick = swapToDownload,
+                        imageVector = Icons.Default.Download,
+                        text = stringResource(R.string.generic_download)
+                    )
 
-            IconButton(
-                onClick = refresh
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = stringResource(R.string.generic_refresh)
-                )
+                    IconButton(
+                        onClick = refresh
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.generic_refresh)
+                        )
+                    }
+                }
             }
         }
 

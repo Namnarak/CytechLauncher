@@ -27,6 +27,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,8 +53,9 @@ import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.MarqueeText
-import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 
@@ -184,9 +186,17 @@ fun EditWidgetDialog(
                             Spacer(Modifier)
                         }
 
+                        val scrollState = rememberScrollState()
+                        LaunchedEffect(Unit) {
+                            scrollState.scrollTo(scrollState.maxValue)
+                        }
                         Row(
                             modifier = Modifier
-                                .horizontalScroll(rememberAutoScrollToEndState()),
+                                .fadeEdge(
+                                    state = scrollState,
+                                    direction = EdgeDirection.Horizontal
+                                )
+                                .horizontalScroll(state = scrollState),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Button(
