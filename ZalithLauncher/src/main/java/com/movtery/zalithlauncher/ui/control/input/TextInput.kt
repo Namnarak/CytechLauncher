@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.control.input
 import android.os.Bundle
 import android.text.InputType
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.CorrectionInfo
 import android.view.inputmethod.CursorAnchorInfo
@@ -26,6 +27,8 @@ import com.movtery.zalithlauncher.game.input.CharacterSenderStrategy
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * 一个用于处理 UI 元素文本输入的可组合修饰符
@@ -88,7 +91,7 @@ private class TextInputNode(
                         val inputMethodManager = view.context.getSystemService<InputMethodManager>()
                             ?: error("InputMethodManager not supported")
 
-                        val connection = InputConnectionImpl()
+                        val connection = InputConnectionImpl(view, inputMethodManager)
 
                         inputMethodManager.updateCursorAnchorInfo(
                             view,
@@ -114,6 +117,13 @@ private class TextInputNode(
                                     EditorInfo.IME_FLAG_NO_FULLSCREEN or
                                     //尽量不要显示额外的辅助UI
                                     EditorInfo.IME_FLAG_NO_EXTRACT_UI
+
+                            info.packageName = view.context.packageName
+                            info.fieldId = view.id
+
+                            info.initialSelStart = 0
+                            info.initialSelEnd = 0
+
                             connection
                         }
                     }
@@ -156,64 +166,157 @@ private class TextInputNode(
      * 该类重写 [InputConnection] 中的各种方法来处理文本提交、按键事件、撰写文本等
      * 大多数未实现的方法都返回默认值或执行无操作操作，因为它们对于此特定用例而言不是必需的
      */
-    private inner class InputConnectionImpl() : InputConnection {
-        private var composingText: CharSequence? = null
+    private inner class InputConnectionImpl(
+        private val view: View,
+        private val imm: InputMethodManager
+    ) : InputConnection {
+        private val textBuffer = StringBuilder()
+        private var cursorPosition = 0
+        private var composingStart = -1
+        private var composingEnd = -1
 
         override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
+            finishComposingText()
+
+            //插入提交的文本
+            textBuffer.insert(cursorPosition, text)
+            cursorPosition += text.length
+
             val newText = text.toString()
             newText.forEach { char -> sender.sendChar(char) }
-            composingText = null
+
+            updateInputMethodState()
             return true
         }
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
-            if (event.action != KeyEvent.ACTION_DOWN) return true
-            when (event.keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    sender.sendEnter()
-                    onCloseInputMethod()
-                }
-                KeyEvent.KEYCODE_DEL -> sender.sendBackspace()
-                KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
-                KeyEvent.KEYCODE_DPAD_RIGHT -> sender.sendRight()
-                KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
-                KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
-                else -> {
-                    sender.sendOther(event)
+            when (event.action) {
+                KeyEvent.ACTION_DOWN -> {
+                    when (event.keyCode) {
+                        KeyEvent.KEYCODE_ENTER -> {
+                            sender.sendEnter()
+                            onCloseInputMethod()
+                        }
+                        KeyEvent.KEYCODE_DEL -> {
+                            if (cursorPosition > 0) {
+                                textBuffer.deleteCharAt(cursorPosition - 1)
+                                cursorPosition--
+                                updateInputMethodState()
+                            }
+                            sender.sendBackspace()
+                        }
+                        KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> sender.sendRight()
+                        KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
+                        KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
+                        else -> {
+                            if (event.unicodeChar != 0) {
+                                val char = event.unicodeChar.toChar()
+                                textBuffer.insert(cursorPosition, char)
+                                cursorPosition++
+                                updateInputMethodState()
+                                sender.sendChar(char)
+                            } else {
+                                sender.sendOther(event)
+                            }
+                        }
+                    }
                 }
             }
             return true
         }
-        override fun setComposingRegion(p0: Int, p1: Int): Boolean = true
-        override fun getTextBeforeCursor(p0: Int, p1: Int): CharSequence = ""
-        override fun getTextAfterCursor(p0: Int, p1: Int): CharSequence = ""
+
+        override fun setComposingRegion(start: Int, end: Int): Boolean {
+            if (start in 0..textBuffer.length && end in 0..textBuffer.length && start <= end) {
+                composingStart = start
+                composingEnd = end
+                updateInputMethodState()
+                return true
+            }
+            return false
+        }
+
+        override fun getTextBeforeCursor(length: Int, flags: Int): CharSequence {
+            val start = max(0, cursorPosition - length)
+            return textBuffer.substring(start, cursorPosition)
+        }
+
+        override fun getTextAfterCursor(length: Int, flags: Int): CharSequence {
+            val end = min(textBuffer.length, cursorPosition + length)
+            return textBuffer.substring(cursorPosition, end)
+        }
+
         override fun getSelectedText(p0: Int): CharSequence? = null
 
         override fun setComposingText(text: CharSequence, newCursorPosition: Int): Boolean {
-            composingText = text //更新组合文本，但不发送
+            //如果有活动的组合文本，先删除它
+            if (composingStart >= 0 && composingEnd > composingStart) {
+                textBuffer.delete(composingStart, composingEnd)
+                cursorPosition = composingStart
+            } else {
+                //如果没有活动的组合文本，但光标位置不在缓冲区末尾，可能需要调整
+                //这确保输入法总是在正确的位置插入组合文本
+                composingStart = cursorPosition
+            }
+
+            //插入新的组合文本
+            textBuffer.insert(cursorPosition, text)
+            composingStart = cursorPosition
+            composingEnd = cursorPosition + text.length
+            cursorPosition = if (newCursorPosition > 0) {
+                composingStart + newCursorPosition
+            } else {
+                composingEnd + newCursorPosition
+            }.coerceIn(composingStart, composingEnd)
+
+            updateInputMethodState()
             return true
         }
 
         override fun finishComposingText(): Boolean {
-            //提交当前的组合文本
-            composingText?.let { text ->
-                val str = text.toString()
-                str.forEach { char -> sender.sendChar(char) }
-                composingText = null
+            if (composingStart >= 0 && composingEnd > composingStart) {
+                //提交组合文本
+                val composedText = textBuffer.substring(composingStart, composingEnd)
+                composedText.forEach { char -> sender.sendChar(char) }
+
+                composingStart = -1
+                composingEnd = -1
             }
+
+            updateInputMethodState()
             return true
         }
 
-        override fun setSelection(p0: Int, p1: Int): Boolean = true
+        override fun setSelection(start: Int, end: Int): Boolean {
+            if (start in 0..textBuffer.length && end in 0..textBuffer.length) {
+                cursorPosition = end //只关心光标位置
+                updateInputMethodState()
+                return true
+            }
+            return false
+        }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            repeat(beforeLength) { sender.sendBackspace() }
+            val deleteStart = max(0, cursorPosition - beforeLength)
+            val deleteEnd = cursorPosition
+            if (deleteStart < deleteEnd) {
+                textBuffer.delete(deleteStart, deleteEnd)
+                cursorPosition = deleteStart
+                repeat(beforeLength) { sender.sendBackspace() }
+            }
+            updateInputMethodState()
             return true
         }
 
         override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean {
-            val times = beforeLength.coerceAtLeast(0)
-            repeat(times) { sender.sendBackspace() }
+            val deleteStart = max(0, cursorPosition - beforeLength)
+            val deleteEnd = cursorPosition
+            if (deleteStart < deleteEnd) {
+                textBuffer.delete(deleteStart, deleteEnd)
+                cursorPosition = deleteStart
+                repeat(beforeLength) { sender.sendBackspace() }
+                updateInputMethodState()
+            }
             return true
         }
 
@@ -235,9 +338,58 @@ private class TextInputNode(
         override fun performContextMenuAction(p0: Int): Boolean = false
         override fun performPrivateCommand(p0: String?, p1: Bundle?): Boolean = false
         override fun reportFullscreenMode(p0: Boolean): Boolean = true
-        override fun requestCursorUpdates(p0: Int): Boolean = false
+
+        override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
+            if (cursorUpdateMode and InputConnection.CURSOR_UPDATE_IMMEDIATE != 0) {
+                updateCursorAnchorInfo()
+                return true
+            }
+            return false
+        }
+
         override fun getCursorCapsMode(p0: Int): Int = 0
-        override fun getExtractedText(p0: ExtractedTextRequest?, p1: Int): ExtractedText? = null
+
+        override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText? {
+            return ExtractedText().apply {
+                text = textBuffer
+                startOffset = 0
+                partialStartOffset = -1
+                partialEndOffset = -1
+                selectionStart = cursorPosition
+                selectionEnd = cursorPosition
+            }
+        }
+
         override fun getHandler() = null
+
+        private fun updateCursorAnchorInfo() {
+            imm.updateCursorAnchorInfo(
+                view,
+                CursorAnchorInfo.Builder().apply {
+                    setSelectionRange(cursorPosition, cursorPosition)
+                    //设置组合文本范围
+                    if (composingStart >= 0 && composingEnd > composingStart) {
+                        setComposingText(composingStart, textBuffer.substring(composingStart, composingEnd))
+                    }
+                    setInsertionMarkerLocation(
+                        fakeCursorRect.left.toFloat(),
+                        fakeCursorRect.top.toFloat(),
+                        fakeCursorRect.right.toFloat(),
+                        fakeCursorRect.bottom.toFloat(),
+                        CursorAnchorInfo.FLAG_HAS_VISIBLE_REGION
+                    )
+                    setMatrix(view.matrix)
+                }.build()
+            )
+        }
+
+        private fun updateInputMethodState() {
+            imm.updateSelection(
+                view,
+                cursorPosition, cursorPosition,
+                composingStart, composingEnd
+            )
+            updateCursorAnchorInfo()
+        }
     }
 }

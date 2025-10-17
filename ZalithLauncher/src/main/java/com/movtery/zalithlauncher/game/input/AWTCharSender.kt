@@ -37,6 +37,30 @@ object AWTCharSender : CharacterSenderStrategy {
         // Ignore
     }
 
+    override fun sendCopy() {
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 1)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_C)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 0)
+    }
+
+    override fun sendCut() {
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 1)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_X)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 0)
+    }
+
+    override fun sendPaste() {
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 1)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_V)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 0)
+    }
+
+    override fun sendSelectAll() {
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 1)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_A)
+        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, 0)
+    }
+
     /**
      * 获取 AWT 鼠标点击事件
      */
