@@ -103,10 +103,12 @@ sealed interface DownloadAssetsState<T> {
 
 sealed interface DownloadAssetsVersionLoading {
     data object None: DownloadAssetsVersionLoading
+    /** 开始加载分页数据 */
+    data object StartLoadPage: DownloadAssetsVersionLoading
     /** 加载分页数据 */
     data class LoadingPage(val chunk: Int, val page: Int): DownloadAssetsVersionLoading
-    /** 加载并缓存依赖项目 */
-    data class LoadingDepProject(val projectId: String): DownloadAssetsVersionLoading
+    /** 正在加载并缓存依赖项目 */
+    data object LoadingDepProject: DownloadAssetsVersionLoading
 }
 
 /**
