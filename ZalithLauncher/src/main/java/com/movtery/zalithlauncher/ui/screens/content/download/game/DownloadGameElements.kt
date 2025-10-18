@@ -59,7 +59,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVer
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.modlike.ModVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.getTimeAgo
@@ -154,7 +154,7 @@ fun <E> AddonListLayout(
     autoCollapse: Boolean = true,
     onValueChange: (E?) -> Unit = {},
     onReload: () -> Unit = {},
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     var selectedItem by remember { mutableStateOf<E?>(null) }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +36,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.state.FilePathSelectorData
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -188,14 +188,8 @@ private fun LeftActionMenu(
         isHorizontal = true
     )
 
-    Card(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = surfaceXOffset.roundToPx(),
-                    y = 0
-                )
-            },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = surfaceXOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
@@ -242,14 +236,8 @@ private fun FilesLayout(
         isHorizontal = true
     )
 
-    Card(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = surfaceXOffset.roundToPx(),
-                    y = 0
-                )
-            },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = surfaceXOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -304,7 +292,7 @@ private fun FileItem(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = color,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 2.dp,
+        shadowElevation = 1.dp,
         onClick = onClick
     ) {
         BaseFileItem(

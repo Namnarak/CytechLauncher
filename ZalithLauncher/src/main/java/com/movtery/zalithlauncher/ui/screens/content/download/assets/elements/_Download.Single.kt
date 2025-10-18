@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,7 +43,8 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.fadeEdge
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoLayout
 
 /**
@@ -152,7 +154,7 @@ fun SelectVersionToDownloadDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Button(
+                            FilledTonalButton(
                                 modifier = Modifier.weight(0.5f),
                                 onClick = onDismiss
                             ) {
@@ -184,7 +186,7 @@ private fun ChoseGameVersionLayout(
     onVersionSelected: (Version) -> Unit,
     onVersionUnSelected: (Version) -> Unit,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
 ) {
@@ -206,9 +208,9 @@ private fun ChoseGameVersionLayout(
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                contentPadding = PaddingValues(horizontal = 4.dp),
+                    .fadeEdge(state = listState)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(all = 4.dp),
                 state = listState
             ) {
                 items(versions) { version ->

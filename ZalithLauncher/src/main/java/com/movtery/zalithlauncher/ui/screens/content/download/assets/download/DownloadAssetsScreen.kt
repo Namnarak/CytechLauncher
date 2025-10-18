@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.outlined.ImportContacts
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -62,12 +61,13 @@ import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
 import com.movtery.zalithlauncher.game.versioninfo.RELEASE_REGEX
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
@@ -83,9 +83,13 @@ import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.ClientRequestException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 private class DownloadScreenViewModel(
     private val platform: Platform,
@@ -97,6 +101,8 @@ private class DownloadScreenViewModel(
     var versionsResult by mutableStateOf<DownloadAssetsState<List<VersionInfoMap>>>(DownloadAssetsState.Getting())
     var versionsLoading by mutableStateOf<DownloadAssetsVersionLoading>(DownloadAssetsVersionLoading.None)
         private set
+    /** 当前正在加载的依赖项目 */
+    val loadingProjects = mutableStateListOf<String>()
 
     var showOnlyMCRelease by mutableStateOf(true)
     var searchMCVersion by mutableStateOf("")
@@ -124,21 +130,46 @@ private class DownloadScreenViewModel(
     fun getVersions() {
         viewModelScope.launch {
             versionsResult = DownloadAssetsState.Getting()
+            if (platform == Platform.CURSEFORGE) {
+                versionsLoading = DownloadAssetsVersionLoading.StartLoadPage
+            }
+
             getVersions(
                 projectID = projectId,
                 platform = platform,
-                onCurseforgeCallback = { page ->
-                    versionsLoading = DownloadAssetsVersionLoading.LoadingPage(page)
+                onCurseforgeCallback = { chunk, page ->
+                    versionsLoading = DownloadAssetsVersionLoading.LoadingPage(chunk, page)
                 },
                 onSuccess = { result ->
                     val versions: List<PlatformVersion> = result.initAll(projectId) also@{ version ->
                         if (classes == PlatformClasses.MOD_PACK) return@also //整合包不支持获取依赖
-                        version.platformDependencies().forEach { dependency ->
-                            cacheDependencyProject(
-                                platform = version.platform(),
-                                projectId = dependency.projectId
-                            )
+                        val dependencies = version.platformDependencies()
+                        if (dependencies.isEmpty()) return@also
+
+                        loadingProjects.clear()
+                        versionsLoading = DownloadAssetsVersionLoading.LoadingDepProject
+
+                        val semaphore = Semaphore(8)
+                        val jobs = dependencies.map { dependency ->
+                            async {
+                                semaphore.withPermit {
+                                    cacheDependencyProject(
+                                        platform = version.platform(),
+                                        projectId = dependency.projectId,
+                                        onLoading = {
+                                            if (!loadingProjects.contains(dependency.projectId)) {
+                                                loadingProjects.add(dependency.projectId)
+                                            }
+                                        },
+                                        onEnd = {
+                                            loadingProjects.remove(dependency.projectId)
+                                        }
+                                    )
+                                }
+                            }
                         }
+
+                        jobs.awaitAll()
                     }
                     _versionsList = versions.mapWithVersions(classes)
                     versionsResult = DownloadAssetsState.Success(_versionsList.filterInfos())
@@ -185,17 +216,18 @@ private class DownloadScreenViewModel(
      */
     private suspend fun cacheDependencyProject(
         platform: Platform,
-        projectId: String
+        projectId: String,
+        onLoading: () -> Unit,
+        onEnd: () -> Unit
     ) {
         if (!notFoundDependencyProjects.contains(projectId) && !cachedDependencyProject.containsKey(projectId)) {
-            //加载并缓存依赖项目
-            versionsLoading = DownloadAssetsVersionLoading.LoadingDepProject(projectId)
-
+            onLoading()
             getProject<PlatformProject>(
                 projectID = projectId,
                 platform = platform,
                 onSuccess = { result ->
                     cachedDependencyProject[projectId] = result
+                    onEnd()
                 },
                 onError = { _, e ->
                     if (e is ClientRequestException && e.response.status.value == 404) {
@@ -204,6 +236,7 @@ private class DownloadScreenViewModel(
                     } else {
                         cachedDependencyProject.remove(projectId)
                     }
+                    onEnd()
                 }
             )
         }
@@ -255,10 +288,10 @@ fun DownloadAssetsScreen(
 
     BaseScreen(
         levels1 = listOf(
-            Pair(NestedNavKey.Download::class.java, mainScreenKey),
-            Pair(NormalNavKey.DownloadAssets::class.java, currentKey)
+            Pair(NestedNavKey.Download::class.java, mainScreenKey)
         ),
-        Triple(parentScreenKey, parentCurrentKey, false)
+        Triple(parentScreenKey, parentCurrentKey, false),
+        Triple(key, currentKey, false),
     ) { isVisible ->
         Row(
             modifier = Modifier.fillMaxSize()
@@ -329,18 +362,29 @@ private fun Versions(
                     ) {
                         when (val state = viewModel.versionsLoading) {
                             is DownloadAssetsVersionLoading.None -> {}
-                            is DownloadAssetsVersionLoading.LoadingDepProject -> {
+                            is DownloadAssetsVersionLoading.StartLoadPage -> {
                                 Text(
-                                    text = stringResource(R.string.download_assets_loading_dep_project, state.projectId),
+                                    text = stringResource(R.string.download_assets_loading_page_data),
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                            is DownloadAssetsVersionLoading.LoadingDepProject -> {
+                                val ids = viewModel.loadingProjects.joinToString(", ")
+                                Text(
+                                    text = stringResource(R.string.download_assets_loading_dep_project, ids),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                             is DownloadAssetsVersionLoading.LoadingPage -> {
                                 Text(
-                                    text = stringResource(R.string.download_assets_loading_page, state.page),
+                                    text = stringResource(R.string.download_assets_loaded_chunk_page, state.chunk, state.page),
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
@@ -374,7 +418,7 @@ private fun Versions(
                         modifier = Modifier.weight(1f),
                         value = viewModel.searchMCVersion,
                         onValueChange = { viewModel.filterWith(searchMCVersion = it) },
-                        color = itemLayoutColor(),
+                        color = itemLayoutColorOnSurface(),
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         singleLine = true,
                         textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface).copy(fontSize = 12.sp),
@@ -458,7 +502,7 @@ private fun ProjectInfo(
     openLink: (url: String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    Card(
+    BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge
     ) {

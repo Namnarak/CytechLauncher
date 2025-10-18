@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,7 @@ import com.movtery.layer_controller.layout.RendererStyleBox
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
@@ -79,11 +82,14 @@ fun StyleListDialog(
                     val itemModifier = Modifier.padding(horizontal = 2.dp)
 
                     if (styles.isNotEmpty()) {
+                        val scrollState = rememberLazyListState()
                         LazyColumn(
                             modifier = Modifier
+                                .fadeEdge(state = scrollState)
                                 .weight(1f, fill = false)
                                 .fillMaxWidth()
                                 .animateContentSize(),
+                            state = scrollState,
                             contentPadding = PaddingValues(vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
@@ -107,14 +113,15 @@ fun StyleListDialog(
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.weight(1f, fill = false),
                             onClick = onCreate
                         ) {
                             MarqueeText(text = stringResource(R.string.control_manage_create_new))
                         }
+                        Spacer(Modifier.width(16.dp))
                         Button(
                             modifier = Modifier.weight(1f, fill = false),
                             onClick = onClose

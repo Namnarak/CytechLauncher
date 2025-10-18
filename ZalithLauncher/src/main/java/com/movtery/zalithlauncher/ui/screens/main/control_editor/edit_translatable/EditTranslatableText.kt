@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +45,7 @@ import com.movtery.layer_controller.observable.ObservableLocalizedString
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 
 /**
@@ -114,11 +117,14 @@ fun EditTranslatableTextDialog(
 
                     val focusManager = LocalFocusManager.current
 
+                    val scrollState = rememberLazyListState()
                     LazyColumn(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
                             .fillMaxWidth()
                             .animateContentSize(),
+                        state = scrollState,
                         contentPadding = PaddingValues(vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -187,7 +193,7 @@ fun EditTranslatableTextDialog(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             onDismissRequest?.let { request ->
-                                Button(
+                                FilledTonalButton(
                                     modifier = Modifier.weight(1f, fill = false),
                                     onClick = request
                                 ) {

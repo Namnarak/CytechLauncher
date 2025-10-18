@@ -33,4 +33,24 @@ interface CharacterSenderStrategy {
      * @param key the KeyEvent representing the pressed key
      */
     fun sendOther(key: KeyEvent)
+
+    /**
+     * Called when the "Copy" action needs to be triggered, typically copies the selected content to the clipboard
+     */
+    fun sendCopy()
+
+    /**
+     * Called when the "Cut" action needs to be triggered, typically removes the selected content and copies it to the clipboard
+     */
+    fun sendCut()
+
+    /**
+     * Called when the "Paste" action needs to be triggered, typically pastes the content from the clipboard
+     */
+    fun sendPaste()
+
+    /**
+     * Called when the "Select All" action needs to be triggered, typically selects all available text or content
+     */
+    fun sendSelectAll()
 }

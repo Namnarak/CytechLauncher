@@ -43,6 +43,22 @@ object LWJGLCharSender : CharacterSenderStrategy {
             }
     }
 
+    override fun sendCopy() {
+        // Ignore
+    }
+
+    override fun sendCut() {
+        // Ignore
+    }
+
+    override fun sendPaste() {
+        // Ignore
+    }
+
+    override fun sendSelectAll() {
+        // Ignore
+    }
+
     /**
      * 获取 LWJGL 鼠标点击事件
      */

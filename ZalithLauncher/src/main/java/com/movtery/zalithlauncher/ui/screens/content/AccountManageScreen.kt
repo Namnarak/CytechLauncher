@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,6 +72,7 @@ import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
@@ -141,7 +141,7 @@ fun AccountManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(all = 12.dp)
-                    .weight(2.5f),
+                    .weight(3f),
                 updateMicrosoftOperation = { microsoftLoginOperation = it },
                 updateLocalLoginOperation = { localLoginOperation = it },
                 updateOtherLoginOperation = { otherLoginOperation = it },
@@ -152,7 +152,7 @@ fun AccountManageScreen(
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(top = 12.dp, end = 12.dp, bottom = 12.dp)
-                    .weight(7.5f),
+                    .weight(7f),
                 submitError = submitError,
                 onMicrosoftChangeSkin = { account, result ->
                     microsoftChangeSkinOperation = MicrosoftChangeSkinOperation.ImportFile(account, result)
@@ -231,57 +231,50 @@ private fun ServerTypeMenu(
         isHorizontal = true
     )
 
-    Card(
+    BackgroundCard(
         modifier = modifier
-            .offset {
-                IntOffset(
-                    x = xOffset.roundToPx(),
-                    y = 0
-                )
-            }
+            .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column {
-            Column(
-                modifier = Modifier
-                    .padding(all = 12.dp)
-                    .verticalScroll(state = rememberScrollState())
-                    .weight(1f)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(state = rememberScrollState())
+                .padding(all = 12.dp)
+        ) {
+            LoginItem(
+                modifier = Modifier.fillMaxWidth(),
+                serverName = stringResource(R.string.account_type_microsoft),
             ) {
-                LoginItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    serverName = stringResource(R.string.account_type_microsoft),
-                ) {
-                    if (!isMicrosoftLogging()) {
-                        updateMicrosoftOperation(MicrosoftLoginOperation.Tip)
-                    }
-                }
-                LoginItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    serverName = stringResource(R.string.account_type_local)
-                ) {
-                    updateLocalLoginOperation(LocalLoginOperation.Edit)
-                }
-
-                val authServers by AccountsManager.authServersFlow.collectAsState()
-                authServers.forEach { server ->
-                    ServerItem(
-                        server = server,
-                        onClick = { updateOtherLoginOperation(OtherLoginOperation.OnLogin(server)) },
-                        onDeleteClick = { updateServerOperation(ServerOperation.Delete(server)) }
-                    )
+                if (!isMicrosoftLogging()) {
+                    updateMicrosoftOperation(MicrosoftLoginOperation.Tip)
                 }
             }
-
-            ScalingActionButton(
-                modifier = Modifier
-                    .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
-                    .fillMaxWidth(),
-                onClick = { updateServerOperation(ServerOperation.AddNew) }
+            LoginItem(
+                modifier = Modifier.fillMaxWidth(),
+                serverName = stringResource(R.string.account_type_local)
             ) {
-                MarqueeText(text = stringResource(R.string.account_add_new_server_button))
+                updateLocalLoginOperation(LocalLoginOperation.Edit)
             }
+
+            val authServers by AccountsManager.authServersFlow.collectAsState()
+            authServers.forEach { server ->
+                ServerItem(
+                    server = server,
+                    onClick = { updateOtherLoginOperation(OtherLoginOperation.OnLogin(server)) },
+                    onDeleteClick = { updateServerOperation(ServerOperation.Delete(server)) }
+                )
+            }
+        }
+
+        ScalingActionButton(
+            modifier = Modifier
+                .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
+                .fillMaxWidth(),
+            onClick = { updateServerOperation(ServerOperation.AddNew) }
+        ) {
+            MarqueeText(text = stringResource(R.string.account_add_new_server_button))
         }
     }
 }
@@ -835,13 +828,8 @@ private fun AccountsLayout(
         submitError = submitError
     )
 
-    Card(
-        modifier = modifier.offset {
-            IntOffset(
-                x = 0,
-                y = yOffset.roundToPx()
-            )
-        },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         if (accounts.isNotEmpty()) {

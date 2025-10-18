@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,6 +25,7 @@ import androidx.compose.ui.zIndex
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.activities.CrashType
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 
@@ -125,7 +125,7 @@ private fun ErrorContent(
     message: String,
     messageBody: String
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge
     ) {
@@ -158,7 +158,7 @@ private fun ActionContext(
     onRestartClick: () -> Unit = {},
     onExitClick: () -> Unit = {}
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraLarge
     ) {

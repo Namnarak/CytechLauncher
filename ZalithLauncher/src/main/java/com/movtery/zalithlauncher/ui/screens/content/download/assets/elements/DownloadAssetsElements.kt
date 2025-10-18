@@ -70,7 +70,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
@@ -103,10 +103,12 @@ sealed interface DownloadAssetsState<T> {
 
 sealed interface DownloadAssetsVersionLoading {
     data object None: DownloadAssetsVersionLoading
+    /** 开始加载分页数据 */
+    data object StartLoadPage: DownloadAssetsVersionLoading
     /** 加载分页数据 */
-    data class LoadingPage(val page: Int): DownloadAssetsVersionLoading
-    /** 加载并缓存依赖项目 */
-    data class LoadingDepProject(val projectId: String): DownloadAssetsVersionLoading
+    data class LoadingPage(val chunk: Int, val page: Int): DownloadAssetsVersionLoading
+    /** 正在加载并缓存依赖项目 */
+    data object LoadingDepProject: DownloadAssetsVersionLoading
 }
 
 /**
@@ -221,7 +223,7 @@ fun AssetsVersionItemLayout(
     getDependency: (projectId: String) -> PlatformProject?,
     maxListHeight: Dp = rememberMaxHeight(),
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
     onItemClicked: (PlatformVersion) -> Unit = {},

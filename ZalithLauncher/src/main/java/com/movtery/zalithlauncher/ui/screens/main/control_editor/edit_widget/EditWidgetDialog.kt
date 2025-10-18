@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
@@ -27,6 +28,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,8 +54,9 @@ import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.MarqueeText
-import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 
@@ -184,18 +187,26 @@ fun EditWidgetDialog(
                             Spacer(Modifier)
                         }
 
+                        val scrollState = rememberScrollState()
+                        LaunchedEffect(Unit) {
+                            scrollState.scrollTo(scrollState.maxValue)
+                        }
                         Row(
                             modifier = Modifier
-                                .horizontalScroll(rememberAutoScrollToEndState()),
+                                .fadeEdge(
+                                    state = scrollState,
+                                    direction = EdgeDirection.Horizontal
+                                )
+                                .horizontalScroll(state = scrollState),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Button(
+                            FilledTonalButton(
                                 onClick = onDelete
                             ) {
                                 MarqueeText(text = stringResource(R.string.generic_delete))
                             }
 
-                            Button(
+                            FilledTonalButton(
                                 onClick = onClone
                             ) {
                                 MarqueeText(text = stringResource(R.string.control_editor_edit_dialog_clone_widget))
@@ -233,9 +244,9 @@ private fun EditWidgetTabLayout(
             if (item.division) {
                 HorizontalDivider(
                     modifier = Modifier
-                        .padding(all = 12.dp)
-                        .fillMaxWidth()
-                        .alpha(0.5f),
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth(0.4f)
+                        .alpha(0.4f),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }

@@ -4,10 +4,10 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -48,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -69,6 +67,7 @@ import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -146,22 +145,23 @@ fun MainScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            NavigationUI(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surface),
-                screenBackStackModel = screenBackStackModel,
-                toMainScreen = toMainScreen,
-                launchGameViewModel = launchGameViewModel,
-                eventViewModel = eventViewModel,
-                submitError = submitError
-            )
+            Surface(modifier = Modifier.fillMaxSize()) {
+                NavigationUI(
+                    modifier = Modifier.fillMaxSize(),
+                    screenBackStackModel = screenBackStackModel,
+                    toMainScreen = toMainScreen,
+                    launchGameViewModel = launchGameViewModel,
+                    eventViewModel = eventViewModel,
+                    submitError = submitError
+                )
+            }
 
             TaskMenu(
                 tasks = tasks,
                 isExpanded = isTaskMenuExpanded,
                 modifier = Modifier
                     .fillMaxHeight()
+                    .fillMaxWidth(0.3f)
                     .align(Alignment.CenterStart)
                     .padding(all = 6.dp)
             ) {
@@ -481,73 +481,76 @@ private fun TaskMenu(
     changeExpandedState: () -> Unit = {}
 ) {
     val show = isExpanded && tasks.isNotEmpty()
-    val surfaceX by animateDpAsState(
-        targetValue = if (show) 0.dp else (-260).dp,
-        animationSpec = getAnimateTween()
-    )
-    val surfaceAlpha by animateFloatAsState(
-        targetValue = if (show) 1f else 0f,
-        animationSpec = getAnimateTween()
-    )
 
-    Card(
-        modifier = modifier
-            .offset { IntOffset(x = surfaceX.roundToPx(), y = 0) }
-            .alpha(surfaceAlpha)
-            .padding(all = 6.dp)
-            .fillMaxWidth(0.3f),
-        shape = MaterialTheme.shapes.extraLarge,
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+    AnimatedVisibility(
+        modifier = modifier,
+        enter = slideInHorizontally(
+            initialOffsetX = { -it },
+            animationSpec = getAnimateTween()
+        ) + fadeIn(),
+        exit = slideOutHorizontally(
+            targetOffsetX = { -it },
+            animationSpec = getAnimateTween()
+        ) + fadeOut(),
+        visible = show
     ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 8.dp, bottom = 4.dp)
-            ) {
-                IconButton(
+        BackgroundCard(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 6.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+        ) {
+            Column {
+                Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .align(Alignment.CenterStart),
-                    onClick = changeExpandedState
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(top = 8.dp, bottom = 4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
-                        contentDescription = stringResource(R.string.generic_collapse)
+                    IconButton(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .align(Alignment.CenterStart),
+                        onClick = changeExpandedState
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
+                            contentDescription = stringResource(R.string.generic_collapse)
+                        )
+                    }
+
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.main_task_menu)
                     )
                 }
 
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.main_task_menu)
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-            }
 
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(1f),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                items(tasks) { task ->
-                    TaskItem(
-                        taskProgress = task.currentProgress,
-                        taskMessageRes = task.currentMessageRes,
-                        taskMessageArgs = task.currentMessageArgs,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp)
-                    ) {
-                        //取消任务
-                        TaskSystem.cancelTask(task.id)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    items(tasks) { task ->
+                        TaskItem(
+                            taskProgress = task.currentProgress,
+                            taskMessageRes = task.currentMessageRes,
+                            taskMessageArgs = task.currentMessageArgs,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 6.dp)
+                        ) {
+                            //取消任务
+                            TaskSystem.cancelTask(task.id)
+                        }
                     }
                 }
             }

@@ -68,6 +68,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.desaturate
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -585,7 +586,12 @@ fun CleanupOperation(
                         )
                     },
                     text = {
-                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        val scrollState = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fadeEdge(state = scrollState)
+                                .verticalScroll(state = scrollState)
+                        ) {
                             Text(stringResource(R.string.versions_manage_cleanup_failed_files))
                             error.files.forEach { file ->
                                 Text(file.absolutePath)

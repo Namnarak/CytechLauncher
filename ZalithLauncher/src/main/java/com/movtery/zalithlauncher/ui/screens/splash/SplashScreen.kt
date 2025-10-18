@@ -48,11 +48,7 @@ fun SplashScreen(
             color = MaterialTheme.colorScheme.surfaceContainer
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
+        Surface(modifier = Modifier.fillMaxSize().weight(1f)) {
             NavigationUI(
                 startAllTask = startAllTask,
                 backStack = backStack,

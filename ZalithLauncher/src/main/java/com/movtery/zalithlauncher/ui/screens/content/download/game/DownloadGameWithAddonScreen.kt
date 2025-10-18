@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +60,7 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
@@ -272,7 +271,7 @@ fun DownloadGameWithAddonScreen(
                 .fillMaxSize()
                 .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
         ) {
-            val itemContainerColor = itemLayoutColor()
+            val itemContainerColor = itemLayoutColorOnSurface()
             val itemContentColor = MaterialTheme.colorScheme.onSurface
 
             ScreenHeader(
@@ -469,10 +468,7 @@ private fun ScreenHeader(
                     if (!isError) {
                         onInstall(nameValue)
                     }
-                },
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = itemContentColor
-                )
+                }
             ) {
                 Icon(
                     imageVector = Icons.Filled.Download,

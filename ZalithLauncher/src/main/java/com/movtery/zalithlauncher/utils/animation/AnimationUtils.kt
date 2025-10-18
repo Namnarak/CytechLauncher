@@ -1,6 +1,5 @@
 package com.movtery.zalithlauncher.utils.animation
 
-import android.view.animation.BounceInterpolator
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateDpAsState
@@ -67,9 +66,7 @@ fun <E> getAnimateTweenBounce(
 ): FiniteAnimationSpec<E> = tween(
     durationMillis = durationMillis,
     delayMillis = delayMillis,
-    easing = { fraction ->
-        BounceInterpolator().getInterpolation(fraction)
-    }
+    easing = BounceEasing
 )
 
 fun <E> getAnimateTweenJellyBounce(

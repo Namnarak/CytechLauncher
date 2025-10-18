@@ -2,8 +2,10 @@ package com.movtery.zalithlauncher.ui.screens.content.download.game
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,8 +16,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Link
@@ -23,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -57,10 +60,12 @@ import com.movtery.zalithlauncher.game.versioninfo.models.isType
 import com.movtery.zalithlauncher.game.versioninfo.models.mapVersion
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CheckChip
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.fadeEdge
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -247,7 +252,7 @@ fun SelectGameVersionScreen(
                             modifier = Modifier.fillMaxWidth(),
                             versionFilter = viewModel.versionFilter,
                             onVersionFilterChange = { viewModel.filterWith(it) },
-                            itemContainerColor = itemLayoutColor(),
+                            itemContainerColor = itemLayoutColorOnSurface(),
                             itemContentColor = MaterialTheme.colorScheme.onSurface,
                             onRefreshClick = {
                                 viewModel.refresh(true)
@@ -256,7 +261,7 @@ fun SelectGameVersionScreen(
 
                         VersionList(
                             modifier = Modifier.weight(1f),
-                            itemContainerColor = itemLayoutColor(),
+                            itemContainerColor = itemLayoutColorOnSurface(),
                             itemContentColor = MaterialTheme.colorScheme.onSurface,
                             versions = state.versions,
                             onVersionSelect = onVersionSelect,
@@ -300,71 +305,83 @@ private fun VersionHeader(
     Column(
         modifier = modifier.padding(horizontal = 12.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            //版本筛选条件
-            VersionTypeItem(
-                selected = versionFilter.release,
-                onClick = {
-                    onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
-                },
-                text = stringResource(R.string.download_game_type_release)
-            )
-            VersionTypeItem(
-                selected = versionFilter.snapshot,
-                onClick = {
-                    onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
-                },
-                text = stringResource(R.string.download_game_type_snapshot)
-            )
-            VersionTypeItem(
-                selected = versionFilter.aprilFools,
-                onClick = {
-                    onVersionFilterChange(versionFilter.copy(aprilFools = versionFilter.aprilFools.not()))
-                },
-                text = stringResource(R.string.download_game_type_april_fools)
-            )
-            VersionTypeItem(
-                selected = versionFilter.old,
-                onClick = {
-                    onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
-                },
-                text = stringResource(R.string.download_game_type_old)
-            )
-
-            //搜索、刷新
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             Row(
-                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                SimpleTextInputField(
+                val scrollState = rememberScrollState()
+                Row(
+                    modifier = Modifier
+                        .fadeEdge(
+                            state = scrollState,
+                            direction = EdgeDirection.Horizontal
+                        )
+                        .widthIn(max = this@BoxWithConstraints.maxWidth / 5 * 3) //3/5
+                        .horizontalScroll(scrollState),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    //版本筛选条件
+                    VersionTypeItem(
+                        selected = versionFilter.release,
+                        onClick = {
+                            onVersionFilterChange(versionFilter.copy(release = versionFilter.release.not()))
+                        },
+                        text = stringResource(R.string.download_game_type_release)
+                    )
+                    VersionTypeItem(
+                        selected = versionFilter.snapshot,
+                        onClick = {
+                            onVersionFilterChange(versionFilter.copy(snapshot = versionFilter.snapshot.not()))
+                        },
+                        text = stringResource(R.string.download_game_type_snapshot)
+                    )
+                    VersionTypeItem(
+                        selected = versionFilter.aprilFools,
+                        onClick = {
+                            onVersionFilterChange(versionFilter.copy(aprilFools = versionFilter.aprilFools.not()))
+                        },
+                        text = stringResource(R.string.download_game_type_april_fools)
+                    )
+                    VersionTypeItem(
+                        selected = versionFilter.old,
+                        onClick = {
+                            onVersionFilterChange(versionFilter.copy(old = versionFilter.old.not()))
+                        },
+                        text = stringResource(R.string.download_game_type_old)
+                    )
+                }
+
+                //搜索、刷新
+                Row(
                     modifier = Modifier.weight(1f),
-                    value = versionFilter.id,
-                    onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
-                    color = itemContainerColor,
-                    contentColor = itemContentColor,
-                    singleLine = true,
-                    hint = {
-                        Text(
-                            text = stringResource(R.string.generic_search),
-                            style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SimpleTextInputField(
+                        modifier = Modifier.weight(1f),
+                        value = versionFilter.id,
+                        onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
+                        color = itemContainerColor,
+                        contentColor = itemContentColor,
+                        singleLine = true,
+                        hint = {
+                            Text(
+                                text = stringResource(R.string.generic_search),
+                                style = TextStyle(color = itemContentColor).copy(fontSize = 12.sp)
+                            )
+                        }
+                    )
+
+                    IconButton(
+                        onClick = onRefreshClick
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = stringResource(R.string.generic_refresh)
                         )
                     }
-                )
-
-                IconButton(
-                    onClick = onRefreshClick,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = itemContentColor
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh)
-                    )
                 }
             }
         }

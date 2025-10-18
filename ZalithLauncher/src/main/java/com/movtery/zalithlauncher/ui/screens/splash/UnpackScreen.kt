@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +37,7 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -94,14 +94,8 @@ private fun ActionMenu(
         isHorizontal = true
     )
 
-    Card(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = xOffset.roundToPx(),
-                    y = 0
-                )
-            },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         Column {
@@ -152,14 +146,8 @@ private fun UnpackTaskList(
         swapIn = isVisible
     )
 
-    Card(
-        modifier = modifier
-            .offset {
-                IntOffset(
-                    x = 0,
-                    y = yOffset.roundToPx()
-                )
-            },
+    BackgroundCard(
+        modifier = modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
         LazyColumn(

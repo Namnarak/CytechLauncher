@@ -27,8 +27,8 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,14 +84,16 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
+import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.components.rememberAutoScrollToEndState
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
@@ -386,7 +388,7 @@ private fun ControlLayoutList(
     onDelete: (ControlData) -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
@@ -455,12 +457,20 @@ private fun ControlListHeader(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(state = rememberAutoScrollToEndState())
-            .padding(PaddingValues(horizontal = 16.dp, vertical = 8.dp)),
+        modifier = Modifier
+            .fadeEdge(
+                state = scrollState,
+                length = 32.dp,
+                direction = EdgeDirection.Horizontal
+            )
+            .then(
+                modifier
+                    .horizontalScroll(state = scrollState)
+                    .padding(all = 8.dp)
+            ),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -623,7 +633,7 @@ private fun ControlLayoutInfo(
     onEditDescription: (ControlData) -> Unit,
     onEditVersion: (ControlData) -> Unit
 ) {
-    Card(
+    BackgroundCard(
         modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
@@ -887,10 +897,12 @@ private fun CreateNewLayoutDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    val scrollState = rememberScrollState()
                     Column(
                         modifier = Modifier
+                            .fadeEdge(state = scrollState)
                             .weight(1f, fill = false)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(state = scrollState)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -985,7 +997,7 @@ private fun CreateNewLayoutDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        Button(
+                        FilledTonalButton(
                             modifier = Modifier.weight(1f),
                             onClick = onDismissRequest
                         ) {

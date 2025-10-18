@@ -18,6 +18,10 @@ import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.Parameters
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import java.io.File
 
 /**
@@ -92,39 +96,80 @@ suspend fun getVersionsFromCurseForge(
  * @param projectID 项目ID
  * @param apiKey CurseForge API 密钥
  * @param pageSize 每页请求数量
+ * @param chunkSize 一个区间的最大页数
+ * @param maxConcurrent 同时最多允许的请求数
  * @param pageCallback 加载每一页时都通过此函数回调
  */
 suspend fun getAllVersionsFromCurseForge(
     projectID: String,
     apiKey: String = InfoDistributor.CURSEFORGE_API,
     pageSize: Int = 100,
-    pageCallback: (Int) -> Unit = {},
+    chunkSize: Int = 10,
+    maxConcurrent: Int = 5,
+    pageCallback: (chunk: Int, page: Int) -> Unit = { _ , _ -> },
     retry: Int = 3
-): List<CurseForgeFile> {
+): List<CurseForgeFile> = coroutineScope {
     val allFiles = mutableListOf<CurseForgeFile>()
-    var page = 1
-    var index = 0
+    /** 当前区间编号 */
+    var currentChunk = 1
+    /** 起始页码 */
+    var startPage = 0
+    /** 是否已经到达过最后一页，控制是否进入下一区间 */
+    var reachedEnd = false
 
-    while (true) {
-        pageCallback(++page)
+    val semaphore = Semaphore(maxConcurrent)
 
-        val response: CurseForgeVersions = getVersionsFromCurseForge(
-            projectID = projectID,
-            apiKey = apiKey,
-            index = index,
-            pageSize = pageSize,
-            retry
-        )
-        val files = response.data
-        allFiles.addAll(files)
+    while (!reachedEnd) {
+        //创建当前区间的任务列表
+        val jobs = (0 until chunkSize).map { offset ->
+            val pageIndex = startPage + offset
+            val index = pageIndex * pageSize
 
-        //少于pageSize，已经是最后一页
-        if (files.size < pageSize) break
+            async {
+                semaphore.withPermit {
+                    val response = getVersionsFromCurseForge(
+                        projectID = projectID,
+                        apiKey = apiKey,
+                        index = index,
+                        pageSize = pageSize,
+                        retry = retry
+                    )
+                    //检查当前页返回的结果是否正常
+                    //如果是最后一页之后的内容，则这里的列表是空的
+                    if (response.data.isNotEmpty()) {
+                        //有东西，回调即可
+                        pageCallback(currentChunk, pageIndex + 1)
+                        response.data
+                    } else null
+                }
+            }
+        }
 
-        index += pageSize
+        for ((i, job) in jobs.withIndex()) {
+            val files = job.await() ?: emptyArray()
+            files.takeIf { it.isNotEmpty() }?.let { array ->
+                allFiles.addAll(array)
+            }
+
+            //少于pageSize，已经是最后一页
+            if (files.size < pageSize) {
+                reachedEnd = true
+                //取消后续页
+                for (j in (i + 1) until jobs.size) {
+                    jobs[j].cancel()
+                }
+                break
+            }
+        }
+
+        //如果没发现最后一页，则进入下一区间
+        if (!reachedEnd) {
+            startPage += chunkSize
+            currentChunk++
+        }
     }
 
-    return allFiles
+    return@coroutineScope allFiles
 }
 
 /**

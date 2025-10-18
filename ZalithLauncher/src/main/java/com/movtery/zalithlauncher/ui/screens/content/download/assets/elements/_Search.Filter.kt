@@ -56,7 +56,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortFiel
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
@@ -278,7 +278,7 @@ private fun <E> FilterListLayout(
     cancelable: Boolean = true,
     maxListHeight: Dp = 200.dp,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp
 ) {
