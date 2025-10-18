@@ -906,4 +906,20 @@
     <string name="game_menu_option_switch_memory">Отображение памяти</string>
     <string name="settings_game_java_memory_used_text">Использовано: %1$d МБ / %2$d МБ</string>
     <string name="settings_game_java_memory_allocation_text">Выделено: %d МБ</string>
+    <string name="theme_color_picker_edit_hex">Редактировать HEX-код</string>
+    <string name="theme_color_picker_edit_hex_invalid">Неверный HEX-код</string>
+    <string name="download_game_type_april_fools">Первоапрельские версии</string>
+    <string name="version_summary_fools_the_love_and_hugs_update">Обновление «Любовь и объятия», наполняющее мир гармонией и радугой.</string>
+    <string name="version_summary_fools_trendy_update">Будущее уже здесь! Мы добавили в Minecraft современные технологии!</string>
+    <string name="version_summary_fools_3d_shareware">Мы откопали эту DOS-версию Minecraft аж с 1994 года в своём подвале!</string>
+    <string name="version_summary_fools_infinite">Мы добавили 2 миллиарда (ровно 2 147 483 647) новых измерений!</string>
+    <string name="version_summary_fools_one_block_at_time">Мы вернули игру к её чистейшей форме: по одному блоку за раз.</string>
+    <string name="version_summary_fools_a_or_b">Исследования показывают, что игроки обожают делать выбор, поэтому мы позволили вам голосовать за всё!</string>
+    <string name="version_summary_fools_potato">Годы ядовитый картофель игнорировали и недооценивали, поэтому мы подарили ему эпический бафф!</string>
+    <string name="version_summary_fools_creaft_mine">Теперь вы можете создать что угодно — даже целый мир!</string>
+    <string name="game_menu_control_title">Меню раскладки</string>
+    <string name="game_menu_option_controls_opacity">Прозрачность раскладки управления</string>
+    <string name="account_microsoft_exit_by_user">Вы покинули веб-страницу, поэтому процесс входа через Microsoft был отменён.</string>
+    <string name="cape_name_copper">Copper</string>
+    <string name="versions_overview_mod_folder">Папка модов</string>
 </resources>
