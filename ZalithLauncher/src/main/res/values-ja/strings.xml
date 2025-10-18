@@ -902,4 +902,6 @@
     <string name="account_microsoft_exit_by_user">ウェブページを閉じたため、Microsoftのログインプロセスはキャンセルされました。</string>
     <string name="cape_name_copper">Copperマント</string>
     <string name="versions_overview_mod_folder">モッドフォルダ</string>
+    <string name="download_assets_loading_page_data">ページデータの読み込みを開始</string>
+    <string name="download_assets_loaded_chunk_page">ページデータが読み込まれました、チャンク %1$d 、ページ %2$d</string>
 </resources>
