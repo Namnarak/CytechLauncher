@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.screens.content.elements
 import android.app.Activity
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -13,14 +14,20 @@ import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
+import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
+import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 sealed interface LaunchGameOperation {
     data object None : LaunchGameOperation
     /** 没有安装版本/没有选中有效版本 */
     data object NoVersion : LaunchGameOperation
+    /** 版本名称非法时 */
+    data class InvalidVersionName(val th: InvalidFilenameException) : LaunchGameOperation
     /** 没有可用账号 */
     data object NoAccount : LaunchGameOperation
 
@@ -64,29 +71,52 @@ fun LaunchGameOperation(
     when (launchGameOperation) {
         is LaunchGameOperation.None -> {}
         is LaunchGameOperation.NoVersion -> {
-            Toast.makeText(activity, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
-            toVersionManageScreen()
-            updateOperation(LaunchGameOperation.None)
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(activity, R.string.game_launch_no_version, Toast.LENGTH_SHORT).show()
+                }
+                toVersionManageScreen()
+                updateOperation(LaunchGameOperation.None)
+            }
         }
-        is LaunchGameOperation.NoAccount -> {
-            Toast.makeText(activity, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
-            toAccountManageScreen()
-            updateOperation(LaunchGameOperation.None)
-        }
-        is LaunchGameOperation.RendererNoStoragePermission -> {
-            val renderer = launchGameOperation.renderer
-            val version = launchGameOperation.version
-            val quickPlay = launchGameOperation.quickPlay
-            checkStoragePermissions(
-                activity = activity,
-                message = activity.getString(R.string.renderer_version_storage_permissions, renderer.getRendererName()),
-                messageSdk30 = activity.getString(R.string.renderer_version_storage_permissions_sdk30, renderer.getRendererName()),
-                onDialogCancel = {
-                    //用户拒绝授权，但仍然允许启动（不过这会导致配置无法读取）
-                    updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+        is LaunchGameOperation.InvalidVersionName -> {
+            val th = launchGameOperation.th
+            SimpleAlertDialog(
+                title = stringResource(R.string.versions_manage_invalid),
+                text = th.getInvalidSummary(),
+                confirmText = stringResource(R.string.generic_cancel),
+                onDismiss = {
+                    updateOperation(LaunchGameOperation.None)
                 }
             )
-            updateOperation(LaunchGameOperation.None)
+        }
+        is LaunchGameOperation.NoAccount -> {
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(activity, R.string.game_launch_no_account, Toast.LENGTH_SHORT).show()
+                }
+                toAccountManageScreen()
+                updateOperation(LaunchGameOperation.None)
+            }
+        }
+        is LaunchGameOperation.RendererNoStoragePermission -> {
+            LaunchedEffect(Unit) {
+                val renderer = launchGameOperation.renderer
+                val version = launchGameOperation.version
+                val quickPlay = launchGameOperation.quickPlay
+                withContext(Dispatchers.Main) {
+                    checkStoragePermissions(
+                        activity = activity,
+                        message = activity.getString(R.string.renderer_version_storage_permissions, renderer.getRendererName()),
+                        messageSdk30 = activity.getString(R.string.renderer_version_storage_permissions_sdk30, renderer.getRendererName()),
+                        onDialogCancel = {
+                            //用户拒绝授权，但仍然允许启动（不过这会导致配置无法读取）
+                            updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
+                        }
+                    )
+                }
+                updateOperation(LaunchGameOperation.None)
+            }
         }
         is LaunchGameOperation.UnsupportedRenderer -> {
             val renderer = launchGameOperation.renderer
@@ -105,56 +135,67 @@ fun LaunchGameOperation(
             )
         }
         is LaunchGameOperation.TryLaunch -> {
-            val version = launchGameOperation.version ?: run {
-                updateOperation(LaunchGameOperation.NoVersion)
-                return
+            LaunchedEffect(Unit) {
+                val version = launchGameOperation.version ?: run {
+                    updateOperation(LaunchGameOperation.NoVersion)
+                    return@LaunchedEffect
+                }
+
+                try {
+                    checkFilenameValidity(version.getVersionName())
+                } catch (th: InvalidFilenameException) {
+                    updateOperation(LaunchGameOperation.InvalidVersionName(th))
+                    return@LaunchedEffect
+                }
+
+                val quickPlay = launchGameOperation.quickPlay
+
+                AccountsManager.getCurrentAccount() ?: run {
+                    updateOperation(LaunchGameOperation.NoAccount)
+                    return@LaunchedEffect
+                }
+
+                //开始检查渲染器的版本支持情况
+                Renderers.setCurrentRenderer(activity, version.getRenderer())
+                val currentRenderer = Renderers.getCurrentRenderer()
+                val rendererMinVer = currentRenderer.getMinMCVersion()
+                val rendererMaxVer = currentRenderer.getMaxMCVersion()
+
+                val mcVer = version.getVersionInfo()!!.minecraftVersion
+
+                val isUnsupported =
+                    (rendererMinVer?.let { mcVer.isLowerTo(it) } ?: false) ||
+                            (rendererMaxVer?.let { mcVer.isBiggerTo(it) } ?: false)
+
+                if (isUnsupported) {
+                    updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer, version, quickPlay))
+                    return@LaunchedEffect
+                }
+
+                //为可配置的渲染器检查文件管理权限
+                if (
+                    !checkStoragePermissions() &&
+                    RendererPluginManager.isConfigurablePlugin(version.getRenderer())
+                ) {
+                    updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
+                    return@LaunchedEffect
+                }
+
+                //正式启动游戏
+                updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
             }
-
-            val quickPlay = launchGameOperation.quickPlay
-
-            AccountsManager.getCurrentAccount() ?: run {
-                updateOperation(LaunchGameOperation.NoAccount)
-                return
-            }
-
-            //开始检查渲染器的版本支持情况
-            Renderers.setCurrentRenderer(activity, version.getRenderer())
-            val currentRenderer = Renderers.getCurrentRenderer()
-            val rendererMinVer = currentRenderer.getMinMCVersion()
-            val rendererMaxVer = currentRenderer.getMaxMCVersion()
-
-            val mcVer = version.getVersionInfo()!!.minecraftVersion
-
-            val isUnsupported =
-                (rendererMinVer?.let { mcVer.isLowerTo(it) } ?: false) ||
-                (rendererMaxVer?.let { mcVer.isBiggerTo(it) } ?: false)
-
-            if (isUnsupported) {
-                updateOperation(LaunchGameOperation.UnsupportedRenderer(currentRenderer, version, quickPlay))
-                return
-            }
-
-            //为可配置的渲染器检查文件管理权限
-            if (
-                !checkStoragePermissions() &&
-                RendererPluginManager.isConfigurablePlugin(version.getRenderer())
-            ) {
-                updateOperation(LaunchGameOperation.RendererNoStoragePermission(currentRenderer, version, quickPlay))
-                return
-            }
-
-            //正式启动游戏
-            updateOperation(LaunchGameOperation.RealLaunch(version, quickPlay))
         }
         is LaunchGameOperation.RealLaunch -> {
-            val version = launchGameOperation.version
-            val quickPlay = launchGameOperation.quickPlay
-            version.apply {
-                offlineAccountLogin = false
-                quickPlaySingle = quickPlay
+            LaunchedEffect(Unit) {
+                val version = launchGameOperation.version
+                val quickPlay = launchGameOperation.quickPlay
+                version.apply {
+                    offlineAccountLogin = false
+                    quickPlaySingle = quickPlay
+                }
+                LaunchGame.launchGame(activity, version, exitActivity, submitError)
+                updateOperation(LaunchGameOperation.None)
             }
-            LaunchGame.launchGame(activity, version, exitActivity, submitError)
-            updateOperation(LaunchGameOperation.None)
         }
     }
 }

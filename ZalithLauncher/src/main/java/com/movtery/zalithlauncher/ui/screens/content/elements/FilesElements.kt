@@ -112,14 +112,15 @@ fun isFilenameInvalid(
         checkFilenameValidity(str)
         false
     } catch (e: InvalidFilenameException) {
-        onError(
-            when {
-                e.containsIllegalCharacters() -> stringResource(R.string.generic_input_invalid_character, e.illegalCharacters)
-                e.isInvalidLength -> stringResource(R.string.file_invalid_length, e.invalidLength, 255)
-                e.isLeadingOrTrailingSpace -> stringResource(R.string.file_invalid_leading_or_trailing_space)
-                else -> ""
-            }
-        )
+        onError(e.getInvalidSummary())
         true
     }
+}
+
+@Composable
+fun InvalidFilenameException.getInvalidSummary(): String = when {
+    containsIllegalCharacters() -> stringResource(R.string.generic_input_invalid_character, illegalCharacters)
+    isInvalidLength -> stringResource(R.string.file_invalid_length, invalidLength, 255)
+    isLeadingOrTrailingSpace -> stringResource(R.string.file_invalid_leading_or_trailing_space)
+    else -> ""
 }

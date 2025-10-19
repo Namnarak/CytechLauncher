@@ -95,10 +95,14 @@ fun checkFilenameValidity(str: String) {
     val illegalChars = illegalCharsRegex.findAll(str)
         .map { it.value }
         .distinct()
-        .joinToString("")
+        .toMutableSet()
+
+    findAllUnsafeUnicodeChars(str).takeIf { it.isNotEmpty() }?.let { chars ->
+        illegalChars += chars
+    }
 
     if (illegalChars.isNotEmpty()) {
-        throw InvalidFilenameException("The filename contains illegal characters", illegalChars)
+        throw InvalidFilenameException("The filename contains illegal characters", illegalChars.joinToString(""))
     }
 
     if (str.length > 255) {
@@ -108,6 +112,25 @@ fun checkFilenameValidity(str: String) {
     if (str.startsWith(" ") || str.endsWith(" ")) {
         throw InvalidFilenameException("The filename starts or ends with a space", true)
     }
+}
+
+/**
+ * 在字符串中查找其不安全的Unicode字符（作为文件名使用时）
+ * @return 找到的所有不安全的字符
+ */
+fun findAllUnsafeUnicodeChars(name: String?): List<String> {
+    if (name.isNullOrEmpty()) return emptyList()
+
+    val unsafeChars = mutableListOf<String>()
+    var i = 0
+    while (i < name.length) {
+        val cp = name.codePointAt(i)
+        if (cp < 0x20 || (cp in 0xD800..0xDFFF) || cp > 0xFFFF) {
+            unsafeChars += String(Character.toChars(cp))
+        }
+        i += Character.charCount(cp)
+    }
+    return unsafeChars
 }
 
 /**
