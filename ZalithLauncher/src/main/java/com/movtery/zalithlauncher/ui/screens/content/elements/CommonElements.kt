@@ -1,7 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import android.net.Uri
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -186,6 +188,30 @@ fun ImportFileButton(
         modifier = modifier,
         onClick = {
             launcher.launch("")
+        },
+        imageVector = imageVector,
+        text = text
+    )
+}
+
+@Composable
+fun <I, O> ImportFileButton(
+    contract: ActivityResultContract<I, O>,
+    onLaunch: (launcher: ManagedActivityResultLauncher<I, O>) -> Unit,
+    progressOutput: (output: O) -> Unit,
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector = Icons.Default.Add,
+    text: String = stringResource(R.string.generic_import)
+) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = contract,
+        onResult = progressOutput
+    )
+
+    IconTextButton(
+        modifier = modifier,
+        onClick = {
+            onLaunch(launcher)
         },
         imageVector = imageVector,
         text = text
