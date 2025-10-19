@@ -827,6 +827,7 @@
     <string name="control_editor_menu_no_layers_message">No control layers have been created for the current control layout. Please create a control layer first.</string>
     <string name="control_editor_menu_no_selected_layer_title">No Control Layer Selected</string>
     <string name="control_editor_menu_no_selected_layer_message">Please select a control layer as the target first.</string>
+    <string name="control_editor_menu_preview_mode">Preview Control Layout</string>
     <string name="control_editor_menu_widget_snap">Control Snapping</string>
     <string name="control_editor_menu_widget_snap_all_layers">Snap to All Control Layers</string>
     <string name="control_editor_menu_widget_snap_mode">Control Snapping Mode</string>

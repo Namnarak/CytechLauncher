@@ -1,11 +1,13 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -65,15 +67,22 @@ fun ControlEditor(
     val screenSize = LocalWindowInfo.current.containerSize
     val screenHeight = remember(screenSize) { screenSize.height }
 
-    ControlEditorLayer(
-        observedLayout = viewModel.observableLayout,
-        onButtonTap = { data, layer ->
-            viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
-        },
-        enableSnap = AllSettings.editorEnableWidgetSnap.state,
-        snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
-        snapMode = AllSettings.editorWidgetSnapMode.state
-    )
+    if (viewModel.isPreviewMode) {
+        PreviewControlBox(
+            modifier = Modifier.fillMaxSize(),
+            observableLayout = viewModel.observableLayout,
+        )
+    } else {
+        ControlEditorLayer(
+            observedLayout = viewModel.observableLayout,
+            onButtonTap = { data, layer ->
+                viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
+            },
+            enableSnap = AllSettings.editorEnableWidgetSnap.state,
+            snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
+            snapMode = AllSettings.editorWidgetSnapMode.state
+        )
+    }
 
     EditorMenu(
         state = viewModel.editorMenu,
@@ -134,6 +143,10 @@ fun ControlEditor(
         },
         openStyleList = {
             viewModel.editorOperation = EditorOperation.OpenStyleList
+        },
+        isPreviewMode = viewModel.isPreviewMode,
+        onPreviewChanged = { mode ->
+            viewModel.isPreviewMode = mode
         },
         onSave = {
             viewModel.save(targetFile, onSaved = {})

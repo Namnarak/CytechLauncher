@@ -137,6 +137,8 @@ fun EditorMenu(
     addNewButton: () -> Unit,
     addNewText: () -> Unit,
     openStyleList: () -> Unit,
+    isPreviewMode: Boolean,
+    onPreviewChanged: (Boolean) -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -167,6 +169,7 @@ fun EditorMenu(
                 item {
                     MenuTextButton(
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = isPreviewMode.not(),
                         text = stringResource(R.string.control_editor_menu_new_widget_button),
                         onClick = addNewButton
                     )
@@ -176,6 +179,7 @@ fun EditorMenu(
                 item {
                     MenuTextButton(
                         modifier = Modifier.fillMaxWidth(),
+                        enabled = isPreviewMode.not(),
                         text = stringResource(R.string.control_editor_menu_new_widget_text),
                         onClick = addNewText
                     )
@@ -186,10 +190,25 @@ fun EditorMenu(
                     MenuTextButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_edit_style_config),
+                        enabled = isPreviewMode.not(),
                         onClick = {
                             openStyleList()
                             closeScreen()
                         }
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                //预览控制布局
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_preview_mode),
+                        switch = isPreviewMode,
+                        onSwitch = { onPreviewChanged(it) }
                     )
                 }
 
@@ -274,7 +293,8 @@ fun EditorMenu(
                 selectedLayer = selectedLayer,
                 onLayerSelected = onLayerSelected,
                 createLayer = createLayer,
-                onAttribute = onAttribute
+                onAttribute = onAttribute,
+                enabled = isPreviewMode.not()
             )
         }
     )
@@ -287,7 +307,8 @@ private fun ColumnScope.ControlLayerMenu(
     selectedLayer: ObservableControlLayer?,
     onLayerSelected: (ObservableControlLayer) -> Unit,
     createLayer: () -> Unit,
-    onAttribute: (ObservableControlLayer) -> Unit
+    onAttribute: (ObservableControlLayer) -> Unit,
+    enabled: Boolean = true
 ) {
     Text(
         modifier = Modifier
@@ -320,7 +341,8 @@ private fun ColumnScope.ControlLayerMenu(
         items(layers, { it.uuid }) { layer ->
             ReorderableItem(
                 state = reorderableLazyListState,
-                key = layer.uuid
+                key = layer.uuid,
+                enabled = enabled,
             ) { isDragging ->
                 val shadowElevation by animateDpAsState(if (isDragging) 4.dp else 1.dp)
                 ControlLayerItem(
@@ -334,7 +356,8 @@ private fun ColumnScope.ControlLayerMenu(
                     },
                     onAttribute = {
                         onAttribute(layer)
-                    }
+                    },
+                    enabled = enabled
                 )
             }
         }
@@ -362,10 +385,11 @@ private fun ControlLayerItem(
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = MaterialTheme.shapes.large,
-    shadowElevation: Dp = 1.dp
+    shadowElevation: Dp = 1.dp,
+    enabled: Boolean = true
 ) {
     val borderWidth by animateDpAsState(
-        if (selected) 4.dp
+        if (selected && enabled) 4.dp
         else (-1).dp
     )
 
@@ -382,7 +406,8 @@ private fun ControlLayerItem(
         onClick = {
             if (selected) return@Surface
             onSelected()
-        }
+        },
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier
@@ -394,7 +419,8 @@ private fun ControlLayerItem(
             IconButton(
                 onClick = {
                     layer.hide = !layer.hide
-                }
+                },
+                enabled = enabled
             ) {
                 Crossfade(
                     targetState = layer.hide
@@ -411,7 +437,8 @@ private fun ControlLayerItem(
                 style = MaterialTheme.typography.bodyMedium
             )
             IconButton(
-                onClick = onAttribute
+                onClick = onAttribute,
+                enabled = enabled
             ) {
                 Icon(
                     imageVector = Icons.Default.MoreHoriz,

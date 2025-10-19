@@ -43,6 +43,11 @@ class EditorViewModel() : ViewModel() {
      */
     var editorOperation by mutableStateOf<EditorOperation>(EditorOperation.None)
 
+    /**
+     * 是否为预览控制布局模式
+     */
+    var isPreviewMode by mutableStateOf(false)
+
 
 
     fun initLayout(layout: ControlLayout) {
