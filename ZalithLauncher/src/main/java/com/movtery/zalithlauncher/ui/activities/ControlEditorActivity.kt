@@ -17,6 +17,7 @@ import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 private const val BUNDLE_CONTROL = "BUNDLE_CONTROL"
@@ -43,19 +44,7 @@ class ControlEditorActivity : BaseComponentActivity() {
         //提醒用户保存并退出
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                lifecycleScope.launch(Dispatchers.Main) {
-                    MaterialAlertDialogBuilder(this@ControlEditorActivity)
-                        .setTitle(R.string.generic_warning)
-                        .setMessage(R.string.control_editor_exit_message)
-                        .setPositiveButton(R.string.generic_cancel) { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton(R.string.control_editor_exit_confirm) { dialog, _ ->
-                            dialog.dismiss()
-                            this@ControlEditorActivity.finish()
-                        }
-                        .show()
-                }
+                onForceExit()
             }
         })
 
@@ -63,11 +52,31 @@ class ControlEditorActivity : BaseComponentActivity() {
             ZalithLauncherTheme {
                 ControlEditor(
                     viewModel = editorViewModel,
-                    targetFile = controlFile
-                ) {
-                    finish()
-                }
+                    targetFile = controlFile,
+                    exit = {
+                        //已保存控制布局后进行的退出
+                        finish()
+                    },
+                    menuExit = {
+                        //菜单要求的直接退出，使用对话框让用户确认
+                        onForceExit()
+                    }
+                )
             }
+        }
+    }
+
+    /**
+     * 当控制布局编辑器强制直接退出时，使用一个对话框让用户确认
+     */
+    private fun onForceExit() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            showExitEditorDialog(
+                context = this@ControlEditorActivity,
+                onExit = {
+                    this@ControlEditorActivity.finish()
+                }
+            )
         }
     }
 }
@@ -82,3 +91,25 @@ fun startEditorActivity(context: Context, file: File) {
     context.startActivity(intent)
 }
 
+/**
+ * 弹出退出控制布局编辑器的对话框
+ * @param onExit 用户点击确认，退出编辑器
+ */
+suspend fun showExitEditorDialog(
+    context: Context,
+    onExit: () -> Unit
+) {
+    withContext(Dispatchers.Main) {
+        MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.generic_warning)
+            .setMessage(R.string.control_editor_exit_message)
+            .setPositiveButton(R.string.generic_cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.control_editor_exit_confirm) { dialog, _ ->
+                dialog.dismiss()
+                onExit()
+            }
+            .show()
+    }
+}

@@ -43,12 +43,24 @@ class EditorViewModel() : ViewModel() {
      */
     var editorOperation by mutableStateOf<EditorOperation>(EditorOperation.None)
 
+    /**
+     * 是否为预览控制布局模式
+     */
+    var isPreviewMode by mutableStateOf(false)
+
 
 
     fun initLayout(layout: ControlLayout) {
         if (!::observableLayout.isInitialized) {
             this.observableLayout = ObservableControlLayout(layout)
         }
+    }
+
+    /**
+     * 强制更改被编辑的控制布局
+     */
+    fun forceChangeLayout(layout: ControlLayout) {
+        this.observableLayout = ObservableControlLayout(layout)
     }
 
 
