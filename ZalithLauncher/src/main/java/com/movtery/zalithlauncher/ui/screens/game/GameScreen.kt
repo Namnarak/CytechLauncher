@@ -32,6 +32,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.ControlBoxLayout
 import com.movtery.layer_controller.event.ClickEvent
+import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.EmptyControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
 import com.movtery.layer_controller.observable.ObservableControlLayout
@@ -71,7 +72,9 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlOpe
 import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlState
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.ControlEditor
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -108,6 +111,9 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var controlEnabled by mutableStateOf(true)
         private set
 
+    /** 是否正在编辑布局 */
+    var isEditingLayout by mutableStateOf(false)
+
     fun switchControl(enabled: Boolean) {
         if (controlEnabled != enabled) controlEnabled = enabled
     }
@@ -124,16 +130,28 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
         observableLayout = null
         currentControlFile = layoutFile
-        val layout = layoutFile?.let { file ->
+        val layout = getLayout(layoutFile)
+        //将控制布局加载为可供Compose加载的形式
+        observableLayout = ObservableControlLayout(layout)
+    }
+
+    fun getLayout(layoutFile: File? = version.getControlPath()): ControlLayout {
+        return layoutFile?.let {
             try {
-                loadLayoutFromFile(file)
+                loadLayoutFromFile(it)
             } catch (e: Exception) {
-                lWarning("Failed to load control layout: $file", e)
+                lWarning("Failed to load control layout: $it", e)
                 null
             }
         } ?: EmptyControlLayout
-        //将控制布局加载为可供Compose加载的形式
-        observableLayout = ObservableControlLayout(layout)
+    }
+
+    /**
+     * 清除所有按键状态
+     */
+    fun clearPressedKeys() {
+        pressedKeyEvents.clear()
+        pressedLauncherEvents.clear()
     }
 
     /**
@@ -226,6 +244,7 @@ fun GameScreen(
 ) {
     val context = LocalContext.current
     val viewModel = rememberGameViewModel(version)
+    val editorViewModel: EditorViewModel = viewModel()
     val isGrabbing = remember(ZLBridgeStates.cursorMode) {
         ZLBridgeStates.cursorMode == CURSOR_DISABLED
     }
@@ -299,57 +318,59 @@ fun GameScreen(
             }
         )
 
-        ControlBoxLayout(
-            modifier = Modifier.fillMaxSize(),
-            observedLayout = viewModel.observableLayout,
-            checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
-            opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
-            onClickEvent = { event, pressed ->
-                val events = when (event.type) {
-                    ClickEvent.Type.Key -> viewModel.pressedKeyEvents
-                    ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
-                    else -> return@ControlBoxLayout
-                }
-                //获取当前已按下相同键值的按键个数
-                val count = (events[event.key] ?: 0).coerceAtLeast(0)
-                if (pressed) {
-                    events[event.key] = count + 1
-                } else if (count > 0) {
-                    events[event.key] = count - 1
-                }
-            },
-            markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
-            isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-            enabled = viewModel.controlEnabled
-        ) {
-            MouseControlLayout(
-                isTouchProxyEnabled = isTouchProxyEnabled,
+        if (!viewModel.isEditingLayout) {
+            ControlBoxLayout(
                 modifier = Modifier.fillMaxSize(),
-                onInputAreaRectUpdated = onInputAreaRectUpdated,
-                textInputMode = viewModel.textInputMode,
-                onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
-                isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
-                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                onReleasePointer = {
-                    viewModel.occupiedPointers.remove(it)
-                    viewModel.moveOnlyPointers.remove(it)
+                observedLayout = viewModel.observableLayout,
+                checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
+                opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
+                onClickEvent = { event, pressed ->
+                    val events = when (event.type) {
+                        ClickEvent.Type.Key -> viewModel.pressedKeyEvents
+                        ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
+                        else -> return@ControlBoxLayout
+                    }
+                    //获取当前已按下相同键值的按键个数
+                    val count = (events[event.key] ?: 0).coerceAtLeast(0)
+                    if (pressed) {
+                        events[event.key] = count + 1
+                    } else if (count > 0) {
+                        events[event.key] = count - 1
+                    }
                 },
-                onEnableControl = { viewModel.switchControl(true) },
-                onDisableControl = { viewModel.switchControl(false) }
-            )
+                markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
+                isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+                enabled = viewModel.controlEnabled
+            ) {
+                MouseControlLayout(
+                    isTouchProxyEnabled = isTouchProxyEnabled,
+                    modifier = Modifier.fillMaxSize(),
+                    onInputAreaRectUpdated = onInputAreaRectUpdated,
+                    textInputMode = viewModel.textInputMode,
+                    onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
+                    isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
+                    onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                    onReleasePointer = {
+                        viewModel.occupiedPointers.remove(it)
+                        viewModel.moveOnlyPointers.remove(it)
+                    },
+                    onEnableControl = { viewModel.switchControl(true) },
+                    onDisableControl = { viewModel.switchControl(false) }
+                )
 
-            MinecraftHotbar(
-                rule = AllSettings.hotbarRule.state,
-                widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
-                heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
-                onClickSlot = { keycode ->
-                    CallbackBridge.sendKeyPress(keycode)
-                },
-                isGrabbing = isGrabbing,
-                resolutionRatio = AllSettings.resolutionRatio.state,
-                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                onReleasePointer = { viewModel.occupiedPointers.remove(it) }
-            )
+                MinecraftHotbar(
+                    rule = AllSettings.hotbarRule.state,
+                    widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
+                    heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
+                    onClickSlot = { keycode ->
+                        CallbackBridge.sendKeyPress(keycode)
+                    },
+                    isGrabbing = isGrabbing,
+                    resolutionRatio = AllSettings.resolutionRatio.state,
+                    onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                    onReleasePointer = { viewModel.occupiedPointers.remove(it) }
+                )
+            }
         }
 
         //陀螺仪控制
@@ -384,18 +405,36 @@ fun GameScreen(
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { viewModel.switchIME() },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
-            onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show }
+            onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show },
+            onEditLayout = {
+                viewModel.clearPressedKeys()
+                editorViewModel.initLayout(viewModel.getLayout())
+                viewModel.isEditingLayout = true
+            }
         )
     }
 
-    if (AllSettings.showMenuBall.state) {
-        DraggableGameBall(
-            showGameFps = AllSettings.showFPS.state,
-            showMemory = AllSettings.showMemory.state,
-            onClick = {
-                viewModel.switchMenu()
-            }
-        )
+    if (viewModel.isEditingLayout) {
+        viewModel.currentControlFile?.let {
+            ControlEditor(
+                viewModel = editorViewModel,
+                targetFile = it,
+                exit = {
+                    viewModel.isEditingLayout = false
+                    viewModel.loadControlLayout()
+                }
+            )
+        }
+    } else {
+        if (AllSettings.showMenuBall.state) {
+            DraggableGameBall(
+                showGameFps = AllSettings.showFPS.state,
+                showMemory = AllSettings.showMemory.state,
+                onClick = {
+                    viewModel.switchMenu()
+                }
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
