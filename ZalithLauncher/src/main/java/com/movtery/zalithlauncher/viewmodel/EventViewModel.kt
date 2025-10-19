@@ -34,8 +34,8 @@ class EventViewModel : ViewModel() {
             data object ShowIme : Game
             /** 刷新游戏画面分辨率 */
             data object RefreshSize : Game
-            /** 切换菜单 */
-            data object SwitchMenu : Game
+            /** 用户按下系统返回键 */
+            data object OnBack : Game
         }
         /** 在浏览器访问链接 */
         data class OpenLink(val url: String) : Event

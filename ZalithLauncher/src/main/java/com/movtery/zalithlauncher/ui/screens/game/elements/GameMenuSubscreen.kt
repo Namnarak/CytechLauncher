@@ -108,7 +108,7 @@ fun GameMenuSubscreen(
                 item {
                     MenuTextButton(
                         modifier = itemCommonModifier,
-                        text = stringResource(R.string.game_menu_option_edit_layout),
+                        text = stringResource(R.string.control_manage_info_edit),
                         onClick = {
                             onEditLayout()
                             closeScreen()

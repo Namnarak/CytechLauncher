@@ -23,7 +23,6 @@ import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.ui.screens.game.elements.mutableStateOfLog
@@ -103,12 +102,9 @@ class GameHandler(
     override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_UP && (event.flags and KeyEvent.FLAG_CANCELED) != 0) return false
 
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && !AllSettings.showMenuBall.getValue()) {
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                //关闭游戏菜单悬浮窗后，可通过按下返回键显示游戏菜单
-                eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchMenu)
-                return false
-            }
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
+            eventViewModel.sendEvent(EventViewModel.Event.Game.OnBack)
+            return false
         }
 
         if ((event.flags and KeyEvent.FLAG_SOFT_KEYBOARD) == KeyEvent.FLAG_SOFT_KEYBOARD) {

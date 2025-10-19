@@ -39,11 +39,17 @@ import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import java.io.File
 
+/**
+ * 控制布局编辑器主要UI，用于编辑控制布局
+ * @param exit 保存后执行的退出
+ * @param menuExit 通过菜单直接调用的“直接退出”
+ */
 @Composable
 fun ControlEditor(
     viewModel: EditorViewModel,
     targetFile: File,
-    exit: () -> Unit
+    exit: () -> Unit,
+    menuExit: () -> Unit
 ) {
     val layers by viewModel.observableLayout.layers.collectAsState()
     val styles by viewModel.observableLayout.styles.collectAsState()
@@ -134,7 +140,8 @@ fun ControlEditor(
         },
         saveAndExit = {
             viewModel.save(targetFile, onSaved = exit)
-        }
+        },
+        onExit = menuExit,
     )
 
     MenuBox {

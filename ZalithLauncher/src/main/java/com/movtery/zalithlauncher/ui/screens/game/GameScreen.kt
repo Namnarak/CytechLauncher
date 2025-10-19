@@ -40,12 +40,14 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
+import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
+import com.movtery.zalithlauncher.ui.activities.showExitEditorDialog
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
@@ -113,6 +115,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
 
     /** 是否正在编辑布局 */
     var isEditingLayout by mutableStateOf(false)
+        private set
 
     fun switchControl(enabled: Boolean) {
         if (controlEnabled != enabled) controlEnabled = enabled
@@ -135,7 +138,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         observableLayout = ObservableControlLayout(layout)
     }
 
-    fun getLayout(layoutFile: File? = version.getControlPath()): ControlLayout {
+    private fun getLayout(layoutFile: File? = currentControlFile): ControlLayout {
         return layoutFile?.let {
             try {
                 loadLayoutFromFile(it)
@@ -147,9 +150,30 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     /**
+     * 开始编辑控制布局模式
+     */
+    fun startControlEditor(editorVM: EditorViewModel) {
+        if (!isEditingLayout) {
+            clearPressedKeys()
+            editorVM.forceChangeLayout(getLayout())
+            isEditingLayout = true
+        }
+    }
+
+    /**
+     * 退出编辑控制布局模式（如果当前确实正在编辑控制布局）
+     */
+    fun exitControlEditor() {
+        if (isEditingLayout) {
+            isEditingLayout = false
+            loadControlLayout(currentControlFile)
+        }
+    }
+
+    /**
      * 清除所有按键状态
      */
-    fun clearPressedKeys() {
+    private fun clearPressedKeys() {
         pressedKeyEvents.clear()
         pressedLauncherEvents.clear()
     }
@@ -407,9 +431,9 @@ fun GameScreen(
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
             onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show },
             onEditLayout = {
-                viewModel.clearPressedKeys()
-                editorViewModel.initLayout(viewModel.getLayout())
-                viewModel.isEditingLayout = true
+                viewModel.startControlEditor(
+                    editorVM = editorViewModel
+                )
             }
         )
     }
@@ -420,8 +444,17 @@ fun GameScreen(
                 viewModel = editorViewModel,
                 targetFile = it,
                 exit = {
-                    viewModel.isEditingLayout = false
-                    viewModel.loadControlLayout()
+                    viewModel.exitControlEditor()
+                },
+                menuExit = {
+                    viewModel.viewModelScope.launch {
+                        showExitEditorDialog(
+                            context = context,
+                            onExit = {
+                                viewModel.exitControlEditor()
+                            }
+                        )
+                    }
                 }
             )
         }
@@ -445,8 +478,25 @@ fun GameScreen(
                     is EventViewModel.Event.Game.ShowIme -> {
                         viewModel.textInputMode = TextInputMode.ENABLE
                     }
-                    is EventViewModel.Event.Game.SwitchMenu -> {
-                        viewModel.switchMenu()
+                    is EventViewModel.Event.Game.OnBack -> {
+                        if (viewModel.isEditingLayout) {
+                            //处于控制布局编辑模式
+                            showExitEditorDialog(
+                                context = context,
+                                onExit = {
+                                    viewModel.exitControlEditor()
+                                }
+                            )
+                        } else if (!AllSettings.showMenuBall.getValue()) {
+                            viewModel.switchMenu()
+                        } else {
+                            //按下返回键
+                            val events = viewModel.pressedKeyEvents
+                            val escape = ControlEventKeycode.GLFW_KEY_ESCAPE
+                            events[escape] = (events[escape] ?: 0).coerceAtLeast(0) + 1
+                            delay(10)
+                            events[escape] = ((events[escape] ?: 0) - 1).coerceAtLeast(0)
+                        }
                     }
                     else -> { /*忽略*/ }
                 }

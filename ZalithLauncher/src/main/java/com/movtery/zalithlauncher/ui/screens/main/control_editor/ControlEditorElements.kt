@@ -138,7 +138,8 @@ fun EditorMenu(
     addNewText: () -> Unit,
     openStyleList: () -> Unit,
     onSave: () -> Unit,
-    saveAndExit: () -> Unit
+    saveAndExit: () -> Unit,
+    onExit: () -> Unit
 ) {
     DualMenuSubscreen(
         state = state,
@@ -253,6 +254,15 @@ fun EditorMenu(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_menu_save_and_exit),
                         onClick = saveAndExit
+                    )
+                }
+
+                //直接退出
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_exit_confirm),
+                        onClick = onExit
                     )
                 }
             }
