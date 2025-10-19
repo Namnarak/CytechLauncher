@@ -3,10 +3,13 @@ package com.movtery.zalithlauncher.ui.screens.game
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,6 +65,7 @@ import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
 import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
@@ -261,9 +265,12 @@ fun GameScreen(
     version: Version,
     isGameRendering: Boolean,
     logState: LogState,
-    onLogStateChange: (LogState) -> Unit = {},
+    onLogStateChange: (LogState) -> Unit,
     isTouchProxyEnabled: Boolean,
-    onInputAreaRectUpdated: (IntRect?) -> Unit = {},
+    onInputAreaRectUpdated: (IntRect?) -> Unit,
+    surfaceOffset: Offset,
+    incrementScreenOffset: (Offset) -> Unit,
+    resetScreenOffset: () -> Unit,
     eventViewModel: EventViewModel
 ) {
     val context = LocalContext.current
@@ -366,33 +373,55 @@ fun GameScreen(
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
                 enabled = viewModel.controlEnabled
             ) {
-                MouseControlLayout(
-                    isTouchProxyEnabled = isTouchProxyEnabled,
-                    modifier = Modifier.fillMaxSize(),
-                    onInputAreaRectUpdated = onInputAreaRectUpdated,
-                    textInputMode = viewModel.textInputMode,
-                    onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
-                    isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
-                    onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                    onReleasePointer = {
-                        viewModel.occupiedPointers.remove(it)
-                        viewModel.moveOnlyPointers.remove(it)
-                    },
-                    onEnableControl = { viewModel.switchControl(true) },
-                    onDisableControl = { viewModel.switchControl(false) }
-                )
+                val transformableState = rememberTransformableState { _, offsetChange, _ ->
+                    incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
+                }
 
-                MinecraftHotbar(
-                    rule = AllSettings.hotbarRule.state,
-                    widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
-                    heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
-                    onClickSlot = { keycode ->
-                        CallbackBridge.sendKeyPress(keycode)
+                TopOverlayAboveIme(
+                    content = {
+                        MouseControlLayout(
+                            isTouchProxyEnabled = isTouchProxyEnabled,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
+                            onInputAreaRectUpdated = onInputAreaRectUpdated,
+                            textInputMode = viewModel.textInputMode,
+                            onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
+                            isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
+                            onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                            onReleasePointer = {
+                                viewModel.occupiedPointers.remove(it)
+                                viewModel.moveOnlyPointers.remove(it)
+                            },
+                            onEnableControl = { viewModel.switchControl(true) },
+                            onDisableControl = { viewModel.switchControl(false) }
+                        )
+
+                        MinecraftHotbar(
+                            rule = AllSettings.hotbarRule.state,
+                            widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
+                            heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
+                            onClickSlot = { keycode ->
+                                CallbackBridge.sendKeyPress(keycode)
+                            },
+                            isGrabbing = isGrabbing,
+                            resolutionRatio = AllSettings.resolutionRatio.state,
+                            onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                            onReleasePointer = { viewModel.occupiedPointers.remove(it) }
+                        )
                     },
-                    isGrabbing = isGrabbing,
-                    resolutionRatio = AllSettings.resolutionRatio.state,
-                    onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                    onReleasePointer = { viewModel.occupiedPointers.remove(it) }
+                    emptyAreaContent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .transformable(state = transformableState)
+                        )
+                    },
+                    onAreaChanged = { show ->
+                        if (!show) {
+                            resetScreenOffset()
+                        }
+                    }
                 )
             }
         }

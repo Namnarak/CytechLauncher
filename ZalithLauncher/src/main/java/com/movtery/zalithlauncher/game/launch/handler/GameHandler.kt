@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
@@ -138,7 +139,11 @@ class GameHandler(
     }
 
     @Composable
-    override fun ComposableLayout() {
+    override fun ComposableLayout(
+        surfaceOffset: Offset,
+        incrementScreenOffset: (Offset) -> Unit,
+        resetScreenOffset: () -> Unit
+    ) {
         GameScreen(
             version = version,
             isGameRendering = isGameRendering,
@@ -146,6 +151,9 @@ class GameHandler(
             onLogStateChange = { logState = it },
             isTouchProxyEnabled = isTouchProxyEnabled,
             onInputAreaRectUpdated = { _inputArea.value = it },
+            surfaceOffset = surfaceOffset,
+            incrementScreenOffset = incrementScreenOffset,
+            resetScreenOffset = resetScreenOffset,
             eventViewModel = eventViewModel
         )
     }

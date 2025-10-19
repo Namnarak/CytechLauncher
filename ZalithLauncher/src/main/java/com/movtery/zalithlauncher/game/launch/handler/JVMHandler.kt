@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.withSave
@@ -97,11 +98,18 @@ class JVMHandler(
     }
 
     @Composable
-    override fun ComposableLayout() {
+    override fun ComposableLayout(
+        surfaceOffset: Offset,
+        incrementScreenOffset: (Offset) -> Unit,
+        resetScreenOffset: () -> Unit
+    ) {
         JVMScreen(
             logState = logState,
             onLogStateChange = { logState = it },
-            eventViewModel = eventViewModel
+            eventViewModel = eventViewModel,
+            surfaceOffset = surfaceOffset,
+            incrementScreenOffset = incrementScreenOffset,
+            resetScreenOffset = resetScreenOffset
         )
     }
 }

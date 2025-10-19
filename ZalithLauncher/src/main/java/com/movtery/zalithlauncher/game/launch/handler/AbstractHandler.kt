@@ -4,6 +4,7 @@ import android.view.KeyEvent
 import android.view.Surface
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.game.launch.Launcher
@@ -42,5 +43,9 @@ abstract class AbstractHandler(
     abstract fun sendMouseRight(isPressed: Boolean)
 
     @Composable
-    abstract fun ComposableLayout()
+    abstract fun ComposableLayout(
+        surfaceOffset: Offset,
+        incrementScreenOffset: (Offset) -> Unit,
+        resetScreenOffset: () -> Unit
+    )
 }

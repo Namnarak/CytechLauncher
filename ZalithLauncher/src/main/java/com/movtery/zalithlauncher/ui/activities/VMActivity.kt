@@ -16,9 +16,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -55,7 +53,6 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
-import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
@@ -179,8 +176,21 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         setContent {
             ZalithLauncherTheme {
-                Screen {
-                    handler.ComposableLayout()
+                //Surface屏幕整体偏移
+                var surfaceOffset by remember { mutableStateOf(Offset.Zero) }
+
+                Screen(
+                    surfaceOffset = surfaceOffset
+                ) {
+                    handler.ComposableLayout(
+                        surfaceOffset = surfaceOffset,
+                        incrementScreenOffset = { new: Offset ->
+                            surfaceOffset += new
+                        },
+                        resetScreenOffset = {
+                            surfaceOffset = Offset.Zero
+                        }
+                    )
                 }
             }
         }
@@ -282,21 +292,19 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     override fun shouldIgnoreNotch(): Boolean = AllSettings.gameFullScreen.getValue()
 
+    /**
+     * @param surfaceOffset Surface整体偏移
+     */
     @Composable
     private fun Screen(
+        surfaceOffset: Offset = Offset.Zero,
         content: @Composable () -> Unit = {}
     ) {
         if (this::handler.isInitialized) {
             val imeInsets = WindowInsets.ime
             val inputArea by handler.inputArea.collectAsState()
 
-            //半屏输入时，触摸以更改游戏画面位置
-            var offset by remember { mutableStateOf(Offset.Zero) }
-            val transformableState = rememberTransformableState { _, offsetChange, _ ->
-                offset += offsetChange.copy(x = 0f) //固定X坐标，只允许移动Y坐标
-            }
-
-            TopOverlayAboveIme(
+            Layout(
                 content = {
                     AndroidView(
                         modifier = Modifier
@@ -308,7 +316,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                                 val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
                                 IntOffset(0, -bottomPadding)
                             }
-                            .absoluteOffset(x = 0.dp, y = offset.y.dp),
+                            .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
                         factory = { context ->
                             TextureView(context).apply {
                                 isOpaque = true
@@ -322,21 +330,14 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     )
 
                     content()
-                },
-                emptyAreaContent = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .transformable(state = transformableState)
-                    )
-                },
-                onAreaChanged = { show ->
-                    if (!show) {
-                        //关闭顶部空闲区域时，重置游戏画面位置
-                        offset = Offset.Zero
-                    }
                 }
-            )
+            ) { measurables, constraints ->
+                val placeables = measurables.map { it.measure(constraints) }
+
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeables.forEach { it.place(0, 0) }
+                }
+            }
         }
     }
 

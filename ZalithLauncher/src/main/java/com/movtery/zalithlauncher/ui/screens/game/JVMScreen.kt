@@ -1,6 +1,9 @@
 package com.movtery.zalithlauncher.ui.screens.game
 
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -22,6 +26,7 @@ import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
 import com.movtery.zalithlauncher.ui.components.TouchableButton
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
@@ -33,7 +38,10 @@ import kotlinx.coroutines.flow.filterIsInstance
 @Composable
 fun JVMScreen(
     logState: LogState,
-    onLogStateChange: (LogState) -> Unit = {},
+    onLogStateChange: (LogState) -> Unit,
+    surfaceOffset: Offset,
+    incrementScreenOffset: (Offset) -> Unit,
+    resetScreenOffset: () -> Unit,
     eventViewModel: EventViewModel
 ) {
     var forceCloseState by remember { mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None) }
@@ -46,19 +54,41 @@ fun JVMScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        SimpleMouseControlLayout(
-            modifier = Modifier.fillMaxSize(),
-            textInputMode = textInputMode,
-            onCloseInputMethod = { textInputMode = TextInputMode.DISABLE },
-            sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
-            sendMouseCodePress = { code, pressed ->
-                ZLBridge.sendMousePress(code, pressed)
+        val transformableState = rememberTransformableState { _, offsetChange, _ ->
+            incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
+        }
+
+        TopOverlayAboveIme(
+            content = {
+                SimpleMouseControlLayout(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
+                    textInputMode = textInputMode,
+                    onCloseInputMethod = { textInputMode = TextInputMode.DISABLE },
+                    sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
+                    sendMouseCodePress = { code, pressed ->
+                        ZLBridge.sendMousePress(code, pressed)
+                    },
+                    sendMouseLongPress = { isPressed ->
+                        ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
+                    },
+                    placeMouse = { mouseX, mouseY ->
+                        ZLBridge.sendMousePos((mouseX * 0.8).toInt(), (mouseY * 0.8).toInt())
+                    }
+                )
             },
-            sendMouseLongPress = { isPressed ->
-                ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
+            emptyAreaContent = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .transformable(state = transformableState)
+                )
             },
-            placeMouse = { mouseX, mouseY ->
-                ZLBridge.sendMousePos((mouseX * 0.8).toInt(), (mouseY * 0.8).toInt())
+            onAreaChanged = { show ->
+                if (!show) {
+                    resetScreenOffset()
+                }
             }
         )
 
