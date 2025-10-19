@@ -39,7 +39,8 @@ fun GameMenuSubscreen(
     onRefreshWindowSize: () -> Unit,
     onInputMethod: () -> Unit,
     onSendKeycode: () -> Unit,
-    onReplacementControl: () -> Unit
+    onReplacementControl: () -> Unit,
+    onEditLayout: () -> Unit
 ) {
     //检查陀螺仪是否可用
     val context = LocalContext.current
@@ -99,6 +100,17 @@ fun GameMenuSubscreen(
                         text = stringResource(R.string.game_menu_option_replacement_control),
                         onClick = {
                             onReplacementControl()
+                            closeScreen()
+                        }
+                    )
+                }
+                //编辑布局
+                item {
+                    MenuTextButton(
+                        modifier = itemCommonModifier,
+                        text = stringResource(R.string.control_manage_info_edit),
+                        onClick = {
+                            onEditLayout()
                             closeScreen()
                         }
                     )

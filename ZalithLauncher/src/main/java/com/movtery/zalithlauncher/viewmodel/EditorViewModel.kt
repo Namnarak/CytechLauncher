@@ -51,6 +51,13 @@ class EditorViewModel() : ViewModel() {
         }
     }
 
+    /**
+     * 强制更改被编辑的控制布局
+     */
+    fun forceChangeLayout(layout: ControlLayout) {
+        this.observableLayout = ObservableControlLayout(layout)
+    }
+
 
 
     /**
