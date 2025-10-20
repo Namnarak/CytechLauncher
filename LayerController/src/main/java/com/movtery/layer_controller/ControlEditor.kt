@@ -164,7 +164,7 @@ private fun ControlWidgetRenderer(
             getOtherWidgets = {
                 allWidgetsMap
                     .filter { (layer1, _) ->
-                        if (layer1.hide) return@filter false
+                        if (layer1.editorHide) return@filter false
                         snapInAllLayers1 || layer1 == layer
                     }
                     .values.flatten().filter { it != data }
@@ -192,7 +192,7 @@ private fun ControlWidgetRenderer(
         content = {
             //按图层顺序渲染所有可见的控件
             renderingLayers.forEach { layer ->
-                if (!layer.hide) {
+                if (!layer.editorHide) {
                     val normalButtons by layer.normalButtons.collectAsState()
                     val textBoxes by layer.textBoxes.collectAsState()
 
@@ -216,7 +216,7 @@ private fun ControlWidgetRenderer(
 
         var index = 0
         renderingLayers.forEach { layer ->
-            if (!layer.hide) {
+            if (!layer.editorHide) {
                 layer.textBoxes.value.forEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
@@ -238,7 +238,7 @@ private fun ControlWidgetRenderer(
         layout(constraints.maxWidth, constraints.maxHeight) {
             var placeableIndex = 0
             renderingLayers.forEach { layer ->
-                if (!layer.hide) {
+                if (!layer.editorHide) {
                     layer.textBoxes.value.forEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]

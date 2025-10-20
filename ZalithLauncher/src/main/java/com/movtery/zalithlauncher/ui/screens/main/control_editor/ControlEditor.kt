@@ -146,6 +146,7 @@ fun ControlEditor(
         },
         isPreviewMode = viewModel.isPreviewMode,
         onPreviewChanged = { mode ->
+            viewModel.applyEditorHide()
             viewModel.isPreviewMode = mode
         },
         onSave = {

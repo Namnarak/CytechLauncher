@@ -112,6 +112,16 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
         }
     }
 
+    /**
+     * 将编辑器内层级隐藏状态同步到实际隐藏状态
+     * 供预览模式下使用正确的隐藏状态
+     */
+    fun applyEditorHide() {
+        layers.value.forEach { layer ->
+            layer.hide = layer.editorHide
+        }
+    }
+
     override fun pack(): ControlLayout {
         return layout.copy(
             info = info.pack(),

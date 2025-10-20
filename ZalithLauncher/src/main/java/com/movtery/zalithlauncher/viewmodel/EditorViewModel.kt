@@ -148,6 +148,14 @@ class EditorViewModel() : ViewModel() {
     }
 
     /**
+     * 将编辑器内层级隐藏状态同步到实际隐藏状态
+     * 供预览模式下使用正确的隐藏状态
+     */
+    fun applyEditorHide() {
+        observableLayout.applyEditorHide()
+    }
+
+    /**
      * 保存控制布局
      */
     fun save(

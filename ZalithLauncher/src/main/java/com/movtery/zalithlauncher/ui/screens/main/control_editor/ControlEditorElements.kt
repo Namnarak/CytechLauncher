@@ -418,12 +418,12 @@ private fun ControlLayerItem(
         ) {
             IconButton(
                 onClick = {
-                    layer.hide = !layer.hide
+                    layer.editorHide = layer.editorHide.not()
                 },
                 enabled = enabled
             ) {
                 Crossfade(
-                    targetState = layer.hide
+                    targetState = layer.editorHide
                 ) { isHide ->
                     Icon(
                         imageVector = if (isHide) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
