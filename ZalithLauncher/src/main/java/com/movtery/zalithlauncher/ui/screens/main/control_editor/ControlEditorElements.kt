@@ -48,6 +48,8 @@ import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
+import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.DraggableBox
 import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
@@ -90,6 +92,18 @@ sealed interface EditorOperation {
     data object Saving : EditorOperation
     /** 控制布局保存失败 */
     data class SaveFailed(val error: Throwable) : EditorOperation
+}
+
+/**
+ * 预览控制布局的场景
+ */
+enum class PreviewScenario(
+    val textRes: Int,
+    val cursorMode: Int,
+    val isCursorGrabbing: Boolean = cursorMode == CURSOR_DISABLED
+) {
+    InGame(R.string.control_editor_menu_preview_mode_in_game, cursorMode = CURSOR_DISABLED),
+    InMenu(R.string.control_editor_menu_preview_mode_in_menu, cursorMode = CURSOR_ENABLED)
 }
 
 @Composable
@@ -139,6 +153,8 @@ fun EditorMenu(
     openStyleList: () -> Unit,
     isPreviewMode: Boolean,
     onPreviewChanged: (Boolean) -> Unit,
+    previewScenario: PreviewScenario,
+    onPreviewScenarioChanged: (PreviewScenario) -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -209,6 +225,21 @@ fun EditorMenu(
                         text = stringResource(R.string.control_editor_menu_preview_mode),
                         switch = isPreviewMode,
                         onSwitch = { onPreviewChanged(it) }
+                    )
+                }
+
+                //预览场景
+                item {
+                    MenuListLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.control_editor_menu_preview_mode_scenario),
+                        items = PreviewScenario.entries,
+                        currentItem = previewScenario,
+                        onItemChange = onPreviewScenarioChanged,
+                        getItemText = { scenario ->
+                            stringResource(scenario.textRes)
+                        },
+                        enabled = isPreviewMode
                     )
                 }
 

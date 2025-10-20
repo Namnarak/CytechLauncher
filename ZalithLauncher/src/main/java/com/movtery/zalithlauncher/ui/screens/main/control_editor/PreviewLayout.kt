@@ -9,19 +9,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerId
 import com.movtery.layer_controller.ControlBoxLayout
 import com.movtery.layer_controller.observable.ObservableControlLayout
-import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
-import com.movtery.zalithlauncher.bridge.ZLBridgeStates
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 
 /**
  * 预览控制布局层
  * @param observableLayout 被预览的控制布局
+ * @param previewScenario 控制布局预览的场景
  */
 @Composable
 fun PreviewControlBox(
     observableLayout: ObservableControlLayout,
-    modifier: Modifier = Modifier
+    previewScenario: PreviewScenario,
+    modifier: Modifier = Modifier,
 ) {
     val occupiedPointers = remember(observableLayout) { mutableStateSetOf<PointerId>() }
     val moveOnlyPointers = remember(observableLayout) { mutableStateSetOf<PointerId>() }
@@ -30,9 +29,8 @@ fun PreviewControlBox(
         modifier = modifier.fillMaxSize(),
         observedLayout = observableLayout,
         checkOccupiedPointers = { occupiedPointers.contains(it) },
-        opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
         markPointerAsMoveOnly = { moveOnlyPointers.add(it) },
-        isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED
+        isCursorGrabbing = previewScenario.isCursorGrabbing
     ) {
         PreviewMouseLayout(
             modifier = Modifier.fillMaxSize(),
@@ -41,7 +39,8 @@ fun PreviewControlBox(
             onReleasePointer = {
                 occupiedPointers.remove(it)
                 moveOnlyPointers.remove(it)
-            }
+            },
+            previewScenario = previewScenario
         )
     }
 }
@@ -51,20 +50,22 @@ fun PreviewControlBox(
  * @param isMoveOnlyPointer 检查指针是否被标记为仅处理滑动事件
  * @param onOccupiedPointer 标记指针已被占用
  * @param onReleasePointer 标记指针已被释放
+ * @param previewScenario 控制布局预览的场景
  */
 @Composable
 private fun PreviewMouseLayout(
     modifier: Modifier = Modifier,
     isMoveOnlyPointer: (PointerId) -> Boolean,
     onOccupiedPointer: (PointerId) -> Unit,
-    onReleasePointer: (PointerId) -> Unit
+    onReleasePointer: (PointerId) -> Unit,
+    previewScenario: PreviewScenario
 ) {
     Box(
         modifier = modifier
     ) {
         SwitchableMouseLayout(
             modifier = Modifier.fillMaxSize(),
-            cursorMode = ZLBridgeStates.cursorMode,
+            cursorMode = previewScenario.cursorMode,
             isMoveOnlyPointer = isMoveOnlyPointer,
             onOccupiedPointer = onOccupiedPointer,
             onReleasePointer = onReleasePointer

@@ -71,6 +71,7 @@ fun ControlEditor(
         PreviewControlBox(
             modifier = Modifier.fillMaxSize(),
             observableLayout = viewModel.observableLayout,
+            previewScenario = viewModel.previewScenario
         )
     } else {
         ControlEditorLayer(
@@ -148,6 +149,10 @@ fun ControlEditor(
         onPreviewChanged = { mode ->
             viewModel.applyEditorHide()
             viewModel.isPreviewMode = mode
+        },
+        previewScenario = viewModel.previewScenario,
+        onPreviewScenarioChanged = { scenario ->
+            viewModel.previewScenario = scenario
         },
         onSave = {
             viewModel.save(targetFile, onSaved = {})
