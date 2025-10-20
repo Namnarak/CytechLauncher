@@ -214,6 +214,9 @@ private fun GameInstallOperation(
             )
         }
         is GameInstallOperation.Install -> {
+            LaunchedEffect(installer) {
+                if (installer == null) onInstall(gameInstallOperation.info)
+            }
             if (installer != null) {
                 val installGame = installer.tasksFlow.collectAsState()
                 if (installGame.value.isNotEmpty()) {
@@ -227,8 +230,6 @@ private fun GameInstallOperation(
                         }
                     )
                 }
-            } else {
-                onInstall(gameInstallOperation.info)
             }
         }
         is GameInstallOperation.Error -> {

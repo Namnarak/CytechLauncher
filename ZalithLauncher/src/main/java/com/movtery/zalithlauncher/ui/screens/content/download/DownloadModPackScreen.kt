@@ -280,6 +280,9 @@ private fun ModPackInstallOperation(
             )
         }
         is ModPackInstallOperation.Install -> {
+            LaunchedEffect(installer) {
+                if (installer == null) onInstall(operation.version, operation.iconUrl)
+            }
             if (installer != null) {
                 val tasks = installer.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {
@@ -293,8 +296,6 @@ private fun ModPackInstallOperation(
                         }
                     )
                 }
-            } else {
-                onInstall(operation.version, operation.iconUrl)
             }
         }
         is ModPackInstallOperation.Error -> {
