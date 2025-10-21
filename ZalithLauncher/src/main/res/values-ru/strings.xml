@@ -924,4 +924,5 @@
     <string name="versions_overview_mod_folder">Папка модов</string>
     <string name="download_assets_loading_page_data">Начало скачивания постраничных данных</string>
     <string name="download_assets_loaded_chunk_page">Страничные данные загружены, фрагмент %1$d, страница %2$d</string>
+    <string name="control_editor_menu_preview_mode">Предпросмотр раскладки управления</string>
 </resources>
