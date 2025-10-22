@@ -842,4 +842,11 @@
     <string name="about_acknowledgements_github_community_text">Toàn bộ người báo lỗi và đóng góp từ cộng đồng GitHub</string>
     <string name="about_acknowledgements_weblate_community">Cộng đồng Weblate</string>
     <string name="about_acknowledgements_weblate_community_text">Tất cả những người dịch đã tham gia bản địa hóa ngôn ngữ cho cộng đồng</string>
+    <string name="theme_color_picker_edit_hex">Chỉnh sửa mã Hex</string>
+    <string name="theme_color_picker_edit_hex_invalid">Mã Hex không hợp lệ</string>
+    <string name="download_game_type_april_fools">Cá Tháng Tư</string>
+    <string name="download_assets_loading_page_data">Đang bắt đầu tải dữ liệu phân trang</string>
+    <string name="download_assets_loaded_chunk_page">Đã tải dữ liệu phân trang, khối %1$d, trang %2$d</string>
+    <string name="download_assets_loading_dep_project">Đang tải và lưu dự án phụ thuộc, ID: %s</string>
+    <string name="version_summary_fools_the_love_and_hugs_update">Bản cập nhật Yêu Thương &amp; Ôm Ấp - lấp đầy thế giới với cầu vồng và sự bình yên như skibidi.</string>
 </resources>
