@@ -19,8 +19,10 @@ import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.ui.control.gamepad.GamepadStickCameraListener
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.file.ifExists
+import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 
 /**
  * 鼠标指针抓取模式
@@ -34,6 +36,7 @@ typealias CursorMode = Int
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param hideMouseInClickMode      是否在鼠标为点击控制模式时，隐藏鼠标指针
+ * @param gamepadViewModel          更新手柄状态的ViewModel
  * @param onTouch                   触摸到鼠标层
  * @param onMouse                   实体鼠标交互事件
  * @param onTap                     点击回调
@@ -60,6 +63,7 @@ fun SwitchableMouseLayout(
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     hideMouseInClickMode: Boolean = AllSettings.hideMouse.state,
+    gamepadViewModel: GamepadViewModel? = null,
     onTouch: () -> Unit = {},
     onMouse: () -> Unit = {},
     onTap: (Offset) -> Unit = {},
@@ -145,6 +149,27 @@ fun SwitchableMouseLayout(
         } ?: centerPos
         if (!isCaptured) updatePointerPos(pos)
         pointerPosition = pos
+    }
+
+    gamepadViewModel?.let { viewModel ->
+        val isGrabbing = cursorMode == CURSOR_DISABLED
+        GamepadStickCameraListener(
+            gamepadViewModel = viewModel,
+            isGrabbing = isGrabbing,
+            onOffsetEvent = { offset ->
+                if (isGrabbing) {
+                    updateMousePointer(false)
+                    onCapturedMove(offset)
+                } else {
+                    val newOffset = Offset(
+                        x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
+                        y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)
+                    )
+                    pointerPosition = newOffset
+                    updatePointerPos(newOffset)
+                }
+            }
+        )
     }
 
     Box(modifier = modifier) {

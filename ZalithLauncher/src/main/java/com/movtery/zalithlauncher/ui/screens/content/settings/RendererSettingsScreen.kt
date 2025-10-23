@@ -64,6 +64,7 @@ fun RendererSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.renderer,
                         items = Renderers.getCompatibleRenderers(context).second,
                         title = stringResource(R.string.settings_renderer_global_renderer_title),
@@ -76,6 +77,7 @@ fun RendererSettingsScreen(
                     )
 
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.vulkanDriver,
                         items = DriverPluginManager.getDriverList(),
                         title = stringResource(R.string.settings_renderer_global_vulkan_driver_title),
@@ -87,6 +89,7 @@ fun RendererSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.resolutionRatio,
                         title = stringResource(R.string.settings_renderer_resolution_scale_title),
                         summary = stringResource(R.string.settings_renderer_resolution_scale_summary),
@@ -96,6 +99,7 @@ fun RendererSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gameFullScreen,
                         title = stringResource(R.string.settings_renderer_full_screen_title),
                         summary = stringResource(R.string.settings_renderer_full_screen_summary)
@@ -108,6 +112,7 @@ fun RendererSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.sustainedPerformance,
                         title = stringResource(R.string.settings_renderer_sustained_performance_title),
                         summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
@@ -124,6 +129,7 @@ fun RendererSettingsScreen(
                         }
 
                         SwitchLayout(
+                            modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
                             summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
                             checked = value,
@@ -150,18 +156,21 @@ fun RendererSettingsScreen(
                     }
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.vsyncInZink,
                         title = stringResource(R.string.settings_renderer_vsync_in_zink_title),
                         summary = stringResource(R.string.settings_renderer_vsync_in_zink_summary)
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.bigCoreAffinity,
                         title = stringResource(R.string.settings_renderer_force_big_core_title),
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.dumpShaders,
                         title = stringResource(R.string.settings_renderer_shader_dump_title),
                         summary = stringResource(R.string.settings_renderer_shader_dump_summary)

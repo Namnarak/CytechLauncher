@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.ui.control.gamepad.isFromGamepad
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.ui.screens.game.elements.mutableStateOfLog
@@ -32,6 +33,7 @@ import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +52,7 @@ class GameHandler(
     private val context: Context,
     private val version: Version,
     eventViewModel: EventViewModel,
+    private val gamepadViewModel: GamepadViewModel,
     getWindowSize: () -> IntSize,
     gameLauncher: GameLauncher,
     onExit: (code: Int) -> Unit
@@ -115,6 +118,8 @@ class GameHandler(
             }
         }
 
+        if (event.isFromGamepad()) return true
+
         EfficientAndroidLWJGLKeycode.getIndexByKey(event.keyCode).takeIf { it >= 0 }?.let { index ->
             EfficientAndroidLWJGLKeycode.execKey(event, index)
             return false
@@ -154,7 +159,8 @@ class GameHandler(
             surfaceOffset = surfaceOffset,
             incrementScreenOffset = incrementScreenOffset,
             resetScreenOffset = resetScreenOffset,
-            eventViewModel = eventViewModel
+            eventViewModel = eventViewModel,
+            gamepadViewModel = gamepadViewModel
         )
     }
 

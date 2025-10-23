@@ -10,6 +10,7 @@ import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.ui.control.control.HotbarRule
+import com.movtery.zalithlauncher.ui.control.gamepad.JoystickMode
 import com.movtery.zalithlauncher.ui.control.mouse.CENTER_HOTSPOT
 import com.movtery.zalithlauncher.ui.control.mouse.CursorHotspot
 import com.movtery.zalithlauncher.ui.control.mouse.LEFT_TOP_HOTSPOT
@@ -194,6 +195,16 @@ object AllSettings : SettingsRegistry() {
      * 鼠标控制长按延迟
      */
     val mouseLongPressDelay = intSetting("mouseLongPressDelay", 300)
+
+    /**
+     * 摇杆死区缩放
+     */
+    val gamepadDeadZoneScale = intSetting("gamepadDeadZoneScale", 100)
+
+    /**
+     * 摇杆控制模式
+     */
+    val joystickControlMode = enumSetting("joystickControlMode", JoystickMode.LeftMovement)
 
     /**
      * 手势控制

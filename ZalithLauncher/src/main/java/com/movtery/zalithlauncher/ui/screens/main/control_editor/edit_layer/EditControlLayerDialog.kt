@@ -116,8 +116,8 @@ fun EditControlLayerDialog(
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide),
-                            value = layer.hide,
-                            onValueChange = { layer.hide = it }
+                            value = layer.editorHide,
+                            onValueChange = { layer.editorHide = it }
                         )
 
                         //合并控件至下层

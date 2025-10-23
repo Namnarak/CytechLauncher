@@ -127,11 +127,11 @@ fun JVMScreen(
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
     textInputMode: TextInputMode,
-    onCloseInputMethod: () -> Unit = {},
-    sendMousePress: () -> Unit = {},
-    sendMouseCodePress: (Int, Boolean) -> Unit = { _, _ -> },
-    sendMouseLongPress: (Boolean) -> Unit = {},
-    placeMouse: (mouseX: Float, mouseY: Float) -> Unit = { _, _ -> }
+    onCloseInputMethod: () -> Unit,
+    sendMousePress: () -> Unit,
+    sendMouseCodePress: (Int, Boolean) -> Unit,
+    sendMouseLongPress: (Boolean) -> Unit,
+    placeMouse: (mouseX: Float, mouseY: Float) -> Unit
 ) {
     VirtualPointerLayout(
         modifier = modifier

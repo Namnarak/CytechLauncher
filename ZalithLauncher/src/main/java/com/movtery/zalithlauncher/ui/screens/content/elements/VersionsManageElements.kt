@@ -557,6 +557,9 @@ fun CleanupOperation(
             )
         }
         is CleanupOperation.Clean -> {
+            LaunchedEffect(cleaner) {
+                if (cleaner == null) onClean()
+            }
             if (cleaner != null) {
                 val tasks = cleaner.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {
@@ -570,8 +573,6 @@ fun CleanupOperation(
                         }
                     )
                 }
-            } else {
-                onClean()
             }
         }
         is CleanupOperation.Error -> {

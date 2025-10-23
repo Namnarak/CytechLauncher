@@ -421,7 +421,6 @@
     <string name="versions_manage_install_exists">Tên phiên bản đã tồn tại!</string>
     <string name="versions_manage_install_cannot_use_mc_name">Không sử dụng tên Vanilla cho các phiên bản đã sửa đổi.</string>
     <string name="versions_manage_invalid">Phiên bản không hợp lệ</string>
-    <string name="versions_manage_isolation_enabled">Cô lập</string>
     <string name="versions_manage_rename_version">Đổi tên phiên bản</string>
     <string name="versions_manage_copy_version">Sao chép phiên bản</string>
     <string name="versions_manage_copy_version_tip">Sao chép phiên bản này với tính năng cô lập được bật. Chọn \"Sao chép tất cả tệp\" để bao gồm tài nguyên.</string>

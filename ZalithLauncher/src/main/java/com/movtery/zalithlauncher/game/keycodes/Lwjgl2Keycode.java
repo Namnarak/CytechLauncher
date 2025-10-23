@@ -330,4 +330,153 @@ public class Lwjgl2Keycode {
                 return LwjglGlfwKeycode.GLFW_KEY_UNKNOWN;
         }
     }
+
+    public static String lwjgl2ToControlEvent(int k) {
+        switch (k) {
+            case KEY_ESCAPE: return ControlEventKeycode.GLFW_KEY_ESCAPE;
+
+            case KEY_0: return ControlEventKeycode.GLFW_KEY_0;
+            case KEY_1: return ControlEventKeycode.GLFW_KEY_1;
+            case KEY_2: return ControlEventKeycode.GLFW_KEY_2;
+            case KEY_3: return ControlEventKeycode.GLFW_KEY_3;
+            case KEY_4: return ControlEventKeycode.GLFW_KEY_4;
+            case KEY_5: return ControlEventKeycode.GLFW_KEY_5;
+            case KEY_6: return ControlEventKeycode.GLFW_KEY_6;
+            case KEY_7: return ControlEventKeycode.GLFW_KEY_7;
+            case KEY_8: return ControlEventKeycode.GLFW_KEY_8;
+            case KEY_9: return ControlEventKeycode.GLFW_KEY_9;
+
+            case KEY_A: return ControlEventKeycode.GLFW_KEY_A;
+            case KEY_B: return ControlEventKeycode.GLFW_KEY_B;
+            case KEY_C: return ControlEventKeycode.GLFW_KEY_C;
+            case KEY_D: return ControlEventKeycode.GLFW_KEY_D;
+            case KEY_E: return ControlEventKeycode.GLFW_KEY_E;
+            case KEY_F: return ControlEventKeycode.GLFW_KEY_F;
+            case KEY_G: return ControlEventKeycode.GLFW_KEY_G;
+            case KEY_H: return ControlEventKeycode.GLFW_KEY_H;
+            case KEY_I: return ControlEventKeycode.GLFW_KEY_I;
+            case KEY_J: return ControlEventKeycode.GLFW_KEY_J;
+            case KEY_K: return ControlEventKeycode.GLFW_KEY_K;
+            case KEY_L: return ControlEventKeycode.GLFW_KEY_L;
+            case KEY_M: return ControlEventKeycode.GLFW_KEY_M;
+            case KEY_N: return ControlEventKeycode.GLFW_KEY_N;
+            case KEY_O: return ControlEventKeycode.GLFW_KEY_O;
+            case KEY_P: return ControlEventKeycode.GLFW_KEY_P;
+            case KEY_Q: return ControlEventKeycode.GLFW_KEY_Q;
+            case KEY_R: return ControlEventKeycode.GLFW_KEY_R;
+            case KEY_S: return ControlEventKeycode.GLFW_KEY_S;
+            case KEY_T: return ControlEventKeycode.GLFW_KEY_T;
+            case KEY_U: return ControlEventKeycode.GLFW_KEY_U;
+            case KEY_V: return ControlEventKeycode.GLFW_KEY_V;
+            case KEY_W: return ControlEventKeycode.GLFW_KEY_W;
+            case KEY_X: return ControlEventKeycode.GLFW_KEY_X;
+            case KEY_Y: return ControlEventKeycode.GLFW_KEY_Y;
+            case KEY_Z: return ControlEventKeycode.GLFW_KEY_Z;
+
+            case KEY_MINUS: return ControlEventKeycode.GLFW_KEY_MINUS;
+            case KEY_EQUALS: return ControlEventKeycode.GLFW_KEY_EQUAL;
+            case KEY_LBRACKET: return ControlEventKeycode.GLFW_KEY_LEFT_BRACKET;
+            case KEY_RBRACKET: return ControlEventKeycode.GLFW_KEY_RIGHT_BRACKET;
+            case KEY_SEMICOLON: return ControlEventKeycode.GLFW_KEY_SEMICOLON;
+            case KEY_APOSTROPHE: return ControlEventKeycode.GLFW_KEY_APOSTROPHE;
+            case KEY_GRAVE: return ControlEventKeycode.GLFW_KEY_GRAVE_ACCENT;
+            case KEY_BACKSLASH: return ControlEventKeycode.GLFW_KEY_BACKSLASH;
+            case KEY_COMMA: return ControlEventKeycode.GLFW_KEY_COMMA;
+            case KEY_PERIOD: return ControlEventKeycode.GLFW_KEY_PERIOD;
+            case KEY_SLASH: return ControlEventKeycode.GLFW_KEY_SLASH;
+
+            case KEY_SPACE: return ControlEventKeycode.GLFW_KEY_SPACE;
+            case KEY_TAB: return ControlEventKeycode.GLFW_KEY_TAB;
+            case KEY_RETURN: return ControlEventKeycode.GLFW_KEY_ENTER;
+            case KEY_BACK: return ControlEventKeycode.GLFW_KEY_BACKSPACE;
+            case KEY_INSERT: return ControlEventKeycode.GLFW_KEY_INSERT;
+            case KEY_DELETE: return ControlEventKeycode.GLFW_KEY_DELETE;
+            case KEY_HOME: return ControlEventKeycode.GLFW_KEY_HOME;
+            case KEY_END: return ControlEventKeycode.GLFW_KEY_END;
+            case KEY_PRIOR: return ControlEventKeycode.GLFW_KEY_PAGE_UP;   // PageUp
+            case KEY_NEXT: return ControlEventKeycode.GLFW_KEY_PAGE_DOWN;  // PageDown
+
+            case KEY_UP: return ControlEventKeycode.GLFW_KEY_UP;
+            case KEY_DOWN: return ControlEventKeycode.GLFW_KEY_DOWN;
+            case KEY_LEFT: return ControlEventKeycode.GLFW_KEY_LEFT;
+            case KEY_RIGHT: return ControlEventKeycode.GLFW_KEY_RIGHT;
+
+            case KEY_F1: return ControlEventKeycode.GLFW_KEY_F1;
+            case KEY_F2: return ControlEventKeycode.GLFW_KEY_F2;
+            case KEY_F3: return ControlEventKeycode.GLFW_KEY_F3;
+            case KEY_F4: return ControlEventKeycode.GLFW_KEY_F4;
+            case KEY_F5: return ControlEventKeycode.GLFW_KEY_F5;
+            case KEY_F6: return ControlEventKeycode.GLFW_KEY_F6;
+            case KEY_F7: return ControlEventKeycode.GLFW_KEY_F7;
+            case KEY_F8: return ControlEventKeycode.GLFW_KEY_F8;
+            case KEY_F9: return ControlEventKeycode.GLFW_KEY_F9;
+            case KEY_F10: return ControlEventKeycode.GLFW_KEY_F10;
+            case KEY_F11: return ControlEventKeycode.GLFW_KEY_F11;
+            case KEY_F12: return ControlEventKeycode.GLFW_KEY_F12;
+            case KEY_F13: return ControlEventKeycode.GLFW_KEY_F13;
+            case KEY_F14: return ControlEventKeycode.GLFW_KEY_F14;
+            case KEY_F15: return ControlEventKeycode.GLFW_KEY_F15;
+            case KEY_F16: return ControlEventKeycode.GLFW_KEY_F16;
+            case KEY_F17: return ControlEventKeycode.GLFW_KEY_F17;
+            case KEY_F18: return ControlEventKeycode.GLFW_KEY_F18;
+            case KEY_F19: return ControlEventKeycode.GLFW_KEY_F19;
+
+            case KEY_LSHIFT: return ControlEventKeycode.GLFW_KEY_LEFT_SHIFT;
+            case KEY_RSHIFT: return ControlEventKeycode.GLFW_KEY_RIGHT_SHIFT;
+            case KEY_LCONTROL: return ControlEventKeycode.GLFW_KEY_LEFT_CONTROL;
+            case KEY_RCONTROL: return ControlEventKeycode.GLFW_KEY_RIGHT_CONTROL;
+            case KEY_LMENU: return ControlEventKeycode.GLFW_KEY_LEFT_ALT;
+            case KEY_RMENU: return ControlEventKeycode.GLFW_KEY_RIGHT_ALT;
+            case KEY_LMETA: return ControlEventKeycode.GLFW_KEY_LEFT_SUPER;   // Win / Meta
+            case KEY_RMETA: return ControlEventKeycode.GLFW_KEY_RIGHT_SUPER;  // Win / Meta
+
+            case KEY_CAPITAL: return ControlEventKeycode.GLFW_KEY_CAPS_LOCK;
+            case KEY_NUMLOCK: return ControlEventKeycode.GLFW_KEY_NUM_LOCK;
+            case KEY_SCROLL: return ControlEventKeycode.GLFW_KEY_SCROLL_LOCK;
+            case KEY_SYSRQ: return ControlEventKeycode.GLFW_KEY_PRINT_SCREEN;
+            case KEY_PAUSE: return ControlEventKeycode.GLFW_KEY_PAUSE;
+
+            case KEY_NUMPAD0: return ControlEventKeycode.GLFW_KEY_KP_0;
+            case KEY_NUMPAD1: return ControlEventKeycode.GLFW_KEY_KP_1;
+            case KEY_NUMPAD2: return ControlEventKeycode.GLFW_KEY_KP_2;
+            case KEY_NUMPAD3: return ControlEventKeycode.GLFW_KEY_KP_3;
+            case KEY_NUMPAD4: return ControlEventKeycode.GLFW_KEY_KP_4;
+            case KEY_NUMPAD5: return ControlEventKeycode.GLFW_KEY_KP_5;
+            case KEY_NUMPAD6: return ControlEventKeycode.GLFW_KEY_KP_6;
+            case KEY_NUMPAD7: return ControlEventKeycode.GLFW_KEY_KP_7;
+            case KEY_NUMPAD8: return ControlEventKeycode.GLFW_KEY_KP_8;
+            case KEY_NUMPAD9: return ControlEventKeycode.GLFW_KEY_KP_9;
+            case KEY_DECIMAL: return ControlEventKeycode.GLFW_KEY_KP_DECIMAL;
+            case KEY_DIVIDE: return ControlEventKeycode.GLFW_KEY_KP_DIVIDE;
+            case KEY_MULTIPLY: return ControlEventKeycode.GLFW_KEY_KP_MULTIPLY;
+            case KEY_SUBTRACT: return ControlEventKeycode.GLFW_KEY_KP_SUBTRACT;
+            case KEY_ADD: return ControlEventKeycode.GLFW_KEY_KP_ADD;
+            case KEY_NUMPADENTER: return ControlEventKeycode.GLFW_KEY_KP_ENTER;
+            case KEY_NUMPADEQUALS: return ControlEventKeycode.GLFW_KEY_KP_EQUAL;
+
+            case KEY_APPS: return ControlEventKeycode.GLFW_KEY_MENU;
+
+            case KEY_NONE:
+            case KEY_KANA:
+            case KEY_CONVERT:
+            case KEY_NOCONVERT:
+            case KEY_YEN:
+            case KEY_CIRCUMFLEX:
+            case KEY_AT:
+            case KEY_COLON:
+            case KEY_UNDERLINE:
+            case KEY_KANJI:
+            case KEY_STOP:
+            case KEY_AX:
+            case KEY_UNLABELED:
+            case KEY_SECTION:
+            case KEY_NUMPADCOMMA:
+            case KEY_POWER:
+            case KEY_SLEEP:
+            case KEY_FUNCTION:
+            case KEY_CLEAR:
+            default:
+                return ControlEventKeycode.GLFW_KEY_UNKNOWN;
+        }
+    }
 }

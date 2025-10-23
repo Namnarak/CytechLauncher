@@ -16,8 +16,10 @@ import kotlinx.coroutines.flow.update
 class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
     val uuid: String = layer.uuid
 
+    var editorHide by mutableStateOf(layer.hide)
+
     var name by mutableStateOf(layer.name)
-    var hide by mutableStateOf(layer.hide)
+    var hide by mutableStateOf(editorHide)
     var visibilityType by mutableStateOf(layer.visibilityType)
     
     private val _normalButtons = MutableStateFlow(layer.normalButtons.map { ObservableNormalData(it) })
@@ -90,7 +92,7 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
         return ControlLayer(
             name = name,
             uuid = uuid,
-            hide = hide,
+            hide = editorHide,
             visibilityType = visibilityType,
             normalButtons = _normalButtons.value.map { it.packNormal() },
             textBoxes = _textBoxes.value.map { it.packText() }

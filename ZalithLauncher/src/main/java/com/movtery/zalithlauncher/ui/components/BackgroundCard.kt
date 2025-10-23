@@ -38,3 +38,31 @@ fun BackgroundCard(
         content = content
     )
 }
+
+/**
+ * 背景卡片组件，
+ * 使用方式与原本的[Card]无异，但[BackgroundCard]配置了更舒适的背景颜色
+ */
+@Composable
+fun BackgroundCard(
+    modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.shape,
+    colors: CardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+        contentColor = MaterialTheme.colorScheme.onSurface
+    ),
+    elevation: CardElevation = CardDefaults.cardElevation(),
+    border: BorderStroke? = null,
+    onClick: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        onClick = onClick,
+        content = content
+    )
+}

@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -149,6 +150,9 @@ fun ModsUpdateOperation(
             )
         }
         is ModsUpdateOperation.Update -> {
+            LaunchedEffect(modsUpdater) {
+                if (modsUpdater == null) onUpdate(operation.mods)
+            }
             if (modsUpdater != null) {
                 val tasks = modsUpdater.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {
@@ -162,8 +166,6 @@ fun ModsUpdateOperation(
                         }
                     )
                 }
-            } else {
-                onUpdate(operation.mods)
             }
         }
         is ModsUpdateOperation.Error -> {
@@ -222,7 +224,6 @@ fun ModsUpdateOperation(
 @Composable
 fun ModsConfirmOperation(
     operation: ModsConfirmOperation,
-    changeOperation: (ModsConfirmOperation) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -232,11 +233,9 @@ fun ModsConfirmOperation(
             ModsUpdateListDialog(
                 data = operation.map.toList(),
                 onCancel = {
-                    changeOperation(ModsConfirmOperation.None)
                     onCancel()
                 },
                 onConfirm = {
-                    changeOperation(ModsConfirmOperation.None)
                     onConfirm()
                 }
             )

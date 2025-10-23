@@ -1,10 +1,12 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
@@ -320,12 +323,14 @@ fun InfoLayoutTextItem(
     title: String,
     onClick: () -> Unit,
     showArrow: Boolean = true,
+    selected: Boolean = false,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     InfoLayoutItem(
         modifier = modifier,
         onClick = onClick,
+        selected = selected,
         color = color,
         contentColor = contentColor
     ) {
@@ -351,15 +356,27 @@ fun InfoLayoutTextItem(
 fun InfoLayoutItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    selected: Boolean = false,
+    shape: Shape = MaterialTheme.shapes.large,
+    borderColor: Color = MaterialTheme.colorScheme.primary,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     content: @Composable RowScope.() -> Unit
 ) {
+    val borderWidth by animateDpAsState(
+        if (selected) 2.dp else (-1).dp
+    )
+
     Surface(
-        modifier = modifier,
+        modifier = modifier
+            .border(
+                width = borderWidth,
+                color = borderColor,
+                shape = shape
+            ),
         color = color,
         contentColor = contentColor,
-        shape = MaterialTheme.shapes.large,
+        shape = shape,
         shadowElevation = 1.dp,
         onClick = onClick
     ) {

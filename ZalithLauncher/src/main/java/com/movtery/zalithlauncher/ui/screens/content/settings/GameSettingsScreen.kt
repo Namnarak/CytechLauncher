@@ -45,18 +45,21 @@ fun GameSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.versionIsolation,
                         title = stringResource(R.string.settings_game_version_isolation_title),
                         summary = stringResource(R.string.settings_game_version_isolation_summary)
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.skipGameIntegrityCheck,
                         title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
                         summary = stringResource(R.string.settings_game_skip_game_integrity_check_summary)
                     )
 
                     TextInputSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.versionCustomInfo,
                         title = stringResource(R.string.settings_game_version_custom_info_title),
                         summary = stringResource(R.string.settings_game_version_custom_info_summary)
@@ -69,6 +72,7 @@ fun GameSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.javaRuntime,
                         items = RuntimesManager.getRuntimes().filter { it.isCompatible },
                         title = stringResource(R.string.settings_game_java_runtime_title),
@@ -78,12 +82,14 @@ fun GameSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.autoPickJavaRuntime,
                         title = stringResource(R.string.settings_game_auto_pick_java_runtime_title),
                         summary = stringResource(R.string.settings_game_auto_pick_java_runtime_summary)
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.ramAllocation,
                         title = stringResource(R.string.settings_game_java_memory_title),
                         summary = stringResource(R.string.settings_game_java_memory_summary),
@@ -107,6 +113,7 @@ fun GameSettingsScreen(
                     )
 
                     TextInputSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.jvmArgs,
                         title = stringResource(R.string.settings_game_jvm_args_title),
                         summary = stringResource(R.string.settings_game_jvm_args_summary)
@@ -119,12 +126,14 @@ fun GameSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.showLogAutomatic,
                         title = stringResource(R.string.settings_game_show_log_automatic_title),
                         summary = stringResource(R.string.settings_game_show_log_automatic_summary)
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.logTextSize,
                         title = stringResource(R.string.settings_game_log_text_size_title),
                         summary = stringResource(R.string.settings_game_log_text_size_summary),
@@ -134,6 +143,7 @@ fun GameSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.logBufferFlushInterval,
                         title = stringResource(R.string.settings_game_log_buffer_flush_interval_title),
                         summary = stringResource(R.string.settings_game_log_buffer_flush_interval_summary),

@@ -17,6 +17,7 @@ import com.movtery.layer_controller.observable.cloneText
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorOperation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.PreviewScenario
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -47,6 +48,11 @@ class EditorViewModel() : ViewModel() {
      * 是否为预览控制布局模式
      */
     var isPreviewMode by mutableStateOf(false)
+
+    /**
+     * 预览控制布局的场景
+     */
+    var previewScenario by mutableStateOf(PreviewScenario.InMenu)
 
 
 
@@ -145,6 +151,14 @@ class EditorViewModel() : ViewModel() {
      */
     fun removeStyle(style: ObservableButtonStyle) {
         observableLayout.removeStyle(style.uuid)
+    }
+
+    /**
+     * 将编辑器内层级隐藏状态同步到实际隐藏状态
+     * 供预览模式下使用正确的隐藏状态
+     */
+    fun applyEditorHide() {
+        observableLayout.applyEditorHide()
     }
 
     /**

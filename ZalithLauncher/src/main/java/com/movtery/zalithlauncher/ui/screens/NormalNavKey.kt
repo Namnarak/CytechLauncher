@@ -32,6 +32,8 @@ sealed interface NormalNavKey : NavKey {
         @Serializable data object Game : Settings
         /** 控制设置屏幕 */
         @Serializable data object Control : Settings
+        /** 手柄设置屏幕 */
+        @Serializable data object Gamepad : Settings
         /** 启动器设置屏幕 */
         @Serializable data object Launcher : Settings
         /** Java管理屏幕 */

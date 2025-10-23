@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.game.version.installed
 
 import android.content.Context
-import android.os.Parcel
 import android.os.Parcelable
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.context.GlobalContext
@@ -9,10 +8,9 @@ import com.movtery.zalithlauncher.game.path.getGameHome
 import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
-import com.movtery.zalithlauncher.utils.toBoolean
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import kotlin.math.min
 
@@ -24,23 +22,22 @@ import kotlin.math.min
  * @param isValid 版本的有效性
  * @param versionType 版本的类型
  */
+@Parcelize
 class Version(
     private val versionName: String,
     private val versionConfig: VersionConfig,
     private val versionInfo: VersionInfo?,
     private val isValid: Boolean,
-    val versionType: VersionType
-): Parcelable {
+    val versionType: VersionType,
     /**
      * 控制是否将当前账号视为离线账号启动游戏
      */
-    var offlineAccountLogin: Boolean = false
-
+    var offlineAccountLogin: Boolean = false,
     /**
      * 快速启动单人游戏（存档名），仅支持  1.20+  23w14a+
      */
     var quickPlaySingle: String? = null
-
+): Parcelable {
     /**
      * @return 获取版本所属的版本文件夹
      */
@@ -139,37 +136,4 @@ class Version(
     fun isTouchProxyEnabled(): Boolean = versionConfig.enableTouchProxy
 
     fun getTouchVibrateDuration(): Int? = versionConfig.touchVibrateDuration.takeIf { it >= 80 }
-
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(versionName)
-        dest.writeParcelable(versionConfig, flags)
-        dest.writeParcelable(versionInfo, flags)
-        dest.writeInt(isValid.getInt())
-        dest.writeInt(offlineAccountLogin.getInt())
-        dest.writeString(quickPlaySingle)
-        dest.writeString(versionType.name)
-    }
-
-    companion object CREATOR : Parcelable.Creator<Version> {
-        override fun createFromParcel(parcel: Parcel): Version {
-            val versionName = parcel.readString()!!
-            val versionConfig = parcel.readParcelable<VersionConfig>(VersionConfig::class.java.classLoader)!!
-            val versionInfo = parcel.readParcelable<VersionInfo?>(VersionInfo::class.java.classLoader)
-            val isValid = parcel.readInt().toBoolean()
-            val offlineAccount = parcel.readInt().toBoolean()
-            val quickPlaySingle = parcel.readString()
-            val versionType = VersionType.valueOf(parcel.readString()!!)
-
-            return Version(versionName, versionConfig, versionInfo, isValid, versionType).apply {
-                offlineAccountLogin = offlineAccount
-                this.quickPlaySingle = quickPlaySingle
-            }
-        }
-
-        override fun newArray(size: Int): Array<Version?> {
-            return arrayOfNulls(size)
-        }
-    }
 }
