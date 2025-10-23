@@ -15,9 +15,7 @@ interface PlatformDisplayLabel {
     fun index(): Int
 }
 
-interface ModLoaderDisplayLabel: Parcelable, PlatformDisplayLabel {
-    override fun describeContents(): Int = 0
-}
+interface ModLoaderDisplayLabel: Parcelable, PlatformDisplayLabel
 
 enum class PlatformClasses(
     val curseforge: CurseForgeClassID,

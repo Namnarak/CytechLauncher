@@ -1,15 +1,15 @@
 package com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.ModLoaderDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
+import kotlinx.parcelize.Parcelize
 
 /**
  * Modrinth 模组加载器类别
  */
+@Parcelize
 enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
     FABRIC {
         override fun facetValue(): String = "fabric"
@@ -67,22 +67,6 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
 
     override fun facetName(): String = "categories"
     override fun index(): Int = this.ordinal
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(name)
-    }
-
-    companion object CREATOR : Parcelable.Creator<ModrinthModLoaderCategory> {
-        override fun createFromParcel(parcel: Parcel): ModrinthModLoaderCategory {
-            return ModrinthModLoaderCategory.valueOf(
-                value = parcel.readString()!!
-            )
-        }
-
-        override fun newArray(size: Int): Array<out ModrinthModLoaderCategory?> {
-            return arrayOfNulls(size)
-        }
-    }
 }
 
 /**

@@ -1,22 +1,15 @@
 package com.movtery.zalithlauncher.game.version.installed
 
-import android.os.Parcel
 import android.os.Parcelable
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
-import com.movtery.zalithlauncher.utils.getInt
-import com.movtery.zalithlauncher.utils.toBoolean
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 class VersionInfo(
     val minecraftVersion: String,
     val quickPlay: QuickPlay,
     val loaderInfo: LoaderInfo?
 ): Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "",
-        parcel.readParcelable(QuickPlay::class.java.classLoader)!!,
-        parcel.readParcelable(LoaderInfo::class.java.classLoader)
-    )
-
     /**
      * 拼接Minecraft的版本信息，包括ModLoader信息
      * @return 用", "分割的信息字符串
@@ -59,15 +52,11 @@ class VersionInfo(
         val sub: Int
     )
 
+    @Parcelize
     data class LoaderInfo(
         val loader: ModLoader,
         val version: String
     ): Parcelable {
-        constructor(parcel: Parcel) : this(
-            ModLoader.valueOf(parcel.readString()!!),
-            parcel.readString() ?: ""
-        )
-
         /**
          * 通过加载器名称，获得对应的环境变量键名
          */
@@ -82,70 +71,12 @@ class VersionInfo(
                 else -> null
             }
         }
-
-        override fun describeContents(): Int = 0
-
-        override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.writeString(loader.name)
-            dest.writeString(version)
-        }
-
-        companion object CREATOR : Parcelable.Creator<LoaderInfo> {
-            override fun createFromParcel(parcel: Parcel): LoaderInfo {
-                return LoaderInfo(parcel)
-            }
-
-            override fun newArray(size: Int): Array<LoaderInfo?> {
-                return arrayOfNulls(size)
-            }
-        }
     }
 
+    @Parcelize
     data class QuickPlay(
         val hasQuickPlaysSupport: Boolean,
         val isQuickPlaySingleplayer: Boolean,
         val isQuickPlayMultiplayer: Boolean
-    ): Parcelable {
-        constructor(parcel: Parcel) : this(
-            parcel.readInt().toBoolean(),
-            parcel.readInt().toBoolean(),
-            parcel.readInt().toBoolean()
-        )
-
-        override fun describeContents(): Int = 0
-
-        override fun writeToParcel(dest: Parcel, flags: Int) {
-            dest.writeInt(hasQuickPlaysSupport.getInt())
-            dest.writeInt(isQuickPlaySingleplayer.getInt())
-            dest.writeInt(isQuickPlayMultiplayer.getInt())
-        }
-
-        companion object CREATOR : Parcelable.Creator<QuickPlay> {
-            override fun createFromParcel(parcel: Parcel): QuickPlay {
-                return QuickPlay(parcel)
-            }
-
-            override fun newArray(size: Int): Array<QuickPlay?> {
-                return arrayOfNulls(size)
-            }
-        }
-    }
-
-    override fun describeContents(): Int = 0
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeString(minecraftVersion)
-        dest.writeParcelable(quickPlay, flags)
-        dest.writeParcelable(loaderInfo, flags)
-    }
-
-    companion object CREATOR : Parcelable.Creator<VersionInfo> {
-        override fun createFromParcel(parcel: Parcel): VersionInfo {
-            return VersionInfo(parcel)
-        }
-
-        override fun newArray(size: Int): Array<VersionInfo?> {
-            return arrayOfNulls(size)
-        }
-    }
+    ): Parcelable
 }
