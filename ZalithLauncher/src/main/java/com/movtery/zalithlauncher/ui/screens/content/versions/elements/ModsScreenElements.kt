@@ -224,7 +224,6 @@ fun ModsUpdateOperation(
 @Composable
 fun ModsConfirmOperation(
     operation: ModsConfirmOperation,
-    changeOperation: (ModsConfirmOperation) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -234,11 +233,9 @@ fun ModsConfirmOperation(
             ModsUpdateListDialog(
                 data = operation.map.toList(),
                 onCancel = {
-                    changeOperation(ModsConfirmOperation.None)
                     onCancel()
                 },
                 onConfirm = {
-                    changeOperation(ModsConfirmOperation.None)
                     onConfirm()
                 }
             )

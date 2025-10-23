@@ -291,6 +291,7 @@ private class ModsUpdaterViewModel(
 ) : ViewModel() {
     var modsUpdateOperation by mutableStateOf<ModsUpdateOperation>(ModsUpdateOperation.None)
     var modsConfirmOperation by mutableStateOf<ModsConfirmOperation>(ModsConfirmOperation.None)
+        private set
 
     //等待用户确认模组更新
     private var waitingUserContinuation: (Continuation<Boolean>)? = null
@@ -443,7 +444,6 @@ fun ModsManagerScreen(
 
         ModsConfirmOperation(
             operation = updaterViewModel.modsConfirmOperation,
-            changeOperation = { updaterViewModel.modsConfirmOperation = it },
             onCancel = {
                 updaterViewModel.modsUserConfirm(false)
             },
