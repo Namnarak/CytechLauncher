@@ -9,6 +9,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
@@ -264,6 +265,14 @@ fun GamepadStickMovementListener(
         )
     }
 
+    val allAction = remember {
+        listOf(MOVEMENT_FORWARD, MOVEMENT_BACK, MOVEMENT_LEFT, MOVEMENT_RIGHT)
+    }
+
+    //缓存已按下的事件，目的是当游戏进入菜单后，能够清除状态
+    //避免回到游戏时出现一直移动的问题
+    val allPressEvent = remember { mutableStateSetOf<String>() }
+
     fun sendKeyEvent(
         mcKey: String,
         pressed: Boolean
@@ -278,6 +287,12 @@ fun GamepadStickMovementListener(
                 Lwjgl2Keycode.lwjgl2ToControlEvent(lwjgl2Code)
             }
         }?.let { event ->
+            if (pressed) {
+                allPressEvent.add(event)
+            } else {
+                allPressEvent.remove(event)
+            }
+
             currentOnKeyEvent(
                 ClickEvent(type = ClickEvent.Type.Key, event),
                 pressed
@@ -285,11 +300,26 @@ fun GamepadStickMovementListener(
         }
     }
 
+    fun clearPressedEvent() {
+        if (allPressEvent.isNotEmpty()) {
+            allPressEvent.forEach { event ->
+                currentOnKeyEvent(
+                    ClickEvent(type = ClickEvent.Type.Key, event),
+                    false
+                )
+            }
+            allPressEvent.clear()
+        }
+    }
+
     LaunchedEffect(gamepadViewModel) {
         gamepadViewModel.events
             .filterIsInstance<GamepadViewModel.Event.StickDirection>()
             .collect { event ->
-                if (!currentIsGrabbing) return@collect
+                if (!currentIsGrabbing) {
+                    clearPressedEvent()
+                    return@collect
+                }
 
                 val movementStick = when (joystickControlMode) {
                     JoystickMode.RightMovement -> JoystickType.Right
@@ -298,7 +328,7 @@ fun GamepadStickMovementListener(
 
                 if (event.joystickType != movementStick) return@collect
 
-                listOf(MOVEMENT_FORWARD, MOVEMENT_BACK, MOVEMENT_LEFT, MOVEMENT_RIGHT).forEach { key ->
+                allAction.forEach { key ->
                     sendKeyEvent(key, false)
                 }
 
