@@ -34,16 +34,54 @@ fun SettingsBackground(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        Column(
-            modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.large)
-                .padding(contentPadding)
-        ) {
-            val scope = remember { SettingsLayoutScope() }
+        SettingsLayout(contentPadding, content)
+    }
+}
 
-            with(scope) {
-                content()
-            }
+@Composable
+fun SettingsBackground(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    content: @Composable SettingsLayoutScope.() -> Unit
+) {
+    SettingsBackground(
+        modifier = modifier,
+        contentPadding = 8.dp,
+        onClick = onClick,
+        content = content
+    )
+}
+
+@Composable
+fun SettingsBackground(
+    modifier: Modifier = Modifier,
+    contentPadding: Dp,
+    onClick: () -> Unit,
+    content: @Composable SettingsLayoutScope.() -> Unit
+) {
+    BackgroundCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = onClick
+    ) {
+        SettingsLayout(contentPadding, content)
+    }
+}
+
+@Composable
+private fun SettingsLayout(
+    contentPadding: Dp,
+    content: @Composable SettingsLayoutScope.() -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .clip(shape = MaterialTheme.shapes.large)
+            .padding(contentPadding)
+    ) {
+        val scope = remember { SettingsLayoutScope() }
+
+        with(scope) {
+            content()
         }
     }
 }

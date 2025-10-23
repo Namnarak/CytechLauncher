@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,6 +63,9 @@ import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
 import com.movtery.zalithlauncher.ui.control.control.MinecraftHotbar
 import com.movtery.zalithlauncher.ui.control.control.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
+import com.movtery.zalithlauncher.ui.control.gamepad.GamepadKeyListener
+import com.movtery.zalithlauncher.ui.control.gamepad.GamepadStickMovementListener
+import com.movtery.zalithlauncher.ui.control.gamepad.SimpleGamepadCapture
 import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
@@ -82,6 +86,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.ControlEditor
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -271,7 +276,8 @@ fun GameScreen(
     surfaceOffset: Offset,
     incrementScreenOffset: (Offset) -> Unit,
     resetScreenOffset: () -> Unit,
-    eventViewModel: EventViewModel
+    eventViewModel: EventViewModel,
+    gamepadViewModel: GamepadViewModel
 ) {
     val context = LocalContext.current
     val viewModel = rememberGameViewModel(version)
@@ -350,24 +356,50 @@ fun GameScreen(
         )
 
         if (!viewModel.isEditingLayout) {
+            fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
+                val events = when (event.type) {
+                    ClickEvent.Type.Key -> viewModel.pressedKeyEvents
+                    ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
+                    else -> return
+                }
+                //获取当前已按下相同键值的按键个数
+                val count = (events[event.key] ?: 0).coerceAtLeast(0)
+                if (pressed) {
+                    events[event.key] = count + 1
+                } else if (count > 0) {
+                    events[event.key] = count - 1
+                }
+            }
+
+            if (gamepadViewModel.gamepadEngaged) {
+                //手柄事件监听
+                GamepadKeyListener(
+                    gamepadViewModel = gamepadViewModel,
+                    isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+                    onKeyEvent = { events, pressed ->
+                        events.fastForEach { event ->
+                            onKeyEvent(event, pressed)
+                        }
+                    }
+                )
+
+                //手柄摇杆控制移动事件监听
+                GamepadStickMovementListener(
+                    gamepadViewModel = gamepadViewModel,
+                    isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
+                    onKeyEvent = { event, pressed ->
+                        onKeyEvent(event, pressed)
+                    }
+                )
+            }
+
             ControlBoxLayout(
                 modifier = Modifier.fillMaxSize(),
                 observedLayout = viewModel.observableLayout,
                 checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
                 opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
                 onClickEvent = { event, pressed ->
-                    val events = when (event.type) {
-                        ClickEvent.Type.Key -> viewModel.pressedKeyEvents
-                        ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
-                        else -> return@ControlBoxLayout
-                    }
-                    //获取当前已按下相同键值的按键个数
-                    val count = (events[event.key] ?: 0).coerceAtLeast(0)
-                    if (pressed) {
-                        events[event.key] = count + 1
-                    } else if (count > 0) {
-                        events[event.key] = count - 1
-                    }
+                    onKeyEvent(event, pressed)
                 },
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
@@ -394,7 +426,8 @@ fun GameScreen(
                                 viewModel.moveOnlyPointers.remove(it)
                             },
                             onEnableControl = { viewModel.switchControl(true) },
-                            onDisableControl = { viewModel.switchControl(false) }
+                            onDisableControl = { viewModel.switchControl(false) },
+                            gamepadViewModel = gamepadViewModel
                         )
 
                         MinecraftHotbar(
@@ -424,6 +457,12 @@ fun GameScreen(
                     }
                 )
             }
+
+            //手柄事件捕获层
+            SimpleGamepadCapture(
+                gamepadViewModel = gamepadViewModel,
+                inGame = isGrabbing
+            )
         }
 
         //陀螺仪控制
@@ -603,7 +642,8 @@ private fun MouseControlLayout(
     onOccupiedPointer: (PointerId) -> Unit,
     onReleasePointer: (PointerId) -> Unit,
     onEnableControl: () -> Unit,
-    onDisableControl: () -> Unit
+    onDisableControl: () -> Unit,
+    gamepadViewModel: GamepadViewModel
 ) {
     Box(
         modifier = modifier
@@ -632,6 +672,7 @@ private fun MouseControlLayout(
             cursorMode = ZLBridgeStates.cursorMode,
             onTouch = onEnableControl,
             onMouse = onDisableControl,
+            gamepadViewModel = gamepadViewModel,
             onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
             },

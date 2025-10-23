@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("kotlinx-serialization")
+    id("kotlin-parcelize")
     id("stringfog")
 }
 apply(plugin = "stringfog")

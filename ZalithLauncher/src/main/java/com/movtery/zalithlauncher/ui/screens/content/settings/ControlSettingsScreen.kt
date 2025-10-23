@@ -104,6 +104,7 @@ fun ControlSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.physicalMouseMode,
                         title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
                         summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
@@ -245,6 +246,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.mouseSize,
                         title = stringResource(R.string.settings_control_mouse_size_title),
                         valueRange = 5f..50f,
@@ -259,6 +261,7 @@ fun ControlSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.hideMouse,
                         title = stringResource(R.string.settings_control_mouse_hide_title),
                         summary = stringResource(R.string.settings_control_mouse_hide_summary),
@@ -266,6 +269,7 @@ fun ControlSettingsScreen(
                     )
 
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.mouseControlMode,
                         items = MouseControlMode.entries,
                         title = stringResource(R.string.settings_control_mouse_control_mode_title),
@@ -274,6 +278,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.cursorSensitivity,
                         title = stringResource(R.string.settings_control_mouse_sensitivity_title),
                         summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
@@ -283,6 +288,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.mouseCaptureSensitivity,
                         title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
                         summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
@@ -292,6 +298,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.mouseLongPressDelay,
                         title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
                         summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
@@ -307,12 +314,14 @@ fun ControlSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gestureControl,
                         title = stringResource(R.string.settings_control_gesture_control_title),
                         summary = stringResource(R.string.settings_control_gesture_control_summary)
                     )
 
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gestureTapMouseAction,
                         items = GestureActionType.entries,
                         title = stringResource(R.string.settings_control_gesture_tap_action_title),
@@ -322,6 +331,7 @@ fun ControlSettingsScreen(
                     )
 
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gestureLongPressMouseAction,
                         items = GestureActionType.entries,
                         title = stringResource(R.string.settings_control_gesture_long_press_action_title),
@@ -331,6 +341,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gestureLongPressDelay,
                         title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
                         summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
@@ -353,6 +364,7 @@ fun ControlSettingsScreen(
                     }
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeControl,
                         title = stringResource(R.string.settings_control_gyroscope_title),
                         summary = stringResource(R.string.settings_control_gyroscope_summary),
@@ -377,6 +389,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeSensitivity,
                         title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
                         valueRange = 25f..300f,
@@ -386,6 +399,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeSampleRate,
                         title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
                         summary = stringResource(R.string.settings_control_gyroscope_sample_rate_summary),
@@ -396,6 +410,7 @@ fun ControlSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeSmoothing,
                         title = stringResource(R.string.settings_control_gyroscope_smoothing_title),
                         summary = stringResource(R.string.settings_control_gyroscope_smoothing_summary),
@@ -403,6 +418,7 @@ fun ControlSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeSmoothingWindow,
                         title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
                         summary = stringResource(R.string.settings_control_gyroscope_smoothing_window_summary),
@@ -411,6 +427,7 @@ fun ControlSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeInvertX,
                         title = stringResource(R.string.settings_control_gyroscope_invert_x_title),
                         summary = stringResource(R.string.settings_control_gyroscope_invert_x_summary),
@@ -418,6 +435,7 @@ fun ControlSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gyroscopeInvertY,
                         title = stringResource(R.string.settings_control_gyroscope_invert_y_title),
                         summary = stringResource(R.string.settings_control_gyroscope_invert_y_summary),

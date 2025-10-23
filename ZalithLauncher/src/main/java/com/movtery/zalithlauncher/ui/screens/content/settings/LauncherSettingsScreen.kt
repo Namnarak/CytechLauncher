@@ -1,13 +1,10 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.os.Build
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -34,7 +30,6 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
-import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
@@ -81,6 +76,7 @@ fun LauncherSettingsScreen(
                     )
 
                     EnumSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherColorTheme,
                         title = stringResource(R.string.settings_launcher_color_theme_title),
                         summary = stringResource(R.string.settings_launcher_color_theme_summary),
@@ -108,6 +104,7 @@ fun LauncherSettingsScreen(
                     )
 
                     SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherFullScreen,
                         title = stringResource(R.string.settings_launcher_full_screen_title),
                         summary = stringResource(R.string.settings_launcher_full_screen_summary),
@@ -125,6 +122,7 @@ fun LauncherSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherAnimateSpeed,
                         title = stringResource(R.string.settings_launcher_animate_speed_title),
                         summary = stringResource(R.string.settings_launcher_animate_speed_summary),
@@ -134,6 +132,7 @@ fun LauncherSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherAnimateExtent,
                         title = stringResource(R.string.settings_launcher_animate_extent_title),
                         summary = stringResource(R.string.settings_launcher_animate_extent_summary),
@@ -143,6 +142,7 @@ fun LauncherSettingsScreen(
                     )
 
                     EnumSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherSwapAnimateType,
                         title = stringResource(R.string.settings_launcher_swap_animate_type_title),
                         summary = stringResource(R.string.settings_launcher_swap_animate_type_summary),
@@ -160,6 +160,7 @@ fun LauncherSettingsScreen(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.fetchModLoaderSource,
                         items = MirrorSourceType.entries,
                         title = stringResource(R.string.settings_launcher_mirror_modloader_title),
@@ -167,6 +168,7 @@ fun LauncherSettingsScreen(
                     )
 
                     ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.fileDownloadSource,
                         items = MirrorSourceType.entries,
                         title = stringResource(R.string.settings_launcher_mirror_file_download_title),
@@ -174,6 +176,7 @@ fun LauncherSettingsScreen(
                     )
 
                     SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.launcherLogRetentionDays,
                         title = stringResource(R.string.settings_launcher_log_retention_days_title),
                         summary = stringResource(R.string.settings_launcher_log_retention_days_summary),
@@ -181,8 +184,10 @@ fun LauncherSettingsScreen(
                         suffix = stringResource(R.string.unit_day)
                     )
 
-                    ShareLogLayout(
+                    ClickableSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.settings_launcher_log_share_title),
+                        summary = stringResource(R.string.settings_launcher_log_share_summary),
                         onClick = {
                             TaskSystem.submitTask(
                                 Task.runTask(
@@ -246,24 +251,5 @@ private fun CustomColorOperation(
                 showAlpha = false
             )
         }
-    }
-}
-
-@Composable
-private fun ShareLogLayout(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
-) {
-    Column(
-        modifier = modifier
-            .clip(shape = RoundedCornerShape(22.0.dp))
-            .clickable(onClick = onClick)
-            .padding(all = 8.dp)
-            .padding(bottom = 4.dp)
-    ) {
-        TitleAndSummary(
-            title = stringResource(R.string.settings_launcher_log_share_title),
-            summary = stringResource(R.string.settings_launcher_log_share_summary)
-        )
     }
 }

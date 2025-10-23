@@ -418,7 +418,6 @@
     <string name="versions_manage_install_cannot_use_mc_name">Jangan gunakan nama vanila untuk versi yang dimodifikasi.</string>
     <string name="versions_manage_install_exists">Nama versi sudah ada!</string>
     <string name="versions_manage_invalid">Versi tidak valid</string>
-    <string name="versions_manage_isolation_enabled">Isolasi versi aktif</string>
     <string name="versions_manage_rename_version">Ganti Nama Versi</string>
     <string name="versions_manage_copy_version">Salin Versi</string>
     <string name="versions_manage_copy_version_tip">Salin versi ini dengan isolasi diaktifkan. Centang \"Salin Semua File\" untuk menyertakan sumber daya.</string>

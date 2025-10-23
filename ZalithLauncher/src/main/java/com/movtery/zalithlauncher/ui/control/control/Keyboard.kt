@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerScope
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
@@ -36,15 +39,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.ui.components.AutoSizeText
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
+import com.movtery.zalithlauncher.ui.control.gamepad.SPECIAL_KEY_MOUSE_SCROLL_DOWN
+import com.movtery.zalithlauncher.ui.control.gamepad.SPECIAL_KEY_MOUSE_SCROLL_UP
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 
 private data class TabItem(val title: String)
 
@@ -67,6 +75,198 @@ fun Keyboard(
         )
     }
 
+    KeyboardNavDialog(
+        tabs = tabs,
+        onDismissRequest = onDismissRequest
+    ) { page ->
+        when (page) {
+            0 -> {
+                MainKeyboardArea(
+                    modifier = Modifier.padding(all = 12.dp),
+                    isTapMode = isTapMode,
+                    onTap = onTap,
+                    onTouch = onTouch
+                )
+            }
+            1 -> {
+                EditingKeyboardArea(
+                    modifier = Modifier.padding(all = 12.dp),
+                    isTapMode = isTapMode,
+                    onTap = onTap,
+                    onTouch = onTouch
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 虚拟键盘对话框，展示一个包含主要按键的键盘，主要用于手柄键值绑定
+ * @param selectedKeys 当前键绑定的所有键值
+ * @param onKeyAdd 绑定新的键值
+ * @param onKeyRemove 解绑键值
+ */
+@Composable
+fun GamepadBindingKeyboard(
+    selectedKeys: List<String>,
+    onKeyAdd: (String) -> Unit,
+    onKeyRemove: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val tabs = remember {
+        listOf(
+            TabItem("①"),
+            TabItem("②"),
+            TabItem("③")
+        )
+    }
+
+    val currentSelectedKeys by rememberUpdatedState(selectedKeys)
+    val currentOnKeyAdd by rememberUpdatedState(onKeyAdd)
+    val currentOnKeyRemove by rememberUpdatedState(onKeyRemove)
+
+    var refreshed by remember { mutableStateOf(false) }
+
+    fun onKeyTap(key: String) {
+        if (currentSelectedKeys.contains(key)) currentOnKeyRemove(key)
+        else currentOnKeyAdd(key)
+        refreshed = refreshed.not()
+    }
+
+    KeyboardNavDialog(
+        tabs = tabs,
+        onDismissRequest = onDismissRequest
+    ) { page ->
+        when (page) {
+            0 -> {
+                MainKeyboardArea(
+                    modifier = Modifier.padding(all = 12.dp),
+                    isTapMode = true,
+                    onTap = { key ->
+                        onKeyTap(key)
+                    },
+                    onTouch = { _, _ -> },
+                    refreshed = refreshed,
+                    isSelected = { key ->
+                        currentSelectedKeys.contains(key)
+                    }
+                )
+            }
+            1 -> {
+                EditingKeyboardArea(
+                    modifier = Modifier.padding(all = 12.dp),
+                    isTapMode = true,
+                    onTap = { key ->
+                        onKeyTap(key)
+                    },
+                    onTouch = { _, _ -> },
+                    refreshed = refreshed,
+                    isSelected = { key ->
+                        currentSelectedKeys.contains(key)
+                    }
+                )
+            }
+            2 -> {
+                GamepadSpecialArea(
+                    onTap = { key ->
+                        onKeyTap(key)
+                    },
+                    refreshed = refreshed,
+                    isSelected = { key ->
+                        currentSelectedKeys.contains(key)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun GamepadSpecialArea(
+    modifier: Modifier = Modifier,
+    onTap: (String) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
+) {
+    LazyColumn(
+        modifier = modifier.padding(horizontal = 2.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(all = 12.dp)
+    ) {
+        //鼠标左键
+        item {
+            val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT) }
+            InfoLayoutTextItem(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_edit_event_launcher_mouse_left),
+                onClick = {
+                    onTap(ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT)
+                },
+                showArrow = false,
+                selected = selected
+            )
+        }
+        //鼠标中键
+        item {
+            val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_MIDDLE) }
+            InfoLayoutTextItem(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_edit_event_launcher_mouse_middle),
+                onClick = {
+                    onTap(ControlEventKeycode.GLFW_MOUSE_BUTTON_MIDDLE)
+                },
+                showArrow = false,
+                selected = selected
+            )
+        }
+        //鼠标右键
+        item {
+            val selected = remember(refreshed) { isSelected(ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT) }
+            InfoLayoutTextItem(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_edit_event_launcher_mouse_right),
+                onClick = {
+                    onTap(ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT)
+                },
+                showArrow = false,
+                selected = selected
+            )
+        }
+        //单次鼠标滚轮上
+        item {
+            val selected = remember(refreshed) { isSelected(SPECIAL_KEY_MOUSE_SCROLL_UP) }
+            InfoLayoutTextItem(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_up_single),
+                onClick = {
+                    onTap(SPECIAL_KEY_MOUSE_SCROLL_UP)
+                },
+                showArrow = false,
+                selected = selected
+            )
+        }
+        //单次鼠标滚轮下
+        item {
+            val selected = remember(refreshed) { isSelected(SPECIAL_KEY_MOUSE_SCROLL_DOWN) }
+            InfoLayoutTextItem(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_edit_event_launcher_mouse_scroll_down_single),
+                onClick = {
+                    onTap(SPECIAL_KEY_MOUSE_SCROLL_DOWN)
+                },
+                showArrow = false,
+                selected = selected
+            )
+        }
+    }
+}
+
+@Composable
+private fun KeyboardNavDialog(
+    tabs: List<TabItem>,
+    onDismissRequest: () -> Unit,
+    pageContent: @Composable (PagerScope.(Int) -> Unit)
+) {
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -116,100 +316,142 @@ fun Keyboard(
 
                     HorizontalPager(
                         state = pagerState,
-                        modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
-                    ) { page ->
-                        when (page) {
-                            0 -> {
-                                Column(
-                                    modifier = Modifier.padding(all = 12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    KeyboardMain01(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    KeyboardMain02(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    KeyboardMain03(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    KeyboardMain04(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    KeyboardMain05(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    KeyboardMain06(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                }
-                            }
-                            1 -> {
-                                Column(
-                                    modifier = Modifier.padding(all = 12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    Keyboard2Chunk01(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    Keyboard2Chunk02(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    Keyboard2Chunk03(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    Keyboard2Chunk04(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    Keyboard2Chunk05(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                    Keyboard2Chunk06(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        isTapMode = isTapMode,
-                                        onTap = onTap,
-                                        onTouch = onTouch
-                                    )
-                                }
-                            }
-                        }
-                    }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        pageContent = pageContent
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MainKeyboardArea(
+    modifier: Modifier = Modifier,
+    isTapMode: Boolean,
+    onTap: (String) -> Unit,
+    onTouch: (String, Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean = { false }
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        KeyboardMain01(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        KeyboardMain02(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        KeyboardMain03(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        KeyboardMain04(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        KeyboardMain05(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        KeyboardMain06(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+    }
+}
+
+@Composable
+private fun EditingKeyboardArea(
+    modifier: Modifier = Modifier,
+    isTapMode: Boolean,
+    onTap: (String) -> Unit,
+    onTouch: (String, Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean = { false }
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Keyboard2Chunk01(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        Keyboard2Chunk02(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        Keyboard2Chunk03(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        Keyboard2Chunk04(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        Keyboard2Chunk05(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
+        Keyboard2Chunk06(
+            modifier = Modifier.fillMaxWidth(),
+            isTapMode = isTapMode,
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
+        )
     }
 }
 
@@ -218,7 +460,9 @@ private fun KeyboardMain01(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -227,96 +471,135 @@ private fun KeyboardMain01(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Esc",
+            identifier = ControlEventKeycode.GLFW_KEY_ESCAPE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_ESCAPE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_ESCAPE, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         Spacer(modifier = Modifier.weight(0.6f))
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F1",
+            identifier = ControlEventKeycode.GLFW_KEY_F1,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F1) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F1, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F2",
+            identifier = ControlEventKeycode.GLFW_KEY_F2,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F2) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F2, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F3",
+            identifier = ControlEventKeycode.GLFW_KEY_F3,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F3) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F3, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F4",
+            identifier = ControlEventKeycode.GLFW_KEY_F4,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F4) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F4, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         Spacer(modifier = Modifier.weight(0.1f))
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F5",
+            identifier = ControlEventKeycode.GLFW_KEY_F5,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F5) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F5, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F6",
+            identifier = ControlEventKeycode.GLFW_KEY_F6,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F6) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F6, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F7",
+            identifier = ControlEventKeycode.GLFW_KEY_F7,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F7) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F7, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F8",
+            identifier = ControlEventKeycode.GLFW_KEY_F8,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F8) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F8, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         Spacer(modifier = Modifier.weight(0.1f))
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F9",
+            identifier = ControlEventKeycode.GLFW_KEY_F9,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F9) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F9, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F10",
+            identifier = ControlEventKeycode.GLFW_KEY_F10,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F10) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F10, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F11",
+            identifier = ControlEventKeycode.GLFW_KEY_F11,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F11) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F11, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F12",
+            identifier = ControlEventKeycode.GLFW_KEY_F12,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F12) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F12, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
     }
 }
@@ -326,7 +609,9 @@ private fun KeyboardMain02(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -335,100 +620,142 @@ private fun KeyboardMain02(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "`",
+            identifier = ControlEventKeycode.GLFW_KEY_GRAVE_ACCENT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_GRAVE_ACCENT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_GRAVE_ACCENT, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "1",
+            identifier = ControlEventKeycode.GLFW_KEY_1,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_1) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_1, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "2",
+            identifier = ControlEventKeycode.GLFW_KEY_2,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_2) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_2, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "3",
+            identifier = ControlEventKeycode.GLFW_KEY_3,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_3) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_3, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "4",
+            identifier = ControlEventKeycode.GLFW_KEY_4,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_4) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_4, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "5",
+            identifier = ControlEventKeycode.GLFW_KEY_5,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_5) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_5, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "6",
+            identifier = ControlEventKeycode.GLFW_KEY_6,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_6) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_6, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "7",
+            identifier = ControlEventKeycode.GLFW_KEY_7,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_7) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_7, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "8",
+            identifier = ControlEventKeycode.GLFW_KEY_8,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_8) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_8, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "9",
+            identifier = ControlEventKeycode.GLFW_KEY_9,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_9) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_9, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "0",
+            identifier = ControlEventKeycode.GLFW_KEY_0,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_0) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_0, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "-",
+            identifier = ControlEventKeycode.GLFW_KEY_MINUS,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_MINUS) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_MINUS, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "+",
+            identifier = ControlEventKeycode.GLFW_KEY_EQUAL,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_EQUAL) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_EQUAL, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1.5f),
             name = "Backspace",
+            identifier = ControlEventKeycode.GLFW_KEY_BACKSPACE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_BACKSPACE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_BACKSPACE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1.5f
         )
     }
@@ -439,7 +766,9 @@ private fun KeyboardMain03(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -448,101 +777,143 @@ private fun KeyboardMain03(
         KeyButton(
             modifier = Modifier.weight(1.3f),
             name = "Tab",
+            identifier = ControlEventKeycode.GLFW_KEY_TAB,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_TAB) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_TAB, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1.3f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Q",
+            identifier = ControlEventKeycode.GLFW_KEY_Q,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_Q) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_Q, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "W",
+            identifier = ControlEventKeycode.GLFW_KEY_W,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_W) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_W, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "E",
+            identifier = ControlEventKeycode.GLFW_KEY_E,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_E) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_E, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "R",
+            identifier = ControlEventKeycode.GLFW_KEY_R,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_R) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_R, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "T",
+            identifier = ControlEventKeycode.GLFW_KEY_T,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_T) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_T, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Y",
+            identifier = ControlEventKeycode.GLFW_KEY_Y,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_Y) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_Y, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "U",
+            identifier = ControlEventKeycode.GLFW_KEY_U,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_U) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_U, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "I",
+            identifier = ControlEventKeycode.GLFW_KEY_I,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_I) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_I, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "O",
+            identifier = ControlEventKeycode.GLFW_KEY_O,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_O) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_O, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "P",
+            identifier = ControlEventKeycode.GLFW_KEY_P,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_P) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_P, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "[",
+            identifier = ControlEventKeycode.GLFW_KEY_LEFT_BRACKET,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_LEFT_BRACKET) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_LEFT_BRACKET, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "]",
+            identifier = ControlEventKeycode.GLFW_KEY_RIGHT_BRACKET,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_RIGHT_BRACKET) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_RIGHT_BRACKET, it) }
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected
         )
         KeyButton(
             modifier = Modifier.weight(1.2f),
             name = "\\",
+            identifier = ControlEventKeycode.GLFW_KEY_BACKSLASH,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_BACKSLASH) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_BACKSLASH, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1.2f
         )
     }
@@ -553,7 +924,9 @@ private fun KeyboardMain04(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -562,105 +935,144 @@ private fun KeyboardMain04(
         KeyButton(
             modifier = Modifier.weight(1.4f),
             name = "Capslock",
+            identifier = ControlEventKeycode.GLFW_KEY_CAPS_LOCK,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_CAPS_LOCK) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_CAPS_LOCK, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1.4f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "A",
+            identifier = ControlEventKeycode.GLFW_KEY_A,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_A) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_A, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "S",
+            identifier = ControlEventKeycode.GLFW_KEY_S,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_S) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_S, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "D",
+            identifier = ControlEventKeycode.GLFW_KEY_D,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_D) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_D, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "F",
+            identifier = ControlEventKeycode.GLFW_KEY_F,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_F) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_F, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "G",
+            identifier = ControlEventKeycode.GLFW_KEY_G,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_G) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_G, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "H",
+            identifier = ControlEventKeycode.GLFW_KEY_H,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_H) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_H, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "J",
+            identifier = ControlEventKeycode.GLFW_KEY_J,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_J) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_J, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "K",
+            identifier = ControlEventKeycode.GLFW_KEY_K,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_K) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_K, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "L",
+            identifier = ControlEventKeycode.GLFW_KEY_L,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_L) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_L, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = ";",
+            identifier = ControlEventKeycode.GLFW_KEY_SEMICOLON,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_SEMICOLON) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_SEMICOLON, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "'",
+            identifier = ControlEventKeycode.GLFW_KEY_APOSTROPHE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_APOSTROPHE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_APOSTROPHE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(2.1f),
             name = "Enter",
+            identifier = ControlEventKeycode.GLFW_KEY_ENTER,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_ENTER) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_ENTER, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 2.1f
         )
     }
@@ -671,7 +1083,9 @@ private fun KeyboardMain05(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -680,97 +1094,133 @@ private fun KeyboardMain05(
         KeyButton(
             modifier = Modifier.weight(2f),
             name = "Shift",
+            identifier = ControlEventKeycode.GLFW_KEY_LEFT_SHIFT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_LEFT_SHIFT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_LEFT_SHIFT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 2f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Z",
+            identifier = ControlEventKeycode.GLFW_KEY_Z,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_Z) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_Z, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "X",
+            identifier = ControlEventKeycode.GLFW_KEY_X,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_X) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_X, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "C",
+            identifier = ControlEventKeycode.GLFW_KEY_C,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_C) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_C, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "V",
+            identifier = ControlEventKeycode.GLFW_KEY_V,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_V) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_V, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "B",
+            identifier = ControlEventKeycode.GLFW_KEY_B,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_B) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_B, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "N",
+            identifier = ControlEventKeycode.GLFW_KEY_N,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_N) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_N, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "M",
+            identifier = ControlEventKeycode.GLFW_KEY_M,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_M) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_M, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = ",",
+            identifier = ControlEventKeycode.GLFW_KEY_COMMA,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_COMMA) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_COMMA, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = ".",
+            identifier = ControlEventKeycode.GLFW_KEY_PERIOD,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_PERIOD) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_PERIOD, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "/",
+            identifier = ControlEventKeycode.GLFW_KEY_SLASH,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_SLASH) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_SLASH, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(2.2f),
             name = "Shift",
+            identifier = ControlEventKeycode.GLFW_KEY_RIGHT_SHIFT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_RIGHT_SHIFT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_RIGHT_SHIFT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 2.2f
         )
     }
@@ -781,7 +1231,9 @@ private fun KeyboardMain06(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -790,43 +1242,58 @@ private fun KeyboardMain06(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Ctrl",
+            identifier = ControlEventKeycode.GLFW_KEY_LEFT_CONTROL,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_LEFT_CONTROL) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_LEFT_CONTROL, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(1f))
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Alt",
+            identifier = ControlEventKeycode.GLFW_KEY_LEFT_ALT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_LEFT_ALT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_LEFT_ALT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(7f),
             name = "Space",
+            identifier = ControlEventKeycode.GLFW_KEY_SPACE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_SPACE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_SPACE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 7f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Alt",
+            identifier = ControlEventKeycode.GLFW_KEY_RIGHT_ALT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_RIGHT_ALT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_RIGHT_ALT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(2f), aspectRatio = 2f)
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Ctrl",
+            identifier = ControlEventKeycode.GLFW_KEY_RIGHT_CONTROL,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_RIGHT_CONTROL) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_RIGHT_CONTROL, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
     }
@@ -837,7 +1304,9 @@ private fun Keyboard2Chunk01(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -846,25 +1315,34 @@ private fun Keyboard2Chunk01(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Printf",
+            identifier = ControlEventKeycode.GLFW_KEY_PRINT_SCREEN,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_PRINT_SCREEN) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_PRINT_SCREEN, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Scroll",
+            identifier = ControlEventKeycode.GLFW_KEY_SCROLL_LOCK,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_SCROLL_LOCK) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_SCROLL_LOCK, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Pause",
+            identifier = ControlEventKeycode.GLFW_KEY_PAUSE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_PAUSE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_PAUSE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(12.2f), aspectRatio = 12.2f)
@@ -876,7 +1354,9 @@ private fun Keyboard2Chunk02(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -885,58 +1365,79 @@ private fun Keyboard2Chunk02(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Insert",
+            identifier = ControlEventKeycode.GLFW_KEY_INSERT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_INSERT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_INSERT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Home",
+            identifier = ControlEventKeycode.GLFW_KEY_HOME,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_HOME) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_HOME, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "PgUp",
+            identifier = ControlEventKeycode.GLFW_KEY_PAGE_UP,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_PAGE_UP) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_PAGE_UP, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(7.8f), aspectRatio = 7.8f)
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Num lk",
+            identifier = ControlEventKeycode.GLFW_KEY_NUM_LOCK,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_NUM_LOCK) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_NUM_LOCK, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "/",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_DIVIDE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_DIVIDE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_DIVIDE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "*",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_MULTIPLY,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_MULTIPLY) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_MULTIPLY, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "-",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_SUBTRACT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_SUBTRACT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_SUBTRACT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
     }
@@ -947,7 +1448,9 @@ private fun Keyboard2Chunk03(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -956,58 +1459,79 @@ private fun Keyboard2Chunk03(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Delete",
+            identifier = ControlEventKeycode.GLFW_KEY_DELETE,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_DELETE) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_DELETE, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "End",
+            identifier = ControlEventKeycode.GLFW_KEY_END,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_END) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_END, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "PgDn",
+            identifier = ControlEventKeycode.GLFW_KEY_PAGE_DOWN,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_PAGE_DOWN) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_PAGE_DOWN, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(7.8f), aspectRatio = 7.8f)
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "7",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_7,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_7) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_7, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "8",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_8,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_8) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_8, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "9",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_9,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_9) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_9, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "+",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_ADD,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_ADD) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_ADD, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
     }
@@ -1018,7 +1542,9 @@ private fun Keyboard2Chunk04(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -1028,25 +1554,34 @@ private fun Keyboard2Chunk04(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "4",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_4,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_4) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_4, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "5",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_5,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_5) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_5, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "6",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_6,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_6) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_6, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(1f))
@@ -1058,7 +1593,9 @@ private fun Keyboard2Chunk05(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -1068,42 +1605,57 @@ private fun Keyboard2Chunk05(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "↑",
+            identifier = ControlEventKeycode.GLFW_KEY_UP,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_UP) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_UP, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(8.8f), aspectRatio = 8.8f)
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "1",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_1,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_1) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_1, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "2",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_2,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_2) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_2, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "3",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_3,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_3) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_3, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "Enter",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_ENTER,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_ENTER) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_ENTER, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
     }
@@ -1114,7 +1666,9 @@ private fun Keyboard2Chunk06(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (key: String) -> Unit,
-    onTouch: (key: String, pressed: Boolean) -> Unit
+    onTouch: (key: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean
 ) {
     Row(
         modifier = modifier.height(IntrinsicSize.Min),
@@ -1123,42 +1677,57 @@ private fun Keyboard2Chunk06(
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "←",
+            identifier = ControlEventKeycode.GLFW_KEY_LEFT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_LEFT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_LEFT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "↓",
+            identifier = ControlEventKeycode.GLFW_KEY_DOWN,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_DOWN) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_DOWN, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "→",
+            identifier = ControlEventKeycode.GLFW_KEY_RIGHT,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_RIGHT) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_RIGHT, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(8.8f), aspectRatio = 8.8f)
         KeyButton(
             modifier = Modifier.weight(1f),
             name = "0",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_0,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_0) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_0, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         KeyButton(
             modifier = Modifier.weight(1f),
             name = ".",
+            identifier = ControlEventKeycode.GLFW_KEY_KP_DECIMAL,
             isTapMode = isTapMode,
-            onTap = { onTap(ControlEventKeycode.GLFW_KEY_KP_DECIMAL) },
-            onTouch = { onTouch(ControlEventKeycode.GLFW_KEY_KP_DECIMAL, it) },
+            onTap = onTap,
+            onTouch = onTouch,
+            refreshed = refreshed,
+            isSelected = isSelected,
             aspectRatio = 1f
         )
         EmptyButton(modifier = Modifier.weight(1f))
@@ -1172,9 +1741,12 @@ private fun Keyboard2Chunk06(
 private fun KeyButton(
     modifier: Modifier = Modifier,
     name: String,
+    identifier: String,
     isTapMode: Boolean,
-    onTap: () -> Unit,
-    onTouch: (pressed: Boolean) -> Unit,
+    onTap: (identifier: String) -> Unit,
+    onTouch: (identifier: String, pressed: Boolean) -> Unit,
+    refreshed: Any? = null,
+    isSelected: (String) -> Boolean,
     color: Color = itemLayoutColorOnSurface(3.dp),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shape: Shape = MaterialTheme.shapes.medium,
@@ -1186,11 +1758,13 @@ private fun KeyButton(
     /**
      * 当前按钮是否为按下的状态
      */
+    val isSelected = remember(refreshed) { isSelected(identifier) }
     var pressed by remember { mutableStateOf(false) }
+    val currentOnTap by rememberUpdatedState(onTap)
     val currentOnTouch by rememberUpdatedState(onTouch)
 
     val borderWidth by animateDpAsState(
-        if (pressed) 2.dp
+        if (pressed || isSelected) 2.dp
         else (-1).dp
     )
 
@@ -1202,16 +1776,16 @@ private fun KeyButton(
                     onPress = {
                         pressed = true
                         //点击模式不处理触摸事件
-                        if (!isTapMode) currentOnTouch(true)
+                        if (!isTapMode) currentOnTouch(identifier, true)
 
                         //等待松开
                         tryAwaitRelease()
 
                         pressed = false
-                        if (!isTapMode) currentOnTouch(false)
+                        if (!isTapMode) currentOnTouch(identifier, false)
                     },
                     onTap = {
-                        if (isTapMode) onTap()
+                        if (isTapMode) currentOnTap(identifier)
                     }
                 )
             }

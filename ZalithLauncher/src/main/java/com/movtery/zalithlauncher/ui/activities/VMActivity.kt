@@ -60,6 +60,7 @@ import com.movtery.zalithlauncher.utils.getParcelableSafely
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,6 +76,10 @@ private var isRunning = false
 
 class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     private val eventViewModel: EventViewModel by viewModels()
+    /**
+     * 手柄状态存储 ViewModel
+     */
+    private val gamepadViewModel: GamepadViewModel by viewModels()
 
     private var mTextureView: TextureView? = null
 
@@ -121,8 +126,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     context = this,
                     version = version,
                     eventViewModel = eventViewModel,
+                    gamepadViewModel = gamepadViewModel,
                     getWindowSize = getWindowSize,
-                    gameLauncher = launcher,
+                    gameLauncher = launcher
                 ) { code ->
                     exitListener(code, false)
                 }
