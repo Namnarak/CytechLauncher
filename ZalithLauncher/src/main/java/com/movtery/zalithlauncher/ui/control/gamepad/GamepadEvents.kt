@@ -106,17 +106,21 @@ fun SimpleGamepadCapture(
         }
     }
 
-    val inGame1 by rememberUpdatedState(inGame)
+    val currentInGame by rememberUpdatedState(inGame)
     LaunchedEffect(isBinding, gamepadViewModel.gamepadEngaged) {
-        if (!isBinding && gamepadViewModel.gamepadEngaged) {
-            while (true) {
-                try {
-                    ensureActive()
-                    gamepadViewModel.pollJoystick(inGame1)
-                    delay(16L) //~60fps
-                } catch (_: CancellationException) {
-                    break
-                }
+        while (true) {
+            try {
+                ensureActive()
+                if (isBinding) break
+
+                //检查手柄活动状态
+                val pollLevel = gamepadViewModel.checkGamepadActive()
+                if (pollLevel == GamepadViewModel.PollLevel.Close) break
+
+                gamepadViewModel.pollJoystick(currentInGame)
+                delay(pollLevel.delayMs)
+            } catch (_: CancellationException) {
+                break
             }
         }
     }

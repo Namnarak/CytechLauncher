@@ -53,7 +53,50 @@ class GamepadViewModel() : ViewModel() {
      * 手柄是否已经操作过，控制是否进行持续事件输出
      */
     var gamepadEngaged by mutableStateOf(false)
+        private set
 
+    /**
+     * 上一次活动时间
+     */
+    private var lastActivityTime: Long = System.nanoTime()
+
+    /**
+     * 当前轮询频率等级
+     */
+    private var pollLevel: PollLevel = PollLevel.Close
+
+    /**
+     * 检查并更新手柄是否活动中
+     * @return true 表示手柄仍在活动状态，false 表示进入挂机状态
+     */
+    fun checkGamepadActive(): PollLevel {
+        val currentTime = System.nanoTime()
+        val elapsedTime = currentTime - lastActivityTime
+        pollLevel = when {
+            //10秒内有活动，保持或升到High等级
+            elapsedTime < 10 * 1_000_000_000L -> PollLevel.High
+            //10-20秒无活动，降到Low等级
+            elapsedTime < 20 * 1_000_000_000L -> PollLevel.Low
+            //超过20秒无活动，降到Close等级
+            else -> PollLevel.Close
+        }
+        gamepadEngaged = pollLevel != PollLevel.Close
+
+        return pollLevel
+    }
+
+    /**
+     * 记录手柄活动时间
+     */
+    private fun recordActivity() {
+        lastActivityTime = System.nanoTime()
+        // 如果之前是挂机状态，现在恢复活动
+        if (!gamepadEngaged) {
+            gamepadEngaged = true
+            // 活动时立即提升到High等级
+            pollLevel = PollLevel.High
+        }
+    }
 
     fun reloadAllMappings() {
         allKeyMappings.clear()
@@ -167,11 +210,12 @@ class GamepadViewModel() : ViewModel() {
 
 
     fun updateButton(code: Int, state: Boolean) {
+        recordActivity() //记录按钮操作活动
         sendEvent(Event.Button(code, state))
     }
 
     fun updateMotion(axisCode: Int, value: Float) {
-        gamepadEngaged = true
+        recordActivity() //记录摇杆操作活动
         //更新摇杆状态
         when (axisCode) {
             GamepadRemap.MotionX.code -> leftJoystick.updateState(horizontal = value)
@@ -199,6 +243,7 @@ class GamepadViewModel() : ViewModel() {
         val last = dpadState[direction] ?: false
         if (last != pressed) {
             dpadState[direction] = pressed
+            recordActivity() //记录方向键操作活动
             sendEvent(Event.Dpad(direction, pressed))
         }
     }
@@ -252,5 +297,25 @@ class GamepadViewModel() : ViewModel() {
          * @param direction 方向
          */
         data class Dpad(val direction: DpadDirection, val pressed: Boolean) : Event
+    }
+
+    enum class PollLevel(val delayMs: Long) {
+        /**
+         * 高轮询等级：16ms延迟 ≈ 60fps
+         * 在10秒内有操作时保持此等级
+         */
+        High(16L),
+
+        /**
+         * 低轮询等级：200ms延迟
+         * 在10-20秒无操作时降到此等级
+         */
+        Low(200L),
+
+        /**
+         * 不进行轮询
+         * 超过20秒无操作时降到此等级
+         */
+        Close(10000L);
     }
 }
