@@ -2,10 +2,10 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,15 +23,14 @@ import androidx.compose.material.icons.outlined.VideoSettings
 import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -122,16 +121,15 @@ private fun TabMenu(
         isHorizontal = true
     )
 
-    NavigationRail(
+    Column(
         modifier = modifier
             .width(IntrinsicSize.Min)
             .padding(start = 8.dp)
             .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
             .verticalScroll(rememberScrollState()),
-        containerColor = Color.Transparent,
-        windowInsets = WindowInsets(0)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         settingItems.forEach { item ->
             if (item.division) {
                 HorizontalDivider(
