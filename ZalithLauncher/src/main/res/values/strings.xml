@@ -596,6 +596,7 @@
     <string name="mods_manage_version">Mod Version: %s</string>
     <string name="mods_manage_delete_warning">Are you sure you want to delete the mod %s? This action cannot be undone!</string>
     <string name="mods_manage_no_mods">No mods for this version</string>
+    <string name="mods_manage_no_loader">No mod loader for the current version, mods cannot be used</string>
     <string name="mods_update">Update Mods</string>
     <string name="mods_update_warning_1">Before checking for mod updates, please note that updating a large number of mods at once may cause compatibility issues, making a previously working game suddenly unusable.</string>
     <string name="mods_update_warning_2">The launcher currently does not provide a mod changelog feature. You need to review mod update details yourself to ensure functionality after updating.</string>

@@ -595,6 +595,7 @@
     <string name="mods_manage_version">模组版本：%s</string>
     <string name="mods_manage_delete_warning">您确定要删除模组 %s 吗？该操作不可撤销！</string>
     <string name="mods_manage_no_mods">当前版本还没有模组</string>
+    <string name="mods_manage_no_loader">当前版本无模组加载器，无法使用模组</string>
     <string name="mods_update">更新模组</string>
     <string name="mods_update_warning_1">开始检查更新模组之前，您需要了解，一次性更新大量模组可能带来兼容性问题，导致原本可以正常运行的游戏突然不能正常使用。</string>
     <string name="mods_update_warning_2">启动器暂不提供模组更新日志功能，您需要自行了解模组更新了什么内容，以确保更新后能够正常使用。</string>

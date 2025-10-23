@@ -553,6 +553,7 @@
     <string name="mods_manage_version">模組版本：%s</string>
     <string name="mods_manage_delete_warning">您確定要刪除模組 %s 嗎？該操作不可撤銷！</string>
     <string name="mods_manage_no_mods">目前版本尚無模組</string>
+    <string name="mods_manage_no_loader">當前版本無模組載入器，無法使用模組</string>
     <string name="mods_update">更新模組</string>
     <string name="mods_update_warning_1">在開始檢查模組更新之前，您需要了解，一次性更新大量模組可能會帶來相容性問題，導致原本可以正常運行的遊戲突然無法使用。</string>
     <string name="mods_update_warning_2">啟動器暫不提供模組更新日誌功能，您需要自行了解模組更新了哪些內容，以確保更新後能夠正常使用。</string>

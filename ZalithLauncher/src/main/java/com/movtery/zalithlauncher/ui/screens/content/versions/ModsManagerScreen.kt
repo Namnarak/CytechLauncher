@@ -501,7 +501,7 @@ fun ModsManagerScreen(
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
                             //模组加载器信息已确认的情况下，才能够确保模组能够正常更新
-                            canUpdateMods = version.getVersionInfo()?.loaderInfo != null,
+                            hasModLoader = version.getVersionInfo()?.loaderInfo != null,
                             onUpdateMods = {
                                 if (
                                     updaterViewModel.modsUpdateOperation == ModsUpdateOperation.None &&
@@ -589,7 +589,7 @@ private fun ModsActionsHeader(
     inputFieldContentColor: Color,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit,
-    canUpdateMods: Boolean,
+    hasModLoader: Boolean,
     onUpdateMods: () -> Unit,
     modsDir: File,
     onDeleteAll: () -> Unit,
@@ -612,7 +612,11 @@ private fun ModsActionsHeader(
                     onValueChange = { onNameFilterChange(it) },
                     hint = {
                         Text(
-                            text = stringResource(R.string.generic_search),
+                            text = if (hasModLoader) {
+                                stringResource(R.string.generic_search)
+                            } else {
+                                stringResource(R.string.mods_manage_no_loader)
+                            },
                             style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
                         )
                     },
@@ -626,7 +630,7 @@ private fun ModsActionsHeader(
                     visible = isModsSelected
                 ) {
                     Row {
-                        if (canUpdateMods) {
+                        if (hasModLoader) {
                             IconButton(
                                 onClick = onUpdateMods
                             ) {
