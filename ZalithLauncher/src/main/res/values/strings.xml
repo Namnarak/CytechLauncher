@@ -873,6 +873,8 @@
     <string name="control_editor_layers_attribute">Control Layer Attributes</string>
     <string name="control_editor_layers_attribute_name">Control Layer Name</string>
     <string name="control_editor_layers_attribute_hide">Hide Control Layer by Default</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">Keep visible when using mouse</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">Keep visible when using gamepad</string>
     <string name="control_editor_layers_merge_downward">Merge Control Downward</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>

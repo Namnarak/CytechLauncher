@@ -120,6 +120,22 @@ fun EditControlLayerDialog(
                             onValueChange = { layer.editorHide = it }
                         )
 
+                        //在实体鼠标操作时不隐藏
+                        InfoLayoutSwitchItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_editor_layers_attribute_hide_when_mouse),
+                            value = layer.hideWhenMouse.not(),
+                            onValueChange = { layer.hideWhenMouse = it.not() }
+                        )
+
+                        //在手柄操作时不隐藏
+                        InfoLayoutSwitchItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.control_editor_layers_attribute_hide_when_gamepad),
+                            value = layer.hideWhenGamepad.not(),
+                            onValueChange = { layer.hideWhenGamepad = it.not() }
+                        )
+
                         //合并控件至下层
                         InfoLayoutTextItem(
                             modifier = Modifier.fillMaxWidth(),

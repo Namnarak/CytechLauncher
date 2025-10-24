@@ -161,6 +161,7 @@ fun SwitchableMouseLayout(
                     updateMousePointer(false)
                     onCapturedMove(offset)
                 } else {
+                    updateMousePointer(true)
                     val newOffset = Offset(
                         x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
                         y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)

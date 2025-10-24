@@ -20,6 +20,8 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
 
     var name by mutableStateOf(layer.name)
     var hide by mutableStateOf(editorHide)
+    var hideWhenMouse by mutableStateOf(layer.hideWhenMouse)
+    var hideWhenGamepad by mutableStateOf(layer.hideWhenGamepad)
     var visibilityType by mutableStateOf(layer.visibilityType)
     
     private val _normalButtons = MutableStateFlow(layer.normalButtons.map { ObservableNormalData(it) })
@@ -93,6 +95,8 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
             name = name,
             uuid = uuid,
             hide = editorHide,
+            hideWhenMouse = hideWhenMouse,
+            hideWhenGamepad = hideWhenGamepad,
             visibilityType = visibilityType,
             normalButtons = _normalButtons.value.map { it.packNormal() },
             textBoxes = _textBoxes.value.map { it.packText() }

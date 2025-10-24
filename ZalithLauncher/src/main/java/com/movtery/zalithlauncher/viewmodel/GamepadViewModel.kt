@@ -67,7 +67,7 @@ class GamepadViewModel() : ViewModel() {
 
     /**
      * 检查并更新手柄是否活动中
-     * @return true 表示手柄仍在活动状态，false 表示进入挂机状态
+     * @return 当前轮询频率等级
      */
     fun checkGamepadActive(): PollLevel {
         val currentTime = System.nanoTime()

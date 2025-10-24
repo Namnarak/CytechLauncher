@@ -50,7 +50,7 @@ import kotlin.math.sqrt
  * @param opacity 控制布局画布整体不透明度 0f~1f
  * @param onClickEvent 控制按键点击事件回调（切换层级事件已优先处理）
  * @param markPointerAsMoveOnly 标记指针为仅接受滑动处理
- * @param enabled 是否启用
+ * @param hideLayerWhen 根据情况决定是否隐藏指定控件层
  */
 @Composable
 fun ControlBoxLayout(
@@ -61,7 +61,7 @@ fun ControlBoxLayout(
     @FloatRange(0.0, 1.0) opacity: Float = 1f,
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit = { _, _ -> },
     markPointerAsMoveOnly: (PointerId) -> Unit = {},
-    enabled: Boolean = true,
+    hideLayerWhen: HideLayerWhen = HideLayerWhen.None,
     content: @Composable BoxScope.() -> Unit
 ) {
     when {
@@ -87,7 +87,7 @@ fun ControlBoxLayout(
                         onClickEvent = onClickEvent,
                         markPointerAsMoveOnly = markPointerAsMoveOnly,
                         isCursorGrabbing = isCursorGrabbing,
-                        enabled = enabled,
+                        hideLayerWhen = hideLayerWhen,
                         content = content
                     )
                 }
@@ -108,7 +108,7 @@ private fun BaseControlBoxLayout(
     onClickEvent: (event: ClickEvent, pressed: Boolean) -> Unit,
     markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
-    enabled: Boolean,
+    hideLayerWhen: HideLayerWhen,
     content: @Composable BoxScope.() -> Unit
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
@@ -122,6 +122,7 @@ private fun BaseControlBoxLayout(
     val onClickEvent1 by rememberUpdatedState(onClickEvent)
     val checkOccupiedPointers1 by rememberUpdatedState(checkOccupiedPointers)
     val isCursorGrabbing1 by rememberUpdatedState(isCursorGrabbing)
+    val hideLayerWhen1 by rememberUpdatedState(hideLayerWhen)
 
     val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
 
@@ -158,9 +159,9 @@ private fun BaseControlBoxLayout(
 
     Box(
         modifier = modifier
-            .pointerInput(layers, sizes, enabled) {
+            .pointerInput(layers, sizes, hideLayerWhen) {
                 awaitPointerEventScope {
-                    while (enabled) {
+                    while (true) {
                         val event = awaitPointerEvent(pass = PointerEventPass.Initial)
 
                         event.changes.forEach { change ->
@@ -170,7 +171,14 @@ private fun BaseControlBoxLayout(
 
                             //在可见控件层中，收集所有可见的按钮
                             val visibleWidgets = layers1 //使用原始控件层顺序，保证触摸逻辑正常
-                                .filter { !it.hide && checkVisibility(isCursorGrabbing1, it.visibilityType) }
+                                .filter {
+                                    checkLayerVisibility(
+                                        layer = it,
+                                        hideLayerWhen = hideLayerWhen1,
+                                        isCursorGrabbing = isCursorGrabbing1,
+                                        visibilityType = it.visibilityType
+                                    )
+                                }
                                 .flatMap { layer ->
                                     //顶向下的顺序影响控件层的处理优先级
                                     layer.normalButtons.value.reversed()
@@ -298,19 +306,18 @@ private fun BaseControlBoxLayout(
     ) {
         content()
 
-        if (enabled) {
-            ControlsRendererLayer(
-                opacity = opacity,
-                layers = layers,
-                styles = styles,
-                sizes = sizes,
-                applySize = { data, size ->
-                    sizes[data] = size
-                },
-                screenSize = screenSize,
-                isCursorGrabbing = isCursorGrabbing1
-            )
-        }
+        ControlsRendererLayer(
+            opacity = opacity,
+            layers = layers,
+            styles = styles,
+            sizes = sizes,
+            applySize = { data, size ->
+                sizes[data] = size
+            },
+            screenSize = screenSize,
+            isCursorGrabbing = isCursorGrabbing1,
+            hideLayerWhen = hideLayerWhen1
+        )
     }
 }
 
@@ -322,14 +329,20 @@ private fun ControlsRendererLayer(
     sizes: Map<ObservableWidget, IntSize>,
     applySize: (ObservableWidget, IntSize) -> Unit,
     screenSize: IntSize,
-    isCursorGrabbing: Boolean
+    isCursorGrabbing: Boolean,
+    hideLayerWhen: HideLayerWhen
 ) {
     Layout(
         modifier = Modifier.alpha(alpha = opacity),
         content = {
             //按图层顺序渲染所有可见的控件
             layers.forEach { layer ->
-                val layerVisibility = !layer.hide && checkVisibility(isCursorGrabbing, layer.visibilityType)
+                val layerVisibility = checkLayerVisibility(
+                    layer = layer,
+                    hideLayerWhen = hideLayerWhen,
+                    isCursorGrabbing = isCursorGrabbing,
+                    visibilityType = layer.visibilityType
+                )
                 val normalButtons by layer.normalButtons.collectAsState()
                 val textBoxes by layer.textBoxes.collectAsState()
 
@@ -421,6 +434,21 @@ private fun ControlsRendererLayer(
             }
         }
     }
+}
+
+private fun checkLayerVisibility(
+    layer: ObservableControlLayer,
+    hideLayerWhen: HideLayerWhen,
+    isCursorGrabbing: Boolean,
+    visibilityType: VisibilityType
+): Boolean {
+    val baseVisibility = !layer.hide && checkVisibility(isCursorGrabbing, visibilityType)
+    val visible = when (hideLayerWhen) {
+        HideLayerWhen.WhenMouse -> !layer.hideWhenMouse
+        HideLayerWhen.WhenGamepad -> !layer.hideWhenGamepad
+        HideLayerWhen.None -> true
+    }
+    return baseVisibility && visible
 }
 
 /**
