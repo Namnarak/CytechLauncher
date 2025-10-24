@@ -12,15 +12,6 @@ import kotlin.math.sin
 
 private const val MOUSE_MAX_ACCELERATION = 2.0
 
-//W
-const val MOVEMENT_FORWARD = "key_key.forward"
-//A
-const val MOVEMENT_LEFT = "key_key.left"
-//S
-const val MOVEMENT_BACK = "key_key.back"
-//D
-const val MOVEMENT_RIGHT = "key_key.right"
-
 /**
  * 摇杆横轴、纵轴偏移量状态
  */
@@ -105,18 +96,18 @@ class Joystick(
     /**
      * 摇杆当前方向
      */
-    enum class Direction(val movement: List<String>) {
-        East(listOf(MOVEMENT_RIGHT)),
-        NorthEast(listOf(MOVEMENT_FORWARD, MOVEMENT_RIGHT)),
-        North(listOf(MOVEMENT_FORWARD)),
-        NorthWest(listOf(MOVEMENT_FORWARD, MOVEMENT_LEFT)),
-        West(listOf(MOVEMENT_LEFT)),
-        SouthWest(listOf(MOVEMENT_BACK, MOVEMENT_LEFT)),
-        South(listOf(MOVEMENT_BACK)),
-        SouthEast(listOf(MOVEMENT_BACK, MOVEMENT_RIGHT)),
+    enum class Direction {
+        East,
+        NorthEast,
+        North,
+        NorthWest,
+        West,
+        SouthWest,
+        South,
+        SouthEast,
         /**
          * 无方向
          */
-        None(emptyList())
+        None
     }
 }
