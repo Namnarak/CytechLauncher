@@ -884,6 +884,8 @@
     <string name="control_editor_menu_preview_mode_scenario">預覽場景</string>
     <string name="control_editor_menu_preview_mode_in_game">遊戲內</string>
     <string name="control_editor_menu_preview_mode_in_menu">遊戲外</string>
+    <string name="control_editor_menu_preview_is_mouse">正在使用實體滑鼠</string>
+    <string name="control_editor_menu_preview_is_gamepad">正在使用手把</string>
     <string name="control_editor_menu_widget_snap">控制項吸附</string>
     <string name="control_editor_menu_widget_snap_all_layers">所有控制項圖層範圍吸附</string>
     <string name="control_editor_menu_widget_snap_mode">控制項吸附模式</string>

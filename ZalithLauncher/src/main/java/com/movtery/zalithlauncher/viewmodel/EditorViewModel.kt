@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.movtery.layer_controller.HideLayerWhen
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -53,6 +54,11 @@ class EditorViewModel() : ViewModel() {
      * 预览控制布局的场景
      */
     var previewScenario by mutableStateOf(PreviewScenario.InMenu)
+
+    /**
+     * 预览控制布局时根据设备隐藏控制层
+     */
+    var previewHideLayerWhen by mutableStateOf(HideLayerWhen.None)
 
 
 

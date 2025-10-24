@@ -862,6 +862,8 @@
     <string name="control_editor_menu_preview_mode_scenario">Preview Scenario</string>
     <string name="control_editor_menu_preview_mode_in_game">In Game</string>
     <string name="control_editor_menu_preview_mode_in_menu">In Menu</string>
+    <string name="control_editor_menu_preview_is_mouse">Using physical mouse</string>
+    <string name="control_editor_menu_preview_is_gamepad">Using gamepad</string>
     <string name="control_editor_menu_widget_snap">Control Snapping</string>
     <string name="control_editor_menu_widget_snap_all_layers">Snap to All Control Layers</string>
     <string name="control_editor_menu_widget_snap_mode">Control Snapping Mode</string>

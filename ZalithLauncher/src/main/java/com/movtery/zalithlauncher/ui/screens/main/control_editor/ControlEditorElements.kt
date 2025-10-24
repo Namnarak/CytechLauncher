@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.movtery.layer_controller.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -155,6 +156,8 @@ fun EditorMenu(
     onPreviewChanged: (Boolean) -> Unit,
     previewScenario: PreviewScenario,
     onPreviewScenarioChanged: (PreviewScenario) -> Unit,
+    previewHideLayerWhen: HideLayerWhen,
+    onPreviewHideLayerChanged: (HideLayerWhen) -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -238,6 +241,38 @@ fun EditorMenu(
                         onItemChange = onPreviewScenarioChanged,
                         getItemText = { scenario ->
                             stringResource(scenario.textRes)
+                        },
+                        enabled = isPreviewMode
+                    )
+                }
+
+                //正在使用实体鼠标
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_preview_is_mouse),
+                        switch = previewHideLayerWhen == HideLayerWhen.WhenMouse,
+                        onSwitch = { value ->
+                            onPreviewHideLayerChanged(
+                                if (value) HideLayerWhen.WhenMouse
+                                else HideLayerWhen.None
+                            )
+                        },
+                        enabled = isPreviewMode
+                    )
+                }
+
+                //正在使用手柄
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_preview_is_gamepad),
+                        switch = previewHideLayerWhen == HideLayerWhen.WhenGamepad,
+                        onSwitch = { value ->
+                            onPreviewHideLayerChanged(
+                                if (value) HideLayerWhen.WhenGamepad
+                                else HideLayerWhen.None
+                            )
                         },
                         enabled = isPreviewMode
                     )
