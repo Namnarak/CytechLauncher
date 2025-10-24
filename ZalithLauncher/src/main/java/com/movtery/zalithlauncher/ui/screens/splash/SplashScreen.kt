@@ -18,15 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.ui.screens.splash.elements.splashScreenKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 
 /**
  * @param startAllTask 开启全部的解压任务
@@ -36,9 +33,8 @@ import com.movtery.zalithlauncher.ui.screens.splash.elements.splashScreenKey
 fun SplashScreen(
     startAllTask: () -> Unit,
     unpackItems: List<InstallableItem>,
+    screenViewModel: SplashBackStackViewModel
 ) {
-    val backStack = rememberNavBackStack(UnpackScreenKey)
-
     Column {
         TopBar(
             modifier = Modifier
@@ -50,12 +46,12 @@ fun SplashScreen(
 
         Surface(modifier = Modifier.fillMaxSize().weight(1f)) {
             NavigationUI(
-                startAllTask = startAllTask,
-                backStack = backStack,
-                unpackItems = unpackItems,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surface)
+                    .background(color = MaterialTheme.colorScheme.surface),
+                startAllTask = startAllTask,
+                unpackItems = unpackItems,
+                screenViewModel = screenViewModel
             )
         }
     }
@@ -85,13 +81,15 @@ private fun TopBar(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey>,
     startAllTask: () -> Unit,
     unpackItems: List<InstallableItem>,
+    screenViewModel: SplashBackStackViewModel
 ) {
+    val backStack = screenViewModel.splashScreen.backStack
+
     val currentKey = backStack.lastOrNull()
     LaunchedEffect(currentKey) {
-        splashScreenKey = currentKey
+        screenViewModel.splashScreen.currentKey = currentKey
     }
 
     if (backStack.isNotEmpty()) {
@@ -99,8 +97,8 @@ private fun NavigationUI(
             backStack = backStack,
             modifier = modifier,
             entryProvider = entryProvider {
-                entry<UnpackScreenKey> {
-                    UnpackScreen(unpackItems) {
+                entry<NormalNavKey.UnpackDeps> {
+                    UnpackScreen(unpackItems, screenViewModel) {
                         startAllTask()
                     }
                 }

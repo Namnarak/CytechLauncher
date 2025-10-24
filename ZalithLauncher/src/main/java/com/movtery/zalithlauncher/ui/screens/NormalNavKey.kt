@@ -9,6 +9,8 @@ import kotlinx.serialization.Serializable
  * 普通的屏幕
  */
 sealed interface NormalNavKey : NavKey {
+    /** 解压依赖内容屏幕（启动屏幕） */
+    @Serializable data object UnpackDeps: NormalNavKey
     /** 启动器主页屏幕 */
     @Serializable data object LauncherMain : NormalNavKey
     /** 账号管理屏幕 */
