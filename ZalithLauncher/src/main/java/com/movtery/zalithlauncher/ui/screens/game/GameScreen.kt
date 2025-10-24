@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,6 +101,8 @@ import java.io.File
 private class GameViewModel(private val version: Version) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
+    /** 游戏菜单-控制设置区域Tab选择的索引 */
+    var controlMenuTabIndex by mutableIntStateOf(0)
     /** 强制关闭弹窗操作状态 */
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
     /** 发送键值操作状态 */
@@ -494,6 +497,8 @@ fun GameScreen(
 
         GameMenuSubscreen(
             state = viewModel.gameMenuState,
+            controlMenuTabIndex = viewModel.controlMenuTabIndex,
+            onControlMenuTabChange = { viewModel.controlMenuTabIndex = it },
             closeScreen = { viewModel.gameMenuState = MenuState.HIDE },
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
