@@ -15,7 +15,7 @@ import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-private const val DPAD_PRESS_THRESHOLD = 0.85f
+private const val BUTTON_PRESS_THRESHOLD = 0.85f
 
 class GamepadViewModel() : ViewModel() {
     private val _events = MutableSharedFlow<Event>(replay = 0, extraBufferCapacity = 16)
@@ -35,11 +35,19 @@ class GamepadViewModel() : ViewModel() {
     /**
      * 手柄方向键按下状态
      */
-    private var dpadState = mutableMapOf(
+    private val dpadState = mutableMapOf(
         DpadDirection.Left to false,
         DpadDirection.Right to false,
         DpadDirection.Up to false,
         DpadDirection.Down to false
+    )
+
+    /**
+     * 手柄触发器按下状态
+     */
+    private val triggerState = mutableMapOf(
+        GamepadRemap.MotionLeftTrigger.code to false,
+        GamepadRemap.MotionRightTrigger.code to false
     )
 
     /**
@@ -210,31 +218,51 @@ class GamepadViewModel() : ViewModel() {
 
 
     fun updateButton(code: Int, state: Boolean) {
+        println("Test: Button $code $state")
         recordActivity() //记录按钮操作活动
         sendEvent(Event.Button(code, state))
     }
 
     fun updateMotion(axisCode: Int, value: Float) {
+        println("Test: Motion $axisCode $value")
         recordActivity() //记录摇杆操作活动
-        //更新摇杆状态
         when (axisCode) {
+            //更新摇杆状态
             GamepadRemap.MotionX.code -> leftJoystick.updateState(horizontal = value)
             GamepadRemap.MotionY.code -> leftJoystick.updateState(vertical = value)
             GamepadRemap.MotionZ.code -> rightJoystick.updateState(horizontal = value)
             GamepadRemap.MotionRZ.code -> rightJoystick.updateState(vertical = value)
         }
+        //更新左右触发器状态
+        sendIfTrigger(axisCode, value)
         sendIfDpad(axisCode, value)
     }
+
+    private fun sendIfTrigger(axisCode: Int, value: Float) {
+        when (axisCode) {
+            GamepadRemap.MotionLeftTrigger.code, GamepadRemap.MotionRightTrigger.code ->
+                updateTrigger(axisCode, value > BUTTON_PRESS_THRESHOLD)
+        }
+    }
+
+    private fun updateTrigger(code: Int, pressed: Boolean) {
+        val last = triggerState[code] ?: false
+        if (last != pressed) {
+            triggerState[code] = pressed
+            sendEvent(Event.Button(code, pressed))
+        }
+    }
+
 
     private fun sendIfDpad(axisCode: Int, value: Float) {
         when (axisCode) {
             GamepadRemap.MotionHatX.code -> {
-                updateDpad(DpadDirection.Left, value < -DPAD_PRESS_THRESHOLD)
-                updateDpad(DpadDirection.Right, value > DPAD_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Left, value < -BUTTON_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Right, value > BUTTON_PRESS_THRESHOLD)
             }
             GamepadRemap.MotionHatY.code -> {
-                updateDpad(DpadDirection.Up, value < -DPAD_PRESS_THRESHOLD)
-                updateDpad(DpadDirection.Down, value > DPAD_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Up, value < -BUTTON_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Down, value > BUTTON_PRESS_THRESHOLD)
             }
         }
     }
@@ -243,7 +271,6 @@ class GamepadViewModel() : ViewModel() {
         val last = dpadState[direction] ?: false
         if (last != pressed) {
             dpadState[direction] = pressed
-            recordActivity() //记录方向键操作活动
             sendEvent(Event.Dpad(direction, pressed))
         }
     }
