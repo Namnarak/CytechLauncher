@@ -789,6 +789,10 @@
     <string name="settings_gamepad_joystick_mode_left_summary">Left joystick controls movement, right joystick controls camera</string>
     <string name="settings_gamepad_joystick_mode_right">Right-Handed</string>
     <string name="settings_gamepad_joystick_mode_right_summary">Right joystick controls movement, left joystick controls camera</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">Joystick Cursor Sensitivity</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">Adjust the joystick\'s virtual mouse movement speed</string>
+    <string name="settings_gamepad_camera_sensitivity_title">Joystick Camera Sensitivity</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">Adjust the joystick\'s camera control sensitivity</string>
     <string name="settings_gamepad_mapping_bound">Bound:</string>
     <string name="settings_gamepad_mapping_unbound">No keys bound</string>
     <string name="settings_gamepad_mapping_in_game">In Game</string>

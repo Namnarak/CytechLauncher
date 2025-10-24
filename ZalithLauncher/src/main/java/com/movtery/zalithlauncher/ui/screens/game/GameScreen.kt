@@ -464,8 +464,7 @@ fun GameScreen(
 
             //手柄事件捕获层
             SimpleGamepadCapture(
-                gamepadViewModel = gamepadViewModel,
-                inGame = isGrabbing
+                gamepadViewModel = gamepadViewModel
             )
         }
 

@@ -207,6 +207,16 @@ object AllSettings : SettingsRegistry() {
     val joystickControlMode = enumSetting("joystickControlMode", JoystickMode.LeftMovement)
 
     /**
+     * 手柄摇杆控制鼠标指针时的灵敏度
+     */
+    val gamepadCursorSensitivity = intSetting("gamepadCursorSensitivity", 100)
+
+    /**
+     * 手柄摇杆控制游戏视角时的灵敏度
+     */
+    val gamepadCameraSensitivity = intSetting("gamepadCameraSensitivity", 100)
+
+    /**
      * 手势控制
      */
     val gestureControl = boolSetting("gestureControl", false)

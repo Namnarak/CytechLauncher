@@ -227,9 +227,9 @@ class GamepadViewModel() : ViewModel() {
     /**
      * 轮询调用，持续发送当前拥有的摇杆状态
      */
-    fun pollJoystick(inGame: Boolean) {
-        leftJoystick.onTick(inGame) { sendEvent(it) }
-        rightJoystick.onTick(inGame) { sendEvent(it) }
+    fun pollJoystick() {
+        leftJoystick.onTick(::sendEvent)
+        rightJoystick.onTick(::sendEvent)
     }
 
     private fun sendEvent(event: Event) = _events.tryEmit(event)

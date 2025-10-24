@@ -35,8 +35,7 @@ import kotlinx.coroutines.flow.filterIsInstance
  */
 @Composable
 fun SimpleGamepadCapture(
-    gamepadViewModel: GamepadViewModel,
-    inGame: Boolean
+    gamepadViewModel: GamepadViewModel
 ) {
     val view = LocalView.current
     val remapperViewModel: GamepadRemapperViewModel = viewModel()
@@ -106,7 +105,6 @@ fun SimpleGamepadCapture(
         }
     }
 
-    val currentInGame by rememberUpdatedState(inGame)
     LaunchedEffect(isBinding, gamepadViewModel.gamepadEngaged) {
         while (true) {
             try {
@@ -117,7 +115,7 @@ fun SimpleGamepadCapture(
                 val pollLevel = gamepadViewModel.checkGamepadActive()
                 if (pollLevel == GamepadViewModel.PollLevel.Close) break
 
-                gamepadViewModel.pollJoystick(currentInGame)
+                gamepadViewModel.pollJoystick()
                 delay(pollLevel.delayMs)
             } catch (_: CancellationException) {
                 break

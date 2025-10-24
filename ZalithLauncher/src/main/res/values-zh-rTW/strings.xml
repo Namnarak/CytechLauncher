@@ -730,6 +730,10 @@
     <string name="settings_gamepad_joystick_mode_left_summary">左搖桿控制角色移動，右搖桿控制視角</string>
     <string name="settings_gamepad_joystick_mode_right">右手向</string>
     <string name="settings_gamepad_joystick_mode_right_summary">右搖桿控制角色移動，左搖桿控制視角</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">搖桿游標靈敏度</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">調整搖桿控制虛擬滑鼠的移動速度</string>
+    <string name="settings_gamepad_camera_sensitivity_title">搖桿視角靈敏度</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">調整搖桿控制遊戲視角的靈敏度</string>
     <string name="settings_gamepad_mapping_bound">已綁定：</string>
     <string name="settings_gamepad_mapping_unbound">未綁定任何鍵值</string>
     <string name="settings_gamepad_mapping_in_game">遊戲內</string>

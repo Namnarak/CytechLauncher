@@ -206,6 +206,49 @@ fun GameMenuSubscreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
+                //手柄死区缩放
+                item {
+                    MenuSliderLayout(
+                        modifier = itemCommonModifier,
+                        title = stringResource(R.string.settings_gamepad_deadzone_title),
+                        value = AllSettings.gamepadDeadZoneScale.state,
+                        valueRange = 50f..200f,
+                        onValueChange = { AllSettings.gamepadDeadZoneScale.updateState(it) },
+                        onValueChangeFinished = { AllSettings.gamepadDeadZoneScale.save(it) },
+                        suffix = "%"
+                    )
+                }
+
+                //摇杆指针灵敏度
+                item {
+                    MenuSliderLayout(
+                        modifier = itemCommonModifier,
+                        title = stringResource(R.string.settings_gamepad_cursor_sensitivity_title),
+                        value = AllSettings.gamepadCursorSensitivity.state,
+                        valueRange = 25f..300f,
+                        onValueChange = { AllSettings.gamepadCursorSensitivity.updateState(it) },
+                        onValueChangeFinished = { AllSettings.gamepadCursorSensitivity.save(it) },
+                        suffix = "%"
+                    )
+                }
+
+                //摇杆视角灵敏度
+                item {
+                    MenuSliderLayout(
+                        modifier = itemCommonModifier,
+                        title = stringResource(R.string.settings_gamepad_camera_sensitivity_title),
+                        value = AllSettings.gamepadCameraSensitivity.state,
+                        valueRange = 25f..300f,
+                        onValueChange = { AllSettings.gamepadCameraSensitivity.updateState(it) },
+                        onValueChangeFinished = { AllSettings.gamepadCameraSensitivity.save(it) },
+                        suffix = "%"
+                    )
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 //手势控制
                 item {
                     MenuSwitchButton(

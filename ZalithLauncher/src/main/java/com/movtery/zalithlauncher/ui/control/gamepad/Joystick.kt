@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.control.gamepad
 
 import androidx.compose.ui.geometry.Offset
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel.Event
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -31,16 +30,12 @@ class Joystick(
 
     fun isUsing(): Boolean = horizontalValue != 0f || verticalValue != 0f
 
-    fun onTick(
-        inGame: Boolean,
-        sendEvent: (Event) -> Unit
-    ) {
+    fun onTick(sendEvent: (Event) -> Unit) {
         val mouseAngle = angleRadian ?: getAngleRadian()
         val acceleration = acceleration ?: calculateAcceleration()
-        val sensitivity = if (inGame) 18 else 19 * (AllSettings.cursorSensitivity.state / 100f)
 
-        val deltaX = (cos(mouseAngle) * acceleration * sensitivity.toDouble()).toFloat()
-        val deltaY = (sin(mouseAngle) * acceleration * sensitivity.toDouble()).toFloat()
+        val deltaX = (cos(mouseAngle) * acceleration).toFloat()
+        val deltaY = (sin(mouseAngle) * acceleration).toFloat()
 
         val offset = Offset(deltaX, -deltaY)
         //偏移量为0的情况下，无论发不发送事件都是无意义的
