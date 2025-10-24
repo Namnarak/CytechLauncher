@@ -29,6 +29,8 @@ class Joystick(
     private var angleRadian: Double? = null
     private var acceleration: Double? = null
 
+    fun isUsing(): Boolean = horizontalValue != 0f || verticalValue != 0f
+
     fun onTick(
         inGame: Boolean,
         sendEvent: (Event) -> Unit

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
+import com.movtery.zalithlauncher.ui.control.gamepad.DpadDirection
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMap
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMapping
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadRemap
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 private const val BUTTON_PRESS_THRESHOLD = 0.85f
 
 class GamepadViewModel() : ViewModel() {
-    private val _events = MutableSharedFlow<Event>(replay = 0, extraBufferCapacity = 16)
+    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 16)
     val events = _events.asSharedFlow()
 
     /**
@@ -32,76 +33,50 @@ class GamepadViewModel() : ViewModel() {
     /** 右摇杆状态 */
     private val rightJoystick = Joystick(JoystickType.Right)
 
-    /**
-     * 手柄方向键按下状态
-     */
-    private val dpadState = mutableMapOf(
-        DpadDirection.Left to false,
-        DpadDirection.Right to false,
-        DpadDirection.Up to false,
-        DpadDirection.Down to false
-    )
+    private val dpadStates = mutableMapOf<DpadDirection, Boolean>()
+    private val buttonStates = mutableMapOf<Int, Boolean>()
 
     /**
-     * 手柄触发器按下状态
-     */
-    private val triggerState = mutableMapOf(
-        GamepadRemap.MotionLeftTrigger.code to false,
-        GamepadRemap.MotionRightTrigger.code to false
-    )
-
-    /**
-     * 发送一个事件
-     */
-    private fun sendEvent(event: Event) {
-        _events.tryEmit(event)
-    }
-
-    /**
-     * 手柄是否已经操作过，控制是否进行持续事件输出
+     * 手柄活动状态控制
      */
     var gamepadEngaged by mutableStateOf(false)
         private set
 
-    /**
-     * 上一次活动时间
-     */
-    private var lastActivityTime: Long = System.nanoTime()
+    private var lastActivityTime = System.nanoTime()
+    private var pollLevel = PollLevel.Close
 
-    /**
-     * 当前轮询频率等级
-     */
-    private var pollLevel: PollLevel = PollLevel.Close
+    init {
+        reloadAllMappings()
+    }
 
     /**
      * 检查并更新手柄是否活动中
      * @return 当前轮询频率等级
      */
     fun checkGamepadActive(): PollLevel {
-        val currentTime = System.nanoTime()
-        val elapsedTime = currentTime - lastActivityTime
-        pollLevel = when {
-            //10秒内有活动，保持或升到High等级
-            elapsedTime < 10 * 1_000_000_000L -> PollLevel.High
-            //10-20秒无活动，降到Low等级
-            elapsedTime < 20 * 1_000_000_000L -> PollLevel.Low
-            //超过20秒无活动，降到Close等级
-            else -> PollLevel.Close
+        val now = System.nanoTime()
+
+        if (
+            dpadStates.containsValue(true) ||
+            buttonStates.containsValue(true) ||
+            leftJoystick.isUsing() ||
+            rightJoystick.isUsing()
+        ) {
+            lastActivityTime = now
         }
+
+        pollLevel = if (now - lastActivityTime < 10_000_000_000L) PollLevel.High else PollLevel.Close
         gamepadEngaged = pollLevel != PollLevel.Close
 
         return pollLevel
     }
 
-    /**
-     * 记录手柄活动时间
-     */
-    private fun recordActivity() {
+    /** 激活状态更新 */
+    private fun onActive() {
+        val wasInactive = !gamepadEngaged
         lastActivityTime = System.nanoTime()
-        // 如果之前是挂机状态，现在恢复活动
-        if (!gamepadEngaged) {
+        if (wasInactive) {
             gamepadEngaged = true
-            // 活动时立即提升到High等级
             pollLevel = PollLevel.High
         }
     }
@@ -112,28 +87,21 @@ class GamepadViewModel() : ViewModel() {
 
         val mmkv = keyMappingMMKV()
         GamepadMap.entries.fastForEach { entry ->
-            val mapping = mmkv.decodeParcelable(entry.identifier, GamepadMapping::class.java) ?: run {
-                GamepadMapping(
+            val mapping = mmkv.decodeParcelable(entry.identifier, GamepadMapping::class.java)
+                ?: GamepadMapping(
                     key = entry.gamepad,
                     dpadDirection = entry.dpadDirection,
                     targetsInGame = entry.defaultKeysInGame,
                     targetsInMenu = entry.defaultKeysInMenu
                 )
-            }
             addInMappingsMap(mapping)
         }
     }
 
     private fun addInMappingsMap(mapping: GamepadMapping) {
-        val dpad = mapping.dpadDirection
-        val keys = TargetKeys(
-            inGame = mapping.targetsInGame,
-            inMenu = mapping.targetsInMenu
-        )
-        if (dpad != null) {
-            allDpadMappings[dpad] = keys
-        } else {
-            allKeyMappings[mapping.key] = keys
+        val target = TargetKeys(mapping.targetsInGame, mapping.targetsInMenu)
+        mapping.dpadDirection?.let { allDpadMappings[it] = target } ?: run {
+            allKeyMappings[mapping.key] = target
         }
     }
 
@@ -163,13 +131,13 @@ class GamepadViewModel() : ViewModel() {
         useDefault: Boolean = false
     ) {
         val dpad = gamepadMap.dpadDirection
-        val keys = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
+        val existing = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
 
         val (targetsInGame, targetsInMenu) = if (inGame) {
-            val inGameTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
-            inGameTargets to (keys?.getKeys(false) ?: emptySet())
+            val newTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
+            newTargets to (existing?.inMenu ?: emptySet())
         } else {
-            (keys?.getKeys(true) ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
+            (existing?.inGame ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
         }
 
         GamepadMapping(
@@ -177,7 +145,7 @@ class GamepadViewModel() : ViewModel() {
             dpadDirection = dpad,
             targetsInGame = targetsInGame,
             targetsInMenu = targetsInMenu
-        ).save(gamepadMap.identifier)
+        ).also { it.save(gamepadMap.identifier) }
     }
 
     private fun GamepadMapping.save(identifier: String) {
@@ -189,43 +157,33 @@ class GamepadViewModel() : ViewModel() {
      * 根据手柄按键键值获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByCode(key: Int, inGame: Boolean) : Set<String>? {
-        return allKeyMappings[key]?.getKeys(inGame)
-    }
+    fun findByCode(key: Int, inGame: Boolean) =
+        allKeyMappings[key]?.getKeys(inGame)
 
     /**
      * 根据手柄方向键获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByDpad(dpadDirection: DpadDirection, inGame: Boolean): Set<String>? {
-        return allDpadMappings[dpadDirection]?.getKeys(inGame)
-    }
+    fun findByDpad(dir: DpadDirection, inGame: Boolean) =
+        allDpadMappings[dir]?.getKeys(inGame)
 
     /**
      * 根据手柄映射获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByMap(map: GamepadMap, inGame: Boolean): Set<String>? {
-        val dpad = map.dpadDirection
-        val keys = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[map.gamepad]
-        return keys?.getKeys(inGame)
-    }
+    fun findByMap(map: GamepadMap, inGame: Boolean) =
+        (map.dpadDirection?.let { allDpadMappings[it] } ?: allKeyMappings[map.gamepad])
+            ?.getKeys(inGame)
 
-    init {
-        reloadAllMappings()
-    }
-
-
-
-    fun updateButton(code: Int, state: Boolean) {
-        println("Test: Button $code $state")
-        recordActivity() //记录按钮操作活动
-        sendEvent(Event.Button(code, state))
+    fun updateButton(code: Int, pressed: Boolean) {
+        onActive()
+        if (updateState(buttonStates, code, pressed)) {
+            sendEvent(Event.Button(code, pressed))
+        }
     }
 
     fun updateMotion(axisCode: Int, value: Float) {
-        println("Test: Motion $axisCode $value")
-        recordActivity() //记录摇杆操作活动
+        onActive()
         when (axisCode) {
             //更新摇杆状态
             GamepadRemap.MotionX.code -> leftJoystick.updateState(horizontal = value)
@@ -233,29 +191,14 @@ class GamepadViewModel() : ViewModel() {
             GamepadRemap.MotionZ.code -> rightJoystick.updateState(horizontal = value)
             GamepadRemap.MotionRZ.code -> rightJoystick.updateState(vertical = value)
         }
-        //更新左右触发器状态
-        sendIfTrigger(axisCode, value)
-        sendIfDpad(axisCode, value)
-    }
 
-    private fun sendIfTrigger(axisCode: Int, value: Float) {
         when (axisCode) {
-            GamepadRemap.MotionLeftTrigger.code, GamepadRemap.MotionRightTrigger.code ->
-                updateTrigger(axisCode, value > BUTTON_PRESS_THRESHOLD)
-        }
-    }
+            //更新左右触发器状态
+            GamepadRemap.MotionLeftTrigger.code,
+            GamepadRemap.MotionRightTrigger.code
+                -> updateButton(axisCode, value > BUTTON_PRESS_THRESHOLD)
 
-    private fun updateTrigger(code: Int, pressed: Boolean) {
-        val last = triggerState[code] ?: false
-        if (last != pressed) {
-            triggerState[code] = pressed
-            sendEvent(Event.Button(code, pressed))
-        }
-    }
-
-
-    private fun sendIfDpad(axisCode: Int, value: Float) {
-        when (axisCode) {
+            //更新方向键状态
             GamepadRemap.MotionHatX.code -> {
                 updateDpad(DpadDirection.Left, value < -BUTTON_PRESS_THRESHOLD)
                 updateDpad(DpadDirection.Right, value > BUTTON_PRESS_THRESHOLD)
@@ -268,11 +211,17 @@ class GamepadViewModel() : ViewModel() {
     }
 
     private fun updateDpad(direction: DpadDirection, pressed: Boolean) {
-        val last = dpadState[direction] ?: false
-        if (last != pressed) {
-            dpadState[direction] = pressed
+        if (updateState(dpadStates, direction, pressed)) {
             sendEvent(Event.Dpad(direction, pressed))
         }
+    }
+
+    private fun <K> updateState(map: MutableMap<K, Boolean>, key: K, new: Boolean): Boolean {
+        val old = map[key]
+        return if (old != new) {
+            map[key] = new
+            true
+        } else false
     }
 
     /**
@@ -283,6 +232,8 @@ class GamepadViewModel() : ViewModel() {
         rightJoystick.onTick(inGame) { sendEvent(it) }
     }
 
+    private fun sendEvent(event: Event) = _events.tryEmit(event)
+
     /**
      * 便于记录目标键盘映射的数据类
      */
@@ -291,13 +242,6 @@ class GamepadViewModel() : ViewModel() {
         val inMenu: Set<String>
     ) {
         fun getKeys(isInGame: Boolean) = if (isInGame) inGame else inMenu
-    }
-
-    /**
-     * 方向键方向
-     */
-    enum class DpadDirection {
-        Up, Down, Left, Right
     }
 
     sealed interface Event {
@@ -329,20 +273,12 @@ class GamepadViewModel() : ViewModel() {
     enum class PollLevel(val delayMs: Long) {
         /**
          * 高轮询等级：16ms延迟 ≈ 60fps
-         * 在10秒内有操作时保持此等级
          */
         High(16L),
 
         /**
-         * 低轮询等级：200ms延迟
-         * 在10-20秒无操作时降到此等级
-         */
-        Low(200L),
-
-        /**
          * 不进行轮询
-         * 超过20秒无操作时降到此等级
          */
-        Close(10000L);
+        Close(10_000L)
     }
 }

@@ -158,7 +158,7 @@ fun GamepadKeyListener(
     val currentOnAction by rememberUpdatedState(onAction)
 
     val lastPressKey = remember { mutableStateMapOf<Int, List<ClickEvent>>() }
-    val lastPressDpad = remember { mutableStateMapOf<GamepadViewModel.DpadDirection, List<ClickEvent>>() }
+    val lastPressDpad = remember { mutableStateMapOf<DpadDirection, List<ClickEvent>>() }
 
     LaunchedEffect(gamepadViewModel) {
         gamepadViewModel.events.collect { event ->
@@ -166,7 +166,6 @@ fun GamepadKeyListener(
 
             when (event) {
                 is GamepadViewModel.Event.Button -> {
-                    println("Test: get event = $event, code = ${event.code}, pressed = ${event.pressed}")
                     if (!event.pressed) {
                         //松开时使用之前记录的按下事件
                         lastPressKey[event.code]?.let { lastEvents ->

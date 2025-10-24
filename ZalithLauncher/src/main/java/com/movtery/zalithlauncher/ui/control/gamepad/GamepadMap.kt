@@ -6,7 +6,6 @@ import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeyName
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
-import com.movtery.zalithlauncher.viewmodel.GamepadViewModel.DpadDirection
 
 /**
  * 特殊键值：鼠标滚轮上移一次
