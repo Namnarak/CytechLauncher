@@ -308,6 +308,11 @@ object AllSettings : SettingsRegistry() {
     val launcherSwapAnimateType = enumSetting("launcherSwapAnimateType", TransitionAnimationType.JELLY_BOUNCE)
 
     /**
+     * 启动器背景元素不透明度
+     */
+    val launcherBackgroundOpacity = intSetting("launcherBackgroundOpacity", 80)
+
+    /**
      * 启动器日志保留天数
      */
     val launcherLogRetentionDays = intSetting("launcherLogRetentionDays", 7)

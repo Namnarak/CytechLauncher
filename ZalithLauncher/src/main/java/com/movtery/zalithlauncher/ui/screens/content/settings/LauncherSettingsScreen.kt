@@ -1,16 +1,25 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -30,14 +39,21 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsLayoutScope
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.file.zipDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 private sealed interface CustomColorOperation {
@@ -50,7 +66,9 @@ private sealed interface CustomColorOperation {
 fun LauncherSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
-    mainScreenKey: NavKey?
+    mainScreenKey: NavKey?,
+    backgroundImageViewModel: BackgroundImageViewModel,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -112,6 +130,29 @@ fun LauncherSettingsScreen(
                             val activity = context as? FullScreenComponentActivity
                             activity?.fullScreenViewModel?.triggerRefresh()
                         }
+                    )
+                }
+            }
+
+            //背景图片设置板块
+            AnimatedItem(scope) { yOffset ->
+                SettingsBackground(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                ) {
+                    CustomBackgroundImage(
+                        modifier = Modifier.fillMaxWidth(),
+                        backgroundImageViewModel = backgroundImageViewModel,
+                        submitError = submitError
+                    )
+
+                    SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        unit = AllSettings.launcherBackgroundOpacity,
+                        title = stringResource(R.string.settings_launcher_background_opacity_title),
+                        summary = stringResource(R.string.settings_launcher_background_opacity_summary),
+                        valueRange = 20f..100f,
+                        suffix = "%",
+                        enabled = backgroundImageViewModel.isImageExists
                     )
                 }
             }
@@ -250,6 +291,109 @@ private fun CustomColorOperation(
                 },
                 showAlpha = false
             )
+        }
+    }
+}
+
+private sealed interface BackgroundImageOperation {
+    data object None : BackgroundImageOperation
+    data object PreReset : BackgroundImageOperation
+    data object Reset : BackgroundImageOperation
+}
+
+@Composable
+private fun SettingsLayoutScope.CustomBackgroundImage(
+    backgroundImageViewModel: BackgroundImageViewModel,
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var operation by remember { mutableStateOf<BackgroundImageOperation>(BackgroundImageOperation.None) }
+
+    BackgroundImageOperation(
+        operation = operation,
+        changeOperation = { operation = it },
+        backgroundImageViewModel = backgroundImageViewModel
+    )
+
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { result ->
+        if (result != null) {
+            TaskSystem.submitTask(
+                Task.runTask(
+                    dispatcher = Dispatchers.IO,
+                    task = {
+                        backgroundImageViewModel.importImage(context, result)
+                        operation = BackgroundImageOperation.None
+                    },
+                    onError = { th ->
+                        backgroundImageViewModel.deleteImage()
+                        submitError(
+                            ErrorViewModel.ThrowableMessage(
+                                title = context.getString(R.string.error_import_image),
+                                message = th.getMessageOrToString()
+                            )
+                        )
+                    }
+                )
+            )
+        }
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ClickableSettingsLayout(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.settings_launcher_background_image_title),
+            summary = stringResource(R.string.settings_launcher_background_image_summary),
+            onClick = { filePicker.launch(arrayOf("image/*")) }
+        )
+
+        AnimatedVisibility(
+            visible = backgroundImageViewModel.isImageExists
+        ) {
+            IconTextButton(
+                imageVector = Icons.Default.RestartAlt,
+                text = stringResource(R.string.generic_reset),
+                onClick = {
+                    if (operation == BackgroundImageOperation.None) {
+                        operation = BackgroundImageOperation.PreReset
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun BackgroundImageOperation(
+    operation: BackgroundImageOperation,
+    changeOperation: (BackgroundImageOperation) -> Unit,
+    backgroundImageViewModel: BackgroundImageViewModel
+) {
+    when (operation) {
+        is BackgroundImageOperation.None -> {}
+        is BackgroundImageOperation.PreReset -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.settings_launcher_background_image_reset_message),
+                onConfirm = {
+                    changeOperation(BackgroundImageOperation.Reset)
+                },
+                onDismiss = {
+                    changeOperation(BackgroundImageOperation.None)
+                }
+            )
+        }
+        is BackgroundImageOperation.Reset -> {
+            LaunchedEffect(Unit) {
+                backgroundImageViewModel.deleteImage()
+                changeOperation(BackgroundImageOperation.None)
+            }
         }
     }
 }
