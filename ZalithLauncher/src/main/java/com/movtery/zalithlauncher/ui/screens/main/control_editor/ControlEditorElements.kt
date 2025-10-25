@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -165,20 +164,14 @@ fun EditorMenu(
     DualMenuSubscreen(
         state = state,
         closeScreen = closeScreen,
-        leftMenuContent = {
+        leftMenuTitle = {
             Text(
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.padding(all = 8.dp),
                 text = stringResource(R.string.control_editor_menu_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
+        },
+        leftMenuContent = {
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(all = 8.dp),
@@ -352,6 +345,13 @@ fun EditorMenu(
                 }
             }
         },
+        rightMenuTitle = {
+            Text(
+                modifier = Modifier.padding(all = 8.dp),
+                text = stringResource(R.string.control_editor_layers_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
         rightMenuContent = {
             ControlLayerMenu(
                 layers = layers,
@@ -376,20 +376,6 @@ private fun ColumnScope.ControlLayerMenu(
     onAttribute: (ObservableControlLayer) -> Unit,
     enabled: Boolean = true
 ) {
-    Text(
-        modifier = Modifier
-            .padding(all = 8.dp)
-            .align(Alignment.CenterHorizontally),
-        text = stringResource(R.string.control_editor_layers_title),
-        style = MaterialTheme.typography.titleMedium
-    )
-    HorizontalDivider(
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-    )
-
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(
         lazyListState = lazyListState,

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Mouse
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material.icons.outlined.TouchApp
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryScrollableTabRow
@@ -26,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -156,23 +154,15 @@ fun GameMenuSubscreen(
                     }
                 }
             }
-
-
         },
-        rightMenuContent = {
+        rightMenuTitle = {
             Text(
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.padding(all = 8.dp),
                 text = stringResource(R.string.game_menu_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
+        },
+        rightMenuContent = {
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
