@@ -80,14 +80,18 @@ fun SwitchableMouseLayout(
     onOccupiedPointer: (PointerId) -> Unit = {},
     onReleasePointer: (PointerId) -> Unit = {},
     mouseSize: Dp = AllSettings.mouseSize.state.dp,
-    cursorSensitivity: Int = AllSettings.cursorSensitivity.state
+    cursorSensitivity: Int = AllSettings.cursorSensitivity.state,
+    gamepadCursorSensitivity: Int = AllSettings.gamepadCursorSensitivity.state,
+    gamepadCameraSensitivity: Int = AllSettings.gamepadCameraSensitivity.state
 ) {
     val windowSize = LocalWindowInfo.current.containerSize
     val screenWidth: Float = windowSize.width.toFloat()
     val screenHeight: Float = windowSize.height.toFloat()
     val centerPos = Offset(screenWidth / 2f, screenHeight / 2f)
 
-    val speedFactor = cursorSensitivity / 100f
+    val speedFactor = remember(cursorSensitivity) { cursorSensitivity / 100f }
+    val gamepadCursorSpeedFactor = remember(gamepadCursorSensitivity) { 19f * (gamepadCursorSensitivity / 100f) }
+    val gamepadCameraSpeedFactor = remember(gamepadCameraSensitivity) { 18f * (gamepadCameraSensitivity / 100f) }
 
     val lastVirtualMousePos = remember { object { var value: Offset? = null } }
 
@@ -159,11 +163,17 @@ fun SwitchableMouseLayout(
             onOffsetEvent = { offset ->
                 if (isGrabbing) {
                     updateMousePointer(false)
-                    onCapturedMove(offset)
+                    onCapturedMove(
+                        Offset(
+                            x = offset.x * gamepadCameraSpeedFactor,
+                            y = offset.y * gamepadCameraSpeedFactor
+                        )
+                    )
                 } else {
+                    updateMousePointer(true)
                     val newOffset = Offset(
-                        x = (pointerPosition.x + offset.x).coerceIn(0f, screenWidth),
-                        y = (pointerPosition.y + offset.y).coerceIn(0f, screenHeight)
+                        x = (pointerPosition.x + (offset.x * gamepadCursorSpeedFactor)).coerceIn(0f, screenWidth),
+                        y = (pointerPosition.y + (offset.y * gamepadCursorSpeedFactor)).coerceIn(0f, screenHeight)
                     )
                     pointerPosition = newOffset
                     updatePointerPos(newOffset)

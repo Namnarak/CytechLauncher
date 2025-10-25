@@ -70,7 +70,9 @@ data class GamepadRemapper(
         val lastValue = currentKeyValues[mappedSource]
 
         if (lastValue == null || currentValue != lastValue) {
-            gamepadViewModel.updateButton(mappedSource, currentValue > 0f)
+            currentValue?.let { value ->
+                gamepadViewModel.updateButton(mappedSource, value > 0f)
+            }
             currentKeyValues[mappedSource] = currentValue
         }
         return true
@@ -159,11 +161,13 @@ data class GamepadRemapper(
     }
 
     /**
-     * 将 DPAD 按键值转换为对应轴值
-     * 因为某些轴和 DPAD KEYCODE 共享相同含义
+     * 将按键码（keycode）转换为对应的轴（axis）
+     * 这是因为某些轴和方向键（DPAD）的按键码在功能上是相同的
      */
     private fun transformKeyEventInput(keycode: Int): Int {
         return when (keycode) {
+            KeyEvent.KEYCODE_BUTTON_L2 -> MotionEvent.AXIS_LTRIGGER
+            KeyEvent.KEYCODE_BUTTON_R2 -> MotionEvent.AXIS_RTRIGGER
             KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> MotionEvent.AXIS_HAT_Y
             KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> MotionEvent.AXIS_HAT_X
             else -> keycode
@@ -175,14 +179,16 @@ data class GamepadRemapper(
         return keyMapping[translatedSource] ?: translatedSource
     }
 
-    private fun getRemappedValue(mappedSource: Int, keyEvent: KeyEvent): Float {
+    private fun getRemappedValue(mappedSource: Int, keyEvent: KeyEvent): Float? {
+        //DPAD 和触发器特殊处理，永远映射为null
+        val isDpad = (mappedSource == MotionEvent.AXIS_HAT_Y && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_UP) ||
+                (mappedSource == MotionEvent.AXIS_HAT_X && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
+        val isTrigger = (mappedSource == MotionEvent.AXIS_LTRIGGER || keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_L2) ||
+                (mappedSource == MotionEvent.AXIS_RTRIGGER || keyEvent.keyCode == KeyEvent.KEYCODE_BUTTON_R2)
+        if (isDpad || isTrigger) return null
+
         return when (keyEvent.action) {
-            KeyEvent.ACTION_DOWN, KeyEvent.ACTION_MULTIPLE -> {
-                //DPAD 特殊处理，永远映射为 -1
-                val isDpad = (mappedSource == MotionEvent.AXIS_HAT_Y && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_UP) ||
-                        (mappedSource == MotionEvent.AXIS_HAT_X && keyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT)
-                if (isDpad) -1f else 1f
-            }
+            KeyEvent.ACTION_DOWN, KeyEvent.ACTION_MULTIPLE -> 1f
             else -> 0f
         }
     }

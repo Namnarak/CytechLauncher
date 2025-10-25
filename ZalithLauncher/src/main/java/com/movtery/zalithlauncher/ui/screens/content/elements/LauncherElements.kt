@@ -4,7 +4,16 @@ import android.app.Activity
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.allowHardware
+import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.launch.LaunchGame
@@ -18,6 +27,7 @@ import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
 import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
+import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -197,5 +207,35 @@ fun LaunchGameOperation(
                 updateOperation(LaunchGameOperation.None)
             }
         }
+    }
+}
+
+@Composable
+fun BackgroundImage(
+    viewModel: BackgroundImageViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    val refreshTrigger = viewModel.refreshImage
+    val imageFile = viewModel.image
+
+    if (viewModel.isImageExists) {
+        val imageLoader = ImageLoader(context)
+        val request = remember(refreshTrigger) {
+            ImageRequest.Builder(context)
+                .data(imageFile)
+                .allowHardware(false)
+                .crossfade(false)
+                .build()
+        }
+
+        AsyncImage(
+            modifier = modifier,
+            model = request,
+            imageLoader = imageLoader,
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
     }
 }

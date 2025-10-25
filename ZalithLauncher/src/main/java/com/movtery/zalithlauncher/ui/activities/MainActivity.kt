@@ -6,6 +6,8 @@ import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,11 +19,13 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.elements.BackgroundImage
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.openLink
+import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -40,6 +44,11 @@ class MainActivity : BaseComponentActivity() {
      * 启动游戏ViewModel
      */
     private val launchGameViewModel: LaunchGameViewModel by viewModels()
+
+    /**
+     * 启动器背景图片管理ViewModel
+     */
+    private val backgroundImageViewModel: BackgroundImageViewModel by viewModels()
 
     /**
      * 错误信息ViewModel
@@ -108,10 +117,16 @@ class MainActivity : BaseComponentActivity() {
         setContent {
             ZalithLauncherTheme {
                 Box {
+                    BackgroundImage(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = backgroundImageViewModel
+                    )
+
                     MainScreen(
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,
+                        backgroundImageViewModel = backgroundImageViewModel,
                         submitError = {
                             errorViewModel.showError(it)
                         }

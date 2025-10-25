@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.movtery.layer_controller.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -155,6 +155,8 @@ fun EditorMenu(
     onPreviewChanged: (Boolean) -> Unit,
     previewScenario: PreviewScenario,
     onPreviewScenarioChanged: (PreviewScenario) -> Unit,
+    previewHideLayerWhen: HideLayerWhen,
+    onPreviewHideLayerChanged: (HideLayerWhen) -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -162,20 +164,14 @@ fun EditorMenu(
     DualMenuSubscreen(
         state = state,
         closeScreen = closeScreen,
-        leftMenuContent = {
+        leftMenuTitle = {
             Text(
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .align(Alignment.CenterHorizontally),
+                modifier = Modifier.padding(all = 8.dp),
                 text = stringResource(R.string.control_editor_menu_title),
                 style = MaterialTheme.typography.titleMedium
             )
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
+        },
+        leftMenuContent = {
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(all = 8.dp),
@@ -238,6 +234,38 @@ fun EditorMenu(
                         onItemChange = onPreviewScenarioChanged,
                         getItemText = { scenario ->
                             stringResource(scenario.textRes)
+                        },
+                        enabled = isPreviewMode
+                    )
+                }
+
+                //正在使用实体鼠标
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_preview_is_mouse),
+                        switch = previewHideLayerWhen == HideLayerWhen.WhenMouse,
+                        onSwitch = { value ->
+                            onPreviewHideLayerChanged(
+                                if (value) HideLayerWhen.WhenMouse
+                                else HideLayerWhen.None
+                            )
+                        },
+                        enabled = isPreviewMode
+                    )
+                }
+
+                //正在使用手柄
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_menu_preview_is_gamepad),
+                        switch = previewHideLayerWhen == HideLayerWhen.WhenGamepad,
+                        onSwitch = { value ->
+                            onPreviewHideLayerChanged(
+                                if (value) HideLayerWhen.WhenGamepad
+                                else HideLayerWhen.None
+                            )
                         },
                         enabled = isPreviewMode
                     )
@@ -317,6 +345,13 @@ fun EditorMenu(
                 }
             }
         },
+        rightMenuTitle = {
+            Text(
+                modifier = Modifier.padding(all = 8.dp),
+                text = stringResource(R.string.control_editor_layers_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
         rightMenuContent = {
             ControlLayerMenu(
                 layers = layers,
@@ -341,20 +376,6 @@ private fun ColumnScope.ControlLayerMenu(
     onAttribute: (ObservableControlLayer) -> Unit,
     enabled: Boolean = true
 ) {
-    Text(
-        modifier = Modifier
-            .padding(all = 8.dp)
-            .align(Alignment.CenterHorizontally),
-        text = stringResource(R.string.control_editor_layers_title),
-        style = MaterialTheme.typography.titleMedium
-    )
-    HorizontalDivider(
-        modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-    )
-
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(
         lazyListState = lazyListState,

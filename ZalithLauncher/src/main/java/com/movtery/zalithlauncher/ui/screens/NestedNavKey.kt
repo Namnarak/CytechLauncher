@@ -9,6 +9,8 @@ import kotlinx.serialization.Serializable
  * 嵌套NavDisplay的屏幕
  */
 sealed interface NestedNavKey {
+    /** 启动屏幕 */
+    @Serializable class Splash() : BackStackNavKey<NavKey>()
     /** 主屏幕 */
     @Serializable class Main() : BackStackNavKey<NavKey>()
     /** 设置屏幕 */

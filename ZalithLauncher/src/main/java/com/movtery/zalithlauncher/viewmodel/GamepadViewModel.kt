@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
+import com.movtery.zalithlauncher.ui.control.gamepad.DpadDirection
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMap
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMapping
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadRemap
@@ -15,10 +16,10 @@ import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-private const val DPAD_PRESS_THRESHOLD = 0.85f
+private const val BUTTON_PRESS_THRESHOLD = 0.85f
 
 class GamepadViewModel() : ViewModel() {
-    private val _events = MutableSharedFlow<Event>(replay = 0, extraBufferCapacity = 16)
+    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 16)
     val events = _events.asSharedFlow()
 
     /**
@@ -32,28 +33,53 @@ class GamepadViewModel() : ViewModel() {
     /** 右摇杆状态 */
     private val rightJoystick = Joystick(JoystickType.Right)
 
-    /**
-     * 手柄方向键按下状态
-     */
-    private var dpadState = mutableMapOf(
-        DpadDirection.Left to false,
-        DpadDirection.Right to false,
-        DpadDirection.Up to false,
-        DpadDirection.Down to false
-    )
+    private val dpadStates = mutableMapOf<DpadDirection, Boolean>()
+    private val buttonStates = mutableMapOf<Int, Boolean>()
 
     /**
-     * 发送一个事件
+     * 手柄活动状态控制
      */
-    private fun sendEvent(event: Event) {
-        _events.tryEmit(event)
+    var gamepadEngaged by mutableStateOf(false)
+        private set
+
+    private var lastActivityTime = System.nanoTime()
+    private var pollLevel = PollLevel.Close
+
+    init {
+        reloadAllMappings()
     }
 
     /**
-     * 手柄是否已经操作过，控制是否进行持续事件输出
+     * 检查并更新手柄是否活动中
+     * @return 当前轮询频率等级
      */
-    var gamepadEngaged by mutableStateOf(false)
+    fun checkGamepadActive(): PollLevel {
+        val now = System.nanoTime()
 
+        if (
+            dpadStates.containsValue(true) ||
+            buttonStates.containsValue(true) ||
+            leftJoystick.isUsing() ||
+            rightJoystick.isUsing()
+        ) {
+            lastActivityTime = now
+        }
+
+        pollLevel = if (now - lastActivityTime < 10_000_000_000L) PollLevel.High else PollLevel.Close
+        gamepadEngaged = pollLevel != PollLevel.Close
+
+        return pollLevel
+    }
+
+    /** 激活状态更新 */
+    private fun onActive() {
+        val wasInactive = !gamepadEngaged
+        lastActivityTime = System.nanoTime()
+        if (wasInactive) {
+            gamepadEngaged = true
+            pollLevel = PollLevel.High
+        }
+    }
 
     fun reloadAllMappings() {
         allKeyMappings.clear()
@@ -61,28 +87,21 @@ class GamepadViewModel() : ViewModel() {
 
         val mmkv = keyMappingMMKV()
         GamepadMap.entries.fastForEach { entry ->
-            val mapping = mmkv.decodeParcelable(entry.identifier, GamepadMapping::class.java) ?: run {
-                GamepadMapping(
+            val mapping = mmkv.decodeParcelable(entry.identifier, GamepadMapping::class.java)
+                ?: GamepadMapping(
                     key = entry.gamepad,
                     dpadDirection = entry.dpadDirection,
                     targetsInGame = entry.defaultKeysInGame,
                     targetsInMenu = entry.defaultKeysInMenu
                 )
-            }
             addInMappingsMap(mapping)
         }
     }
 
     private fun addInMappingsMap(mapping: GamepadMapping) {
-        val dpad = mapping.dpadDirection
-        val keys = TargetKeys(
-            inGame = mapping.targetsInGame,
-            inMenu = mapping.targetsInMenu
-        )
-        if (dpad != null) {
-            allDpadMappings[dpad] = keys
-        } else {
-            allKeyMappings[mapping.key] = keys
+        val target = TargetKeys(mapping.targetsInGame, mapping.targetsInMenu)
+        mapping.dpadDirection?.let { allDpadMappings[it] = target } ?: run {
+            allKeyMappings[mapping.key] = target
         }
     }
 
@@ -112,13 +131,13 @@ class GamepadViewModel() : ViewModel() {
         useDefault: Boolean = false
     ) {
         val dpad = gamepadMap.dpadDirection
-        val keys = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
+        val existing = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
 
         val (targetsInGame, targetsInMenu) = if (inGame) {
-            val inGameTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
-            inGameTargets to (keys?.getKeys(false) ?: emptySet())
+            val newTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
+            newTargets to (existing?.inMenu ?: emptySet())
         } else {
-            (keys?.getKeys(true) ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
+            (existing?.inGame ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
         }
 
         GamepadMapping(
@@ -126,7 +145,7 @@ class GamepadViewModel() : ViewModel() {
             dpadDirection = dpad,
             targetsInGame = targetsInGame,
             targetsInMenu = targetsInMenu
-        ).save(gamepadMap.identifier)
+        ).also { it.save(gamepadMap.identifier) }
     }
 
     private fun GamepadMapping.save(identifier: String) {
@@ -138,78 +157,82 @@ class GamepadViewModel() : ViewModel() {
      * 根据手柄按键键值获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByCode(key: Int, inGame: Boolean) : Set<String>? {
-        return allKeyMappings[key]?.getKeys(inGame)
-    }
+    fun findByCode(key: Int, inGame: Boolean) =
+        allKeyMappings[key]?.getKeys(inGame)
 
     /**
      * 根据手柄方向键获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByDpad(dpadDirection: DpadDirection, inGame: Boolean): Set<String>? {
-        return allDpadMappings[dpadDirection]?.getKeys(inGame)
-    }
+    fun findByDpad(dir: DpadDirection, inGame: Boolean) =
+        allDpadMappings[dir]?.getKeys(inGame)
 
     /**
      * 根据手柄映射获取对应的键盘映射代码
      * @return 若未找到，则返回null
      */
-    fun findByMap(map: GamepadMap, inGame: Boolean): Set<String>? {
-        val dpad = map.dpadDirection
-        val keys = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[map.gamepad]
-        return keys?.getKeys(inGame)
-    }
+    fun findByMap(map: GamepadMap, inGame: Boolean) =
+        (map.dpadDirection?.let { allDpadMappings[it] } ?: allKeyMappings[map.gamepad])
+            ?.getKeys(inGame)
 
-    init {
-        reloadAllMappings()
-    }
-
-
-
-    fun updateButton(code: Int, state: Boolean) {
-        sendEvent(Event.Button(code, state))
+    fun updateButton(code: Int, pressed: Boolean) {
+        onActive()
+        if (updateState(buttonStates, code, pressed)) {
+            sendEvent(Event.Button(code, pressed))
+        }
     }
 
     fun updateMotion(axisCode: Int, value: Float) {
-        gamepadEngaged = true
-        //更新摇杆状态
+        onActive()
         when (axisCode) {
+            //更新摇杆状态
             GamepadRemap.MotionX.code -> leftJoystick.updateState(horizontal = value)
             GamepadRemap.MotionY.code -> leftJoystick.updateState(vertical = value)
             GamepadRemap.MotionZ.code -> rightJoystick.updateState(horizontal = value)
             GamepadRemap.MotionRZ.code -> rightJoystick.updateState(vertical = value)
         }
-        sendIfDpad(axisCode, value)
-    }
 
-    private fun sendIfDpad(axisCode: Int, value: Float) {
         when (axisCode) {
+            //更新左右触发器状态
+            GamepadRemap.MotionLeftTrigger.code,
+            GamepadRemap.MotionRightTrigger.code
+                -> updateButton(axisCode, value > BUTTON_PRESS_THRESHOLD)
+
+            //更新方向键状态
             GamepadRemap.MotionHatX.code -> {
-                updateDpad(DpadDirection.Left, value < -DPAD_PRESS_THRESHOLD)
-                updateDpad(DpadDirection.Right, value > DPAD_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Left, value < -BUTTON_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Right, value > BUTTON_PRESS_THRESHOLD)
             }
             GamepadRemap.MotionHatY.code -> {
-                updateDpad(DpadDirection.Up, value < -DPAD_PRESS_THRESHOLD)
-                updateDpad(DpadDirection.Down, value > DPAD_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Up, value < -BUTTON_PRESS_THRESHOLD)
+                updateDpad(DpadDirection.Down, value > BUTTON_PRESS_THRESHOLD)
             }
         }
     }
 
     private fun updateDpad(direction: DpadDirection, pressed: Boolean) {
-        val last = dpadState[direction] ?: false
-        if (last != pressed) {
-            dpadState[direction] = pressed
+        if (updateState(dpadStates, direction, pressed)) {
             sendEvent(Event.Dpad(direction, pressed))
         }
+    }
+
+    private fun <K> updateState(map: MutableMap<K, Boolean>, key: K, new: Boolean): Boolean {
+        val old = map[key]
+        return if (old != new) {
+            map[key] = new
+            true
+        } else false
     }
 
     /**
      * 轮询调用，持续发送当前拥有的摇杆状态
      */
-    fun pollJoystick(inGame: Boolean) {
-        leftJoystick.onTick(inGame) { sendEvent(it) }
-        rightJoystick.onTick(inGame) { sendEvent(it) }
+    fun pollJoystick() {
+        leftJoystick.onTick(::sendEvent)
+        rightJoystick.onTick(::sendEvent)
     }
+
+    private fun sendEvent(event: Event) = _events.tryEmit(event)
 
     /**
      * 便于记录目标键盘映射的数据类
@@ -219,13 +242,6 @@ class GamepadViewModel() : ViewModel() {
         val inMenu: Set<String>
     ) {
         fun getKeys(isInGame: Boolean) = if (isInGame) inGame else inMenu
-    }
-
-    /**
-     * 方向键方向
-     */
-    enum class DpadDirection {
-        Up, Down, Left, Right
     }
 
     sealed interface Event {
@@ -252,5 +268,17 @@ class GamepadViewModel() : ViewModel() {
          * @param direction 方向
          */
         data class Dpad(val direction: DpadDirection, val pressed: Boolean) : Event
+    }
+
+    enum class PollLevel(val delayMs: Long) {
+        /**
+         * 高轮询等级：16ms延迟 ≈ 60fps
+         */
+        High(16L),
+
+        /**
+         * 不进行轮询
+         */
+        Close(10_000L)
     }
 }

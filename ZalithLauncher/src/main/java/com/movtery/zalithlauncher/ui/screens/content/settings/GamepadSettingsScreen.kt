@@ -134,6 +134,26 @@ fun GamepadSettingsScreen(
                         fineTuningControl = true
                     )
 
+                    SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        unit = AllSettings.gamepadCursorSensitivity,
+                        title = stringResource(R.string.settings_gamepad_cursor_sensitivity_title),
+                        summary = stringResource(R.string.settings_gamepad_cursor_sensitivity_summary),
+                        valueRange = 25f..300f,
+                        suffix = "%",
+                        fineTuningControl = true
+                    )
+
+                    SliderSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        unit = AllSettings.gamepadCameraSensitivity,
+                        title = stringResource(R.string.settings_gamepad_camera_sensitivity_title),
+                        summary = stringResource(R.string.settings_gamepad_camera_sensitivity_summary),
+                        valueRange = 25f..300f,
+                        suffix = "%",
+                        fineTuningControl = true
+                    )
+
                     ListSettingsLayout(
                         unit = AllSettings.joystickControlMode,
                         items = JoystickMode.entries,

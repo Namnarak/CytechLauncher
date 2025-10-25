@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,7 @@ import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.splash.SplashScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -28,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class SplashActivity : BaseComponentActivity(refreshData = false) {
     private val unpackItems: MutableList<InstallableItem> = ArrayList()
     private var finishedTaskCount = AtomicInteger(0)
+
+    private val backStackViewModel: SplashBackStackViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +49,8 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
                 Box {
                     SplashScreen(
                         startAllTask = { startAllTask() },
-                        unpackItems = unpackItems
+                        unpackItems = unpackItems,
+                        screenViewModel = backStackViewModel
                     )
                 }
             }

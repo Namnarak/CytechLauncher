@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -29,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -176,7 +179,10 @@ fun DualMenuSubscreen(
     shape: Shape = RoundedCornerShape(21.0.dp),
     backgroundColor: Color = Color.Black.copy(alpha = 0.25f),
     backgroundAnimDuration: Int = 150,
+    titleHeight: Dp = 48.dp,
+    leftMenuTitle: (@Composable BoxScope.() -> Unit)? = null,
     leftMenuContent: @Composable ColumnScope.() -> Unit = {},
+    rightMenuTitle: (@Composable BoxScope.() -> Unit)? = null,
     rightMenuContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     val visible = state == MenuState.SHOW
@@ -250,7 +256,12 @@ fun DualMenuSubscreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(animationProgress.value),
-                        content = { leftMenuContent() }
+                        content = {
+                            leftMenuTitle?.let { titleLayout ->
+                                MenuTitleLayout(titleLayout, titleHeight)
+                            }
+                            leftMenuContent()
+                        }
                     )
                 }
             }
@@ -272,12 +283,38 @@ fun DualMenuSubscreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(animationProgress.value),
-                        content = { rightMenuContent() }
+                        content = {
+                            rightMenuTitle?.let { titleLayout ->
+                                MenuTitleLayout(titleLayout, titleHeight)
+                            }
+                            rightMenuContent()
+                        }
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun MenuTitleLayout(
+    titleLayout: @Composable BoxScope.() -> Unit,
+    height: Dp = 48.dp
+) {
+    Surface(
+        modifier = Modifier
+            .height(height)
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+            content = titleLayout
+        )
+    }
+    HorizontalDivider(modifier = Modifier.fillMaxWidth())
 }
 
 @Composable

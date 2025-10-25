@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.control.gamepad
 
 import android.os.Parcelable
-import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -13,7 +12,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 class GamepadMapping(
     val key: Int,
-    val dpadDirection: GamepadViewModel.DpadDirection?,
+    val dpadDirection: DpadDirection?,
     val targetsInGame: Set<String> = emptySet(),
     val targetsInMenu: Set<String> = emptySet()
 ): Parcelable

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.ControlBoxLayout
+import com.movtery.layer_controller.HideLayerWhen
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.EmptyControlLayout
@@ -99,6 +101,8 @@ import java.io.File
 private class GameViewModel(private val version: Version) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
+    /** 游戏菜单-控制设置区域Tab选择的索引 */
+    var controlMenuTabIndex by mutableIntStateOf(0)
     /** 强制关闭弹窗操作状态 */
     var forceCloseState by mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None)
     /** 发送键值操作状态 */
@@ -118,16 +122,16 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     /** 当前控制布局文件 */
     var currentControlFile by mutableStateOf<File?>(null)
         private set
-    /** 启用控制布局 */
-    var controlEnabled by mutableStateOf(true)
+    /** 控制布局：控件层隐藏状态 */
+    var controlLayerHideState by mutableStateOf(HideLayerWhen.None)
         private set
 
     /** 是否正在编辑布局 */
     var isEditingLayout by mutableStateOf(false)
         private set
 
-    fun switchControl(enabled: Boolean) {
-        if (controlEnabled != enabled) controlEnabled = enabled
+    fun switchControlLayer(hideWhen: HideLayerWhen) {
+        if (controlLayerHideState != hideWhen) controlLayerHideState = hideWhen
     }
 
     /** 所有已按下的按键，与同一键值的同时按下个数 */
@@ -380,6 +384,9 @@ fun GameScreen(
                         events.fastForEach { event ->
                             onKeyEvent(event, pressed)
                         }
+                    },
+                    onAction = {
+                        viewModel.switchControlLayer(HideLayerWhen.WhenGamepad)
                     }
                 )
 
@@ -403,7 +410,7 @@ fun GameScreen(
                 },
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                enabled = viewModel.controlEnabled
+                hideLayerWhen = viewModel.controlLayerHideState
             ) {
                 val transformableState = rememberTransformableState { _, offsetChange, _ ->
                     incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
@@ -425,8 +432,8 @@ fun GameScreen(
                                 viewModel.occupiedPointers.remove(it)
                                 viewModel.moveOnlyPointers.remove(it)
                             },
-                            onEnableControl = { viewModel.switchControl(true) },
-                            onDisableControl = { viewModel.switchControl(false) },
+                            onMouseMoved = { viewModel.switchControlLayer(HideLayerWhen.WhenMouse) },
+                            onTouch = { viewModel.switchControlLayer(HideLayerWhen.None) },
                             gamepadViewModel = gamepadViewModel
                         )
 
@@ -460,8 +467,7 @@ fun GameScreen(
 
             //手柄事件捕获层
             SimpleGamepadCapture(
-                gamepadViewModel = gamepadViewModel,
-                inGame = isGrabbing
+                gamepadViewModel = gamepadViewModel
             )
         }
 
@@ -491,6 +497,8 @@ fun GameScreen(
 
         GameMenuSubscreen(
             state = viewModel.gameMenuState,
+            controlMenuTabIndex = viewModel.controlMenuTabIndex,
+            onControlMenuTabChange = { viewModel.controlMenuTabIndex = it },
             closeScreen = { viewModel.gameMenuState = MenuState.HIDE },
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
@@ -628,8 +636,8 @@ private fun GameInfoBox(
  * @param isMoveOnlyPointer 检查指针是否被标记为仅处理滑动事件
  * @param onOccupiedPointer 标记指针已被占用
  * @param onReleasePointer 标记指针已被释放
- * @param onEnableControl 启用控制布局操控层
- * @param onDisableControl 禁用控制布局操控层
+ * @param onMouseMoved 实体鼠标操作时回调
+ * @param onTouch 手指触摸操作鼠标层时回调
  */
 @Composable
 private fun MouseControlLayout(
@@ -641,8 +649,8 @@ private fun MouseControlLayout(
     isMoveOnlyPointer: (PointerId) -> Boolean,
     onOccupiedPointer: (PointerId) -> Unit,
     onReleasePointer: (PointerId) -> Unit,
-    onEnableControl: () -> Unit,
-    onDisableControl: () -> Unit,
+    onMouseMoved: () -> Unit,
+    onTouch: () -> Unit,
     gamepadViewModel: GamepadViewModel
 ) {
     Box(
@@ -670,8 +678,8 @@ private fun MouseControlLayout(
         SwitchableMouseLayout(
             modifier = Modifier.fillMaxSize(),
             cursorMode = ZLBridgeStates.cursorMode,
-            onTouch = onEnableControl,
-            onMouse = onDisableControl,
+            onTouch = onTouch,
+            onMouse = onMouseMoved,
             gamepadViewModel = gamepadViewModel,
             onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())

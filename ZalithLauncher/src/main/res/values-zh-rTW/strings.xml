@@ -730,6 +730,10 @@
     <string name="settings_gamepad_joystick_mode_left_summary">左搖桿控制角色移動，右搖桿控制視角</string>
     <string name="settings_gamepad_joystick_mode_right">右手向</string>
     <string name="settings_gamepad_joystick_mode_right_summary">右搖桿控制角色移動，左搖桿控制視角</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">搖桿游標靈敏度</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">調整搖桿控制虛擬滑鼠的移動速度</string>
+    <string name="settings_gamepad_camera_sensitivity_title">搖桿視角靈敏度</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">調整搖桿控制遊戲視角的靈敏度</string>
     <string name="settings_gamepad_mapping_bound">已綁定：</string>
     <string name="settings_gamepad_mapping_unbound">未綁定任何鍵值</string>
     <string name="settings_gamepad_mapping_in_game">遊戲內</string>
@@ -825,6 +829,11 @@
     <string name="settings_launcher_mirror_file_download_title">檔案下載來源</string>
     <string name="settings_launcher_mirror_official_first">優先使用官方來源</string>
     <string name="settings_launcher_mirror_mirror_first">優先使用鏡像來源</string>
+    <string name="settings_launcher_background_image_title">啟動器背景圖片</string>
+    <string name="settings_launcher_background_image_summary">選擇一張圖片作為啟動器的背景</string>
+    <string name="settings_launcher_background_image_reset_message">您確定要重設啟動器的背景圖片嗎？</string>
+    <string name="settings_launcher_background_opacity_title">背景元素不透明度</string>
+    <string name="settings_launcher_background_opacity_summary">調整背景元素的不透明度，以獲得更好的視覺效果並避免與背景圖片衝突</string>
     <string name="just_now">現在</string>
     <string name="minutes_ago">%d 分鐘前</string>
     <string name="hours_ago">%d 小時前</string>
@@ -884,6 +893,8 @@
     <string name="control_editor_menu_preview_mode_scenario">預覽場景</string>
     <string name="control_editor_menu_preview_mode_in_game">遊戲內</string>
     <string name="control_editor_menu_preview_mode_in_menu">遊戲外</string>
+    <string name="control_editor_menu_preview_is_mouse">正在使用實體滑鼠</string>
+    <string name="control_editor_menu_preview_is_gamepad">正在使用手把</string>
     <string name="control_editor_menu_widget_snap">控制項吸附</string>
     <string name="control_editor_menu_widget_snap_all_layers">所有控制項圖層範圍吸附</string>
     <string name="control_editor_menu_widget_snap_mode">控制項吸附模式</string>
@@ -895,6 +906,8 @@
     <string name="control_editor_layers_attribute">控制項圖層屬性</string>
     <string name="control_editor_layers_attribute_name">控制項圖層名稱</string>
     <string name="control_editor_layers_attribute_hide">預設隱藏控制項圖層</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">在實體滑鼠操作時不隱藏</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">在手把操作時不隱藏</string>
     <string name="control_editor_layers_merge_downward">合併控制項至下層</string>
     <string name="control_editor_edit_dialog_open_preview">開啟預覽</string>
     <string name="control_editor_edit_dialog_close_preview">關閉預覽</string>

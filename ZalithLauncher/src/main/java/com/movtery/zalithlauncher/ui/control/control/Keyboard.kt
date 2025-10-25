@@ -1,5 +1,6 @@
 package com.movtery.zalithlauncher.ui.control.control
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -298,7 +299,7 @@ private fun KeyboardNavDialog(
                 shadowElevation = 3.dp,
                 shape = MaterialTheme.shapes.extraLarge
             ) {
-                Column {
+                Column(modifier = Modifier.animateContentSize()) {
                     //顶贴标签栏
                     SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
                         tabs.forEachIndexed { index, item ->

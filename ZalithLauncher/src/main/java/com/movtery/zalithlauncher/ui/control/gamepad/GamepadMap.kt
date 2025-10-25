@@ -1,13 +1,11 @@
 package com.movtery.zalithlauncher.ui.control.gamepad
 
-import android.view.KeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeyName
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
-import com.movtery.zalithlauncher.viewmodel.GamepadViewModel.DpadDirection
 
 /**
  * 特殊键值：鼠标滚轮上移一次
@@ -50,10 +48,10 @@ enum class GamepadMap(
     ButtonRB("BUTTON_RB", GamepadRemap.ButtonR1.code, setOf(SPECIAL_KEY_MOUSE_SCROLL_DOWN)) {
         override fun getIconRes() = R.drawable.img_xbox_rb
     },
-    ButtonLT("BUTTON_LT", KeyEvent.KEYCODE_BUTTON_L2, setOf(ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT)) {
+    ButtonLT("BUTTON_LT", GamepadRemap.MotionLeftTrigger.code, setOf(ControlEventKeycode.GLFW_MOUSE_BUTTON_RIGHT)) {
         override fun getIconRes() = R.drawable.img_xbox_lt
     },
-    ButtonRT("BUTTON_RT", KeyEvent.KEYCODE_BUTTON_R2, setOf(ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT)) {
+    ButtonRT("BUTTON_RT", GamepadRemap.MotionRightTrigger.code, setOf(ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT)) {
         override fun getIconRes() = R.drawable.img_xbox_rt
     },
     DPadUp("DPAD_UP", -1, setOf(ControlEventKeycode.GLFW_KEY_F5), dpadDirection = DpadDirection.Up) {

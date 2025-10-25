@@ -1,7 +1,6 @@
 package com.movtery.zalithlauncher.ui.control.gamepad
 
 import androidx.compose.ui.geometry.Offset
-import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel.Event
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -11,15 +10,6 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 private const val MOUSE_MAX_ACCELERATION = 2.0
-
-//W
-const val MOVEMENT_FORWARD = "key_key.forward"
-//A
-const val MOVEMENT_LEFT = "key_key.left"
-//S
-const val MOVEMENT_BACK = "key_key.back"
-//D
-const val MOVEMENT_RIGHT = "key_key.right"
 
 /**
  * 摇杆横轴、纵轴偏移量状态
@@ -38,16 +28,14 @@ class Joystick(
     private var angleRadian: Double? = null
     private var acceleration: Double? = null
 
-    fun onTick(
-        inGame: Boolean,
-        sendEvent: (Event) -> Unit
-    ) {
+    fun isUsing(): Boolean = horizontalValue != 0f || verticalValue != 0f
+
+    fun onTick(sendEvent: (Event) -> Unit) {
         val mouseAngle = angleRadian ?: getAngleRadian()
         val acceleration = acceleration ?: calculateAcceleration()
-        val sensitivity = if (inGame) 18 else 19 * (AllSettings.cursorSensitivity.state / 100f)
 
-        val deltaX = (cos(mouseAngle) * acceleration * sensitivity.toDouble()).toFloat()
-        val deltaY = (sin(mouseAngle) * acceleration * sensitivity.toDouble()).toFloat()
+        val deltaX = (cos(mouseAngle) * acceleration).toFloat()
+        val deltaY = (sin(mouseAngle) * acceleration).toFloat()
 
         val offset = Offset(deltaX, -deltaY)
         //偏移量为0的情况下，无论发不发送事件都是无意义的
@@ -105,18 +93,18 @@ class Joystick(
     /**
      * 摇杆当前方向
      */
-    enum class Direction(val movement: List<String>) {
-        East(listOf(MOVEMENT_RIGHT)),
-        NorthEast(listOf(MOVEMENT_FORWARD, MOVEMENT_RIGHT)),
-        North(listOf(MOVEMENT_FORWARD)),
-        NorthWest(listOf(MOVEMENT_FORWARD, MOVEMENT_LEFT)),
-        West(listOf(MOVEMENT_LEFT)),
-        SouthWest(listOf(MOVEMENT_BACK, MOVEMENT_LEFT)),
-        South(listOf(MOVEMENT_BACK)),
-        SouthEast(listOf(MOVEMENT_BACK, MOVEMENT_RIGHT)),
+    enum class Direction {
+        East,
+        NorthEast,
+        North,
+        NorthWest,
+        West,
+        SouthWest,
+        South,
+        SouthEast,
         /**
          * 无方向
          */
-        None(emptyList())
+        None
     }
 }

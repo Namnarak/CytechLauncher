@@ -207,6 +207,16 @@ object AllSettings : SettingsRegistry() {
     val joystickControlMode = enumSetting("joystickControlMode", JoystickMode.LeftMovement)
 
     /**
+     * 手柄摇杆控制鼠标指针时的灵敏度
+     */
+    val gamepadCursorSensitivity = intSetting("gamepadCursorSensitivity", 100)
+
+    /**
+     * 手柄摇杆控制游戏视角时的灵敏度
+     */
+    val gamepadCameraSensitivity = intSetting("gamepadCameraSensitivity", 100)
+
+    /**
      * 手势控制
      */
     val gestureControl = boolSetting("gestureControl", false)
@@ -296,6 +306,11 @@ object AllSettings : SettingsRegistry() {
      * 启动器页面切换动画类型
      */
     val launcherSwapAnimateType = enumSetting("launcherSwapAnimateType", TransitionAnimationType.JELLY_BOUNCE)
+
+    /**
+     * 启动器背景元素不透明度
+     */
+    val launcherBackgroundOpacity = intSetting("launcherBackgroundOpacity", 80)
 
     /**
      * 启动器日志保留天数

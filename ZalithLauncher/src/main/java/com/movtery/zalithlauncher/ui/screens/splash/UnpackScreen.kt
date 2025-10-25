@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -41,22 +40,20 @@ import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
-import com.movtery.zalithlauncher.ui.screens.splash.elements.splashScreenKey
+import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object UnpackScreenKey: NavKey
+import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 
 @Composable
 fun UnpackScreen(
     items: List<InstallableItem>,
+    screenViewModel: SplashBackStackViewModel,
     onAgreeClick: () -> Unit = {}
 ) {
     BaseScreen(
-        screenKey = UnpackScreenKey,
-        currentKey = splashScreenKey
+        screenKey = NormalNavKey.UnpackDeps,
+        currentKey = screenViewModel.splashScreen.currentKey
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
             UnpackTaskList(

@@ -1,10 +1,14 @@
 package com.movtery.zalithlauncher.game.version.mod.reader
 
+import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.ModMetadataReader
 import com.movtery.zalithlauncher.game.version.mod.meta.ForgeOldModMetadata
+import com.movtery.zalithlauncher.game.version.mod.meta.ForgeOldModMetadataList
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.UnpackZipException
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +31,20 @@ object ForgeOldModMetadataReader : ModMetadataReader {
                         ?: throw IOException("File $modFile is not a Forge mod.")
 
                     zip.getInputStream(mcmodEntry).bufferedReader().use { reader ->
-                        val modList: List<ForgeOldModMetadata> = GSON.fromJson(
-                            reader,
-                            object : TypeToken<List<ForgeOldModMetadata>>() {}.type
-                        )
+                        // new changed from https://github.com/HMCL-dev/HMCL/commit/2c428faa9540e8666ce3cec07ff284cb53eab34a
+                        val jsonReader = JsonReader(reader)
+                        val firstToken: JsonToken = jsonReader.peek()
+
+                        val modList: List<ForgeOldModMetadata> = when (firstToken) {
+                            JsonToken.BEGIN_ARRAY -> {
+                                GSON.fromJson(jsonReader, object : TypeToken<List<ForgeOldModMetadata>>() {}.type)
+                            }
+                            JsonToken.BEGIN_OBJECT -> {
+                                val list: ForgeOldModMetadataList = GSON.fromJson(jsonReader, ForgeOldModMetadataList::class.java)
+                                list.modList ?: throw IOException("Mod $modFile `mcmod.info` is malformed.")
+                            }
+                            else -> throw JsonParseException("Unexpected first token: $firstToken")
+                        }
 
                         if (modList.isEmpty()) {
                             throw IOException("Mod $modFile `mcmod.info` is malformed.")

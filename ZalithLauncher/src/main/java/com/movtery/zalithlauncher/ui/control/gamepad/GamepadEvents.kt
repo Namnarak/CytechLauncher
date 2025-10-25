@@ -9,6 +9,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.geometry.Offset
@@ -34,8 +35,7 @@ import kotlinx.coroutines.flow.filterIsInstance
  */
 @Composable
 fun SimpleGamepadCapture(
-    gamepadViewModel: GamepadViewModel,
-    inGame: Boolean
+    gamepadViewModel: GamepadViewModel
 ) {
     val view = LocalView.current
     val remapperViewModel: GamepadRemapperViewModel = viewModel()
@@ -105,17 +105,20 @@ fun SimpleGamepadCapture(
         }
     }
 
-    val inGame1 by rememberUpdatedState(inGame)
     LaunchedEffect(isBinding, gamepadViewModel.gamepadEngaged) {
-        if (!isBinding && gamepadViewModel.gamepadEngaged) {
-            while (true) {
-                try {
-                    ensureActive()
-                    gamepadViewModel.pollJoystick(inGame1)
-                    delay(16L) //~60fps
-                } catch (_: CancellationException) {
-                    break
-                }
+        while (true) {
+            try {
+                ensureActive()
+                if (isBinding) break
+
+                //检查手柄活动状态
+                val pollLevel = gamepadViewModel.checkGamepadActive()
+                if (pollLevel == GamepadViewModel.PollLevel.Close) break
+
+                gamepadViewModel.pollJoystick()
+                delay(pollLevel.delayMs)
+            } catch (_: CancellationException) {
+                break
             }
         }
     }
@@ -125,12 +128,14 @@ fun SimpleGamepadCapture(
  * 统一实现的手柄按键事件监听器
  * @param isGrabbing 用于判断是否处于游戏中，区分游戏内、菜单内的按键绑定
  * @param onKeyEvent 键盘映射事件回调
+ * @param onAction 手柄触发任意操作时
  */
 @Composable
 fun GamepadKeyListener(
     gamepadViewModel: GamepadViewModel,
     isGrabbing: Boolean,
-    onKeyEvent: (targets: List<ClickEvent>, pressed: Boolean) -> Unit
+    onKeyEvent: (targets: List<ClickEvent>, pressed: Boolean) -> Unit,
+    onAction: () -> Unit
 ) {
     fun guessEvent(event: String): ClickEvent {
         return when (event) {
@@ -148,12 +153,15 @@ fun GamepadKeyListener(
 
     val inGame by rememberUpdatedState(isGrabbing)
     val currentOnKeyEvent by rememberUpdatedState(onKeyEvent)
+    val currentOnAction by rememberUpdatedState(onAction)
 
     val lastPressKey = remember { mutableStateMapOf<Int, List<ClickEvent>>() }
-    val lastPressDpad = remember { mutableStateMapOf<GamepadViewModel.DpadDirection, List<ClickEvent>>() }
+    val lastPressDpad = remember { mutableStateMapOf<DpadDirection, List<ClickEvent>>() }
 
     LaunchedEffect(gamepadViewModel) {
         gamepadViewModel.events.collect { event ->
+            currentOnAction()
+
             when (event) {
                 is GamepadViewModel.Event.Button -> {
                     if (!event.pressed) {
@@ -223,6 +231,41 @@ fun GamepadStickCameraListener(
     }
 }
 
+//W
+const val MOVEMENT_FORWARD = "key_key.forward"
+//A
+const val MOVEMENT_LEFT = "key_key.left"
+//S
+const val MOVEMENT_BACK = "key_key.back"
+//D
+const val MOVEMENT_RIGHT = "key_key.right"
+
+val directionMapping = mapOf(
+    Joystick.Direction.East to listOf(MOVEMENT_RIGHT to true),
+    Joystick.Direction.NorthEast to listOf(
+        MOVEMENT_FORWARD to true,
+        MOVEMENT_RIGHT to true
+    ),
+    Joystick.Direction.North to listOf(MOVEMENT_FORWARD to true),
+    Joystick.Direction.NorthWest to listOf(
+        MOVEMENT_FORWARD to true,
+        MOVEMENT_LEFT to true
+    ),
+    Joystick.Direction.West to listOf(MOVEMENT_LEFT to true),
+    Joystick.Direction.SouthWest to listOf(
+        MOVEMENT_BACK to true,
+        MOVEMENT_LEFT to true
+    ),
+    Joystick.Direction.South to listOf(MOVEMENT_BACK to true),
+    Joystick.Direction.SouthEast to listOf(
+        MOVEMENT_BACK to true,
+        MOVEMENT_RIGHT to true
+    ),
+    Joystick.Direction.None to emptyList()
+)
+
+val allAction = listOf(MOVEMENT_FORWARD, MOVEMENT_BACK, MOVEMENT_LEFT, MOVEMENT_RIGHT)
+
 /**
  * 统一实现的手柄摇杆控制玩家移动的事件监听器
  * @param isGrabbing 判断当前是否在游戏中，若在游戏内，则根据事件中的摇杆类型判定以哪个摇杆的方向，控制玩家移动
@@ -238,31 +281,9 @@ fun GamepadStickMovementListener(
     val joystickControlMode by rememberUpdatedState(AllSettings.joystickControlMode.state)
     val currentOnKeyEvent by rememberUpdatedState(onKeyEvent)
 
-    val directionMapping = remember {
-        mapOf(
-            Joystick.Direction.East to listOf(MOVEMENT_RIGHT to true),
-            Joystick.Direction.NorthEast to listOf(
-                MOVEMENT_FORWARD to true,
-                MOVEMENT_RIGHT to true
-            ),
-            Joystick.Direction.North to listOf(MOVEMENT_FORWARD to true),
-            Joystick.Direction.NorthWest to listOf(
-                MOVEMENT_FORWARD to true,
-                MOVEMENT_LEFT to true
-            ),
-            Joystick.Direction.West to listOf(MOVEMENT_LEFT to true),
-            Joystick.Direction.SouthWest to listOf(
-                MOVEMENT_BACK to true,
-                MOVEMENT_LEFT to true
-            ),
-            Joystick.Direction.South to listOf(MOVEMENT_BACK to true),
-            Joystick.Direction.SouthEast to listOf(
-                MOVEMENT_BACK to true,
-                MOVEMENT_RIGHT to true
-            ),
-            Joystick.Direction.None to emptyList()
-        )
-    }
+    //缓存已按下的事件，目的是当游戏进入菜单后，能够清除状态
+    //避免回到游戏时出现一直移动的问题
+    val allPressEvent = remember { mutableStateSetOf<String>() }
 
     fun sendKeyEvent(
         mcKey: String,
@@ -278,6 +299,12 @@ fun GamepadStickMovementListener(
                 Lwjgl2Keycode.lwjgl2ToControlEvent(lwjgl2Code)
             }
         }?.let { event ->
+            if (pressed) {
+                allPressEvent.add(event)
+            } else {
+                allPressEvent.remove(event)
+            }
+
             currentOnKeyEvent(
                 ClickEvent(type = ClickEvent.Type.Key, event),
                 pressed
@@ -285,11 +312,26 @@ fun GamepadStickMovementListener(
         }
     }
 
+    fun clearPressedEvent() {
+        if (allPressEvent.isNotEmpty()) {
+            allPressEvent.forEach { event ->
+                currentOnKeyEvent(
+                    ClickEvent(type = ClickEvent.Type.Key, event),
+                    false
+                )
+            }
+            allPressEvent.clear()
+        }
+    }
+
     LaunchedEffect(gamepadViewModel) {
         gamepadViewModel.events
             .filterIsInstance<GamepadViewModel.Event.StickDirection>()
             .collect { event ->
-                if (!currentIsGrabbing) return@collect
+                if (!currentIsGrabbing) {
+                    clearPressedEvent()
+                    return@collect
+                }
 
                 val movementStick = when (joystickControlMode) {
                     JoystickMode.RightMovement -> JoystickType.Right
@@ -298,7 +340,7 @@ fun GamepadStickMovementListener(
 
                 if (event.joystickType != movementStick) return@collect
 
-                listOf(MOVEMENT_FORWARD, MOVEMENT_BACK, MOVEMENT_LEFT, MOVEMENT_RIGHT).forEach { key ->
+                allAction.forEach { key ->
                     sendKeyEvent(key, false)
                 }
 

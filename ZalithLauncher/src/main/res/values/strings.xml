@@ -789,6 +789,10 @@
     <string name="settings_gamepad_joystick_mode_left_summary">Left joystick controls movement, right joystick controls camera</string>
     <string name="settings_gamepad_joystick_mode_right">Right-Handed</string>
     <string name="settings_gamepad_joystick_mode_right_summary">Right joystick controls movement, left joystick controls camera</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">Joystick Cursor Sensitivity</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">Adjust the joystick\'s virtual mouse movement speed</string>
+    <string name="settings_gamepad_camera_sensitivity_title">Joystick Camera Sensitivity</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">Adjust the joystick\'s camera control sensitivity</string>
     <string name="settings_gamepad_mapping_bound">Bound:</string>
     <string name="settings_gamepad_mapping_unbound">No keys bound</string>
     <string name="settings_gamepad_mapping_in_game">In Game</string>
@@ -830,6 +834,11 @@
     <string name="settings_launcher_mirror_file_download_title">File Download Source</string>
     <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
     <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
+    <string name="settings_launcher_background_image_title">Launcher Background Image</string>
+    <string name="settings_launcher_background_image_summary">Choose an image as the launcher background</string>
+    <string name="settings_launcher_background_image_reset_message">Are you sure you want to reset the launcher background image?</string>
+    <string name="settings_launcher_background_opacity_title">Background Element Opacity</string>
+    <string name="settings_launcher_background_opacity_summary">Adjust the opacity of background elements for better visuals and to avoid conflict with the background image</string>
     <!--  Control  -->
     <string name="control_keyboard_bind_title">Bind Key</string>
     <string name="control_keyboard_bind_summary">Press the key you want to bind on your keyboard</string>
@@ -862,6 +871,8 @@
     <string name="control_editor_menu_preview_mode_scenario">Preview Scenario</string>
     <string name="control_editor_menu_preview_mode_in_game">In Game</string>
     <string name="control_editor_menu_preview_mode_in_menu">In Menu</string>
+    <string name="control_editor_menu_preview_is_mouse">Using physical mouse</string>
+    <string name="control_editor_menu_preview_is_gamepad">Using gamepad</string>
     <string name="control_editor_menu_widget_snap">Control Snapping</string>
     <string name="control_editor_menu_widget_snap_all_layers">Snap to All Control Layers</string>
     <string name="control_editor_menu_widget_snap_mode">Control Snapping Mode</string>
@@ -873,6 +884,8 @@
     <string name="control_editor_layers_attribute">Control Layer Attributes</string>
     <string name="control_editor_layers_attribute_name">Control Layer Name</string>
     <string name="control_editor_layers_attribute_hide">Hide Control Layer by Default</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">Keep visible when using mouse</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">Keep visible when using gamepad</string>
     <string name="control_editor_layers_merge_downward">Merge Control Downward</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>

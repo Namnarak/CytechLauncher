@@ -788,6 +788,10 @@
     <string name="settings_gamepad_joystick_mode_left_summary">左摇杆控制角色移动，右摇杆控制视角</string>
     <string name="settings_gamepad_joystick_mode_right">右手向</string>
     <string name="settings_gamepad_joystick_mode_right_summary">右摇杆控制角色移动，左摇杆控制视角</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">摇杆指针灵敏度</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">调节摇杆控制虚拟鼠标的移动速度</string>
+    <string name="settings_gamepad_camera_sensitivity_title">摇杆视角灵敏度</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">调节摇杆控制游戏视角的灵敏度</string>
     <string name="settings_gamepad_mapping_bound">已绑定：</string>
     <string name="settings_gamepad_mapping_unbound">未绑定任何键值</string>
     <string name="settings_gamepad_mapping_in_game">游戏内</string>
@@ -829,6 +833,11 @@
     <string name="settings_launcher_mirror_file_download_title">文件下载源</string>
     <string name="settings_launcher_mirror_official_first">优先使用官方源</string>
     <string name="settings_launcher_mirror_mirror_first">优先使用镜像源</string>
+    <string name="settings_launcher_background_image_title">启动器背景图片</string>
+    <string name="settings_launcher_background_image_summary">选择一张图片作为启动器的背景</string>
+    <string name="settings_launcher_background_image_reset_message">你确定要重置启动器的背景图片吗？</string>
+    <string name="settings_launcher_background_opacity_title">背景元素不透明度</string>
+    <string name="settings_launcher_background_opacity_summary">调整背景元素的不透明度，以获得更好的视觉效果并避免与背景图片冲突</string>
     <!--  控制  -->
     <string name="control_keyboard_bind_title">绑定按键</string>
     <string name="control_keyboard_bind_summary">请在您的键盘上按下想要绑定的按键</string>
@@ -861,6 +870,8 @@
     <string name="control_editor_menu_preview_mode_scenario">预览场景</string>
     <string name="control_editor_menu_preview_mode_in_game">游戏内</string>
     <string name="control_editor_menu_preview_mode_in_menu">游戏外</string>
+    <string name="control_editor_menu_preview_is_mouse">正在使用实体鼠标</string>
+    <string name="control_editor_menu_preview_is_gamepad">正在使用手柄</string>
     <string name="control_editor_menu_widget_snap">控件吸附</string>
     <string name="control_editor_menu_widget_snap_all_layers">所有控制层范围吸附</string>
     <string name="control_editor_menu_widget_snap_mode">控件吸附模式</string>
@@ -872,6 +883,8 @@
     <string name="control_editor_layers_attribute">控件层属性</string>
     <string name="control_editor_layers_attribute_name">控件层名称</string>
     <string name="control_editor_layers_attribute_hide">默认隐藏控件层</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">在实体鼠标操作时不隐藏</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">在手柄操作时不隐藏</string>
     <string name="control_editor_layers_merge_downward">合并控件至下层</string>
     <string name="control_editor_edit_dialog_open_preview">开启预览</string>
     <string name="control_editor_edit_dialog_close_preview">关闭预览</string>
