@@ -67,7 +67,6 @@ import com.movtery.zalithlauncher.ui.components.SimpleCheckEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.components.TextRailItem
-import com.movtery.zalithlauncher.ui.components.desaturate
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
@@ -273,8 +272,8 @@ fun VersionCategoryItem(
     versionsCount: Int,
     selected: Boolean,
     shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer.desaturate(0.5f),
-    selectedContentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    backgroundColor: Color = itemLayoutColor(),
+    selectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = MaterialTheme.typography.labelMedium,
     onClick: () -> Unit = {}
