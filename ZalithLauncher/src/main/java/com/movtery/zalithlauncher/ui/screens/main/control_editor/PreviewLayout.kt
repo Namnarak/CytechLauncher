@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerId
 import com.movtery.layer_controller.ControlBoxLayout
-import com.movtery.layer_controller.HideLayerWhen
+import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.observable.ObservableControlLayout
 import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 

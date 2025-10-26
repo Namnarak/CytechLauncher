@@ -7,18 +7,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,7 +35,7 @@ import androidx.compose.ui.window.Dialog
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
-import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 
 @Composable
 fun SelectLayers(
@@ -66,18 +63,13 @@ fun SelectLayers(
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.size(16.dp))
 
                     ChoseLayersLayout(
                         modifier = Modifier
@@ -88,8 +80,6 @@ fun SelectLayers(
                         onLayerSelected = { selectedLayers.add(it) },
                         onLayerUnSelected = { selectedLayers.remove(it) }
                     )
-
-                    Spacer(modifier = Modifier.size(16.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -126,7 +116,7 @@ private fun ChoseLayersLayout(
     onLayerSelected: (ObservableControlLayer) -> Unit,
     onLayerUnSelected: (ObservableControlLayer) -> Unit,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = 1.dp,
 ) {

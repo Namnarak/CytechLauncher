@@ -14,6 +14,10 @@ data class TextData(
     val position: ButtonPosition,
     val buttonSize: ButtonSize,
     val buttonStyle: String? = null,
+    val textAlignment: TextAlignment = TextAlignment.Left,
+    val textBold: Boolean = false,
+    val textItalic: Boolean = false,
+    val textUnderline: Boolean = false,
     val visibilityType: VisibilityType
 ): Widget
 
@@ -26,5 +30,9 @@ public fun TextData.cloneNew(): TextData = TextData(
     position = CenterPosition,
     buttonSize = buttonSize,
     buttonStyle = buttonStyle,
+    textAlignment = textAlignment,
+    textBold = textBold,
+    textItalic = textItalic,
+    textUnderline = textUnderline,
     visibilityType = visibilityType
 )

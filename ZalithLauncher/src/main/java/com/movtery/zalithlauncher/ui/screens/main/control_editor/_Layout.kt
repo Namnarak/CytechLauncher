@@ -29,6 +29,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SingleChoiceSegmentedButtonRowScope
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -314,6 +318,48 @@ fun InfoLayoutSwitchItem(
             checked = value,
             onCheckedChange = onValueChange
         )
+    }
+}
+
+@Composable
+fun <E> InfoLayoutSelectItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    options: List<E>,
+    current: E,
+    onClick: (E) -> Unit,
+    label: @Composable SingleChoiceSegmentedButtonRowScope.(E) -> Unit,
+    color: Color = itemLayoutColorOnSurface(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface
+) {
+    InfoLayoutItem(
+        modifier = modifier,
+        onClick = {},
+        color = color,
+        contentColor = contentColor
+    ) {
+        MarqueeText(
+            modifier = Modifier.weight(1f),
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        SingleChoiceSegmentedButtonRow {
+            options.forEachIndexed { index, option ->
+                SegmentedButton(
+                    selected = current == option,
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = options.size
+                    ),
+                    onClick = {
+                        onClick(option)
+                    },
+                    label = {
+                        label(option)
+                    }
+                )
+            }
+        }
     }
 }
 

@@ -903,6 +903,10 @@
     <string name="control_editor_edit_translatable_other_tip">Label for current system language: %s</string>
     <string name="control_editor_edit_translatable_other_tag">Language Tag</string>
     <string name="control_editor_edit_translatable_other_value">Text Content</string>
+    <string name="control_editor_edit_text_alignment">Text Alignment</string>
+    <string name="control_editor_edit_text_bold">Enable Bold</string>
+    <string name="control_editor_edit_text_italic">Enable Italic</string>
+    <string name="control_editor_edit_text_underline">Enable Underline</string>
     <string name="control_editor_edit_position_x">X Coordinate</string>
     <string name="control_editor_edit_position_y">Y Coordinate</string>
     <string name="control_editor_edit_size_type">Size Type</string>

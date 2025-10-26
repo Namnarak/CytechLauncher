@@ -172,9 +172,8 @@ fun SearchFilter(
                 selectionMode = FilterSelectionMode.Single,
                 selectedItems = listOfNotNull(gameVersion),
                 onSelectionChange = { new ->
-                    new.firstOrNull().takeIf { it != gameVersion }?.let { value ->
-                        onGameVersionChange(value)
-                    }
+                    val value = new.firstOrNull()
+                    if (value != gameVersion) onGameVersionChange(value)
                 },
                 getItemLabel = { it },
                 title = stringResource(R.string.download_assets_filter_game_version)
@@ -226,9 +225,8 @@ fun SearchFilter(
                     selectionMode = FilterSelectionMode.Single,
                     selectedItems = listOfNotNull(modloader),
                     onSelectionChange = { new ->
-                        new.firstOrNull().takeIf { it != modloader }?.let { value ->
-                            onModLoaderChange(value)
-                        }
+                        val value = new.firstOrNull()
+                        if (value != modloader) onModLoaderChange(value)
                     },
                     getItemLabel = { item ->
                         item.getDisplayName()
@@ -402,9 +400,16 @@ private fun FilterHeader(
                 imageVector = Icons.Rounded.ArrowDropDown,
                 contentDescription = null
             )
-            if (selected && cancelable) {
-                IconButton(onClick = onClear) {
+            AnimatedVisibility(
+                visible = selected && cancelable
+            ) {
+                IconButton(
+                    onClick = {
+                        if (selected && cancelable) onClear()
+                    }
+                ) {
                     Icon(
+                        modifier = Modifier.size(20.dp),
                         imageVector = Icons.Outlined.Clear,
                         contentDescription = stringResource(R.string.generic_clear)
                     )
