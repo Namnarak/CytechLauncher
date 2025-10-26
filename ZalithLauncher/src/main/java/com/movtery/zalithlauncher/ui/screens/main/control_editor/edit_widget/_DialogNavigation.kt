@@ -3,6 +3,7 @@ package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Style
+import androidx.compose.material.icons.outlined.TextFormat
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
@@ -13,6 +14,8 @@ import kotlinx.serialization.Serializable
 sealed interface EditWidgetCategory : NavKey {
     /** 基本信息 */
     @Serializable data object Info : EditWidgetCategory
+    /** 文本样式 */
+    @Serializable data object TextStyle : EditWidgetCategory
     /** 点击事件 */
     @Serializable data object ClickEvent : EditWidgetCategory
     /** 控件样式 */
@@ -24,6 +27,7 @@ sealed interface EditWidgetCategory : NavKey {
  */
 val editWidgetCategories = listOf(
     CategoryItem(EditWidgetCategory.Info, { CategoryIcon(Icons.Outlined.Info, R.string.control_editor_edit_category_info) }, R.string.control_editor_edit_category_info),
+    CategoryItem(EditWidgetCategory.TextStyle, { CategoryIcon(Icons.Outlined.TextFormat, R.string.control_editor_edit_text) }, R.string.control_editor_edit_text),
     CategoryItem(EditWidgetCategory.ClickEvent, { CategoryIcon(Icons.Outlined.TouchApp, R.string.control_editor_edit_category_event) }, R.string.control_editor_edit_category_event),
     CategoryItem(EditWidgetCategory.Style, { CategoryIcon(Icons.Outlined.Style, R.string.control_editor_edit_category_style) }, R.string.control_editor_edit_category_style)
 )

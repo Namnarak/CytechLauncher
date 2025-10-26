@@ -288,7 +288,10 @@ private fun EditWidgetNavigation(
             onBack = { /* 忽略 */ },
             entryProvider = entryProvider {
                 entry<EditWidgetCategory.Info> {
-                    EditWidgetInfo(data, onEditWidgetText, onPreviewRequested, onDismissRequested)
+                    EditWidgetInfo(data, onPreviewRequested, onDismissRequested)
+                }
+                entry<EditWidgetCategory.TextStyle> {
+                    EditTextStyle(data, onEditWidgetText)
                 }
                 entry<EditWidgetCategory.ClickEvent> {
                     EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers)

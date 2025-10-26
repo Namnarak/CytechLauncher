@@ -8,13 +8,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.movtery.layer_controller.data.TextAlignment
 import com.movtery.layer_controller.observable.DefaultObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
+import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
@@ -22,6 +27,14 @@ import com.movtery.layer_controller.utils.buttonStyle
 import com.movtery.layer_controller.utils.editMode
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.SnapMode
+
+private data class ButtonTextStyle(
+    val text: ObservableTranslatableString,
+    val textAlignment: TextAlignment,
+    val textBold: Boolean,
+    val textItalic: Boolean,
+    val textUnderline: Boolean
+)
 
 /**
  * 基础文本控件
@@ -83,16 +96,30 @@ internal fun TextButton(
             contentAlignment = Alignment.Center
         ) {
             val color by buttonContentColorAsState(style = style, isPressed = isPressed)
-            val text = remember(data) {
-                when (data) {
-                    is ObservableNormalData -> data.text
-                    is ObservableTextData -> data.text
-                    else -> error("Unknown widget type")
-                }
+            val buttonTextStyle = when (data) {
+                is ObservableNormalData -> ButtonTextStyle(
+                    text = data.text,
+                    textAlignment = data.textAlignment,
+                    textBold = data.textBold,
+                    textItalic = data.textItalic,
+                    textUnderline = data.textUnderline
+                )
+                is ObservableTextData -> ButtonTextStyle(
+                    text = data.text,
+                    textAlignment = data.textAlignment,
+                    textBold = data.textBold,
+                    textItalic = data.textItalic,
+                    textUnderline = data.textUnderline
+                )
+                else -> error("Unknown widget type")
             }
             RtLText(
-                text = text.translate(locale),
-                color = color
+                text = buttonTextStyle.text.translate(locale),
+                color = color,
+                textAlign = buttonTextStyle.textAlignment.textAlign,
+                fontWeight = if (buttonTextStyle.textBold) FontWeight.Bold else null,
+                fontStyle = if (buttonTextStyle.textItalic) FontStyle.Italic else null,
+                textDecoration = if (buttonTextStyle.textUnderline) TextDecoration.Underline else null
             )
         }
     } else {

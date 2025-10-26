@@ -902,6 +902,10 @@
     <string name="control_editor_edit_translatable_other_tip">当前系统语言的标签：%s</string>
     <string name="control_editor_edit_translatable_other_tag">语言标签</string>
     <string name="control_editor_edit_translatable_other_value">文本内容</string>
+    <string name="control_editor_edit_text_alignment">文本对齐</string>
+    <string name="control_editor_edit_text_bold">启用粗体</string>
+    <string name="control_editor_edit_text_italic">启用斜体</string>
+    <string name="control_editor_edit_text_underline">启用下划线</string>
     <string name="control_editor_edit_position_x">X 坐标</string>
     <string name="control_editor_edit_position_y">Y 坐标</string>
     <string name="control_editor_edit_size_type">尺寸类型</string>

@@ -1,4 +1,4 @@
-package com.movtery.layer_controller
+package com.movtery.layer_controller.data
 
 enum class HideLayerWhen {
     /**

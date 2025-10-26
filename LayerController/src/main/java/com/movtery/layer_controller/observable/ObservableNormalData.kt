@@ -16,6 +16,10 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     var position by mutableStateOf(data.position)
     var buttonSize by mutableStateOf(data.buttonSize)
     var buttonStyle by mutableStateOf(data.buttonStyle)
+    var textAlignment by mutableStateOf(data.textAlignment)
+    var textBold by mutableStateOf(data.textBold)
+    var textItalic by mutableStateOf(data.textItalic)
+    var textUnderline by mutableStateOf(data.textUnderline)
     var visibilityType by mutableStateOf(data.visibilityType)
     var clickEvents by mutableStateOf(data.clickEvents)
     var isSwipple by mutableStateOf(data.isSwipple)
@@ -53,6 +57,10 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
             position = position,
             buttonSize = buttonSize,
             buttonStyle = buttonStyle,
+            textAlignment = textAlignment,
+            textBold = textBold,
+            textItalic = textItalic,
+            textUnderline = textUnderline,
             visibilityType = visibilityType,
             clickEvents = clickEvents,
             isSwipple = isSwipple,
