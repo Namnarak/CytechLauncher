@@ -952,4 +952,8 @@
     <string name="control_editor_menu_preview_is_gamepad">コントローラーを使用</string>
     <string name="control_editor_layers_attribute_hide_when_mouse">マウス使用時に表示したままにする</string>
     <string name="control_editor_layers_attribute_hide_when_gamepad">コントローラー使用中に表示したままにする</string>
+    <string name="control_editor_edit_text_alignment">テキストの配置</string>
+    <string name="control_editor_edit_text_bold">太線を有効にする</string>
+    <string name="control_editor_edit_text_italic">斜体を有効にする</string>
+    <string name="control_editor_edit_text_underline">下線を有効にする</string>
 </resources>
