@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import android.app.Activity
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
+import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.crossfade
@@ -22,15 +24,17 @@ import com.movtery.zalithlauncher.game.renderer.RendererInterface
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.VideoPlayer
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
 import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
-import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 sealed interface LaunchGameOperation {
     data object None : LaunchGameOperation
@@ -211,31 +215,53 @@ fun LaunchGameOperation(
 }
 
 @Composable
-fun BackgroundImage(
-    viewModel: BackgroundImageViewModel,
+fun Background(
+    viewModel: BackgroundViewModel,
+    modifier: Modifier = Modifier
+) {
+    if (viewModel.isValid) {
+        if (viewModel.isVideo) {
+            VideoPlayer(
+                videoUri = Uri.fromFile(viewModel.backgroundFile),
+                modifier = modifier,
+                refreshTrigger = viewModel.refreshTrigger
+            )
+        } else if (viewModel.isImage) {
+            BackgroundImage(
+                modifier = modifier,
+                imageFile = viewModel.backgroundFile,
+                refreshTrigger = viewModel.refreshTrigger
+            )
+        }
+    }
+}
+
+@Composable
+private fun BackgroundImage(
+    refreshTrigger: Any,
+    imageFile: File,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
-    val refreshTrigger = viewModel.refreshImage
-    val imageFile = viewModel.image
-
-    if (viewModel.isImageExists) {
-        val imageLoader = ImageLoader(context)
-        val request = remember(refreshTrigger) {
-            ImageRequest.Builder(context)
-                .data(imageFile)
-                .allowHardware(false)
-                .crossfade(false)
-                .build()
-        }
-
-        AsyncImage(
-            modifier = modifier,
-            model = request,
-            imageLoader = imageLoader,
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
+    val imageLoader = remember(refreshTrigger) {
+        ImageLoader.Builder(context)
+            .components { add(GifDecoder.Factory()) }
+            .build()
     }
+    val request = remember(refreshTrigger) {
+        ImageRequest.Builder(context)
+            .data(imageFile)
+            .allowHardware(false)
+            .crossfade(false)
+            .build()
+    }
+
+    AsyncImage(
+        modifier = modifier,
+        model = request,
+        imageLoader = imageLoader,
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
 }

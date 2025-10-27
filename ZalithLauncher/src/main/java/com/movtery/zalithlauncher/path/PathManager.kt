@@ -17,7 +17,7 @@ class PathManager {
         lateinit var DIR_JNA: File
         lateinit var DIR_COMPONENTS: File
         lateinit var DIR_MOUSE_POINTER: File
-        lateinit var DIR_IMAGE: File
+        lateinit var DIR_BACKGROUND: File
         lateinit var DIR_CACHE_GAME_DOWNLOADER: File
         lateinit var DIR_CACHE_MODPACK_DOWNLOADER: File
         lateinit var DIR_CACHE_MOD_UPDATER: File
@@ -29,7 +29,7 @@ class PathManager {
         lateinit var FILE_CRASH_REPORT: File
         lateinit var FILE_SETTINGS: File
         lateinit var FILE_MINECRAFT_VERSIONS: File
-        lateinit var FILE_BACKGROUND_IMAGE: File
+        lateinit var FILE_LAUNCHER_BACKGROUND: File
 
         fun refreshPaths(context: Context) {
             DIR_FILES_PRIVATE = context.filesDir
@@ -44,7 +44,7 @@ class PathManager {
             DIR_JNA = File(DIR_GAME, "jna_dir")
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
             DIR_MOUSE_POINTER = File(DIR_FILES_PRIVATE, "mouse_pointer")
-            DIR_IMAGE = File(DIR_FILES_PRIVATE, "images")
+            DIR_BACKGROUND = File(DIR_FILES_PRIVATE, "background")
             DIR_CACHE_GAME_DOWNLOADER = File(DIR_CACHE, "temp_game")
             DIR_CACHE_MODPACK_DOWNLOADER = File(DIR_CACHE, "temp_modpack")
             DIR_CACHE_MOD_UPDATER = File(DIR_CACHE, "temp_mod_updater")
@@ -56,7 +56,7 @@ class PathManager {
             FILE_CRASH_REPORT = File(DIR_LAUNCHER_LOGS, "launcher_crash.log")
             FILE_SETTINGS = File(DIR_FILES_PRIVATE, "settings.json")
             FILE_MINECRAFT_VERSIONS = File(DIR_GAME, "minecraft_versions.json")
-            FILE_BACKGROUND_IMAGE = File(DIR_IMAGE, "background.image")
+            FILE_LAUNCHER_BACKGROUND = File(DIR_BACKGROUND, "background01.file")
 
             createDirs()
         }
@@ -68,7 +68,7 @@ class PathManager {
             DIR_JNA.mkdirs()
             DIR_COMPONENTS.mkdirs()
             DIR_MOUSE_POINTER.mkdirs()
-            DIR_IMAGE.mkdirs()
+            DIR_BACKGROUND.mkdirs()
             DIR_CACHE_GAME_DOWNLOADER.mkdirs()
             DIR_CACHE_MODPACK_DOWNLOADER.mkdirs()
             DIR_CACHE_MOD_UPDATER.mkdirs()

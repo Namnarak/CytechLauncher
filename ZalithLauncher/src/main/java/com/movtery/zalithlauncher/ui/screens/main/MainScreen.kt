@@ -84,7 +84,7 @@ import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -95,7 +95,7 @@ fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundImageViewModel: BackgroundImageViewModel,
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(
@@ -114,7 +114,7 @@ fun MainScreen(
             screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
         }
 
-        val isBackgroundImageExists = backgroundImageViewModel.isImageExists
+        val isBackgroundValid = backgroundViewModel.isValid
         val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
 
         val topBarColor = MaterialTheme.colorScheme.surfaceContainer
@@ -127,7 +127,7 @@ fun MainScreen(
             mainScreenKey = screenBackStackModel.mainScreen.currentKey,
             taskRunning = tasks.isEmpty(),
             isTasksExpanded = isTaskMenuExpanded,
-            color = if (isBackgroundImageExists) {
+            color = if (isBackgroundValid) {
                 topBarColor.copy((launcherBackgroundOpacity + 0.1f).coerceAtMost(1f))
             } else topBarColor,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -157,7 +157,7 @@ fun MainScreen(
 
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = if (isBackgroundImageExists) {
+                color = if (isBackgroundValid) {
                     surfaceColor.copy(alpha = launcherBackgroundOpacity)
                 } else surfaceColor,
                 contentColor = MaterialTheme.colorScheme.onSurface
@@ -168,7 +168,7 @@ fun MainScreen(
                     toMainScreen = toMainScreen,
                     launchGameViewModel = launchGameViewModel,
                     eventViewModel = eventViewModel,
-                    backgroundImageViewModel = backgroundImageViewModel,
+                    backgroundViewModel = backgroundViewModel,
                     submitError = submitError
                 )
             }
@@ -384,7 +384,7 @@ private fun NavigationUI(
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundImageViewModel: BackgroundImageViewModel,
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreen.backStack
@@ -425,7 +425,7 @@ private fun NavigationUI(
                             backStack.navigateTo(NormalNavKey.License(raw))
                         },
                         eventViewModel = eventViewModel,
-                        backgroundImageViewModel = backgroundImageViewModel,
+                        backgroundViewModel = backgroundViewModel,
                         submitError = submitError
                     )
                 }

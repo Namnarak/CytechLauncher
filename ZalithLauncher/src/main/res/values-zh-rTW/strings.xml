@@ -832,8 +832,12 @@
     <string name="settings_launcher_background_image_title">啟動器背景圖片</string>
     <string name="settings_launcher_background_image_summary">選擇一張圖片作為啟動器的背景</string>
     <string name="settings_launcher_background_image_reset_message">您確定要重設啟動器的背景圖片嗎？</string>
+    <string name="settings_launcher_background_title">啟動器背景</string>
+    <string name="settings_launcher_background_summary">選擇一張圖片或影片作為啟動器背景</string>
+    <string name="settings_launcher_background_importing">正在導入啟動器背景文件</string>
+    <string name="settings_launcher_background_reset_message">您確定要重設啟動器背景嗎？</string>
     <string name="settings_launcher_background_opacity_title">背景元素不透明度</string>
-    <string name="settings_launcher_background_opacity_summary">調整背景元素的不透明度，以獲得更好的視覺效果並避免與背景圖片衝突</string>
+    <string name="settings_launcher_background_opacity_summary">調整背景元素的不透明度，以獲得更好的視覺效果並避免與背景衝突</string>
     <string name="just_now">現在</string>
     <string name="minutes_ago">%d 分鐘前</string>
     <string name="hours_ago">%d 小時前</string>

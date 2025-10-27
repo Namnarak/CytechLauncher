@@ -837,8 +837,12 @@
     <string name="settings_launcher_background_image_title">Launcher Background Image</string>
     <string name="settings_launcher_background_image_summary">Choose an image as the launcher background</string>
     <string name="settings_launcher_background_image_reset_message">Are you sure you want to reset the launcher background image?</string>
+    <string name="settings_launcher_background_title">Launcher Background</string>
+    <string name="settings_launcher_background_summary">Choose an image or video as the launcher background</string>
+    <string name="settings_launcher_background_importing">Importing launcher background file</string>
+    <string name="settings_launcher_background_reset_message">Are you sure you want to reset the launcher background?</string>
     <string name="settings_launcher_background_opacity_title">Background Element Opacity</string>
-    <string name="settings_launcher_background_opacity_summary">Adjust the opacity of background elements for better visuals and to avoid conflict with the background image</string>
+    <string name="settings_launcher_background_opacity_summary">Adjust the opacity of background elements for better visuals and to avoid conflicts with the background</string>
     <!--  Control  -->
     <string name="control_keyboard_bind_title">Bind Key</string>
     <string name="control_keyboard_bind_summary">Press the key you want to bind on your keyboard</string>

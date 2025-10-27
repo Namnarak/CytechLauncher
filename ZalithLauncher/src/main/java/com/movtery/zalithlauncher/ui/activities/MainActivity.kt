@@ -19,13 +19,13 @@ import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.BackgroundImage
+import com.movtery.zalithlauncher.ui.screens.content.elements.Background
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.openLink
-import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -48,7 +48,7 @@ class MainActivity : BaseComponentActivity() {
     /**
      * 启动器背景图片管理ViewModel
      */
-    private val backgroundImageViewModel: BackgroundImageViewModel by viewModels()
+    private val backgroundViewModel: BackgroundViewModel by viewModels()
 
     /**
      * 错误信息ViewModel
@@ -117,16 +117,16 @@ class MainActivity : BaseComponentActivity() {
         setContent {
             ZalithLauncherTheme {
                 Box {
-                    BackgroundImage(
+                    Background(
                         modifier = Modifier.fillMaxSize(),
-                        viewModel = backgroundImageViewModel
+                        viewModel = backgroundViewModel
                     )
 
                     MainScreen(
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,
-                        backgroundImageViewModel = backgroundImageViewModel,
+                        backgroundViewModel = backgroundViewModel,
                         submitError = {
                             errorViewModel.showError(it)
                         }
