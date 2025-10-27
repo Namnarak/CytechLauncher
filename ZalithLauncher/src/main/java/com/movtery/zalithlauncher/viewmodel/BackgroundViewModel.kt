@@ -110,6 +110,7 @@ class BackgroundViewModel(): ViewModel() {
 
     suspend fun import(context: Context, result: Uri) {
         withContext(Dispatchers.IO) {
+            FileUtils.deleteQuietly(backgroundFile)
             context.copyLocalFile(result, backgroundFile)
             updateState()
         }

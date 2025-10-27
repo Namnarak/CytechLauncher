@@ -55,7 +55,7 @@ fun VideoPlayer(
     refreshTrigger: Any? = null
 ) {
     val context = LocalContext.current
-    val player = remember(refreshTrigger) {
+    val player = remember {
         ExoPlayer.Builder(context).build().apply {
             val audioAttr = AudioAttributes.Builder()
                 .setUsage(C.USAGE_MEDIA)
@@ -68,7 +68,7 @@ fun VideoPlayer(
         }
     }
 
-    val playerView = remember(refreshTrigger) {
+    val playerView = remember {
         PlayerView(context).apply {
             this.player = player
             this@apply.resizeMode = resizeMode
@@ -76,7 +76,7 @@ fun VideoPlayer(
         }
     }
 
-    LaunchedEffect(videoUri) {
+    LaunchedEffect(videoUri, refreshTrigger) {
         val mediaItem = MediaItem.fromUri(videoUri)
         player.setMediaItem(mediaItem)
         player.prepare()
