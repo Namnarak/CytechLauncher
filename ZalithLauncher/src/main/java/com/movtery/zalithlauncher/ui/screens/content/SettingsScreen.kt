@@ -54,7 +54,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSettingsSc
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
@@ -65,7 +65,7 @@ fun SettingsScreen(
     backStackViewModel: ScreenBackStackViewModel,
     openLicenseScreen: (raw: Int) -> Unit,
     eventViewModel: EventViewModel,
-    backgroundImageViewModel: BackgroundImageViewModel,
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     BaseScreen(
@@ -91,7 +91,7 @@ fun SettingsScreen(
                 },
                 openLicenseScreen = openLicenseScreen,
                 eventViewModel = eventViewModel,
-                backgroundImageViewModel = backgroundImageViewModel,
+                backgroundViewModel = backgroundViewModel,
                 submitError = submitError,
                 modifier = Modifier.fillMaxHeight()
             )
@@ -174,7 +174,7 @@ private fun NavigationUI(
     onCurrentKeyChange: (NavKey?) -> Unit,
     openLicenseScreen: (raw: Int) -> Unit,
     eventViewModel: EventViewModel,
-    backgroundImageViewModel: BackgroundImageViewModel,
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -205,7 +205,7 @@ private fun NavigationUI(
                     GamepadSettingsScreen(key, settingsScreenKey, mainScreenKey)
                 }
                 entry<NormalNavKey.Settings.Launcher> {
-                    LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey, backgroundImageViewModel, submitError)
+                    LauncherSettingsScreen(key, settingsScreenKey, mainScreenKey, backgroundViewModel, submitError)
                 }
                 entry<NormalNavKey.Settings.JavaManager> {
                     JavaManageScreen(key, settingsScreenKey, mainScreenKey, submitError)

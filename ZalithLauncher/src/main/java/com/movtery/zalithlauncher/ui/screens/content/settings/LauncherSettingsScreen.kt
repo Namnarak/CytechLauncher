@@ -51,7 +51,7 @@ import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.file.zipDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
-import com.movtery.zalithlauncher.viewmodel.BackgroundImageViewModel
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -67,7 +67,7 @@ fun LauncherSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    backgroundImageViewModel: BackgroundImageViewModel,
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
@@ -134,14 +134,14 @@ fun LauncherSettingsScreen(
                 }
             }
 
-            //背景图片设置板块
+            //启动器背景设置板块
             AnimatedItem(scope) { yOffset ->
                 SettingsBackground(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    CustomBackgroundImage(
+                    CustomBackground(
                         modifier = Modifier.fillMaxWidth(),
-                        backgroundImageViewModel = backgroundImageViewModel,
+                        backgroundViewModel = backgroundViewModel,
                         submitError = submitError
                     )
 
@@ -152,7 +152,8 @@ fun LauncherSettingsScreen(
                         summary = stringResource(R.string.settings_launcher_background_opacity_summary),
                         valueRange = 20f..100f,
                         suffix = "%",
-                        enabled = backgroundImageViewModel.isImageExists
+                        enabled = backgroundViewModel.isValid,
+                        fineTuningControl = true
                     )
                 }
             }
@@ -295,25 +296,25 @@ private fun CustomColorOperation(
     }
 }
 
-private sealed interface BackgroundImageOperation {
-    data object None : BackgroundImageOperation
-    data object PreReset : BackgroundImageOperation
-    data object Reset : BackgroundImageOperation
+private sealed interface BackgroundOperation {
+    data object None : BackgroundOperation
+    data object PreReset : BackgroundOperation
+    data object Reset : BackgroundOperation
 }
 
 @Composable
-private fun SettingsLayoutScope.CustomBackgroundImage(
-    backgroundImageViewModel: BackgroundImageViewModel,
+private fun SettingsLayoutScope.CustomBackground(
+    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var operation by remember { mutableStateOf<BackgroundImageOperation>(BackgroundImageOperation.None) }
+    var operation by remember { mutableStateOf<BackgroundOperation>(BackgroundOperation.None) }
 
-    BackgroundImageOperation(
+    BackgroundOperation(
         operation = operation,
         changeOperation = { operation = it },
-        backgroundImageViewModel = backgroundImageViewModel
+        backgroundViewModel = backgroundViewModel
     )
 
     val filePicker = rememberLauncherForActivityResult(
@@ -323,12 +324,13 @@ private fun SettingsLayoutScope.CustomBackgroundImage(
             TaskSystem.submitTask(
                 Task.runTask(
                     dispatcher = Dispatchers.IO,
-                    task = {
-                        backgroundImageViewModel.importImage(context, result)
-                        operation = BackgroundImageOperation.None
+                    task = { task ->
+                        task.updateMessage(R.string.settings_launcher_background_importing)
+                        backgroundViewModel.import(context, result)
+                        operation = BackgroundOperation.None
                     },
                     onError = { th ->
-                        backgroundImageViewModel.deleteImage()
+                        backgroundViewModel.delete()
                         submitError(
                             ErrorViewModel.ThrowableMessage(
                                 title = context.getString(R.string.error_import_image),
@@ -348,20 +350,20 @@ private fun SettingsLayoutScope.CustomBackgroundImage(
     ) {
         ClickableSettingsLayout(
             modifier = Modifier.weight(1f),
-            title = stringResource(R.string.settings_launcher_background_image_title),
-            summary = stringResource(R.string.settings_launcher_background_image_summary),
-            onClick = { filePicker.launch(arrayOf("image/*")) }
+            title = stringResource(R.string.settings_launcher_background_title),
+            summary = stringResource(R.string.settings_launcher_background_summary),
+            onClick = { filePicker.launch(arrayOf("image/*", "video/*")) }
         )
 
         AnimatedVisibility(
-            visible = backgroundImageViewModel.isImageExists
+            visible = backgroundViewModel.isValid
         ) {
             IconTextButton(
                 imageVector = Icons.Default.RestartAlt,
                 text = stringResource(R.string.generic_reset),
                 onClick = {
-                    if (operation == BackgroundImageOperation.None) {
-                        operation = BackgroundImageOperation.PreReset
+                    if (operation == BackgroundOperation.None) {
+                        operation = BackgroundOperation.PreReset
                     }
                 }
             )
@@ -370,29 +372,29 @@ private fun SettingsLayoutScope.CustomBackgroundImage(
 }
 
 @Composable
-private fun BackgroundImageOperation(
-    operation: BackgroundImageOperation,
-    changeOperation: (BackgroundImageOperation) -> Unit,
-    backgroundImageViewModel: BackgroundImageViewModel
+private fun BackgroundOperation(
+    operation: BackgroundOperation,
+    changeOperation: (BackgroundOperation) -> Unit,
+    backgroundViewModel: BackgroundViewModel
 ) {
     when (operation) {
-        is BackgroundImageOperation.None -> {}
-        is BackgroundImageOperation.PreReset -> {
+        is BackgroundOperation.None -> {}
+        is BackgroundOperation.PreReset -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.settings_launcher_background_image_reset_message),
+                text = stringResource(R.string.settings_launcher_background_reset_message),
                 onConfirm = {
-                    changeOperation(BackgroundImageOperation.Reset)
+                    changeOperation(BackgroundOperation.Reset)
                 },
                 onDismiss = {
-                    changeOperation(BackgroundImageOperation.None)
+                    changeOperation(BackgroundOperation.None)
                 }
             )
         }
-        is BackgroundImageOperation.Reset -> {
+        is BackgroundOperation.Reset -> {
             LaunchedEffect(Unit) {
-                backgroundImageViewModel.deleteImage()
-                changeOperation(BackgroundImageOperation.None)
+                backgroundViewModel.delete()
+                changeOperation(BackgroundOperation.None)
             }
         }
     }
