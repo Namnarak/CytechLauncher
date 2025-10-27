@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.viewmodel
 
 import android.content.Context
@@ -46,14 +64,18 @@ class BackgroundViewModel(): ViewModel() {
         private set
 
     private suspend fun updateState() {
-        withContext(Dispatchers.IO) {
-            val isVideo0 = isVideoFile()
-            val isImage0 = backgroundFile.isImageFile()
-            //更新状态
-            isVideo = isVideo0
+        val (isImage0, isVideo0) = withContext(Dispatchers.IO) {
+            val isImage = backgroundFile.isImageFile()
+            //如果文件是图片，则不检查是否为视频
+            val isVideo = if (!isImage) isVideoFile() else false
+            isImage to isVideo
+        }
+        //更新状态
+        withContext(Dispatchers.Main) {
             isImage = isImage0
-            isValid = backgroundFile.exists() && (isVideo0 || isImage0)
-            refreshTrigger = refreshTrigger.not()
+            isVideo = isVideo0
+            isValid = backgroundFile.exists() && (isImage0 || isVideo0)
+            refreshTrigger = !refreshTrigger
         }
     }
 
@@ -73,8 +95,8 @@ class BackgroundViewModel(): ViewModel() {
         }
     }
 
-    init {
-        viewModelScope.launch {
+    fun initState() {
+        viewModelScope.launch(Dispatchers.Main) {
             updateState()
         }
     }
