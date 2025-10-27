@@ -1,8 +1,29 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.layer_controller
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -22,8 +43,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -80,17 +101,21 @@ fun ControlBoxLayout(
         else -> {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 key(observedLayout.hashCode()) {
-                    BaseControlBoxLayout(
-                        modifier = modifier,
-                        observedLayout = observedLayout,
-                        checkOccupiedPointers = checkOccupiedPointers,
-                        opacity = opacity,
-                        onClickEvent = onClickEvent,
-                        markPointerAsMoveOnly = markPointerAsMoveOnly,
-                        isCursorGrabbing = isCursorGrabbing,
-                        hideLayerWhen = hideLayerWhen,
-                        content = content
-                    )
+                    BoxWithConstraints(
+                        modifier = modifier
+                    ) {
+                        BaseControlBoxLayout(
+                            modifier = Modifier.fillMaxSize(),
+                            observedLayout = observedLayout,
+                            checkOccupiedPointers = checkOccupiedPointers,
+                            opacity = opacity,
+                            onClickEvent = onClickEvent,
+                            markPointerAsMoveOnly = markPointerAsMoveOnly,
+                            isCursorGrabbing = isCursorGrabbing,
+                            hideLayerWhen = hideLayerWhen,
+                            content = content
+                        )
+                    }
                 }
             }
         }
@@ -101,7 +126,7 @@ fun ControlBoxLayout(
  * 控制布局画布
  */
 @Composable
-private fun BaseControlBoxLayout(
+private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     modifier: Modifier = Modifier,
     observedLayout: ObservableControlLayout,
     checkOccupiedPointers: (PointerId) -> Boolean,
@@ -125,7 +150,15 @@ private fun BaseControlBoxLayout(
     val isCursorGrabbing1 by rememberUpdatedState(isCursorGrabbing)
     val hideLayerWhen1 by rememberUpdatedState(hideLayerWhen)
 
-    val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
+    val density = LocalDensity.current
+    val screenSize = remember(maxWidth, maxHeight) {
+        with(density) {
+            IntSize(
+                width = maxWidth.roundToPx(),
+                height = maxHeight.roundToPx()
+            )
+        }
+    }
 
     fun handleClickEvents(
         data: ObservableNormalData,
@@ -351,6 +384,7 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        screenSize = screenSize,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
@@ -364,6 +398,7 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        screenSize = screenSize,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,

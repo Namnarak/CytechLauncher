@@ -1,7 +1,26 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.layer_controller
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,8 +34,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -61,7 +80,9 @@ fun ControlEditorLayer(
         //反转：将最后一层视为底层，逐步向上渲染
         val renderingLayers = layers.reversed()
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
+        ) {
             ControlWidgetRenderer(
                 renderingLayers = renderingLayers,
                 styles = styles,
@@ -130,7 +151,7 @@ private fun DrawScope.drawLine(
  * @param onLineCancel 取消吸附参考线
  */
 @Composable
-private fun ControlWidgetRenderer(
+private fun BoxWithConstraintsScope.ControlWidgetRenderer(
     renderingLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     enableSnap: Boolean,
@@ -143,7 +164,15 @@ private fun ControlWidgetRenderer(
     onLineCancel: (ObservableWidget) -> Unit
 ) {
     val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
-    val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
+    val density = LocalDensity.current
+    val screenSize = remember(maxWidth, maxHeight) {
+        with(density) {
+            IntSize(
+                width = maxWidth.roundToPx(),
+                height = maxHeight.roundToPx()
+            )
+        }
+    }
 
     val allWidgetsMap = remember { mutableStateMapOf<ObservableControlLayer, List<ObservableWidget>>() }
     val snapInAllLayers1 by rememberUpdatedState(snapInAllLayers)
@@ -157,6 +186,7 @@ private fun ControlWidgetRenderer(
         TextButton(
             isEditMode = true,
             data = data,
+            screenSize = screenSize,
             getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
             enableSnap = enableSnap,
             snapMode = snapMode,
