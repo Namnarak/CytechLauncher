@@ -10,8 +10,8 @@ body:
         The type of the current crash will be displayed at the top of the action bar on the right side of the crash page.  
         崩溃页面右侧操作栏顶部会显示本次的崩溃类型。
       options:
-        - 'Game Crash / 游戏运行崩溃'
-        - 'Launcher Crash / 启动器崩溃'
+        - 'Game Problem / 游戏问题'
+        - 'Launcher Problem / 启动器问题'
     validations:
       required: true
 
