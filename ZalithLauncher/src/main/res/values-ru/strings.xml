@@ -45,7 +45,7 @@
     <string name="launcher_version_debug_warning_cant_close">Это предупреждение нельзя закрыть</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Динамическая (Android 12+)</string>
-    <string name="theme_color_embermire">Янтарный</string>
+    <string name="theme_color_embermire">Embermire</string>
     <string name="theme_color_velvet_rose">Velvet Rose</string>
     <string name="theme_color_mistwave">Mistwave</string>
     <string name="theme_color_glacier">Glacier</string>
