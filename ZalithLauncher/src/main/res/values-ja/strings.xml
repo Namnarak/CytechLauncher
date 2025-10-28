@@ -896,7 +896,6 @@
     <string name="version_summary_fools_a_or_b">調査によるとプレイヤーは選択することが好きなので、全てを投票できます！</string>
     <string name="version_summary_fools_potato">長年、青くなったジャガイモはプレイヤーに見過ごされ過小評価されていましたが、今回は大幅強化をしました！</string>
     <string name="version_summary_fools_creaft_mine">今ならなんでも作ることができます、世界全体までも！</string>
-    <string name="game_menu_control_title">コントロールメニュー</string>
     <string name="game_menu_option_controls_opacity">コントロールレイアウトの不透明度</string>
     <string name="account_microsoft_exit_by_user">ウェブページを閉じたため、Microsoftのログインプロセスはキャンセルされました。</string>
     <string name="cape_name_copper">Copperマント</string>
@@ -943,9 +942,6 @@
     <string name="settings_gamepad_cursor_sensitivity_summary">ジョイスティックでの仮想マウスの移動速度を設定します</string>
     <string name="settings_gamepad_camera_sensitivity_title">ジョイスティックのカメラ感度</string>
     <string name="settings_gamepad_camera_sensitivity_summary">ジョイスティックでの視点の移動速度を設定します</string>
-    <string name="settings_launcher_background_image_title">ランチャーの背景画像</string>
-    <string name="settings_launcher_background_image_summary">選択した画像をランチャーの背景にします</string>
-    <string name="settings_launcher_background_image_reset_message">ランチャーの背景画像をリセットしてもよろしいですか？</string>
     <string name="settings_launcher_background_opacity_title">背景要素の不透明度</string>
     <string name="settings_launcher_background_opacity_summary">背景要素の不透明度を調整して、より良い見た目にして背景との競合を回避します</string>
     <string name="control_editor_menu_preview_is_mouse">物理マウスを使用</string>

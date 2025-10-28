@@ -333,7 +333,6 @@
     <string name="game_loading_version_name">Game Version: %s</string>
     <string name="game_loading_version_info">Game Info: %s</string>
     <string name="game_menu_title">Game Menu</string>
-    <string name="game_menu_control_title">Control Menu</string>
     <string name="game_menu_option_force_close_text">Forcing the currently running game to close may cause save data corruption or prevent settings from being saved. Avoid this action unless necessary.</string>
     <string name="game_menu_option_switch_log">Log Output</string>
     <string name="game_menu_option_input_method">Switch Input Method</string>
@@ -834,9 +833,6 @@
     <string name="settings_launcher_mirror_file_download_title">File Download Source</string>
     <string name="settings_launcher_mirror_official_first">Prefer Official Source</string>
     <string name="settings_launcher_mirror_mirror_first">Prefer Mirror Source</string>
-    <string name="settings_launcher_background_image_title">Launcher Background Image</string>
-    <string name="settings_launcher_background_image_summary">Choose an image as the launcher background</string>
-    <string name="settings_launcher_background_image_reset_message">Are you sure you want to reset the launcher background image?</string>
     <string name="settings_launcher_background_title">Launcher Background</string>
     <string name="settings_launcher_background_summary">Choose an image or video as the launcher background</string>
     <string name="settings_launcher_background_importing">Importing launcher background file</string>
