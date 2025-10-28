@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.layer_controller.utils
 
 import androidx.compose.animation.animateColorAsState
@@ -24,7 +42,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -58,6 +75,7 @@ import kotlin.math.sqrt
 internal fun Modifier.editMode(
     isEditMode: Boolean,
     data: ObservableWidget,
+    screenSize: IntSize,
     getSize: (ObservableWidget) -> IntSize,
     enableSnap: Boolean,
     snapMode: SnapMode,
@@ -68,7 +86,7 @@ internal fun Modifier.editMode(
     onLineCancel: (ObservableWidget) -> Unit,
     onTapInEditMode: () -> Unit = {}
 ): Modifier {
-    val screenSize by rememberUpdatedState(LocalWindowInfo.current.containerSize)
+    val screenSize1 by rememberUpdatedState(screenSize)
     val getSize1 by rememberUpdatedState(getSize)
 
     val enableSnap1 by rememberUpdatedState(enableSnap)
@@ -92,7 +110,7 @@ internal fun Modifier.editMode(
                         onDragStart = {
                             data.isEditingPos = false
                             data.movingOffset = Offset.Zero
-                            val currentOffset = getWidgetPosition(data, getSize1(data), screenSize)
+                            val currentOffset = getWidgetPosition(data, getSize1(data), screenSize1)
                             data.movingOffset = currentOffset
                             data.isEditingPos = true
                             onLineCancel1(data)
@@ -100,13 +118,13 @@ internal fun Modifier.editMode(
                         onDrag = { change, dragAmount ->
                             change.consume()
                             val currentSize = getSize1(data)
-                            val currentOffset = getWidgetPosition(data, currentSize, screenSize)
+                            val currentOffset = getWidgetPosition(data, currentSize, screenSize1)
 
                             var newX = currentOffset.x + dragAmount.x
                             var newY = currentOffset.y + dragAmount.y
 
-                            val maxX = screenSize.width.toFloat() - currentSize.width
-                            val maxY = screenSize.height.toFloat() - currentSize.height
+                            val maxX = screenSize1.width.toFloat() - currentSize.width
+                            val maxY = screenSize1.height.toFloat() - currentSize.height
 
                             newX = newX.coerceIn(0f, maxX)
                             newY = newY.coerceIn(0f, maxY)
@@ -115,14 +133,14 @@ internal fun Modifier.editMode(
 
                             val newPercentagePosition = newPosition.toPercentagePosition(
                                 widgetSize = currentSize,
-                                screenSize = screenSize
+                                screenSize = screenSize1
                             )
 
                             val finalPosition = if (enableSnap1) {
                                 calculateSnapPosition(
                                     currentPosition = newPercentagePosition,
                                     widgetSize = currentSize,
-                                    screenSize = screenSize,
+                                    screenSize = screenSize1,
                                     otherWidgets = getOtherWidgets1(),
                                     getSize = getSize1,
                                     snapThreshold = snapThreshold,
@@ -281,7 +299,8 @@ private fun calculateSnapPosition(
  */
 @Composable
 internal fun Modifier.buttonSize(
-    data: ObservableWidget
+    data: ObservableWidget,
+    screenSize: IntSize
 ): Modifier {
     val size = when (data) {
         is ObservableNormalData -> data.buttonSize
@@ -297,9 +316,8 @@ internal fun Modifier.buttonSize(
 
             //百分比计算方式，根据屏幕的高宽来计算按钮的大小尺寸
             ButtonSize.Type.Percentage -> {
-                val containerSize = LocalWindowInfo.current.containerSize
-                val screenWidth = containerSize.width.toFloat()
-                val screenHeight = containerSize.height.toFloat()
+                val screenWidth = screenSize.width.toFloat()
+                val screenHeight = screenSize.height.toFloat()
 
                 val widthReference = when (size.widthReference) {
                     ButtonSize.Reference.ScreenWidth -> screenWidth

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.game
 
 import androidx.compose.animation.AnimatedVisibility
@@ -7,6 +25,7 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
@@ -28,8 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
@@ -309,7 +330,19 @@ fun GameScreen(
         replacementControl = { viewModel.loadControlLayout(it) }
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val density = LocalDensity.current
+        val screenSize = remember(maxWidth, maxHeight) {
+            with(density) {
+                IntSize(
+                    width = maxWidth.roundToPx(),
+                    height = maxHeight.roundToPx()
+                )
+            }
+        }
+
         GameInfoBox(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -423,6 +456,7 @@ fun GameScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
+                            screenSize = screenSize,
                             onInputAreaRectUpdated = onInputAreaRectUpdated,
                             textInputMode = viewModel.textInputMode,
                             onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
@@ -438,6 +472,7 @@ fun GameScreen(
                         )
 
                         MinecraftHotbar(
+                            screenSize = screenSize,
                             rule = AllSettings.hotbarRule.state,
                             widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
                             heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
@@ -512,37 +547,37 @@ fun GameScreen(
                 )
             }
         )
-    }
 
-    if (viewModel.isEditingLayout) {
-        viewModel.currentControlFile?.let {
-            ControlEditor(
-                viewModel = editorViewModel,
-                targetFile = it,
-                exit = {
-                    viewModel.exitControlEditor()
-                },
-                menuExit = {
-                    viewModel.viewModelScope.launch {
-                        showExitEditorDialog(
-                            context = context,
-                            onExit = {
-                                viewModel.exitControlEditor()
-                            }
-                        )
+        if (viewModel.isEditingLayout) {
+            viewModel.currentControlFile?.let {
+                ControlEditor(
+                    viewModel = editorViewModel,
+                    targetFile = it,
+                    exit = {
+                        viewModel.exitControlEditor()
+                    },
+                    menuExit = {
+                        viewModel.viewModelScope.launch {
+                            showExitEditorDialog(
+                                context = context,
+                                onExit = {
+                                    viewModel.exitControlEditor()
+                                }
+                            )
+                        }
                     }
-                }
-            )
-        }
-    } else {
-        if (AllSettings.showMenuBall.state) {
-            DraggableGameBall(
-                showGameFps = AllSettings.showFPS.state,
-                showMemory = AllSettings.showMemory.state,
-                onClick = {
-                    viewModel.switchMenu()
-                }
-            )
+                )
+            }
+        } else {
+            if (AllSettings.showMenuBall.state) {
+                DraggableGameBall(
+                    showGameFps = AllSettings.showFPS.state,
+                    showMemory = AllSettings.showMemory.state,
+                    onClick = {
+                        viewModel.switchMenu()
+                    }
+                )
+            }
         }
     }
 
@@ -594,6 +629,7 @@ private fun GameInfoBox(
     ) {
         BackgroundCard(
             modifier = modifier,
+            influencedByBackground = false,
             shape = MaterialTheme.shapes.extraLarge
         ) {
             Row(
@@ -643,6 +679,7 @@ private fun GameInfoBox(
 private fun MouseControlLayout(
     isTouchProxyEnabled: Boolean,
     modifier: Modifier = Modifier,
+    screenSize: IntSize,
     onInputAreaRectUpdated: (IntRect?) -> Unit,
     textInputMode: TextInputMode,
     onCloseInputMethod: () -> Unit,
@@ -677,6 +714,7 @@ private fun MouseControlLayout(
 
         SwitchableMouseLayout(
             modifier = Modifier.fillMaxSize(),
+            screenSize = screenSize,
             cursorMode = ZLBridgeStates.cursorMode,
             onTouch = onTouch,
             onMouse = onMouseMoved,

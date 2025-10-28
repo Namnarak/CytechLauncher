@@ -300,7 +300,6 @@
     <string name="game_loading_version_name">Version de Juego: %s</string>
     <string name="game_loading_version_info">Informacion del Juego: %s</string>
     <string name="game_menu_title">Menu del Juego</string>
-    <string name="game_menu_control_title">Menu de Controles</string>
     <string name="game_menu_option_force_close_text">Forzando Cierre en el juego abierto puede causar corruption de mundos or prevenir que los ajustes se guarden. No use esta fuccion almenos que sea necesaria.</string>
     <string name="game_menu_option_switch_log">Registro de Salida</string>
     <string name="game_menu_option_input_method">Cambiar Metodo de Entrada</string>

@@ -332,7 +332,6 @@
     <string name="game_loading_version_name">游戏版本：%s</string>
     <string name="game_loading_version_info">游戏信息：%s</string>
     <string name="game_menu_title">游戏菜单</string>
-    <string name="game_menu_control_title">控制菜单</string>
     <string name="game_menu_option_force_close_text">强制关闭正在运行的游戏可能导致存档损坏或设置无法保存，除特殊情况外请避免此操作。</string>
     <string name="game_menu_option_switch_log">日志输出</string>
     <string name="game_menu_option_input_method">切换输入法</string>
@@ -833,9 +832,6 @@
     <string name="settings_launcher_mirror_file_download_title">文件下载源</string>
     <string name="settings_launcher_mirror_official_first">优先使用官方源</string>
     <string name="settings_launcher_mirror_mirror_first">优先使用镜像源</string>
-    <string name="settings_launcher_background_image_title">启动器背景图片</string>
-    <string name="settings_launcher_background_image_summary">选择一张图片作为启动器的背景</string>
-    <string name="settings_launcher_background_image_reset_message">你确定要重置启动器的背景图片吗？</string>
     <string name="settings_launcher_background_title">启动器背景</string>
     <string name="settings_launcher_background_summary">选择一张图片或者一则视频作为启动器的背景</string>
     <string name="settings_launcher_background_importing">导入启动器背景文件中</string>

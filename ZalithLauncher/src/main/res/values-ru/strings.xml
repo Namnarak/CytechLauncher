@@ -916,7 +916,6 @@
     <string name="version_summary_fools_a_or_b">Исследования показывают, что игроки обожают делать выбор, поэтому мы позволили вам голосовать за всё!</string>
     <string name="version_summary_fools_potato">Годы ядовитый картофель игнорировали и недооценивали, поэтому мы подарили ему эпический бафф!</string>
     <string name="version_summary_fools_creaft_mine">Теперь вы можете создать что угодно — даже целый мир!</string>
-    <string name="game_menu_control_title">Меню раскладки</string>
     <string name="game_menu_option_controls_opacity">Прозрачность раскладки управления</string>
     <string name="account_microsoft_exit_by_user">Вы покинули веб-страницу, поэтому процесс входа через Microsoft был отменён.</string>
     <string name="cape_name_copper">Copper</string>
@@ -960,9 +959,6 @@
     <string name="settings_gamepad_remapping_finished_title">Привязка завершена</string>
     <string name="settings_gamepad_remapping_finished_saving">Пожалуйста, подождите, лаунчер сохраняет и применяет настройки.</string>
     <string name="settings_gamepad_remapping_finished_saved">Настройки геймпада успешно сохранены. Теперь вы можете закрыть это окно!</string>
-    <string name="settings_launcher_background_image_title">Фоновая пикча лаунчера</string>
-    <string name="settings_launcher_background_image_summary">Выберите изображение для фона лаунчера</string>
-    <string name="settings_launcher_background_image_reset_message">Вы уверены, что хотите сбросить фоновую пикчу лаунчера?</string>
     <string name="settings_launcher_background_opacity_title">Прозрачность фоновых элементов</string>
     <string name="settings_launcher_background_opacity_summary">Настройте прозрачность фоновых элементов для улучшения видимости с фоновой пикчи</string>
     <string name="control_editor_menu_preview_mode_scenario">Сценарий предпросмотра</string>

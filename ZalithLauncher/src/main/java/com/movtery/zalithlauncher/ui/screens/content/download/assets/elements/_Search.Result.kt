@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.animation.core.Animatable
@@ -60,7 +78,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchDa
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
-import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
+import com.movtery.zalithlauncher.ui.components.backgroundLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 
@@ -192,9 +210,8 @@ private fun PageController(
     modifier: Modifier = Modifier,
     page: AssetsPage,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColorOnSurface(),
+    color: Color = backgroundLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp,
     onPreviousPage: () -> Unit,
     onNextPage: () -> Unit
 ) {
@@ -202,8 +219,7 @@ private fun PageController(
         modifier = modifier,
         shape = shape,
         color = color,
-        contentColor = contentColor,
-        shadowElevation = shadowElevation
+        contentColor = contentColor
     ) {
         Row(
             modifier = Modifier.padding(all = 4.dp),
@@ -298,9 +314,8 @@ private fun ResultItemLayout(
     modloaders: List<PlatformDisplayLabel>? = null,
     categories: List<PlatformFilterCode>? = null,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColorOnSurface(),
+    color: Color = backgroundLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp,
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -315,7 +330,6 @@ private fun ResultItemLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         onClick = onClick
     ) {
         Row(

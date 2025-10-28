@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.activities
 
 import android.content.Context
@@ -6,6 +24,9 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.layer_controller.layout.ControlLayout
@@ -50,18 +71,22 @@ class ControlEditorActivity : BaseComponentActivity() {
 
         setContent {
             ZalithLauncherTheme {
-                ControlEditor(
-                    viewModel = editorViewModel,
-                    targetFile = controlFile,
-                    exit = {
-                        //已保存控制布局后进行的退出
-                        finish()
-                    },
-                    menuExit = {
-                        //菜单要求的直接退出，使用对话框让用户确认
-                        onForceExit()
-                    }
-                )
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    ControlEditor(
+                        viewModel = editorViewModel,
+                        targetFile = controlFile,
+                        exit = {
+                            //已保存控制布局后进行的退出
+                            finish()
+                        },
+                        menuExit = {
+                            //菜单要求的直接退出，使用对话框让用户确认
+                            onForceExit()
+                        }
+                    )
+                }
             }
         }
     }

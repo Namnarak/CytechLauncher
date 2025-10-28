@@ -517,6 +517,7 @@ private fun TaskMenu(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 6.dp),
+            influencedByBackground = false,
             shape = MaterialTheme.shapes.extraLarge,
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
         ) {

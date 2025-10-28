@@ -820,7 +820,6 @@
     <string name="theme_color_picker_edit_hex">Atur Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Hex Tidak Valid</string>
     <string name="download_game_type_april_fools">April Mop</string>
-    <string name="download_assets_loading_page">Memuat data halaman, halaman %d</string>
     <string name="download_assets_loading_dep_project">Memuat dan menyimpan cache dependensi project, ID: %s</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Update Love &amp; Hugs, mengisi dunia dengan perdamaian dan pelangi.</string>
     <string name="version_summary_fools_trendy_update">Masa depan telah tiba! Kami telah menambahkan teknologi canggih ke Minecraft!</string>
@@ -830,7 +829,6 @@
     <string name="version_summary_fools_a_or_b">Penelitian menunjukkan pemain senang membuat pilihan, jadi kami membiarkan Anda menentukan segalanya!</string>
     <string name="version_summary_fools_potato">Selama bertahun-tahun, kentang beracun diabaikan dan diremehkan, jadi kami memberinya buff epik!</string>
     <string name="version_summary_fools_creaft_mine">Sekarang Anda dapat membuat apa saja—bahkan seluruh dunia!</string>
-    <string name="game_menu_control_title">Menu Kontrol</string>
     <string name="game_menu_option_switch_memory">Tampilan RAM</string>
     <string name="game_menu_option_controls_opacity">Opasitas Layout Kontrol</string>
     <string name="account_microsoft_exit_by_user">Anda meninggalkan halaman web, jadi proses login Microsoft telah dibatalkan untuk Anda.</string>

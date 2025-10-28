@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.control.mouse
 
 import androidx.compose.foundation.layout.Box
@@ -11,8 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
@@ -58,6 +76,7 @@ typealias CursorMode = Int
 @Composable
 fun SwitchableMouseLayout(
     modifier: Modifier = Modifier,
+    screenSize: IntSize,
     cursorMode: CursorMode,
     controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
@@ -84,9 +103,8 @@ fun SwitchableMouseLayout(
     gamepadCursorSensitivity: Int = AllSettings.gamepadCursorSensitivity.state,
     gamepadCameraSensitivity: Int = AllSettings.gamepadCameraSensitivity.state
 ) {
-    val windowSize = LocalWindowInfo.current.containerSize
-    val screenWidth: Float = windowSize.width.toFloat()
-    val screenHeight: Float = windowSize.height.toFloat()
+    val screenWidth: Float = screenSize.width.toFloat()
+    val screenHeight: Float = screenSize.height.toFloat()
     val centerPos = Offset(screenWidth / 2f, screenHeight / 2f)
 
     val speedFactor = remember(cursorSensitivity) { cursorSensitivity / 100f }

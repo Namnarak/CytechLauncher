@@ -1,5 +1,24 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -9,8 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntSize
 import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.CenterPosition
@@ -47,7 +66,7 @@ import java.io.File
  * @param menuExit 通过菜单直接调用的“直接退出”
  */
 @Composable
-fun ControlEditor(
+fun BoxWithConstraintsScope.ControlEditor(
     viewModel: EditorViewModel,
     targetFile: File,
     exit: () -> Unit,
@@ -63,8 +82,15 @@ fun ControlEditor(
     /** 默认新建的文本框的名称 */
     val defaultTextName = stringResource(R.string.control_editor_edit_text_default)
 
-    val density = LocalDensity.current.density
-    val screenSize = LocalWindowInfo.current.containerSize
+    val density = LocalDensity.current
+    val screenSize = remember(maxWidth, maxHeight) {
+        with(density) {
+            IntSize(
+                width = maxWidth.roundToPx(),
+                height = maxHeight.roundToPx()
+            )
+        }
+    }
     val screenHeight = remember(screenSize) { screenSize.height }
 
     if (viewModel.isPreviewMode) {
@@ -113,7 +139,7 @@ fun ControlEditor(
                             position = CenterPosition,
                             buttonSize = createAdaptiveButtonSize(
                                 referenceLength = screenHeight,
-                                density = density
+                                density = density.density
                             ),
                             visibilityType = VisibilityType.ALWAYS,
                             isSwipple = false,
@@ -134,7 +160,7 @@ fun ControlEditor(
                             position = CenterPosition,
                             buttonSize = createAdaptiveButtonSize(
                                 referenceLength = screenHeight,
-                                density = density,
+                                density = density.density,
                                 type = ButtonSize.Type.WrapContent //文本框默认使用包裹内容
                             ),
                             visibilityType = VisibilityType.ALWAYS
