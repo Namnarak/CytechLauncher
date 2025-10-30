@@ -354,10 +354,10 @@
     <string name="settings_label_ignore_if_blank">Оставьте пустым для игнорирования</string>
     <string name="settings_tab_renderer">Изображение</string>
     <string name="settings_tab_game">Игра</string>
-    <string name="settings_tab_control">Раскладка</string>
+    <string name="settings_tab_control">Управление</string>
     <string name="settings_tab_launcher">Лаунчер</string>
     <string name="settings_tab_java_manage">Java</string>
-    <string name="settings_tab_control_manage">Раскладка</string>
+    <string name="settings_tab_control_manage">Раскладки</string>
     <string name="settings_tab_info_about">О проекте</string>
     <string name="settings_renderer_global_renderer_title">Визуализатор</string>
     <string name="settings_renderer_global_renderer_summary">Визуализатор по умолчанию использует динамический слой трансляции библиотек для обеспечения плавной работы игры на мобильных устройствах</string>
