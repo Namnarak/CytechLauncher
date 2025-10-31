@@ -1,6 +1,7 @@
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -165,14 +166,13 @@ fun GameMenuSubscreen(
         rightMenuContent = {
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                contentPadding = PaddingValues(all = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 //强制关闭
                 item {
                     MenuTextButton(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.game_button_force_close),
                         onClick = onForceClose
                     )
@@ -180,9 +180,7 @@ fun GameMenuSubscreen(
                 //日志输出
                 item {
                     MenuTextButton(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.game_menu_option_switch_log),
                         onClick = onSwitchLog
                     )
@@ -195,9 +193,7 @@ fun GameMenuSubscreen(
                 //开启菜单悬浮窗
                 item {
                     MenuSwitchButton(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.game_menu_option_show_menu),
                         switch = AllSettings.showMenuBall.state,
                         onSwitch = { value ->
@@ -215,9 +211,7 @@ fun GameMenuSubscreen(
                 //帧率显示
                 item {
                     MenuSwitchButton(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.game_menu_option_switch_fps),
                         switch = AllSettings.showFPS.state,
                         onSwitch = { AllSettings.showFPS.save(it) },
@@ -227,9 +221,7 @@ fun GameMenuSubscreen(
                 //内存显示
                 item {
                     MenuSwitchButton(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.game_menu_option_switch_memory),
                         switch = AllSettings.showMemory.state,
                         onSwitch = { AllSettings.showMemory.save(it) },
@@ -239,9 +231,7 @@ fun GameMenuSubscreen(
                 //游戏窗口分辨率
                 item {
                     MenuSliderLayout(
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.settings_renderer_resolution_scale_title),
                         value = AllSettings.resolutionRatio.state,
                         valueRange = 25f..300f,
@@ -272,14 +262,13 @@ private fun ControlOverview(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         //切换输入法
         item {
             MenuTextButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.game_menu_option_input_method),
                 onClick = {
                     onInputMethod()
@@ -290,9 +279,7 @@ private fun ControlOverview(
         //发送键值
         item {
             MenuTextButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.game_menu_option_send_keycode),
                 onClick = {
                     onSendKeycode()
@@ -303,9 +290,7 @@ private fun ControlOverview(
         //更换控制布局
         item {
             MenuTextButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.game_menu_option_replacement_control),
                 onClick = {
                     onReplacementControl()
@@ -316,9 +301,7 @@ private fun ControlOverview(
         //编辑布局
         item {
             MenuTextButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.control_manage_info_edit),
                 onClick = {
                     onEditLayout()
@@ -329,9 +312,7 @@ private fun ControlOverview(
         //控制布局不透明度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.game_menu_option_controls_opacity),
                 value = AllSettings.controlsOpacity.state,
                 valueRange = 0f..100f,
@@ -348,9 +329,7 @@ private fun ControlOverview(
         //快捷栏定位规则
         item {
             MenuListLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.game_menu_option_hotbar_rule),
                 items = HotbarRule.entries,
                 currentItem = AllSettings.hotbarRule.state,
@@ -362,9 +341,7 @@ private fun ControlOverview(
         //快捷栏宽度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.game_menu_option_hotbar_width),
                 value = AllSettings.hotbarWidth.state / 10f,
                 valueRange = 0f..100f,
@@ -382,9 +359,7 @@ private fun ControlOverview(
         //快捷栏高度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.game_menu_option_hotbar_height),
                 value = AllSettings.hotbarHeight.state / 10f,
                 valueRange = 0f..100f,
@@ -407,14 +382,13 @@ private fun ControlMouse(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         //隐藏虚拟鼠标
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_mouse_hide_title),
                 switch = AllSettings.hideMouse.state,
                 onSwitch = { AllSettings.hideMouse.save(it) },
@@ -424,9 +398,7 @@ private fun ControlMouse(
         //鼠标控制模式
         item {
             MenuListLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_control_mode_title),
                 items = MouseControlMode.entries,
                 currentItem = AllSettings.mouseControlMode.state,
@@ -437,9 +409,7 @@ private fun ControlMouse(
         //虚拟鼠标大小
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_size_title),
                 value = AllSettings.mouseSize.state,
                 valueRange = 5f..50f,
@@ -451,9 +421,7 @@ private fun ControlMouse(
         //虚拟鼠标灵敏度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_sensitivity_title),
                 value = AllSettings.cursorSensitivity.state,
                 valueRange = 25f..300f,
@@ -465,9 +433,7 @@ private fun ControlMouse(
         //抓获鼠标滑动灵敏度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
                 value = AllSettings.mouseCaptureSensitivity.state,
                 valueRange = 25f..300f,
@@ -479,9 +445,7 @@ private fun ControlMouse(
         //虚拟鼠标长按触发的延迟
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
                 value = AllSettings.mouseLongPressDelay.state,
                 valueRange = 100f..1000f,
@@ -499,17 +463,27 @@ private fun ControlGamepad(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        //手柄控制总开关
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.settings_gamepad_title),
+                switch = AllSettings.gamepadControl.state,
+                onSwitch = { AllSettings.gamepadControl.save(it) }
+            )
+        }
+
         //手柄死区缩放
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_deadzone_title),
                 value = AllSettings.gamepadDeadZoneScale.state,
                 valueRange = 50f..200f,
+                enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadDeadZoneScale.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadDeadZoneScale.save(it) },
                 suffix = "%"
@@ -519,12 +493,11 @@ private fun ControlGamepad(
         //摇杆指针灵敏度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_cursor_sensitivity_title),
                 value = AllSettings.gamepadCursorSensitivity.state,
                 valueRange = 25f..300f,
+                enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCursorSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCursorSensitivity.save(it) },
                 suffix = "%"
@@ -534,12 +507,11 @@ private fun ControlGamepad(
         //摇杆视角灵敏度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_camera_sensitivity_title),
                 value = AllSettings.gamepadCameraSensitivity.state,
                 valueRange = 25f..300f,
+                enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCameraSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCameraSensitivity.save(it) },
                 suffix = "%"
@@ -554,14 +526,13 @@ private fun ControlGesture(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         //手势控制
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gesture_control_title),
                 switch = AllSettings.gestureControl.state,
                 onSwitch = { AllSettings.gestureControl.save(it) }
@@ -571,9 +542,7 @@ private fun ControlGesture(
         //点击触发的操作类型
         item {
             MenuListLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gesture_tap_action_title),
                 items = GestureActionType.entries,
                 currentItem = AllSettings.gestureTapMouseAction.state,
@@ -586,9 +555,7 @@ private fun ControlGesture(
         //长按触发的操作类型
         item {
             MenuListLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gesture_long_press_action_title),
                 items = GestureActionType.entries,
                 currentItem = AllSettings.gestureLongPressMouseAction.state,
@@ -601,9 +568,7 @@ private fun ControlGesture(
         //手势长按触发的延迟
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
                 value = AllSettings.gestureLongPressDelay.state,
                 valueRange = 100f..1000f,
@@ -627,14 +592,13 @@ private fun ControlGyroscope(
 
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         //陀螺仪控制
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gyroscope_title),
                 switch = AllSettings.gyroscopeControl.state,
                 onSwitch = { AllSettings.gyroscopeControl.save(it) },
@@ -645,9 +609,7 @@ private fun ControlGyroscope(
         //陀螺仪控制灵敏度
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
                 value = AllSettings.gyroscopeSensitivity.state,
                 valueRange = 25f..300f,
@@ -661,9 +623,7 @@ private fun ControlGyroscope(
         //陀螺仪采样率
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
                 value = AllSettings.gyroscopeSampleRate.state,
                 valueRange = 5f..50f,
@@ -677,9 +637,7 @@ private fun ControlGyroscope(
         //陀螺仪数值平滑
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gyroscope_smoothing_title),
                 switch = AllSettings.gyroscopeSmoothing.state,
                 onSwitch = { AllSettings.gyroscopeSmoothing.save(it) },
@@ -690,9 +648,7 @@ private fun ControlGyroscope(
         //陀螺仪平滑处理的窗口大小
         item {
             MenuSliderLayout(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
                 value = AllSettings.gyroscopeSmoothingWindow.state,
                 valueRange = 2f..10f,
@@ -705,9 +661,7 @@ private fun ControlGyroscope(
         //反转 X 轴
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gyroscope_invert_x_title),
                 switch = AllSettings.gyroscopeInvertX.state,
                 onSwitch = { AllSettings.gyroscopeInvertX.save(it) },
@@ -718,9 +672,7 @@ private fun ControlGyroscope(
         //反转 Y 轴
         item {
             MenuSwitchButton(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gyroscope_invert_y_title),
                 switch = AllSettings.gyroscopeInvertY.state,
                 onSwitch = { AllSettings.gyroscopeInvertY.save(it) },

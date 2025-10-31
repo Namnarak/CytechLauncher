@@ -780,6 +780,8 @@
     <string name="settings_control_gyroscope_invert_x_summary">When enabled, rotating the device left or right will control the camera in the opposite direction</string>
     <string name="settings_control_gyroscope_invert_y_title">Invert Y-Axis</string>
     <string name="settings_control_gyroscope_invert_y_summary">When enabled, rotating the device up or down will control the camera in the opposite direction</string>
+    <string name="settings_gamepad_title">Gamepad Control</string>
+    <string name="settings_gamepad_summary">Enable or disable gamepad control. If another device is mistakenly recognized as a gamepad, please turn off this option.</string>
     <string name="settings_gamepad_deadzone_title">Gamepad Deadzone Scaling</string>
     <string name="settings_gamepad_deadzone_summary">Set the ratio of the joystick\'s non-responsive center area</string>
     <string name="settings_gamepad_joystick_mode_title">Joystick Operation Mode</string>

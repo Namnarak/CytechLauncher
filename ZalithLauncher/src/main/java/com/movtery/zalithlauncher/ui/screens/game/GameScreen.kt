@@ -408,7 +408,7 @@ fun GameScreen(
                 }
             }
 
-            if (gamepadViewModel.gamepadEngaged) {
+            if (AllSettings.gamepadControl.state && gamepadViewModel.gamepadEngaged) {
                 //手柄事件监听
                 GamepadKeyListener(
                     gamepadViewModel = gamepadViewModel,
@@ -468,7 +468,7 @@ fun GameScreen(
                             },
                             onMouseMoved = { viewModel.switchControlLayer(HideLayerWhen.WhenMouse) },
                             onTouch = { viewModel.switchControlLayer(HideLayerWhen.None) },
-                            gamepadViewModel = gamepadViewModel
+                            gamepadViewModel = gamepadViewModel.takeIf { AllSettings.gamepadControl.state }
                         )
 
                         MinecraftHotbar(
@@ -500,10 +500,12 @@ fun GameScreen(
                 )
             }
 
-            //手柄事件捕获层
-            SimpleGamepadCapture(
-                gamepadViewModel = gamepadViewModel
-            )
+            if (AllSettings.gamepadControl.state) {
+                //手柄事件捕获层
+                SimpleGamepadCapture(
+                    gamepadViewModel = gamepadViewModel
+                )
+            }
         }
 
         //陀螺仪控制
@@ -688,7 +690,7 @@ private fun MouseControlLayout(
     onReleasePointer: (PointerId) -> Unit,
     onMouseMoved: () -> Unit,
     onTouch: () -> Unit,
-    gamepadViewModel: GamepadViewModel
+    gamepadViewModel: GamepadViewModel?
 ) {
     Box(
         modifier = modifier
@@ -722,7 +724,7 @@ private fun MouseControlLayout(
             onTap = { position ->
                 CallbackBridge.putMouseEventWithCoords(LwjglGlfwKeycode.GLFW_MOUSE_BUTTON_LEFT.toInt(), position.x.sumPosition(), position.y.sumPosition())
             },
-            onCapturedTap = { position ->
+            onCapturedTap = {
                 if (AllSettings.gestureControl.state) {
                     CallbackBridge.putMouseEvent(capturedTapMouseAction)
                 }

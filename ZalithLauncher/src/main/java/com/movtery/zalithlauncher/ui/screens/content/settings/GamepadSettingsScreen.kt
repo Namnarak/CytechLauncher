@@ -124,6 +124,13 @@ fun GamepadSettingsScreen(
                         }
                     )
 
+                    SwitchSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        unit = AllSettings.gamepadControl,
+                        title = stringResource(R.string.settings_gamepad_title),
+                        summary = stringResource(R.string.settings_gamepad_summary)
+                    )
+
                     SliderSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.gamepadDeadZoneScale,
@@ -131,6 +138,7 @@ fun GamepadSettingsScreen(
                         summary = stringResource(R.string.settings_gamepad_deadzone_summary),
                         valueRange = 50f..200f,
                         suffix = "%",
+                        enabled = AllSettings.gamepadControl.state,
                         fineTuningControl = true
                     )
 
@@ -141,6 +149,7 @@ fun GamepadSettingsScreen(
                         summary = stringResource(R.string.settings_gamepad_cursor_sensitivity_summary),
                         valueRange = 25f..300f,
                         suffix = "%",
+                        enabled = AllSettings.gamepadControl.state,
                         fineTuningControl = true
                     )
 
@@ -151,6 +160,7 @@ fun GamepadSettingsScreen(
                         summary = stringResource(R.string.settings_gamepad_camera_sensitivity_summary),
                         valueRange = 25f..300f,
                         suffix = "%",
+                        enabled = AllSettings.gamepadControl.state,
                         fineTuningControl = true
                     )
 
@@ -168,7 +178,8 @@ fun GamepadSettingsScreen(
                                 text = stringResource(mode.summaryRes),
                                 style = MaterialTheme.typography.labelSmall
                             )
-                        }
+                        },
+                        enabled = AllSettings.gamepadControl.state
                     )
                 }
             }
