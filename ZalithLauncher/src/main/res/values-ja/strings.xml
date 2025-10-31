@@ -956,4 +956,6 @@
     <string name="settings_launcher_background_summary">ランチャーの背景として画像または映像を選択してください</string>
     <string name="settings_launcher_background_importing">ランチャーの背景ファイルをインポートしています</string>
     <string name="settings_launcher_background_reset_message">ランチャーの背景をリセットしてもよろしいですか？</string>
+    <string name="settings_gamepad_title">コントローラーでの操作</string>
+    <string name="settings_gamepad_summary">コントローラーでの操作を有効または無効にします。他のデバイスが誤ってコントローラーとして認識される場合は、このオプションを無効にしてください。</string>
 </resources>
