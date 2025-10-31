@@ -976,4 +976,6 @@
     <string name="control_editor_edit_text_bold">Включить жирный шрифт</string>
     <string name="control_editor_edit_text_italic">Включить курсив</string>
     <string name="control_editor_edit_text_underline">Включить подчёркивание</string>
+    <string name="settings_gamepad_title">Управление геймпадом</string>
+    <string name="settings_gamepad_summary">Включите или отключите управление геймпадом. Если стороннее устройство ошибочно распознаётся как геймпад, пожалуйста, отключите эту опцию.</string>
 </resources>
