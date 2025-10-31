@@ -197,6 +197,11 @@ object AllSettings : SettingsRegistry() {
     val mouseLongPressDelay = intSetting("mouseLongPressDelay", 300)
 
     /**
+     * 是否启用手柄控制
+     */
+    val gamepadControl = boolSetting("gamepadControl", true)
+
+    /**
      * 摇杆死区缩放
      */
     val gamepadDeadZoneScale = intSetting("gamepadDeadZoneScale", 100)

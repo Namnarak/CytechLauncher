@@ -57,10 +57,11 @@ fun SimpleGamepadCapture(
 
     //是否正在绑定键值
     val isBinding = remember(remapperViewModel.uiOperation) { remapperViewModel.uiOperation != GamepadRemapOperation.None }
+    fun isBinding() = remapperViewModel.uiOperation != GamepadRemapOperation.None
 
     DisposableEffect(view, gamepadViewModel, isBinding) {
         val motionListener = View.OnGenericMotionListener { _, event ->
-            if (isBinding) {
+            if (isBinding()) {
                 remapperViewModel.sendEvent(
                     GamepadRemapperViewModel.Event.Axis(event)
                 )
@@ -79,7 +80,7 @@ fun SimpleGamepadCapture(
 
         val keyListener = View.OnKeyListener { _, keyCode, keyEvent ->
             if (keyEvent.isFromGamepad()) {
-                if (isBinding) {
+                if (isBinding()) {
                     remapperViewModel.sendEvent(
                         GamepadRemapperViewModel.Event.Button(keyCode, keyEvent)
                     )
@@ -105,11 +106,11 @@ fun SimpleGamepadCapture(
         }
     }
 
-    LaunchedEffect(isBinding, gamepadViewModel.gamepadEngaged) {
+    LaunchedEffect(gamepadViewModel.gamepadEngaged, isBinding) {
         while (true) {
             try {
                 ensureActive()
-                if (isBinding) break
+                if (isBinding()) break
 
                 //检查手柄活动状态
                 val pollLevel = gamepadViewModel.checkGamepadActive()
@@ -192,7 +193,7 @@ fun GamepadKeyListener(
                         }
                     }
                 }
-                else -> null
+                else -> {}
             }
         }
     }
