@@ -33,5 +33,32 @@ fun startJvmService(
  * 当前是否只有主进程正在运行
  */
 fun isOnlyMainProcessesRunning(context: Context): Boolean {
-    return (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses.size == 1
+    val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val mainProcessName = context.packageName
+    val myPid = android.os.Process.myPid()
+
+    val appProcesses = am.runningAppProcesses.filter {
+        it.processName.startsWith(mainProcessName)
+    }
+
+    return appProcesses.all { it.pid == myPid }
+}
+
+/**
+ * 停止所有非主进程服务
+ */
+fun stopAllNonMainProcesses(context: Context) {
+    val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val mainPid = android.os.Process.myPid()
+    val mainProcessName = context.packageName
+
+    am.runningAppProcesses
+        .filter { it.processName.startsWith(mainProcessName) && it.pid != mainPid }
+        .forEach {
+            try {
+                android.os.Process.killProcess(it.pid)
+            } catch (_: Exception) {
+                //忽略
+            }
+        }
 }
