@@ -13,14 +13,11 @@ import com.movtery.zalithlauncher.ui.control.gamepad.GamepadRemap
 import com.movtery.zalithlauncher.ui.control.gamepad.Joystick
 import com.movtery.zalithlauncher.ui.control.gamepad.JoystickType
 import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 
 private const val BUTTON_PRESS_THRESHOLD = 0.85f
 
 class GamepadViewModel() : ViewModel() {
-    private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 16)
-    val events = _events.asSharedFlow()
+    private val listeners = mutableListOf<(Event) -> Unit>()
 
     /**
      * 手柄与键盘按键映射绑定
@@ -232,7 +229,25 @@ class GamepadViewModel() : ViewModel() {
         rightJoystick.onTick(::sendEvent)
     }
 
-    private fun sendEvent(event: Event) = _events.tryEmit(event)
+    private fun sendEvent(event: Event) {
+        listeners.fastForEach { listener ->
+            listener(event)
+        }
+    }
+
+    /**
+     * 添加一个事件监听者，在事件发送时立即回调
+     */
+    fun addListener(listener: (Event) -> Unit) {
+        listeners.add(listener)
+    }
+
+    /**
+     * 移除已添加的事件监听者
+     */
+    fun removeListener(listener: (Event) -> Unit) {
+        listeners.remove(listener)
+    }
 
     /**
      * 便于记录目标键盘映射的数据类
