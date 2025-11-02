@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.ui.control.control
+package com.movtery.zalithlauncher.ui.control
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
