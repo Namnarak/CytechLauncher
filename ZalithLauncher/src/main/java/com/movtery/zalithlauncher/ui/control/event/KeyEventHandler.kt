@@ -37,13 +37,13 @@ class KeyEventHandler(
     fun pressKey(key: String) {
         val count = keyEvents[key] ?: 0
         keyEvents[key] = count + 1
-        handle()
+        handle(key)
     }
 
     fun releaseKey(key: String) {
         val count = keyEvents[key] ?: 0
         keyEvents[key] = count - 1
-        handle()
+        handle(key)
     }
 
     /**
@@ -54,7 +54,7 @@ class KeyEventHandler(
         handle()
     }
 
-    private fun handle() {
+    private fun handle(primaryKey: String? = null) {
         val entries = keyEvents.entries.toList()
         entries.fastForEach { (key, count) ->
             val pressed = when (count) {
@@ -72,7 +72,13 @@ class KeyEventHandler(
                     }
                 }
             }
-            handle(key, pressed)
+            if (pressed) {
+                if (key == primaryKey) {
+                    handle(key, true)
+                }
+            } else {
+                handle(key, false)
+            }
         }
     }
 }
