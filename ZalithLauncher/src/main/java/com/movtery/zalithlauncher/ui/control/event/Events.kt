@@ -53,3 +53,49 @@ const val LAUNCHER_EVENT_SCROLL_UP_SINGLE = "launcher.event.scroll_up.single"
 const val LAUNCHER_EVENT_SCROLL_DOWN = "launcher.event.scroll_down"
 /** 控制虚拟鼠标滚轮下-单次点击 */
 const val LAUNCHER_EVENT_SCROLL_DOWN_SINGLE = "launcher.event.scroll_down.single"
+
+/**
+ * 点击按键时，处理启动器事件
+ */
+fun launcherEvent(
+    eventKey: String,
+    isPressed: Boolean,
+    onSwitchIME: () -> Unit,
+    onSwitchMenu: () -> Unit,
+    onSingleScrollUp: () -> Unit,
+    onSingleScrollDown: () -> Unit,
+    onLongScrollUp: () -> Unit,
+    onLongScrollUpCancel: () -> Unit,
+    onLongScrollDown: () -> Unit,
+    onLongScrollDownCancel: () -> Unit
+) {
+    if (eventKey.startsWith("GLFW_MOUSE_", false)) {
+        //处理鼠标事件
+        lwjglEvent(eventKey = eventKey, isMouse = true, isPressed = isPressed)
+    } else {
+        if (isPressed) {
+            when (eventKey) {
+                LAUNCHER_EVENT_SWITCH_IME -> onSwitchIME()
+                LAUNCHER_EVENT_SWITCH_MENU -> onSwitchMenu()
+                LAUNCHER_EVENT_SCROLL_UP_SINGLE -> onSingleScrollUp()
+                LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> onSingleScrollDown()
+            }
+        }
+        when (eventKey) {
+            LAUNCHER_EVENT_SCROLL_UP -> {
+                if (isPressed) {
+                    onLongScrollUp()
+                } else {
+                    onLongScrollUpCancel()
+                }
+            }
+            LAUNCHER_EVENT_SCROLL_DOWN -> {
+                if (isPressed) {
+                    onLongScrollDown()
+                } else {
+                    onLongScrollDownCancel()
+                }
+            }
+        }
+    }
+}
