@@ -120,12 +120,20 @@ fun SwitchableMouseLayout(
         )
     }
 
-    val isPhysicalMouseShowed = remember(isCaptured) {
-        if (PhysicalMouseChecker.physicalMouseConnected) { //物理鼠标已连接
-            !requestPointerCapture //根据是否是抓取模式（虚拟鼠标控制模式）判断物理鼠标是否显示
-        } else {
-            false
-        }
+    //当前是否为物理鼠标模式
+    var isPhysicalMouseMode by remember {
+        mutableStateOf(
+            if (PhysicalMouseChecker.physicalMouseConnected) { //物理鼠标已连接
+                !requestPointerCapture //根据是否是抓取模式（虚拟鼠标控制模式）判断物理鼠标是否显示
+            } else {
+                false
+            }
+        )
+    }
+    //检查并应用当前物理鼠标模式
+    //若未捕获的情况下，正在使用，则标记为物理鼠标模式
+    fun checkPhysicalMouseMode(using: Boolean) {
+        isPhysicalMouseMode = !requestPointerCapture && using
     }
 
     var showMousePointer by remember {
@@ -138,8 +146,8 @@ fun SwitchableMouseLayout(
         updateMousePointer(
             show = if (cursorMode == CURSOR_ENABLED) {
                 when {
-                    //物理鼠标已连接：是否为抓获控制模式
-                    PhysicalMouseChecker.physicalMouseConnected -> requestPointerCapture
+                    //物理鼠标已连接 && 当前为物理鼠标模式：是否为抓获控制模式
+                    PhysicalMouseChecker.physicalMouseConnected && isPhysicalMouseMode -> requestPointerCapture
                     //点击控制模式：由隐藏虚拟鼠标设置决定
                     controlMode == MouseControlMode.CLICK -> !hideMouseInClickMode
                     //滑动控制始终显示
@@ -167,7 +175,7 @@ fun SwitchableMouseLayout(
         val pos = lastVirtualMousePos.value?.takeIf {
             //如果当前正在使用物理鼠标，则使用上次虚拟鼠标的位置
             //否则默认将鼠标放到屏幕正中心
-            isPhysicalMouseShowed
+            isPhysicalMouseMode
         } ?: centerPos
         if (!isCaptured) updatePointerPos(pos)
         pointerPosition = pos
@@ -227,8 +235,14 @@ fun SwitchableMouseLayout(
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture1,
             pointerIcon = cursorShape.composeIcon,
-            onTouch = onTouch,
-            onMouse = onMouse,
+            onTouch = {
+                onTouch()
+                checkPhysicalMouseMode(false)
+            },
+            onMouse = {
+                onMouse()
+                checkPhysicalMouseMode(true)
+            },
             onTap = { fingerPos ->
                 when (cursorMode) {
                     CURSOR_DISABLED -> {
