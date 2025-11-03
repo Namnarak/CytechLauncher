@@ -154,11 +154,13 @@ fun SimpleGamepadCapture(
 @Composable
 private fun GamepadEventListener(
     gamepadViewModel: GamepadViewModel,
-    listener: (GamepadViewModel.Event) -> Unit
+    listener: (GamepadViewModel.Event) -> Unit,
+    onDisposeCallback: (() -> Unit)? = null
 ) {
     DisposableEffect(gamepadViewModel) {
         gamepadViewModel.addListener(listener)
         onDispose {
+            onDisposeCallback?.invoke()
             gamepadViewModel.removeListener(listener)
         }
     }
@@ -198,42 +200,58 @@ fun GamepadKeyListener(
     val lastPressKey = remember { mutableStateMapOf<Int, List<ClickEvent>>() }
     val lastPressDpad = remember { mutableStateMapOf<DpadDirection, List<ClickEvent>>() }
 
-    GamepadEventListener(gamepadViewModel) { event ->
-        currentOnAction()
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
+            currentOnAction()
 
-        when (event) {
-            is GamepadViewModel.Event.Button -> {
-                if (!event.pressed) {
-                    //松开时使用之前记录的按下事件
-                    lastPressKey[event.code]?.let { lastEvents ->
-                        currentOnKeyEvent(lastEvents, false)
-                        lastPressKey.remove(event.code)
-                    }
-                } else {
-                    gamepadViewModel.findByCode(event.code, inGame)?.let { targets ->
-                        val currentEvents = targets.map { guessEvent(it) }
-                        lastPressKey[event.code] = currentEvents
-                        currentOnKeyEvent(currentEvents, true)
-                    }
-                }
-            }
-            is GamepadViewModel.Event.Dpad -> {
-                if (!event.pressed) {
-                    lastPressDpad[event.direction]?.let { lastEvents ->
-                        currentOnKeyEvent(lastEvents, false)
-                        lastPressDpad.remove(event.direction)
-                    }
-                } else {
-                    gamepadViewModel.findByDpad(event.direction, inGame)?.let { targets ->
-                        val currentEvents = targets.map { guessEvent(it) }
-                        lastPressDpad[event.direction] = currentEvents
-                        currentOnKeyEvent(currentEvents, true)
+            when (event) {
+                is GamepadViewModel.Event.Button -> {
+                    if (!event.pressed) {
+                        //松开时使用之前记录的按下事件
+                        lastPressKey[event.code]?.let { lastEvents ->
+                            currentOnKeyEvent(lastEvents, false)
+                            lastPressKey.remove(event.code)
+                        }
+                    } else {
+                        gamepadViewModel.findByCode(event.code, inGame)?.let { targets ->
+                            val currentEvents = targets.map { guessEvent(it) }
+                            lastPressKey[event.code] = currentEvents
+                            currentOnKeyEvent(currentEvents, true)
+                        }
                     }
                 }
+                is GamepadViewModel.Event.Dpad -> {
+                    if (!event.pressed) {
+                        lastPressDpad[event.direction]?.let { lastEvents ->
+                            currentOnKeyEvent(lastEvents, false)
+                            lastPressDpad.remove(event.direction)
+                        }
+                    } else {
+                        gamepadViewModel.findByDpad(event.direction, inGame)?.let { targets ->
+                            val currentEvents = targets.map { guessEvent(it) }
+                            lastPressDpad[event.direction] = currentEvents
+                            currentOnKeyEvent(currentEvents, true)
+                        }
+                    }
+                }
+                else -> {}
             }
-            else -> {}
+        },
+        onDisposeCallback = {
+            //松开所有正在按下的按键
+            lastPressKey.forEach { (_, events) ->
+                currentOnKeyEvent(events, false)
+            }
+
+            lastPressDpad.forEach { (_, events) ->
+                currentOnKeyEvent(events, false)
+            }
+
+            lastPressKey.clear()
+            lastPressDpad.clear()
         }
-    }
+    )
 }
 
 /**
@@ -251,21 +269,24 @@ fun GamepadStickCameraListener(
     val joystickControlMode by rememberUpdatedState(AllSettings.joystickControlMode.state)
     val onOffsetEvent1 by rememberUpdatedState(onOffsetEvent)
 
-    GamepadEventListener(gamepadViewModel) { event ->
-        if (event is GamepadViewModel.Event.StickOffset) {
-            if (currentIsGrabbing) {
-                val cameraStick = when (joystickControlMode) {
-                    JoystickMode.RightMovement -> JoystickType.Left
-                    JoystickMode.LeftMovement -> JoystickType.Right
-                }
-                if (event.joystickType == cameraStick) {
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
+            if (event is GamepadViewModel.Event.StickOffset) {
+                if (currentIsGrabbing) {
+                    val cameraStick = when (joystickControlMode) {
+                        JoystickMode.RightMovement -> JoystickType.Left
+                        JoystickMode.LeftMovement -> JoystickType.Right
+                    }
+                    if (event.joystickType == cameraStick) {
+                        onOffsetEvent1(event.offset)
+                    }
+                } else {
                     onOffsetEvent1(event.offset)
                 }
-            } else {
-                onOffsetEvent1(event.offset)
             }
         }
-    }
+    )
 }
 
 //W
@@ -361,29 +382,35 @@ fun GamepadStickMovementListener(
         }
     }
 
-    GamepadEventListener(gamepadViewModel) { event ->
-        if (event is GamepadViewModel.Event.StickDirection) {
-            if (!currentIsGrabbing) {
-                clearPressedEvent()
-                return@GamepadEventListener
-            }
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
+            if (event is GamepadViewModel.Event.StickDirection) {
+                if (!currentIsGrabbing) {
+                    clearPressedEvent()
+                    return@GamepadEventListener
+                }
 
-            val movementStick = when (joystickControlMode) {
-                JoystickMode.RightMovement -> JoystickType.Right
-                JoystickMode.LeftMovement -> JoystickType.Left
-            }
+                val movementStick = when (joystickControlMode) {
+                    JoystickMode.RightMovement -> JoystickType.Right
+                    JoystickMode.LeftMovement -> JoystickType.Left
+                }
 
-            if (event.joystickType != movementStick) return@GamepadEventListener
+                if (event.joystickType != movementStick) return@GamepadEventListener
 
-            allAction.forEach { key ->
-                sendKeyEvent(key, false)
-            }
+                allAction.forEach { key ->
+                    sendKeyEvent(key, false)
+                }
 
-            directionMapping[event.direction]?.forEach { (key, pressed) ->
-                sendKeyEvent(key, pressed)
+                directionMapping[event.direction]?.forEach { (key, pressed) ->
+                    sendKeyEvent(key, pressed)
+                }
             }
+        },
+        onDisposeCallback = {
+            clearPressedEvent()
         }
-    }
+    )
 }
 
 /**
