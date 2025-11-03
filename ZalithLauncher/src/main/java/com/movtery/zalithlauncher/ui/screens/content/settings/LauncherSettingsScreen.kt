@@ -66,7 +66,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsLa
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.file.zipDirectory
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
@@ -255,10 +255,7 @@ fun LauncherSettingsScreen(
                                     task = { task ->
                                         task.updateProgress(-1f, R.string.settings_launcher_log_share_packing)
                                         val logsFile = File(PathManager.DIR_CACHE, "logs.zip")
-                                        zipDirectory(
-                                            PathManager.DIR_LAUNCHER_LOGS,
-                                            logsFile
-                                        )
+                                        Logger.pack(logsFile)
                                         task.updateProgress(1f, null)
                                         //分享压缩包
                                         shareFile(

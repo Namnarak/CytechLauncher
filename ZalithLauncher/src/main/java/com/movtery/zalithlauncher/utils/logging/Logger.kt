@@ -22,12 +22,12 @@ import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.file.zipDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.ByteArrayOutputStream
@@ -84,7 +84,7 @@ object Logger : CoroutineScope {
                 Level.WARNING,
                 "Failed to create log file", e
             )
-            runBlocking { channel.send(logMessage) }
+            channel.send(logMessage)
             inMemoryLogs = ByteArrayOutputStream(1024 * 1024) // 1MB buffer
             logWriter = PrintWriter(inMemoryLogs!!)
         }
@@ -222,6 +222,18 @@ object Logger : CoroutineScope {
         }?.let {
             val className = it.className.substringAfterLast('.')
             "$className.${it.methodName}"
+        }
+    }
+
+    /**
+     * 打包所有日志文件
+     */
+    suspend fun pack(target: File) {
+        withContext(Dispatchers.IO) {
+            zipDirectory(
+                sourceDir = PathManager.DIR_LAUNCHER_LOGS,
+                outputZipFile = target
+            )
         }
     }
 }
