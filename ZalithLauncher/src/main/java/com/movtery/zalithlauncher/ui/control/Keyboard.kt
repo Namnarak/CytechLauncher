@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.control
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -31,7 +30,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -304,43 +302,33 @@ private fun KeyboardNavDialog(
             usePlatformDefaultWidth = false
         )
     ) {
-        Box(
+        Surface(
             modifier = Modifier
-                .fillMaxWidth(0.75f)
-                .fillMaxHeight(),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth(0.75f),
+            shadowElevation = 3.dp,
+            shape = MaterialTheme.shapes.extraLarge
         ) {
-            Surface(
-                modifier = Modifier
-                    .padding(all = 3.dp)
-                    .fillMaxWidth(),
-                shadowElevation = 3.dp,
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                Column(modifier = Modifier.animateContentSize()) {
-                    //顶贴标签栏
-                    SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-                        tabs.forEachIndexed { index, item ->
-                            Tab(
-                                selected = index == selectedTabIndex,
-                                onClick = {
-                                    selectedTabIndex = index
-                                },
-                                text = {
-                                    MarqueeText(text = item.title)
-                                }
-                            )
-                        }
+            Column {
+                //顶贴标签栏
+                SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                    tabs.forEachIndexed { index, item ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = {
+                                selectedTabIndex = index
+                            },
+                            text = {
+                                MarqueeText(text = item.title)
+                            }
+                        )
                     }
-
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = false),
-                        pageContent = pageContent
-                    )
                 }
+
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxWidth(),
+                    pageContent = pageContent
+                )
             }
         }
     }
