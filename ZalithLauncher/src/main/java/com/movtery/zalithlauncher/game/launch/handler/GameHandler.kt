@@ -109,6 +109,7 @@ class GameHandler(
 
     override fun onResume() {
         refreshControls()
+        eventViewModel.sendEvent(EventViewModel.Event.Game.OnResume)
     }
 
     override fun onGraphicOutput() {

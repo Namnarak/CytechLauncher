@@ -54,6 +54,8 @@ class EventViewModel : ViewModel() {
             data object RefreshSize : Game
             /** 用户按下系统返回键 */
             data object OnBack : Game
+            /** [com.movtery.zalithlauncher.game.launch.handler.AbstractHandler.onResume] */
+            data object OnResume: Game
         }
         /** 在浏览器访问链接 */
         data class OpenLink(val url: String) : Event

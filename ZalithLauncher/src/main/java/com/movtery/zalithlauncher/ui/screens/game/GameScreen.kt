@@ -177,7 +177,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
      */
     fun startControlEditor(editorVM: EditorViewModel) {
         if (!isEditingLayout) {
-            clearPressedKeys()
+            clearState()
             editorVM.forceChangeLayout(getLayout())
             isEditingLayout = true
         }
@@ -228,11 +228,14 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     /**
-     * 清除所有按键状态
+     * 清除所有游戏状态
      */
-    private fun clearPressedKeys() {
+    fun clearState() {
+        mouseScrollUpEvent.cancel()
+        mouseScrollDownEvent.cancel()
         pressedKeyEvents.clearEvent()
         pressedLauncherEvents.clearEvent()
+        textInputMode = TextInputMode.DISABLE
     }
 
     init {
@@ -240,9 +243,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     override fun onCleared() {
-        this.mouseScrollUpEvent.cancel()
-        this.mouseScrollDownEvent.cancel()
-        clearPressedKeys()
+        clearState()
     }
 }
 
@@ -368,7 +369,6 @@ fun GameScreen(
                     ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
                     else -> return
                 }
-                //获取当前已按下相同键值的按键个数
                 if (pressed) {
                     events.pressKey(event.key)
                 } else {
@@ -578,6 +578,9 @@ fun GameScreen(
                             delay(10)
                             events.releaseKey(escape)
                         }
+                    }
+                    is EventViewModel.Event.Game.OnResume -> {
+                        viewModel.clearState()
                     }
                     else -> { /*忽略*/ }
                 }
