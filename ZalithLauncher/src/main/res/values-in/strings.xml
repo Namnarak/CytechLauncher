@@ -64,7 +64,7 @@
     <string name="crash_singnal_message">JVM digugurkan karena sinyal fatal %d.</string>
     <string name="crash_exit_note">Untuk detail penyebabnya, silahkan periksa file log. Jika Anda tidak bisa menyelesaikan masalah sendiri, silakan kirim file log kepada seseorang yang dapat menganalisisnya. Mereka dapat membantumu mendiagnosis dan memperbaiki masalah. Jangan ambil screenshot dari layar saat ini, karena screenshot tidak bisa memberikan informasi yang cukup untuk menyelesaikan masalah.</string>
     <string name="crash_type">Tipe Crash: %s</string>
-    <string name="crash_type_launcher">Launcher Crash</string>
+    <string name="crash_type_launcher">Launcher Telah Crash</string>
     <string name="crash_type_game">Permainan Crash</string>
     <string name="crash_share_logs">Kirim log</string>
     <string name="crash_restart">Mulai Ulang</string>
@@ -938,4 +938,7 @@
     <string name="control_editor_menu_preview_mode_scenario">Pratinjau skenario</string>
     <string name="control_editor_menu_preview_mode_in_game">Dalam Game</string>
     <string name="control_editor_menu_preview_mode_in_menu">Dalam menu</string>
+    <string name="control_editor_edit_text_bold">Aktifkan Bold</string>
+    <string name="control_editor_edit_text_italic">Aktifkan Italic</string>
+    <string name="control_editor_edit_text_underline">Aktifkan Garis Bawah</string>
 </resources>
