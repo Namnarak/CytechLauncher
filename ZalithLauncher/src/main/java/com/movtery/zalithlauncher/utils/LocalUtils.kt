@@ -29,6 +29,7 @@ import android.os.Process
 import android.util.Log
 import android.view.KeyEvent
 import com.google.gson.GsonBuilder
+import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
@@ -356,7 +357,7 @@ fun writeCrashFile(
             stream.append("- Time: ${DateFormat.getDateTimeInstance().format(Date())}\n")
             stream.append("- Device: ${Build.PRODUCT} ${Build.MODEL}\n")
             stream.append("- Android Version: ${Build.VERSION.RELEASE}\n")
-            stream.append("- Launcher Version: test\n")
+            stream.append("- Launcher Version: ${BuildConfig.VERSION_NAME}\n")
             stream.append("===================== Crash Stack Trace =====================\n")
             stream.append(Log.getStackTraceString(throwable))
         }
