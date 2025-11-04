@@ -96,11 +96,6 @@ fun EditWidgetClickEvent(
         LaunchedEffect(selectedTabIndex) {
             pagerState.animateScrollToPage(selectedTabIndex)
         }
-        LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-            if (!pagerState.isScrollInProgress) {
-                selectedTabIndex = pagerState.currentPage
-            }
-        }
 
         //顶贴标签栏
         SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
@@ -119,6 +114,7 @@ fun EditWidgetClickEvent(
 
         HorizontalPager(
             state = pagerState,
+            userScrollEnabled = false,
             modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
         ) { page ->
             when (page) {

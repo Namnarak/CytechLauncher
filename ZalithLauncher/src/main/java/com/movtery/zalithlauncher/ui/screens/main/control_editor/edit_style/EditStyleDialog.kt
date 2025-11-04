@@ -90,11 +90,6 @@ fun EditStyleDialog(
     LaunchedEffect(selectedTabIndex) {
         pagerState.animateScrollToPage(selectedTabIndex)
     }
-    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-        if (!pagerState.isScrollInProgress) {
-            selectedTabIndex = pagerState.currentPage
-        }
-    }
 
     Dialog(
         onDismissRequest = onClose,
@@ -171,7 +166,10 @@ fun EditStyleDialog(
 
                         HorizontalPager(
                             state = pagerState,
-                            modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
+                            userScrollEnabled = false,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
                         ) { page ->
                             when (page) {
                                 0 -> {

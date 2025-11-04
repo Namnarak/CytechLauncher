@@ -448,11 +448,6 @@ private fun KeyboardNavDialog(
     LaunchedEffect(selectedTabIndex) {
         pagerState.animateScrollToPage(selectedTabIndex)
     }
-    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-        if (!pagerState.isScrollInProgress) {
-            selectedTabIndex = pagerState.currentPage
-        }
-    }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -483,6 +478,7 @@ private fun KeyboardNavDialog(
 
                 HorizontalPager(
                     state = pagerState,
+                    userScrollEnabled = false,
                     modifier = Modifier.fillMaxWidth()
                 ) { page ->
                     pageContent(page)

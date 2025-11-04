@@ -106,12 +106,8 @@ fun GameMenuSubscreen(
             val pagerState = rememberPagerState(pageCount = { controlTabs.size })
 
             LaunchedEffect(controlMenuTabIndex) {
+                onControlMenuTabChange(pagerState.currentPage)
                 pagerState.animateScrollToPage(controlMenuTabIndex)
-            }
-            LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-                if (!pagerState.isScrollInProgress) {
-                    onControlMenuTabChange(pagerState.currentPage)
-                }
             }
 
             Column {
@@ -151,6 +147,7 @@ fun GameMenuSubscreen(
 
                 HorizontalPager(
                     state = pagerState,
+                    userScrollEnabled = false,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f, fill = false)
