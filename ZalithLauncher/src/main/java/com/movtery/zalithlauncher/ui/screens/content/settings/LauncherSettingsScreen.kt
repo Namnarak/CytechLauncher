@@ -54,7 +54,6 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -71,6 +70,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -85,6 +85,7 @@ fun LauncherSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
+    eventViewModel: EventViewModel,
     backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
@@ -145,8 +146,7 @@ fun LauncherSettingsScreen(
                         title = stringResource(R.string.settings_launcher_full_screen_title),
                         summary = stringResource(R.string.settings_launcher_full_screen_summary),
                         onCheckedChange = {
-                            val activity = context as? FullScreenComponentActivity
-                            activity?.fullScreenViewModel?.triggerRefresh()
+                            eventViewModel.sendEvent(EventViewModel.Event.RefreshFullScreen)
                         }
                     )
                 }

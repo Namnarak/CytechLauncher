@@ -59,5 +59,7 @@ class EventViewModel : ViewModel() {
         }
         /** 在浏览器访问链接 */
         data class OpenLink(val url: String) : Event
+        /** 刷新全屏 */
+        data object RefreshFullScreen : Event
     }
 }

@@ -30,7 +30,6 @@ class ErrorViewModel : ViewModel() {
 
     fun showError(message: ThrowableMessage) {
         viewModelScope.launch {
-            println("Test: get error = $message")
             _errorEvents.emit(message)
         }
     }

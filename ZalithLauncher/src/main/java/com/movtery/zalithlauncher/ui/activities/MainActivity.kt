@@ -123,6 +123,11 @@ class MainActivity : BaseComponentActivity() {
                             this@MainActivity.openLink(url)
                         }
                     }
+                    is EventViewModel.Event.RefreshFullScreen -> {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            ignoreNotch()
+                        }
+                    }
                     else -> {
                         //忽略
                     }

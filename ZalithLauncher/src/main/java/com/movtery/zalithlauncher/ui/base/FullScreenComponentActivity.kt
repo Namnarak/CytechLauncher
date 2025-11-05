@@ -24,29 +24,13 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
-import androidx.activity.viewModels
 import androidx.annotation.CallSuper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
-import kotlinx.coroutines.launch
 
 abstract class FullScreenComponentActivity : AbstractComponentActivity() {
-    val fullScreenViewModel: LauncherFullScreenViewModel by viewModels()
-
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFullscreen()
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                fullScreenViewModel.refreshEvent.collect {
-                    ignoreNotch()
-                }
-            }
-        }
     }
 
     @CallSuper
@@ -85,7 +69,7 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
         visibilityChangeListener.onSystemUiVisibilityChange(decorView.systemUiVisibility)
     }
 
-    private fun ignoreNotch() {
+    protected fun ignoreNotch() {
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode =
                 if (shouldIgnoreNotch()) {
