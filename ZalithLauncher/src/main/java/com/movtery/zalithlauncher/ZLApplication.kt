@@ -32,6 +32,7 @@ import coil3.gif.GifDecoder
 import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.crossfade
+import com.kyant.fishnet.Fishnet
 import com.movtery.zalithlauncher.context.getContextWrapper
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -87,6 +88,8 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
 
         super.onCreate()
         runCatching {
+            Fishnet.init(this, PathManager.DIR_NATIVE_LOGS.absolutePath)
+
             MMKV.initialize(this)
             loadAllSettings(this)
 

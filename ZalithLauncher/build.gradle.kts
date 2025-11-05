@@ -259,6 +259,8 @@ dependencies {
     implementation(libs.toml4j)
     implementation(libs.maven.artifact)
     implementation(libs.mmkv)
+    implementation(libs.fishnet)
+    implementation(libs.process.phoenix)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     //Safe
     implementation(libs.stringfog.xor)

@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import com.jakewharton.processphoenix.ProcessPhoenix
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.launch.LogName
 import com.movtery.zalithlauncher.path.PathManager
@@ -116,8 +117,7 @@ class ErrorActivity : BaseComponentActivity(refreshData = false) {
                             }
                         },
                         onRestartClick = {
-                            startActivity(Intent(this@ErrorActivity, MainActivity::class.java))
-                            finish()
+                            ProcessPhoenix.triggerRebirth(this@ErrorActivity)
                         },
                         onExitClick = { finish() }
                     )
