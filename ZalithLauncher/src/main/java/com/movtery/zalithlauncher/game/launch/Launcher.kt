@@ -108,6 +108,7 @@ abstract class Launcher(
         progressFinalUserArgs(args)
 
         args.addAll(jvmArgs)
+        args.add(0, "$runtimeHome/bin/java")
 
         LoggerBridge.appendTitle("JVM Args")
         val iterator = args.iterator()
@@ -125,8 +126,6 @@ abstract class Launcher(
         ZLBridge.setupExitMethod(context.applicationContext)
         ZLBridge.initializeGameExitHook()
         ZLBridge.chdir(chdir())
-
-        args.add(0, "java") //argv[0] is the program name according to C standard.
 
         val exitCode = VMLauncher.launchJVM(args.toTypedArray())
         LoggerBridge.append("Java Exit code: $exitCode")
