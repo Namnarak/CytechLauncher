@@ -382,7 +382,7 @@ private fun JavaRuntimeItem(
             }
             IconButton(
                 //内置环境（未损坏）无法删除
-                enabled = !runtime.isProvidedByLauncher || !runtime.isCompatible,
+                enabled = !runtime.isProvidedByLauncher || !runtime.isCompatible(),
                 onClick = onDeleteClick
             ) {
                 Icon(

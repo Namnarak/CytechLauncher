@@ -15,51 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
+package com.movtery.zalithlauncher.game.multirt
 
-package com.movtery.zalithlauncher.game.multirt;
+import com.movtery.zalithlauncher.ZLApplication.Companion.DEVICE_ARCHITECTURE
+import com.movtery.zalithlauncher.utils.device.Architecture.archAsInt
 
-import androidx.annotation.Nullable;
+data class Runtime(
+    val name: String,
+    val versionString: String?,
+    val arch: String?,
+    val javaVersion: Int,
+    val isProvidedByLauncher: Boolean,
+    val isJDK8: Boolean
+) {
+    constructor(name: String) : this(
+        name = name,
+        versionString = null,
+        arch = null,
+        javaVersion = 0,
+        isProvidedByLauncher = false,
+        isJDK8 = false
+    )
 
-import com.movtery.zalithlauncher.ZLApplication;
-import com.movtery.zalithlauncher.utils.device.Architecture;
-
-import java.util.Objects;
-
-public class Runtime {
-    public final String name;
-    public final String versionString;
-    public final String arch;
-    public final int javaVersion;
-    public final boolean isProvidedByLauncher;
-    public final boolean isJDK;
-
-    public Runtime(String name) {
-        this(name, null, null, 0, false, false);
-    }
-
-    Runtime(String name, String versionString, String arch, int javaVersion, boolean isProvidedByLauncher, boolean isJDK) {
-        this.name = name;
-        this.versionString = versionString;
-        this.arch = arch;
-        this.javaVersion = javaVersion;
-        this.isProvidedByLauncher = isProvidedByLauncher;
-        this.isJDK = isJDK;
-    }
-
-    public boolean isCompatible() {
-        return versionString != null && ZLApplication.getDEVICE_ARCHITECTURE() == Architecture.INSTANCE.archAsInt(arch);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Runtime runtime = (Runtime) obj;
-        return name.equals(runtime.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
+    fun isCompatible(): Boolean =
+        versionString != null && DEVICE_ARCHITECTURE == archAsInt(arch)
 }

@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
 import android.os.Build
-import android.system.ErrnoException
 import android.system.Os
 import android.util.ArrayMap
 import androidx.annotation.CallSuper
@@ -41,15 +40,14 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.device.Architecture.ARCH_X86
 import com.movtery.zalithlauncher.utils.device.Architecture.is64BitsDevice
-import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.oracle.dalvik.VMLauncher
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
+import java.io.IOException
 import java.util.TimeZone
 
 abstract class Launcher(
@@ -62,14 +60,7 @@ abstract class Launcher(
         RuntimesManager.getRuntimeHome(runtime.name).absolutePath
     }
 
-    var libraryPath: String = ""
-        private set
-
-    private var dirNameHomeJre: String = "lib"
-    private var jvmLibraryPath: String = ""
-
-    private fun getJavaHome() = if (checkJDK()) "$runtimeHome/jre" else runtimeHome
-    private fun checkJDK() = runtime.isJDK && File(runtimeHome, "jre").exists()
+    private fun getJavaHome() = if (runtime.isJDK8) "$runtimeHome/jre" else runtimeHome
 
     abstract suspend fun launch(): Int
     abstract fun chdir(): String
@@ -85,7 +76,7 @@ abstract class Launcher(
     ): Int {
         ZLNativeInvoker.staticLauncher = this
 
-        initLdLibraryPath()
+        ZLBridge.setLdLibraryPath(getRuntimeLibraryPath())
 
         LoggerBridge.appendTitle("Env Map")
         setEnv()
@@ -250,55 +241,69 @@ abstract class Launcher(
         removeIf { arg: String -> arg.startsWith(argStart) }
     }
 
-    protected fun relocateLibPath() {
-        var jreArchitecture = runtime.arch
-        if (Architecture.archAsInt(jreArchitecture) == ARCH_X86) {
-            jreArchitecture = "i386/i486/i586"
-        }
+    protected fun getJavaLibDir(): String {
+        val architecture = runtime.arch?.let { arch ->
+            if (Architecture.archAsInt(arch) == ARCH_X86) "i386/i486/i586"
+            else arch
+        } ?: throw IOException("Unsupported architecture!")
 
-        for (arch in jreArchitecture.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
-            val f = File(runtimeHome, "lib/$arch")
-            if (f.exists() && f.isDirectory) {
-                dirNameHomeJre = "lib/$arch"
+        var libDir = "/lib"
+        architecture.split("/").forEach { arch ->
+            val file = File(runtimeHome, "lib/$arch")
+            if (file.exists() && file.isDirectory()) {
+                libDir = "/lib/$arch"
             }
         }
+        return libDir
+    }
+
+    private fun getJvmLibDir(): String {
+        val jvmLibDir: String
+        val path = (if (RuntimesManager.isJDK8(runtimeHome)) "/jre" else "") + getJavaLibDir()
+        val jvmFile = File("$runtimeHome$path/server/libjvm.so")
+        jvmLibDir = if (jvmFile.exists()) "/server" else "/client"
+        return jvmLibDir
+    }
+
+    protected fun getRuntimeLibraryPath(): String {
+        val javaLibDir = getJavaLibDir()
+        val jvmLibDir = getJvmLibDir()
 
         val libName = if (is64BitsDevice) "lib64" else "lib"
         val path = listOfNotNull(
             FFmpegPluginManager.takeIf { it.isAvailable }?.libraryPath,
             RendererPluginManager.selectedRendererPlugin?.path,
-            "$runtimeHome/$dirNameHomeJre/jli",
-            "$runtimeHome/$dirNameHomeJre",
-            if (checkJDK()) { "$runtimeHome/jre/$dirNameHomeJre" } else null,
+            "$runtimeHome$javaLibDir",
+            "$runtimeHome$javaLibDir/jli",
+            if (runtime.isJDK8) {
+                "$runtimeHome/jre$javaLibDir$jvmLibDir:$runtimeHome/jre$javaLibDir"
+            } else {
+                "$runtimeHome$javaLibDir$jvmLibDir"
+            },
             "/system/$libName",
             "/vendor/$libName",
             "/vendor/$libName/hw",
             LibPath.JNA.absolutePath,
             PathManager.DIR_NATIVE_LIB
         )
-        this.libraryPath = path.joinToString(":")
+        return path.joinToString(":")
     }
 
-    private fun initLdLibraryPath() {
-        val runtimeDir = File(getJavaHome())
-        val serverFile = runtimeDir.child(dirNameHomeJre, "server", "libjvm.so")
-        jvmLibraryPath = "${getJavaHome()}/$dirNameHomeJre/${if (serverFile.exists()) "server" else "client"}"
-        lDebug("Base libraryPath: $libraryPath")
-        lDebug("Internal libraryPath: $jvmLibraryPath:$libraryPath")
-        ZLBridge.setLdLibraryPath("$jvmLibraryPath:$libraryPath")
+    protected fun getLibraryPath(): String {
+        val nativeDir = PathManager.DIR_NATIVE_LIB
+        val libDirName = if (is64BitsDevice) "lib64" else "lib"
+        val path = listOfNotNull(
+            "/system/$libDirName",
+            "/vendor/$libDirName",
+            "/vendor/$libDirName/hw",
+            RendererPluginManager.selectedRendererPlugin?.path,
+            nativeDir
+        )
+        return path.joinToString(":")
     }
 
     protected fun findInLdLibPath(libName: String): String {
-        val path = Os.getenv("LD_LIBRARY_PATH") ?: run {
-            try {
-                if (libraryPath.isNotEmpty()) {
-                    Os.setenv("LD_LIBRARY_PATH", libraryPath, true)
-                }
-            } catch (e: ErrnoException) {
-                lError("Failed to locate lib path", e)
-            }
-            libraryPath
-        }
+        val path = getLibraryPath()
         return path.split(":").find { libPath ->
             val file = File(libPath, libName)
             file.exists() && file.isFile
@@ -338,18 +343,14 @@ abstract class Launcher(
     }
 
     private fun setJavaEnv(envMap: () -> MutableMap<String, String>) {
-        val path = listOfNotNull(
-            "$runtimeHome/bin",
-            if (checkJDK()) "$runtimeHome/jre/bin" else null,
-            Os.getenv("PATH")
-        )
+        val path = listOfNotNull("$runtimeHome/bin", Os.getenv("PATH"))
 
         envMap().let { map ->
             map["POJAV_NATIVEDIR"] = PathManager.DIR_NATIVE_LIB
             map["JAVA_HOME"] = getJavaHome()
             map["HOME"] = PathManager.DIR_FILES_EXTERNAL.absolutePath
             map["TMPDIR"] = PathManager.DIR_CACHE.absolutePath
-            map["LD_LIBRARY_PATH"] = libraryPath
+            map["LD_LIBRARY_PATH"] = getLibraryPath()
             map["PATH"] = path.joinToString(":")
             map["AWTSTUB_WIDTH"] = (CallbackBridge.windowWidth.takeIf { it > 0 } ?: CallbackBridge.physicalWidth).toString()
             map["AWTSTUB_HEIGHT"] = (CallbackBridge.windowHeight.takeIf { it > 0 } ?: CallbackBridge.physicalHeight).toString()
@@ -364,27 +365,25 @@ abstract class Launcher(
     }
 
     private fun dlopenJavaRuntime() {
-        ZLBridge.dlopen(findInLdLibPath("libjli.so"))
-        if (!ZLBridge.dlopen("libjvm.so")) {
-            lWarning("Failed to load with no path, trying with full path")
-            ZLBridge.dlopen("$jvmLibraryPath/libjvm.so")
+        var javaLibDir = "$runtimeHome${getJavaLibDir()}"
+        val jliLibDir = if (File("$javaLibDir/jli/libjli.so").exists()) "$javaLibDir/jli" else javaLibDir
+
+        if (runtime.isJDK8) {
+            javaLibDir = "$runtimeHome/jre${getJavaLibDir()}"
         }
-        ZLBridge.dlopen(findInLdLibPath("libverify.so"))
-        ZLBridge.dlopen(findInLdLibPath("libjava.so"))
-        ZLBridge.dlopen(findInLdLibPath("libnet.so"))
-        ZLBridge.dlopen(findInLdLibPath("libnio.so"))
-        ZLBridge.dlopen(findInLdLibPath("libawt.so"))
-        ZLBridge.dlopen(findInLdLibPath("libawt_headless.so"))
-        ZLBridge.dlopen(findInLdLibPath("libfreetype.so"))
-        ZLBridge.dlopen(findInLdLibPath("libfontmanager.so"))
-        val runtimeDir = File(runtimeHome)
-        locateLibs(runtimeDir.child(dirNameHomeJre)).forEach { file ->
+        val jvmLibDir = "$javaLibDir${getJvmLibDir()}"
+        ZLBridge.dlopen("$jliLibDir/libjli.so")
+        ZLBridge.dlopen("$jvmLibDir/libjvm.so")
+        ZLBridge.dlopen("$javaLibDir/libfreetype.so")
+        ZLBridge.dlopen("$javaLibDir/libverify.so")
+        ZLBridge.dlopen("$javaLibDir/libjava.so")
+        ZLBridge.dlopen("$javaLibDir/libnet.so")
+        ZLBridge.dlopen("$javaLibDir/libnio.so")
+        ZLBridge.dlopen("$javaLibDir/libawt.so")
+        ZLBridge.dlopen("$javaLibDir/libawt_headless.so")
+        ZLBridge.dlopen("$javaLibDir/libfontmanager.so")
+        locateLibs(File(runtimeHome)).forEach { file ->
             ZLBridge.dlopen(file.absolutePath)
-        }
-        if (checkJDK()) {
-            locateLibs(runtimeDir.child("jre", dirNameHomeJre)).forEach { file ->
-                ZLBridge.dlopen(file.absolutePath)
-            }
         }
     }
 

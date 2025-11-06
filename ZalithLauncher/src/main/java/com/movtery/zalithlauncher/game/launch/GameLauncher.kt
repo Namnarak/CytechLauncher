@@ -189,10 +189,10 @@ class GameLauncher(
 
         //初始化运行环境
         this.runtime = runtime
-        this.relocateLibPath()
+        val runtimeLibraryPath = getRuntimeLibraryPath()
 
         val launchArgs = LaunchArgs(
-            launcher = this,
+            runtimeLibraryPath = runtimeLibraryPath,
             account = account,
             offlineServer = offlineServer,
             gameDirPath = gameDirPath,

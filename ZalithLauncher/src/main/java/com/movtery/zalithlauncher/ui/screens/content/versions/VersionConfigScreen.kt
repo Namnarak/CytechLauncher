@@ -252,7 +252,7 @@ private fun GameConfigs(
         )
 
         SimpleIDListLayout(
-            items = getIDList(RuntimesManager.getRuntimes().filter { it.isCompatible }) { IDItem(it.name, it.name) },
+            items = getIDList(RuntimesManager.getRuntimes().filter { it.isCompatible() }) { IDItem(it.name, it.name) },
             currentId = config.javaRuntime,
             defaultId = "",
             title = stringResource(R.string.settings_game_java_runtime_title),

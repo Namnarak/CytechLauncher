@@ -185,7 +185,11 @@ fun File.ensureDirectorySilently(): Boolean {
     else mkdirs()
 }
 
-fun File.child(vararg paths: String) = File(this, paths.joinToString(File.separator))
+fun File.child(vararg paths: String): File {
+    return paths.fold(this) { acc, path ->
+        File(acc, path.trim().removeSurrounding("/").removeSurrounding("\\"))
+    }
+}
 
 fun InputStream.readString(): String {
     return use {

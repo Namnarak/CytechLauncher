@@ -55,7 +55,6 @@ open class JvmLauncher(
         val (runtime, argList) = getStartupNeeded()
 
         this.runtime = runtime
-        this.relocateLibPath()
 
         return launchJvm(
             context = context,

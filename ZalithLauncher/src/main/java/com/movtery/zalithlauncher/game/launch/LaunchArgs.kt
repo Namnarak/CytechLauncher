@@ -47,7 +47,7 @@ import com.movtery.zalithlauncher.utils.string.toUnicodeEscaped
 import java.io.File
 
 class LaunchArgs(
-    private val launcher: Launcher,
+    private val runtimeLibraryPath: String,
     private val account: Account,
     private val offlineServer: OfflineYggdrasilServer,
     private val gameDirPath: File,
@@ -175,7 +175,7 @@ class LaunchArgs(
         varArgMap["classpath_separator"] = ":"
         varArgMap["library_directory"] = getLibrariesHome()
         varArgMap["version_name"] = gameManifest1.id
-        varArgMap["natives_directory"] = launcher.libraryPath
+        varArgMap["natives_directory"] = runtimeLibraryPath
         setLauncherInfo(varArgMap)
 
         fun Any.processJvmArg(): String? = (this as? String)?.let {

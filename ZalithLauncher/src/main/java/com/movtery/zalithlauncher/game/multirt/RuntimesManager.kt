@@ -38,7 +38,6 @@ import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -102,8 +101,15 @@ object RuntimesManager {
                     } else {
                         versionParts.first().toIntOrNull() ?: 0
                     }
-                    val isJDK = runtimeDir.child("bin/javac").exists()
-                    Runtime(name, javaVersion, osArch, majorVersion, Jre.entries.any { it.jreName == name }, isJDK)
+
+                    Runtime(
+                        name = name,
+                        versionString = javaVersion,
+                        arch = osArch,
+                        javaVersion = majorVersion,
+                        isProvidedByLauncher = Jre.entries.any { it.jreName == name },
+                        isJDK8 = isJDK8(runtimeDir.absolutePath)
+                    )
                 } else {
                     Runtime(name)
                 }
@@ -123,10 +129,17 @@ object RuntimesManager {
         updateProgress: (Int, Array<Any>) -> Unit = { _, _ -> }
     ) = withContext(Dispatchers.IO) {
         val dest = RUNTIME_FOLDER.child(name)
-        if (dest.exists()) FileUtils.deleteDirectory(dest)
-        uncompressTarXZ(inputStream, dest, updateProgress)
-        unpack200(nativeLibDir, dest.absolutePath)
-        loadRuntime(name)
+        try {
+            if (dest.exists()) FileUtils.deleteDirectory(dest)
+            uncompressTarXZ(inputStream, dest, updateProgress)
+            unpack200(nativeLibDir, dest.absolutePath)
+            loadRuntime(name).also { runtime ->
+                postPrepare(runtime)
+            }
+        } catch (e: Exception) {
+            FileUtils.deleteDirectory(dest)
+            throw e
+        }
     }
 
     @Throws(IOException::class)
@@ -134,18 +147,40 @@ object RuntimesManager {
         val dest = RUNTIME_FOLDER.child(name)
         if (!dest.exists()) return@withContext
         val runtime = loadRuntime(name)
+        postPrepare(runtime)
+    }
+
+    @Throws(IOException::class)
+    suspend fun postPrepare(runtime: Runtime) = withContext(Dispatchers.IO) {
+        val dest = RUNTIME_FOLDER.child(runtime.name)
+        if (!dest.exists()) return@withContext
         var libFolder = "lib"
-        if (File(dest, "$libFolder${File.separator}${runtime.arch}").exists()) {
-            libFolder += "${File.separator}${runtime.arch}"
+
+        val arch = runtime.arch
+        if (arch != null && dest.child(libFolder, arch).exists()) {
+            libFolder += "/$arch"
         }
+
+        val isJDK8 = isJDK8(dest.absolutePath)
+        if (isJDK8) {
+            libFolder = "/jre$libFolder"
+        }
+
         val ftIn = dest.child(libFolder, "libfreetype.so.6")
         val ftOut = dest.child(libFolder, "libfreetype.so")
         if (ftIn.exists() && (!ftOut.exists() || ftIn.length() != ftOut.length())) {
             if (!ftIn.renameTo(ftOut)) throw IOException("Failed to rename freetype")
         }
 
-        //Refresh libraries
-        copyDummyNativeLib("libawt_xawt.so", dest, libFolder)
+        val ft2In = dest.child(libFolder, "libfreetype.so")
+        if (isJDK8 && ft2In.exists()) {
+            ft2In.renameTo(ftOut)
+        }
+
+        val localXawtLib = File(PathManager.DIR_NATIVE_LIB, "libawt_xawt.so")
+        val targetXawtLib = dest.child(libFolder, "libawt_xawt.so")
+        if (targetXawtLib.exists()) targetXawtLib.delete()
+        FileUtils.copyFile(localXawtLib, targetXawtLib)
     }
 
     @Throws(IOException::class)
@@ -157,16 +192,21 @@ object RuntimesManager {
         updateProgress: (Int, Array<Any>) -> Unit = { _, _ -> }
     ) = withContext(Dispatchers.IO) {
         val dest = RUNTIME_FOLDER.child(name)
-        if (dest.exists()) FileUtils.deleteDirectory(dest)
-        installRuntimeNoRemove(universalFileInputStream, dest, updateProgress)
-        installRuntimeNoRemove(platformBinsInputStream, dest, updateProgress)
+        try {
+            if (dest.exists()) FileUtils.deleteDirectory(dest)
+            installRuntimeNoRemove(universalFileInputStream, dest, updateProgress)
+            installRuntimeNoRemove(platformBinsInputStream, dest, updateProgress)
 
-        unpack200(PathManager.DIR_NATIVE_LIB, dest.absolutePath)
+            unpack200(PathManager.DIR_NATIVE_LIB, dest.absolutePath)
 
-        val versionFile = File(dest, "version")
-        versionFile.writeText(binPackVersion)
+            val versionFile = File(dest, "version")
+            versionFile.writeText(binPackVersion)
 
-        forceReload(name)
+            forceReload(name)
+        } catch (e: Exception) {
+            FileUtils.deleteDirectory(dest)
+            throw e
+        }
     }
 
     fun loadInternalRuntimeVersion(name: String): String? {
@@ -234,20 +274,6 @@ object RuntimesManager {
         }
 
     @Throws(IOException::class)
-    private suspend fun copyDummyNativeLib(
-        name: String,
-        dest: File,
-        libFolder: String
-    ) = withContext(Dispatchers.IO) {
-        val fileLib = dest.child(libFolder, name)
-        val inputStream = FileInputStream(File(PathManager.DIR_NATIVE_LIB, name))
-        val outputStream = FileOutputStream(fileLib)
-        IOUtils.copy(inputStream, outputStream)
-        inputStream.close()
-        outputStream.close()
-    }
-
-    @Throws(IOException::class)
     private suspend fun installRuntimeNoRemove(
         inputStream: InputStream,
         dest: File,
@@ -289,5 +315,9 @@ object RuntimesManager {
                 }
             }
         }
+    }
+
+    fun isJDK8(runtimeDir: String): Boolean {
+        return File(runtimeDir, "jre").exists() && File(runtimeDir, "bin/javac").exists()
     }
 }
