@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -838,25 +839,38 @@ fun VersionIconImage(
     modifier: Modifier = Modifier,
     refreshKey: Any? = null
 ) {
-    val context = LocalContext.current
-
-    val defaultRes = R.drawable.img_minecraft
-    val model = remember(version, refreshKey, context) {
-        if (version == null) return@remember defaultRes
-        val iconFile = VersionsManager.getVersionIconFile(version)
-        if (iconFile.exists()) iconFile else getLoaderIconRes(version)
+    val model = remember(version, refreshKey) {
+        version?.let {
+            val iconFile = VersionsManager.getVersionIconFile(it)
+            when {
+                iconFile.exists() -> iconFile
+                else -> getLoaderIconRes(it)
+            }
+        } ?: R.drawable.img_minecraft
     }
 
-    AsyncImage(
-        model = model,
-        modifier = modifier,
-        contentScale = ContentScale.Fit,
-        contentDescription = null
-    )
+    when (model) {
+        is Int -> {
+            Image(
+                painter = painterResource(id = model),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+        else -> {
+            AsyncImage(
+                model = model,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+    }
 }
 
 private fun getLoaderIconRes(version: Version): Int {
-    return when(version.getVersionInfo()?.loaderInfo?.loader) {
+    return when (version.getVersionInfo()?.loaderInfo?.loader) {
         ModLoader.FABRIC -> R.drawable.img_loader_fabric
         ModLoader.FORGE -> R.drawable.img_anvil
         ModLoader.QUILT -> R.drawable.img_loader_quilt
