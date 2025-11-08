@@ -367,7 +367,7 @@ private class TextInputNode(
 
         override fun getCursorCapsMode(p0: Int): Int = 0
 
-        override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText? {
+        override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
             return ExtractedText().apply {
                 text = textBuffer
                 startOffset = 0
@@ -386,8 +386,12 @@ private class TextInputNode(
                 CursorAnchorInfo.Builder().apply {
                     setSelectionRange(cursorPosition, cursorPosition)
                     //设置组合文本范围
-                    if (composingStart >= 0 && composingEnd > composingStart) {
-                        setComposingText(composingStart, textBuffer.substring(composingStart, composingEnd))
+                    if (composingStart in 0..<composingEnd) {
+                        val safeStart = composingStart.coerceIn(0, textBuffer.length)
+                        val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                        if (safeStart < safeEnd) {
+                            setComposingText(safeStart, textBuffer.substring(safeStart, safeEnd))
+                        }
                     }
                     setInsertionMarkerLocation(
                         fakeCursorRect.left.toFloat(),
