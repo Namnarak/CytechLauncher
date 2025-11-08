@@ -18,15 +18,16 @@
 
 package com.movtery.zalithlauncher.game.addons.modloader
 
-enum class ModLoader(val displayName: String) {
-    UNKNOWN(""),
-    OPTIFINE("OptiFine"),
+enum class ModLoader(val displayName: String, val isLoader: Boolean = true) {
+    UNKNOWN("", false),
+    OPTIFINE("OptiFine", false),
     FORGE("Forge"),
     NEOFORGE("NeoForge"),
     FABRIC("Fabric"),
-    FABRIC_API("Fabric API"),
+    FABRIC_API("Fabric API", false),
     QUILT("Quilt"),
-    QUILT_API("Quilted Fabric API"),
+    QUILT_API("Quilted Fabric API", false),
     LITE_LOADER("LiteLoader"),
-    PACK("Pack")
+    CLEANROOM("Cleanroom"),
+    PACK("Pack", false)
 }

@@ -22,7 +22,9 @@ import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorList
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
@@ -39,6 +41,11 @@ class DownloadTask(
     private val onFileDownloadedSize: (Long) -> Unit = {},
     private val onFileDownloaded: () -> Unit = {}
 ) {
+    /**
+     * 文件下载成功后执行的任务
+     */
+    var fileDownloadedTask: (suspend () -> Unit)? = null
+
     suspend fun download() {
         //若目标文件存在，验证通过或关闭完整性验证时，跳过此次下载
         if (verifySha1()) {
@@ -71,8 +78,11 @@ class DownloadTask(
         onFileDownloadedSize(size)
     }
 
-    private fun downloadedFile() {
+    private suspend fun downloadedFile() {
         onFileDownloaded()
+        withContext(Dispatchers.IO) {
+            fileDownloadedTask?.invoke()
+        }
     }
 
     /**

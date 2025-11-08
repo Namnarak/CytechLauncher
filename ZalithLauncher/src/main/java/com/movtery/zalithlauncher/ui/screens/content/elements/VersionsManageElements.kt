@@ -863,6 +863,7 @@ private fun getLoaderIconRes(version: Version): Int {
         ModLoader.NEOFORGE -> R.drawable.img_loader_neoforge
         ModLoader.OPTIFINE -> R.drawable.img_loader_optifine
         ModLoader.LITE_LOADER -> R.drawable.img_chicken_old
+        ModLoader.CLEANROOM -> R.drawable.img_loader_cleanroom
         else -> R.drawable.img_minecraft
     }
 }

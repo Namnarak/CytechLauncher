@@ -48,6 +48,7 @@ import com.oracle.dalvik.VMLauncher
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
+import java.util.Locale
 import java.util.TimeZone
 
 abstract class Launcher(
@@ -150,12 +151,13 @@ abstract class Launcher(
             put("java.io.tmpdir", PathManager.DIR_CACHE.absolutePath)
             put("jna.boot.library.path", PathManager.DIR_NATIVE_LIB)
             put("user.home", userHome ?: GamePathManager.getUserHome())
-            System.getProperty("user.language")?.let { put("user.language", it) }
+            put("user.language", System.getProperty("user.language"))
+            put("user.country", Locale.getDefault().country)
+            put("user.timezone", TimeZone.getDefault().id)
             put("os.name", "Linux")
             put("os.version", "Android-${Build.VERSION.RELEASE}")
             put("pojav.path.minecraft", getGameHome())
             put("pojav.path.private.account", PathManager.DIR_DATA_BASES.absolutePath)
-            put("user.timezone", TimeZone.getDefault().id)
             put("org.lwjgl.vulkan.libname", "libvulkan.so")
             val scaleFactor = AllSettings.resolutionRatio.getValue() / 100f
             put("glfwstub.windowWidth", getDisplayFriendlyRes(windowSize.width, scaleFactor).toString())

@@ -518,8 +518,7 @@ fun ModsManagerScreen(
                             inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
-                            //模组加载器信息已确认的情况下，才能够确保模组能够正常更新
-                            hasModLoader = version.getVersionInfo()?.loaderInfo != null,
+                            hasModLoader = version.getVersionInfo()?.loaderInfo?.loader?.isLoader == true,
                             onUpdateMods = {
                                 if (
                                     updaterViewModel.modsUpdateOperation == ModsUpdateOperation.None &&

@@ -43,11 +43,7 @@ enum class VersionType {
     UNKNOWN
 }
 
-private val loaders = listOf(
-    ModLoader.FORGE, ModLoader.NEOFORGE,
-    ModLoader.FABRIC, ModLoader.QUILT,
-    ModLoader.LITE_LOADER
-)
+private val loaders = ModLoader.entries.filter { it.isLoader }
 
 /**
  * 通过版本信息，尝试识别版本类型

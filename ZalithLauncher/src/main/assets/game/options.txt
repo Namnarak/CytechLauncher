@@ -29,3 +29,4 @@ streamPreferredServer:
 streamChatEnabled:0
 streamChatUserFilter:0
 streamMicToggleBehavior:0
+forceUnicodeFont:true

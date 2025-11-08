@@ -22,8 +22,10 @@ import android.content.Context
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
+import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -174,7 +176,7 @@ class MinecraftDownloader(
             downloader.createVersionJson(it, clientName, clientVersionsDir)
         } ?: throw IllegalArgumentException("Version not found: $version")
 
-        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
+        commonScheduleDownloads(gameManifest, null, clientName, clientVersionsDir)
     }
 
     private suspend fun progressDownloadTasks(
@@ -182,28 +184,57 @@ class MinecraftDownloader(
         clientName: String,
         clientVersionsDir: File = downloader.versionsTarget
     ) {
-        if (gameManifest.inheritsFrom != null) { //优先尝试解析原版
-            val selectedVersion = downloader.findVersion(gameManifest.inheritsFrom)
-            selectedVersion?.let {
-                downloader.createVersionJson(it)
-            }?.let { gameManifest1 ->
-                progressDownloadTasks(gameManifest1, gameManifest.inheritsFrom)
-            }
+        val inheritsFrom = downloader.takeIf {
+            gameManifest.inheritsFrom != null
+        }?.findVersion(gameManifest.inheritsFrom)
+
+        //优先尝试解析原版
+        inheritsFrom?.let {
+            downloader.createVersionJson(it)
+        }?.let { gameManifest1 ->
+            progressDownloadTasks(gameManifest1, gameManifest.inheritsFrom)
         }
 
-        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
+        commonScheduleDownloads(
+            gameManifest = gameManifest,
+            inheritsFrom = inheritsFrom,
+            clientName = clientName,
+            clientVersionsDir = clientVersionsDir
+        )
     }
 
     private suspend fun commonScheduleDownloads(
         gameManifest: GameManifest,
+        inheritsFrom: VersionManifest.Version? = null,
         clientName: String,
         clientVersionsDir: File
     ) {
         val assetsIndex = downloader.createAssetIndex(downloader.assetIndexTarget, gameManifest)
 
-        downloader.loadClientJarDownload(gameManifest, clientName, clientVersionsDir) { urls, hash, targetFile, size ->
-            scheduleDownload(urls, hash, targetFile, size)
-        }
+        downloader.loadClientJarDownload(
+            gameManifest = gameManifest,
+            clientName = clientName,
+            mcFolder = clientVersionsDir,
+            scheduleDownload = { urls, hash, targetFile, size ->
+                scheduleDownload(urls, hash, targetFile, size)
+            },
+            scheduleCopy = { targetFile ->
+                inheritsFrom?.let { inheritsFrom ->
+                    val inheritsJar = downloader.getVersionJarPath(inheritsFrom.id)
+
+                    allDownloadTasks.find {
+                        it.targetFile.absolutePath == inheritsJar.absolutePath
+                    }?.let { task ->
+                        task.fileDownloadedTask = {
+                            if (!targetFile.exists() && inheritsJar.exists()) {
+                                inheritsJar.copyTo(targetFile, overwrite = true)
+                                lInfo("Copied ${inheritsJar.absolutePath} to ${targetFile.absolutePath}")
+                            }
+                        }
+                    }
+                }
+            }
+        )
         downloader.loadAssetsDownload(assetsIndex) { urls, hash, targetFile, size ->
             scheduleDownload(urls, hash, targetFile, size)
         }

@@ -223,6 +223,10 @@ private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
             //LiteLoader
             group == "com.mumfrey" && artifact == "liteloader" ->
                 return VersionInfo.LoaderInfo(ModLoader.LITE_LOADER, version)
+
+            //Cleanroom
+            group == "com.cleanroommc" && artifact == "cleanroom" ->
+                return VersionInfo.LoaderInfo(ModLoader.CLEANROOM, version)
         }
     }
 

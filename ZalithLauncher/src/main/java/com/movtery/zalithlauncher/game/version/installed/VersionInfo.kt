@@ -86,6 +86,7 @@ class VersionInfo(
                 ModLoader.FABRIC -> "INST_FABRIC"
                 ModLoader.QUILT -> "INST_QUILT"
                 ModLoader.LITE_LOADER -> "INST_LITELOADER"
+                ModLoader.CLEANROOM -> "INST_CLEANROOM"
                 else -> null
             }
         }

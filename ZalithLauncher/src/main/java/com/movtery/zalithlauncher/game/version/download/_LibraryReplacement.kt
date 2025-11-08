@@ -18,6 +18,8 @@
 
 package com.movtery.zalithlauncher.game.version.download
 
+import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
+
 data class LibraryReplacement(
     val newName: String,
     val newPath: String,
@@ -61,5 +63,17 @@ fun getLibraryReplacement(libraryName: String, versionParts: List<String>): Libr
             )
         }
         else -> null
+    }
+}
+
+/**
+ * @return 是否需要被过滤
+ */
+fun GameManifest.Library.filterLibrary(): Boolean {
+    return when {
+        name?.contains("org.lwjgl") == true -> true
+        name?.contains("jinput-platform") == true -> true
+        name?.contains("twitch-platform") == true -> true
+        else -> false
     }
 }

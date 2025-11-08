@@ -109,11 +109,15 @@ class BaseMinecraftDownloader(
         gameManifest: GameManifest,
         clientName: String,
         mcFolder: File = versionsTarget,
-        scheduleDownload: (urls: List<String>, hash: String?, targetFile: File, size: Long) -> Unit
+        scheduleDownload: (urls: List<String>, hash: String?, targetFile: File, size: Long) -> Unit,
+        scheduleCopy: (targetFile: File) -> Unit
     ) {
         val clientFile = getVersionJarPath(clientName, mcFolder)
         gameManifest.downloads?.client?.let { client ->
             scheduleDownload(client.url.mapMirrorableUrls(), client.sha1, clientFile, client.size)
+        } ?: run {
+            //如果未提供下载方式，则很可能是需要复制原版的Jar文件
+            scheduleCopy(clientFile)
         }
     }
 
