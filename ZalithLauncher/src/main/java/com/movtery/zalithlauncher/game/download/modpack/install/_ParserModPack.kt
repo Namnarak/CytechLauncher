@@ -23,6 +23,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.fixedFileUrl
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
 import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCurseForge
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
@@ -92,6 +93,9 @@ private suspend fun curseforge(
                                 projectID = manifestFile.projectID.toString(),
                                 fileID = manifestFile.fileID.toString()
                             ).data
+                            val url = version.fixedFileUrl() ?: throw IOException("Can't get the file url")
+                            val fileName = version.fileName ?: throw IOException("Can't get the file name")
+
                             //获取项目
                             val project = getProjectFromCurseForge(
                                 projectID = manifestFile.projectID.toString()
@@ -100,15 +104,17 @@ private suspend fun curseforge(
                             val folder = project.classId?.folderName?.let { folderName ->
                                 File(targetFolder, folderName)
                             } ?: modsFolder
+
                             ModFile(
-                                outputFile = File(folder, version.fileName!!),
-                                downloadUrls = listOf(version.downloadUrl!!),
+                                outputFile = File(folder, fileName),
+                                downloadUrls = listOf(url),
                                 sha1 = version.getSHA1()
                             )
                         }.onFailure { e ->
                             when (e) {
                                 is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: ${manifestFile.projectID}, ${manifestFile.fileID}", e)
                                 is IOException, is JsonParseException -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
+                                else -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
                             }
                         }.getOrNull()
                     }
