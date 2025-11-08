@@ -43,7 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.ui.control.gamepad.isFromGamepad
+import com.movtery.zalithlauncher.ui.control.gamepad.isGamepadKeyEvent
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.ui.screens.game.elements.mutableStateOfLog
@@ -138,7 +138,7 @@ class GameHandler(
             }
         }
 
-        if (AllSettings.gamepadControl.state && event.isFromGamepad()) return true
+        if (AllSettings.gamepadControl.state && event.isGamepadKeyEvent()) return true
 
         EfficientAndroidLWJGLKeycode.getIndexByKey(event.keyCode).takeIf { it >= 0 }?.let { index ->
             EfficientAndroidLWJGLKeycode.execKey(event, index)

@@ -98,7 +98,7 @@ fun SimpleGamepadCapture(
         }
 
         val keyListener = View.OnKeyListener { _, keyCode, keyEvent ->
-            if (keyEvent.isFromGamepad()) {
+            if (keyEvent.isGamepadKeyEvent()) {
                 if (isBinding()) {
                     remapperViewModel.sendEvent(
                         GamepadRemapperViewModel.Event.Button(keyCode, keyEvent)
@@ -436,16 +436,6 @@ fun MotionEvent.isGamepadEvent(): Boolean {
             (source and InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
             (source and InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD ||
             (source and InputDevice.SOURCE_CLASS_JOYSTICK) == InputDevice.SOURCE_CLASS_JOYSTICK
-}
-
-/**
- * 检查按键事件是否来自手柄
- */
-fun KeyEvent.isFromGamepad(): Boolean {
-    val source = this.source
-    return (source and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD) ||
-            (source and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK) ||
-            (source and InputDevice.SOURCE_DPAD == InputDevice.SOURCE_DPAD)
 }
 
 fun MotionEvent.isJoystickMoving(): Boolean {
