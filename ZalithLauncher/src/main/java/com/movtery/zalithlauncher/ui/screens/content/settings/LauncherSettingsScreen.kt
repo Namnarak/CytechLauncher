@@ -71,6 +71,7 @@ import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -86,7 +87,6 @@ fun LauncherSettingsScreen(
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
     eventViewModel: EventViewModel,
-    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
@@ -153,26 +153,28 @@ fun LauncherSettingsScreen(
             }
 
             //启动器背景设置板块
-            AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                ) {
-                    CustomBackground(
-                        modifier = Modifier.fillMaxWidth(),
-                        backgroundViewModel = backgroundViewModel,
-                        submitError = submitError
-                    )
+            LocalBackgroundViewModel.current?.let { backgroundViewModel ->
+                AnimatedItem(scope) { yOffset ->
+                    SettingsBackground(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                    ) {
+                        CustomBackground(
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundViewModel = backgroundViewModel,
+                            submitError = submitError
+                        )
 
-                    SliderSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherBackgroundOpacity,
-                        title = stringResource(R.string.settings_launcher_background_opacity_title),
-                        summary = stringResource(R.string.settings_launcher_background_opacity_summary),
-                        valueRange = 20f..100f,
-                        suffix = "%",
-                        enabled = backgroundViewModel.isValid,
-                        fineTuningControl = true
-                    )
+                        SliderSettingsLayout(
+                            modifier = Modifier.fillMaxWidth(),
+                            unit = AllSettings.launcherBackgroundOpacity,
+                            title = stringResource(R.string.settings_launcher_background_opacity_title),
+                            summary = stringResource(R.string.settings_launcher_background_opacity_summary),
+                            valueRange = 20f..100f,
+                            suffix = "%",
+                            enabled = backgroundViewModel.isValid,
+                            fineTuningControl = true
+                        )
+                    }
                 }
             }
 

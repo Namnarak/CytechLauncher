@@ -31,6 +31,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -42,6 +43,8 @@ import com.google.android.material.color.utilities.Hct
 import com.google.android.material.color.utilities.Variant
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 
 private val embermireLight = lightColorScheme(
     primary = primaryLight.embermire,
@@ -764,6 +767,7 @@ fun ZalithLauncherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    backgroundViewModel: BackgroundViewModel? = null,
     content: @Composable () -> Unit
 ) {
     val colorTheme = AllSettings.launcherColorTheme.state
@@ -806,9 +810,11 @@ fun ZalithLauncherTheme(
 
     val animatedColorScheme = animateColorScheme(targetColorScheme)
 
-    MaterialTheme(
-        colorScheme = animatedColorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalBackgroundViewModel provides backgroundViewModel) {
+        MaterialTheme(
+            colorScheme = animatedColorScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }

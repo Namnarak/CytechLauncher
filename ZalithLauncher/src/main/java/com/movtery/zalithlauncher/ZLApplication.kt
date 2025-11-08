@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Process
 import android.util.Log
-import androidx.lifecycle.ViewModelProvider
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -46,20 +45,11 @@ import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.writeCrashFile
-import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.tencent.mmkv.MMKV
 import okio.Path.Companion.toOkioPath
 import kotlin.properties.Delegates
 
 class ZLApplication : Application(), SingletonImageLoader.Factory {
-    /**
-     * 启动器背景内容管理 ViewModel
-     */
-    val backgroundViewModel: BackgroundViewModel by lazy {
-        ViewModelProvider.AndroidViewModelFactory.getInstance(this)
-            .create(BackgroundViewModel::class.java)
-    }
-
     companion object {
         @JvmStatic
         var DEVICE_ARCHITECTURE by Delegates.notNull<Int>()
@@ -116,7 +106,6 @@ class ZLApplication : Application(), SingletonImageLoader.Factory {
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(getContextWrapper(base))
-        backgroundViewModel.initState()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

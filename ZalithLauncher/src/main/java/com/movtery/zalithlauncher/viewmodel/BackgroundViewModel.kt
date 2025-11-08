@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.viewmodel
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -95,7 +96,7 @@ class BackgroundViewModel(): ViewModel() {
         }
     }
 
-    fun initState() {
+    init {
         viewModelScope.launch(Dispatchers.Main) {
             updateState()
         }
@@ -115,4 +116,12 @@ class BackgroundViewModel(): ViewModel() {
             updateState()
         }
     }
+}
+
+/**
+ * 本地随时可以使用的背景图片管理 ViewModel
+ * 由 MainActivity 的主题提供
+ */
+val LocalBackgroundViewModel = compositionLocalOf<BackgroundViewModel?> {
+    error("No BackgroundViewModel provided")
 }

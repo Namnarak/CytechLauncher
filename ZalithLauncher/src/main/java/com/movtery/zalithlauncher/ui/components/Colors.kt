@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 
 /**
  * 降低颜色的饱和度
@@ -65,7 +66,9 @@ fun backgroundLayoutColor(
 ): Color {
     val color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
     return if (influencedByBackground) {
-        color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f)
+        val isValid = LocalBackgroundViewModel.current?.isValid == true
+        if (isValid) color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f)
+        else color
     } else {
         color
     }

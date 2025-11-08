@@ -102,10 +102,10 @@ import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
@@ -113,7 +113,6 @@ fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     Column(
@@ -132,7 +131,7 @@ fun MainScreen(
             screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
         }
 
-        val isBackgroundValid = backgroundViewModel.isValid
+        val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
         val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
 
         val topBarColor = MaterialTheme.colorScheme.surfaceContainer
@@ -147,7 +146,9 @@ fun MainScreen(
             isTasksExpanded = isTaskMenuExpanded,
             color = if (isBackgroundValid) {
                 topBarColor.copy((launcherBackgroundOpacity + 0.1f).coerceAtMost(1f))
-            } else topBarColor,
+            } else {
+                topBarColor
+            },
             contentColor = MaterialTheme.colorScheme.onSurface,
             onScreenBack = {
                 screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
@@ -186,7 +187,6 @@ fun MainScreen(
                     toMainScreen = toMainScreen,
                     launchGameViewModel = launchGameViewModel,
                     eventViewModel = eventViewModel,
-                    backgroundViewModel = backgroundViewModel,
                     submitError = submitError
                 )
             }
@@ -402,7 +402,6 @@ private fun NavigationUI(
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreen.backStack
@@ -443,7 +442,6 @@ private fun NavigationUI(
                             backStack.navigateTo(NormalNavKey.License(raw))
                         },
                         eventViewModel = eventViewModel,
-                        backgroundViewModel = backgroundViewModel,
                         submitError = submitError
                     )
                 }
