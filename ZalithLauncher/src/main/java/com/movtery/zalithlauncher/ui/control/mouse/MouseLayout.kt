@@ -40,9 +40,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
-import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
+import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
@@ -305,7 +305,6 @@ fun getMouseFile(
 
 /**
  * 在屏幕上显示虚拟鼠标指针
- * @param useGlobalImageLoader 是否使用应用全局设置的图片加载器
  */
 @Composable
 fun MousePointer(
@@ -315,17 +314,14 @@ fun MousePointer(
     mouseFile: File?,
     centerIcon: Boolean = false,
     triggerRefresh: Any? = null,
-    useGlobalImageLoader: Boolean = false
+    crossfade: Boolean = false
 ) {
     val context = LocalContext.current
-    val loader = remember(useGlobalImageLoader, triggerRefresh, context) {
-        if (useGlobalImageLoader) {
-            SingletonImageLoader.get(context)
-        } else {
-            ImageLoader.Builder(context)
-                .components { add(GifDecoder.Factory()) }
-                .build()
-        }
+    val loader = remember(triggerRefresh, crossfade, context) {
+        ImageLoader.Builder(context)
+            .components { add(GifDecoder.Factory()) }
+            .crossfade(crossfade)
+            .build()
     }
 
     val fileExists by produceState(initialValue = false, triggerRefresh, mouseFile) {

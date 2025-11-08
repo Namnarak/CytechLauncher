@@ -656,7 +656,7 @@ private fun MousePointerLayout(
                 mouseFile = mousePointerFile,
                 centerIcon = true,
                 triggerRefresh = triggerState,
-                useGlobalImageLoader = true
+                crossfade = true
             )
 
             IconTextButton(
