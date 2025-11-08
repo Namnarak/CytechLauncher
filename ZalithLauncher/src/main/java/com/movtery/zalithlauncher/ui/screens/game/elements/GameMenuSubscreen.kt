@@ -106,7 +106,6 @@ fun GameMenuSubscreen(
             val pagerState = rememberPagerState(pageCount = { controlTabs.size })
 
             LaunchedEffect(controlMenuTabIndex) {
-                onControlMenuTabChange(pagerState.currentPage)
                 pagerState.animateScrollToPage(controlMenuTabIndex)
             }
 
