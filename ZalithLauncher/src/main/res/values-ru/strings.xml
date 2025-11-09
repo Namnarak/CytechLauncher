@@ -45,7 +45,7 @@
     <string name="launcher_version_debug_warning_cant_close">Это предупреждение нельзя закрыть</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Динамическая (Android 12+)</string>
-    <string name="theme_color_embermire">Янтарный</string>
+    <string name="theme_color_embermire">Embermire</string>
     <string name="theme_color_velvet_rose">Velvet Rose</string>
     <string name="theme_color_mistwave">Mistwave</string>
     <string name="theme_color_glacier">Glacier</string>
@@ -354,10 +354,10 @@
     <string name="settings_label_ignore_if_blank">Оставьте пустым для игнорирования</string>
     <string name="settings_tab_renderer">Изображение</string>
     <string name="settings_tab_game">Игра</string>
-    <string name="settings_tab_control">Раскладка</string>
+    <string name="settings_tab_control">Управление</string>
     <string name="settings_tab_launcher">Лаунчер</string>
     <string name="settings_tab_java_manage">Java</string>
-    <string name="settings_tab_control_manage">Раскладка</string>
+    <string name="settings_tab_control_manage">Раскладки</string>
     <string name="settings_tab_info_about">О проекте</string>
     <string name="settings_renderer_global_renderer_title">Визуализатор</string>
     <string name="settings_renderer_global_renderer_summary">Визуализатор по умолчанию использует динамический слой трансляции библиотек для обеспечения плавной работы игры на мобильных устройствах</string>
@@ -960,7 +960,7 @@
     <string name="settings_gamepad_remapping_finished_saving">Пожалуйста, подождите, лаунчер сохраняет и применяет настройки.</string>
     <string name="settings_gamepad_remapping_finished_saved">Настройки геймпада успешно сохранены. Теперь вы можете закрыть это окно!</string>
     <string name="settings_launcher_background_opacity_title">Прозрачность фоновых элементов</string>
-    <string name="settings_launcher_background_opacity_summary">Настройте прозрачность фоновых элементов для улучшения видимости с фоновой пикчи</string>
+    <string name="settings_launcher_background_opacity_summary">Настройте прозрачность элементов для улучшения видимости фона</string>
     <string name="control_editor_menu_preview_mode_scenario">Сценарий предпросмотра</string>
     <string name="control_editor_menu_preview_mode_in_game">В игре</string>
     <string name="control_editor_menu_preview_mode_in_menu">В меню</string>
@@ -968,4 +968,14 @@
     <string name="control_editor_menu_preview_is_gamepad">Использовать геймпад</string>
     <string name="control_editor_layers_attribute_hide_when_mouse">Не скрывать при использовании мыши</string>
     <string name="control_editor_layers_attribute_hide_when_gamepad">Не скрывать при использовании геймпада</string>
+    <string name="settings_launcher_background_title">Задний фон</string>
+    <string name="settings_launcher_background_summary">Выберите изображение или видео для фона лаунчера</string>
+    <string name="settings_launcher_background_importing">Импорт файла фона</string>
+    <string name="settings_launcher_background_reset_message">Вы уверены, что хотите сбросить фон?</string>
+    <string name="control_editor_edit_text_alignment">Выравнивание текста</string>
+    <string name="control_editor_edit_text_bold">Включить жирный шрифт</string>
+    <string name="control_editor_edit_text_italic">Включить курсив</string>
+    <string name="control_editor_edit_text_underline">Включить подчёркивание</string>
+    <string name="settings_gamepad_title">Управление геймпадом</string>
+    <string name="settings_gamepad_summary">Включите или отключите управление геймпадом. Если стороннее устройство ошибочно распознаётся как геймпад, пожалуйста, отключите эту опцию.</string>
 </resources>
