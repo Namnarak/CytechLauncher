@@ -941,4 +941,5 @@
     <string name="control_editor_edit_text_bold">Aktifkan Bold</string>
     <string name="control_editor_edit_text_italic">Aktifkan Italic</string>
     <string name="control_editor_edit_text_underline">Aktifkan Garis Bawah</string>
+    <string name="settings_gamepad_title">Kontrol Gamepad</string>
 </resources>
