@@ -76,10 +76,11 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 fun ScalingLabel(
     modifier: Modifier = Modifier,
     text: String,
+    influencedByBackground: Boolean = true,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp
+    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -104,10 +105,11 @@ fun ScalingLabel(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     text: String,
+    influencedByBackground: Boolean = true,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp
+    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {

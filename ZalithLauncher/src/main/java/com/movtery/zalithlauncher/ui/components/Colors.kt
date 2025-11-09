@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
+import com.movtery.zalithlauncher.viewmodel.influencedByBackground
 
 /**
  * 降低颜色的饱和度
@@ -42,13 +42,24 @@ fun Color.desaturate(factor: Float): Color {
     return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
+/**
+ * 启动器元素颜色
+ * @param influencedByBackground 如果启动器设置了背景内容，则根据用户设置的不透明度设置alpha值
+ */
 @Composable
-fun itemLayoutColor(): Color {
-    return if (isSystemInDarkTheme()) {
+fun itemLayoutColor(
+    influencedByBackground: Boolean = true
+): Color {
+    val color = if (isSystemInDarkTheme()) {
         lerp(MaterialTheme.colorScheme.surfaceVariant, Color.Black, 0.15f)
     } else {
         MaterialTheme.colorScheme.surface
     }
+    return influencedByBackground(
+        value = color,
+        influenced = color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f),
+        enabled = influencedByBackground
+    )
 }
 
 @Composable
@@ -65,13 +76,11 @@ fun backgroundLayoutColor(
     influencedByBackground: Boolean = true
 ): Color {
     val color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-    return if (influencedByBackground) {
-        val isValid = LocalBackgroundViewModel.current?.isValid == true
-        if (isValid) color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f)
-        else color
-    } else {
-        color
-    }
+    return influencedByBackground(
+        value = color,
+        influenced = color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f),
+        enabled = influencedByBackground
+    )
 }
 
 /**

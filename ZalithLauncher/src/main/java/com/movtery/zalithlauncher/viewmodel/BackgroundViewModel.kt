@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.viewmodel
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -124,4 +125,21 @@ class BackgroundViewModel(): ViewModel() {
  */
 val LocalBackgroundViewModel = compositionLocalOf<BackgroundViewModel?> {
     error("No BackgroundViewModel provided")
+}
+
+@Composable
+fun <E> influencedByBackground(
+    value: E,
+    influenced: E,
+    enabled: Boolean = true
+): E {
+    return if (enabled) {
+        if (LocalBackgroundViewModel.current?.isValid == true) {
+            influenced
+        } else {
+            value
+        }
+    } else {
+        value
+    }
 }

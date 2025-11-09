@@ -75,6 +75,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -112,6 +113,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
@@ -562,6 +564,7 @@ private fun ControlLayoutItem(
     onDelete: () -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -572,7 +575,7 @@ private fun ControlLayoutItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {
             if (selected) return@Surface
             onSelected()
@@ -801,12 +804,14 @@ private fun ControlInfoItem(
     onEdit: () -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     ControlInfoItem(
         modifier = modifier,
         onEdit = onEdit,
         color = color,
-        contentColor = contentColor
+        contentColor = contentColor,
+        shadowElevation = shadowElevation
     ) {
         Text(
             text = title,
@@ -827,6 +832,7 @@ private fun ControlInfoItem(
     onEdit: () -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
@@ -834,7 +840,7 @@ private fun ControlInfoItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = onEdit
     ) {
         Row(

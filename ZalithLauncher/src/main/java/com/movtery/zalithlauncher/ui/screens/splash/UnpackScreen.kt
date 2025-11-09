@@ -58,6 +58,7 @@ import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -191,7 +192,7 @@ private fun TaskItem(
         shape = MaterialTheme.shapes.large,
         color = itemLayoutColor(),
         contentColor = MaterialTheme.colorScheme.onSurface,
-        shadowElevation = 1.dp
+        shadowElevation = itemLayoutShadowElevation()
     ) {
         Row {
             Column(

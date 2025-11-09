@@ -125,6 +125,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
@@ -484,9 +485,6 @@ fun ModsManagerScreen(
         ) {
             when (viewModel.modsState) {
                 LoadingState.None -> {
-                    val itemColor = itemLayoutColor()
-                    val itemContentColor = MaterialTheme.colorScheme.onSurface
-
                     var modsOperation by remember { mutableStateOf<ModsOperation>(ModsOperation.None) }
                     fun runProgress(task: () -> Unit) {
                         viewModel.doInScope {
@@ -514,8 +512,6 @@ fun ModsManagerScreen(
                                 .padding(horizontal = 8.dp)
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
-                            inputFieldColor = itemColor,
-                            inputFieldContentColor = itemContentColor,
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
                             hasModLoader = version.getVersionInfo()?.loaderInfo?.loader?.isLoader == true,
@@ -583,9 +579,7 @@ fun ModsManagerScreen(
                             onSwapMoreInfo = onSwapMoreInfo,
                             onDelete = { mod ->
                                 modsOperation = ModsOperation.Delete(mod.localMod)
-                            },
-                            itemColor = itemColor,
-                            itemContentColor = itemContentColor
+                            }
                         )
                     }
                 }
@@ -602,8 +596,6 @@ fun ModsManagerScreen(
 @Composable
 private fun ModsActionsHeader(
     modifier: Modifier,
-    inputFieldColor: Color,
-    inputFieldContentColor: Color,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit,
     hasModLoader: Boolean,
@@ -614,7 +606,10 @@ private fun ModsActionsHeader(
     onClearModsSelected: () -> Unit,
     swapToDownload: () -> Unit,
     refresh: () -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {}
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {},
+    inputFieldColor: Color = itemLayoutColor(),
+    inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
 ) {
     Column(modifier = modifier) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -639,6 +634,7 @@ private fun ModsActionsHeader(
                     },
                     color = inputFieldColor,
                     contentColor = inputFieldContentColor,
+                    shadowElevation = shadowElevation,
                     singleLine = true
                 )
 
@@ -750,9 +746,7 @@ private fun ModsList(
     onEnable: (RemoteMod) -> Unit,
     onDisable: (RemoteMod) -> Unit,
     onSwapMoreInfo: (id: String, Platform) -> Unit,
-    onDelete: (RemoteMod) -> Unit,
-    itemColor: Color,
-    itemContentColor: Color,
+    onDelete: (RemoteMod) -> Unit
 ) {
     modsList?.let { list ->
         //如果列表是空的，则是由搜索导致的
@@ -793,9 +787,7 @@ private fun ModsList(
                         onDelete = {
                             onDelete(mod)
                         },
-                        selected = selectedMods.contains(mod),
-                        itemColor = itemColor,
-                        itemContentColor = itemContentColor
+                        selected = selectedMods.contains(mod)
                     )
                 }
             }
@@ -824,11 +816,11 @@ private fun ModItemLayout(
     onSwapMoreInfo: (id: String, Platform) -> Unit,
     onDelete: () -> Unit,
     selected: Boolean,
-    itemColor: Color,
-    itemContentColor: Color,
+    itemColor: Color = itemLayoutColor(),
+    itemContentColor: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = MaterialTheme.shapes.large,
-    shadowElevation: Dp = 1.dp
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     val borderWidth by animateDpAsState(
         if (selected) 2.dp
