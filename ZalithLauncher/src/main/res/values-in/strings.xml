@@ -942,4 +942,20 @@
     <string name="control_editor_edit_text_italic">Aktifkan Italic</string>
     <string name="control_editor_edit_text_underline">Aktifkan Garis Bawah</string>
     <string name="settings_gamepad_title">Kontrol Gamepad</string>
+    <string name="settings_gamepad_summary">Aktifkan atau nonaktifkan kontrol gamepad. Jika perangkat lain terdeteksi sebagai gamepad secara keliru, harap matikan opsi ini.</string>
+    <string name="settings_gamepad_cursor_sensitivity_title">Sensitivitas Kursor Joystick</string>
+    <string name="settings_gamepad_cursor_sensitivity_summary">Atur kecepatan pergerakan kursor virtual joystick</string>
+    <string name="settings_gamepad_camera_sensitivity_title">Sensitivitas Joystick Kamera</string>
+    <string name="settings_gamepad_camera_sensitivity_summary">Atur sensitivitas kontrol kamera joystick</string>
+    <string name="settings_launcher_background_title">Latar belakang launcher</string>
+    <string name="settings_launcher_background_summary">Pilih gambar atau video untuk dijadikan latar belakang launcher</string>
+    <string name="settings_launcher_background_importing">Mengimpor file latar belakang launcher</string>
+    <string name="settings_launcher_background_reset_message">Apakah anda yakin ingin mengatur ulang latar belakang launcher?</string>
+    <string name="settings_launcher_background_opacity_title">Transparansi elemen latar belakang</string>
+    <string name="settings_launcher_background_opacity_summary">Atur tingkat transparansi elemen latar belakang agar tampilan lebih baik dan tidak bertabrakan dengan latar belakang</string>
+    <string name="control_editor_menu_preview_is_mouse">Menggunakan mouse fisik</string>
+    <string name="control_editor_menu_preview_is_gamepad">Menggunakan gamepad</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">Selalu terlihat saat menggunakan mouse.</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">Selalu terlihat saat menggunakan gamepad</string>
+    <string name="control_editor_edit_text_alignment">Posisi Teks</string>
 </resources>
