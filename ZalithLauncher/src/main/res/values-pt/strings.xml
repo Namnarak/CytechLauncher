@@ -746,4 +746,23 @@
     <string name="mods_update_no_mods_update">Todos os mods já estão atualizados, nenhuma atualização necessária</string>
     <string name="mods_update_success_text">Todos os mods selecionados foram atualizados para versão mais recente!</string>
     <string name="control_editor_menu_no_selected_layer_message">Por favor selecione uma camada de controles primeiro.</string>
+    <string name="theme_color_picker_edit_hex">Editar código hexadecimal</string>
+    <string name="theme_color_picker_edit_hex_invalid">Código Hexadecimal Invalido</string>
+    <string name="download_game_type_april_fools">Primeiro de Abril</string>
+    <string name="download_assets_loading_page_data">Começando a carregar as informações da página</string>
+    <string name="download_assets_loaded_chunk_page">Informação da página carregada, pedaço %1$d, página %2$d</string>
+    <string name="cape_name_copper">Cobre</string>
+    <string name="settings_tab_gamepad">Controle</string>
+    <string name="settings_gamepad_joystick_mode_left">Canhoto</string>
+    <string name="settings_gamepad_joystick_mode_right">Destro</string>
+    <string name="settings_gamepad_mapping_bound">Definido:</string>
+    <string name="settings_gamepad_remapping_previous">Anterior</string>
+    <string name="settings_gamepad_remapping_skip">Pular</string>
+    <string name="settings_gamepad_remapping_joystick_right">Direita</string>
+    <string name="settings_gamepad_remapping_joystick_bottom">Para baixo</string>
+    <string name="settings_gamepad_remapping_dpad_right">Direita</string>
+    <string name="settings_gamepad_remapping_dpad_down">Para baixo</string>
+    <string name="control_editor_menu_widget_snap">Alinhamento Automático do Controle</string>
+    <string name="control_editor_menu_widget_snap_mode_fullscreen">Alinhamento Automático em Tela Cheia</string>
+    <string name="control_editor_menu_widget_snap_mode_local">Alinhamento Automático Local</string>
 </resources>
