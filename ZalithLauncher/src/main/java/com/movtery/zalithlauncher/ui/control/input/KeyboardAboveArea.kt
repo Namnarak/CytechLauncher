@@ -63,8 +63,8 @@ fun TopOverlayAboveIme(
     Box(Modifier.fillMaxSize()) {
         content()
 
-        val imeTopPx = with(density) { imeInsets.getTop(density).toFloat() }
-        val imeBottomPx = with(density) { imeInsets.getBottom(density).toFloat() }
+        val imeTopPx = imeInsets.getTop(density).toFloat()
+        val imeBottomPx = imeInsets.getBottom(density).toFloat()
 
         val imeHeightPx = imeBottomPx - imeTopPx
 
