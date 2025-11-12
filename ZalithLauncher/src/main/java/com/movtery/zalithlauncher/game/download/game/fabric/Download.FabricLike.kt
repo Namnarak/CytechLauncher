@@ -24,7 +24,6 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVer
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 const val FABRIC_LIKE_DOWNLOAD_ID = "Download.FabricLike"
@@ -35,22 +34,13 @@ fun getFabricLikeDownloadTask(
 ): Task {
     return Task.runTask(
         id = FABRIC_LIKE_DOWNLOAD_ID,
+        dispatcher = Dispatchers.IO,
         task = {
             //下载版本 Json
-            downloadJson(fabricLikeVersion, tempVersionJson)
+            val loaderJson = fetchStringFromUrls(fabricLikeVersion.loaderJsonUrl.mapMirrorableUrls())
+            tempVersionJson
+                .ensureParentDirectory()
+                .writeText(loaderJson)
         }
     )
-}
-
-/**
- * 下载版本 Json 文件
- */
-private suspend fun downloadJson(
-    fabricLikeVersion: FabricLikeVersion,
-    outputFile: File
-) = withContext(Dispatchers.IO) {
-    val loaderJson = fetchStringFromUrls(fabricLikeVersion.loaderJsonUrl.mapMirrorableUrls())
-    outputFile
-        .ensureParentDirectory()
-        .writeText(loaderJson)
 }

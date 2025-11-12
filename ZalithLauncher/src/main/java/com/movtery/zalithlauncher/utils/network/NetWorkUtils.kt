@@ -46,6 +46,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -145,7 +146,7 @@ fun downloadFileWithHttp(
             }
 
             when (e) {
-                is CancellationException -> {
+                is CancellationException, is InterruptedIOException -> {
                     lDebug("Download task cancelled. url: $url", e)
                     return //取消了，不需要抛出异常
                 }
@@ -246,7 +247,7 @@ fun downloadFromMirrorList(
                 }
 
                 when (e) {
-                    is CancellationException -> throw e
+                    is CancellationException, is InterruptedIOException -> throw e
                     is FileNotFoundException -> {
                         errors.add(e)
                         break

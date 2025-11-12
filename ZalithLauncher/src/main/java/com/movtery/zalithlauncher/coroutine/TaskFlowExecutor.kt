@@ -23,12 +23,15 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.InterruptedIOException
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -54,6 +57,8 @@ class TaskFlowExecutor(
     val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
 
     private var job: Job? = null
+    /** 当前正在执行的任务的Job */
+    private var currentTaskJob: Job? = null
     /** 当前任务流阶段索引 */
     private var currentPhaseIndex: Int = -1
 
@@ -101,24 +106,52 @@ class TaskFlowExecutor(
                     ensureActive()
                     task.task.taskState = TaskState.RUNNING
 
-                    //为每个任务创建独立的Job，以便可以单独取消
-                    withContext(task.task.dispatcher) {
-                        task.task.task(this, task.task)
+                    //为每个任务创建独立的Job，以便可以立即取消
+                    //使用SupervisorJob确保任务内部的子协程异常不会影响其他任务
+                    val parentJob = coroutineContext[Job]
+                    val taskJob = SupervisorJob(parentJob)
+                    currentTaskJob = taskJob
+                    
+                    try {
+                        withContext(task.task.dispatcher + taskJob) {
+                            //使用coroutineScope确保任务内部的所有子协程都在这个作用域中
+                            //当taskJob被取消时，coroutineScope内的所有子协程都会被取消
+                            coroutineScope {
+                                try {
+                                    //将当前coroutineScope传递给任务，确保任务内部的launch都在这个作用域中
+                                    task.task.task(this@coroutineScope, task.task)
+                                } catch (e: CancellationException) {
+                                    task.task.onCancel()
+                                    throw e
+                                } catch (e: InterruptedIOException) {
+                                    task.task.onCancel()
+                                    throw CancellationException("Task interrupted", e)
+                                } catch (e: Throwable) {
+                                    task.task.onError(e)
+                                    throw e
+                                } finally {
+                                    task.task.onFinally()
+                                }
+                            }
+                        }
+                        task.task.taskState = TaskState.COMPLETED
+                    } finally {
+                        //确保taskJob被取消和清理，无论任务成功还是失败
+                        taskJob.cancel()
+                        currentTaskJob = null
                     }
-
-                    task.task.taskState = TaskState.COMPLETED
                 }
 
                 //执行阶段完成回调
                 phase.onComplete?.invoke()
             } catch (th: Throwable) {
                 lWarning("An exception occurred while executing the task flow.", th)
-                if (th is CancellationException) {
+                if (th is CancellationException || th is InterruptedIOException) {
                     onCancel()
                 } else {
                     onError(th)
-                    return@withContext
                 }
+                return@withContext
             }
         }
 
@@ -143,6 +176,10 @@ class TaskFlowExecutor(
     fun isRunning(): Boolean = job != null
 
     fun cancel() {
+        //先取消当前正在执行的任务及其所有子协程
+        currentTaskJob?.cancel()
+        currentTaskJob = null
+        
         job?.cancel()
         job = null
 

@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InterruptedIOException
 
 class DownloadTask(
     val urls: List<String>,
@@ -67,7 +68,7 @@ class DownloadTask(
             }
             downloadedFile()
         }.onFailure { e ->
-            if (e is CancellationException) return@onFailure
+            if (e is CancellationException || e is InterruptedIOException) return@onFailure
             lError("Download failed: ${targetFile.absolutePath}\nurls: ${urls.joinToString("\n")}", e)
             if (!isDownloadable && e is FileNotFoundException) throw e
             onDownloadFailed(this)

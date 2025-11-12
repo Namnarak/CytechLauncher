@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 class ModDownloader(
@@ -71,75 +73,83 @@ class ModDownloader(
         taskMessageRes: Int,
         totalFileCount: Int = tasks.size
     ) = withContext(Dispatchers.IO) {
-        downloadFailedTasks.clear()
+        coroutineScope {
+            downloadFailedTasks.clear()
 
-        val semaphore = Semaphore(maxDownloadThreads)
+            val semaphore = Semaphore(maxDownloadThreads)
 
-        val downloadJobs = tasks.map { mod ->
-            launch {
-                semaphore.withPermit {
-                    suspend fun download(file: ModFile) {
-                        val urls = file.downloadUrls!!
-                        val outputFile = file.outputFile!!
-                        runCatching {
-                            downloadFromMirrorListSuspend(
-                                urls = urls,
-                                sha1 = file.sha1,
-                                outputFile = outputFile
-                            ) { size ->
-                                downloadedFileSize.addAndGet(size)
+            val downloadJobs = tasks.map { mod ->
+                launch {
+                    semaphore.withPermit {
+                        suspend fun download(file: ModFile) {
+                            val urls = file.downloadUrls!!
+                            val outputFile = file.outputFile!!
+                            runCatching {
+                                downloadFromMirrorListSuspend(
+                                    urls = urls,
+                                    sha1 = file.sha1,
+                                    outputFile = outputFile
+                                ) { size ->
+                                    downloadedFileSize.addAndGet(size)
+                                }
+                                //下载成功
+                                downloadedFileCount.incrementAndGet()
+                            }.onFailure { e ->
+                                if (e is CancellationException || e is InterruptedIOException) return@onFailure
+                                lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
+                                downloadFailedTasks.add(mod)
                             }
-                            //下载成功
-                            downloadedFileCount.incrementAndGet()
-                        }.onFailure { e ->
-                            if (e is CancellationException) return@onFailure
-                            lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
-                            downloadFailedTasks.add(mod)
+                        }
+
+                        //在分析整合包阶段，可能无法及时快速的解析出模组的下载链接
+                        //比如CurseForge整合包，基本上都是只携带projectID和fileID的
+                        //但在解析阶段单独获取模组下载链接，非常耗时
+                        mod.getFile?.let { getter ->
+                            //在这里统一获取下载链接
+                            //也能够蹭到下载器的多线程优化（很爽XD）
+                            val file = getter()
+                            if (file == null) downloadedFileCount.incrementAndGet()
+                            else download(file)
+                        } ?: run {
+                            //只有已经获取到下载链接的 ModFile，getFile参数才是 null
+                            //可以放心使用 downloadUrls 和 outputFile 参数
+                            download(mod)
                         }
                     }
+                }
+            }
 
-                    //在分析整合包阶段，可能无法及时快速的解析出模组的下载链接
-                    //比如CurseForge整合包，基本上都是只携带projectID和fileID的
-                    //但在解析阶段单独获取模组下载链接，非常耗时
-                    mod.getFile?.let { getter ->
-                        //在这里统一获取下载链接
-                        //也能够蹭到下载器的多线程优化（很爽XD）
-                        val file = getter()
-                        if (file == null) downloadedFileCount.incrementAndGet()
-                        else download(file)
-                    } ?: run {
-                        //只有已经获取到下载链接的 ModFile，getFile参数才是 null
-                        //可以放心使用 downloadUrls 和 outputFile 参数
-                        download(mod)
+            val progressJob = launch(Dispatchers.Main) {
+                while (isActive) {
+                    try {
+                        ensureActive()
+                        val currentFileCount = downloadedFileCount.get()
+                        task.updateProgress(
+                            (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
+                            taskMessageRes,
+                            downloadedFileCount.get(), totalFileCount,
+                            formatFileSize(downloadedFileSize.get())
+                        )
+                        delay(100)
+                    } catch (_: CancellationException) {
+                        break //取消
+                    } catch (_: InterruptedIOException) {
+                        break //取消
                     }
                 }
             }
-        }
 
-        val progressJob = launch(Dispatchers.Main) {
-            while (isActive) {
-                try {
-                    ensureActive()
-                    val currentFileCount = downloadedFileCount.get()
-                    task.updateProgress(
-                        (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
-                        taskMessageRes,
-                        downloadedFileCount.get(), totalFileCount,
-                        formatFileSize(downloadedFileSize.get())
-                    )
-                    delay(100)
-                } catch (_: CancellationException) {
-                    break //取消
-                }
+            try {
+                downloadJobs.joinAll()
+            } catch (e: CancellationException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw e
+            } catch (e: InterruptedIOException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw CancellationException("Task interrupted", e)
+            } finally {
+                progressJob.cancel()
             }
-        }
-
-        try {
-            downloadJobs.joinAll()
-        } catch (e: CancellationException) {
-            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-        } finally {
-            progressJob.cancel()
         }
     }
 }

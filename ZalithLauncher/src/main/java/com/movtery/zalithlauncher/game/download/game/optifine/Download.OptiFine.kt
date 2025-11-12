@@ -30,7 +30,6 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 const val OPTIFINE_DOWNLOAD_ID = "Download.OptiFine"
@@ -55,6 +54,7 @@ fun getOptiFineDownloadTask(
 ): Task {
     return Task.runTask(
         id = OPTIFINE_DOWNLOAD_ID,
+        dispatcher = Dispatchers.IO,
         task = { task ->
             task.updateProgress(-1f, R.string.download_game_install_optifine_fetch_download_url, optifine.realVersion)
             val optifineUrl = getOFUrlMirrorable(optifine)
@@ -71,6 +71,7 @@ fun getOptiFineModsDownloadTask(
 ): Task {
     return Task.runTask(
         id = OPTIFINE_DOWNLOAD_ID,
+        dispatcher = Dispatchers.IO,
         task = { task ->
             task.updateProgress(-1f, R.string.download_game_install_optifine_fetch_download_url, optifine.realVersion)
             val optifineUrl = getOFUrlMirrorable(optifine)
@@ -84,9 +85,9 @@ fun getOptiFineModsDownloadTask(
 
 private suspend fun getOFUrlMirrorable(
     optifine: OptiFineVersion
-) = withContext(Dispatchers.IO) {
+): String {
     val type = AllSettings.fileDownloadSource.getValue()
-    runMirrorable(
+    return runMirrorable(
         when (type) {
             MirrorSourceType.OFFICIAL_FIRST -> listOf(
                 fetchOptiFineDownloadUrl(optifine, 5),

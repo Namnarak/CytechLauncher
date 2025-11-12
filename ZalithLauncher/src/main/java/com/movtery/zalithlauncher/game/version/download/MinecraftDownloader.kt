@@ -30,6 +30,7 @@ import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -41,6 +42,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
@@ -107,7 +109,7 @@ class MinecraftDownloader(
             onError = { e ->
                 lError("Failed to download Minecraft!", e)
                 val message = when(e) {
-                    is CancellationException -> return@runTask
+                    is CancellationException, is InterruptedIOException -> return@runTask
                     is FileNotFoundException -> context.getString(R.string.minecraft_download_failed_notfound)
                     is DownloadFailedException -> {
                         val failedUrls = downloadFailedTasks.map { it.urls.joinToString(", ") }
@@ -125,43 +127,51 @@ class MinecraftDownloader(
         tasks: List<DownloadTask>,
         taskMessageRes: Int
     ) = withContext(Dispatchers.IO) {
-        downloadFailedTasks.clear()
+        coroutineScope {
+            downloadFailedTasks.clear()
 
-        val semaphore = Semaphore(maxDownloadThreads)
+            val semaphore = Semaphore(maxDownloadThreads)
 
-        val downloadJobs = tasks.map { downloadTask ->
-            launch {
-                semaphore.withPermit {
-                    downloadTask.download()
+            val downloadJobs = tasks.map { downloadTask ->
+                launch {
+                    semaphore.withPermit {
+                        downloadTask.download()
+                    }
                 }
             }
-        }
 
-        val progressJob = launch(Dispatchers.Main) {
-            while (isActive) {
-                try {
-                    ensureActive()
-                    val currentFileSize = downloadedFileSize.get()
-                    val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
-                    task.updateProgress(
-                        (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
-                        taskMessageRes,
-                        downloadedFileCount.get(), totalFileCount.get(), //文件个数
-                        formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
-                    )
-                    delay(100)
-                } catch (_: CancellationException) {
-                    break //取消
+            val progressJob = launch(Dispatchers.Main) {
+                while (isActive) {
+                    try {
+                        ensureActive()
+                        val currentFileSize = downloadedFileSize.get()
+                        val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
+                        task.updateProgress(
+                            (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
+                            taskMessageRes,
+                            downloadedFileCount.get(), totalFileCount.get(), //文件个数
+                            formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
+                        )
+                        delay(100)
+                    } catch (_: CancellationException) {
+                        break //取消
+                    } catch (_: InterruptedIOException) {
+                        break //取消
+                    }
                 }
             }
-        }
 
-        try {
-            downloadJobs.joinAll()
-        } catch (e: CancellationException) {
-            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-        } finally {
-            progressJob.cancel()
+            try {
+                downloadJobs.joinAll()
+            } catch (e: CancellationException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw e
+            } catch (e: InterruptedIOException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw CancellationException("Task interrupted", e)
+            } finally {
+                progressJob.cancel()
+            }
         }
     }
 

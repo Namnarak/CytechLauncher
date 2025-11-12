@@ -64,19 +64,17 @@ fun getForgeLikeAnalyseTask(
 ): Task {
     return Task.runTask(
         id = FORGE_LIKE_ANALYSE_ID,
-        dispatcher = Dispatchers.Default,
+        dispatcher = Dispatchers.IO,
         task = { task ->
             if (sourceInherit != processedInherit) {
-                withContext(Dispatchers.IO) {
-                    //准备安装环境
-                    //复制原版文件
-                    copyVanillaFiles(
-                        sourceGameFolder = tempMinecraftFolder,
-                        sourceVersion = sourceInherit,
-                        destinationGameFolder = tempMinecraftFolder,
-                        targetVersion = processedInherit
-                    )
-                }
+                //准备安装环境
+                //复制原版文件
+                copyVanillaFiles(
+                    sourceGameFolder = tempMinecraftFolder,
+                    sourceVersion = sourceInherit,
+                    destinationGameFolder = tempMinecraftFolder,
+                    targetVersion = processedInherit
+                )
             }
 
             analyseNewForge(

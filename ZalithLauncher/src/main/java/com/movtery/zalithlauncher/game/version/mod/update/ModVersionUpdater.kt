@@ -28,6 +28,7 @@ import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -37,6 +38,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 class ModVersionUpdater(
@@ -74,59 +76,67 @@ class ModVersionUpdater(
         taskMessageRes: Int,
         totalFileCount: Int = tasks.size
     ) = withContext(Dispatchers.IO) {
-        downloadFailedTasks.clear()
+        coroutineScope {
+            downloadFailedTasks.clear()
 
-        val semaphore = Semaphore(maxDownloadThreads)
+            val semaphore = Semaphore(maxDownloadThreads)
 
-        val downloadJobs = tasks.map { newVersion ->
-            launch {
-                semaphore.withPermit {
-                    val urls = listOf(newVersion.platformDownloadUrl())
-                    val outputFile = File(targetDir, newVersion.platformFileName())
+            val downloadJobs = tasks.map { newVersion ->
+                launch {
+                    semaphore.withPermit {
+                        val urls = listOf(newVersion.platformDownloadUrl())
+                        val outputFile = File(targetDir, newVersion.platformFileName())
 
-                    runCatching {
-                        downloadFromMirrorListSuspend(
-                            urls = urls,
-                            sha1 = newVersion.platformSha1(),
-                            outputFile = outputFile
-                        ) { size ->
-                            downloadedFileSize.addAndGet(size)
+                        runCatching {
+                            downloadFromMirrorListSuspend(
+                                urls = urls,
+                                sha1 = newVersion.platformSha1(),
+                                outputFile = outputFile
+                            ) { size ->
+                                downloadedFileSize.addAndGet(size)
+                            }
+                            //下载成功
+                            downloadedFileCount.incrementAndGet()
+                        }.onFailure { e ->
+                            if (e is CancellationException || e is InterruptedIOException) return@onFailure
+                            lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
+                            downloadFailedTasks.add(newVersion)
                         }
-                        //下载成功
-                        downloadedFileCount.incrementAndGet()
-                    }.onFailure { e ->
-                        if (e is CancellationException) return@onFailure
-                        lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
-                        downloadFailedTasks.add(newVersion)
                     }
                 }
             }
-        }
 
-        val progressJob = launch(Dispatchers.Main) {
-            while (isActive) {
-                try {
-                    ensureActive()
-                    val currentFileCount = downloadedFileCount.get()
-                    task.updateProgress(
-                        (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
-                        taskMessageRes,
-                        downloadedFileCount.get(), totalFileCount,
-                        formatFileSize(downloadedFileSize.get())
-                    )
-                    delay(100)
-                } catch (_: CancellationException) {
-                    break //取消
+            val progressJob = launch(Dispatchers.Main) {
+                while (isActive) {
+                    try {
+                        ensureActive()
+                        val currentFileCount = downloadedFileCount.get()
+                        task.updateProgress(
+                            (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
+                            taskMessageRes,
+                            downloadedFileCount.get(), totalFileCount,
+                            formatFileSize(downloadedFileSize.get())
+                        )
+                        delay(100)
+                    } catch (_: CancellationException) {
+                        break //取消
+                    } catch (_: InterruptedIOException) {
+                        break //取消
+                    }
                 }
             }
-        }
 
-        try {
-            downloadJobs.joinAll()
-        } catch (e: CancellationException) {
-            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-        } finally {
-            progressJob.cancel()
+            try {
+                downloadJobs.joinAll()
+            } catch (e: CancellationException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw e
+            } catch (e: InterruptedIOException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw CancellationException("Task interrupted", e)
+            } finally {
+                progressJob.cancel()
+            }
         }
     }
 }

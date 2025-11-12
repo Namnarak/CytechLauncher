@@ -185,33 +185,32 @@ class GameAssetCleaner(
                 addTask(
                     id = "GameAssetsCleaner.Cleanup",
                     title = context.getString(R.string.versions_manage_cleanup_cleanup),
-                    icon = Icons.Outlined.CleaningServices
+                    icon = Icons.Outlined.CleaningServices,
+                    dispatcher = Dispatchers.IO
                 ) { task ->
-                    withContext(Dispatchers.IO) {
-                        task.updateProgress(-1f)
+                    task.updateProgress(-1f)
 
-                        val totalSize = allRedundantFiles.size
-                        allRedundantFiles.forEachIndexed { index, file ->
-                            ensureActive()
-                            val size = FileUtils.sizeOf(file)
-                            if (!FileUtils.deleteQuietly(file)) {
-                                failedFiles.add(file)
-                            } else {
-                                cleanedFileCount++
-                                cleanedSize += size
-                            }
-                            task.updateProgress(
-                                percentage = index.toFloat() / totalSize.toFloat(),
-                                message = R.string.versions_manage_cleanup_progress,
-                                file.name
-                            )
+                    val totalSize = allRedundantFiles.size
+                    allRedundantFiles.forEachIndexed { index, file ->
+                        ensureActive()
+                        val size = FileUtils.sizeOf(file)
+                        if (!FileUtils.deleteQuietly(file)) {
+                            failedFiles.add(file)
+                        } else {
+                            cleanedFileCount++
+                            cleanedSize += size
                         }
+                        task.updateProgress(
+                            percentage = index.toFloat() / totalSize.toFloat(),
+                            message = R.string.versions_manage_cleanup_progress,
+                            file.name
+                        )
+                    }
 
-                        task.updateProgress(-1f)
+                    task.updateProgress(-1f)
 
-                        if (failedFiles.isNotEmpty()) {
-                            throw CleanFailedException(failedFiles)
-                        }
+                    if (failedFiles.isNotEmpty()) {
+                        throw CleanFailedException(failedFiles)
                     }
                 }
             }
