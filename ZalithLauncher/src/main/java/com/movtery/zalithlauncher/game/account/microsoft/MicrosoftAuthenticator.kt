@@ -47,8 +47,8 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.network.httpPostJson
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.submitForm
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -56,7 +56,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
@@ -65,7 +64,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
@@ -158,7 +156,7 @@ suspend fun getTokenResponse(
 }
 
 private suspend fun handleClientRequestException(e: ClientRequestException, interval: Long) {
-    val errorBody = Json.parseToJsonElement(e.response.bodyAsText()).jsonObject
+    val errorBody = e.response.safeBodyAsJson<JsonObject>()
     when (errorBody["error"]?.jsonPrimitive?.content) {
         "authorization_pending" -> Unit /* 正常情况，继续轮询 */
         "slow_down" -> lDebug("Slowing down polling to ${interval + 1000}ms")
@@ -171,8 +169,7 @@ private suspend fun adjustPollingInterval(e: ClientRequestException, currentInte
 }
 
 private suspend fun ClientRequestException.isSlowDownError(): Boolean {
-    val error = Json.parseToJsonElement(response.bodyAsText())
-        .jsonObject["error"]?.jsonPrimitive?.content
+    val error = response.safeBodyAsJson<JsonObject>()["error"]?.jsonPrimitive?.content
     return error == "slow_down"
 }
 
@@ -246,7 +243,7 @@ private suspend fun authenticateXBL(accessToken: String, update: (AsyncStatus) -
         val response = GLOBAL_CLIENT.post("$XBL_AUTH_URL/user/authenticate") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
-        }.body<JsonObject>()
+        }.safeBodyAsJson<JsonObject>()
 
         //提取uhs
         val uhs = response["DisplayClaims"]?.jsonObject
@@ -329,7 +326,7 @@ private suspend fun verifyGameOwnership(accessToken: String, update: (AsyncStatu
         val response = GLOBAL_CLIENT.get("$MINECRAFT_SERVICES_URL/entitlements/mcstore") {
             header(HttpHeaders.Authorization, "Bearer $accessToken")
         }
-        if (Json.parseToJsonElement(response.bodyAsText()).jsonObject["items"]?.jsonArray?.isEmpty() != false) {
+        if (response.safeBodyAsJson<JsonObject>()["items"]?.jsonArray?.isEmpty() != false) {
             throw NotPurchasedMinecraftException()
         }
     }

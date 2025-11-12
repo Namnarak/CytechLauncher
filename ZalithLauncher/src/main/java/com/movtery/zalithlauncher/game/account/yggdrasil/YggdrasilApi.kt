@@ -24,8 +24,8 @@ import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileExcepti
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -123,7 +123,7 @@ suspend fun getPlayerProfile(
 ) = runCatching {
     GLOBAL_CLIENT.get("$apiUrl/minecraft/profile") {
         header(HttpHeaders.Authorization, "Bearer $accessToken")
-    }.body<PlayerProfile>()
+    }.safeBodyAsJson<PlayerProfile>()
 }.onFailure { e ->
     if (e is ResponseException) {
         when (e.response.status.value) {

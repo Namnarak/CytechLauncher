@@ -28,8 +28,8 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -112,7 +112,7 @@ abstract class FabricLikeVersions(
             val versions: FabricLikeVersionsJson = run {
                 if (!force && cacheVersions != null) return@run cacheVersions!!
                 withContext(Dispatchers.IO) {
-                    withRetry(tag, maxRetries = 2) { GLOBAL_CLIENT.get("$sourceUrl/versions").body() }
+                    withRetry(tag, maxRetries = 2) { GLOBAL_CLIENT.get("$sourceUrl/versions").safeBodyAsJson() }
                 }
             }.also {
                 cacheVersions = it

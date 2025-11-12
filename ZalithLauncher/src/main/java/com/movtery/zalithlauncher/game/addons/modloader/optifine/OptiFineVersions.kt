@@ -27,14 +27,13 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
+import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.compareVersion
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.utils.io.charsets.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -104,8 +103,7 @@ object OptiFineVersions {
                     GLOBAL_CLIENT.get(OPTIFINE_DOWNLOAD_URL)
                 }
 
-                val bytes: ByteArray = response.body()
-                val html = bytes.toString(Charset.defaultCharset())
+                val html = response.safeBodyAsText()
                 if (html.length < 100) {
                     throw ResponseTooShortException("Response too short")
                 }
@@ -200,7 +198,7 @@ object OptiFineVersions {
 
             try {
                 val tokens: List<OptiFineVersionToken> = withContext(Dispatchers.IO) {
-                    GLOBAL_CLIENT.get("https://bmclapi2.bangbang93.com/optifine/versionList").body()
+                    GLOBAL_CLIENT.get("https://bmclapi2.bangbang93.com/optifine/versionList").safeBodyAsJson()
                 }
 
                 tokens.map { token ->
@@ -250,7 +248,7 @@ object OptiFineVersions {
                 }
             }
 
-            val html = response.bodyAsText()
+            val html = response.safeBodyAsText()
 
             val match = Regex("""downloadx\?f=[^"'<>]+""").find(html)
             val downloadPath = match?.value

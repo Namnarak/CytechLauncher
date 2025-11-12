@@ -28,8 +28,9 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
+import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -82,7 +83,7 @@ object ForgeVersions {
                         headers {
                             append(HttpHeaders.UserAgent, "Mozilla/5.0/$URL_USER_AGENT")
                         }
-                    }.body<String>()
+                    }.safeBodyAsText()
                 }
             }
 
@@ -121,7 +122,7 @@ object ForgeVersions {
         try {
             val tokens: List<ForgeVersionToken> = withContext(Dispatchers.IO) {
                 withRetry(TAG, maxRetries = 2) {
-                    GLOBAL_CLIENT.get(url).body()
+                    GLOBAL_CLIENT.get(url).safeBodyAsJson()
                 }
             }
 

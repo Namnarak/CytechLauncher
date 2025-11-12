@@ -31,7 +31,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.file.MurmurHash2Incremental
-import com.movtery.zalithlauncher.utils.network.httpGet
+import com.movtery.zalithlauncher.utils.network.httpGetJson
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.plugins.ClientRequestException
@@ -64,7 +64,7 @@ suspend fun searchWithCurseforge(
     apiKey: String = InfoDistributor.CURSEFORGE_API,
     retry: Int = 3
 ): CurseForgeSearchResult = withRetry("PlatformSearch:CurseForge_search", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$CURSEFORGE_API/mods/search",
         headers = listOf("x-api-key" to apiKey),
         parameters = request.toParameters()
@@ -80,7 +80,7 @@ suspend fun getProjectFromCurseForge(
     apiKey: String = InfoDistributor.CURSEFORGE_API,
     retry: Int = 3
 ): CurseForgeProject = withRetry("PlatformSearch:CurseForge_getProject", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$CURSEFORGE_API/mods/$projectID",
         headers = listOf("x-api-key" to apiKey)
     )
@@ -99,7 +99,7 @@ suspend fun getVersionsFromCurseForge(
     pageSize: Int = 100,
     retry: Int = 3
 ): CurseForgeVersions = withRetry("PlatformSearch:CurseForge_getVersions", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$CURSEFORGE_API/mods/$projectID/files",
         headers = listOf("x-api-key" to apiKey),
         parameters = Parameters.build {
@@ -199,7 +199,7 @@ suspend fun getVersionFromCurseForge(
     apiKey: String = InfoDistributor.CURSEFORGE_API,
     retry: Int = 3
 ): CurseForgeVersion = withRetry("PlatformSearch:CurseForge_getVersion", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$CURSEFORGE_API/mods/$projectID/files/$fileID",
         headers = listOf("x-api-key" to apiKey)
     )
@@ -226,7 +226,7 @@ suspend fun searchWithModrinth(
     request: ModrinthSearchRequest,
     retry: Int = 3
 ): ModrinthSearchResult = withRetry("PlatformSearch:Modrinth_search", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$MODRINTH_API/search",
         parameters = request.toParameters()
     )
@@ -239,7 +239,7 @@ suspend fun getProjectFromModrinth(
     projectID: String,
     retry: Int = 3
 ): ModrinthSingleProject = withRetry("PlatformSearch:Modrinth_getProject", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$MODRINTH_API/project/$projectID"
     )
 }
@@ -251,7 +251,7 @@ suspend fun getVersionsFromModrinth(
     projectID: String,
     retry: Int = 3
 ): List<ModrinthVersion> = withRetry("PlatformSearch:Modrinth_getVersions", maxRetries = retry) {
-    httpGet(
+    httpGetJson(
         url = "$MODRINTH_API/project/$projectID/version"
     )
 }
@@ -261,7 +261,7 @@ suspend fun getVersionByLocalFileFromModrinth(
     retry: Int = 1
 ): ModrinthVersion? = withRetry("PlatformSearch:Modrinth_getVersionByLocalFile", maxRetries = retry) {
     try {
-        httpGet(
+        httpGetJson(
             url = "$MODRINTH_API/version_file/$sha1",
             parameters = Parameters.build {
                 append("algorithm", "sha1")

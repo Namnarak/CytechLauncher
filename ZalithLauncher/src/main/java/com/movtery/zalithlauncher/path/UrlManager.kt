@@ -44,16 +44,18 @@ const val URL_COMMUNITY: String = "https://github.com/ZalithLauncher/ZalithLaunc
 const val URL_WEBLATE: String = "https://hosted.weblate.org/projects/zalithlauncher2"
 const val URL_SUPPORT: String = "https://afdian.com/a/MovTery"
 
+val GLOBAL_JSON = Json {
+    ignoreUnknownKeys = true
+    explicitNulls = true
+    coerceInputValues = true
+}
+
 val GLOBAL_CLIENT = HttpClient(CIO) {
     install(HttpTimeout) {
         requestTimeoutMillis = TIME_OUT.first.toLong()
     }
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-            explicitNulls = true
-            coerceInputValues = true
-        })
+        json(GLOBAL_JSON)
     }
     expectSuccess = true
 

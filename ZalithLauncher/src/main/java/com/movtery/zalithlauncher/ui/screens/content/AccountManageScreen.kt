@@ -115,10 +115,10 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
-import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -455,7 +455,7 @@ private fun MicrosoftChangeSkinOperation(
                         th is io.ktor.client.plugins.ResponseException -> {
                             val response = th.response
                             val code = response.status.value
-                            val body = response.body<JsonObject>()
+                            val body = response.safeBodyAsJson<JsonObject>()
                             val message = body["errorMessage"]?.jsonPrimitive?.contentOrNull
                             context.getString(R.string.account_change_skin_failed_to_upload, code) to (message ?: th.getMessageOrToString())
                         }
@@ -595,7 +595,7 @@ private fun MicrosoftChangeCapeOperation(
                         th is io.ktor.client.plugins.ResponseException -> {
                             val response = th.response
                             val code = response.status.value
-                            val body = response.body<JsonObject>()
+                            val body = response.safeBodyAsJson<JsonObject>()
                             val message = body["errorMessage"]?.jsonPrimitive?.contentOrNull
                             context.getString(R.string.account_change_cape_apply_failed, code) to (message ?: th.getMessageOrToString())
                         }
