@@ -27,7 +27,6 @@ import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -35,6 +34,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicLong
 
 class ModDownloader(
@@ -70,7 +70,7 @@ class ModDownloader(
         tasks: List<ModFile> = mods,
         taskMessageRes: Int,
         totalFileCount: Int = tasks.size
-    ) = coroutineScope {
+    ) = withContext(Dispatchers.IO) {
         downloadFailedTasks.clear()
 
         val semaphore = Semaphore(maxDownloadThreads)

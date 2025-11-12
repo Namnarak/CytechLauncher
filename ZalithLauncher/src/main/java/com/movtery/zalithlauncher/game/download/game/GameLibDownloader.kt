@@ -28,7 +28,6 @@ import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
@@ -36,6 +35,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicLong
@@ -104,7 +104,7 @@ class GameLibDownloader(
         task: Task,
         tasks: List<DownloadTask>,
         taskMessageRes: Int
-    ) = coroutineScope {
+    ) = withContext(Dispatchers.IO) {
         downloadFailedTasks.clear()
 
         val semaphore = Semaphore(maxDownloadThreads)
