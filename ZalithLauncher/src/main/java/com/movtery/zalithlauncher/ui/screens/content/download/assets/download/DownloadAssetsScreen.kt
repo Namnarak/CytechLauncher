@@ -155,7 +155,7 @@ private class DownloadScreenViewModel(
             getVersions(
                 projectID = projectId,
                 platform = platform,
-                onCurseforgeCallback = { chunk, page ->
+                pageCallback = { chunk, page ->
                     versionsLoading = DownloadAssetsVersionLoading.LoadingPage(chunk, page)
                 },
                 onSuccess = { result ->

@@ -39,8 +39,16 @@ class ModrinthVersion(
     @SerialName("version_number")
     val versionNumber: String,
 
-    /** 版本的变更日志 */
+    /**
+     * 版本的变更日志
+     *
+     * **完全不使用**，但防止有的作者会把这个东西整的老大了，
+     * 导致启动器OOM异常，比如模组 [Crash Assistant](https://modrinth.com/mod/crash-assistant)，
+     * 所以此字段用不序列化也不应该被代码使用
+     */
+    @Transient
     @SerialName("changelog")
+    @Deprecated("不应该被代码使用！")
     val changelog: String? = null,
 
     /** 此版本所依赖的特定项目版本的列表 */
