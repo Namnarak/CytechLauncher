@@ -98,7 +98,7 @@ class CurseForgeData(
      * 这个项目所属的类 id
      */
     @SerialName("classId")
-    val classId: CurseForgeClassID? = null,
+    val classId: Int? = null,
 
     /**
      * 项目的作者名单

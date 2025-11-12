@@ -34,7 +34,7 @@ class CurseForgeProject(
     override fun platformId(): String = data.id.toString()
 
     override fun platformClasses(defaultClasses: PlatformClasses): PlatformClasses {
-        return data.classId?.platform ?: defaultClasses
+        return data.getPlatformClassesOrNull() ?: defaultClasses
     }
 
     override fun platformSlug(): String = data.slug
@@ -50,7 +50,7 @@ class CurseForgeProject(
     override fun platformDownloadCount(): Long = data.downloadCount
 
     override fun platformUrls(defaultClasses: PlatformClasses): PlatformProject.Urls {
-        val classes = data.classId?.platform ?: defaultClasses
+        val classes = data.getPlatformClassesOrNull() ?: defaultClasses
         return PlatformProject.Urls(
             projectUrl = "https://www.curseforge.com/minecraft/${classes.curseforge.slug}/${data.slug}",
             sourceUrl = data.links.sourceUrl,

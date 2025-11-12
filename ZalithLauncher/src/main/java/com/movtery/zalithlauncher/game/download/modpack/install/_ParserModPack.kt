@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.fixedFileUrl
+import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getPlatformClassesOrNull
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
 import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCurseForge
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
@@ -101,9 +102,11 @@ private suspend fun curseforge(
                                 projectID = manifestFile.projectID.toString()
                             ).data
                             //通过项目类型指定目标下载目录
-                            val folder = project.classId?.folderName?.let { folderName ->
-                                File(targetFolder, folderName)
-                            } ?: modsFolder
+                            val folder = project.getPlatformClassesOrNull()
+                                ?.versionFolder?.folderName
+                                ?.let { folderName ->
+                                    File(targetFolder, folderName)
+                                } ?: modsFolder
 
                             ModFile(
                                 outputFile = File(folder, fileName),
