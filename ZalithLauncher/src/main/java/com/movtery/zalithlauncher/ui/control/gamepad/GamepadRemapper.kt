@@ -35,11 +35,28 @@ import kotlin.math.max
 private const val AXIS_TO_KEY_ACTIVATION_THRESHOLD = 0.6f
 private const val AXIS_TO_KEY_RESET_THRESHOLD = 0.4f
 
+/**
+ * 当前重映射版本号
+ */
+private const val REMAPPER_VERSION = 2
+
+/**
+ * 手柄事件重映射信息保存类
+ * @param motionMapping [MotionEvent]类事件映射
+ * @param keyMapping [KeyEvent]类事件映射
+ * @param version 当前映射信息版本号，会根据本地版本号进行比较
+ */
 @Parcelize
 data class GamepadRemapper(
     val motionMapping: Map<Int, Int>,
-    val keyMapping: Map<Int, Int>
+    val keyMapping: Map<Int, Int>,
+    val version: Int = 0
 ): Parcelable {
+    constructor(
+        motionMapping: Map<Int, Int>,
+        keyMapping: Map<Int, Int>
+    ): this(motionMapping, keyMapping, REMAPPER_VERSION)
+
     @IgnoredOnParcel private val reverseMotionMap by lazy {
         motionMapping.entries.associate { (key, value) ->
             value to key
@@ -48,6 +65,14 @@ data class GamepadRemapper(
 
     @IgnoredOnParcel private val currentKeyValues = SparseArray<Float>()
     @IgnoredOnParcel private val currentMotionValues = SparseArray<Float>()
+
+    /**
+     * 比较重映射版本号
+     * @return 是否过旧
+     */
+    fun isOldVersion(): Boolean {
+        return version < REMAPPER_VERSION
+    }
 
     /**
      * 如果事件是有效的手柄事件，则调用 [GamepadViewModel] 发送事件

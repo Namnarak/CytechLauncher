@@ -94,7 +94,10 @@ class GamepadRemapperViewModel(): ViewModel() {
 
     private fun loadByDeviceName(deviceName: String): GamepadRemapper? {
         val mmkv = remapperMMKV()
-        return mmkv.decodeParcelable(deviceName, GamepadRemapper::class.java)
+        return mmkv.decodeParcelable(deviceName, GamepadRemapper::class.java)?.takeIf { remapper ->
+            //检查版本号，如果过旧则不能使用
+            !remapper.isOldVersion()
+        }
     }
 
     private val saveMutex = Mutex()

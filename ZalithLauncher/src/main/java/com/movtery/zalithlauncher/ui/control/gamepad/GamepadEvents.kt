@@ -431,11 +431,10 @@ fun KeyEvent.getDeviceName(): String {
  * 检查触摸事件是否来自手柄
  */
 fun MotionEvent.isGamepadEvent(): Boolean {
-    val source = this.source
-    return (source and InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
-            (source and InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
-            (source and InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD ||
-            (source and InputDevice.SOURCE_CLASS_JOYSTICK) == InputDevice.SOURCE_CLASS_JOYSTICK
+    return isFromSource(InputDevice.SOURCE_JOYSTICK) ||
+            isFromSource(InputDevice.SOURCE_GAMEPAD) ||
+            isFromSource(InputDevice.SOURCE_DPAD) ||
+            isFromSource(InputDevice.SOURCE_CLASS_JOYSTICK)
 }
 
 fun MotionEvent.isJoystickMoving(): Boolean {
