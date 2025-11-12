@@ -41,6 +41,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.components.InstallableItem
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.viewmodel.SplashBackStackViewModel
 
 /**
@@ -114,6 +115,8 @@ private fun NavigationUI(
         NavDisplay(
             backStack = backStack,
             modifier = modifier,
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.UnpackDeps> {
                     UnpackScreen(unpackItems, screenViewModel) {

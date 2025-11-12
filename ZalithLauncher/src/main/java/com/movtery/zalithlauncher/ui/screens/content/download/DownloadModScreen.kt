@@ -42,6 +42,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Do
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModScreen
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 
@@ -90,6 +91,8 @@ fun DownloadModScreen(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.SearchMod> {
                     SearchModScreen(

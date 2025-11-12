@@ -18,16 +18,28 @@
 
 package com.movtery.zalithlauncher.ui.screens
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.scene.Scene
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
+import com.movtery.zalithlauncher.utils.animation.getAnimateSpeed
 import kotlin.reflect.KClass
 
 /**
  * 兼容嵌套NavDisplay的返回事件处理
  */
 fun <E: NavKey> onBack(currentBackStack: NavBackStack<E>) {
-    val key = currentBackStack.lastOrNull()
-    when (key) {
+    when (val key = currentBackStack.lastOrNull()) {
         //普通的屏幕，直接退出当前堆栈的上层
         is NormalNavKey -> currentBackStack.removeLastOrNull()
         is BackStackNavKey<*> -> {
@@ -86,5 +98,24 @@ fun <E: NavKey> NavBackStack<E>.clearWith(navKey: E) {
 fun <E: NavKey> NavBackStack<E>.addIfEmpty(navKey: E) {
     if (isEmpty()) {
         add(navKey)
+    }
+}
+
+@Composable
+fun <T : Any> rememberTransitionSpec(): AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform {
+    val type = AllSettings.launcherSwapAnimateType.state
+    val speed = AllSettings.launcherAnimateSpeed.state
+    return remember(type, speed) {
+        val tween: FiniteAnimationSpec<Float> = when (type) {
+            TransitionAnimationType.CLOSE -> snap()
+            else -> tween(durationMillis = (getAnimateSpeed() / 5) * 2)
+        }
+
+        {
+            ContentTransform(
+                fadeIn(animationSpec = tween),
+                fadeOut(animationSpec = tween),
+            )
+        }
     }
 }
