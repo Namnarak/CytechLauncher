@@ -97,6 +97,10 @@ private class VersionsScreenViewModel() : ViewModel() {
     fun cleanUnusedFiles(context: Context) {
         cleaner = GameAssetCleaner(context, viewModelScope).also {
             it.start(
+                isRunning = {
+                    cleaner = null
+                    cleanupOperation = CleanupOperation.None
+                },
                 onEnd = { count, size ->
                     cleaner = null
                     cleanupOperation = CleanupOperation.Success(count, size)

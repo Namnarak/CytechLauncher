@@ -23,11 +23,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.coroutines.coroutineContext
 
 const val READER_PARALLELISM = 8
 
@@ -67,7 +68,7 @@ class AllModReader(val modsDir: File) {
         tasks.forEach { taskChannel.send(it) }
         taskChannel.close()
 
-        workers.forEach { it.join() }
+        workers.joinAll()
 
         return@withContext results.sortedBy { it.localMod.file.name }
     }
@@ -75,7 +76,7 @@ class AllModReader(val modsDir: File) {
     class ReadTask(private val file: File) {
         suspend fun execute(): RemoteMod {
             try {
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
 
                 val extension = if (file.isDisabled()) {
                     File(file.nameWithoutExtension).extension

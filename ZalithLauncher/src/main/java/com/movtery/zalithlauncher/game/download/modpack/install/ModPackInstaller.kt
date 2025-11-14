@@ -29,11 +29,6 @@ import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
-import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
@@ -86,13 +81,18 @@ class ModPackInstaller(
 
     /**
      * 开始安装整合包
+     * @param isRunning 正在运行中，拒绝这次安装时
+     * @param onInstalled 完成安装时
+     * @param onError 安装时遇到异常
      */
     fun installModPack(
-        onInstalled: () -> Unit = {},
-        onError: (Throwable) -> Unit = {}
+        isRunning: () -> Unit,
+        onInstalled: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
             //正在安装中，阻止这次安装请求
+            isRunning()
             return
         }
 
@@ -199,7 +199,10 @@ class ModPackInstaller(
                     title = context.getString(R.string.download_modpack_get_loaders),
                     icon = Icons.Outlined.Build
                 ) { _ ->
-                    retrieveLoaderTask()
+                    //构建游戏安装信息
+                    gameDownloadInfo = modpackInfo.retrieveLoaderTask(
+                        targetVersionName = targetVersionName
+                    )
 
                     //开始安装游戏！切换到下一阶段！
                     val gameInstaller = GameInstaller(context, gameDownloadInfo, scope)
@@ -245,57 +248,6 @@ class ModPackInstaller(
             FileUtils.deleteQuietly(folder)
             lInfo("Temporary modpack directory cleared.")
         }
-    }
-
-    /**
-     * 模组加载器解析匹配任务
-     */
-    private suspend fun retrieveLoaderTask() {
-        val gameVersion = modpackInfo.gameVersion
-
-        var gameInfo = GameDownloadInfo(
-            gameVersion = gameVersion,
-            customVersionName = targetVersionName
-        )
-
-        //匹配目标加载器版本，获取详细版本信息
-        modpackInfo.loaders.forEach { (loader, version) ->
-            when (loader) {
-                ModLoader.FORGE -> {
-                    ForgeVersions.fetchForgeList(gameVersion)?.find {
-                        it.versionName == version
-                    }?.let { forgeVersion ->
-                        gameInfo = gameInfo.copy(forge = forgeVersion)
-                    }
-                }
-                ModLoader.NEOFORGE -> {
-                    NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion)?.find {
-                        it.versionName == version
-                    }?.let { neoforgeVersion ->
-                        gameInfo = gameInfo.copy(neoforge = neoforgeVersion)
-                    }
-                }
-                ModLoader.FABRIC -> {
-                    FabricVersions.fetchFabricLoaderList(gameVersion)?.find {
-                        it.version == version
-                    }?.let { fabricVersion ->
-                        gameInfo = gameInfo.copy(fabric = fabricVersion)
-                    }
-                }
-                ModLoader.QUILT -> {
-                    QuiltVersions.fetchQuiltLoaderList(gameVersion)?.find {
-                        it.version == version
-                    }?.let { quiltVersion ->
-                        gameInfo = gameInfo.copy(quilt = quiltVersion)
-                    }
-                }
-                else -> {
-                    //不支持
-                }
-            }
-        }
-
-        gameDownloadInfo = gameInfo
     }
 
     /**

@@ -61,7 +61,6 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVersionScreen
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
@@ -77,6 +76,19 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 
+/** 游戏安装状态操作 */
+private sealed interface GameInstallOperation {
+    data object None : GameInstallOperation
+    /** 开始安装 */
+    data class Install(val info: GameDownloadInfo) : GameInstallOperation
+    /** 警告通知权限，可以无视，并直接开始安装 */
+    data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
+    /** 游戏安装出现异常 */
+    data class Error(val th: Throwable) : GameInstallOperation
+    /** 游戏已成功安装 */
+    data object Success : GameInstallOperation
+}
+
 private class GameDownloadViewModel(): ViewModel() {
     var installOperation by mutableStateOf<GameInstallOperation>(GameInstallOperation.None)
 
@@ -91,6 +103,10 @@ private class GameDownloadViewModel(): ViewModel() {
     ) {
         installer = GameInstaller(context, info, viewModelScope).also {
             it.installGame(
+                isRunning = {
+                    installer = null
+                    installOperation = GameInstallOperation.None
+                },
                 onInstalled = {
                     installer = null
                     VersionsManager.refresh()

@@ -100,15 +100,18 @@ class GameInstaller(
 
     /**
      * 安装 Minecraft 游戏
+     * @param isRunning 正在运行中，阻止此次安装时
      * @param onInstalled 游戏已完成安装
      * @param onError 游戏安装失败
      */
     fun installGame(
-        onInstalled: () -> Unit = {},
-        onError: (th: Throwable) -> Unit = {}
+        isRunning: () -> Unit,
+        onInstalled: () -> Unit,
+        onError: (th: Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
             //正在安装中，阻止这次安装请求
+            isRunning()
             return
         }
 

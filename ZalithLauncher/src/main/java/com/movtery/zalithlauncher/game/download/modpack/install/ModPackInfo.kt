@@ -19,6 +19,11 @@
 package com.movtery.zalithlauncher.game.download.modpack.install
 
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
+import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
+import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
+import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 
 /**
  * 整合包信息
@@ -35,3 +40,55 @@ data class ModPackInfo(
     val loaders: List<Pair<ModLoader, String>>,
     val gameVersion: String
 )
+
+/**
+ * 模组加载器解析匹配任务
+ * @return 构建好的游戏下载安装信息
+ */
+suspend fun ModPackInfo.retrieveLoaderTask(
+    targetVersionName: String
+): GameDownloadInfo {
+    var gameInfo = GameDownloadInfo(
+        gameVersion = gameVersion,
+        customVersionName = targetVersionName
+    )
+
+    //匹配目标加载器版本，获取详细版本信息
+    loaders.forEach { (loader, version) ->
+        when (loader) {
+            ModLoader.FORGE -> {
+                ForgeVersions.fetchForgeList(gameVersion)?.find {
+                    it.versionName == version
+                }?.let { forgeVersion ->
+                    gameInfo = gameInfo.copy(forge = forgeVersion)
+                }
+            }
+            ModLoader.NEOFORGE -> {
+                NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion)?.find {
+                    it.versionName == version
+                }?.let { neoforgeVersion ->
+                    gameInfo = gameInfo.copy(neoforge = neoforgeVersion)
+                }
+            }
+            ModLoader.FABRIC -> {
+                FabricVersions.fetchFabricLoaderList(gameVersion)?.find {
+                    it.version == version
+                }?.let { fabricVersion ->
+                    gameInfo = gameInfo.copy(fabric = fabricVersion)
+                }
+            }
+            ModLoader.QUILT -> {
+                QuiltVersions.fetchQuiltLoaderList(gameVersion)?.find {
+                    it.version == version
+                }?.let { quiltVersion ->
+                    gameInfo = gameInfo.copy(quilt = quiltVersion)
+                }
+            }
+            else -> {
+                //不支持
+            }
+        }
+    }
+
+    return gameInfo
+}

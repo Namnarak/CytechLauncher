@@ -74,14 +74,24 @@ class ModUpdater(
      */
     val allModsUpdate: MutableMap<ModData, PlatformVersion> = mutableMapOf()
 
+    /**
+     * 开始更新所有已选择的模组
+     * @param isRunning 正在运行中，拒绝此次更新请求时
+     * @param onUpdated 已成功更新所有模组
+     * @param onNoModUpdates 没有模组需要被更新时（所有选择的模组都是最新版）
+     * @param onCancelled 更新任务被取消时
+     * @param onError 更新模组时遇到错误
+     */
     fun updateAll(
-        onUpdated: () -> Unit = {},
-        onNoModUpdates: () -> Unit = {},
-        onCancelled: () -> Unit = {},
-        onError: (Throwable) -> Unit = {}
+        isRunning: () -> Unit,
+        onUpdated: () -> Unit,
+        onNoModUpdates: () -> Unit,
+        onCancelled: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
             //正在更新中，阻止这次更新请求
+            isRunning()
             return
         }
 

@@ -87,12 +87,20 @@ class GameAssetCleaner(
      */
     private val failedFiles = mutableListOf<File>()
 
+    /**
+     * 开始清理
+     * @param isRunning 正在运行中，阻止此次清理任务时
+     * @param onEnd 清理结束时
+     * @param onThrowable 清理过程中遇到错误时
+     */
     fun start(
-        onEnd: (count: Int, size: String) -> Unit = { _, _ -> },
-        onThrowable: (Throwable) -> Unit = {}
+        isRunning: () -> Unit,
+        onEnd: (count: Int, size: String) -> Unit,
+        onThrowable: (Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
             //正在清理中，阻止这次清理请求
+            isRunning()
             return
         }
 

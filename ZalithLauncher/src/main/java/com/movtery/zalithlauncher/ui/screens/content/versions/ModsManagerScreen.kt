@@ -353,6 +353,10 @@ private class ModsUpdaterViewModel(
             waitForUserConfirm = ::waitingForUserConfirm
         ).also {
             it.updateAll(
+                isRunning = {
+                    modsUpdater = null
+                    modsUpdateOperation = ModsUpdateOperation.None
+                },
                 onUpdated = {
                     modsUpdater = null
                     refreshMods()

@@ -53,6 +53,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
@@ -160,6 +161,45 @@ fun AssetsIcon(
                 contentScale = ContentScale.Fit,
                 modifier = sizeModifier,
                 colorFilter = colorFilter
+            )
+        }
+    }
+}
+
+/**
+ * 整合包格式标识元素，展示格式图标 + 格式名称
+ *
+ * 以Image展示图标
+ */
+@Composable
+fun PackIdentifier(
+    modifier: Modifier = Modifier,
+    platform: PackPlatform,
+    iconSize: Dp = 12.dp,
+    color: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = shape
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Image(
+                modifier = Modifier.size(iconSize),
+                painter = platform.getIcon(),
+                contentDescription = platform.getText()
+            )
+            Text(
+                text = platform.getText(),
+                style = textStyle
             )
         }
     }

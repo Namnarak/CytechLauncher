@@ -15,20 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
+package com.movtery.zalithlauncher.game.version.modpack.install
 
-package com.movtery.zalithlauncher.ui.screens.content.download.common
+/**
+ * 整合包不受支持，无法导入时，抛出这个异常
+ * @param reason 不受支持的原因
+ */
+class PackNotSupportedException(
+    val reason: UnsupportedPackReason
+) : RuntimeException(
+    reason.reasonText
+)
 
-import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
+/**
+ * 导致启动器判断整合包不受支持的原因
+ */
+enum class UnsupportedPackReason(
+    val reasonText: String
+) {
+    /**
+     * 压缩包损坏或解压失败
+     */
+    CorruptedArchive("The archive is corrupted or failed to extract."),
 
-/** 游戏安装状态操作 */
-sealed interface GameInstallOperation {
-    data object None : GameInstallOperation
-    /** 开始安装 */
-    data class Install(val info: GameDownloadInfo) : GameInstallOperation
-    /** 警告通知权限，可以无视，并直接开始安装 */
-    data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
-    /** 游戏安装出现异常 */
-    data class Error(val th: Throwable) : GameInstallOperation
-    /** 游戏已成功安装 */
-    data object Success : GameInstallOperation
+    /**
+     * 不支持的整合包格式
+     */
+    UnsupportedFormat("The modpack format is not supported.")
 }

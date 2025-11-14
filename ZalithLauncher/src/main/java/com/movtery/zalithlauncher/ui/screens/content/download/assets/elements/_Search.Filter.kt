@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
@@ -90,6 +91,8 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
  * @param enableModLoader 是否启用模组加载器过滤
  * @param modloaders 可用模组加载器列表
  * @param modloader 模组加载器
+ * @param onModLoaderChange 模组加载器变更时
+ * @param extraFilter 额外的过滤器UI
  */
 @Composable
 fun SearchFilter(
@@ -110,7 +113,8 @@ fun SearchFilter(
     enableModLoader: Boolean = true,
     modloaders: List<PlatformDisplayLabel> = emptyList(),
     modloader: PlatformDisplayLabel? = null,
-    onModLoaderChange: (PlatformDisplayLabel?) -> Unit = {}
+    onModLoaderChange: (PlatformDisplayLabel?) -> Unit = {},
+    extraFilter: (LazyListScope.() -> Unit)? = null
 ) {
     LazyColumn(
         modifier = modifier,
@@ -129,6 +133,8 @@ fun SearchFilter(
                 singleLine = true
             )
         }
+
+        extraFilter?.invoke(this@LazyColumn)
 
         if (enablePlatform) {
             item {
@@ -270,6 +276,41 @@ enum class FilterSelectionMode {
     Multiple
 }
 
+/**
+ * 基础过滤器UI，已经配置好合适的颜色和形状
+ */
+@Composable
+fun BaseFilterLayout(
+    modifier: Modifier = Modifier,
+    shape: Shape = MaterialTheme.shapes.large,
+    color: Color = backgroundLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
+    if (onClick != null) {
+        Surface(
+            modifier = modifier,
+            shape = shape,
+            color = color,
+            contentColor = contentColor,
+            onClick = onClick,
+            content = content
+        )
+    } else {
+        Surface(
+            modifier = modifier,
+            shape = shape,
+            color = color,
+            contentColor = contentColor,
+            content = content
+        )
+    }
+}
+
+/**
+ * 列表过滤器UI
+ */
 @Composable
 private fun <E> FilterListLayout(
     title: String,
@@ -292,22 +333,14 @@ private fun <E> FilterListLayout(
         )
     },
     cancelable: Boolean = true,
-    maxListHeight: Dp = 200.dp,
-    shape: Shape = MaterialTheme.shapes.large,
-    color: Color = backgroundLayoutColor(),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface
+    maxListHeight: Dp = 200.dp
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     val selected = selectedItems.isNotEmpty()
     val isSingle = selectionMode == FilterSelectionMode.Single
 
-    Surface(
-        modifier = modifier,
-        shape = shape,
-        color = color,
-        contentColor = contentColor
-    ) {
+    BaseFilterLayout(modifier = modifier) {
         Column(modifier = Modifier.fillMaxWidth()) {
             FilterHeader(
                 title = title,
