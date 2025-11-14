@@ -978,4 +978,21 @@
     <string name="control_editor_edit_text_underline">Включить подчёркивание</string>
     <string name="settings_gamepad_title">Управление геймпадом</string>
     <string name="settings_gamepad_summary">Включите или отключите управление геймпадом. Если стороннее устройство ошибочно распознаётся как геймпад, пожалуйста, отключите эту опцию.</string>
+    <string name="generic_tip">Подсказка</string>
+    <string name="import_modpack">Импорт мод-пака</string>
+    <string name="import_modpack_tip">Вы можете импортировать файлы мод-паков. Лаунчер поддерживает следующие форматы:</string>
+    <string name="import_modpack_task_unpack">Импорт и распаковка файла</string>
+    <string name="import_modpack_task_parse">Анализ мод-пака</string>
+    <string name="import_modpack_task_extract_files">Извлечение файлов мод-пака</string>
+    <string name="import_modpack_task_extract_files_and_schedule_download">Извлечение и подготовка загрузки</string>
+    <string name="import_modpack_not_supported_title">Неподдерживаемый мод-пак</string>
+    <string name="import_modpack_failed_text">При установке мод-пака произошла ошибка:</string>
+    <string name="import_modpack_not_supported_formats">Этот формат сборки не поддерживается. Доступные форматы:</string>
+    <string name="import_modpack_not_supported_text1">Лаунчер не может импортировать этот мод-пак по следующим причинам:</string>
+    <string name="import_modpack_not_supported_text2">1. Мод-пак повреждена и не может быть распакована или проанализирована</string>
+    <string name="import_modpack_not_supported_text3">2. Выбранный файл, возможно, не является архивом</string>
+    <string name="import_modpack_not_supported_text4">Сверьтесь с инструкцией автора, чтобы убедиться в правильности способа установки мод-пака.</string>
+    <string name="import_modpack_finished_title">Импорт завершён успешно</string>
+    <string name="import_modpack_finished_text">Выбранный мод-пак был успешно установлен!</string>
+    <string name="import_modpack_failed_title">Ошибка импорта</string>
 </resources>
