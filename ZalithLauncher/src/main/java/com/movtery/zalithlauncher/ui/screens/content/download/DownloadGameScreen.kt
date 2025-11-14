@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.download
 
 import android.content.Context
@@ -43,12 +61,12 @@ import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.download.common.GameInstallOperation
 import com.movtery.zalithlauncher.ui.screens.content.download.game.DownloadGameWithAddonScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.game.SelectGameVersionScreen
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -57,6 +75,19 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
+
+/** 游戏安装状态操作 */
+private sealed interface GameInstallOperation {
+    data object None : GameInstallOperation
+    /** 开始安装 */
+    data class Install(val info: GameDownloadInfo) : GameInstallOperation
+    /** 警告通知权限，可以无视，并直接开始安装 */
+    data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
+    /** 游戏安装出现异常 */
+    data class Error(val th: Throwable) : GameInstallOperation
+    /** 游戏已成功安装 */
+    data object Success : GameInstallOperation
+}
 
 private class GameDownloadViewModel(): ViewModel() {
     var installOperation by mutableStateOf<GameInstallOperation>(GameInstallOperation.None)
@@ -72,6 +103,10 @@ private class GameDownloadViewModel(): ViewModel() {
     ) {
         installer = GameInstaller(context, info, viewModelScope).also {
             it.installGame(
+                isRunning = {
+                    installer = null
+                    installOperation = GameInstallOperation.None
+                },
                 onInstalled = {
                     installer = null
                     VersionsManager.refresh()
@@ -147,6 +182,8 @@ fun DownloadGameScreen(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.DownloadGame.SelectGameVersion> {
                     SelectGameVersionScreen(

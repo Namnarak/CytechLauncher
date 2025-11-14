@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.AnimatedVisibility
@@ -89,6 +107,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
@@ -244,9 +263,6 @@ fun ResourcePackManageScreen(
 
             when (viewModel.packState) {
                 is LoadingState.None -> {
-                    val itemColor = itemLayoutColor()
-                    val itemContentColor = MaterialTheme.colorScheme.onSurface
-
                     var resourcePackOperation by remember { mutableStateOf<ResourcePackOperation>(ResourcePackOperation.None) }
                     fun runProgress(task: () -> Unit) {
                         operationScope.launch(Dispatchers.IO) {
@@ -281,8 +297,6 @@ fun ResourcePackManageScreen(
                                 .padding(horizontal = 8.dp)
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
-                            inputFieldColor = itemColor,
-                            inputFieldContentColor = itemContentColor,
                             packFilter = viewModel.packFilter,
                             changePackFilter = { viewModel.updateFilter(it) },
                             resourcePackDir = resourcePackDir,
@@ -314,8 +328,6 @@ fun ResourcePackManageScreen(
                             selectedFiles = viewModel.selectedFiles,
                             removeFromSelected = { viewModel.selectedFiles.remove(it) },
                             addToSelected = { viewModel.selectedFiles.add(it) },
-                            itemColor = itemColor,
-                            itemContentColor = itemContentColor,
                             updateOperation = { resourcePackOperation = it }
                         )
                     }
@@ -333,8 +345,6 @@ fun ResourcePackManageScreen(
 @Composable
 private fun ResourcePackHeader(
     modifier: Modifier = Modifier,
-    inputFieldColor: Color,
-    inputFieldContentColor: Color,
     packFilter: ResourcePackFilter,
     changePackFilter: (ResourcePackFilter) -> Unit,
     resourcePackDir: File,
@@ -344,7 +354,10 @@ private fun ResourcePackHeader(
     onClearFilesSelected: () -> Unit,
     swapToDownload: () -> Unit,
     onRefresh: () -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    inputFieldColor: Color = itemLayoutColor(),
+    inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     Column(modifier = modifier) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -363,6 +376,7 @@ private fun ResourcePackHeader(
                     },
                     color = inputFieldColor,
                     contentColor = inputFieldContentColor,
+                    shadowElevation = shadowElevation,
                     singleLine = true
                 )
 
@@ -479,8 +493,6 @@ private fun ResourcePackList(
     selectedFiles: List<File>,
     removeFromSelected: (File) -> Unit,
     addToSelected: (File) -> Unit,
-    itemColor: Color,
-    itemContentColor: Color,
     updateOperation: (ResourcePackOperation) -> Unit
 ) {
     packList?.let { list ->
@@ -504,8 +516,6 @@ private fun ResourcePackList(
                                 addToSelected(pack.file)
                             }
                         },
-                        itemColor = itemColor,
-                        itemContentColor = itemContentColor,
                         updateOperation = updateOperation
                     )
                 }
@@ -529,11 +539,11 @@ private fun ResourcePackItemLayout(
     resourcePackInfo: ResourcePackInfo,
     selected: Boolean,
     onClick: () -> Unit = {},
-    itemColor: Color,
-    itemContentColor: Color,
+    itemColor: Color = itemLayoutColor(),
+    itemContentColor: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = MaterialTheme.shapes.large,
-    shadowElevation: Dp = 1.dp,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
     updateOperation: (ResourcePackOperation) -> Unit
 ) {
     val borderWidth by animateDpAsState(

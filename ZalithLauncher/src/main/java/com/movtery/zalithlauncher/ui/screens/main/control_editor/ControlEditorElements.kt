@@ -79,6 +79,7 @@ import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -379,6 +380,7 @@ fun EditorMenu(
                 onLayerSelected = onLayerSelected,
                 createLayer = createLayer,
                 onAttribute = onAttribute,
+                influencedByBackground = false,
                 enabled = isPreviewMode.not()
             )
         }
@@ -393,6 +395,7 @@ private fun ColumnScope.ControlLayerMenu(
     onLayerSelected: (ObservableControlLayer) -> Unit,
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
+    influencedByBackground: Boolean = false,
     enabled: Boolean = true
 ) {
     val lazyListState = rememberLazyListState()
@@ -428,6 +431,7 @@ private fun ColumnScope.ControlLayerMenu(
                     onAttribute = {
                         onAttribute(layer)
                     },
+                    influencedByBackground = influencedByBackground,
                     enabled = enabled
                 )
             }
@@ -452,11 +456,12 @@ private fun ControlLayerItem(
     selected: Boolean,
     onSelected: () -> Unit,
     onAttribute: () -> Unit,
-    color: Color = itemLayoutColor(),
+    influencedByBackground: Boolean = false,
+    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = MaterialTheme.shapes.large,
-    shadowElevation: Dp = 1.dp,
+    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
     enabled: Boolean = true
 ) {
     val borderWidth by animateDpAsState(

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.elements
 
 import androidx.compose.foundation.Image
@@ -35,6 +53,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
@@ -142,6 +161,45 @@ fun AssetsIcon(
                 contentScale = ContentScale.Fit,
                 modifier = sizeModifier,
                 colorFilter = colorFilter
+            )
+        }
+    }
+}
+
+/**
+ * 整合包格式标识元素，展示格式图标 + 格式名称
+ *
+ * 以Image展示图标
+ */
+@Composable
+fun PackIdentifier(
+    modifier: Modifier = Modifier,
+    platform: PackPlatform,
+    iconSize: Dp = 12.dp,
+    color: Color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = shape
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Image(
+                modifier = Modifier.size(iconSize),
+                painter = platform.getIcon(),
+                contentDescription = platform.getText()
+            )
+            Text(
+                text = platform.getText(),
+                style = textStyle
             )
         }
     }

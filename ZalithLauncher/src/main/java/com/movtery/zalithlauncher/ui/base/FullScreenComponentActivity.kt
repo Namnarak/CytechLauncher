@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.base
 
 import android.os.Build
@@ -6,29 +24,13 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnSystemUiVisibilityChangeListener
 import android.view.WindowManager
-import androidx.activity.viewModels
 import androidx.annotation.CallSuper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.movtery.zalithlauncher.viewmodel.LauncherFullScreenViewModel
-import kotlinx.coroutines.launch
 
 abstract class FullScreenComponentActivity : AbstractComponentActivity() {
-    val fullScreenViewModel: LauncherFullScreenViewModel by viewModels()
-
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFullscreen()
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                fullScreenViewModel.refreshEvent.collect {
-                    ignoreNotch()
-                }
-            }
-        }
     }
 
     @CallSuper
@@ -67,7 +69,7 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
         visibilityChangeListener.onSystemUiVisibilityChange(decorView.systemUiVisibility)
     }
 
-    private fun ignoreNotch() {
+    protected fun ignoreNotch() {
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode =
                 if (shouldIgnoreNotch()) {

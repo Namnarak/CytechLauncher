@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.control.mouse
 
 import androidx.compose.foundation.layout.Box
@@ -22,9 +40,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
-import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
+import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
@@ -287,7 +305,6 @@ fun getMouseFile(
 
 /**
  * 在屏幕上显示虚拟鼠标指针
- * @param useGlobalImageLoader 是否使用应用全局设置的图片加载器
  */
 @Composable
 fun MousePointer(
@@ -297,17 +314,14 @@ fun MousePointer(
     mouseFile: File?,
     centerIcon: Boolean = false,
     triggerRefresh: Any? = null,
-    useGlobalImageLoader: Boolean = false
+    crossfade: Boolean = false
 ) {
     val context = LocalContext.current
-    val loader = remember(useGlobalImageLoader, triggerRefresh, context) {
-        if (useGlobalImageLoader) {
-            SingletonImageLoader.get(context)
-        } else {
-            ImageLoader.Builder(context)
-                .components { add(GifDecoder.Factory()) }
-                .build()
-        }
+    val loader = remember(triggerRefresh, crossfade, context) {
+        ImageLoader.Builder(context)
+            .components { add(GifDecoder.Factory()) }
+            .crossfade(crossfade)
+            .build()
     }
 
     val fileExists by produceState(initialValue = false, triggerRefresh, mouseFile) {

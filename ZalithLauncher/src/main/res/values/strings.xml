@@ -3,6 +3,7 @@
     <string name="generic_cancel">Cancel</string>
     <string name="generic_confirm">Confirm</string>
     <string name="generic_error">Error</string>
+    <string name="generic_tip">Tip</string>
     <string name="generic_warning">Warning</string>
     <string name="generic_back">Back</string>
     <string name="generic_refresh">Refresh</string>
@@ -310,6 +311,23 @@
     <string name="download_assets_features_items">Items</string>
     <string name="download_assets_features_locale">Locale</string>
     <string name="download_assets_features_models">Models</string>
+    <!--  Import Modpack  -->
+    <string name="import_modpack">Import Modpack</string>
+    <string name="import_modpack_tip">You can import local modpack files. The launcher currently supports these formats:</string>
+    <string name="import_modpack_task_unpack">Import and unpack file</string>
+    <string name="import_modpack_task_parse">Parse modpack</string>
+    <string name="import_modpack_task_extract_files">Extract modpack files</string>
+    <string name="import_modpack_task_extract_files_and_schedule_download">Extract and prepare downloads</string>
+    <string name="import_modpack_not_supported_title">Unsupported Modpack</string>
+    <string name="import_modpack_not_supported_formats">This modpack format is not supported. Supported formats:</string>
+    <string name="import_modpack_not_supported_text1">The launcher cannot import this modpack for the following reasons:</string>
+    <string name="import_modpack_not_supported_text2">1. The modpack is corrupted, it cannot be unpacked or parsed</string>
+    <string name="import_modpack_not_supported_text3">2. The selected file might not be a compressed archive</string>
+    <string name="import_modpack_not_supported_text4">Check the author\'s instructions to ensure the correct import method.</string>
+    <string name="import_modpack_finished_title">Import Successful</string>
+    <string name="import_modpack_finished_text">The selected modpack has been installed successfully!</string>
+    <string name="import_modpack_failed_title">Import Failed</string>
+    <string name="import_modpack_failed_text">An error occurred while installing the modpack:</string>
     <!--  Version Summary  -->
     <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
     <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>

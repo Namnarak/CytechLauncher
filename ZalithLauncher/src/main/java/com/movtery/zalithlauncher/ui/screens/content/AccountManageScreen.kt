@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.content.Context
@@ -97,10 +115,10 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
-import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -437,7 +455,7 @@ private fun MicrosoftChangeSkinOperation(
                         th is io.ktor.client.plugins.ResponseException -> {
                             val response = th.response
                             val code = response.status.value
-                            val body = response.body<JsonObject>()
+                            val body = response.safeBodyAsJson<JsonObject>()
                             val message = body["errorMessage"]?.jsonPrimitive?.contentOrNull
                             context.getString(R.string.account_change_skin_failed_to_upload, code) to (message ?: th.getMessageOrToString())
                         }
@@ -577,7 +595,7 @@ private fun MicrosoftChangeCapeOperation(
                         th is io.ktor.client.plugins.ResponseException -> {
                             val response = th.response
                             val code = response.status.value
-                            val body = response.body<JsonObject>()
+                            val body = response.safeBodyAsJson<JsonObject>()
                             val message = body["errorMessage"]?.jsonPrimitive?.contentOrNull
                             context.getString(R.string.account_change_cape_apply_failed, code) to (message ?: th.getMessageOrToString())
                         }

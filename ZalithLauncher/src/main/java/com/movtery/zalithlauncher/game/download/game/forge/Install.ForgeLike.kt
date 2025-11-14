@@ -1,9 +1,28 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.download.game.forge
 
 import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.components.jre.Jre
+import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 import com.movtery.zalithlauncher.game.download.game.GameLibDownloader
@@ -12,6 +31,7 @@ import com.movtery.zalithlauncher.game.download.game.models.ForgeLikeInstallProc
 import com.movtery.zalithlauncher.game.download.game.models.toPath
 import com.movtery.zalithlauncher.game.download.game.parseLibraryComponents
 import com.movtery.zalithlauncher.game.download.jvm_server.runJvmRetryRuntimes
+import com.movtery.zalithlauncher.game.download.jvm_server.stopAllNonMainProcesses
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.path.LibPath
 import com.movtery.zalithlauncher.utils.GSON
@@ -35,6 +55,7 @@ import java.nio.file.Paths
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
+import kotlin.io.path.name
 
 const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
 
@@ -192,6 +213,8 @@ private suspend fun installNewForgePCLWay(
     lInfo("All version folders before installation: $beforeLog")
 
     task.updateProgress(-1f, R.string.download_game_install_base_installing, forgeLikeVersion.loaderName)
+
+    stopAllNonMainProcesses(GlobalContext)
     runJvmRetryRuntimes(
         FORGE_LIKE_INSTALL_ID,
         jvmArgs = "-javaagent:" +
@@ -397,9 +420,10 @@ private suspend fun runProcessors(
             )
         }.joinToString(" ")
 
-        Triple(processor, jvmArgs, outputs)
+        Triple(processor, jvmArgs, outputs.map { (key, value) -> Paths.get(key) to value })
     }
 
+    stopAllNonMainProcesses(GlobalContext)
     //正式开始执行命令
     commandList.forEachIndexed { index, (processor, jvmArgs, outputs) ->
         runJvmRetryRuntimes(
@@ -410,16 +434,16 @@ private suspend fun runProcessors(
             userHome = tempGameDir.absolutePath.trimEnd('\\')
         ) {
             val jarPath = processor.getJar().toPath()
-            val jarName = File(jarPath).name
 
             val progress = index.toFloat() / commandList.size
-            task.updateProgress(progress, R.string.download_game_install_base_installing, jarName)
+            task.updateProgress(progress, R.string.download_game_install_base_installing,
+                outputs.joinToString(", ") { (artifact, _) -> artifact.name }
+            )
 
             lInfo("Start to run $jarPath with args: $jvmArgs")
         }
 
-        for ((key, value) in outputs) {
-            val artifact = Paths.get(key)
+        for ((artifact, value) in outputs) {
             if (!Files.isRegularFile(artifact)) throw FileNotFoundException("File missing: $artifact")
 
             val code: String = Files.newInputStream(artifact).use { stream ->

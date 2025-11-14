@@ -31,7 +31,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ZLApplication
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.notification.NotificationManager
@@ -44,6 +43,7 @@ import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.openLink
+import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -74,15 +74,17 @@ class MainActivity : BaseComponentActivity() {
     val eventViewModel: EventViewModel by viewModels()
 
     /**
+     * 启动器背景内容管理 ViewModel
+     */
+    val backgroundViewModel: BackgroundViewModel by viewModels()
+
+    /**
      * 是否开启捕获按键模式
      */
     private var isCaptureKey = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        //启动器背景内容管理
-        val backgroundViewModel = (application as ZLApplication).backgroundViewModel
 
         //初始化通知管理（创建渠道）
         NotificationManager.initManager(this)
@@ -123,6 +125,11 @@ class MainActivity : BaseComponentActivity() {
                             this@MainActivity.openLink(url)
                         }
                     }
+                    is EventViewModel.Event.RefreshFullScreen -> {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            ignoreNotch()
+                        }
+                    }
                     else -> {
                         //忽略
                     }
@@ -131,7 +138,9 @@ class MainActivity : BaseComponentActivity() {
         }
 
         setContent {
-            ZalithLauncherTheme {
+            ZalithLauncherTheme(
+                backgroundViewModel = backgroundViewModel
+            ) {
                 Box {
                     Background(
                         modifier = Modifier.fillMaxSize(),
@@ -142,7 +151,6 @@ class MainActivity : BaseComponentActivity() {
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,
-                        backgroundViewModel = backgroundViewModel,
                         submitError = {
                             errorViewModel.showError(it)
                         }

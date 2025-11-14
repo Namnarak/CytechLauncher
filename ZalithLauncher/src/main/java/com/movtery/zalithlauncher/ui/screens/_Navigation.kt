@@ -1,15 +1,45 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.scene.Scene
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
+import com.movtery.zalithlauncher.utils.animation.getAnimateSpeed
 import kotlin.reflect.KClass
 
 /**
  * 兼容嵌套NavDisplay的返回事件处理
  */
 fun <E: NavKey> onBack(currentBackStack: NavBackStack<E>) {
-    val key = currentBackStack.lastOrNull()
-    when (key) {
+    when (val key = currentBackStack.lastOrNull()) {
         //普通的屏幕，直接退出当前堆栈的上层
         is NormalNavKey -> currentBackStack.removeLastOrNull()
         is BackStackNavKey<*> -> {
@@ -68,5 +98,24 @@ fun <E: NavKey> NavBackStack<E>.clearWith(navKey: E) {
 fun <E: NavKey> NavBackStack<E>.addIfEmpty(navKey: E) {
     if (isEmpty()) {
         add(navKey)
+    }
+}
+
+@Composable
+fun <T : Any> rememberTransitionSpec(): AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform {
+    val type = AllSettings.launcherSwapAnimateType.state
+    val speed = AllSettings.launcherAnimateSpeed.state
+    return remember(type, speed) {
+        val tween: FiniteAnimationSpec<Float> = when (type) {
+            TransitionAnimationType.CLOSE -> snap()
+            else -> tween(durationMillis = (getAnimateSpeed() / 5) * 2)
+        }
+
+        {
+            ContentTransform(
+                fadeIn(animationSpec = tween),
+                fadeOut(animationSpec = tween),
+            )
+        }
     }
 }

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.download.game
 
 import android.content.Context
@@ -5,11 +23,14 @@ import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CleaningServices
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.coroutine.TaskState
+import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
+import com.movtery.zalithlauncher.coroutine.addTask
+import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
@@ -38,16 +59,10 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -64,13 +79,8 @@ class GameInstaller(
     private val info: GameDownloadInfo,
     private val scope: CoroutineScope
 ) {
-    private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
-
-    /**
-     * 当前游戏的安装任务
-     */
-    private var job: Job? = null
+    private val taskExecutor = TaskFlowExecutor(scope)
+    val tasksFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
 
     /**
      * 基础下载器
@@ -90,41 +100,39 @@ class GameInstaller(
 
     /**
      * 安装 Minecraft 游戏
+     * @param isRunning 正在运行中，阻止此次安装时
      * @param onInstalled 游戏已完成安装
      * @param onError 游戏安装失败
      */
     fun installGame(
-        onInstalled: () -> Unit = {},
-        onError: (th: Throwable) -> Unit = {},
-        updateTasks: (List<TitledTask>) -> Unit = { tasks ->
-            _tasksFlow.update { tasks }
-        }
+        isRunning: () -> Unit,
+        onInstalled: () -> Unit,
+        onError: (th: Throwable) -> Unit
     ) {
-        job = scope.launch(Dispatchers.IO) {
-            installGameSuspend(
-                onInstalled = {
-                    updateTasks(emptyList())
-                    onInstalled()
-                },
-                onError = onError,
-                updateTasks = updateTasks
-            )
+        if (taskExecutor.isRunning()) {
+            //正在安装中，阻止这次安装请求
+            isRunning()
+            return
         }
+
+        taskExecutor.executePhasesAsync(
+            onStart = {
+                val tasks = getTaskPhase()
+                taskExecutor.addPhases(tasks)
+            },
+            onComplete = onInstalled,
+            onError = onError
+        )
     }
 
     /**
-     * 安装 Minecraft 游戏
+     * 获取安装 Minecraft 游戏的任务流阶段
      * @param onInstalled 游戏已完成安装
-     * @param onError 游戏安装失败
      */
-    suspend fun installGameSuspend(
+    suspend fun getTaskPhase(
         createIsolation: Boolean = true,
         onInstalled: suspend (targetClientDir: File) -> Unit = {},
-        onError: (th: Throwable) -> Unit = {},
-        updateTasks: (List<TitledTask>) -> Unit = { tasks ->
-            _tasksFlow.update { tasks }
-        }
-    ) = withContext(Dispatchers.IO) {
+    ): List<TaskFlowExecutor.TaskPhase> = withContext(Dispatchers.IO) {
         //目标版本目录
         val targetClientDir1 = VersionsManager.getVersionPath(info.customVersionName)
         targetClientDir = targetClientDir1
@@ -134,7 +142,7 @@ class GameInstaller(
         //目标版本已经安装的情况
         if (targetVersionJson.exists()) {
             lDebug("The game has already been installed!")
-            return@withContext
+            return@withContext emptyList()
         }
 
         val tempGameDir = PathManager.DIR_CACHE_GAME_DOWNLOADER
@@ -152,243 +160,199 @@ class GameInstaller(
         //Mods临时目录
         val tempModsDir = File(tempGameDir, ".temp_mods")
 
-        val tasks: MutableList<TitledTask> = mutableListOf()
-
-        //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
-        tasks.add(
-            TitledTask(
-                title = context.getString(R.string.download_install_clear_temp),
-                runningIcon = Icons.Outlined.CleaningServices,
-                task = Task.runTask(
+        listOf(
+            buildPhase {
+                //开始之前，应该先清理一次临时游戏目录，否则可能会影响安装结果
+                addTask(
                     id = "Download.Game.ClearTemp",
-                    task = {
-                        clearTempGameDir()
-                        //清理完成缓存目录后，创建新的缓存目录
-                        tempClientDir.createDirAndLog()
-                        optifineDir?.createDirAndLog()
-                        forgeDir?.createDirAndLog()
-                        neoforgeDir?.createDirAndLog()
-                        fabricDir?.createDirAndLog()
-                        quiltDir?.createDirAndLog()
-                        tempModsDir.createDirAndLog()
+                    title = context.getString(R.string.download_install_clear_temp),
+                    icon = Icons.Outlined.CleaningServices,
+                ) {
+                    clearTempGameDir()
+                    //清理完成缓存目录后，创建新的缓存目录
+                    tempClientDir.createDirAndLog()
+                    optifineDir?.createDirAndLog()
+                    forgeDir?.createDirAndLog()
+                    neoforgeDir?.createDirAndLog()
+                    fabricDir?.createDirAndLog()
+                    quiltDir?.createDirAndLog()
+                    tempModsDir.createDirAndLog()
+                }
+
+                //下载安装原版
+                addTask(
+                    title = context.getString(R.string.download_game_install_vanilla, info.gameVersion),
+                    task = createMinecraftDownloadTask(info.gameVersion, tempGameVersionsDir)
+                )
+
+                // OptiFine 安装
+                info.optifine?.let { optifineVersion ->
+                    if (forgeDir == null && fabricDir == null) {
+                        val isNewVersion: Boolean = optifineVersion.inherit.contains("w") || optifineVersion.inherit.split(".")[1].toInt() >= 14
+                        val targetInstaller: File = targetTempOptiFineInstaller(tempGameDir, tempMinecraftDir, optifineVersion.fileName, isNewVersion)
+
+                        //将OptiFine作为版本下载，其余情况则作为Mod下载
+                        addTask(
+                            title = context.getString(
+                                R.string.download_game_install_base_download_file,
+                                ModLoader.OPTIFINE.displayName,
+                                info.optifine.displayName
+                            ),
+                            task = getOptiFineDownloadTask(
+                                targetTempInstaller = targetInstaller,
+                                optifine = optifineVersion
+                            )
+                        )
+
+                        //安装 OptiFine
+                        addTask(
+                            title = context.getString(
+                                R.string.download_game_install_base_install,
+                                ModLoader.OPTIFINE.displayName
+                            ),
+                            icon = Icons.Outlined.Build,
+                            task = getOptiFineInstallTask(
+                                tempGameDir = tempGameDir,
+                                tempMinecraftDir = tempMinecraftDir,
+                                tempInstallerJar = targetInstaller,
+                                isNewVersion = isNewVersion,
+                                optifineVersion = optifineVersion
+                            )
+                        )
+                    } else {
+                        //仅作为Mod进行下载
+                        addTask(
+                            title = context.getString(
+                                R.string.download_game_install_base_download_file,
+                                ModLoader.OPTIFINE.displayName,
+                                info.optifine.displayName
+                            ),
+                            task = getOptiFineModsDownloadTask(
+                                optifine = optifineVersion,
+                                tempModsDir = tempModsDir
+                            )
+                        )
+                    }
+                }
+
+                // Forge 安装
+                info.forge?.let { forgeVersion ->
+                    createForgeLikeTask(
+                        forgeLikeVersion = forgeVersion,
+                        tempGameDir = tempGameDir,
+                        tempMinecraftDir = tempMinecraftDir,
+                        tempFolderName = forgeDir!!.name,
+                        addTask = { title, icon, task ->
+                            addTask(title = title, icon = icon, task = task)
+                        }
+                    )
+                }
+
+                // NeoForge 安装
+                info.neoforge?.let { neoforgeVersion ->
+                    createForgeLikeTask(
+                        forgeLikeVersion = neoforgeVersion,
+                        tempGameDir = tempGameDir,
+                        tempMinecraftDir = tempMinecraftDir,
+                        tempFolderName = neoforgeDir!!.name,
+                        addTask = { title, icon, task ->
+                            addTask(title = title, icon = icon, task = task)
+                        }
+                    )
+                }
+
+                // Fabric 安装
+                info.fabric?.let { fabricVersion ->
+                    createFabricLikeTask(
+                        fabricLikeVersion = fabricVersion,
+                        tempMinecraftDir = tempMinecraftDir,
+                        tempFolderName = fabricDir!!.name,
+                        addTask = { title, icon, task ->
+                            addTask(title = title, icon = icon, task = task)
+                        }
+                    )
+                }
+                info.fabricAPI?.let { apiVersion ->
+                    addTask(
+                        title = context.getString(
+                            R.string.download_game_install_base_download_file,
+                            ModLoader.FABRIC_API.displayName,
+                            info.fabricAPI.displayName
+                        ),
+                        task = createModLikeDownloadTask(
+                            tempModsDir = tempModsDir,
+                            modVersion = apiVersion
+                        )
+                    )
+                }
+
+                // Quilt 安装
+                info.quilt?.let { quiltVersion ->
+                    createFabricLikeTask(
+                        fabricLikeVersion = quiltVersion,
+                        tempMinecraftDir = tempMinecraftDir,
+                        tempFolderName = quiltDir!!.name,
+                        addTask = { title, icon, task ->
+                            addTask(title = title, icon = icon, task = task)
+                        }
+                    )
+                }
+                info.quiltAPI?.let { apiVersion ->
+                    addTask(
+                        title = context.getString(
+                            R.string.download_game_install_base_download_file,
+                            ModLoader.QUILT_API.displayName,
+                            info.quiltAPI.displayName
+                        ),
+                        task = createModLikeDownloadTask(
+                            tempModsDir = tempModsDir,
+                            modVersion = apiVersion
+                        )
+                    )
+                }
+
+                //最终游戏安装任务
+                addTask(
+                    title = context.getString(R.string.download_game_install_game_files_progress),
+                    icon = Icons.Outlined.Build,
+                    //如果有非原版以外的任务，则需要进行处理安装（合并版本Json、迁移文件等）
+                    task = if (optifineDir != null || forgeDir != null || neoforgeDir != null || fabricDir != null || quiltDir != null || tempModsDir.listFiles()
+                            ?.isNotEmpty() == true
+                    ) {
+                        createGameInstalledTask(
+                            tempMinecraftDir = tempMinecraftDir,
+                            targetMinecraftDir = targetGameFolder,
+                            targetClientDir = targetClientDir1,
+                            tempClientDir = tempClientDir,
+                            tempModsDir = tempModsDir,
+                            createIsolation = createIsolation,
+                            optiFineFolder = optifineDir,
+                            forgeFolder = forgeDir,
+                            neoForgeFolder = neoforgeDir,
+                            fabricFolder = fabricDir,
+                            quiltFolder = quiltDir,
+                            onComplete = {
+                                onInstalled(targetClientDir1)
+                                targetClientDir = null
+                            }
+                        )
+                    } else {
+                        //仅仅下载了原版，只复制版本client文件
+                        createVanillaFilesCopyTask(
+                            tempMinecraftDir = tempMinecraftDir,
+                            onComplete = {
+                                onInstalled(targetClientDir1)
+                                targetClientDir = null
+                            }
+                        )
                     }
                 )
-            )
-        )
-
-        //下载安装原版
-        tasks.add(
-            TitledTask(
-                title = context.getString(R.string.download_game_install_vanilla, info.gameVersion),
-                task = createMinecraftDownloadTask(info.gameVersion, tempGameVersionsDir)
-            )
-        )
-
-        // OptiFine 安装
-        info.optifine?.let { optifineVersion ->
-            if (forgeDir == null && fabricDir == null) {
-                val isNewVersion: Boolean = optifineVersion.inherit.contains("w") || optifineVersion.inherit.split(".")[1].toInt() >= 14
-                val targetInstaller: File = targetTempOptiFineInstaller(tempGameDir, tempMinecraftDir, optifineVersion.fileName, isNewVersion)
-
-                //将OptiFine作为版本下载，其余情况则作为Mod下载
-                tasks.add(
-                    TitledTask(
-                        title = context.getString(
-                            R.string.download_game_install_base_download_file,
-                            ModLoader.OPTIFINE.displayName,
-                            info.optifine.displayName
-                        ),
-                        task = getOptiFineDownloadTask(
-                            targetTempInstaller = targetInstaller,
-                            optifine = optifineVersion
-                        )
-                    )
-                )
-
-                //安装 OptiFine
-                tasks.add(
-                    TitledTask(
-                        title = context.getString(
-                            R.string.download_game_install_base_install,
-                            ModLoader.OPTIFINE.displayName
-                        ),
-                        runningIcon = Icons.Outlined.Build,
-                        task = getOptiFineInstallTask(
-                            tempGameDir = tempGameDir,
-                            tempMinecraftDir = tempMinecraftDir,
-                            tempInstallerJar = targetInstaller,
-                            isNewVersion = isNewVersion,
-                            optifineVersion = optifineVersion
-                        )
-                    )
-                )
-            } else {
-                //仅作为Mod进行下载
-                tasks.add(
-                    TitledTask(
-                        title = context.getString(
-                            R.string.download_game_install_base_download_file,
-                            ModLoader.OPTIFINE.displayName,
-                            info.optifine.displayName
-                        ),
-                        task = getOptiFineModsDownloadTask(
-                            optifine = optifineVersion,
-                            tempModsDir = tempModsDir
-                        )
-                    )
-                )
-            }
-        }
-
-        // ForgeLike 安装
-        info.forge?.let { forgeVersion ->
-            createForgeLikeTask(
-                forgeLikeVersion = forgeVersion,
-                tempGameDir = tempGameDir,
-                tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = forgeDir!!.name,
-                addTask = { tasks.add(it) }
-            )
-        }
-        info.neoforge?.let { neoforgeVersion ->
-            createForgeLikeTask(
-                forgeLikeVersion = neoforgeVersion,
-                tempGameDir = tempGameDir,
-                tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = neoforgeDir!!.name,
-                addTask = { tasks.add(it) }
-            )
-        }
-
-        // FabricLike 安装
-        info.fabric?.let { fabricVersion ->
-            createFabricLikeTask(
-                fabricLikeVersion = fabricVersion,
-                tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = fabricDir!!.name,
-                addTask = { tasks.add(it) }
-            )
-        }
-        info.fabricAPI?.let { apiVersion ->
-            tasks.add(
-                TitledTask(
-                    title = context.getString(
-                        R.string.download_game_install_base_download_file,
-                        ModLoader.FABRIC_API.displayName,
-                        info.fabricAPI.displayName
-                    ),
-                    task = createModLikeDownloadTask(
-                        tempModsDir = tempModsDir,
-                        modVersion = apiVersion
-                    )
-                )
-            )
-        }
-        info.quilt?.let { quiltVersion ->
-            createFabricLikeTask(
-                fabricLikeVersion = quiltVersion,
-                tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = quiltDir!!.name,
-                addTask = { tasks.add(it) }
-            )
-        }
-        info.quiltAPI?.let { apiVersion ->
-            tasks.add(
-                TitledTask(
-                    title = context.getString(
-                        R.string.download_game_install_base_download_file,
-                        ModLoader.QUILT_API.displayName,
-                        info.quiltAPI.displayName
-                    ),
-                    task = createModLikeDownloadTask(
-                        tempModsDir = tempModsDir,
-                        modVersion = apiVersion
-                    )
-                )
-            )
-        }
-
-        tasks.add(
-            TitledTask(
-                title = context.getString(R.string.download_game_install_game_files_progress),
-                runningIcon = Icons.Outlined.Build,
-                //如果有非原版以外的任务，则需要进行处理安装（合并版本Json、迁移文件等）
-                task = if (optifineDir != null || forgeDir != null || neoforgeDir != null || fabricDir != null || quiltDir != null || tempModsDir.listFiles()
-                        ?.isNotEmpty() == true
-                ) {
-                    createGameInstalledTask(
-                        tempMinecraftDir = tempMinecraftDir,
-                        targetMinecraftDir = targetGameFolder,
-                        targetClientDir = targetClientDir1,
-                        tempClientDir = tempClientDir,
-                        tempModsDir = tempModsDir,
-                        createIsolation = createIsolation,
-                        optiFineFolder = optifineDir,
-                        forgeFolder = forgeDir,
-                        neoForgeFolder = neoforgeDir,
-                        fabricFolder = fabricDir,
-                        quiltFolder = quiltDir
-                    )
-                } else {
-                    //仅仅下载了原版，只复制版本client文件
-                    createVanillaFilesCopyTask(
-                        tempMinecraftDir = tempMinecraftDir
-                    )
-                }
-            )
-        )
-
-        updateTasks(tasks)
-
-        //开始安装
-        startInstall(
-            tasks = tasks,
-            onInstalled = {
-                onInstalled(targetClientDir1)
-                targetClientDir = null
-            },
-            onError = { th ->
-                lWarning("Failed to install game!", th)
-                clearTargetClient()
-                onError(th)
             }
         )
-    }
-
-    private suspend fun startInstall(
-        tasks: List<TitledTask>,
-        onInstalled: suspend () -> Unit,
-        onError: (th: Throwable) -> Unit
-    ) = withContext(Dispatchers.Default) {
-        //简易的TaskSystem实现
-        for (task in tasks) {
-            try {
-                ensureActive()
-                task.task.taskState = TaskState.RUNNING
-                withContext(task.task.dispatcher) {
-                    task.task.task(this, task.task)
-                }
-                task.task.taskState = TaskState.COMPLETED
-            } catch (th: Throwable) {
-                if (th is CancellationException) return@withContext
-                task.task.onError(th)
-                onError(th)
-                //有任务出现异常，终止所有安装任务
-                return@withContext
-            } finally {
-                task.task.onFinally()
-            }
-        }
-        try {
-            ensureActive()
-            onInstalled()
-        } catch (_: CancellationException) {
-        }
     }
 
     fun cancelInstall() {
-        job?.cancel()
-        _tasksFlow.update { emptyList() }
+        taskExecutor.cancel()
 
         clearTargetClient()
 
@@ -454,7 +418,7 @@ class GameInstaller(
         tempGameDir: File,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (TitledTask) -> Unit
+        addTask: (title: String, icon: ImageVector?, task: Task) -> Unit
     ) {
         //类似 1.19.3-41.2.8 格式，优先使用 Version 中要求的版本而非 Inherit（例如 1.19.3 却使用了 1.19 的 Forge）
         val (processedInherit, processedLoaderVersion) =
@@ -469,56 +433,51 @@ class GameInstaller(
         val tempInstaller = targetTempForgeLikeInstaller(tempGameDir)
         //下载安装器
         addTask(
-            TitledTask(
-                title = context.getString(
-                    R.string.download_game_install_base_download_file,
-                    forgeLikeVersion.loaderName,
-                    processedLoaderVersion
-                ),
-                task = getForgeLikeDownloadTask(tempInstaller, forgeLikeVersion)
-            )
+            context.getString(
+                R.string.download_game_install_base_download_file,
+                forgeLikeVersion.loaderName,
+                processedLoaderVersion
+            ),
+            null,
+            getForgeLikeDownloadTask(tempInstaller, forgeLikeVersion)
         )
         //分析与安装
         val isNew = forgeLikeVersion is NeoForgeVersion || !forgeLikeVersion.isLegacy
 
         if (isNew) {
             addTask(
-                TitledTask(
-                    title = context.getString(
-                        R.string.download_game_install_forgelike_analyse,
-                        forgeLikeVersion.loaderName
-                    ),
-                    runningIcon = Icons.Outlined.Build,
-                    task = getForgeLikeAnalyseTask(
-                        downloader = downloader,
-                        targetTempInstaller = tempInstaller,
-                        forgeLikeVersion = forgeLikeVersion,
-                        tempMinecraftFolder = tempMinecraftDir,
-                        sourceInherit = info.gameVersion,
-                        processedInherit = processedInherit,
-                        loaderVersion = processedLoaderVersion
-                    )
+                context.getString(
+                    R.string.download_game_install_forgelike_analyse,
+                    forgeLikeVersion.loaderName
+                ),
+                Icons.Outlined.Build,
+                getForgeLikeAnalyseTask(
+                    downloader = downloader,
+                    targetTempInstaller = tempInstaller,
+                    forgeLikeVersion = forgeLikeVersion,
+                    tempMinecraftFolder = tempMinecraftDir,
+                    sourceInherit = info.gameVersion,
+                    processedInherit = processedInherit,
+                    loaderVersion = processedLoaderVersion
                 )
             )
         }
 
         addTask(
-            TitledTask(
-                title = context.getString(
-                    R.string.download_game_install_base_install,
-                    forgeLikeVersion.loaderName
-                ),
-                runningIcon = Icons.Outlined.Build,
-                task = getForgeLikeInstallTask(
-                    isNew = isNew,
-                    downloader = downloader,
-                    forgeLikeVersion = forgeLikeVersion,
-                    tempFolderName = tempFolderName,
-                    tempInstaller = tempInstaller,
-                    tempGameFolder = tempGameDir,
-                    tempMinecraftDir = tempMinecraftDir,
-                    inherit = processedInherit
-                )
+            context.getString(
+                R.string.download_game_install_base_install,
+                forgeLikeVersion.loaderName
+            ),
+            Icons.Outlined.Build,
+            getForgeLikeInstallTask(
+                isNew = isNew,
+                downloader = downloader,
+                forgeLikeVersion = forgeLikeVersion,
+                tempFolderName = tempFolderName,
+                tempInstaller = tempInstaller,
+                tempGameFolder = tempGameDir,
+                tempMinecraftDir = tempMinecraftDir,
+                inherit = processedInherit
             )
         )
     }
@@ -527,37 +486,35 @@ class GameInstaller(
         fabricLikeVersion: FabricLikeVersion,
         tempMinecraftDir: File,
         tempFolderName: String,
-        addTask: (TitledTask) -> Unit
+        addTask: (title: String, icon: ImageVector?, task: Task) -> Unit
     ) {
         val tempVersionJson = File(tempMinecraftDir, "versions/$tempFolderName/$tempFolderName.json")
 
         //下载 Json
         addTask(
-            TitledTask(
-                title = context.getString(
-                    R.string.download_game_install_base_download_file,
-                    fabricLikeVersion.loaderName,
-                    fabricLikeVersion.version
-                ),
-                task = getFabricLikeDownloadTask(
-                    fabricLikeVersion = fabricLikeVersion,
-                    tempVersionJson = tempVersionJson
-                )
+            context.getString(
+                R.string.download_game_install_base_download_file,
+                fabricLikeVersion.loaderName,
+                fabricLikeVersion.version
+            ),
+            null,
+            getFabricLikeDownloadTask(
+                fabricLikeVersion = fabricLikeVersion,
+                tempVersionJson = tempVersionJson
             )
         )
 
         //补全游戏库
         addTask(
-            TitledTask(
-                title = context.getString(
-                    R.string.download_game_install_forgelike_analyse,
-                    fabricLikeVersion.loaderName
-                ),
-                task = getFabricLikeCompleterTask(
-                    downloader = downloader,
-                    tempMinecraftDir = tempMinecraftDir,
-                    tempVersionJson = tempVersionJson
-                )
+            context.getString(
+                R.string.download_game_install_forgelike_analyse,
+                fabricLikeVersion.loaderName
+            ),
+            null,
+            getFabricLikeCompleterTask(
+                downloader = downloader,
+                tempMinecraftDir = tempMinecraftDir,
+                tempVersionJson = tempVersionJson
             )
         )
     }
@@ -590,7 +547,8 @@ class GameInstaller(
         forgeFolder: File? = null,
         neoForgeFolder: File? = null,
         fabricFolder: File? = null,
-        quiltFolder: File? = null
+        quiltFolder: File? = null,
+        onComplete: suspend () -> Unit = {}
     ) = Task.runTask(
         id = GAME_JSON_MERGER_ID,
         dispatcher = Dispatchers.IO,
@@ -640,6 +598,8 @@ class GameInstaller(
             //清除临时游戏目录
             task.updateProgress(-1f, R.string.download_install_clear_temp)
             clearTempGameDir()
+
+            onComplete()
         }
     )
 
@@ -647,7 +607,8 @@ class GameInstaller(
      * 仅原本客户端文件复制任务 json、jar
      */
     private fun createVanillaFilesCopyTask(
-        tempMinecraftDir: File
+        tempMinecraftDir: File,
+        onComplete: suspend () -> Unit = {}
     ): Task {
         return Task.runTask(
             id = "VanillaFilesCopy",
@@ -663,6 +624,8 @@ class GameInstaller(
                 //清除临时游戏目录
                 task.updateProgress(-1f, R.string.download_install_clear_temp)
                 clearTempGameDir()
+
+                onComplete()
             }
         )
     }

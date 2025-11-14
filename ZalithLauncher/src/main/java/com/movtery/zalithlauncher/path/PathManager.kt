@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.path
 
 import android.content.Context
@@ -23,6 +41,7 @@ class PathManager {
         lateinit var DIR_CACHE_MOD_UPDATER: File
         lateinit var DIR_CACHE_APP_ICON: File
         lateinit var DIR_LAUNCHER_LOGS: File
+        lateinit var DIR_NATIVE_LOGS: File
         lateinit var DIR_IMAGE_CACHE: File
         lateinit var DIR_CONTROL_LAYOUTS: File
 
@@ -50,6 +69,7 @@ class PathManager {
             DIR_CACHE_MOD_UPDATER = File(DIR_CACHE, "temp_mod_updater")
             DIR_CACHE_APP_ICON = File(DIR_CACHE, "app_icons")
             DIR_LAUNCHER_LOGS = File(DIR_FILES_EXTERNAL, "logs")
+            DIR_NATIVE_LOGS = File(DIR_LAUNCHER_LOGS, "native")
             DIR_IMAGE_CACHE = File(DIR_CACHE, "images")
             DIR_CONTROL_LAYOUTS = File(DIR_FILES_EXTERNAL, "control_layouts")
 
@@ -74,6 +94,7 @@ class PathManager {
             DIR_CACHE_MOD_UPDATER.mkdirs()
             DIR_CACHE_APP_ICON.mkdirs()
             DIR_LAUNCHER_LOGS.mkdirs()
+            DIR_NATIVE_LOGS.mkdirs()
             DIR_IMAGE_CACHE.mkdirs()
             DIR_CONTROL_LAYOUTS.mkdirs()
         }

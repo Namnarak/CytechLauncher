@@ -1,13 +1,32 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +38,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,7 +71,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -69,6 +87,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.AccountManageScreen
@@ -83,11 +102,12 @@ import com.movtery.zalithlauncher.ui.screens.content.WebViewScreen
 import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
@@ -95,72 +115,72 @@ fun MainScreen(
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxHeight()
+    val tasks by TaskSystem.tasksFlow.collectAsState()
+
+    val isTaskMenuExpanded = AllSettings.launcherTaskMenuExpanded.state
+
+    fun changeTasksExpandedState() {
+        AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
+    }
+
+    /** 回到主页面通用函数 */
+    val toMainScreen: () -> Unit = {
+        screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
+    }
+
+    val isBackgroundValid = LocalBackgroundViewModel.current?.isValid == true
+    val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
+
+    val topBarColor = MaterialTheme.colorScheme.surfaceContainer
+    val backgroundColor = MaterialTheme.colorScheme.surface
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = if (isBackgroundValid) {
+            backgroundColor.copy(alpha = launcherBackgroundOpacity)
+        } else {
+            backgroundColor
+        },
+        contentColor = MaterialTheme.colorScheme.onSurface
     ) {
-        val tasks by TaskSystem.tasksFlow.collectAsState()
-
-        val isTaskMenuExpanded = AllSettings.launcherTaskMenuExpanded.state
-
-        fun changeTasksExpandedState() {
-            AllSettings.launcherTaskMenuExpanded.save(!isTaskMenuExpanded)
-        }
-
-        /** 回到主页面通用函数 */
-        val toMainScreen: () -> Unit = {
-            screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
-        }
-
-        val isBackgroundValid = backgroundViewModel.isValid
-        val launcherBackgroundOpacity = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f
-
-        val topBarColor = MaterialTheme.colorScheme.surfaceContainer
-
-        TopBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .zIndex(10f),
-            mainScreenKey = screenBackStackModel.mainScreen.currentKey,
-            taskRunning = tasks.isEmpty(),
-            isTasksExpanded = isTaskMenuExpanded,
-            color = if (isBackgroundValid) {
-                topBarColor.copy((launcherBackgroundOpacity + 0.1f).coerceAtMost(1f))
-            } else topBarColor,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            onScreenBack = {
-                screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
-            },
-            toMainScreen = toMainScreen,
-            toSettingsScreen = {
-                screenBackStackModel.mainScreen.removeAndNavigateTo(
-                    removes = screenBackStackModel.clearBeforeNavKeys,
-                    screenKey = screenBackStackModel.settingsScreen
-                )
-            },
-            toDownloadScreen = {
-                screenBackStackModel.navigateToDownload()
-            }
-        ) {
-            changeTasksExpandedState()
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            val surfaceColor = MaterialTheme.colorScheme.surface
-
-            Surface(
-                modifier = Modifier.fillMaxSize(),
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .zIndex(10f),
+                mainScreenKey = screenBackStackModel.mainScreen.currentKey,
+                taskRunning = tasks.isEmpty(),
+                isTasksExpanded = isTaskMenuExpanded,
                 color = if (isBackgroundValid) {
-                    surfaceColor.copy(alpha = launcherBackgroundOpacity)
-                } else surfaceColor,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                    topBarColor.copy(alpha = launcherBackgroundOpacity)
+                } else {
+                    topBarColor
+                },
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                onScreenBack = {
+                    screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
+                },
+                toMainScreen = toMainScreen,
+                toSettingsScreen = {
+                    screenBackStackModel.mainScreen.removeAndNavigateTo(
+                        removes = screenBackStackModel.clearBeforeNavKeys,
+                        screenKey = screenBackStackModel.settingsScreen
+                    )
+                },
+                toDownloadScreen = {
+                    screenBackStackModel.navigateToDownload()
+                }
+            ) {
+                changeTasksExpandedState()
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
                 NavigationUI(
                     modifier = Modifier.fillMaxSize(),
@@ -168,21 +188,20 @@ fun MainScreen(
                     toMainScreen = toMainScreen,
                     launchGameViewModel = launchGameViewModel,
                     eventViewModel = eventViewModel,
-                    backgroundViewModel = backgroundViewModel,
                     submitError = submitError
                 )
-            }
 
-            TaskMenu(
-                tasks = tasks,
-                isExpanded = isTaskMenuExpanded,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.3f)
-                    .align(Alignment.CenterStart)
-                    .padding(all = 6.dp)
-            ) {
-                changeTasksExpandedState()
+                TaskMenu(
+                    tasks = tasks,
+                    isExpanded = isTaskMenuExpanded,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.3f)
+                        .align(Alignment.CenterStart)
+                        .padding(all = 6.dp)
+                ) {
+                    changeTasksExpandedState()
+                }
             }
         }
     }
@@ -291,30 +310,32 @@ private fun TopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val taskLayoutY by animateDpAsState(
-                    targetValue = if (isTasksExpanded || taskRunning) (-50).dp else 0.dp,
-                    animationSpec = getAnimateTween()
-                )
-
-                Row(
-                    modifier = Modifier
-                        .offset { IntOffset(x = 0, y = taskLayoutY.roundToPx()) }
-                        .clip(shape = MaterialTheme.shapes.large)
-                        .clickable { changeExpandedState() }
-                        .padding(all = 8.dp)
-                        .width(120.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                AnimatedVisibility(
+                    visible = !(isTasksExpanded || taskRunning),
+                    enter = slideInVertically(
+                        initialOffsetY = { -50 }
+                    ) + fadeIn(),
+                    exit = slideOutVertically(
+                        targetOffsetY = { -50 }
+                    ) + fadeOut()
                 ) {
-                    LinearProgressIndicator(modifier = Modifier.weight(1f))
-                    Icon(
-                        modifier = Modifier.size(22.dp),
-                        imageVector = Icons.Filled.Task,
-                        contentDescription = stringResource(R.string.main_task_menu)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clip(shape = MaterialTheme.shapes.large)
+                            .clickable { changeExpandedState() }
+                            .padding(all = 8.dp)
+                            .width(120.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        LinearProgressIndicator(modifier = Modifier.weight(1f))
+                        Icon(
+                            modifier = Modifier.size(22.dp),
+                            imageVector = Icons.Filled.Task,
+                            contentDescription = stringResource(R.string.main_task_menu)
+                        )
+                    }
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
 
                 TopBarRailItem(
                     selected = inDownloadScreen,
@@ -384,7 +405,6 @@ private fun NavigationUI(
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
-    backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val backStack = screenBackStackModel.mainScreen.backStack
@@ -409,6 +429,8 @@ private fun NavigationUI(
             onBack = {
                 onBack(backStack)
             },
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.LauncherMain> {
                     LauncherScreen(
@@ -425,7 +447,6 @@ private fun NavigationUI(
                             backStack.navigateTo(NormalNavKey.License(raw))
                         },
                         eventViewModel = eventViewModel,
-                        backgroundViewModel = backgroundViewModel,
                         submitError = submitError
                     )
                 }
@@ -584,9 +605,11 @@ fun TaskItem(
     taskMessageRes: Int?,
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
+    influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(),
+    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
     onCancelClick: () -> Unit = {}
 ) {
     Surface(
@@ -594,7 +617,7 @@ fun TaskItem(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = 1.dp
+        shadowElevation = shadowElevation
     ) {
         Row(
             modifier = Modifier.padding(all = 8.dp),

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.utils.file
 
 import android.annotation.SuppressLint
@@ -167,7 +185,11 @@ fun File.ensureDirectorySilently(): Boolean {
     else mkdirs()
 }
 
-fun File.child(vararg paths: String) = File(this, paths.joinToString(File.separator))
+fun File.child(vararg paths: String): File {
+    return paths.fold(this) { acc, path ->
+        File(acc, path.trim().removeSurrounding("/").removeSurrounding("\\"))
+    }
+}
 
 fun InputStream.readString(): String {
     return use {
@@ -335,10 +357,12 @@ fun ZipFile.extractEntryToFile(entry: ZipEntry, outputFile: File) {
 /**
  * 压缩指定目录内的文件到压缩包
  * @param outputZipFile 指定压缩包
+ * @param preserveFileTime 是否保留原始文件的修改时间
  */
 suspend fun zipDirectory(
     sourceDir: File,
-    outputZipFile: File
+    outputZipFile: File,
+    preserveFileTime: Boolean = true
 ) = withContext(Dispatchers.IO) {
     if (!sourceDir.exists() || !sourceDir.isDirectory) {
         throw IllegalArgumentException("Source path must be an existing directory")
@@ -348,6 +372,9 @@ suspend fun zipDirectory(
         sourceDir.walkTopDown().filter { it.isFile }.forEach { file ->
             val entryName = file.relativeTo(sourceDir).path.replace("\\", "/")
             val zipEntry = ZipEntry(entryName)
+            if (preserveFileTime) {
+                zipEntry.time = file.lastModified()
+            }
             zipOut.putNextEntry(zipEntry)
             file.inputStream().use { input ->
                 input.copyTo(zipOut)

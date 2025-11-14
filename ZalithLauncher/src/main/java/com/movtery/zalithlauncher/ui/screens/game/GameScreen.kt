@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,20 +76,16 @@ import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.activities.showExitEditorDialog
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SINGLE
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
-import com.movtery.zalithlauncher.ui.control.control.MinecraftHotbar
-import com.movtery.zalithlauncher.ui.control.control.hotbarPercentage
-import com.movtery.zalithlauncher.ui.control.control.lwjglEvent
+import com.movtery.zalithlauncher.ui.control.MinecraftHotbar
+import com.movtery.zalithlauncher.ui.control.event.KeyEventHandler
+import com.movtery.zalithlauncher.ui.control.event.launcherEvent
+import com.movtery.zalithlauncher.ui.control.event.lwjglEvent
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadKeyListener
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadStickMovementListener
 import com.movtery.zalithlauncher.ui.control.gamepad.SimpleGamepadCapture
 import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
+import com.movtery.zalithlauncher.ui.control.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
 import com.movtery.zalithlauncher.ui.control.input.textInputHandler
@@ -98,7 +93,6 @@ import com.movtery.zalithlauncher.ui.control.mouse.SwitchableMouseLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.DraggableGameBall
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.GameMenuSubscreen
-import com.movtery.zalithlauncher.ui.screens.game.elements.HandleEventKey
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlOperation
@@ -155,11 +149,6 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         if (controlLayerHideState != hideWhen) controlLayerHideState = hideWhen
     }
 
-    /** 所有已按下的按键，与同一键值的同时按下个数 */
-    val pressedKeyEvents = mutableStateMapOf<String, Int>()
-    /** 所有已按下的启动器事件，与同一键值的同时按下个数 */
-    val pressedLauncherEvents = mutableStateMapOf<String, Int>()
-
     /** 虚拟鼠标滚动事件处理 */
     val mouseScrollUpEvent = MouseScrollEvent(viewModelScope, 1.0)
     val mouseScrollDownEvent = MouseScrollEvent(viewModelScope, -1.0)
@@ -188,7 +177,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
      */
     fun startControlEditor(editorVM: EditorViewModel) {
         if (!isEditingLayout) {
-            clearPressedKeys()
+            clearState()
             editorVM.forceChangeLayout(getLayout())
             isEditingLayout = true
         }
@@ -205,14 +194,6 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     /**
-     * 清除所有按键状态
-     */
-    private fun clearPressedKeys() {
-        pressedKeyEvents.clear()
-        pressedLauncherEvents.clear()
-    }
-
-    /**
      * 切换输入法
      */
     fun switchIME() {
@@ -226,13 +207,43 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         this.gameMenuState = this.gameMenuState.next()
     }
 
+    /** 所有已按下的按键 */
+    val pressedKeyEvents = KeyEventHandler { key, pressed ->
+        lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
+    }
+    /** 所有已按下的启动器事件 */
+    val pressedLauncherEvents = KeyEventHandler { key, pressed ->
+        launcherEvent(
+            eventKey = key,
+            isPressed = pressed,
+            onSwitchIME = { switchIME() },
+            onSwitchMenu = { switchMenu() },
+            onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
+            onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
+            onLongScrollUp = { mouseScrollUpEvent.scrollLongPress() },
+            onLongScrollUpCancel = { mouseScrollUpEvent.cancel() },
+            onLongScrollDown = { mouseScrollDownEvent.scrollLongPress() },
+            onLongScrollDownCancel = { mouseScrollDownEvent.cancel() }
+        )
+    }
+
+    /**
+     * 清除所有游戏状态
+     */
+    fun clearState() {
+        mouseScrollUpEvent.cancel()
+        mouseScrollDownEvent.cancel()
+        pressedKeyEvents.clearEvent()
+        pressedLauncherEvents.clearEvent()
+        textInputMode = TextInputMode.DISABLE
+    }
+
     init {
         loadControlLayout()
     }
 
     override fun onCleared() {
-        this.mouseScrollUpEvent.cancel()
-        this.mouseScrollDownEvent.cancel()
+        clearState()
     }
 }
 
@@ -351,47 +362,6 @@ fun GameScreen(
             isGameRendering = isGameRendering
         )
 
-        HandleEventKey(
-            keys = viewModel.pressedKeyEvents,
-            handle = { key, pressed ->
-                lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
-            }
-        )
-        HandleEventKey(
-            keys = viewModel.pressedLauncherEvents,
-            handle = { key, pressed ->
-                if (key.startsWith("GLFW_MOUSE_", false)) {
-                    //处理鼠标事件
-                    lwjglEvent(eventKey = key, isMouse = true, isPressed = pressed)
-                } else {
-                    if (pressed) {
-                        when (key) {
-                            LAUNCHER_EVENT_SWITCH_IME -> { viewModel.switchIME() }
-                            LAUNCHER_EVENT_SWITCH_MENU -> { viewModel.switchMenu() }
-                            LAUNCHER_EVENT_SCROLL_UP_SINGLE -> { viewModel.mouseScrollUpEvent.scrollSingle() }
-                            LAUNCHER_EVENT_SCROLL_DOWN_SINGLE -> { viewModel.mouseScrollDownEvent.scrollSingle() }
-                        }
-                    }
-                    when (key) {
-                        LAUNCHER_EVENT_SCROLL_UP -> {
-                            if (pressed) {
-                                viewModel.mouseScrollUpEvent.scrollLongPress()
-                            } else {
-                                viewModel.mouseScrollUpEvent.cancel()
-                            }
-                        }
-                        LAUNCHER_EVENT_SCROLL_DOWN -> {
-                            if (pressed) {
-                                viewModel.mouseScrollDownEvent.scrollLongPress()
-                            } else {
-                                viewModel.mouseScrollDownEvent.cancel()
-                            }
-                        }
-                    }
-                }
-            }
-        )
-
         if (!viewModel.isEditingLayout) {
             fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
                 val events = when (event.type) {
@@ -399,12 +369,10 @@ fun GameScreen(
                     ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
                     else -> return
                 }
-                //获取当前已按下相同键值的按键个数
-                val count = (events[event.key] ?: 0).coerceAtLeast(0)
                 if (pressed) {
-                    events[event.key] = count + 1
-                } else if (count > 0) {
-                    events[event.key] = count - 1
+                    events.pressKey(event.key)
+                } else {
+                    events.releaseKey(event.key)
                 }
             }
 
@@ -528,7 +496,7 @@ fun GameScreen(
         }
 
         LogBox(
-            enableLog = logState.value,
+            enableLog = !viewModel.isEditingLayout && logState.value,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -606,10 +574,13 @@ fun GameScreen(
                             //按下返回键
                             val events = viewModel.pressedKeyEvents
                             val escape = ControlEventKeycode.GLFW_KEY_ESCAPE
-                            events[escape] = (events[escape] ?: 0).coerceAtLeast(0) + 1
+                            events.pressKey(escape)
                             delay(10)
-                            events[escape] = ((events[escape] ?: 0) - 1).coerceAtLeast(0)
+                            events.releaseKey(escape)
                         }
+                    }
+                    is EventViewModel.Event.Game.OnResume -> {
+                        viewModel.clearState()
                     }
                     else -> { /*忽略*/ }
                 }

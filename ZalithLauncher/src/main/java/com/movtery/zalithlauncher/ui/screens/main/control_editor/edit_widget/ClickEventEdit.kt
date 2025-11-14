@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 
 import androidx.compose.foundation.layout.Arrangement
@@ -41,13 +59,13 @@ import com.movtery.zalithlauncher.game.keycodes.ControlEventKeyName
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
-import com.movtery.zalithlauncher.ui.control.control.Keyboard
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SINGLE
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_IME
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SWITCH_MENU
+import com.movtery.zalithlauncher.ui.control.Keyboard
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_DOWN
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_UP
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_UP_SINGLE
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SWITCH_IME
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SWITCH_MENU
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
@@ -78,11 +96,6 @@ fun EditWidgetClickEvent(
         LaunchedEffect(selectedTabIndex) {
             pagerState.animateScrollToPage(selectedTabIndex)
         }
-        LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
-            if (!pagerState.isScrollInProgress) {
-                selectedTabIndex = pagerState.currentPage
-            }
-        }
 
         //顶贴标签栏
         SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
@@ -101,6 +114,7 @@ fun EditWidgetClickEvent(
 
         HorizontalPager(
             state = pagerState,
+            userScrollEnabled = false,
             modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
         ) { page ->
             when (page) {

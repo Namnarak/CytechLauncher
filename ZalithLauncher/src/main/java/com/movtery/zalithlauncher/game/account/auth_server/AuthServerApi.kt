@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.account.auth_server
 
 import android.content.Context
@@ -10,20 +28,21 @@ import com.movtery.zalithlauncher.game.account.auth_server.models.Refresh
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
+import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.decodeUnicode
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.util.Objects
 import java.util.UUID
@@ -113,7 +132,7 @@ class AuthServerApi(private var baseUrl: String) {
             }
 
             if (response.status == HttpStatusCode.OK) {
-                val result: AuthResult = response.body()
+                val result: AuthResult = response.safeBodyAsJson()
                 onSuccess(result)
             } else {
                 val errorMessage = "(${response.status.value}) ${parseError(response)}"
@@ -130,11 +149,10 @@ class AuthServerApi(private var baseUrl: String) {
 
     private suspend fun parseError(response: HttpResponse): String {
         return try {
-            val res = response.bodyAsText()
-            val json = JSONObject(res)
+            val json = response.safeBodyAsJson<JsonObject>()
             var message = when {
-                json.has("errorMessage") -> json.getString("errorMessage")
-                json.has("message") -> json.getString("message")
+                "errorMessage" in json -> json["errorMessage"]?.jsonPrimitive?.content ?: "Unknown error"
+                "message" in json -> json["message"]?.jsonPrimitive?.content ?: "Unknown error"
                 else -> "Unknown error"
             }
             if (message.contains("\\u")) {
@@ -151,7 +169,7 @@ class AuthServerApi(private var baseUrl: String) {
 suspend fun getAuthServeInfo(url: String): String? = withContext(Dispatchers.IO) {
     val response = GLOBAL_CLIENT.get(url)
     if (response.status == HttpStatusCode.OK) {
-        response.bodyAsText()
+        response.safeBodyAsText()
     } else {
         null
     }

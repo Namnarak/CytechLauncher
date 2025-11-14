@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.version.mod.update
 
 import android.content.Context
@@ -8,24 +26,19 @@ import androidx.compose.material.icons.outlined.CleaningServices
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Schedule
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.coroutine.TaskState
+import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
+import com.movtery.zalithlauncher.coroutine.addTask
+import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -45,16 +58,11 @@ class ModUpdater(
     private val modsDir: File,
     private val minecraft: String,
     private val modLoader: ModLoader,
-    private val scope: CoroutineScope,
+    scope: CoroutineScope,
     private val waitForUserConfirm: suspend (Map<ModData, PlatformVersion>) -> Boolean
 ) {
-    private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
-
-    /**
-     * 当前模组更新任务
-     */
-    var job: Job? = null
+    private val taskExecutor = TaskFlowExecutor(scope)
+    val tasksFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
 
     /**
      * 需要检查新版本的模组列表
@@ -66,215 +74,184 @@ class ModUpdater(
      */
     val allModsUpdate: MutableMap<ModData, PlatformVersion> = mutableMapOf()
 
+    /**
+     * 开始更新所有已选择的模组
+     * @param isRunning 正在运行中，拒绝此次更新请求时
+     * @param onUpdated 已成功更新所有模组
+     * @param onNoModUpdates 没有模组需要被更新时（所有选择的模组都是最新版）
+     * @param onCancelled 更新任务被取消时
+     * @param onError 更新模组时遇到错误
+     */
     fun updateAll(
-        onUpdated: () -> Unit = {},
-        onNoModUpdates: () -> Unit = {},
-        onCancelled: () -> Unit = {},
-        onError: (Throwable) -> Unit = {}
+        isRunning: () -> Unit,
+        onUpdated: () -> Unit,
+        onNoModUpdates: () -> Unit,
+        onCancelled: () -> Unit,
+        onError: (Throwable) -> Unit
     ) {
-        job = scope.launch(Dispatchers.IO) {
-            dataList.clear()
-            allModsUpdate.clear()
-            val tempModUpdaterDir = PathManager.DIR_CACHE_MOD_UPDATER
+        if (taskExecutor.isRunning()) {
+            //正在更新中，阻止这次更新请求
+            isRunning()
+            return
+        }
 
-            val tasks = mutableListOf<TitledTask>()
+        taskExecutor.executePhasesAsync(
+            onStart = {
+                val tasks = getTaskPhases()
+                taskExecutor.addPhases(tasks)
+            },
+            onComplete = onUpdated,
+            onError = { th ->
+                if (th is ModUpdateCancelledException) {
+                    //用户已取消本次更新
+                    onCancelled()
+                    return@executePhasesAsync
+                }
+                if (th is NoModUpdatesAvailableException) {
+                    //所有模组都是最新版本，不需要更新
+                    onNoModUpdates()
+                    return@executePhasesAsync
+                }
+                onError(th)
+            }
+        )
+    }
 
-            //清理缓存
-            tasks.add(
-                TitledTask(
+    private suspend fun getTaskPhases() = withContext(Dispatchers.IO) {
+        dataList.clear()
+        allModsUpdate.clear()
+        val tempModUpdaterDir = PathManager.DIR_CACHE_MOD_UPDATER
+
+        listOf(
+            buildPhase {
+                //清理缓存
+                addTask(
+                    id = "ModUpdater.ClearTemp",
                     title = context.getString(R.string.download_install_clear_temp),
-                    runningIcon = Icons.Outlined.CleaningServices,
-                    task = Task.runTask(
-                        id = "ModUpdater.ClearTemp",
-                        task = {
-                            clearTempModUpdaterDir()
-                            //清理后，重新创建缓存目录
-                            tempModUpdaterDir.createDirAndLog()
-                        }
-                    )
-                )
-            )
+                    icon = Icons.Outlined.CleaningServices
+                ) {
+                    clearTempModUpdaterDir()
+                    //清理后，重新创建缓存目录
+                    tempModUpdaterDir.createDirAndLog()
+                }
 
-            //过滤模组数据
-            tasks.add(
-                TitledTask(
+                //过滤模组数据
+                addTask(
+                    id = "ModUpdater.Filter",
                     title = context.getString(R.string.mods_update_task_filter),
-                    runningIcon = Icons.Outlined.FilterAlt,
-                    task = Task.runTask(
-                        id = "ModUpdater.Filter",
-                        task = { task ->
-                            val totalSize = mods.size
-                            val list = mods.mapIndexedNotNull { index, mod ->
-                                val localFile = mod.localMod.file
-                                //更新进度条
-                                task.updateProgress(
-                                    percentage = (index + 1).toFloat() / totalSize,
-                                    message = R.string.empty_holder,
-                                    localFile.nameWithoutExtension
-                                )
-                                val modFile = mod.remoteFile ?: return@mapIndexedNotNull null
-                                val modProject = mod.projectInfo ?: return@mapIndexedNotNull null
-                                ModData(
-                                    file = localFile,
-                                    modFile = modFile,
-                                    project = modProject,
-                                    mcMod = mod.mcMod
-                                )
-                            }
-                            dataList.addAll(list)
-                        }
-                    )
-                )
-            )
+                    icon = Icons.Outlined.FilterAlt
+                ) { task ->
+                    val totalSize = mods.size
+                    val list = mods.mapIndexedNotNull { index, mod ->
+                        val localFile = mod.localMod.file
+                        //更新进度条
+                        task.updateProgress(
+                            percentage = (index + 1).toFloat() / totalSize,
+                            message = R.string.empty_holder,
+                            localFile.nameWithoutExtension
+                        )
+                        val modFile = mod.remoteFile ?: return@mapIndexedNotNull null
+                        val modProject = mod.projectInfo ?: return@mapIndexedNotNull null
+                        ModData(
+                            file = localFile,
+                            modFile = modFile,
+                            project = modProject,
+                            mcMod = mod.mcMod
+                        )
+                    }
+                    dataList.addAll(list)
+                }
 
-            //检查更新
-            tasks.add(
-                TitledTask(
+                //检查更新
+                addTask(
+                    id = "ModUpdater.CheckUpdate",
                     title = context.getString(R.string.mods_update_task_check_update),
-                    runningIcon = Icons.Default.Checklist,
-                    task = Task.runTask(
-                        id = "ModUpdater.CheckUpdate",
-                        task = { task ->
-                            dataList.forEachIndexed { index, data ->
-                                task.updateProgress(
-                                    percentage = (index + 1).toFloat() / dataList.size,
-                                    message = R.string.empty_holder,
-                                    data.project.title
-                                )
-                                // 检查更新
-                                data.checkUpdate(minecraft, modLoader)?.let { version ->
-                                    allModsUpdate[data] = version
-                                }
-                            }
-
-                            if (allModsUpdate.isEmpty()) {
-                                //所有模组都是最新版本，无需更新
-                                throw NoModUpdatesAvailableException()
-                            }
+                    icon = Icons.Default.Checklist
+                ) { task ->
+                    dataList.forEachIndexed { index, data ->
+                        task.updateProgress(
+                            percentage = (index + 1).toFloat() / dataList.size,
+                            message = R.string.empty_holder,
+                            data.project.title
+                        )
+                        // 检查更新
+                        data.checkUpdate(minecraft, modLoader)?.let { version ->
+                            allModsUpdate[data] = version
                         }
-                    )
-                )
-            )
+                    }
 
-            //等待用户确认模组更新
-            tasks.add(
-                TitledTask(
+                    if (allModsUpdate.isEmpty()) {
+                        //所有模组都是最新版本，无需更新
+                        throw NoModUpdatesAvailableException()
+                    }
+                }
+
+                //等待用户确认模组更新
+                addTask(
+                    id = "ModUpdater.WaitForUser",
                     title = context.getString(R.string.mods_update_task_wait_for_user),
-                    runningIcon = Icons.Outlined.Schedule,
-                    task = Task.runTask(
-                        id = "ModUpdater.WaitForUser",
-                        task = {
-                            if (!waitForUserConfirm(allModsUpdate.toMap())) {
-                                //用户取消了更新，这里抛出取消异常，结束全部任务
-                                throw ModUpdateCancelledException()
-                            }
-                        }
-                    )
-                )
-            )
+                    icon = Icons.Outlined.Schedule
+                ) {
+                    if (!waitForUserConfirm(allModsUpdate.toMap())) {
+                        //用户取消了更新，这里抛出取消异常，结束全部任务
+                        throw ModUpdateCancelledException()
+                    }
+                }
 
-            //下载新版本模组
-            tasks.add(
-                TitledTask(
-                    title = context.getString(R.string.mods_update_task_download),
-                    task = Task.runTask(
-                        id = "ModUpdater.UpdateMod",
-                        task = { task ->
-                            val mods = allModsUpdate.values.toList()
-                            val updater = ModVersionUpdater(mods, tempModUpdaterDir)
-                            updater.startDownload(task)
-                        }
-                    )
-                )
-            )
+                //下载新版本模组
+                addTask(
+                    id = "ModUpdater.UpdateMod",
+                    title = context.getString(R.string.mods_update_task_download)
+                ) { task ->
+                    val mods = allModsUpdate.values.toList()
+                    val updater = ModVersionUpdater(mods, tempModUpdaterDir)
+                    updater.startDownload(task)
+                }
 
-            //替换模组文件
-            tasks.add(
-                TitledTask(
+                //替换模组文件
+                addTask(
+                    id = " ModUpdater.ReplaceMod",
                     title = context.getString(R.string.mods_update_task_replace),
-                    runningIcon = Icons.Outlined.Build,
-                    task = Task.runTask(
-                        id = " ModUpdater.ReplaceMod",
-                        task = { task ->
-                            val totalCount = allModsUpdate.entries.size
-                            allModsUpdate.entries.forEachIndexed { index, entry ->
-                                val oldMod = entry.key
-                                val newVersion = entry.value
+                    icon = Icons.Outlined.Build
+                ) { task ->
+                    val totalCount = allModsUpdate.entries.size
+                    allModsUpdate.entries.forEachIndexed { index, entry ->
+                        val oldMod = entry.key
+                        val newVersion = entry.value
 
-                                val oldFile = oldMod.file
-                                val newFileName = newVersion.platformFileName()
-                                val cacheFile = File(tempModUpdaterDir, newFileName)
+                        val oldFile = oldMod.file
+                        val newFileName = newVersion.platformFileName()
+                        val cacheFile = File(tempModUpdaterDir, newFileName)
 
-                                task.updateProgress(
-                                    percentage = (index + 1).toFloat() / totalCount,
-                                    message = R.string.empty_holder,
-                                    oldFile.name
-                                )
+                        task.updateProgress(
+                            percentage = (index + 1).toFloat() / totalCount,
+                            message = R.string.empty_holder,
+                            oldFile.name
+                        )
 
-                                //确保所有文件都有效
-                                if (modsDir.exists() && oldFile.exists() && cacheFile.exists()) {
-                                    FileUtils.deleteQuietly(oldFile)
-                                    val newFile = File(modsDir, newFileName)
-                                    cacheFile.copyTo(target = newFile, overwrite = true)
-                                }
-                            }
+                        //确保所有文件都有效
+                        if (modsDir.exists() && oldFile.exists() && cacheFile.exists()) {
+                            FileUtils.deleteQuietly(oldFile)
+                            val newFile = File(modsDir, newFileName)
+                            cacheFile.copyTo(target = newFile, overwrite = true)
                         }
-                    )
-                )
-            )
+                    }
+                }
 
-            //清理缓存
-            tasks.add(
-                TitledTask(
+                //清理缓存
+                addTask(
+                    id = "ModUpdater.ClearTempEnds",
                     title = context.getString(R.string.download_install_clear_temp),
-                    runningIcon = Icons.Outlined.CleaningServices,
-                    task = Task.runTask(
-                        id = "ModUpdater.ClearTempEnds",
-                        task = {
-                            clearTempModUpdaterDir()
-                        }
-                    )
-                )
-            )
-
-            _tasksFlow.update { tasks }
-
-            for (task in tasks) {
-                try {
-                    ensureActive()
-                    task.task.taskState = TaskState.RUNNING
-                    withContext(task.task.dispatcher) {
-                        task.task.task(this, task.task)
-                    }
-                    task.task.taskState = TaskState.COMPLETED
-                } catch (th: Throwable) {
-                    if (th is ModUpdateCancelledException) {
-                        //用户已取消本次更新
-                        onCancelled()
-                        return@launch
-                    }
-                    if (th is NoModUpdatesAvailableException) {
-                        //所有模组都是最新版本，不需要更新
-                        onNoModUpdates()
-                        return@launch
-                    }
-                    if (th is CancellationException) return@launch
-                    task.task.onError(th)
-                    onError(th)
-                    //有任务出现异常，终止所有任务
-                    return@launch
-                } finally {
-                    task.task.onFinally()
+                    icon = Icons.Outlined.CleaningServices
+                ) {
+                    clearTempModUpdaterDir()
                 }
             }
-
-            onUpdated()
-        }
+        )
     }
 
     fun cancel() {
-        job?.cancel()
-        _tasksFlow.update { emptyList() }
+        taskExecutor.cancel()
     }
 
     /**

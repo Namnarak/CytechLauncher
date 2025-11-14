@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content
 
 import androidx.compose.animation.core.Animatable
@@ -28,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
@@ -41,6 +60,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.BaseFileItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.CreateNewDirDialog
@@ -131,8 +151,7 @@ fun FileSelectorScreen(
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(7.5f)
-                        .padding(start = 12.dp),
-                    itemColor = itemLayoutColor()
+                        .padding(start = 12.dp)
                 )
             }
         }
@@ -227,8 +246,7 @@ private fun FilesLayout(
     currentPath: File,
     updatePath: (File) -> Unit,
     selectFile: Boolean,
-    modifier: Modifier = Modifier,
-    itemColor: Color
+    modifier: Modifier = Modifier
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
@@ -262,8 +280,7 @@ private fun FilesLayout(
                                 if (!selectFile && file.isDirectory) {
                                     updatePath(file)
                                 }
-                            },
-                            color = itemColor
+                            }
                         )
                     }
                 }
@@ -282,7 +299,8 @@ private fun FileItem(
     modifier: Modifier = Modifier,
     file: File,
     onClick: () -> Unit = {},
-    color: Color
+    color: Color = itemLayoutColor(),
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -292,7 +310,7 @@ private fun FileItem(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         color = color,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = onClick
     ) {
         BaseFileItem(

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.account.yggdrasil
 
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
@@ -6,8 +24,8 @@ import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileExcepti
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
-import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -105,7 +123,7 @@ suspend fun getPlayerProfile(
 ) = runCatching {
     GLOBAL_CLIENT.get("$apiUrl/minecraft/profile") {
         header(HttpHeaders.Authorization, "Bearer $accessToken")
-    }.body<PlayerProfile>()
+    }.safeBodyAsJson<PlayerProfile>()
 }.onFailure { e ->
     if (e is ResponseException) {
         when (e.response.status.value) {

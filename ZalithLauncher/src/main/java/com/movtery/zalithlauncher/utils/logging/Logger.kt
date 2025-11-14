@@ -1,15 +1,33 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.utils.logging
 
 import android.content.Context
 import android.util.Log
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.utils.file.zipDirectory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.ByteArrayOutputStream
@@ -66,7 +84,7 @@ object Logger : CoroutineScope {
                 Level.WARNING,
                 "Failed to create log file", e
             )
-            runBlocking { channel.send(logMessage) }
+            channel.send(logMessage)
             inMemoryLogs = ByteArrayOutputStream(1024 * 1024) // 1MB buffer
             logWriter = PrintWriter(inMemoryLogs!!)
         }
@@ -204,6 +222,18 @@ object Logger : CoroutineScope {
         }?.let {
             val className = it.className.substringAfterLast('.')
             "$className.${it.methodName}"
+        }
+    }
+
+    /**
+     * 打包所有日志文件
+     */
+    suspend fun pack(target: File) {
+        withContext(Dispatchers.IO) {
+            zipDirectory(
+                sourceDir = PathManager.DIR_LAUNCHER_LOGS,
+                outputZipFile = target
+            )
         }
     }
 }

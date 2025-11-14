@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.addons.modloader.optifine
 
 import com.movtery.zalithlauncher.game.addons.mirror.MirrorSource
@@ -9,14 +27,13 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
+import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.compareVersion
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import io.ktor.utils.io.charsets.Charset
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -86,8 +103,7 @@ object OptiFineVersions {
                     GLOBAL_CLIENT.get(OPTIFINE_DOWNLOAD_URL)
                 }
 
-                val bytes: ByteArray = response.body()
-                val html = bytes.toString(Charset.defaultCharset())
+                val html = response.safeBodyAsText()
                 if (html.length < 100) {
                     throw ResponseTooShortException("Response too short")
                 }
@@ -182,7 +198,7 @@ object OptiFineVersions {
 
             try {
                 val tokens: List<OptiFineVersionToken> = withContext(Dispatchers.IO) {
-                    GLOBAL_CLIENT.get("https://bmclapi2.bangbang93.com/optifine/versionList").body()
+                    GLOBAL_CLIENT.get("https://bmclapi2.bangbang93.com/optifine/versionList").safeBodyAsJson()
                 }
 
                 tokens.map { token ->
@@ -232,7 +248,7 @@ object OptiFineVersions {
                 }
             }
 
-            val html = response.bodyAsText()
+            val html = response.safeBodyAsText()
 
             val match = Regex("""downloadx\?f=[^"'<>]+""").find(html)
             val downloadPath = match?.value

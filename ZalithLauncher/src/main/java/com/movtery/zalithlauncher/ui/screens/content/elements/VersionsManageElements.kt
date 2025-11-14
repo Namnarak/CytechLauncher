@@ -1,6 +1,25 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,10 +65,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
@@ -69,6 +89,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
@@ -272,7 +293,7 @@ fun VersionCategoryItem(
     versionsCount: Int,
     selected: Boolean,
     shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = itemLayoutColor(),
+    backgroundColor: Color = itemLayoutColor(influencedByBackground = false),
     selectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = MaterialTheme.typography.labelMedium,
@@ -633,6 +654,7 @@ fun VersionItemLayout(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
     onSelected: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onRenameClick: () -> Unit = {},
@@ -648,7 +670,7 @@ fun VersionItemLayout(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {
             if (selected) return@Surface
             onSelected()
@@ -820,31 +842,45 @@ fun VersionIconImage(
     modifier: Modifier = Modifier,
     refreshKey: Any? = null
 ) {
-    val context = LocalContext.current
-
-    val defaultRes = R.drawable.img_minecraft
-    val model = remember(version, refreshKey, context) {
-        if (version == null) return@remember defaultRes
-        val iconFile = VersionsManager.getVersionIconFile(version)
-        if (iconFile.exists()) iconFile else getLoaderIconRes(version)
+    val model = remember(version, refreshKey) {
+        version?.let {
+            val iconFile = VersionsManager.getVersionIconFile(it)
+            when {
+                iconFile.exists() -> iconFile
+                else -> getLoaderIconRes(it)
+            }
+        } ?: R.drawable.img_minecraft
     }
 
-    AsyncImage(
-        model = model,
-        modifier = modifier,
-        contentScale = ContentScale.Fit,
-        contentDescription = null
-    )
+    when (model) {
+        is Int -> {
+            Image(
+                painter = painterResource(id = model),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+        else -> {
+            AsyncImage(
+                model = model,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = modifier
+            )
+        }
+    }
 }
 
 private fun getLoaderIconRes(version: Version): Int {
-    return when(version.getVersionInfo()?.loaderInfo?.loader) {
+    return when (version.getVersionInfo()?.loaderInfo?.loader) {
         ModLoader.FABRIC -> R.drawable.img_loader_fabric
         ModLoader.FORGE -> R.drawable.img_anvil
         ModLoader.QUILT -> R.drawable.img_loader_quilt
         ModLoader.NEOFORGE -> R.drawable.img_loader_neoforge
         ModLoader.OPTIFINE -> R.drawable.img_loader_optifine
         ModLoader.LITE_LOADER -> R.drawable.img_chicken_old
+        ModLoader.CLEANROOM -> R.drawable.img_loader_cleanroom
         else -> R.drawable.img_minecraft
     }
 }

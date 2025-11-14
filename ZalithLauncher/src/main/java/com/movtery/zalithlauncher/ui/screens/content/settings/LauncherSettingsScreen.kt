@@ -54,7 +54,6 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
-import com.movtery.zalithlauncher.ui.base.FullScreenComponentActivity
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.IconTextButton
@@ -66,11 +65,13 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsLa
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.file.zipDirectory
+import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -85,7 +86,7 @@ fun LauncherSettingsScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
-    backgroundViewModel: BackgroundViewModel,
+    eventViewModel: EventViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
@@ -145,34 +146,35 @@ fun LauncherSettingsScreen(
                         title = stringResource(R.string.settings_launcher_full_screen_title),
                         summary = stringResource(R.string.settings_launcher_full_screen_summary),
                         onCheckedChange = {
-                            val activity = context as? FullScreenComponentActivity
-                            activity?.fullScreenViewModel?.triggerRefresh()
+                            eventViewModel.sendEvent(EventViewModel.Event.RefreshFullScreen)
                         }
                     )
                 }
             }
 
             //启动器背景设置板块
-            AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
-                ) {
-                    CustomBackground(
-                        modifier = Modifier.fillMaxWidth(),
-                        backgroundViewModel = backgroundViewModel,
-                        submitError = submitError
-                    )
+            LocalBackgroundViewModel.current?.let { backgroundViewModel ->
+                AnimatedItem(scope) { yOffset ->
+                    SettingsBackground(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                    ) {
+                        CustomBackground(
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundViewModel = backgroundViewModel,
+                            submitError = submitError
+                        )
 
-                    SliderSettingsLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        unit = AllSettings.launcherBackgroundOpacity,
-                        title = stringResource(R.string.settings_launcher_background_opacity_title),
-                        summary = stringResource(R.string.settings_launcher_background_opacity_summary),
-                        valueRange = 20f..100f,
-                        suffix = "%",
-                        enabled = backgroundViewModel.isValid,
-                        fineTuningControl = true
-                    )
+                        SliderSettingsLayout(
+                            modifier = Modifier.fillMaxWidth(),
+                            unit = AllSettings.launcherBackgroundOpacity,
+                            title = stringResource(R.string.settings_launcher_background_opacity_title),
+                            summary = stringResource(R.string.settings_launcher_background_opacity_summary),
+                            valueRange = 20f..100f,
+                            suffix = "%",
+                            enabled = backgroundViewModel.isValid,
+                            fineTuningControl = true
+                        )
+                    }
                 }
             }
 
@@ -255,10 +257,7 @@ fun LauncherSettingsScreen(
                                     task = { task ->
                                         task.updateProgress(-1f, R.string.settings_launcher_log_share_packing)
                                         val logsFile = File(PathManager.DIR_CACHE, "logs.zip")
-                                        zipDirectory(
-                                            PathManager.DIR_LAUNCHER_LOGS,
-                                            logsFile
-                                        )
+                                        Logger.pack(logsFile)
                                         task.updateProgress(1f, null)
                                         //分享压缩包
                                         shareFile(

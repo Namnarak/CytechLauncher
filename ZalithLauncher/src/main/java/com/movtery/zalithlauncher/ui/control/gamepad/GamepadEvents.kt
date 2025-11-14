@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.control.gamepad
 
 import android.view.InputDevice
@@ -21,14 +39,15 @@ import com.movtery.zalithlauncher.game.keycodes.Lwjgl2Keycode
 import com.movtery.zalithlauncher.game.keycodes.MinecraftKeyBindingMapper
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
-import com.movtery.zalithlauncher.ui.control.control.LAUNCHER_EVENT_SCROLL_UP_SINGLE
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
+import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_UP_SINGLE
 import com.movtery.zalithlauncher.viewmodel.GamepadRemapperViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.withContext
 
 /**
  * 简单的手柄摇杆、按键事件捕获层
@@ -79,7 +98,7 @@ fun SimpleGamepadCapture(
         }
 
         val keyListener = View.OnKeyListener { _, keyCode, keyEvent ->
-            if (keyEvent.isFromGamepad()) {
+            if (keyEvent.isGamepadKeyEvent()) {
                 if (isBinding()) {
                     remapperViewModel.sendEvent(
                         GamepadRemapperViewModel.Event.Button(keyCode, keyEvent)
@@ -107,20 +126,42 @@ fun SimpleGamepadCapture(
     }
 
     LaunchedEffect(gamepadViewModel.gamepadEngaged, isBinding) {
-        while (true) {
-            try {
-                ensureActive()
-                if (isBinding()) break
+        withContext(Dispatchers.Default) {
+            while (true) {
+                try {
+                    ensureActive()
+                    val binding = withContext(Dispatchers.Main) { isBinding() }
+                    if (binding) break
 
-                //检查手柄活动状态
-                val pollLevel = gamepadViewModel.checkGamepadActive()
-                if (pollLevel == GamepadViewModel.PollLevel.Close) break
+                    //检查手柄活动状态
+                    val pollLevel = gamepadViewModel.checkGamepadActive()
+                    if (pollLevel == GamepadViewModel.PollLevel.Close) break
 
-                gamepadViewModel.pollJoystick()
-                delay(pollLevel.delayMs)
-            } catch (_: CancellationException) {
-                break
+                    gamepadViewModel.pollJoystick()
+                    delay(pollLevel.delayMs)
+                } catch (_: CancellationException) {
+                    break
+                }
             }
+        }
+    }
+}
+
+/**
+ * 手柄事件监听者
+ * @param listener 事件回调
+ */
+@Composable
+private fun GamepadEventListener(
+    gamepadViewModel: GamepadViewModel,
+    listener: (GamepadViewModel.Event) -> Unit,
+    onDisposeCallback: (() -> Unit)? = null
+) {
+    DisposableEffect(gamepadViewModel) {
+        gamepadViewModel.addListener(listener)
+        onDispose {
+            onDisposeCallback?.invoke()
+            gamepadViewModel.removeListener(listener)
         }
     }
 }
@@ -159,8 +200,9 @@ fun GamepadKeyListener(
     val lastPressKey = remember { mutableStateMapOf<Int, List<ClickEvent>>() }
     val lastPressDpad = remember { mutableStateMapOf<DpadDirection, List<ClickEvent>>() }
 
-    LaunchedEffect(gamepadViewModel) {
-        gamepadViewModel.events.collect { event ->
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
             currentOnAction()
 
             when (event) {
@@ -195,8 +237,21 @@ fun GamepadKeyListener(
                 }
                 else -> {}
             }
+        },
+        onDisposeCallback = {
+            //松开所有正在按下的按键
+            lastPressKey.forEach { (_, events) ->
+                currentOnKeyEvent(events, false)
+            }
+
+            lastPressDpad.forEach { (_, events) ->
+                currentOnKeyEvent(events, false)
+            }
+
+            lastPressKey.clear()
+            lastPressDpad.clear()
         }
-    }
+    )
 }
 
 /**
@@ -213,23 +268,25 @@ fun GamepadStickCameraListener(
     val currentIsGrabbing by rememberUpdatedState(isGrabbing)
     val joystickControlMode by rememberUpdatedState(AllSettings.joystickControlMode.state)
     val onOffsetEvent1 by rememberUpdatedState(onOffsetEvent)
-    LaunchedEffect(gamepadViewModel) {
-        gamepadViewModel.events
-            .filterIsInstance<GamepadViewModel.Event.StickOffset>()
-            .collect { event ->
-            if (currentIsGrabbing) {
-                val cameraStick = when (joystickControlMode) {
-                    JoystickMode.RightMovement -> JoystickType.Left
-                    JoystickMode.LeftMovement -> JoystickType.Right
-                }
-                if (event.joystickType == cameraStick) {
+
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
+            if (event is GamepadViewModel.Event.StickOffset) {
+                if (currentIsGrabbing) {
+                    val cameraStick = when (joystickControlMode) {
+                        JoystickMode.RightMovement -> JoystickType.Left
+                        JoystickMode.LeftMovement -> JoystickType.Right
+                    }
+                    if (event.joystickType == cameraStick) {
+                        onOffsetEvent1(event.offset)
+                    }
+                } else {
                     onOffsetEvent1(event.offset)
                 }
-            } else {
-                onOffsetEvent1(event.offset)
             }
         }
-    }
+    )
 }
 
 //W
@@ -325,13 +382,13 @@ fun GamepadStickMovementListener(
         }
     }
 
-    LaunchedEffect(gamepadViewModel) {
-        gamepadViewModel.events
-            .filterIsInstance<GamepadViewModel.Event.StickDirection>()
-            .collect { event ->
+    GamepadEventListener(
+        gamepadViewModel = gamepadViewModel,
+        listener = { event ->
+            if (event is GamepadViewModel.Event.StickDirection) {
                 if (!currentIsGrabbing) {
                     clearPressedEvent()
-                    return@collect
+                    return@GamepadEventListener
                 }
 
                 val movementStick = when (joystickControlMode) {
@@ -339,7 +396,7 @@ fun GamepadStickMovementListener(
                     JoystickMode.LeftMovement -> JoystickType.Left
                 }
 
-                if (event.joystickType != movementStick) return@collect
+                if (event.joystickType != movementStick) return@GamepadEventListener
 
                 allAction.forEach { key ->
                     sendKeyEvent(key, false)
@@ -349,7 +406,11 @@ fun GamepadStickMovementListener(
                     sendKeyEvent(key, pressed)
                 }
             }
-    }
+        },
+        onDisposeCallback = {
+            clearPressedEvent()
+        }
+    )
 }
 
 /**
@@ -370,21 +431,10 @@ fun KeyEvent.getDeviceName(): String {
  * 检查触摸事件是否来自手柄
  */
 fun MotionEvent.isGamepadEvent(): Boolean {
-    val source = this.source
-    return (source and InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
-            (source and InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
-            (source and InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD ||
-            (source and InputDevice.SOURCE_CLASS_JOYSTICK) == InputDevice.SOURCE_CLASS_JOYSTICK
-}
-
-/**
- * 检查按键事件是否来自手柄
- */
-fun KeyEvent.isFromGamepad(): Boolean {
-    val source = this.source
-    return (source and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD) ||
-            (source and InputDevice.SOURCE_JOYSTICK == InputDevice.SOURCE_JOYSTICK) ||
-            (source and InputDevice.SOURCE_DPAD == InputDevice.SOURCE_DPAD)
+    return isFromSource(InputDevice.SOURCE_JOYSTICK) ||
+            isFromSource(InputDevice.SOURCE_GAMEPAD) ||
+            isFromSource(InputDevice.SOURCE_DPAD) ||
+            isFromSource(InputDevice.SOURCE_CLASS_JOYSTICK)
 }
 
 fun MotionEvent.isJoystickMoving(): Boolean {

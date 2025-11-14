@@ -1,6 +1,25 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.control.input
 
 import android.os.Bundle
+import android.os.Handler
 import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
@@ -176,7 +195,17 @@ private class TextInputNode(
         private var composingEnd = -1
 
         override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
-            finishComposingText()
+            //如果当前有组合文本，先删除组合区
+            if (composingStart in 0..<composingEnd) {
+                val safeStart = composingStart.coerceIn(0, textBuffer.length)
+                val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                if (safeStart < safeEnd) {
+                    textBuffer.delete(safeStart, safeEnd)
+                    cursorPosition = safeStart
+                }
+                composingStart = -1
+                composingEnd = -1
+            }
 
             //插入提交的文本
             textBuffer.insert(cursorPosition, text)
@@ -249,35 +278,39 @@ private class TextInputNode(
         override fun getSelectedText(p0: Int): CharSequence? = null
 
         override fun setComposingText(text: CharSequence, newCursorPosition: Int): Boolean {
-            //如果有活动的组合文本，先删除它
-            if (composingStart >= 0 && composingEnd > composingStart) {
-                textBuffer.delete(composingStart, composingEnd)
-                cursorPosition = composingStart
+            //删除当前组合区
+            if (composingStart in 0..<composingEnd) {
+                val safeStart = composingStart.coerceIn(0, textBuffer.length)
+                val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                textBuffer.delete(safeStart, safeEnd)
+                cursorPosition = safeStart
             } else {
-                //如果没有活动的组合文本，但光标位置不在缓冲区末尾，可能需要调整
-                //这确保输入法总是在正确的位置插入组合文本
+                //如果没有明确的组合区，但输入法重新开始组合，删除可能的末尾重复
+                if (cursorPosition < textBuffer.length) {
+                    textBuffer.delete(cursorPosition, textBuffer.length)
+                }
                 composingStart = cursorPosition
             }
 
             //插入新的组合文本
             textBuffer.insert(cursorPosition, text)
             composingStart = cursorPosition
-            composingEnd = cursorPosition + text.length
-            cursorPosition = if (newCursorPosition > 0) {
-                composingStart + newCursorPosition
-            } else {
-                composingEnd + newCursorPosition
-            }.coerceIn(composingStart, composingEnd)
+            composingEnd = composingStart + text.length
+            cursorPosition = composingEnd
 
             updateInputMethodState()
             return true
         }
 
         override fun finishComposingText(): Boolean {
-            if (composingStart >= 0 && composingEnd > composingStart) {
+            if (composingStart in 0..<composingEnd) {
                 //提交组合文本
-                val composedText = textBuffer.substring(composingStart, composingEnd)
-                composedText.forEach { char -> sender.sendChar(char) }
+                val safeStart = composingStart.coerceIn(0, textBuffer.length)
+                val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                if (safeStart < safeEnd) {
+                    val composedText = textBuffer.substring(safeStart, safeEnd)
+                    composedText.forEach { char -> sender.sendChar(char) }
+                }
 
                 composingStart = -1
                 composingEnd = -1
@@ -349,7 +382,7 @@ private class TextInputNode(
 
         override fun getCursorCapsMode(p0: Int): Int = 0
 
-        override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText? {
+        override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
             return ExtractedText().apply {
                 text = textBuffer
                 startOffset = 0
@@ -360,7 +393,7 @@ private class TextInputNode(
             }
         }
 
-        override fun getHandler() = null
+        override fun getHandler(): Handler? = null
 
         private fun updateCursorAnchorInfo() {
             imm.updateCursorAnchorInfo(
@@ -368,8 +401,12 @@ private class TextInputNode(
                 CursorAnchorInfo.Builder().apply {
                     setSelectionRange(cursorPosition, cursorPosition)
                     //设置组合文本范围
-                    if (composingStart >= 0 && composingEnd > composingStart) {
-                        setComposingText(composingStart, textBuffer.substring(composingStart, composingEnd))
+                    if (composingStart in 0..<composingEnd) {
+                        val safeStart = composingStart.coerceIn(0, textBuffer.length)
+                        val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                        if (safeStart < safeEnd) {
+                            setComposingText(safeStart, textBuffer.substring(safeStart, safeEnd))
+                        }
                     }
                     setInsertionMarkerLocation(
                         fakeCursorRect.left.toFloat(),

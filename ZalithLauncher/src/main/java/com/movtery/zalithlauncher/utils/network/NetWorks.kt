@@ -1,6 +1,25 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.utils.network
 
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_JSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -9,15 +28,38 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
 import io.ktor.http.contentType
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.decodeFromStream
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
+
+@OptIn(ExperimentalSerializationApi::class)
+suspend inline fun <reified T> HttpResponse.safeBodyAsJson(): T {
+    return GLOBAL_JSON.decodeFromStream(bodyAsChannel().toInputStream())
+}
+
+suspend fun HttpResponse.safeBodyAsText(): String {
+    val channel = bodyAsChannel()
+    return channel.toInputStream().bufferedReader().use { reader ->
+        val buffer = CharArray(8 * 1024)
+        val sb = StringBuilder()
+        var read: Int
+        while (reader.read(buffer).also { read = it } != -1) {
+            sb.append(buffer, 0, read)
+        }
+        sb.toString()
+    }
+}
 
 suspend inline fun <reified T> submitForm(
     url: String,
@@ -42,10 +84,10 @@ suspend inline fun <reified T> httpPostJson(
         contentType(ContentType.Application.Json)
         headers?.takeIf { it.isNotEmpty() }?.forEach { (k, v) -> header(k, v) }
         setBody(body)
-    }.body()
+    }.safeBodyAsJson()
 }
 
-suspend inline fun <reified T> httpGet(
+suspend inline fun <reified T> httpGetJson(
     url: String,
     headers: List<Pair<String, Any?>>? = null,
     parameters: Parameters? = null,
@@ -58,7 +100,7 @@ suspend inline fun <reified T> httpGet(
                 this.parameters.appendAll(value)
             }
         }
-    }.body()
+    }.safeBodyAsJson()
 }
 
 suspend fun <T> withRetry(

@@ -1,9 +1,28 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.download.assets.search
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -117,8 +136,9 @@ private fun rememberSearchAssetsViewModel(
     initialPlatform: Platform,
     platformClasses: PlatformClasses
 ): SearchScreenViewModel {
+    val screenKey = navKey.toString()
     return viewModel(
-        key = navKey.toString()
+        key = "${screenKey}_search"
     ) {
         SearchScreenViewModel(initialPlatform, platformClasses)
     }
@@ -137,6 +157,7 @@ private fun rememberSearchAssetsViewModel(
  * @param getModloaders 根据平台获取可用的模组加载器过滤器
  * @param mapCategories 通过平台获取类别本地化信息
  * @param swapToDownload 跳转到下载详情页
+ * @param extraFilter 额外的过滤器UI
  */
 @Composable
 fun SearchAssetsScreen(
@@ -152,7 +173,8 @@ fun SearchAssetsScreen(
     enableModLoader: Boolean = false,
     getModloaders: (Platform) -> List<PlatformDisplayLabel> = { emptyList() },
     mapCategories: (Platform, String) -> PlatformFilterCode?,
-    swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> }
+    swapToDownload: (Platform, projectId: String, iconUrl: String?) -> Unit = { _, _, _ -> },
+    extraFilter: (LazyListScope.() -> Unit)? = null
 ) {
     val viewModel: SearchScreenViewModel = rememberSearchAssetsViewModel(
         navKey = screenKey,
@@ -272,7 +294,8 @@ fun SearchAssetsScreen(
                     viewModel.researchWithFilter(
                         viewModel.searchFilter.copy(modloader = it)
                     )
-                }
+                },
+                extraFilter = extraFilter
             )
         }
     }

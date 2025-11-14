@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.compose.foundation.Image
@@ -37,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -58,6 +77,7 @@ import com.movtery.zalithlauncher.path.URL_WEBLATE
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
@@ -245,6 +265,7 @@ private fun LinkIconItem(
     openLink: (() -> Unit)? = null,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
     useImage: Boolean = true
 ) {
     Surface(
@@ -252,7 +273,7 @@ private fun LinkIconItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {}
     ) {
         Row(
@@ -331,13 +352,14 @@ private fun ButtonIconItem(
     onButtonClick: () -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     Surface(
         modifier = modifier,
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {}
     ) {
         Row(
@@ -385,13 +407,14 @@ private fun PluginInfoItem(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     Surface(
         modifier = modifier,
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {}
     ) {
         val context = LocalContext.current
@@ -458,6 +481,7 @@ private fun LibraryInfoItem(
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation(),
     openLicense: (Int) -> Unit,
     openLink: (url: String) -> Unit
 ) {
@@ -466,7 +490,7 @@ private fun LibraryInfoItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 1.dp,
+        shadowElevation = shadowElevation,
         onClick = {}
     ) {
         Row(

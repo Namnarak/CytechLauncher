@@ -3,6 +3,7 @@
     <string name="generic_cancel">取消</string>
     <string name="generic_confirm">確認</string>
     <string name="generic_error">錯誤</string>
+    <string name="generic_tip">提示</string>
     <string name="generic_warning">警告</string>
     <string name="generic_back">返回</string>
     <string name="generic_refresh">重新整理</string>
@@ -278,6 +279,23 @@
     <string name="download_assets_features_items">物品</string>
     <string name="download_assets_features_locale">在地化</string>
     <string name="download_assets_features_models">模型</string>
+    <!--  导入整合包  -->
+    <string name="import_modpack">匯入整合包</string>
+    <string name="import_modpack_tip">您可以自行匯入本地整合包文件，啟動器目前支援以下格式：</string>
+    <string name="import_modpack_task_unpack">匯入並解壓文件</string>
+    <string name="import_modpack_task_parse">解析整合包</string>
+    <string name="import_modpack_task_extract_files">提取整合包文件</string>
+    <string name="import_modpack_task_extract_files_and_schedule_download">提取並建立下載任務</string>
+    <string name="import_modpack_not_supported_title">不支援的整合包</string>
+    <string name="import_modpack_not_supported_formats">啟動器不支援此整合包格式，目前支援以下格式：</string>
+    <string name="import_modpack_not_supported_text1">啟動器無法匯入此整合包，可能原因如下：</string>
+    <string name="import_modpack_not_supported_text2">① 整合包已損壞，無法解壓或解析</string>
+    <string name="import_modpack_not_supported_text3">② 您選擇的文件可能不是壓縮包</string>
+    <string name="import_modpack_not_supported_text4">請查看整合包作者的相關說明，以取得正確的匯入方式。</string>
+    <string name="import_modpack_finished_title">匯入成功</string>
+    <string name="import_modpack_finished_text">您選擇的整合包已成功安裝！</string>
+    <string name="import_modpack_failed_title">匯入失敗</string>
+    <string name="import_modpack_failed_text">安裝整合包時發生錯誤：</string>
     <!--  版本描述  -->
     <string name="version_summary_fools_the_love_and_hugs_update">愛與擁抱更新，讓世界充滿和平與彩虹。</string>
     <string name="version_summary_fools_trendy_update">未來已來！我們為 Minecraft 加入了現代科技！</string>

@@ -1,11 +1,31 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.version.download
 
 import android.content.Context
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.versioninfo.models.GameManifest
+import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -18,9 +38,11 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
@@ -87,7 +109,7 @@ class MinecraftDownloader(
             onError = { e ->
                 lError("Failed to download Minecraft!", e)
                 val message = when(e) {
-                    is CancellationException -> return@runTask
+                    is CancellationException, is InterruptedIOException -> return@runTask
                     is FileNotFoundException -> context.getString(R.string.minecraft_download_failed_notfound)
                     is DownloadFailedException -> {
                         val failedUrls = downloadFailedTasks.map { it.urls.joinToString(", ") }
@@ -104,44 +126,52 @@ class MinecraftDownloader(
         task: Task,
         tasks: List<DownloadTask>,
         taskMessageRes: Int
-    ) = coroutineScope {
-        downloadFailedTasks.clear()
+    ) = withContext(Dispatchers.IO) {
+        coroutineScope {
+            downloadFailedTasks.clear()
 
-        val semaphore = Semaphore(maxDownloadThreads)
+            val semaphore = Semaphore(maxDownloadThreads)
 
-        val downloadJobs = tasks.map { downloadTask ->
-            launch {
-                semaphore.withPermit {
-                    downloadTask.download()
+            val downloadJobs = tasks.map { downloadTask ->
+                launch {
+                    semaphore.withPermit {
+                        downloadTask.download()
+                    }
                 }
             }
-        }
 
-        val progressJob = launch(Dispatchers.Main) {
-            while (isActive) {
-                try {
-                    ensureActive()
-                    val currentFileSize = downloadedFileSize.get()
-                    val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
-                    task.updateProgress(
-                        (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
-                        taskMessageRes,
-                        downloadedFileCount.get(), totalFileCount.get(), //文件个数
-                        formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
-                    )
-                    delay(100)
-                } catch (_: CancellationException) {
-                    break //取消
+            val progressJob = launch(Dispatchers.Main) {
+                while (isActive) {
+                    try {
+                        ensureActive()
+                        val currentFileSize = downloadedFileSize.get()
+                        val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
+                        task.updateProgress(
+                            (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
+                            taskMessageRes,
+                            downloadedFileCount.get(), totalFileCount.get(), //文件个数
+                            formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
+                        )
+                        delay(100)
+                    } catch (_: CancellationException) {
+                        break //取消
+                    } catch (_: InterruptedIOException) {
+                        break //取消
+                    }
                 }
             }
-        }
 
-        try {
-            downloadJobs.joinAll()
-        } catch (e: CancellationException) {
-            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-        } finally {
-            progressJob.cancel()
+            try {
+                downloadJobs.joinAll()
+            } catch (e: CancellationException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw e
+            } catch (e: InterruptedIOException) {
+                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+                throw CancellationException("Task interrupted", e)
+            } finally {
+                progressJob.cancel()
+            }
         }
     }
 
@@ -156,7 +186,7 @@ class MinecraftDownloader(
             downloader.createVersionJson(it, clientName, clientVersionsDir)
         } ?: throw IllegalArgumentException("Version not found: $version")
 
-        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
+        commonScheduleDownloads(gameManifest, null, clientName, clientVersionsDir)
     }
 
     private suspend fun progressDownloadTasks(
@@ -164,28 +194,57 @@ class MinecraftDownloader(
         clientName: String,
         clientVersionsDir: File = downloader.versionsTarget
     ) {
-        if (gameManifest.inheritsFrom != null) { //优先尝试解析原版
-            val selectedVersion = downloader.findVersion(gameManifest.inheritsFrom)
-            selectedVersion?.let {
-                downloader.createVersionJson(it)
-            }?.let { gameManifest1 ->
-                progressDownloadTasks(gameManifest1, gameManifest.inheritsFrom)
-            }
+        val inheritsFrom = downloader.takeIf {
+            gameManifest.inheritsFrom != null
+        }?.findVersion(gameManifest.inheritsFrom)
+
+        //优先尝试解析原版
+        inheritsFrom?.let {
+            downloader.createVersionJson(it)
+        }?.let { gameManifest1 ->
+            progressDownloadTasks(gameManifest1, gameManifest.inheritsFrom)
         }
 
-        commonScheduleDownloads(gameManifest, clientName, clientVersionsDir)
+        commonScheduleDownloads(
+            gameManifest = gameManifest,
+            inheritsFrom = inheritsFrom,
+            clientName = clientName,
+            clientVersionsDir = clientVersionsDir
+        )
     }
 
     private suspend fun commonScheduleDownloads(
         gameManifest: GameManifest,
+        inheritsFrom: VersionManifest.Version? = null,
         clientName: String,
         clientVersionsDir: File
     ) {
         val assetsIndex = downloader.createAssetIndex(downloader.assetIndexTarget, gameManifest)
 
-        downloader.loadClientJarDownload(gameManifest, clientName, clientVersionsDir) { urls, hash, targetFile, size ->
-            scheduleDownload(urls, hash, targetFile, size)
-        }
+        downloader.loadClientJarDownload(
+            gameManifest = gameManifest,
+            clientName = clientName,
+            mcFolder = clientVersionsDir,
+            scheduleDownload = { urls, hash, targetFile, size ->
+                scheduleDownload(urls, hash, targetFile, size)
+            },
+            scheduleCopy = { targetFile ->
+                inheritsFrom?.let { inheritsFrom ->
+                    val inheritsJar = downloader.getVersionJarPath(inheritsFrom.id)
+
+                    allDownloadTasks.find {
+                        it.targetFile.absolutePath == inheritsJar.absolutePath
+                    }?.let { task ->
+                        task.fileDownloadedTask = {
+                            if (!targetFile.exists() && inheritsJar.exists()) {
+                                inheritsJar.copyTo(targetFile, overwrite = true)
+                                lInfo("Copied ${inheritsJar.absolutePath} to ${targetFile.absolutePath}")
+                            }
+                        }
+                    }
+                }
+            }
+        )
         downloader.loadAssetsDownload(assetsIndex) { urls, hash, targetFile, size ->
             scheduleDownload(urls, hash, targetFile, size)
         }

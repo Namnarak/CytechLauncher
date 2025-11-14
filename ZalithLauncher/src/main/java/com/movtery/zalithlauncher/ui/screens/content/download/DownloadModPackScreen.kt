@@ -1,10 +1,30 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.download
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -49,12 +69,11 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.download.DownloadAssetsScreen
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.search.SearchModPackScreen
-import com.movtery.zalithlauncher.ui.screens.content.download.common.ModPackInstallOperation
-import com.movtery.zalithlauncher.ui.screens.content.download.common.VersionNameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.isFilenameInvalid
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -66,6 +85,28 @@ import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+
+/** 整合包安装状态操作 */
+private sealed interface ModPackInstallOperation {
+    data object None : ModPackInstallOperation
+    /** 警告整合包的兼容性，同意后将进行安装 */
+    data class Warning(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
+    /** 开始安装 */
+    data class Install(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
+    /** 警告通知权限，可以无视，并直接开始安装 */
+    data class WarningForNotification(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
+    /** 整合包安装出现异常 */
+    data class Error(val th: Throwable) : ModPackInstallOperation
+    /** 整合包已成功安装 */
+    data object Success : ModPackInstallOperation
+}
+
+/** 整合包版本名称自定义状态操作 */
+private sealed interface VersionNameOperation {
+    data object None : VersionNameOperation
+    /** 等待用户输入版本名称 */
+    data class Waiting(val info: ModPackInfo) : VersionNameOperation
+}
 
 private class ModPackViewModel: ViewModel() {
     var installOperation by mutableStateOf<ModPackInstallOperation>(ModPackInstallOperation.None)
@@ -108,6 +149,10 @@ private class ModPackViewModel: ViewModel() {
             waitForVersionName = ::waitForVersionName
         ).also {
             it.installModPack(
+                isRunning = {
+                    installer = null
+                    installOperation = ModPackInstallOperation.None
+                },
                 onInstalled = {
                     installer = null
                     VersionsManager.refresh()
@@ -172,9 +217,10 @@ fun DownloadModPackScreen(
         }
     )
 
+    //用户确认版本名称 操作流程
     VersionNameOperation(
         operation = viewModel.versionNameOperation,
-        confirmVersionName = { name ->
+        onConfirmVersionName = { name ->
             viewModel.confirmVersionName(name)
         }
     )
@@ -190,6 +236,8 @@ fun DownloadModPackScreen(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
             ),
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
                 entry<NormalNavKey.SearchModPack> {
                     SearchModPackScreen(
@@ -264,6 +312,8 @@ private fun ModPackInstallOperation(
                 text = {
                     Text(text = stringResource(R.string.download_modpack_warning1))
                     Text(text = stringResource(R.string.download_modpack_warning2))
+
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.download_modpack_warning3),
                         fontWeight = FontWeight.Bold
@@ -353,39 +403,55 @@ private fun ModPackInstallOperation(
 @Composable
 private fun VersionNameOperation(
     operation: VersionNameOperation,
-    confirmVersionName: (String) -> Unit
+    onConfirmVersionName: (String) -> Unit
 ) {
     when (operation) {
         is VersionNameOperation.None -> {}
         is VersionNameOperation.Waiting -> {
             val modpackInfo = operation.info
-            var name by remember { mutableStateOf(modpackInfo.name) }
-            var errorMessage by remember { mutableStateOf("") }
-
-            val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
-                errorMessage = message
-            } || VersionsManager.validateVersionName(name, null) { message ->
-                errorMessage = message
-            }
-
-            SimpleEditDialog(
-                title = stringResource(R.string.download_install_input_version_name_title),
-                value = name,
-                onValueChange = { name = it },
-                isError = isError,
-                supportingText = {
-                    when {
-                        name.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
-                        isError -> Text(text = errorMessage)
-                    }
-                },
-                singleLine = true,
-                onConfirm = {
-                    if (!isError) {
-                        confirmVersionName(name)
-                    }
-                }
+            ModpackVersionNameDialog(
+                name = modpackInfo.name,
+                onConfirmVersionName = onConfirmVersionName
             )
         }
     }
+}
+
+/**
+ * 将要安装的整合包版本名称
+ * @param name 预填写的整合包版本名称
+ * @param onConfirmVersionName 用户输入并确认了版本名称
+ */
+@Composable
+fun ModpackVersionNameDialog(
+    name: String,
+    onConfirmVersionName: (String) -> Unit
+) {
+    var name by remember { mutableStateOf(name) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
+        errorMessage = message
+    } || VersionsManager.validateVersionName(name, null) { message ->
+        errorMessage = message
+    }
+
+    SimpleEditDialog(
+        title = stringResource(R.string.download_install_input_version_name_title),
+        value = name,
+        onValueChange = { name = it },
+        isError = isError,
+        supportingText = {
+            when {
+                name.isEmpty() -> Text(text = stringResource(R.string.generic_cannot_empty))
+                isError -> Text(text = errorMessage)
+            }
+        },
+        singleLine = true,
+        onConfirm = {
+            if (!isError) {
+                onConfirmVersionName(name)
+            }
+        }
+    )
 }

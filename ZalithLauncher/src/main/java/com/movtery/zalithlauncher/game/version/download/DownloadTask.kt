@@ -1,13 +1,34 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.version.download
 
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorList
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InterruptedIOException
 
 class DownloadTask(
     val urls: List<String>,
@@ -21,6 +42,11 @@ class DownloadTask(
     private val onFileDownloadedSize: (Long) -> Unit = {},
     private val onFileDownloaded: () -> Unit = {}
 ) {
+    /**
+     * 文件下载成功后执行的任务
+     */
+    var fileDownloadedTask: (suspend () -> Unit)? = null
+
     suspend fun download() {
         //若目标文件存在，验证通过或关闭完整性验证时，跳过此次下载
         if (verifySha1()) {
@@ -42,7 +68,7 @@ class DownloadTask(
             }
             downloadedFile()
         }.onFailure { e ->
-            if (e is CancellationException) return@onFailure
+            if (e is CancellationException || e is InterruptedIOException) return@onFailure
             lError("Download failed: ${targetFile.absolutePath}\nurls: ${urls.joinToString("\n")}", e)
             if (!isDownloadable && e is FileNotFoundException) throw e
             onDownloadFailed(this)
@@ -53,8 +79,11 @@ class DownloadTask(
         onFileDownloadedSize(size)
     }
 
-    private fun downloadedFile() {
+    private suspend fun downloadedFile() {
         onFileDownloaded()
+        withContext(Dispatchers.IO) {
+            fileDownloadedTask?.invoke()
+        }
     }
 
     /**

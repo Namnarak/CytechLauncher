@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.launch
 
 import androidx.collection.ArrayMap
@@ -10,6 +28,7 @@ import com.movtery.zalithlauncher.game.multirt.Runtime
 import com.movtery.zalithlauncher.game.path.getAssetsHome
 import com.movtery.zalithlauncher.game.path.getLibrariesHome
 import com.movtery.zalithlauncher.game.version.download.artifactToPath
+import com.movtery.zalithlauncher.game.version.download.filterLibrary
 import com.movtery.zalithlauncher.game.version.download.getLibraryReplacement
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.getGameManifest
@@ -29,7 +48,7 @@ import com.movtery.zalithlauncher.utils.string.toUnicodeEscaped
 import java.io.File
 
 class LaunchArgs(
-    private val launcher: Launcher,
+    private val runtimeLibraryPath: String,
     private val account: Account,
     private val offlineServer: OfflineYggdrasilServer,
     private val gameDirPath: File,
@@ -157,7 +176,7 @@ class LaunchArgs(
         varArgMap["classpath_separator"] = ":"
         varArgMap["library_directory"] = getLibrariesHome()
         varArgMap["version_name"] = gameManifest1.id
-        varArgMap["natives_directory"] = launcher.libraryPath
+        varArgMap["natives_directory"] = runtimeLibraryPath
         setLauncherInfo(varArgMap)
 
         fun Any.processJvmArg(): String? = (this as? String)?.let {
@@ -236,6 +255,8 @@ class LaunchArgs(
      * @return 库相对路径
      */
     private fun GameManifest.Library.progressLibrary(): String? {
+        if (filterLibrary()) return null
+
         var path = artifactToPath(this)
 
         val versionSegment = name.split(":").getOrNull(2) ?: return path
@@ -257,7 +278,7 @@ class LaunchArgs(
         varArgMap["auth_uuid"] = account.profileId.replace("-", "")
         varArgMap["auth_xuid"] = account.xUid ?: ""
         varArgMap["assets_root"] = getAssetsHome()
-        varArgMap["assets_index_name"] = gameManifest.assets
+        varArgMap["assets_index_name"] = gameManifest.assetIndex.id
         varArgMap["game_assets"] = getAssetsHome()
         varArgMap["game_directory"] = gameDirPath.absolutePath
         varArgMap["user_properties"] = "{}"

@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import androidx.compose.animation.core.Animatable
@@ -88,6 +106,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
+import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
@@ -236,9 +255,6 @@ fun SavesManagerScreen(
 
             when (viewModel.savesState) {
                 is LoadingState.None -> {
-                    val itemColor = itemLayoutColor()
-                    val itemContentColor = MaterialTheme.colorScheme.onSurface
-
                     var savesOperation by remember { mutableStateOf<SavesOperation>(SavesOperation.None) }
                     fun runProgress(task: () -> Unit) {
                         operationScope.launch(Dispatchers.IO) {
@@ -281,8 +297,6 @@ fun SavesManagerScreen(
                                 .padding(horizontal = 8.dp)
                                 .padding(top = 4.dp)
                                 .fillMaxWidth(),
-                            inputFieldColor = itemColor,
-                            inputFieldContentColor = itemContentColor,
                             savesFilter = viewModel.savesFilter,
                             onSavesFilterChange = { viewModel.updateFilter(it) },
                             savesDir = savesDir,
@@ -298,8 +312,6 @@ fun SavesManagerScreen(
                             savesList = viewModel.filteredSaves,
                             quickPlay = quickPlay,
                             minecraftVersion = minecraftVersion,
-                            itemColor = itemColor,
-                            itemContentColor = itemContentColor,
                             updateOperation = { savesOperation = it }
                         )
                     }
@@ -317,14 +329,15 @@ fun SavesManagerScreen(
 @Composable
 private fun SavesActionsHeader(
     modifier: Modifier,
-    inputFieldColor: Color,
-    inputFieldContentColor: Color,
     savesFilter: SavesFilter,
     onSavesFilterChange: (SavesFilter) -> Unit,
     savesDir: File,
     swapToDownload: () -> Unit,
     refreshSaves: () -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    inputFieldColor: Color = itemLayoutColor(),
+    inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     Column(modifier = modifier) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -343,6 +356,7 @@ private fun SavesActionsHeader(
                     },
                     color = inputFieldColor,
                     contentColor = inputFieldContentColor,
+                    shadowElevation = shadowElevation,
                     singleLine = true
                 )
 
@@ -419,8 +433,6 @@ private fun SavesList(
     savesList: List<SaveData>?,
     quickPlay: VersionInfo.QuickPlay,
     minecraftVersion: String,
-    itemColor: Color,
-    itemContentColor: Color,
     updateOperation: (SavesOperation) -> Unit
 ) {
     savesList?.let { list ->
@@ -438,9 +450,7 @@ private fun SavesList(
                         saveData = saveData,
                         quickPlay = quickPlay,
                         minecraftVersion = minecraftVersion,
-                        updateOperation = updateOperation,
-                        itemColor = itemColor,
-                        itemContentColor = itemContentColor
+                        updateOperation = updateOperation
                     )
                 }
             }
@@ -469,9 +479,9 @@ private fun SaveItemLayout(
     minecraftVersion: String,
     onClick: () -> Unit = {},
     updateOperation: (SavesOperation) -> Unit = {},
-    itemColor: Color,
-    itemContentColor: Color,
-    shadowElevation: Dp = 1.dp
+    itemColor: Color = itemLayoutColor(),
+    itemContentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = itemLayoutShadowElevation()
 ) {
     //存档是否与当前 MC 版本兼容
     val isCompatible = saveData.isCompatible(minecraftVersion)

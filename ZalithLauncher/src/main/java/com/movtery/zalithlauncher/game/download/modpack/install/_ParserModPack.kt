@@ -1,17 +1,30 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.download.modpack.install
 
-import com.google.gson.JsonParseException
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
-import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
-import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCurseForge
-import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
-import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.getGameVersion
-import com.movtery.zalithlauncher.game.version.installed.VersionFolders
+import com.movtery.zalithlauncher.game.version.modpack.platform.AbstractPack
+import com.movtery.zalithlauncher.game.version.modpack.platform.curseforge.CurseForgePack
+import com.movtery.zalithlauncher.game.version.modpack.platform.modrinth.ModrinthPack
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
@@ -19,161 +32,105 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
-import java.util.zip.ZipFile
+import org.apache.commons.compress.archivers.zip.ZipFile as ApacheZipFile
+import java.util.zip.ZipFile as JdkZipFile
 
 /**
- * 根据平台，分别处理不同的整合包
+ * 用于统一解析流程的整合包解析配置
+ * @param manifestPath 清单文件在压缩包内的位置
+ * @param manifestType 清单文件类型（用于反序列化的类）
+ * @param createPack 通过清单创建通用整合包格式
+ * @param readPack 使用创建的通用整合包格式生成 [ModPackInfo]
  */
+private data class PackParserConfig<M, P : AbstractPack>(
+    val manifestPath: String,
+    val manifestType: Class<M>,
+    val createPack: (manifest: M) -> P,
+    val readPack: suspend P.(Task, File, suspend (String, File) -> Unit) -> ModPackInfo
+)
+
 suspend fun parserModPack(
     file: File,
     platform: Platform,
     targetFolder: File,
     task: Task
-) = withContext(Dispatchers.IO) {
+): ModPackInfo = withContext(Dispatchers.IO) {
     when (platform) {
         Platform.CURSEFORGE -> {
-            curseforge(
-                file = file,
-                targetFolder = targetFolder,
-                task = task
+            val config = PackParserConfig(
+                manifestPath = "manifest.json",
+                manifestType = CurseForgeManifest::class.java,
+                createPack = { CurseForgePack(it) },
+                readPack = { task, target, extract ->
+                    readCurseForge(task, target, extract)
+                }
             )
+            parseModPackGeneric(file, targetFolder, task, config)
         }
         Platform.MODRINTH -> {
-            modrinth(
-                file = file,
-                targetFolder = targetFolder,
-                task = task
+            val config = PackParserConfig(
+                manifestPath = "modrinth.index.json",
+                manifestType = ModrinthManifest::class.java,
+                createPack = { ModrinthPack(it) },
+                readPack = { task, target, extract ->
+                    readModrinth(task, target, extract)
+                }
             )
+            parseModPackGeneric(file, targetFolder, task, config)
         }
     }
 }
 
-private suspend fun curseforge(
+/**
+ * 使用 [JdkZipFile] 工具尝试解析，如果出现问题，将使用 [ApacheZipFile] 工具兜底解析
+ */
+suspend fun <T> withZipFile(
+    file: File,
+    loaderJdk: suspend (JdkZipFile) -> T,
+    loaderApache: suspend (ApacheZipFile) -> T
+): T {
+    return try {
+        JdkZipFile(file).use { loaderJdk(it) }
+    } catch (e: Exception) {
+        lWarning("JDK ZipFile failed to parse ${file.name}, fallback to Apache ZipFile.", e)
+        ApacheZipFile.builder().setFile(file).get().use { loaderApache(it) }
+    }
+}
+
+/**
+ * 通用整合包解析逻辑
+ */
+private suspend fun <M, P : AbstractPack> parseModPackGeneric(
     file: File,
     targetFolder: File,
-    task: Task
-) = withContext(Dispatchers.IO) {
-    ZipFile(file).use { zip ->
+    task: Task,
+    config: PackParserConfig<M, P>
+): ModPackInfo = withZipFile(
+    file = file,
+    loaderJdk = { zip ->
         task.updateProgress(-1f)
 
-        val manifestString = zip.readText("manifest.json")
-        val manifest = GSON.fromJson(manifestString, CurseForgeManifest::class.java)
+        val json = zip.readText(config.manifestPath)
+        val manifest = GSON.fromJson(json, config.manifestType)
+        val pack = config.createPack(manifest)
 
-        val modsFolder = File(targetFolder, VersionFolders.MOD.folderName)
-
-        //获取全部需要下载的模组文件
-        val totalCount = manifest.files.size
-        val files = manifest.files.mapIndexed { index, manifestFile ->
-            val modFile = if (manifestFile.fileName.isNullOrBlank() || manifestFile.getFileUrl() == null) {
-                ModFile(
-                    getFile = {
-                        runCatching {
-                            val version = getVersionFromCurseForge(
-                                projectID = manifestFile.projectID.toString(),
-                                fileID = manifestFile.fileID.toString()
-                            ).data
-                            //获取项目
-                            val project = getProjectFromCurseForge(
-                                projectID = manifestFile.projectID.toString()
-                            ).data
-                            //通过项目类型指定目标下载目录
-                            val folder = project.classId?.folderName?.let { folderName ->
-                                File(targetFolder, folderName)
-                            } ?: modsFolder
-                            ModFile(
-                                outputFile = File(folder, version.fileName!!),
-                                downloadUrls = listOf(version.downloadUrl!!),
-                                sha1 = version.getSHA1()
-                            )
-                        }.onFailure { e ->
-                            when (e) {
-                                is FileNotFoundException -> lWarning("Could not query api.curseforge.com for deleted mods: ${manifestFile.projectID}, ${manifestFile.fileID}", e)
-                                is IOException, is JsonParseException -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
-                            }
-                        }.getOrNull()
-                    }
-                )
-            } else {
-                ModFile(
-                    outputFile = File(modsFolder, manifestFile.fileName),
-                    downloadUrls = listOf(manifestFile.getFileUrl()!!)
-                )
-            }
-            task.updateProgress(
-                percentage = index.toFloat() / totalCount.toFloat(),
-                message =  R.string.download_modpack_install_get_mod_url,
-                index, totalCount
-            )
-            modFile
+        config.readPack(pack, task, targetFolder) { internal, out ->
+            zip.extractFromZip(internal, out)
         }
-
-        //获取模组加载器信息
-        val loaders = manifest.minecraft.modLoaders.mapNotNull { modloader ->
-            val id = modloader.id
-            if (id.startsWith("forge-")) ModLoader.FORGE to id.removePrefix("forge-")
-            else if (id.startsWith("fabric-")) ModLoader.FABRIC to id.removePrefix("fabric-")
-            else if (id.startsWith("neoforge-")) ModLoader.NEOFORGE to id.removePrefix("neoforge-")
-            else null
-        }
-
-        //解压覆盖包到目标目录
-        task.updateProgress(-1f, R.string.download_modpack_install_overrides)
-        zip.extractFromZip(manifest.overrides ?: "overrides", targetFolder)
-
-        ModPackInfo(
-            name = manifest.name,
-            files = files,
-            loaders = loaders,
-            gameVersion = manifest.minecraft.gameVersion
-        )
-    }
-}
-
-private suspend fun modrinth(
-    file: File,
-    targetFolder: File,
-    task: Task
-) = withContext(Dispatchers.IO) {
-    ZipFile(file).use { zip ->
+    },
+    loaderApache = { zip ->
         task.updateProgress(-1f)
 
-        val indexString = zip.readText("modrinth.index.json")
-        val manifest = GSON.fromJson(indexString, ModrinthManifest::class.java)
+        val entry = zip.getEntry(config.manifestPath)
+            ?: throw IOException("${config.manifestPath} not found in ${file.name}")
 
-        //获取所有需要下载的模组文件
-        val files = manifest.files.mapNotNull { manifestFile ->
-            //客户端不支持
-            if (manifestFile.env?.client == "unsupported") return@mapNotNull null
-            ModFile(
-                outputFile = File(targetFolder, manifestFile.path),
-                downloadUrls = manifestFile.downloads.toList(),
-                sha1 = manifestFile.hashes.sha1
-            )
+        val json = zip.getInputStream(entry).bufferedReader().readText()
+        val manifest = GSON.fromJson(json, config.manifestType)
+        val pack = config.createPack(manifest)
+
+        config.readPack(pack, task, targetFolder) { internal, out ->
+            zip.extractFromZip(internal, out)
         }
-
-        //获取加载器信息
-        val loaders = manifest.dependencies.entries.mapNotNull { (id, version) ->
-            when (id) {
-                "forge" -> ModLoader.FORGE to version
-                "neoforge" -> ModLoader.NEOFORGE to version
-                "fabric-loader" -> ModLoader.FABRIC to version
-                "quilt-loader" -> ModLoader.QUILT to version
-                else -> null
-            }
-        }
-
-        //解压覆盖包到目标目录
-        task.updateProgress(-1f, R.string.download_modpack_install_overrides)
-        zip.extractFromZip("overrides", targetFolder)
-
-        ModPackInfo(
-            name = manifest.name,
-            summary = manifest.summary,
-            files = files,
-            loaders = loaders,
-            gameVersion = manifest.getGameVersion()
-        )
     }
-}
+)

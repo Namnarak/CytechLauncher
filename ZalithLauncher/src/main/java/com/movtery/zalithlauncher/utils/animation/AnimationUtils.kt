@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.utils.animation
 
 import androidx.compose.animation.core.AnimationSpec
@@ -16,7 +34,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
  * 获取动画的持续时长
  */
 fun getAnimateSpeed(): Int = calculateAnimationTime(
-    AllSettings.launcherAnimateSpeed.getValue().coerceIn(0, 10),
+    AllSettings.launcherAnimateSpeed.state.coerceIn(0, 10),
     1500,
     0.1f
 )
@@ -27,7 +45,7 @@ fun getAnimateSpeed(): Int = calculateAnimationTime(
 fun getAdjustedDelayMillis(baseDelayMillis: Int): Int {
     if (baseDelayMillis == 0) return 0
     val adjustedAnimationTime = calculateAnimationTime(
-        AllSettings.launcherAnimateSpeed.getValue().coerceIn(0, 10),
+        AllSettings.launcherAnimateSpeed.state.coerceIn(0, 10),
         baseDelayMillis
     )
     return adjustedAnimationTime
@@ -94,7 +112,7 @@ fun <E> getSwapAnimateTween(
 ): FiniteAnimationSpec<E> {
     val adjustedDelayMillis = getAdjustedDelayMillis(delayMillis)
     return if (swapIn) {
-        when (AllSettings.launcherSwapAnimateType.getValue()) {
+        when (AllSettings.launcherSwapAnimateType.state) {
             TransitionAnimationType.CLOSE -> snap()
             TransitionAnimationType.BOUNCE -> getAnimateTweenBounce(adjustedDelayMillis)
             TransitionAnimationType.JELLY_BOUNCE -> getAnimateTweenJellyBounce(adjustedDelayMillis)
@@ -138,7 +156,7 @@ fun getTargetValueByAmplitude(
 fun swapAnimateDpAsState(
     targetValue: Dp,
     swapIn: Boolean,
-    amplitude: Int = AllSettings.launcherAnimateExtent.getValue(),
+    amplitude: Int = AllSettings.launcherAnimateExtent.state,
     isHorizontal: Boolean = false,
     delayMillis: Int = 0
 ): State<Dp> {
@@ -159,7 +177,7 @@ fun swapAnimateDpAsState(
 fun swapAnimateDpAsState(
     targetValue: Dp,
     swapIn: Boolean,
-    amplitude: Int = AllSettings.launcherAnimateExtent.getValue(),
+    amplitude: Int = AllSettings.launcherAnimateExtent.state,
     isHorizontal: Boolean = false,
     animationSpec: AnimationSpec<Dp>
 ): State<Dp> {
