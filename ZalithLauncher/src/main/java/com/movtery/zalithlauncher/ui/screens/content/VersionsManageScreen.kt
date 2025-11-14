@@ -38,7 +38,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,6 +64,7 @@ import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.activities.MainActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -346,59 +346,54 @@ private fun VersionsLayout(
             )
 
             Column(modifier = Modifier.fillMaxSize()) {
-                val scrollState = rememberScrollState()
-                Row(
-                    modifier = Modifier
-                        .fadeEdge(
-                            state = scrollState,
-                            length = 32.dp,
-                            direction = EdgeDirection.Horizontal
+                CardTitleLayout {
+                    val scrollState = rememberScrollState()
+                    Row(
+                        modifier = Modifier
+                            .fadeEdge(
+                                state = scrollState,
+                                length = 32.dp,
+                                direction = EdgeDirection.Horizontal
+                            )
+                            .fillMaxWidth()
+                            .horizontalScroll(state = scrollState)
+                            .padding(all = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconTextButton(
+                            onClick = onRefresh,
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = stringResource(R.string.generic_refresh),
+                            text = stringResource(R.string.generic_refresh),
                         )
-                        .fillMaxWidth()
-                        .horizontalScroll(state = scrollState)
-                        .padding(all = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconTextButton(
-                        onClick = onRefresh,
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh),
-                        text = stringResource(R.string.generic_refresh),
-                    )
-                    IconTextButton(
-                        onClick = onInstall,
-                        imageVector = Icons.Filled.Download,
-                        contentDescription = stringResource(R.string.versions_manage_install_new),
-                        text = stringResource(R.string.versions_manage_install_new),
-                    )
-                    //版本分类
-                    VersionCategoryItem(
-                        value = VersionCategory.ALL,
-                        versionsCount = VersionsManager.allVersionsCount(),
-                        selected = versionCategory == VersionCategory.ALL,
-                        onClick = { onCategoryChange(VersionCategory.ALL) }
-                    )
-                    VersionCategoryItem(
-                        value = VersionCategory.VANILLA,
-                        versionsCount = VersionsManager.vanillaVersionsCount(),
-                        selected = versionCategory == VersionCategory.VANILLA,
-                        onClick = { onCategoryChange(VersionCategory.VANILLA) }
-                    )
-                    VersionCategoryItem(
-                        value = VersionCategory.MODLOADER,
-                        versionsCount = VersionsManager.modloaderVersionsCount(),
-                        selected = versionCategory == VersionCategory.MODLOADER,
-                        onClick = { onCategoryChange(VersionCategory.MODLOADER) }
-                    )
+                        IconTextButton(
+                            onClick = onInstall,
+                            imageVector = Icons.Filled.Download,
+                            contentDescription = stringResource(R.string.versions_manage_install_new),
+                            text = stringResource(R.string.versions_manage_install_new),
+                        )
+                        //版本分类
+                        VersionCategoryItem(
+                            value = VersionCategory.ALL,
+                            versionsCount = VersionsManager.allVersionsCount(),
+                            selected = versionCategory == VersionCategory.ALL,
+                            onClick = { onCategoryChange(VersionCategory.ALL) }
+                        )
+                        VersionCategoryItem(
+                            value = VersionCategory.VANILLA,
+                            versionsCount = VersionsManager.vanillaVersionsCount(),
+                            selected = versionCategory == VersionCategory.VANILLA,
+                            onClick = { onCategoryChange(VersionCategory.VANILLA) }
+                        )
+                        VersionCategoryItem(
+                            value = VersionCategory.MODLOADER,
+                            versionsCount = VersionsManager.modloaderVersionsCount(),
+                            selected = versionCategory == VersionCategory.MODLOADER,
+                            onClick = { onCategoryChange(VersionCategory.MODLOADER) }
+                        )
+                    }
                 }
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
 
                 if (versions.isNotEmpty()) {
                     LazyColumn(

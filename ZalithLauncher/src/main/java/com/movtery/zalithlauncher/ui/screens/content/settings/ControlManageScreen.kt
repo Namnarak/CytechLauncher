@@ -104,6 +104,7 @@ import com.movtery.zalithlauncher.ui.activities.startEditorActivity
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -427,13 +428,6 @@ private fun ControlLayoutList(
                 submitError = submitError
             )
 
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
             if (dataList.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
@@ -476,78 +470,80 @@ private fun ControlListHeader(
     onCreate: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
-    val context = LocalContext.current
-    val scrollState = rememberScrollState()
+    CardTitleLayout {
+        val context = LocalContext.current
+        val scrollState = rememberScrollState()
 
-    Row(
-        modifier = Modifier
-            .fadeEdge(
-                state = scrollState,
-                length = 32.dp,
-                direction = EdgeDirection.Horizontal
+        Row(
+            modifier = Modifier
+                .fadeEdge(
+                    state = scrollState,
+                    length = 32.dp,
+                    direction = EdgeDirection.Horizontal
+                )
+                .then(
+                    modifier
+                        .horizontalScroll(state = scrollState)
+                        .padding(all = 8.dp)
+                ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconTextButton(
+                onClick = onRefresh,
+                imageVector = Icons.Filled.Refresh,
+                contentDescription = stringResource(R.string.generic_refresh),
+                text = stringResource(R.string.generic_refresh),
             )
-            .then(
-                modifier
-                    .horizontalScroll(state = scrollState)
-                    .padding(all = 8.dp)
-            ),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconTextButton(
-            onClick = onRefresh,
-            imageVector = Icons.Filled.Refresh,
-            contentDescription = stringResource(R.string.generic_refresh),
-            text = stringResource(R.string.generic_refresh),
-        )
-        ImportFileButton(
-            extension = "json",
-            progressUris = { uris ->
-                fun showError(
-                    title: String = context.getString(R.string.control_manage_import_failed),
-                    message: String
-                ) {
-                    submitError(
-                        ErrorViewModel.ThrowableMessage(
-                            title = title,
-                            message = message
+            ImportFileButton(
+                extension = "json",
+                progressUris = { uris ->
+                    fun showError(
+                        title: String = context.getString(R.string.control_manage_import_failed),
+                        message: String
+                    ) {
+                        submitError(
+                            ErrorViewModel.ThrowableMessage(
+                                title = title,
+                                message = message
+                            )
+                        )
+                    }
+                    TaskSystem.submitTask(
+                        Task.runTask(
+                            dispatcher = Dispatchers.IO,
+                            task = {
+                                uris.forEach { uri ->
+                                    val inputStream = context.contentResolver.openInputStream(uri) ?: run {
+                                        showError(message = context.getString(R.string.multirt_runtime_import_failed_input_stream))
+                                        return@forEach
+                                    }
+                                    ControlManager.importControl(
+                                        inputStream = inputStream,
+                                        onSerializationError = {
+                                            showError(
+                                                message = context.getString(R.string.control_manage_import_failed_to_parse) + "\n" +
+                                                        it.getMessageOrToString()
+                                            )
+                                        },
+                                        catchedError =  {
+                                            showError(message = it.getMessageOrToString())
+                                        }
+                                    )
+                                }
+                                ControlManager.refresh()
+                            }
                         )
                     )
                 }
-                TaskSystem.submitTask(
-                    Task.runTask(
-                        dispatcher = Dispatchers.IO,
-                        task = { task ->
-                            uris.forEach { uri ->
-                                val inputStream = context.contentResolver.openInputStream(uri) ?: run {
-                                    showError(message = context.getString(R.string.multirt_runtime_import_failed_input_stream))
-                                    return@forEach
-                                }
-                                ControlManager.importControl(
-                                    inputStream = inputStream,
-                                    onSerializationError = {
-                                        showError(
-                                            message = context.getString(R.string.control_manage_import_failed_to_parse) + "\n" +
-                                                    it.getMessageOrToString()
-                                        )
-                                    },
-                                    catchedError =  {
-                                        showError(message = it.getMessageOrToString())
-                                    }
-                                )
-                            }
-                            ControlManager.refresh()
-                        }
-                    )
-                )
-            }
-        )
-        IconTextButton(
-            onClick = onCreate,
-            imageVector = Icons.Outlined.AddBox,
-            contentDescription = stringResource(R.string.control_manage_create_new),
-            text = stringResource(R.string.control_manage_create_new),
-        )
+            )
+            IconTextButton(
+                onClick = onCreate,
+                imageVector = Icons.Outlined.AddBox,
+                contentDescription = stringResource(R.string.control_manage_create_new),
+                text = stringResource(R.string.control_manage_create_new),
+            )
+        }
     }
 }
 
@@ -752,8 +748,7 @@ private fun ControlLayoutInfo(
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 HorizontalDivider(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                                 Text(
                                     text = description,

@@ -52,7 +52,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -85,6 +84,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.TextRailItem
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
@@ -543,36 +543,31 @@ private fun TaskMenu(
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
         ) {
             Column {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                        .padding(top = 8.dp, bottom = 4.dp)
-                ) {
-                    IconButton(
+                CardTitleLayout {
+                    Box(
                         modifier = Modifier
-                            .size(28.dp)
-                            .align(Alignment.CenterStart),
-                        onClick = changeExpandedState
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 8.dp, bottom = 4.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
-                            contentDescription = stringResource(R.string.generic_collapse)
+                        IconButton(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .align(Alignment.CenterStart),
+                            onClick = changeExpandedState
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
+                                contentDescription = stringResource(R.string.generic_collapse)
+                            )
+                        }
+
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = stringResource(R.string.main_task_menu)
                         )
                     }
-
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = stringResource(R.string.main_task_menu)
-                    )
                 }
-
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
 
                 LazyColumn(
                     modifier = Modifier

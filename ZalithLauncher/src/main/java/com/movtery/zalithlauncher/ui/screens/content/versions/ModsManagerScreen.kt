@@ -66,7 +66,6 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -117,6 +116,7 @@ import com.movtery.zalithlauncher.game.version.mod.isEnabled
 import com.movtery.zalithlauncher.game.version.mod.update.ModData
 import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -512,10 +512,7 @@ fun ModsManagerScreen(
 
                     Column {
                         ModsActionsHeader(
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .padding(top = 4.dp)
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
                             hasModLoader = version.getVersionInfo()?.loaderInfo?.loader?.isLoader == true,
@@ -615,8 +612,13 @@ private fun ModsActionsHeader(
     inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(),
 ) {
-    Column(modifier = modifier) {
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+    CardTitleLayout(modifier = modifier) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .padding(top = 4.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -730,11 +732,6 @@ private fun ModsActionsHeader(
                 }
             }
         }
-
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 

@@ -411,9 +411,7 @@ private fun Versions(
             }
         }
         is DownloadAssetsState.Success -> {
-            Column(
-                modifier = modifier
-            ) {
+            Column(modifier = modifier) {
                 //简单过滤条件
                 Row(
                     modifier = Modifier
@@ -453,7 +451,7 @@ private fun Versions(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                         .fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
 
                 val scrollState = rememberLazyListState()
