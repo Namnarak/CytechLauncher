@@ -18,7 +18,12 @@
 
 package com.movtery.zalithlauncher.game.download.modpack.platform.curseforge
 
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParser
+import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.MultiMCManifest
+import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.MultiMCPackParser
+import com.movtery.zalithlauncher.utils.GSON
+import java.io.File
 
 /**
  * CurseForge 整合包解析器，用于尝试以 CurseForge 的格式解析整合包
@@ -26,7 +31,24 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParse
 object CurseForgePackParser : SimplePackParser<CurseForgeManifest>(
     indexFilePath = "manifest.json",
     manifestClass = CurseForgeManifest::class.java,
-    buildPack = { manifest ->
-        CurseForgePack(manifest = manifest)
+    extraProcess = extraProcess@{ root ->
+        //排除 MultiMC 整合包误判
+        val manifestFile = File(root, MultiMCPackParser.indexFilePath)
+        if (manifestFile.exists()) {
+            try {
+                GSON.fromJson(manifestFile.readText(), MultiMCManifest::class.java)
+                //成功识别为 MultiMC 整合包，则说明是误判为 CurseForge 整合包
+                false
+            } catch (_: Throwable) {
+                return@extraProcess true
+            }
+        } else {
+            true
+        }
+    },
+    buildPack = { root, manifest ->
+        CurseForgePack(root = root, manifest = manifest)
     }
-)
+) {
+    override fun getIdentifier(): String = PackPlatform.CurseForge.identifier
+}

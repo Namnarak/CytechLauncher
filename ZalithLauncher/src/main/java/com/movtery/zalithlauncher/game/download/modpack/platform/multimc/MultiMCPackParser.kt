@@ -16,20 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.download.modpack.platform.modrinth
+package com.movtery.zalithlauncher.game.download.modpack.platform.multimc
 
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParser
 
 /**
- * Modrinth 整合包解析器，用于尝试以 .mrpack 的格式解析整合包
+ * MultiMC 整合包解析器，尝试解析 mmc-pack.json 来解析这个整合包
  */
-object ModrinthPackParser : SimplePackParser<ModrinthManifest>(
-    indexFilePath = "modrinth.index.json",
-    manifestClass = ModrinthManifest::class.java,
+object MultiMCPackParser : SimplePackParser<MultiMCManifest>(
+    indexFilePath = "mmc-pack.json",
+    manifestClass = MultiMCManifest::class.java,
     buildPack = { root, manifest ->
-        ModrinthPack(root = root, manifest = manifest)
+        //需要确保提供了 Minecraft 版本，兜底检查：组件不应该为空！
+        if (manifest.getMinecraftVersion() == null || manifest.components.isEmpty()) {
+            throw IllegalArgumentException("This MMC modpack does not provide game version information and cannot be installed!")
+        }
+
+        MultiMCPack(root = root, manifest = manifest)
     }
 ) {
-    override fun getIdentifier(): String = PackPlatform.Modrinth.identifier
+    override fun getIdentifier(): String = PackPlatform.MultiMC.identifier
 }

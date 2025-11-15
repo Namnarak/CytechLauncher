@@ -60,12 +60,16 @@ suspend fun parserModPack(
     targetFolder: File,
     task: Task
 ): ModPackInfo = withContext(Dispatchers.IO) {
+    //此处不需要使用root，因为仅仅只是获取ModPackInfo对象
+    //所以使用emptyFile填充，创建对象而已
+    val emptyFile = File("")
+
     when (platform) {
         Platform.CURSEFORGE -> {
             val config = PackParserConfig(
                 manifestPath = "manifest.json",
                 manifestType = CurseForgeManifest::class.java,
-                createPack = { CurseForgePack(it) },
+                createPack = { CurseForgePack(root = emptyFile, it) },
                 readPack = { task, target, extract ->
                     readCurseForge(task, target, extract)
                 }
@@ -76,7 +80,7 @@ suspend fun parserModPack(
             val config = PackParserConfig(
                 manifestPath = "modrinth.index.json",
                 manifestType = ModrinthManifest::class.java,
-                createPack = { ModrinthPack(it) },
+                createPack = { ModrinthPack(root = emptyFile, it) },
                 readPack = { task, target, extract ->
                     readModrinth(task, target, extract)
                 }

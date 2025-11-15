@@ -43,8 +43,12 @@ import java.io.IOException
  * @param manifest CurseForge 整合包清单
  */
 class CurseForgePack(
+    root: File,
     private val manifest: CurseForgeManifest
-) : ModPackInfoTask(platform = PackPlatform.CurseForge) {
+) : ModPackInfoTask(
+    root = root,
+    platform = PackPlatform.CurseForge
+) {
     /**
      * 将 CurseForge 的清单读取为 [ModPackInfo] 信息对象
      */
@@ -134,15 +138,15 @@ class CurseForgePack(
     override suspend fun readInfo(
         task: Task,
         versionFolder: File,
-        packFolder: File
+        root: File
     ): ModPackInfo {
         return readCurseForge(
             task = task,
             targetFolder = versionFolder,
             extractFiles = { internal, out ->
                 val sourceDir = internal.takeIf { it.isNotBlank() }
-                    ?.let { File(packFolder, it) }
-                    ?: packFolder
+                    ?.let { File(root, it) }
+                    ?: root
                 //提取文件
                 copyDirectoryContents(
                     from = sourceDir,

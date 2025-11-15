@@ -33,7 +33,6 @@ abstract class AbstractPack(
     /**
      * 构建安装任务阶段，在这里下载依赖文件、解压整合包内部的文件等
      * @param scope 在有生命周期管理的scope中执行安装任务
-     * @param packFolder 整合包已解压文件夹路径
      * @param versionFolder 临时游戏版本文件夹，用于安装游戏文件
      * @param waitForVersionName 等待用户输入版本名称
      * @param addPhases 添加下一安装阶段
@@ -42,7 +41,6 @@ abstract class AbstractPack(
     abstract fun buildTaskPhases(
         context: Context,
         scope: CoroutineScope,
-        packFolder: File,
         versionFolder: File,
         waitForVersionName: suspend (name: String) -> String,
         addPhases: (List<TaskFlowExecutor.TaskPhase>) -> Unit,

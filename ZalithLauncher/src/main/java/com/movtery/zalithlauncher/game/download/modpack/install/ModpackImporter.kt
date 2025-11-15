@@ -96,6 +96,8 @@ class ModpackImporter(
         //整合包安装包文件
         val installerDir = File(tempModPackDir, "installer")
         val installerFile = File(installerDir, ".temp_installer.zip")
+        //已解压的整合包缓存目录
+        val packDir = File(installerDir, ".temp_pack")
 
         listOf(
             buildPhase {
@@ -110,6 +112,7 @@ class ModpackImporter(
                     tempModPackDir.createDirAndLog()
                     tempVersionsDir.createDirAndLog()
                     installerDir.createDirAndLog()
+                    packDir.createDirAndLog()
                     File(tempVersionsDir, VersionFolders.MOD.folderName).createDirAndLog() //创建临时模组目录
                 }
 
@@ -124,13 +127,13 @@ class ModpackImporter(
                     //尝试解压压缩包
                     try {
                         JDKZipFile(installerFile).use { zip ->
-                            zip.extractFromZip("", installerDir)
+                            zip.extractFromZip("", packDir)
                         }
                     } catch (e: Exception) {
                         lWarning("JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
                         try {
                             ApacheZipFile.builder().setFile(installerFile).get().use { zip ->
-                                zip.extractFromZip("", installerDir)
+                                zip.extractFromZip("", packDir)
                             }
                         } catch (e: Exception) {
                             //如果兜底解压也失败了，则说明这可能不是一个压缩包
@@ -157,13 +160,17 @@ class ModpackImporter(
                             ensureActive()
 
                             val result = runCatching {
-                                parser.parse(packFolder = installerDir)
+                                parser.parse(packFolder = packDir)
+                            }.onFailure { th ->
+                                lDebug("${parser.getIdentifier()} parser does not recognize this format", th)
                             }.getOrNull()
 
                             if (result != null) {
                                 //成功识别到这个整合包格式
                                 lInfo("Successfully detected the modpack format: ${result.platform.identifier}")
                                 return@run result
+                            } else {
+                                lDebug("Skipped the ${parser.getIdentifier()} parser")
                             }
                         }
                         //整合包不受支持，或格式有误未能匹配
@@ -175,7 +182,6 @@ class ModpackImporter(
                         modpack.buildTaskPhases(
                             context = context,
                             scope = scope,
-                            packFolder = installerDir,
                             versionFolder = tempVersionsDir,
                             waitForVersionName = waitForVersionName,
                             addPhases = { phases ->

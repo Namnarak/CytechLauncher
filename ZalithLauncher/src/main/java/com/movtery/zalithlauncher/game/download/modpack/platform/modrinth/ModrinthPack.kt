@@ -33,8 +33,12 @@ import java.io.File
  * @param manifest Modrinth 整合包清单
  */
 class ModrinthPack(
+    root: File,
     private val manifest: ModrinthManifest
-) : ModPackInfoTask(platform = PackPlatform.Modrinth) {
+) : ModPackInfoTask(
+    root = root,
+    platform = PackPlatform.Modrinth
+) {
     /**
      * 将 Modrinth 的清单读取为 [ModPackInfo] 信息对象
      */
@@ -81,15 +85,15 @@ class ModrinthPack(
     override suspend fun readInfo(
         task: Task,
         versionFolder: File,
-        packFolder: File
+        root: File
     ): ModPackInfo {
         return readModrinth(
             task = task,
             targetFolder = versionFolder,
             extractFiles = { internalPath, outputDir ->
                 val sourceDir = internalPath.takeIf { it.isNotBlank() }
-                    ?.let { File(packFolder, it) }
-                    ?: packFolder
+                    ?.let { File(root, it) }
+                    ?: root
                 //提取文件
                 copyDirectoryContents(
                     from = sourceDir,

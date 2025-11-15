@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.download.modpack.install
+package com.movtery.zalithlauncher.game.download.modpack.platform.multimc
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.ui.util.fastForEach
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
@@ -30,45 +31,36 @@ import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
+import com.movtery.zalithlauncher.game.download.modpack.install.retrieveLoader
 import com.movtery.zalithlauncher.game.download.modpack.platform.AbstractPack
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
-/**
- * 基于 [ModPackInfo] 类实现的整合包导入的任务流创建接口
- * @param root 整合包根目录
- */
-abstract class ModPackInfoTask(
-    protected val root: File,
-    platform: PackPlatform
-) : AbstractPack(platform = platform) {
+open class MultiMCPack(
+    private val root: File,
+    private val manifest: MultiMCManifest
+): AbstractPack(platform = PackPlatform.MultiMC) {
+
     /**
-     * 内部使用的整合包文件解析出的信息
+     * 内部解析使用的 MultiMC 实例配置
      */
-    protected lateinit var modpackInfo: ModPackInfo
+    private var configuration: MultiMCConfiguration? = null
 
     /**
      * 用户指定的预安装版本名称
      */
-    protected lateinit var targetVersionName: String
+    private lateinit var targetVersionName: String
 
     /**
      * 即将下载的游戏版本的信息
      */
-    protected lateinit var gameDownloadInfo: GameDownloadInfo
-
-    /**
-     * 读取整合包安装信息
-     */
-    protected abstract suspend fun readInfo(
-        task: Task,
-        versionFolder: File,
-        root: File
-    ): ModPackInfo
+    private lateinit var gameDownloadInfo: GameDownloadInfo
 
     override fun buildTaskPhases(
         context: Context,
@@ -80,13 +72,43 @@ abstract class ModPackInfoTask(
     ): List<TaskFlowExecutor.TaskPhase> {
         return listOf(
             buildPhase {
-                //提取并计划下载任务
+                //解析 MultiMC 实例配置
                 addTask(
-                    id = "ImportModpack.ExtractFiles",
-                    title = context.getString(R.string.import_modpack_task_extract_files_and_schedule_download),
+                    id = "ImportModpack.ParseMMCCfg",
+                    title = context.getString(R.string.import_modpack_task_parse),
                     icon = Icons.Outlined.Build
                 ) { task ->
-                    modpackInfo = readInfo(task, versionFolder, root)
+                    task.updateProgress(-1f)
+                    //MMC 实例配置文件
+                    configuration = loadMMCConfigFromPack(root)?.also { configuration ->
+                        lDebug("Successfully read the MultiMC instance configuration: $configuration")
+                    }
+
+                    //成功识别后，开始提取整合包游戏文件
+                    val minecraftDir = File(root, ".minecraft")
+                    if (minecraftDir.exists() && minecraftDir.isDirectory) {
+                        task.updateMessage(R.string.import_modpack_task_extract_files)
+                        copyDirectoryContents(
+                            from = minecraftDir,
+                            to = versionFolder,
+                            onProgress = { progress ->
+                                task.updateProgress(progress)
+                            }
+                        )
+
+                        //迁移图标（如果有）
+                        task.updateProgress(-1f)
+                        val iconKey = configuration?.iconKey ?: "icon"
+                        val iconFile = File(minecraftDir, "$iconKey.png").takeIf { file ->
+                            file.exists() && file.isFile
+                        } ?: File(minecraftDir, "icon.png")
+                        
+                        if (iconFile.exists() && iconFile.isFile) {
+                            iconFile.copyTo(VersionsManager.getVersionIconFile(versionFolder))
+                            //成功复制后，原本有的图标应该被删除
+                            iconFile.delete()
+                        }
+                    }
                 }
 
                 //等待用户输入预安装版本名称
@@ -96,17 +118,7 @@ abstract class ModPackInfoTask(
                     icon = Icons.Outlined.Edit
                 ) { task ->
                     task.updateProgress(-1f)
-                    targetVersionName = waitForVersionName(modpackInfo.name)
-                }
-
-                //下载整合包模组文件
-                addTask(
-                    id = "ImportModpack.DownloadMods",
-                    dispatcher = Dispatchers.IO,
-                    title = context.getString(R.string.download_modpack_download)
-                ) { task ->
-                    val downloadTask = ModDownloader(modpackInfo.files)
-                    downloadTask.startDownload(task)
+                    targetVersionName = waitForVersionName(configuration?.name ?: "")
                 }
 
                 //分析并匹配模组加载器信息，并构造出游戏安装信息
@@ -114,11 +126,27 @@ abstract class ModPackInfoTask(
                     id = "ImportModpack.RetrieveLoader",
                     title = context.getString(R.string.download_modpack_get_loaders),
                     icon = Icons.Outlined.Build
-                ) { _ ->
+                ) {
+                    val gameVersion = manifest.getMinecraftVersion()!!
+
                     //构建游戏安装信息
-                    gameDownloadInfo = modpackInfo.retrieveLoaderTask(
-                        targetVersionName = targetVersionName
+                    gameDownloadInfo = GameDownloadInfo(
+                        gameVersion = gameVersion,
+                        customVersionName = targetVersionName
                     )
+
+                    //构建模组加载器安装信息
+                    manifest.components.fastForEach { component ->
+                        with(manifest) { component.retrieveLoader() }?.let { pair ->
+                            pair.retrieveLoader(
+                                gameVersion = gameVersion,
+                                gameInfo = gameDownloadInfo,
+                                pasteGameInfo = { info ->
+                                    gameDownloadInfo = info
+                                }
+                            )
+                        }
+                    }
 
                     //开始安装游戏！切换到下一阶段！
                     val gameInstaller = GameInstaller(context, gameDownloadInfo, scope)
@@ -173,7 +201,10 @@ abstract class ModPackInfoTask(
 
             //创建版本信息
             VersionConfig.createIsolation(targetClientDir).apply {
-                this.versionSummary = modpackInfo.summary ?: "" //整合包描述
+                //Jvm启动参数
+                configuration?.jvmArgs?.let { this.jvmArgs = it }
+                //启动时自动加入服务器
+                configuration?.joinServerOnLaunch?.let { this.serverIp = it }
             }.save()
 
             //清理临时整合包目录

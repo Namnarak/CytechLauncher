@@ -31,20 +31,20 @@ import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 enum class PackPlatform(val identifier: String) {
     CurseForge(Platform.CURSEFORGE.displayName) {
         @Composable
-        override fun getText(): String = this.identifier
-
-        @Composable
         override fun getIcon(): Painter {
             return painterResource(R.drawable.img_platform_curseforge)
         }
     },
     Modrinth(Platform.MODRINTH.displayName) {
         @Composable
-        override fun getText(): String = this.identifier
-
-        @Composable
         override fun getIcon(): Painter {
             return painterResource(R.drawable.img_platform_modrinth)
+        }
+    },
+    MultiMC("MultiMC") {
+        @Composable
+        override fun getIcon(): Painter {
+            return painterResource(R.drawable.img_platform_multimc)
         }
     };
 
@@ -52,7 +52,7 @@ enum class PackPlatform(val identifier: String) {
      * 获取 UI 层使用的格式名称
      */
     @Composable
-    abstract fun getText(): String
+    open fun getText(): String = this.identifier
 
     /**
      * 获取 UI 层使用的格式图标
