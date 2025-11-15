@@ -48,7 +48,7 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 /**
- * 整合包安装器
+ * 在线下载的整合包安装器，仅支持 CurseForge、Modrinth
  * @param version 选中的整合包的版本信息
  * @param iconUrl 整合包的图标链接
  * @param scope 在有生命周期管理的scope中执行安装任务

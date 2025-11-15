@@ -18,6 +18,8 @@
 
 package com.movtery.zalithlauncher.game.download.modpack.platform.modrinth
 
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackManifest
+
 class ModrinthManifest(
     val game: String,
     val formatVersion: Int,
@@ -27,7 +29,7 @@ class ModrinthManifest(
     val summary: String? = null,
     val files: Array<ManifestFile>,
     val dependencies: Map<String, String>
-) {
+): PackManifest {
     class ManifestFile(
         val path: String,
         val hashes: Hashes,

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform.curseforge
+package com.movtery.zalithlauncher.game.download.modpack.platform.curseforge
 
 import com.google.gson.JsonParseException
 import com.movtery.zalithlauncher.R
@@ -29,16 +29,19 @@ import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCu
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
 import com.movtery.zalithlauncher.game.download.modpack.install.ModFile
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
-import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
+import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfoTask
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
-import com.movtery.zalithlauncher.game.version.modpack.install.ModPackInfoTask
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
+/**
+ * CurseForge 整合包安装信息
+ * @param manifest CurseForge 整合包清单
+ */
 class CurseForgePack(
     private val manifest: CurseForgeManifest
 ) : ModPackInfoTask(platform = PackPlatform.CurseForge) {

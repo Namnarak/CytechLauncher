@@ -16,27 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform
+package com.movtery.zalithlauncher.game.download.modpack.platform.modrinth
 
-import com.movtery.zalithlauncher.game.version.modpack.platform.curseforge.CurseForgePackParser
-import com.movtery.zalithlauncher.game.version.modpack.platform.modrinth.ModrinthPackParser
-import java.io.File
+import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParser
 
 /**
- * 整合包解析通用接口，用于尝试解析已解压的整合包的格式
+ * Modrinth 整合包解析器，用于尝试以 .mrpack 的格式解析整合包
  */
-interface PackParser {
-    /**
-     * 尝试解析已经解压的整合包的格式
-     * @param packFolder 解压后的整合包文件夹
-     */
-    suspend fun parse(packFolder: File): AbstractPack?
-}
-
-/**
- * 启动器所有支持的整合包格式解析器
- */
-val ALL_PACK_PARSER = listOf(
-    CurseForgePackParser,
-    ModrinthPackParser
+object ModrinthPackParser : SimplePackParser<ModrinthManifest>(
+    indexFilePath = "modrinth.index.json",
+    manifestClass = ModrinthManifest::class.java,
+    buildPack = { manifest ->
+        ModrinthPack(manifest = manifest)
+    }
 )

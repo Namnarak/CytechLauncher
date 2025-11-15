@@ -16,11 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform.curseforge
+package com.movtery.zalithlauncher.game.download.modpack.platform
 
-import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
-import com.movtery.zalithlauncher.game.version.modpack.platform.AbstractPack
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackParser
 import com.movtery.zalithlauncher.utils.GSON
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,24 +26,27 @@ import java.io.InterruptedIOException
 import java.util.concurrent.CancellationException
 
 /**
- * Modrinth 整合包解析器，用于尝试以 CurseForge 的格式解析整合包
+ * 较为简单的整合包解析器，像 CurseForge、Modrinth 这类较为简单的整合包，
+ * 则可以统一代码，共用此解析逻辑
  */
-object CurseForgePackParser : PackParser {
-    /**
-     * 尝试解析为 CurseForge 平台的整合包
-     */
+abstract class SimplePackParser<E: PackManifest>(
+    protected val indexFilePath: String,
+    protected val manifestClass: Class<E>,
+    private val buildPack: (E) -> AbstractPack
+) : PackParser {
+
     override suspend fun parse(packFolder: File): AbstractPack? {
-        //CurseForge 整合包清单文件
-        val manifestFile = File(packFolder, "manifest.json")
+        //整合包索引文件
+        val indexFile = File(packFolder, indexFilePath)
         return withContext(Dispatchers.IO) {
-            if (!manifestFile.exists()) return@withContext null
+            if (!indexFile.exists()) return@withContext null
 
             try {
-                //尝试读取并识别，如果识别成功，则判断其为 CurseForge 整合包
-                val rawString = manifestFile.readText()
-                val manifest = GSON.fromJson(rawString, CurseForgeManifest::class.java)
+                //尝试读取并识别，如果识别成功，则判断其为该格式的整合包
+                val rawString = indexFile.readText()
+                val manifest = GSON.fromJson(rawString, manifestClass)
 
-                return@withContext CurseForgePack(manifest = manifest)
+                return@withContext buildPack(manifest)
             } catch (th: Throwable) {
                 if (th is CancellationException || th is InterruptedIOException) return@withContext null
                 throw th

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.install
+package com.movtery.zalithlauncher.game.download.modpack.install
 
 import android.content.Context
 import android.net.Uri
@@ -30,8 +30,8 @@ import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
+import com.movtery.zalithlauncher.game.download.modpack.platform.ALL_PACK_PARSER
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
-import com.movtery.zalithlauncher.game.version.modpack.platform.ALL_PACK_PARSER
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug

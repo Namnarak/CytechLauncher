@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform
+package com.movtery.zalithlauncher.game.download.modpack.platform
 
 import android.content.Context
 import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor

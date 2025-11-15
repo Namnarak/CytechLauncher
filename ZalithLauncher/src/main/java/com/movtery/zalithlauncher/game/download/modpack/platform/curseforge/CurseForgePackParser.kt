@@ -15,31 +15,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
-package com.movtery.zalithlauncher.game.version.modpack.install
+
+package com.movtery.zalithlauncher.game.download.modpack.platform.curseforge
+
+import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParser
 
 /**
- * 整合包不受支持，无法导入时，抛出这个异常
- * @param reason 不受支持的原因
+ * CurseForge 整合包解析器，用于尝试以 CurseForge 的格式解析整合包
  */
-class PackNotSupportedException(
-    val reason: UnsupportedPackReason
-) : RuntimeException(
-    reason.reasonText
+object CurseForgePackParser : SimplePackParser<CurseForgeManifest>(
+    indexFilePath = "manifest.json",
+    manifestClass = CurseForgeManifest::class.java,
+    buildPack = { manifest ->
+        CurseForgePack(manifest = manifest)
+    }
 )
-
-/**
- * 导致启动器判断整合包不受支持的原因
- */
-enum class UnsupportedPackReason(
-    val reasonText: String
-) {
-    /**
-     * 压缩包损坏或解压失败
-     */
-    CorruptedArchive("The archive is corrupted or failed to extract."),
-
-    /**
-     * 不支持的整合包格式
-     */
-    UnsupportedFormat("The modpack format is not supported.")
-}

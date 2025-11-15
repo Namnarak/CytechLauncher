@@ -54,41 +54,61 @@ suspend fun ModPackInfo.retrieveLoaderTask(
     )
 
     //匹配目标加载器版本，获取详细版本信息
-    loaders.forEach { (loader, version) ->
-        when (loader) {
-            ModLoader.FORGE -> {
-                ForgeVersions.fetchForgeList(gameVersion)?.find {
-                    it.versionName == version
-                }?.let { forgeVersion ->
-                    gameInfo = gameInfo.copy(forge = forgeVersion)
-                }
+    loaders.forEach { pair ->
+        pair.retrieveLoader(
+            gameVersion = gameVersion,
+            gameInfo = gameInfo,
+            pasteGameInfo = { newInfo ->
+                gameInfo = newInfo
             }
-            ModLoader.NEOFORGE -> {
-                NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion)?.find {
-                    it.versionName == version
-                }?.let { neoforgeVersion ->
-                    gameInfo = gameInfo.copy(neoforge = neoforgeVersion)
-                }
-            }
-            ModLoader.FABRIC -> {
-                FabricVersions.fetchFabricLoaderList(gameVersion)?.find {
-                    it.version == version
-                }?.let { fabricVersion ->
-                    gameInfo = gameInfo.copy(fabric = fabricVersion)
-                }
-            }
-            ModLoader.QUILT -> {
-                QuiltVersions.fetchQuiltLoaderList(gameVersion)?.find {
-                    it.version == version
-                }?.let { quiltVersion ->
-                    gameInfo = gameInfo.copy(quilt = quiltVersion)
-                }
-            }
-            else -> {
-                //不支持
-            }
-        }
+        )
     }
 
     return gameInfo
+}
+
+/**
+ * 模组加载器解析匹配，并粘贴游戏下载信息
+ * @param gameVersion 当前游戏版本
+ * @param pasteGameInfo 将识别到的模组加载器版本贴回信息类
+ */
+suspend fun Pair<ModLoader, String>.retrieveLoader(
+    gameVersion: String,
+    gameInfo: GameDownloadInfo,
+    pasteGameInfo: (GameDownloadInfo) -> Unit
+) {
+    val (loader, version) = this
+    when (loader) {
+        ModLoader.FORGE -> {
+            ForgeVersions.fetchForgeList(gameVersion)?.find {
+                it.versionName == version
+            }?.let { forgeVersion ->
+                pasteGameInfo(gameInfo.copy(forge = forgeVersion))
+            }
+        }
+        ModLoader.NEOFORGE -> {
+            NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion)?.find {
+                it.versionName == version
+            }?.let { neoforgeVersion ->
+                pasteGameInfo(gameInfo.copy(neoforge = neoforgeVersion))
+            }
+        }
+        ModLoader.FABRIC -> {
+            FabricVersions.fetchFabricLoaderList(gameVersion)?.find {
+                it.version == version
+            }?.let { fabricVersion ->
+                pasteGameInfo(gameInfo.copy(fabric = fabricVersion))
+            }
+        }
+        ModLoader.QUILT -> {
+            QuiltVersions.fetchQuiltLoaderList(gameVersion)?.find {
+                it.version == version
+            }?.let { quiltVersion ->
+                pasteGameInfo(gameInfo.copy(quilt = quiltVersion))
+            }
+        }
+        else -> {
+            //不支持
+        }
+    }
 }

@@ -66,12 +66,12 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModpackCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.modrinthModLoaderFilters
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
+import com.movtery.zalithlauncher.game.download.modpack.install.ModpackImporter
+import com.movtery.zalithlauncher.game.download.modpack.install.PackNotSupportedException
+import com.movtery.zalithlauncher.game.download.modpack.install.UnsupportedPackReason
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.modpack.install.ModpackImporter
-import com.movtery.zalithlauncher.game.version.modpack.install.PackNotSupportedException
-import com.movtery.zalithlauncher.game.version.modpack.install.UnsupportedPackReason
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge

@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.game.download.modpack.platform.curseforge
 
 import com.google.gson.annotations.SerializedName
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackManifest
 
 class CurseForgeManifest(
     val manifestType: String,
@@ -29,7 +30,7 @@ class CurseForgeManifest(
     val overrides: String? = null,
     val minecraft: Minecraft,
     val files: List<ManifestFile>
-) {
+): PackManifest {
     data class Minecraft(
         @SerializedName("version")
         val gameVersion: String,

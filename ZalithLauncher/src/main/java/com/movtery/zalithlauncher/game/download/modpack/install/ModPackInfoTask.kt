@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.install
+package com.movtery.zalithlauncher.game.download.modpack.install
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
@@ -30,12 +30,9 @@ import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
 import com.movtery.zalithlauncher.game.download.game.GameInstaller
-import com.movtery.zalithlauncher.game.download.modpack.install.ModDownloader
-import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
-import com.movtery.zalithlauncher.game.download.modpack.install.retrieveLoaderTask
+import com.movtery.zalithlauncher.game.download.modpack.platform.AbstractPack
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
-import com.movtery.zalithlauncher.game.version.modpack.platform.AbstractPack
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

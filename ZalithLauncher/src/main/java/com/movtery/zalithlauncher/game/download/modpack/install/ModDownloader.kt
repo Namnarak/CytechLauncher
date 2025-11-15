@@ -39,6 +39,9 @@ import kotlinx.coroutines.withContext
 import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * 整合包模组下载器，多线程并行下载所有模组
+ */
 class ModDownloader(
     val mods: List<ModFile>,
     private val maxDownloadThreads: Int = 64

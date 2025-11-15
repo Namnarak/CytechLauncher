@@ -20,11 +20,11 @@ package com.movtery.zalithlauncher.game.download.modpack.install
 
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.modpack.platform.AbstractPack
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
+import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgePack
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
-import com.movtery.zalithlauncher.game.version.modpack.platform.AbstractPack
-import com.movtery.zalithlauncher.game.version.modpack.platform.curseforge.CurseForgePack
-import com.movtery.zalithlauncher.game.version.modpack.platform.modrinth.ModrinthPack
+import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthPack
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
@@ -50,6 +50,10 @@ private data class PackParserConfig<M, P : AbstractPack>(
     val readPack: suspend P.(Task, File, suspend (String, File) -> Unit) -> ModPackInfo
 )
 
+/**
+ * 仅适用于内置在线下载，通过 [Platform] 解析不同类型的整合包
+ * @return 整合包在线下载模组信息
+ */
 suspend fun parserModPack(
     file: File,
     platform: Platform,
