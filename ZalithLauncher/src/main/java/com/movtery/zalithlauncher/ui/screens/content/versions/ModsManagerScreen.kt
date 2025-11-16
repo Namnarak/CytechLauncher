@@ -352,11 +352,8 @@ private class ModsUpdaterViewModel(
             scope = viewModelScope,
             waitForUserConfirm = ::waitingForUserConfirm
         ).also {
+            modsUpdateOperation = ModsUpdateOperation.Update
             it.updateAll(
-                isRunning = {
-                    modsUpdater = null
-                    modsUpdateOperation = ModsUpdateOperation.None
-                },
                 onUpdated = {
                     modsUpdater = null
                     refreshMods()
@@ -385,6 +382,7 @@ private class ModsUpdaterViewModel(
     fun cancel() {
         modsUpdater?.cancel()
         modsUpdater = null
+        modsUpdateOperation = ModsUpdateOperation.None
     }
 
     override fun onCleared() {

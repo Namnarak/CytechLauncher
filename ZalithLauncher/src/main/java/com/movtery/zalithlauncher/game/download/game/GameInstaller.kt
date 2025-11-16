@@ -69,6 +69,11 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 
 /**
+ * 在安装游戏前发现存在冲突的已安装版本，抛出这个异常
+ */
+private class GameAlreadyInstalledException : RuntimeException()
+
+/**
  * 游戏安装器
  * @param context 用于获取任务描述信息
  * @param info 安装游戏所需要的信息，包括 Minecraft id、自定义版本名称、Addon 列表
@@ -103,11 +108,13 @@ class GameInstaller(
      * @param isRunning 正在运行中，阻止此次安装时
      * @param onInstalled 游戏已完成安装
      * @param onError 游戏安装失败
+     * @param onGameAlreadyInstalled 在安装游戏前发现存在冲突的已安装版本
      */
     fun installGame(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onInstalled: () -> Unit,
-        onError: (th: Throwable) -> Unit
+        onError: (th: Throwable) -> Unit,
+        onGameAlreadyInstalled: () -> Unit
     ) {
         if (taskExecutor.isRunning()) {
             //正在安装中，阻止这次安装请求
@@ -121,7 +128,13 @@ class GameInstaller(
                 taskExecutor.addPhases(tasks)
             },
             onComplete = onInstalled,
-            onError = onError
+            onError = { th ->
+                if (th is GameAlreadyInstalledException) {
+                    onGameAlreadyInstalled()
+                } else {
+                    onError(th)
+                }
+            }
         )
     }
 
@@ -142,7 +155,7 @@ class GameInstaller(
         //目标版本已经安装的情况
         if (targetVersionJson.exists()) {
             lDebug("The game has already been installed!")
-            return@withContext emptyList()
+            throw GameAlreadyInstalledException()
         }
 
         val tempGameDir = PathManager.DIR_CACHE_GAME_DOWNLOADER

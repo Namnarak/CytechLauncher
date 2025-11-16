@@ -80,7 +80,7 @@ import java.nio.channels.UnresolvedAddressException
 private sealed interface GameInstallOperation {
     data object None : GameInstallOperation
     /** 开始安装 */
-    data class Install(val info: GameDownloadInfo) : GameInstallOperation
+    data object Install : GameInstallOperation
     /** 警告通知权限，可以无视，并直接开始安装 */
     data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
     /** 游戏安装出现异常 */
@@ -90,6 +90,10 @@ private sealed interface GameInstallOperation {
 }
 
 private class GameDownloadViewModel(): ViewModel() {
+    /**
+     * 用于刷新游戏下载页面版本名称的检查
+     */
+    var versionNameErrorCheck by mutableStateOf(false)
     var installOperation by mutableStateOf<GameInstallOperation>(GameInstallOperation.None)
 
     /**
@@ -97,24 +101,37 @@ private class GameDownloadViewModel(): ViewModel() {
      */
     var installer by mutableStateOf<GameInstaller?>(null)
 
+    /**
+     * 刷新游戏下载页面内的版本名称检查
+     */
+    private fun refreshVersionNameCheck() {
+        versionNameErrorCheck = !versionNameErrorCheck
+    }
+
     fun install(
         context: Context,
         info: GameDownloadInfo
     ) {
+        installOperation = GameInstallOperation.Install
         installer = GameInstaller(context, info, viewModelScope).also {
             it.installGame(
-                isRunning = {
-                    installer = null
-                    installOperation = GameInstallOperation.None
-                },
                 onInstalled = {
                     installer = null
                     VersionsManager.refresh()
                     installOperation = GameInstallOperation.Success
+                    refreshVersionNameCheck()
                 },
                 onError = { th ->
                     installer = null
                     installOperation = GameInstallOperation.Error(th)
+                    refreshVersionNameCheck()
+                },
+                onGameAlreadyInstalled = {
+                    //很有可能发生在刚安装完成，再次点击安装按钮时
+                    //充值状态，避免无法发起新的安装的问题
+                    installOperation = GameInstallOperation.None
+                    //保险起见，再次刷新版本名称错误检查
+                    refreshVersionNameCheck()
                 }
             )
         }
@@ -123,6 +140,8 @@ private class GameDownloadViewModel(): ViewModel() {
     fun cancel() {
         installer?.cancelInstall()
         installer = null
+        installOperation = GameInstallOperation.None
+        refreshVersionNameCheck()
     }
 
     override fun onCleared() {
@@ -203,17 +222,18 @@ fun DownloadGameScreen(
                         mainScreenKey = mainScreenKey,
                         downloadScreenKey = downloadScreenKey,
                         downloadGameScreenKey = downloadGameScreenKey,
-                        key = key
+                        key = key,
+                        refreshErrorCheck = viewModel.versionNameErrorCheck
                     ) { info ->
                         if (viewModel.installOperation !is GameInstallOperation.None) {
                             //不是待安装状态，拒绝此次安装
                             return@DownloadGameWithAddonScreen
                         }
-                        viewModel.installOperation = if (!NotificationManager.checkNotificationEnabled(context)) {
+                        if (!NotificationManager.checkNotificationEnabled(context)) {
                             //警告通知权限
-                            GameInstallOperation.WarningForNotification(info)
+                            viewModel.installOperation = GameInstallOperation.WarningForNotification(info)
                         } else {
-                            GameInstallOperation.Install(info)
+                            viewModel.install(context, info)
                         }
                     }
                 }
@@ -238,11 +258,11 @@ private fun GameInstallOperation(
             NotificationCheck(
                 onGranted = {
                     //权限被授予，开始安装
-                    updateOperation(GameInstallOperation.Install(gameInstallOperation.info))
+                    onInstall(gameInstallOperation.info)
                 },
                 onIgnore = {
                     //用户不想授权，但是支持继续进行安装
-                    updateOperation(GameInstallOperation.Install(gameInstallOperation.info))
+                    onInstall(gameInstallOperation.info)
                 },
                 onDismiss = {
                     updateOperation(GameInstallOperation.None)
@@ -250,9 +270,6 @@ private fun GameInstallOperation(
             )
         }
         is GameInstallOperation.Install -> {
-            LaunchedEffect(installer) {
-                if (installer == null) onInstall(gameInstallOperation.info)
-            }
             if (installer != null) {
                 val installGame = installer.tasksFlow.collectAsState()
                 if (installGame.value.isNotEmpty()) {

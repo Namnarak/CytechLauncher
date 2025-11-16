@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.InterruptedIOException
 import org.apache.commons.compress.archivers.zip.ZipFile as ApacheZipFile
 import java.util.zip.ZipFile as JDKZipFile
 
@@ -70,7 +72,7 @@ class ModpackImporter(
      * @param onError 导入过程中出现异常
      */
     fun startImport(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onFinished: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
@@ -120,6 +122,7 @@ class ModpackImporter(
                 addTask(
                     id = "ImportModpack.ImportFile",
                     title = context.getString(R.string.import_modpack_task_unpack),
+                    dispatcher = Dispatchers.IO,
                     icon = Icons.Outlined.Unarchive
                 ) { task ->
                     task.updateProgress(-1f)
@@ -130,12 +133,14 @@ class ModpackImporter(
                             zip.extractFromZip("", packDir)
                         }
                     } catch (e: Exception) {
+                        if (e is CancellationException || e is InterruptedIOException) return@addTask
                         lWarning("JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
                         try {
                             ApacheZipFile.builder().setFile(installerFile).get().use { zip ->
                                 zip.extractFromZip("", packDir)
                             }
                         } catch (e: Exception) {
+                            if (e is CancellationException || e is InterruptedIOException) return@addTask
                             //如果兜底解压也失败了，则说明这可能不是一个压缩包
                             //或者压缩包已损坏，抛出不支持的异常终止任务流
                             lError("Unable to extract the installer file. Is it really a compressed archive?", e)

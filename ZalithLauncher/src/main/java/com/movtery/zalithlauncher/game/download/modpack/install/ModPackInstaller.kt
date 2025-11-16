@@ -86,7 +86,7 @@ class ModPackInstaller(
      * @param onError 安装时遇到异常
      */
     fun installModPack(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onInstalled: () -> Unit,
         onError: (Throwable) -> Unit
     ) {

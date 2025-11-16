@@ -94,7 +94,7 @@ class GameAssetCleaner(
      * @param onThrowable 清理过程中遇到错误时
      */
     fun start(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onEnd: (count: Int, size: String) -> Unit,
         onThrowable: (Throwable) -> Unit
     ) {

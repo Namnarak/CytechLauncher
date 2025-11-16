@@ -83,7 +83,7 @@ class ModUpdater(
      * @param onError 更新模组时遇到错误
      */
     fun updateAll(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onUpdated: () -> Unit,
         onNoModUpdates: () -> Unit,
         onCancelled: () -> Unit,

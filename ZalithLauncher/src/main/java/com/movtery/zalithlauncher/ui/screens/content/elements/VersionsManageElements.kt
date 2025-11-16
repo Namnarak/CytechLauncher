@@ -572,14 +572,11 @@ fun CleanupOperation(
                     Text("../assets/..")
                     Text("../libraries/..")
                 },
-                onConfirm = { changeOperation(CleanupOperation.Clean) },
+                onConfirm = onClean,
                 onCancel = { changeOperation(CleanupOperation.None) }
             )
         }
         is CleanupOperation.Clean -> {
-            LaunchedEffect(cleaner) {
-                if (cleaner == null) onClean()
-            }
             if (cleaner != null) {
                 val tasks = cleaner.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {

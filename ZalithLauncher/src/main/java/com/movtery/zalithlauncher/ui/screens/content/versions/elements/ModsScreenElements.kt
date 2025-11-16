@@ -47,7 +47,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -98,7 +97,7 @@ sealed interface ModsUpdateOperation {
     /** 警告用户更新模组的注意事项 */
     data class Warning(val mods: List<RemoteMod>) : ModsUpdateOperation
     /** 开始更新模组 */
-    data class Update(val mods: List<RemoteMod>) : ModsUpdateOperation
+    data object Update : ModsUpdateOperation
     /** 更新模组时出现异常 */
     data class Error(val th: Throwable) : ModsUpdateOperation
     /** 更新模组成功 */
@@ -163,14 +162,11 @@ fun ModsUpdateOperation(
                     changeOperation(ModsUpdateOperation.None)
                 },
                 onConfirm = {
-                    changeOperation(ModsUpdateOperation.Update(operation.mods))
+                    onUpdate(operation.mods)
                 }
             )
         }
         is ModsUpdateOperation.Update -> {
-            LaunchedEffect(modsUpdater) {
-                if (modsUpdater == null) onUpdate(operation.mods)
-            }
             if (modsUpdater != null) {
                 val tasks = modsUpdater.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {

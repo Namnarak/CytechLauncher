@@ -95,12 +95,12 @@ private class VersionsScreenViewModel() : ViewModel() {
     var cleaner by mutableStateOf<GameAssetCleaner?>(null)
 
     fun cleanUnusedFiles(context: Context) {
-        cleaner = GameAssetCleaner(context, viewModelScope).also {
+        cleaner = GameAssetCleaner(
+            context = context,
+            scope = viewModelScope
+        ).also {
+            cleanupOperation = CleanupOperation.Clean
             it.start(
-                isRunning = {
-                    cleaner = null
-                    cleanupOperation = CleanupOperation.None
-                },
                 onEnd = { count, size ->
                     cleaner = null
                     cleanupOperation = CleanupOperation.Success(count, size)
@@ -116,6 +116,7 @@ private class VersionsScreenViewModel() : ViewModel() {
     fun cancelCleaner() {
         cleaner?.cancel()
         cleaner = null
+        cleanupOperation = CleanupOperation.None
     }
 
     override fun onCleared() {
@@ -156,7 +157,9 @@ fun VersionsManageScreen(
                     )
                 },
                 onCleanupGameFiles = {
-                    viewModel.cleanupOperation = CleanupOperation.Tip
+                    if (viewModel.cleanupOperation == CleanupOperation.None) {
+                        viewModel.cleanupOperation = CleanupOperation.Tip
+                    }
                 },
                 submitError = submitError,
                 modifier = Modifier
