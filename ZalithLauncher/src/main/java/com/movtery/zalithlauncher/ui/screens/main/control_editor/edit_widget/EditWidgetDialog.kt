@@ -60,6 +60,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
@@ -99,7 +100,7 @@ fun EditWidgetDialog(
     onDelete: () -> Unit,
     onClone: () -> Unit,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
-    switchControlLayers: (ObservableNormalData) -> Unit,
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
     openStyleList: () -> Unit
 ) {
     val backStack = rememberNavBackStack(EditWidgetCategory.Info)
@@ -279,7 +280,7 @@ private fun EditWidgetNavigation(
     data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
-    switchControlLayers: (ObservableNormalData) -> Unit,
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
     openStyleList: () -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit

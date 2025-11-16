@@ -982,6 +982,8 @@
     <string name="control_editor_edit_visibility_in_game">遊戲內可見</string>
     <string name="control_editor_edit_visibility_in_menu">遊戲外可見</string>
     <string name="control_editor_edit_switch_layers">切換控制項圖層可見性</string>
+    <string name="control_editor_edit_show_layers">強制顯示控制項圖層</string>
+    <string name="control_editor_edit_hide_layers">強制隱藏控制項圖層</string>
     <string name="control_editor_edit_style_config">控制項外觀列表</string>
     <string name="control_editor_edit_style_config_empty">目前控制佈局還沒有控制項外觀</string>
     <string name="control_editor_edit_style_config_name">控制項外觀名稱</string>

@@ -959,6 +959,8 @@
     <string name="control_editor_edit_visibility_in_game">游戏内可见</string>
     <string name="control_editor_edit_visibility_in_menu">游戏外可见</string>
     <string name="control_editor_edit_switch_layers">切换控件层可见性</string>
+    <string name="control_editor_edit_show_layers">强制显示控件层</string>
+    <string name="control_editor_edit_hide_layers">强制隐藏控件层</string>
     <string name="control_editor_edit_style_config">控件外观列表</string>
     <string name="control_editor_edit_style_config_empty">当前控制布局还没有控件外观</string>
     <string name="control_editor_edit_style_config_name">控件外观名称</string>

@@ -24,7 +24,7 @@ import com.movtery.layer_controller.layout.ControlLayout
 /**
  * 控件编辑器的版本号
  */
-internal const val EDITOR_VERSION = 4
+internal const val EDITOR_VERSION = 5
 
 /**
  * 自动处理并逐步更新控制布局到新版编辑器
@@ -36,6 +36,7 @@ internal fun updateLayoutToNew(
         1 -> updateLayoutToNew(update1To2(layout))
         2 -> updateLayoutToNew(update2To3(layout))
         3 -> updateLayoutToNew(update3To4(layout))
+        4 -> updateLayoutToNew(update4To5(layout))
         else -> layout
     }
 }
@@ -119,4 +120,15 @@ internal fun update3To4(
             }
         )
     }
+)
+
+/**
+ * 4 -> 5:  支持设置点击事件: `强制显示控件层`，`强制隐藏控件层`
+ *
+ * 不需要变更控制布局文件，仅提升版本号
+ */
+internal fun update4To5(
+    layout: ControlLayout
+): ControlLayout = layout.copy(
+    editorVersion = 5
 )

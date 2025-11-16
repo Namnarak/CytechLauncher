@@ -48,9 +48,29 @@ data class ClickEvent(
         LauncherEvent,
 
         /**
-         * 点击开关按键层级
+         * 点击开关控件层
          */
         @SerialName("switch_layer")
-        SwitchLayer
+        SwitchLayer,
+
+        /**
+         * 点击强制显示控件层
+         */
+        @SerialName("show_layer")
+        ShowLayer,
+
+        /**
+         * 点击强制隐藏控件层
+         */
+        @SerialName("hide_layer")
+        HideLayer
     }
+
+    /**
+     * 该点击事件是否关于控件层
+     */
+    fun isAboutLayers(): Boolean =
+        type == Type.SwitchLayer ||
+                type == Type.ShowLayer ||
+                type == Type.HideLayer
 }

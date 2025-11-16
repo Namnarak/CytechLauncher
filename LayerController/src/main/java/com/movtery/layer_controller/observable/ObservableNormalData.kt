@@ -66,9 +66,19 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         isPressed = if (isToggleable) !isPressed else true
 
         eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
-            eventHandler.onSwitchLayer(event, allLayers) { layer ->
-                layer.hide = if (isToggleable) isPressed else !layer.hide
-            }
+            eventHandler.onSwitchLayer(
+                clickEvent = event,
+                allLayers = allLayers,
+                switch = { layer ->
+                    layer.hide = if (isToggleable) isPressed else !layer.hide
+                },
+                show = { layer ->
+                    layer.hide = if (isToggleable) isPressed else false
+                },
+                hide = { layer ->
+                    layer.hide = if (isToggleable) isPressed else true
+                }
+            )
         }
     }
 
@@ -191,6 +201,6 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     }
 }
 
-public fun ObservableNormalData.cloneNormal(): ObservableNormalData {
+fun ObservableNormalData.cloneNormal(): ObservableNormalData {
     return ObservableNormalData(packNormal().cloneNew())
 }

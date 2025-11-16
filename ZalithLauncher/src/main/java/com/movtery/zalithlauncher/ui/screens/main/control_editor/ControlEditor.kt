@@ -262,8 +262,8 @@ private fun EditorOperation(
                 onEditWidgetText = { string ->
                     changeOperation(EditorOperation.EditWidgetText(string))
                 },
-                switchControlLayers = { data ->
-                    changeOperation(EditorOperation.SwitchLayersVisibility(data))
+                switchControlLayers = { data, type ->
+                    changeOperation(EditorOperation.SwitchLayersVisibility(data, type))
                 },
                 openStyleList = {
                     changeOperation(EditorOperation.OpenStyleList)
@@ -314,9 +314,11 @@ private fun EditorOperation(
         }
         is EditorOperation.SwitchLayersVisibility -> {
             val data = operation.data
+            val type = operation.type
             EditSwitchLayersVisibilityDialog(
                 data = data,
                 layers = controlLayers,
+                type = type,
                 onDismissRequest = {
                     changeOperation(EditorOperation.None)
                 }

@@ -75,7 +75,7 @@ private data class TabItem(val title: Int)
 @Composable
 fun EditWidgetClickEvent(
     data: ObservableNormalData,
-    switchControlLayers: (ObservableNormalData) -> Unit
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -146,7 +146,7 @@ fun EditWidgetClickEvent(
 private fun EditBasicEvent(
     modifier: Modifier = Modifier,
     data: ObservableNormalData,
-    switchControlLayers: (ObservableNormalData) -> Unit
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -186,12 +186,32 @@ private fun EditBasicEvent(
             }
         )
 
+        Spacer(Modifier)
+
         //切换控制层可见性
         InfoLayoutTextItem(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.control_editor_edit_switch_layers),
             onClick = {
-                switchControlLayers(data)
+                switchControlLayers(data, ClickEvent.Type.SwitchLayer)
+            }
+        )
+
+        //强制显示控件层
+        InfoLayoutTextItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.control_editor_edit_show_layers),
+            onClick = {
+                switchControlLayers(data, ClickEvent.Type.ShowLayer)
+            }
+        )
+
+        //强制隐藏控件层
+        InfoLayoutTextItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.control_editor_edit_hide_layers),
+            onClick = {
+                switchControlLayers(data, ClickEvent.Type.HideLayer)
             }
         )
 

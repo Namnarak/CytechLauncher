@@ -47,11 +47,17 @@ class EventHandler(
     internal fun onSwitchLayer(
         clickEvent: ClickEvent,
         allLayers: List<ObservableControlLayer>,
-        switch: (ObservableControlLayer) -> Unit
+        switch: (ObservableControlLayer) -> Unit,
+        show: (ObservableControlLayer) -> Unit,
+        hide: (ObservableControlLayer) -> Unit
     ) {
-        if (clickEvent.type == ClickEvent.Type.SwitchLayer) {
-            val uuid = clickEvent.key
-            allLayers.find { it.uuid == uuid }?.let { switch(it) }
+        fun findLayer() = allLayers.find { it.uuid == clickEvent.key }
+
+        when (clickEvent.type) {
+            ClickEvent.Type.SwitchLayer -> findLayer()?.let { switch(it) }
+            ClickEvent.Type.ShowLayer -> findLayer()?.let { show(it) }
+            ClickEvent.Type.HideLayer -> findLayer()?.let { hide(it) }
+            else -> {}
         }
     }
 }
