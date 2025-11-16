@@ -21,8 +21,11 @@ package com.movtery.layer_controller.observable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.PointerInputChange
 import com.movtery.layer_controller.data.TextData
+import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.cloneNew
+import com.movtery.layer_controller.event.EventHandler
 
 /**
  * 可观察的TextData包装类
@@ -38,6 +41,50 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
     var textItalic by mutableStateOf(data.textItalic)
     var textUnderline by mutableStateOf(data.textUnderline)
     var visibilityType by mutableStateOf(data.visibilityType)
+
+    override fun canTouch(): Boolean = false //不处理触摸事件
+
+    override fun onCheckVisibilityType(): VisibilityType {
+        return visibilityType
+    }
+
+    override fun supportsDeepTouchDetection(): Boolean {
+        return false //不处理触摸事件
+    }
+
+    override fun canProcess(): Boolean {
+        return false //不处理触摸事件
+    }
+
+    override fun onTouchEvent(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>,
+        change: PointerInputChange,
+        activeWidgets: List<ObservableWidget>,
+        setActiveWidgets: (List<ObservableWidget>) -> Unit,
+        consumeEvent: (Boolean) -> Unit
+    ) {
+        //不处理触摸事件
+    }
+
+    override fun isReleaseOnOutOfBounds(): Boolean {
+        return false //不处理触摸事件
+    }
+
+    override fun onPointerBackInBounds(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>
+    ) {
+        //不处理触摸事件
+    }
+
+    override fun onReleaseEvent(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>,
+        change: PointerInputChange
+    ) {
+        //不处理触摸事件
+    }
 
     fun packText(): TextData {
         return TextData(

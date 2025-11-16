@@ -58,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.ControlBoxLayout
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.event.ClickEvent
+import com.movtery.layer_controller.event.EventHandler
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.EmptyControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
@@ -153,6 +154,44 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     val mouseScrollUpEvent = MouseScrollEvent(viewModelScope, 1.0)
     val mouseScrollDownEvent = MouseScrollEvent(viewModelScope, -1.0)
 
+    /** 所有已按下的按键 */
+    val pressedKeyEvents = KeyEventHandler { key, pressed ->
+        lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
+    }
+    /** 所有已按下的启动器事件 */
+    val pressedLauncherEvents = KeyEventHandler { key, pressed ->
+        launcherEvent(
+            eventKey = key,
+            isPressed = pressed,
+            onSwitchIME = { switchIME() },
+            onSwitchMenu = { switchMenu() },
+            onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
+            onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
+            onLongScrollUp = { mouseScrollUpEvent.scrollLongPress() },
+            onLongScrollUpCancel = { mouseScrollUpEvent.cancel() },
+            onLongScrollDown = { mouseScrollDownEvent.scrollLongPress() },
+            onLongScrollDownCancel = { mouseScrollDownEvent.cancel() }
+        )
+    }
+    /** 控制布局控件点击事件处理器 */
+    val eventHandler = EventHandler { event, pressed ->
+        onKeyEvent(event, pressed)
+    }
+
+    /** 处理控制布局类点击事件 */
+    fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
+        val events = when (event.type) {
+            ClickEvent.Type.Key -> pressedKeyEvents
+            ClickEvent.Type.LauncherEvent -> pressedLauncherEvents
+            else -> return
+        }
+        if (pressed) {
+            events.pressKey(event.key)
+        } else {
+            events.releaseKey(event.key)
+        }
+    }
+
     fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
         observableLayout = null
         currentControlFile = layoutFile
@@ -205,26 +244,6 @@ private class GameViewModel(private val version: Version) : ViewModel() {
      */
     fun switchMenu() {
         this.gameMenuState = this.gameMenuState.next()
-    }
-
-    /** 所有已按下的按键 */
-    val pressedKeyEvents = KeyEventHandler { key, pressed ->
-        lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
-    }
-    /** 所有已按下的启动器事件 */
-    val pressedLauncherEvents = KeyEventHandler { key, pressed ->
-        launcherEvent(
-            eventKey = key,
-            isPressed = pressed,
-            onSwitchIME = { switchIME() },
-            onSwitchMenu = { switchMenu() },
-            onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
-            onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
-            onLongScrollUp = { mouseScrollUpEvent.scrollLongPress() },
-            onLongScrollUpCancel = { mouseScrollUpEvent.cancel() },
-            onLongScrollDown = { mouseScrollDownEvent.scrollLongPress() },
-            onLongScrollDownCancel = { mouseScrollDownEvent.cancel() }
-        )
     }
 
     /**
@@ -363,19 +382,6 @@ fun GameScreen(
         )
 
         if (!viewModel.isEditingLayout) {
-            fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
-                val events = when (event.type) {
-                    ClickEvent.Type.Key -> viewModel.pressedKeyEvents
-                    ClickEvent.Type.LauncherEvent -> viewModel.pressedLauncherEvents
-                    else -> return
-                }
-                if (pressed) {
-                    events.pressKey(event.key)
-                } else {
-                    events.releaseKey(event.key)
-                }
-            }
-
             if (AllSettings.gamepadControl.state && gamepadViewModel.gamepadEngaged) {
                 //手柄事件监听
                 GamepadKeyListener(
@@ -383,7 +389,7 @@ fun GameScreen(
                     isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
                     onKeyEvent = { events, pressed ->
                         events.fastForEach { event ->
-                            onKeyEvent(event, pressed)
+                            viewModel.onKeyEvent(event, pressed)
                         }
                     },
                     onAction = {
@@ -396,7 +402,7 @@ fun GameScreen(
                     gamepadViewModel = gamepadViewModel,
                     isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
                     onKeyEvent = { event, pressed ->
-                        onKeyEvent(event, pressed)
+                        viewModel.onKeyEvent(event, pressed)
                     }
                 )
             }
@@ -404,11 +410,9 @@ fun GameScreen(
             ControlBoxLayout(
                 modifier = Modifier.fillMaxSize(),
                 observedLayout = viewModel.observableLayout,
+                eventHandler = viewModel.eventHandler,
                 checkOccupiedPointers = { viewModel.occupiedPointers.contains(it) },
                 opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
-                onClickEvent = { event, pressed ->
-                    onKeyEvent(event, pressed)
-                },
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
                 hideLayerWhen = viewModel.controlLayerHideState

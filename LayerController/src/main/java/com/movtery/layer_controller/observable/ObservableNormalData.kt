@@ -21,9 +21,13 @@ package com.movtery.layer_controller.observable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.util.fastAll
 import com.movtery.layer_controller.data.NormalData
+import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.cloneNew
 import com.movtery.layer_controller.event.ClickEvent
+import com.movtery.layer_controller.event.EventHandler
 
 /**
  * 可观察的NormalData包装类
@@ -48,6 +52,105 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
      * 当前是否处于按下状态
      */
     var isPressed by mutableStateOf(false)
+        private set
+
+    /**
+     * 开始触摸事件处理
+     */
+    private fun pressStart(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>
+    ) {
+        if (isPressed && !isToggleable) return
+
+        isPressed = if (isToggleable) !isPressed else true
+
+        eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
+            eventHandler.onSwitchLayer(event, allLayers) { layer ->
+                layer.hide = if (isToggleable) isPressed else !layer.hide
+            }
+        }
+    }
+
+    /**
+     * 松开事件处理
+     */
+    private fun pressEnd(
+        eventHandler: EventHandler
+    ) {
+        if (!isPressed && !isToggleable) return
+
+        //非可开关按钮在松开时复位
+        if (!isToggleable) isPressed = false
+
+        eventHandler.onKeyPressed(clickEvents, isPressed)
+    }
+
+    override fun onCheckVisibilityType(): VisibilityType {
+        return visibilityType
+    }
+
+    override fun supportsDeepTouchDetection(): Boolean {
+        //如果有不可穿透按钮，只保留最顶层的一个不可穿透按钮及其上层的所有可穿透按钮
+        return !isSwipple || !(isSwipple && isPenetrable)
+    }
+
+    override fun canProcess(): Boolean {
+        //作为特性存在，筛除即可穿透又可滑动的按钮
+        //因为我发现我怎么都修不好:(
+        return isPenetrable && isSwipple
+    }
+
+    override fun onTouchEvent(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>,
+        change: PointerInputChange,
+        activeWidgets: List<ObservableWidget>,
+        setActiveWidgets: (List<ObservableWidget>) -> Unit,
+        consumeEvent: (Boolean) -> Unit
+    ) {
+        if (activeWidgets.isEmpty()) {
+            //新的按下事件
+            setActiveWidgets(activeWidgets + listOf(this))
+            if (!isPenetrable) {
+                consumeEvent(true)
+            } else {
+                consumeEvent(false)
+            }
+            pressStart(eventHandler, allLayers)
+        } else if (this !in activeWidgets && isSwipple) {
+            //滑动到其他按钮时的处理
+            if (
+                activeWidgets.fastAll {
+                    it is ObservableNormalData && it.isSwipple
+                } && isSwipple
+            ) {
+                setActiveWidgets(activeWidgets + listOf(this))
+                pressStart(eventHandler, allLayers)
+            }
+        }
+    }
+
+    override fun isReleaseOnOutOfBounds(): Boolean {
+        return isSwipple
+    }
+
+    override fun onPointerBackInBounds(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>
+    ) {
+        if (isSwipple) {
+            pressStart(eventHandler, allLayers)
+        }
+    }
+
+    override fun onReleaseEvent(
+        eventHandler: EventHandler,
+        allLayers: List<ObservableControlLayer>,
+        change: PointerInputChange
+    ) {
+        pressEnd(eventHandler)
+    }
 
     fun addEvent(event: ClickEvent) {
         if (clickEvents.none { it.type == event.type && it.key == event.key }) {
