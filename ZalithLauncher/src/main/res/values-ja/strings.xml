@@ -975,4 +975,9 @@
     <string name="import_modpack_finished_text">選択したモッドパックが正常にインストールされました！</string>
     <string name="import_modpack_failed_title">インポート失敗</string>
     <string name="import_modpack_failed_text">モッドパックのインストール中にエラーが発生しました:</string>
+    <string name="control_editor_edit_event_launcher_send_text">テキストを送信</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">このコンポーネントをクリックしたら、ゲームは次のテキストを送信しようとします</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">何もしない場合は空白</string>
+    <string name="control_editor_edit_show_layers">コントロールレイヤーを強制的に表示</string>
+    <string name="control_editor_edit_hide_layers">コントロールレイヤーを強制的に非表示</string>
 </resources>
