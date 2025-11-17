@@ -168,7 +168,7 @@ public class MinecraftKeyBindingMapper {
      * @param keybinding 绑定的按键
      * @return 对应的控制事件标识
      */
-    public static @Nullable String getContentEvent(String keybinding) {
+    public static @Nullable String getControlEvent(String keybinding) {
         switch (keybinding) {
             case "key.keyboard.unknown": return ControlEventKeycode.GLFW_KEY_UNKNOWN;
             case "key.mouse.left": return ControlEventKeycode.GLFW_MOUSE_BUTTON_LEFT;

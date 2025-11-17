@@ -48,7 +48,6 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -264,11 +263,6 @@ fun TitleTaskFlowDialog(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.size(16.dp))
 

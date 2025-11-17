@@ -92,7 +92,7 @@ private sealed interface ModPackInstallOperation {
     /** 警告整合包的兼容性，同意后将进行安装 */
     data class Warning(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
     /** 开始安装 */
-    data class Install(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
+    data object Install : ModPackInstallOperation
     /** 警告通知权限，可以无视，并直接开始安装 */
     data class WarningForNotification(val version: PlatformVersion, val iconUrl: String?) : ModPackInstallOperation
     /** 整合包安装出现异常 */
@@ -141,6 +141,7 @@ private class ModPackViewModel: ViewModel() {
         version: PlatformVersion,
         iconUrl: String?
     ) {
+        installOperation = ModPackInstallOperation.Install
         installer = ModPackInstaller(
             context = context,
             version = version,
@@ -149,10 +150,6 @@ private class ModPackViewModel: ViewModel() {
             waitForVersionName = ::waitForVersionName
         ).also {
             it.installModPack(
-                isRunning = {
-                    installer = null
-                    installOperation = ModPackInstallOperation.None
-                },
                 onInstalled = {
                     installer = null
                     VersionsManager.refresh()
@@ -169,6 +166,7 @@ private class ModPackViewModel: ViewModel() {
     fun cancel() {
         installer?.cancelInstall()
         installer = null
+        installOperation = ModPackInstallOperation.None
     }
 
     override fun onCleared() {
@@ -324,14 +322,11 @@ private fun ModPackInstallOperation(
                     updateOperation(ModPackInstallOperation.None)
                 },
                 onConfirm = {
-                    updateOperation(ModPackInstallOperation.Install(operation.version, operation.iconUrl))
+                    onInstall(operation.version, operation.iconUrl)
                 }
             )
         }
         is ModPackInstallOperation.Install -> {
-            LaunchedEffect(installer) {
-                if (installer == null) onInstall(operation.version, operation.iconUrl)
-            }
             if (installer != null) {
                 val tasks = installer.tasksFlow.collectAsState()
                 if (tasks.value.isNotEmpty()) {

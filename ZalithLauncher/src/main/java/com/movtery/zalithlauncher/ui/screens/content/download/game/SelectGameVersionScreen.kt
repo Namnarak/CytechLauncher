@@ -267,7 +267,9 @@ fun SelectGameVersionScreen(
                 is VersionState.None -> {
                     Column {
                         VersionHeader(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
                             versionFilter = viewModel.versionFilter,
                             onVersionFilterChange = { viewModel.filterWith(it) },
                             itemContainerColor = backgroundLayoutColor(),
@@ -320,9 +322,7 @@ private fun VersionHeader(
     itemContentColor: Color,
     onRefreshClick: () -> Unit = {}
 ) {
-    Column(
-        modifier = modifier.padding(horizontal = 12.dp)
-    ) {
+    Column(modifier = modifier) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -406,7 +406,7 @@ private fun VersionHeader(
 
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         )
     }
 }

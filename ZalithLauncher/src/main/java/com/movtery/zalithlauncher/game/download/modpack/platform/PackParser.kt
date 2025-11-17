@@ -16,10 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform
+package com.movtery.zalithlauncher.game.download.modpack.platform
 
-import com.movtery.zalithlauncher.game.version.modpack.platform.curseforge.CurseForgePackParser
-import com.movtery.zalithlauncher.game.version.modpack.platform.modrinth.ModrinthPackParser
+import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgePackParser
+import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthPackParser
+import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.MultiMCPackParser
 import java.io.File
 
 /**
@@ -31,6 +32,11 @@ interface PackParser {
      * @param packFolder 解压后的整合包文件夹
      */
     suspend fun parse(packFolder: File): AbstractPack?
+
+    /**
+     * 获取该解析器的标识
+     */
+    fun getIdentifier(): String
 }
 
 /**
@@ -38,5 +44,6 @@ interface PackParser {
  */
 val ALL_PACK_PARSER = listOf(
     CurseForgePackParser,
-    ModrinthPackParser
+    ModrinthPackParser,
+    MultiMCPackParser
 )

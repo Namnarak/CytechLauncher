@@ -44,9 +44,17 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
-import com.movtery.zalithlauncher.game.keycodes.Lwjgl2Keycode
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_1
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_2
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_3
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_4
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_5
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_6
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_7
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_8
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_9
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
-import com.movtery.zalithlauncher.game.keycodes.MinecraftKeyBindingMapper
+import com.movtery.zalithlauncher.game.keycodes.mapToKeycode
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import kotlinx.coroutines.delay
 
@@ -71,15 +79,15 @@ fun Int.hotbarPercentage() = this / 1000f
  * 快捷栏按键绑定键
  */
 private val hotbarList = listOf(
-    "key_key.hotbar.1",
-    "key_key.hotbar.2",
-    "key_key.hotbar.3",
-    "key_key.hotbar.4",
-    "key_key.hotbar.5",
-    "key_key.hotbar.6",
-    "key_key.hotbar.7",
-    "key_key.hotbar.8",
-    "key_key.hotbar.9",
+    HOTBAR_1,
+    HOTBAR_2,
+    HOTBAR_3,
+    HOTBAR_4,
+    HOTBAR_5,
+    HOTBAR_6,
+    HOTBAR_7,
+    HOTBAR_8,
+    HOTBAR_9,
 )
 
 private val keyList = listOf(
@@ -175,7 +183,7 @@ fun BoxScope.MinecraftHotbar(
                         hotbarSize = hotbarSize,
                         density = density,
                         onClickSlot = { index: Int ->
-                            val keyCode = hotbarList[index].mapToKeycode() ?: keyList[index].toInt()
+                            val keyCode = mapToKeycode(hotbarList[index]) ?: keyList[index].toInt()
                             onClickSlot(keyCode)
                         },
                         onOccupiedPointer = onOccupiedPointer,
@@ -263,24 +271,4 @@ private fun calculateSlotIndex(
     val totalWidth = with(density) { hotbarSize.width.toPx() }
     val slotWidth = totalWidth / slotCount
     return (x / slotWidth).toInt().coerceIn(0, slotCount - 1)
-}
-
-/**
- * 将字符串键映射到其对应的键码
- * @return 如果找到映射则返回键码，否则返回 `null`
- */
-private fun String?.mapToKeycode(): Int? {
-    val key = this ?: return null
-    val binding = MCOptions.get(key) ?: return null
-
-    return if (binding.startsWith("key.")) {
-        //新版MC键绑定映射
-        MinecraftKeyBindingMapper.getGlfwKeycode(binding)?.toInt()
-    } else {
-        binding.toIntOrNull()?.let { lwjgl2Code ->
-            //MC旧版本直接存了LWJGL2的键值
-            //将旧版本LWJGL2的键码转换为GLFW
-            Lwjgl2Keycode.lwjgl2ToGlfw(lwjgl2Code)
-        }
-    }
 }

@@ -53,7 +53,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 

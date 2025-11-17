@@ -20,11 +20,11 @@ package com.movtery.zalithlauncher.game.download.modpack.install
 
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
+import com.movtery.zalithlauncher.game.download.modpack.platform.AbstractPack
 import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
+import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgePack
 import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
-import com.movtery.zalithlauncher.game.version.modpack.platform.AbstractPack
-import com.movtery.zalithlauncher.game.version.modpack.platform.curseforge.CurseForgePack
-import com.movtery.zalithlauncher.game.version.modpack.platform.modrinth.ModrinthPack
+import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthPack
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.file.readText
@@ -50,18 +50,26 @@ private data class PackParserConfig<M, P : AbstractPack>(
     val readPack: suspend P.(Task, File, suspend (String, File) -> Unit) -> ModPackInfo
 )
 
+/**
+ * 仅适用于内置在线下载，通过 [Platform] 解析不同类型的整合包
+ * @return 整合包在线下载模组信息
+ */
 suspend fun parserModPack(
     file: File,
     platform: Platform,
     targetFolder: File,
     task: Task
 ): ModPackInfo = withContext(Dispatchers.IO) {
+    //此处不需要使用root，因为仅仅只是获取ModPackInfo对象
+    //所以使用emptyFile填充，创建对象而已
+    val emptyFile = File("")
+
     when (platform) {
         Platform.CURSEFORGE -> {
             val config = PackParserConfig(
                 manifestPath = "manifest.json",
                 manifestType = CurseForgeManifest::class.java,
-                createPack = { CurseForgePack(it) },
+                createPack = { CurseForgePack(root = emptyFile, it) },
                 readPack = { task, target, extract ->
                     readCurseForge(task, target, extract)
                 }
@@ -72,7 +80,7 @@ suspend fun parserModPack(
             val config = PackParserConfig(
                 manifestPath = "modrinth.index.json",
                 manifestType = ModrinthManifest::class.java,
-                createPack = { ModrinthPack(it) },
+                createPack = { ModrinthPack(root = emptyFile, it) },
                 readPack = { task, target, extract ->
                     readModrinth(task, target, extract)
                 }

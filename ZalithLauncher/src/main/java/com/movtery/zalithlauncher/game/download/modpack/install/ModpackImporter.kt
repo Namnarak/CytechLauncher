@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.install
+package com.movtery.zalithlauncher.game.download.modpack.install
 
 import android.content.Context
 import android.net.Uri
@@ -30,14 +30,15 @@ import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.coroutine.addTask
 import com.movtery.zalithlauncher.coroutine.buildPhase
+import com.movtery.zalithlauncher.game.download.modpack.platform.ALL_PACK_PARSER
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
-import com.movtery.zalithlauncher.game.version.modpack.platform.ALL_PACK_PARSER
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.extractFromZip
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
+import java.io.InterruptedIOException
 import org.apache.commons.compress.archivers.zip.ZipFile as ApacheZipFile
 import java.util.zip.ZipFile as JDKZipFile
 
@@ -70,7 +72,7 @@ class ModpackImporter(
      * @param onError 导入过程中出现异常
      */
     fun startImport(
-        isRunning: () -> Unit,
+        isRunning: () -> Unit = {},
         onFinished: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
@@ -96,6 +98,8 @@ class ModpackImporter(
         //整合包安装包文件
         val installerDir = File(tempModPackDir, "installer")
         val installerFile = File(installerDir, ".temp_installer.zip")
+        //已解压的整合包缓存目录
+        val packDir = File(installerDir, ".temp_pack")
 
         listOf(
             buildPhase {
@@ -110,6 +114,7 @@ class ModpackImporter(
                     tempModPackDir.createDirAndLog()
                     tempVersionsDir.createDirAndLog()
                     installerDir.createDirAndLog()
+                    packDir.createDirAndLog()
                     File(tempVersionsDir, VersionFolders.MOD.folderName).createDirAndLog() //创建临时模组目录
                 }
 
@@ -117,6 +122,7 @@ class ModpackImporter(
                 addTask(
                     id = "ImportModpack.ImportFile",
                     title = context.getString(R.string.import_modpack_task_unpack),
+                    dispatcher = Dispatchers.IO,
                     icon = Icons.Outlined.Unarchive
                 ) { task ->
                     task.updateProgress(-1f)
@@ -124,15 +130,17 @@ class ModpackImporter(
                     //尝试解压压缩包
                     try {
                         JDKZipFile(installerFile).use { zip ->
-                            zip.extractFromZip("", installerDir)
+                            zip.extractFromZip("", packDir)
                         }
                     } catch (e: Exception) {
+                        if (e is CancellationException || e is InterruptedIOException) return@addTask
                         lWarning("JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
                         try {
                             ApacheZipFile.builder().setFile(installerFile).get().use { zip ->
-                                zip.extractFromZip("", installerDir)
+                                zip.extractFromZip("", packDir)
                             }
                         } catch (e: Exception) {
+                            if (e is CancellationException || e is InterruptedIOException) return@addTask
                             //如果兜底解压也失败了，则说明这可能不是一个压缩包
                             //或者压缩包已损坏，抛出不支持的异常终止任务流
                             lError("Unable to extract the installer file. Is it really a compressed archive?", e)
@@ -157,13 +165,17 @@ class ModpackImporter(
                             ensureActive()
 
                             val result = runCatching {
-                                parser.parse(packFolder = installerDir)
+                                parser.parse(packFolder = packDir)
+                            }.onFailure { th ->
+                                lDebug("${parser.getIdentifier()} parser does not recognize this format", th)
                             }.getOrNull()
 
                             if (result != null) {
                                 //成功识别到这个整合包格式
                                 lInfo("Successfully detected the modpack format: ${result.platform.identifier}")
                                 return@run result
+                            } else {
+                                lDebug("Skipped the ${parser.getIdentifier()} parser")
                             }
                         }
                         //整合包不受支持，或格式有误未能匹配
@@ -175,7 +187,6 @@ class ModpackImporter(
                         modpack.buildTaskPhases(
                             context = context,
                             scope = scope,
-                            packFolder = installerDir,
                             versionFolder = tempVersionsDir,
                             waitForVersionName = waitForVersionName,
                             addPhases = { phases ->

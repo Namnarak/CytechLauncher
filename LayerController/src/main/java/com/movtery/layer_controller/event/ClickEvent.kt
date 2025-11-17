@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 /**
  * 按键点击事件
  * @param type 绑定的点击事件类型
- * @param key 事件唯一标识
+ * @param key 事件唯一标识/事件值
  */
 @Serializable
 data class ClickEvent(
@@ -48,9 +48,35 @@ data class ClickEvent(
         LauncherEvent,
 
         /**
-         * 点击开关按键层级
+         * 点击开关控件层
          */
         @SerialName("switch_layer")
-        SwitchLayer
+        SwitchLayer,
+
+        /**
+         * 点击强制显示控件层
+         */
+        @SerialName("show_layer")
+        ShowLayer,
+
+        /**
+         * 点击强制隐藏控件层
+         */
+        @SerialName("hide_layer")
+        HideLayer,
+
+        /**
+         * 点击发送聊天消息
+         */
+        @SerialName("send_text")
+        SendText
     }
+
+    /**
+     * 该点击事件是否关于控件层
+     */
+    fun isAboutLayers(): Boolean =
+        type == Type.SwitchLayer ||
+                type == Type.ShowLayer ||
+                type == Type.HideLayer
 }

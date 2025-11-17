@@ -949,6 +949,9 @@
     <string name="control_editor_edit_event_launcher_mouse_scroll_up_single">Single Mouse Scroll Up</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down">Continuous Mouse Scroll Down</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">Single Mouse Scroll Down</string>
+    <string name="control_editor_edit_event_launcher_send_text">Send Text</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">When this component is clicked, the game will attempt to send the following text</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">Empty for no action</string>
     <string name="control_editor_edit_event_key">Key</string>
     <string name="control_editor_edit_event_key_new">Add New Trigger Key Value</string>
     <string name="control_editor_edit_event_key_value">Trigger Key Value: %s</string>
@@ -960,6 +963,8 @@
     <string name="control_editor_edit_visibility_in_game">Visible In-Game</string>
     <string name="control_editor_edit_visibility_in_menu">Visible Out-Game</string>
     <string name="control_editor_edit_switch_layers">Switch Control Layers Visibility</string>
+    <string name="control_editor_edit_show_layers">Force Show Control Layers</string>
+    <string name="control_editor_edit_hide_layers">Force Hide Control Layers</string>
     <string name="control_editor_edit_style_config">Control Appearance List</string>
     <string name="control_editor_edit_style_config_empty">No control appearances in the current control layout</string>
     <string name="control_editor_edit_style_config_name">Control Appearance Name</string>

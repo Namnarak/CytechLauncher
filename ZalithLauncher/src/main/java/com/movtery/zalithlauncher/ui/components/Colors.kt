@@ -55,9 +55,8 @@ fun itemLayoutColor(
     } else {
         MaterialTheme.colorScheme.surface
     }
-    return influencedByBackground(
-        value = color,
-        influenced = color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f),
+    return influencedByBackgroundColor(
+        color = color,
         enabled = influencedByBackground
     )
 }
@@ -76,10 +75,26 @@ fun backgroundLayoutColor(
     influencedByBackground: Boolean = true
 ): Color {
     val color = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+    return influencedByBackgroundColor(
+        color = color,
+        enabled = influencedByBackground
+    )
+}
+
+/**
+ * 受背景内容影响的颜色，设置背景内容时，支持调整不透明度用于适配背景内容画面
+ * @param influencedAlpha 受影响时，调整的 alpha 值
+ */
+@Composable
+fun influencedByBackgroundColor(
+    color: Color,
+    influencedAlpha: Float = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f,
+    enabled: Boolean = true
+): Color {
     return influencedByBackground(
         value = color,
-        influenced = color.copy(alpha = AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f),
-        enabled = influencedByBackground
+        influenced = color.copy(alpha = influencedAlpha),
+        enabled = enabled
     )
 }
 

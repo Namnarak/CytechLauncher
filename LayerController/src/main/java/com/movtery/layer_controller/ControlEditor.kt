@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -102,7 +105,7 @@ fun ControlEditorLayer(
             //绘制参考线
             Canvas(modifier = Modifier.fillMaxSize()) {
                 guideLines.values.forEach { guidelines ->
-                    guidelines.forEach { guideline ->
+                    guidelines.fastForEach { guideline ->
                         drawLine(
                             guideline = guideline
                         )
@@ -197,7 +200,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
                         if (layer1.editorHide) return@filter false
                         snapInAllLayers1 || layer1 == layer
                     }
-                    .values.flatten().filter { it != data }
+                    .values.flatten().fastFilter { it != data }
             },
             snapThresholdValue = snapThresholdValue,
             drawLine = drawLine,
@@ -209,7 +212,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
                     else -> error("Unknown widget type")
                 }
                 styles.takeIf { buttonStyle != null }
-                    ?.find { it.uuid == buttonStyle }
+                    ?.fastFirstOrNull { it.uuid == buttonStyle }
             },
             isPressed = isPressed,
             onTapInEditMode = remember(data, layer) {
@@ -221,7 +224,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
     Layout(
         content = {
             //按图层顺序渲染所有可见的控件
-            renderingLayers.forEach { layer ->
+            renderingLayers.fastForEach { layer ->
                 if (!layer.editorHide) {
                     val normalButtons by layer.normalButtons.collectAsState()
                     val textBoxes by layer.textBoxes.collectAsState()
@@ -229,11 +232,11 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
                     val widgetsInLayer = normalButtons + textBoxes
                     allWidgetsMap[layer] = widgetsInLayer
 
-                    textBoxes.forEach { data ->
+                    textBoxes.fastForEach { data ->
                         RenderWidget(data, layer, isPressed = false)
                     }
 
-                    normalButtons.forEach { data ->
+                    normalButtons.fastForEach { data ->
                         RenderWidget(data, layer, data.isPressed)
                     }
                 }
@@ -245,9 +248,9 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
         }
 
         var index = 0
-        renderingLayers.forEach { layer ->
+        renderingLayers.fastForEach { layer ->
             if (!layer.editorHide) {
-                layer.textBoxes.value.forEach { data ->
+                layer.textBoxes.value.fastForEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -255,7 +258,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
                     }
                 }
 
-                layer.normalButtons.value.forEach { data ->
+                layer.normalButtons.value.fastForEach { data ->
                     if (index < placeables.size) {
                         val placeable = placeables[index]
                         sizes[data] = IntSize(placeable.width, placeable.height)
@@ -267,9 +270,9 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             var placeableIndex = 0
-            renderingLayers.forEach { layer ->
+            renderingLayers.fastForEach { layer ->
                 if (!layer.editorHide) {
-                    layer.textBoxes.value.forEach { data ->
+                    layer.textBoxes.value.fastForEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]
                             val position = getWidgetPosition(
@@ -282,7 +285,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
                         }
                     }
 
-                    layer.normalButtons.value.forEach { data ->
+                    layer.normalButtons.value.fastForEach { data ->
                         if (placeableIndex < placeables.size) {
                             val placeable = placeables[placeableIndex]
                             val position = getWidgetPosition(

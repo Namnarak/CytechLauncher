@@ -52,23 +52,25 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 
 /**
- * 编辑按钮点击事件：切换控制层可见性
+ * 编辑按钮点击事件：切换控件层可见性
+ * @param type 控制控件层的类型
  */
 @Composable
 fun EditSwitchLayersVisibilityDialog(
     data: ObservableNormalData,
     layers: List<ObservableControlLayer>,
+    type: ClickEvent.Type,
     onDismissRequest: () -> Unit
 ) {
     /**
-     * 缓存哪些控制层被选中
+     * 缓存哪些控件层被选中
      */
     val layerSelected = remember { mutableStateListOf<ObservableControlLayer>() }
 
     LaunchedEffect(data.clickEvents) {
         val layerUuids = layers.map { it.uuid }.toSet()
         val unsafeEvents = data.clickEvents.filter { event ->
-            event.type == ClickEvent.Type.SwitchLayer && event.key !in layerUuids //控件层已不存在
+            event.isAboutLayers() && event.key !in layerUuids //控件层已不存在
         }
 
         if (unsafeEvents.isNotEmpty()) {
@@ -77,7 +79,7 @@ fun EditSwitchLayersVisibilityDialog(
         }
 
         val validLayerEvents = data.clickEvents.filter {
-            it.type == ClickEvent.Type.SwitchLayer
+            it.type == type
         }
 
         val eventLayerMap = validLayerEvents.associateBy { it.key }
@@ -126,7 +128,7 @@ fun EditSwitchLayersVisibilityDialog(
                                 layer = layer,
                                 selected = layerSelected.contains(layer),
                                 onSelectedChange = { selected ->
-                                    val event = ClickEvent(ClickEvent.Type.SwitchLayer, layer.uuid)
+                                    val event = ClickEvent(type, layer.uuid)
                                     if (selected) {
                                         data.addEvent(event)
                                     } else {

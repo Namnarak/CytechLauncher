@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -258,12 +259,17 @@ private class AddonsViewModel(
     }
 }
 
+/**
+ * 下载游戏页面（选择附加内容）
+ * @param refreshErrorCheck 刷新版本名称错误检查
+ */
 @Composable
 fun DownloadGameWithAddonScreen(
     mainScreenKey: NavKey?,
     downloadScreenKey: NavKey?,
     downloadGameScreenKey: NavKey?,
     key: NormalNavKey.DownloadGame.Addons,
+    refreshErrorCheck: Any? = null,
     onInstall: (GameDownloadInfo) -> Unit = {}
 ) {
     val viewModel = viewModel(
@@ -301,6 +307,7 @@ fun DownloadGameWithAddonScreen(
                 gameVersion = key.gameVersion,
                 currentAddon = viewModel.currentAddon,
                 refreshIcon = viewModel.refreshIcon,
+                refreshErrorCheck = refreshErrorCheck,
                 onInstall = { customVersionName ->
                     onInstall(
                         GameDownloadInfo(
@@ -403,6 +410,7 @@ private fun ScreenHeader(
     gameVersion: String,
     currentAddon: CurrentAddon,
     refreshIcon: Any? = null,
+    refreshErrorCheck: Any? = null,
     onInstall: (String) -> Unit = {}
 ) {
     Column(modifier = modifier) {
@@ -430,12 +438,14 @@ private fun ScreenHeader(
 
             var errorMessage by remember { mutableStateOf("") }
 
-            val isError = nameValue.isEmpty().also {
-                errorMessage = stringResource(R.string.generic_cannot_empty)
-            } || isFilenameInvalid(nameValue) { message ->
-                errorMessage = message
-            } || VersionsManager.validateVersionName(nameValue, null) { message ->
-                errorMessage = message
+            val isError = key(nameValue, refreshErrorCheck) {
+                nameValue.isEmpty().also {
+                    errorMessage = stringResource(R.string.generic_cannot_empty)
+                } || isFilenameInvalid(nameValue) { message ->
+                    errorMessage = message
+                } || VersionsManager.validateVersionName(nameValue, null) { message ->
+                    errorMessage = message
+                }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -497,7 +507,7 @@ private fun ScreenHeader(
 
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         )
     }
 }
@@ -731,7 +741,7 @@ private fun NeoForgeList(
         incompatibleSet = currentAddon.incompatibleWithNeoForge,
         checkIncompatible = {
             val neoforgeType = listOf(ModLoader.NEOFORGE)
-            currentAddon.neoforgeVersion?.let { version ->
+            currentAddon.neoforgeVersion?.let {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.fabricVersion = null
@@ -779,7 +789,7 @@ private fun FabricList(
         incompatibleSet = currentAddon.incompatibleWithFabric,
         checkIncompatible = {
             val fabricType = listOf(ModLoader.FABRIC)
-            currentAddon.fabricVersion?.let { version ->
+            currentAddon.fabricVersion?.let {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
@@ -836,7 +846,7 @@ private fun FabricAPIList(
         incompatibleSet = currentAddon.incompatibleWithFabricAPI,
         checkIncompatible = {
             val fabricType = listOf(ModLoader.FABRIC_API)
-            currentAddon.fabricAPIVersion?.let { version ->
+            currentAddon.fabricAPIVersion?.let {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
@@ -883,7 +893,7 @@ private fun QuiltList(
         incompatibleSet = currentAddon.incompatibleWithQuilt,
         checkIncompatible = {
             val quiltType = listOf(ModLoader.QUILT)
-            currentAddon.quiltVersion?.let { version ->
+            currentAddon.quiltVersion?.let {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
@@ -940,7 +950,7 @@ private fun QuiltAPIList(
         incompatibleSet = currentAddon.incompatibleWithQuiltAPI,
         checkIncompatible = {
             val quiltType = listOf(ModLoader.QUILT_API)
-            currentAddon.quiltAPIVersion?.let { version ->
+            currentAddon.quiltAPIVersion?.let {
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null

@@ -24,18 +24,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Copyright
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,6 +73,7 @@ import com.movtery.zalithlauncher.path.URL_SUPPORT
 import com.movtery.zalithlauncher.path.URL_WEBLATE
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -231,19 +229,14 @@ private fun ChunkLayout(
         contentPadding = 0.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.width(width = 8.dp))
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            CardTitleLayout {
+                Text(
+                    modifier = Modifier.padding(all = 16.dp),
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

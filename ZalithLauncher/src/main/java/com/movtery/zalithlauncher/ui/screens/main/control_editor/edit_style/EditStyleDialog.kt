@@ -322,8 +322,7 @@ private fun StyleConfigEditor(
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .padding(vertical = 6.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    .fillMaxWidth()
             )
         }
 

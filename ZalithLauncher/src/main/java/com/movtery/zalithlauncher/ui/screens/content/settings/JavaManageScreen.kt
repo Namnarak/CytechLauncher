@@ -27,10 +27,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -72,6 +69,7 @@ import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -133,58 +131,52 @@ fun JavaManageScreen(
                 },
             contentPadding = 0.dp
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .padding(top = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconTextButton(
-                    onClick = { runtimes = getRuntimes(true) },
-                    imageVector = Icons.Filled.Refresh,
-                    contentDescription = stringResource(R.string.generic_refresh),
-                    text = stringResource(R.string.generic_refresh),
-                )
-                ImportFileButton(
-                    extension = "xz",
-                    progressUris = { uris ->
-                        uris.forEach { uri ->
-                            progressRuntimeUri(
-                                context = context,
-                                uri = uri,
-                                callRefresh = { runtimes = getRuntimes(true) },
-                                submitError = submitError
-                            )
-                        }
-                    }
-                )
-                ImportFileButton(
-                    extension = "jar",
-                    progressUris = { uris ->
-                        uris[0].let { uri ->
-                            RuntimesManager.getExactJreName(8) ?: run {
-                                Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
-                                return@ImportFileButton
-                            }
-                            (context as? Activity)?.let { activity ->
-                                val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
-                                executeJarWithUri(activity, uri, jreName)
+            CardTitleLayout {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    IconTextButton(
+                        onClick = { runtimes = getRuntimes(true) },
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = stringResource(R.string.generic_refresh),
+                        text = stringResource(R.string.generic_refresh),
+                    )
+                    ImportFileButton(
+                        extension = "xz",
+                        progressUris = { uris ->
+                            uris.forEach { uri ->
+                                progressRuntimeUri(
+                                    context = context,
+                                    uri = uri,
+                                    callRefresh = { runtimes = getRuntimes(true) },
+                                    submitError = submitError
+                                )
                             }
                         }
-                    },
-                    imageVector = Icons.Default.Terminal,
-                    text = stringResource(R.string.execute_jar_title),
-                    allowMultiple = false
-                )
+                    )
+                    ImportFileButton(
+                        extension = "jar",
+                        progressUris = { uris ->
+                            uris[0].let { uri ->
+                                RuntimesManager.getExactJreName(8) ?: run {
+                                    Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
+                                    return@ImportFileButton
+                                }
+                                (context as? Activity)?.let { activity ->
+                                    val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
+                                    executeJarWithUri(activity, uri, jreName)
+                                }
+                            }
+                        },
+                        imageVector = Icons.Default.Terminal,
+                        text = stringResource(R.string.execute_jar_title),
+                        allowMultiple = false
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),

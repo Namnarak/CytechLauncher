@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform.curseforge
+package com.movtery.zalithlauncher.game.download.modpack.platform.curseforge
 
 import com.google.gson.JsonParseException
 import com.movtery.zalithlauncher.R
@@ -29,19 +29,26 @@ import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCu
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
 import com.movtery.zalithlauncher.game.download.modpack.install.ModFile
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
-import com.movtery.zalithlauncher.game.download.modpack.platform.curseforge.CurseForgeManifest
+import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfoTask
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
-import com.movtery.zalithlauncher.game.version.modpack.install.ModPackInfoTask
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
+/**
+ * CurseForge 整合包安装信息
+ * @param manifest CurseForge 整合包清单
+ */
 class CurseForgePack(
+    root: File,
     private val manifest: CurseForgeManifest
-) : ModPackInfoTask(platform = PackPlatform.CurseForge) {
+) : ModPackInfoTask(
+    root = root,
+    platform = PackPlatform.CurseForge
+) {
     /**
      * 将 CurseForge 的清单读取为 [ModPackInfo] 信息对象
      */
@@ -131,15 +138,15 @@ class CurseForgePack(
     override suspend fun readInfo(
         task: Task,
         versionFolder: File,
-        packFolder: File
+        root: File
     ): ModPackInfo {
         return readCurseForge(
             task = task,
             targetFolder = versionFolder,
             extractFiles = { internal, out ->
                 val sourceDir = internal.takeIf { it.isNotBlank() }
-                    ?.let { File(packFolder, it) }
-                    ?: packFolder
+                    ?.let { File(root, it) }
+                    ?: root
                 //提取文件
                 copyDirectoryContents(
                     from = sourceDir,

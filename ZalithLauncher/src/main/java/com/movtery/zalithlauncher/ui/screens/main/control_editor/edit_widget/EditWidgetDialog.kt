@@ -60,6 +60,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
@@ -99,7 +100,8 @@ fun EditWidgetDialog(
     onDelete: () -> Unit,
     onClone: () -> Unit,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
-    switchControlLayers: (ObservableNormalData) -> Unit,
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
+    sendText: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit
 ) {
     val backStack = rememberNavBackStack(EditWidgetCategory.Info)
@@ -165,6 +167,7 @@ fun EditWidgetDialog(
                             data = data,
                             styles = styles,
                             switchControlLayers = switchControlLayers,
+                            sendText = sendText,
                             openStyleList = openStyleList,
                             onEditWidgetText = onEditWidgetText,
                             onPreviewRequested = {
@@ -279,7 +282,8 @@ private fun EditWidgetNavigation(
     data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
-    switchControlLayers: (ObservableNormalData) -> Unit,
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
+    sendText: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
@@ -297,7 +301,7 @@ private fun EditWidgetNavigation(
                     EditTextStyle(data, onEditWidgetText)
                 }
                 entry<EditWidgetCategory.ClickEvent> {
-                    EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers)
+                    EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers, sendText)
                 }
                 entry<EditWidgetCategory.Style> {
                     EditWidgetStyle(data, styles, openStyleList)

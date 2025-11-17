@@ -893,7 +893,7 @@
     <string name="control_editor_menu_preview_is_mouse">正在使用实体鼠标</string>
     <string name="control_editor_menu_preview_is_gamepad">正在使用手柄</string>
     <string name="control_editor_menu_widget_snap">控件吸附</string>
-    <string name="control_editor_menu_widget_snap_all_layers">所有控制层范围吸附</string>
+    <string name="control_editor_menu_widget_snap_all_layers">所有控件层范围吸附</string>
     <string name="control_editor_menu_widget_snap_mode">控件吸附模式</string>
     <string name="control_editor_menu_widget_snap_mode_fullscreen">全屏吸附</string>
     <string name="control_editor_menu_widget_snap_mode_local">小范围吸附</string>
@@ -909,7 +909,7 @@
     <string name="control_editor_edit_dialog_open_preview">开启预览</string>
     <string name="control_editor_edit_dialog_close_preview">关闭预览</string>
     <string name="control_editor_edit_dialog_clone_widget">复制控件</string>
-    <string name="control_editor_edit_dialog_clone_widget_title">复制到控制层</string>
+    <string name="control_editor_edit_dialog_clone_widget_title">复制到控件层</string>
     <string name="control_editor_edit_category_info">基本信息</string>
     <string name="control_editor_edit_category_event">点击事件</string>
     <string name="control_editor_edit_category_style">控件样式</string>
@@ -948,6 +948,9 @@
     <string name="control_editor_edit_event_launcher_mouse_scroll_up_single">单次鼠标滚轮上</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down">持续鼠标滚轮下</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">单次鼠标滚轮下</string>
+    <string name="control_editor_edit_event_launcher_send_text">发送文本</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">点击该组件时，游戏内将尝试发送如下文本</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">留空则无响应</string>
     <string name="control_editor_edit_event_key">按键</string>
     <string name="control_editor_edit_event_key_new">添加新的触发键值</string>
     <string name="control_editor_edit_event_key_value">触发键值：%s</string>
@@ -959,6 +962,8 @@
     <string name="control_editor_edit_visibility_in_game">游戏内可见</string>
     <string name="control_editor_edit_visibility_in_menu">游戏外可见</string>
     <string name="control_editor_edit_switch_layers">切换控件层可见性</string>
+    <string name="control_editor_edit_show_layers">强制显示控件层</string>
+    <string name="control_editor_edit_hide_layers">强制隐藏控件层</string>
     <string name="control_editor_edit_style_config">控件外观列表</string>
     <string name="control_editor_edit_style_config_empty">当前控制布局还没有控件外观</string>
     <string name="control_editor_edit_style_config_name">控件外观名称</string>

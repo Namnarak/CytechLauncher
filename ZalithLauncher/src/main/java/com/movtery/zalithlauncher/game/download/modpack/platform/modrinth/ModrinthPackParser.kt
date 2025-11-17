@@ -15,31 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
-package com.movtery.zalithlauncher.game.version.modpack.install
+
+package com.movtery.zalithlauncher.game.download.modpack.platform.modrinth
+
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
+import com.movtery.zalithlauncher.game.download.modpack.platform.SimplePackParser
 
 /**
- * 整合包不受支持，无法导入时，抛出这个异常
- * @param reason 不受支持的原因
+ * Modrinth 整合包解析器，用于尝试以 .mrpack 的格式解析整合包
  */
-class PackNotSupportedException(
-    val reason: UnsupportedPackReason
-) : RuntimeException(
-    reason.reasonText
-)
-
-/**
- * 导致启动器判断整合包不受支持的原因
- */
-enum class UnsupportedPackReason(
-    val reasonText: String
+object ModrinthPackParser : SimplePackParser<ModrinthManifest>(
+    indexFilePath = "modrinth.index.json",
+    manifestClass = ModrinthManifest::class.java,
+    buildPack = { root, manifest ->
+        ModrinthPack(root = root, manifest = manifest)
+    }
 ) {
-    /**
-     * 压缩包损坏或解压失败
-     */
-    CorruptedArchive("The archive is corrupted or failed to extract."),
-
-    /**
-     * 不支持的整合包格式
-     */
-    UnsupportedFormat("The modpack format is not supported.")
+    override fun getIdentifier(): String = PackPlatform.Modrinth.identifier
 }

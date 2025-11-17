@@ -16,17 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.version.modpack.platform.modrinth
+package com.movtery.zalithlauncher.game.download.modpack.platform.modrinth
 
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.modpack.install.ModFile
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
-import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.ModrinthManifest
-import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.getGameVersion
-import com.movtery.zalithlauncher.game.version.modpack.install.ModPackInfoTask
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
+import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfoTask
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import java.io.File
 
@@ -35,8 +33,10 @@ import java.io.File
  * @param manifest Modrinth 整合包清单
  */
 class ModrinthPack(
-    val manifest: ModrinthManifest
+    root: File,
+    private val manifest: ModrinthManifest
 ) : ModPackInfoTask(
+    root = root,
     platform = PackPlatform.Modrinth
 ) {
     /**
@@ -85,15 +85,15 @@ class ModrinthPack(
     override suspend fun readInfo(
         task: Task,
         versionFolder: File,
-        packFolder: File
+        root: File
     ): ModPackInfo {
         return readModrinth(
             task = task,
             targetFolder = versionFolder,
             extractFiles = { internalPath, outputDir ->
                 val sourceDir = internalPath.takeIf { it.isNotBlank() }
-                    ?.let { File(packFolder, it) }
-                    ?: packFolder
+                    ?.let { File(root, it) }
+                    ?: root
                 //提取文件
                 copyDirectoryContents(
                     from = sourceDir,

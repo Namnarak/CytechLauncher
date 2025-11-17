@@ -15,21 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
-
-package com.movtery.layer_controller.event
-
-import com.movtery.layer_controller.observable.ObservableControlLayer
+package com.movtery.zalithlauncher.game.download.modpack.install
 
 /**
- * 处理切换布局隐藏显示
+ * 整合包不受支持，无法导入时，抛出这个异常
+ * @param reason 不受支持的原因
  */
-internal fun switchLayer(
-    clickEvent: ClickEvent,
-    layers: List<ObservableControlLayer>,
-    switch: (ObservableControlLayer) -> Unit
+class PackNotSupportedException(
+    val reason: UnsupportedPackReason
+) : RuntimeException(
+    reason.reasonText
+)
+
+/**
+ * 导致启动器判断整合包不受支持的原因
+ */
+enum class UnsupportedPackReason(
+    val reasonText: String
 ) {
-    if (clickEvent.type == ClickEvent.Type.SwitchLayer) {
-        val uuid = clickEvent.key
-        layers.find { it.uuid == uuid }?.let { switch(it) }
-    }
+    /**
+     * 压缩包损坏或解压失败
+     */
+    CorruptedArchive("The archive is corrupted or failed to extract."),
+
+    /**
+     * 不支持的整合包格式
+     */
+    UnsupportedFormat("The modpack format is not supported.")
 }

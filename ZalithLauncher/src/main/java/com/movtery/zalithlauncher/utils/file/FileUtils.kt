@@ -459,3 +459,42 @@ fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<F
         sourceFile.absolutePath !in targetPaths
     }
 }
+
+/**
+ * 定位解压后压缩包的真正根目录
+ * @param directory 解压后的初始目录
+ * @return 真正的根目录
+ */
+fun locateRealRoot(directory: File): File {
+    require(directory.exists() && directory.isDirectory) { "The directory does not exist or is not a folder" }
+
+    var currentDir = directory
+    var shouldContinue = true
+
+    while (shouldContinue) {
+        val files = currentDir.listFiles()
+        //如果目录为空，直接返回当前目录
+        if (files.isNullOrEmpty()) {
+            shouldContinue = false
+            continue
+        }
+
+        //如果目录下有多个项目，说明当前已经是根目录
+        if (files.size > 1) {
+            shouldContinue = false
+            continue
+        }
+
+        val file = files[0] //检查当前目录唯一的项目
+        //如果唯一的项目不是文件夹，说明当前已经是根目录
+        if (!file.isDirectory) {
+            shouldContinue = false
+            continue
+        }
+
+        //如果唯一的项目是文件夹，继续深入
+        currentDir = file
+    }
+
+    return currentDir
+}

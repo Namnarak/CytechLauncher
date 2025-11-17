@@ -37,7 +37,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,12 +65,12 @@ import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.ModrinthModpackCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.modrinth.models.modrinthModLoaderFilters
 import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
+import com.movtery.zalithlauncher.game.download.modpack.install.ModpackImporter
+import com.movtery.zalithlauncher.game.download.modpack.install.PackNotSupportedException
+import com.movtery.zalithlauncher.game.download.modpack.install.UnsupportedPackReason
+import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
-import com.movtery.zalithlauncher.game.version.modpack.install.ModpackImporter
-import com.movtery.zalithlauncher.game.version.modpack.install.PackNotSupportedException
-import com.movtery.zalithlauncher.game.version.modpack.install.UnsupportedPackReason
-import com.movtery.zalithlauncher.game.version.modpack.platform.PackPlatform
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.fadeEdge
@@ -97,7 +96,7 @@ private sealed interface ModpackImportOperation {
     /** 警告用户整合包兼容性问题 */
     data object Warning : ModpackImportOperation
     /** 开始导入整合包 */
-    data class Import(val uri: Uri) : ModpackImportOperation
+    data object Import : ModpackImportOperation
     /** 不支持的整合包或格式无效 */
     data class NotSupport(val reason: UnsupportedPackReason) : ModpackImportOperation
     /** 整合包导入完成 */
@@ -148,6 +147,7 @@ private class ModpackViewModel : ViewModel() {
         context: Context,
         uri: Uri
     ) {
+        importOperation = ModpackImportOperation.Import
         importer = ModpackImporter(
             context = context,
             uri = uri,
@@ -155,10 +155,6 @@ private class ModpackViewModel : ViewModel() {
             waitForVersionName = ::waitForVersionName
         ).also {
             it.startImport(
-                isRunning = {
-                    importer = null
-                    importOperation = ModpackImportOperation.None
-                },
                 onFinished = {
                     importer = null
                     VersionsManager.refresh()
@@ -180,6 +176,7 @@ private class ModpackViewModel : ViewModel() {
     fun cancel() {
         importer?.cancel()
         importer = null
+        importOperation = ModpackImportOperation.None
     }
 
     override fun onCleared() {
@@ -212,7 +209,7 @@ fun SearchModPackScreen(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let { uri ->
-            viewModel.importOperation = ModpackImportOperation.Import(uri)
+            viewModel.import(context, uri)
         }
     }
 
@@ -224,12 +221,6 @@ fun SearchModPackScreen(
             filePicker.launch(arrayOf("*/*"))
         },
         importer = viewModel.importer,
-        onImport = { uri ->
-            viewModel.import(
-                context = context,
-                uri = uri
-            )
-        },
         onCancel = {
             viewModel.cancel()
         }
@@ -284,8 +275,10 @@ fun SearchModPackScreen(
                         .fillMaxWidth()
                         .semantics { role = Role.Button },
                     onClick = {
-                        //先警告用户关于整合包的兼容性问题
-                        viewModel.importOperation = ModpackImportOperation.Warning
+                        if (viewModel.importOperation == ModpackImportOperation.None) {
+                            //先警告用户关于整合包的兼容性问题
+                            viewModel.importOperation = ModpackImportOperation.Warning
+                        }
                     }
                 ) {
                     Row(
@@ -312,7 +305,6 @@ private fun ModpackImportOperation(
     changeOperation: (ModpackImportOperation) -> Unit,
     selectedUri: () -> Unit,
     importer: ModpackImporter?,
-    onImport: (uri: Uri) -> Unit,
     onCancel: () -> Unit
 ) {
     when (operation) {
@@ -348,9 +340,6 @@ private fun ModpackImportOperation(
             )
         }
         is ModpackImportOperation.Import -> {
-            LaunchedEffect(importer) {
-                if (importer == null) onImport(operation.uri)
-            }
             if (importer != null) {
                 val tasks by importer.taskFlow.collectAsState()
                 if (tasks.isNotEmpty()) {

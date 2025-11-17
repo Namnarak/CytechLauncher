@@ -148,7 +148,7 @@ fun TouchpadLayout(
                                     //是否被父级标记为仅处理滑动
                                     val isMoveOnly = isMoveOnlyPointer(pointerId)
 
-                                    if (pointerId !in occupiedPointers) {
+                                    if (!isMoveOnly && pointerId !in occupiedPointers) {
                                         onOccupiedPointer(pointerId)
                                         occupiedPointers.add(pointerId)
                                     }
@@ -253,7 +253,7 @@ fun TouchpadLayout(
                                         activePointer = null
                                     }
 
-                                    if (pointerId in occupiedPointers) {
+                                    if (!isMoveOnly && pointerId in occupiedPointers) {
                                         occupiedPointers.remove(pointerId)
                                         onReleasePointer(pointerId)
                                     }
