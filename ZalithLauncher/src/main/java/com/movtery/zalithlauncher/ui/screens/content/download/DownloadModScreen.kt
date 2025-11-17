@@ -77,6 +77,11 @@ fun DownloadModScreen(
                 folder = classes.versionFolder.folderName,
                 submitError = submitError
             )
+        },
+        onDependencyClicked = { dep, classes ->
+            backStack.navigateTo(
+                NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
+            )
         }
     )
 
@@ -114,13 +119,8 @@ fun DownloadModScreen(
                         currentKey = downloadModScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { classes, version, _ ->
-                            operation = DownloadSingleOperation.SelectVersion(classes, version)
-                        },
-                        onDependencyClicked = { dep, classes ->
-                            backStack.navigateTo(
-                                NormalNavKey.DownloadAssets(dep.platform, dep.projectId, classes)
-                            )
+                        onItemClicked = { classes, version, _, deps ->
+                            operation = DownloadSingleOperation.SelectVersion(classes, version, deps)
                         }
                     )
                 }

@@ -24,18 +24,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,11 +53,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
+import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
@@ -70,7 +79,8 @@ sealed interface DownloadSingleOperation {
     /** 选择版本 */
     data class SelectVersion(
         val classes: PlatformClasses,
-        val version: PlatformVersion
+        val version: PlatformVersion,
+        val dependencyProjects: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>
     ) : DownloadSingleOperation
     /** 安装 */
     data class Install(
@@ -84,17 +94,27 @@ sealed interface DownloadSingleOperation {
 fun DownloadSingleOperation(
     operation: DownloadSingleOperation,
     changeOperation: (DownloadSingleOperation) -> Unit,
-    doInstall: (PlatformClasses, PlatformVersion, List<Version>) -> Unit
+    doInstall: (PlatformClasses, PlatformVersion, List<Version>) -> Unit,
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit = { _, _ -> }
 ) {
     when (operation) {
         DownloadSingleOperation.None -> {}
         is DownloadSingleOperation.SelectVersion -> {
-            SelectVersionToDownloadDialog(
+            val dependencyProjects = operation.dependencyProjects
+            val classes = operation.classes
+
+            DownloadDialog(
+                dependencyProjects = dependencyProjects,
+                classes = classes,
                 onDismiss = {
                     changeOperation(DownloadSingleOperation.None)
                 },
                 onInstall = { versions ->
-                    changeOperation(DownloadSingleOperation.Install(operation.classes, operation.version, versions))
+                    changeOperation(DownloadSingleOperation.Install(classes, operation.version, versions))
+                },
+                onDependencyClicked = { dependency, classes ->
+                    changeOperation(DownloadSingleOperation.None)
+                    onDependencyClicked(dependency, classes)
                 }
             )
         }
@@ -106,9 +126,12 @@ fun DownloadSingleOperation(
 }
 
 @Composable
-fun SelectVersionToDownloadDialog(
+private fun DownloadDialog(
+    dependencyProjects: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>,
+    classes: PlatformClasses,
     onDismiss: () -> Unit,
-    onInstall: (List<Version>) -> Unit
+    onInstall: (List<Version>) -> Unit,
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
 ) {
     val versions by VersionsManager.versions.collectAsState()
     val versions1 = remember(versions) { versions.filter { it.isValid() } }
@@ -125,11 +148,30 @@ fun SelectVersionToDownloadDialog(
         //当前选择的版本，将会把资源安装到该版本
         val selectedVersions = remember { mutableStateListOf(version) }
 
+        //拆分依赖项目、可选项目
+        val dependencies = remember(dependencyProjects) {
+            dependencyProjects.filter { it.first.type == PlatformDependencyType.REQUIRED }
+        }
+        val optionals = remember(dependencyProjects) {
+            dependencyProjects.filter { it.first.type == PlatformDependencyType.OPTIONAL }
+        }
+
         Dialog(
-            onDismissRequest = onDismiss
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
         ) {
             Box(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxWidth(
+                        if (dependencyProjects.isNotEmpty()) {
+                            0.8f
+                        } else {
+                            0.5f
+                        }
+                    )
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
@@ -142,21 +184,64 @@ fun SelectVersionToDownloadDialog(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
+                        MarqueeText(
                             text = stringResource(R.string.download_assets_install_assets_for_versions),
                             style = MaterialTheme.typography.titleMedium
                         )
 
-                        //选择游戏版本
-                        ChoseGameVersionLayout(
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f, fill = false),
-                            versions = versions1,
-                            selectedVersions = selectedVersions,
-                            onVersionSelected = { selectedVersions.add(it) },
-                            onVersionUnSelected = { selectedVersions.remove(it) }
-                        )
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (dependencyProjects.isNotEmpty()) {
+                                val listState = rememberLazyListState()
+
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fadeEdge(state = listState)
+                                        .weight(1f)
+                                        .fillMaxHeight(),
+                                    contentPadding = PaddingValues(vertical = 8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    state = listState
+                                ) {
+                                    dependencies.takeIf { it.isNotEmpty() }?.let { dependencies ->
+                                        dependencyLayout(
+                                            list = dependencies,
+                                            titleRes = R.string.download_assets_dependency_projects,
+                                            defaultClasses = classes,
+                                            onDependencyClicked = onDependencyClicked
+                                        )
+                                    }
+                                    optionals.takeIf { it.isNotEmpty() }?.let { optionals ->
+                                        dependencyLayout(
+                                            list = optionals,
+                                            titleRes = R.string.download_assets_optional_projects,
+                                            defaultClasses = classes,
+                                            onDependencyClicked = onDependencyClicked
+                                        )
+                                    }
+                                }
+
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(0.8f)
+                                )
+                            }
+
+                            //选择游戏版本
+                            ChoseGameVersionLayout(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                versions = versions1,
+                                selectedVersions = selectedVersions,
+                                onVersionSelected = { selectedVersions.add(it) },
+                                onVersionUnSelected = { selectedVersions.remove(it) }
+                            )
+                        }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -196,7 +281,7 @@ private fun ChoseGameVersionLayout(
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 1.dp,
+    shadowElevation: Dp = 1.dp
 ) {
     Surface(
         modifier = modifier,
@@ -218,14 +303,13 @@ private fun ChoseGameVersionLayout(
                 modifier = Modifier
                     .fadeEdge(state = listState)
                     .fillMaxWidth(),
-                contentPadding = PaddingValues(all = 4.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 state = listState
             ) {
                 items(versions) { version ->
                     SelectVersionListItem(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 4.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         version = version,
                         checked = selectedVersions.contains(version),
                         onChose = {
@@ -278,5 +362,88 @@ private fun SelectVersionListItem(
             modifier = Modifier.weight(1f),
             version = version
         )
+    }
+}
+
+private fun LazyListScope.dependencyLayout(
+    list: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>,
+    titleRes: Int,
+    defaultClasses: PlatformClasses,
+    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
+) {
+    if (list.isNotEmpty()) {
+        item {
+            Text(
+                text = stringResource(titleRes),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+        //前置项目列表
+        items(list) { (dependency, dependencyProject) ->
+            AssetsVersionDependencyItem(
+                modifier = Modifier.fillMaxWidth(),
+                project = dependencyProject,
+                onClick = {
+                    onDependencyClicked(dependency, dependencyProject.platformClasses(defaultClasses))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AssetsVersionDependencyItem(
+    modifier: Modifier = Modifier,
+    project: PlatformProject,
+    onClick: () -> Unit = {},
+    shape: Shape = MaterialTheme.shapes.large,
+    color: Color = itemLayoutColorOnSurface(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    shadowElevation: Dp = 1.dp
+) {
+    //项目基本信息
+    val platform = remember { project.platform() }
+    val title = remember { project.platformTitle() }
+    val summary = remember { project.platformSummary() }
+    val iconUrl = remember { project.platformIconUrl() }
+
+    Surface(
+        modifier = modifier,
+        onClick = onClick,
+        shape = shape,
+        color = color,
+        contentColor = contentColor,
+        shadowElevation = shadowElevation
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AssetsIcon(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .clip(shape = RoundedCornerShape(10.dp)),
+                size = 42.dp,
+                iconUrl = iconUrl
+            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                ProjectTitleHead(
+                    platform = platform,
+                    title = title,
+                    author = null //ui太小，展示不下
+                )
+                summary?.let { summary ->
+                    Text(
+                        text = summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(2.dp))
+        }
     }
 }
