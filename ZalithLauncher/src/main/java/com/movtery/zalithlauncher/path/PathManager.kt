@@ -27,6 +27,7 @@ class PathManager {
         lateinit var DIR_FILES_EXTERNAL: File
         lateinit var DIR_CACHE: File
         lateinit var DIR_NATIVE_LIB: String
+        var DIR_RUNTIME_MOD: File? = null
 
         lateinit var DIR_GAME: File
         lateinit var DIR_DATA_BASES: File
@@ -55,6 +56,7 @@ class PathManager {
             DIR_FILES_EXTERNAL = context.getExternalFilesDir(null)!!
             DIR_CACHE = context.cacheDir
             DIR_NATIVE_LIB = context.applicationInfo.nativeLibraryDir
+            DIR_RUNTIME_MOD = context.getDir("runtime_mod", 0)
 
             DIR_DATA_BASES = File(DIR_FILES_PRIVATE.parentFile, "databases")
             DIR_GAME = File(DIR_FILES_PRIVATE, "games")
@@ -82,6 +84,7 @@ class PathManager {
         }
 
         private fun createDirs() {
+            DIR_RUNTIME_MOD?.mkdirs()
             DIR_GAME.mkdirs()
             DIR_ACCOUNT_SKIN.mkdirs()
             DIR_MULTIRT.mkdirs()
