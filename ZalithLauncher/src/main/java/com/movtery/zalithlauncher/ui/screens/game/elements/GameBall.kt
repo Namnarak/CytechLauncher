@@ -25,7 +25,6 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkOut
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -45,18 +44,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
-import com.movtery.zalithlauncher.ui.components.DraggableBox
+import com.movtery.zalithlauncher.ui.components.FloatingBall
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 
 @Composable
-fun BoxWithConstraintsScope.DraggableGameBall(
-    alignment: Alignment = Alignment.TopCenter,
+fun DraggableGameBall(
     showGameFps: Boolean,
     showMemory: Boolean,
     onClick: () -> Unit = {}
 ) {
-    DraggableBox(
-        alignment = alignment,
+    FloatingBall(
         onClick = onClick
     ) {
         GameBallContent(
