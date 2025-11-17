@@ -20,6 +20,8 @@ package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,6 +41,7 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.createAdaptiveButtonSize
 import com.movtery.layer_controller.data.createWidgetWithUUID
 import com.movtery.layer_controller.data.lang.createTranslatable
+import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.layout.createNewLayer
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -265,6 +268,9 @@ private fun EditorOperation(
                 switchControlLayers = { data, type ->
                     changeOperation(EditorOperation.SwitchLayersVisibility(data, type))
                 },
+                sendText = { data ->
+                    changeOperation(EditorOperation.SendText(data))
+                },
                 openStyleList = {
                     changeOperation(EditorOperation.OpenStyleList)
                 }
@@ -320,6 +326,38 @@ private fun EditorOperation(
                 layers = controlLayers,
                 type = type,
                 onDismissRequest = {
+                    changeOperation(EditorOperation.None)
+                }
+            )
+        }
+        is EditorOperation.SendText -> {
+            val data = operation.data
+            //文本内容
+            var value by remember {
+                mutableStateOf(data.clickEvents.find { it.type == ClickEvent.Type.SendText }?.key ?: "")
+            }
+            SimpleEditDialog(
+                title = stringResource(R.string.control_editor_edit_event_launcher_send_text),
+                value = value,
+                onValueChange = { new ->
+                    value = new
+                },
+                extraBody = {
+                    Text(
+                        text = stringResource(R.string.control_editor_edit_event_launcher_send_text_summary),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                label = {
+                    Text(text = stringResource(R.string.control_editor_edit_event_launcher_send_text_hint))
+                },
+                singleLine = true,
+                onConfirm = {
+                    //清除所有发送文本事件，如果文本不为空则再添加
+                    data.removeAllEvent(ClickEvent.Type.SendText)
+                    if (value.isNotEmpty()) {
+                        data.addEvent(ClickEvent(ClickEvent.Type.SendText, value))
+                    }
                     changeOperation(EditorOperation.None)
                 }
             )

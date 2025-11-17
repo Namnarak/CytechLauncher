@@ -69,6 +69,8 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
+import com.movtery.zalithlauncher.game.keycodes.OPEN_CHAT
+import com.movtery.zalithlauncher.game.keycodes.mapToKeycode
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -106,11 +108,14 @@ import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 
@@ -154,6 +159,9 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     val mouseScrollUpEvent = MouseScrollEvent(viewModelScope, 1.0)
     val mouseScrollDownEvent = MouseScrollEvent(viewModelScope, -1.0)
 
+    /** 游戏内消息发送器 */
+    val gameTextSender = GameTextSender(viewModelScope)
+
     /** 所有已按下的按键 */
     val pressedKeyEvents = KeyEventHandler { key, pressed ->
         lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
@@ -183,6 +191,15 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         val events = when (event.type) {
             ClickEvent.Type.Key -> pressedKeyEvents
             ClickEvent.Type.LauncherEvent -> pressedLauncherEvents
+            ClickEvent.Type.SendText -> {
+                //游戏内文本发送事件
+                if (pressed) {
+                    val text = event.key
+                    val inGame = ZLBridgeStates.cursorMode == CURSOR_DISABLED
+                    gameTextSender.send(GameTextSender.Data(text, inGame))
+                }
+                return
+            }
             else -> return
         }
         if (pressed) {
@@ -252,6 +269,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     fun clearState() {
         mouseScrollUpEvent.cancel()
         mouseScrollDownEvent.cancel()
+        gameTextSender.cancel()
         pressedKeyEvents.clearEvent()
         pressedLauncherEvents.clearEvent()
         textInputMode = TextInputMode.DISABLE
@@ -307,6 +325,76 @@ private class MouseScrollEvent(
                 }
             }
             mouseScrollJob = null
+        }
+    }
+}
+
+/**
+ * 游戏内消息发送器
+ */
+private class GameTextSender(private val scope: CoroutineScope) {
+    /**
+     * @param text 要发送的文本
+     * @param inGame 当前是否处于游戏内，如果在游戏中，则会尝试打开聊天栏
+     */
+    data class Data(
+        val text: String,
+        val inGame: Boolean
+    )
+
+    private var messageChannel: Channel<Data>? = null
+    private var job: Job? = null
+
+    fun cancel() {
+        job?.cancel()
+        messageChannel?.close()
+        messageChannel = null
+        job = null
+    }
+
+    /**
+     * 尝试向游戏发送文本（排队发送）
+     */
+    fun send(data: Data) {
+        if (job?.isActive != true || messageChannel == null) {
+            job?.cancel()
+            messageChannel?.close()
+
+            messageChannel = Channel(Channel.UNLIMITED)
+            job = scope.launch {
+                messageChannel?.let { channel ->
+                    for ((text, inGame) in channel) {
+                        sendMessage(text, inGame)
+                    }
+                }
+            }
+        }
+
+        messageChannel?.trySend(data)
+    }
+
+    private suspend fun sendMessage(text: String, inGame: Boolean) {
+        withContext(Dispatchers.Main) {
+            fun sendText() {
+                for (ch in text) {
+                    LWJGLCharSender.sendChar(ch)
+                }
+            }
+
+            if (inGame) {
+                //根据options.txt中的配置，找到打开聊天栏的键
+                //如果找不到，则忽略这次事件
+                mapToKeycode(OPEN_CHAT)?.let { openChat ->
+                    CallbackBridge.sendKeyPress(openChat)
+                    delay(50)
+                    sendText()
+                    delay(50)
+                    LWJGLCharSender.sendEnter()
+                }
+            } else {
+                //如果当前不在游戏内，则直接发送文本
+                sendText()
+            }
         }
     }
 }

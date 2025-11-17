@@ -971,6 +971,9 @@
     <string name="control_editor_edit_event_launcher_mouse_scroll_up_single">單次滑鼠滾輪上</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down">持續滑鼠滾輪下</string>
     <string name="control_editor_edit_event_launcher_mouse_scroll_down_single">單次滑鼠滾輪下</string>
+    <string name="control_editor_edit_event_launcher_send_text">發送文字</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">點擊該組件時，遊戲中將嘗試發送以下文字</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">留空則無回應</string>
     <string name="control_editor_edit_event_key">按鍵</string>
     <string name="control_editor_edit_event_key_new">添加新的觸發鍵值</string>
     <string name="control_editor_edit_event_key_value">觸發鍵值：%s</string>

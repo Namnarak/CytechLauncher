@@ -75,7 +75,8 @@ private data class TabItem(val title: Int)
 @Composable
 fun EditWidgetClickEvent(
     data: ObservableNormalData,
-    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit
+    switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
+    sendText: (ObservableNormalData) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -128,7 +129,8 @@ fun EditWidgetClickEvent(
                 1 -> {
                     EditLauncherEvent(
                         modifier = Modifier.fillMaxSize(),
-                        data = data
+                        data = data,
+                        sendText = sendText
                     )
                 }
                 2 -> {
@@ -186,7 +188,7 @@ private fun EditBasicEvent(
             }
         )
 
-        Spacer(Modifier)
+        Spacer(modifier = Modifier.height(8.dp))
 
         //切换控制层可见性
         InfoLayoutTextItem(
@@ -237,7 +239,8 @@ private data class LauncherEventData(
 @Composable
 private fun EditLauncherEvent(
     modifier: Modifier = Modifier,
-    data: ObservableNormalData
+    data: ObservableNormalData,
+    sendText: (ObservableNormalData) -> Unit
 ) {
     //启动器事件开启状态缓存
     var eventData by remember { mutableStateOf(LauncherEventData()) }
@@ -433,6 +436,17 @@ private fun EditLauncherEvent(
                 } else {
                     data.removeEvent(event)
                 }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //发送文本
+        InfoLayoutTextItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.control_editor_edit_event_launcher_send_text),
+            onClick = {
+                sendText(data)
             }
         )
 

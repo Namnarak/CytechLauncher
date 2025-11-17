@@ -21,6 +21,7 @@ package com.movtery.layer_controller.data
 import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.utils.getAButtonUUID
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -41,16 +42,34 @@ data class NormalData(
     val textItalic: Boolean = false,
     val textUnderline: Boolean = false,
     val visibilityType: VisibilityType,
-    val clickEvents: List<ClickEvent> = emptyList(),
+    @SerialName("clickEvents") private var _clickEvents: List<ClickEvent> = emptyList(),
     val isSwipple: Boolean,
     val isPenetrable: Boolean,
     val isToggleable: Boolean
-): Widget
+): Widget {
+    val clickEvents: List<ClickEvent> get() = _clickEvents
+
+    init {
+        _clickEvents = _clickEvents.filterValidEvent()
+    }
+}
+
+/**
+ * 过滤出有效的点击事件
+ */
+internal fun List<ClickEvent>.filterValidEvent(): List<ClickEvent> {
+    val (sendTextEvents, otherEvents) = partition { event ->
+        event.type == ClickEvent.Type.SendText
+    }
+    //                  仅保留一个有效的发送文本的事件
+    val validSendText = sendTextEvents.firstOrNull { it.key.isNotEmpty() }
+    return otherEvents + listOfNotNull(validSendText)
+}
 
 /**
  * 克隆一个新的NormalData对象（UUID、位置不同）
  */
-public fun NormalData.cloneNew(): NormalData = NormalData(
+fun NormalData.cloneNew(): NormalData = NormalData(
     text = this.text,
     uuid = getAButtonUUID(),
     position = CenterPosition,
@@ -61,7 +80,7 @@ public fun NormalData.cloneNew(): NormalData = NormalData(
     textItalic = textItalic,
     textUnderline = textUnderline,
     visibilityType = visibilityType,
-    clickEvents = clickEvents,
+    _clickEvents = clickEvents,
     isSwipple = isSwipple,
     isPenetrable = isPenetrable,
     isToggleable = isToggleable

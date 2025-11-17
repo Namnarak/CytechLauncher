@@ -26,6 +26,7 @@ import androidx.compose.ui.util.fastAll
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.cloneNew
+import com.movtery.layer_controller.data.filterValidEvent
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.event.EventHandler
 
@@ -176,6 +177,13 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         clickEvents = clickEvents.filterNot { it.type == eventType && it.key == key }
     }
 
+    /**
+     * 移除所有匹配类型的点击事件
+     */
+    fun removeAllEvent(eventType: ClickEvent.Type) {
+        clickEvents = clickEvents.filterNot { it.type == eventType }
+    }
+
     fun removeAllEvent(events: Collection<ClickEvent>) {
         val keysToRemove = events.map { it.type to it.key }.toSet()
         clickEvents = clickEvents.filterNot { (it.type to it.key) in keysToRemove }
@@ -193,7 +201,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
             textItalic = textItalic,
             textUnderline = textUnderline,
             visibilityType = visibilityType,
-            clickEvents = clickEvents,
+            _clickEvents = clickEvents.filterValidEvent(),
             isSwipple = isSwipple,
             isPenetrable = isPenetrable,
             isToggleable = isToggleable

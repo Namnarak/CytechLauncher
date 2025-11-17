@@ -24,7 +24,7 @@ import com.movtery.layer_controller.layout.ControlLayout
 /**
  * 控件编辑器的版本号
  */
-internal const val EDITOR_VERSION = 5
+internal const val EDITOR_VERSION = 6
 
 /**
  * 自动处理并逐步更新控制布局到新版编辑器
@@ -36,7 +36,8 @@ internal fun updateLayoutToNew(
         1 -> updateLayoutToNew(update1To2(layout))
         2 -> updateLayoutToNew(update2To3(layout))
         3 -> updateLayoutToNew(update3To4(layout))
-        4 -> updateLayoutToNew(update4To5(layout))
+        4 -> updateLayoutToNew(update4To6(layout))
+        5 -> updateLayoutToNew(update4To6(layout))
         else -> layout
     }
 }
@@ -44,7 +45,7 @@ internal fun updateLayoutToNew(
 /**
  * 1 -> 2: 控件位置、控件大小 数值精确到小数点后2位
  */
-internal fun update1To2(
+private fun update1To2(
     layout: ControlLayout
 ): ControlLayout = layout.copy(
     editorVersion = 2,
@@ -81,7 +82,7 @@ internal fun update1To2(
 /**
  * 2 -> 3: 支持在实体鼠标、手柄操控后，隐藏控件层
  */
-internal fun update2To3(
+private fun update2To3(
     layout: ControlLayout
 ): ControlLayout = layout.copy(
     editorVersion = 3,
@@ -96,7 +97,7 @@ internal fun update2To3(
 /**
  * 3 -> 4: 支持为文本设置文本对齐、粗体、斜体、下划线
  */
-internal fun update3To4(
+private fun update3To4(
     layout: ControlLayout
 ): ControlLayout = layout.copy(
     editorVersion = 4,
@@ -123,12 +124,13 @@ internal fun update3To4(
 )
 
 /**
- * 4 -> 5:  支持设置点击事件: `强制显示控件层`，`强制隐藏控件层`
+ * 4 -> 5: 支持设置点击事件: `强制显示控件层`，`强制隐藏控件层`
+ * 5 -> 6: 支持设置点击事件: `发送消息`
  *
  * 不需要变更控制布局文件，仅提升版本号
  */
-internal fun update4To5(
+private fun update4To6(
     layout: ControlLayout
 ): ControlLayout = layout.copy(
-    editorVersion = 5
+    editorVersion = 6
 )

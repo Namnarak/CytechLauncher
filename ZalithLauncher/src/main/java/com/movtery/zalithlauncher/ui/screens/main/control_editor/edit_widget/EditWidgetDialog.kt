@@ -101,6 +101,7 @@ fun EditWidgetDialog(
     onClone: () -> Unit,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
     switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
+    sendText: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit
 ) {
     val backStack = rememberNavBackStack(EditWidgetCategory.Info)
@@ -166,6 +167,7 @@ fun EditWidgetDialog(
                             data = data,
                             styles = styles,
                             switchControlLayers = switchControlLayers,
+                            sendText = sendText,
                             openStyleList = openStyleList,
                             onEditWidgetText = onEditWidgetText,
                             onPreviewRequested = {
@@ -281,6 +283,7 @@ private fun EditWidgetNavigation(
     styles: List<ObservableButtonStyle>,
     onEditWidgetText: (ObservableTranslatableString) -> Unit,
     switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
+    sendText: (ObservableNormalData) -> Unit,
     openStyleList: () -> Unit,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
@@ -298,7 +301,7 @@ private fun EditWidgetNavigation(
                     EditTextStyle(data, onEditWidgetText)
                 }
                 entry<EditWidgetCategory.ClickEvent> {
-                    EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers)
+                    EditWidgetClickEvent(data as ObservableNormalData, switchControlLayers, sendText)
                 }
                 entry<EditWidgetCategory.Style> {
                     EditWidgetStyle(data, styles, openStyleList)

@@ -99,6 +99,8 @@ sealed interface EditorOperation {
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
     /** 编辑切换控件层可见性事件 */
     data class SwitchLayersVisibility(val data: ObservableNormalData, val type: ClickEvent.Type) : EditorOperation
+    /** 编辑发送的文本 */
+    data class SendText(val data: ObservableNormalData) : EditorOperation
     /** 没有控件层级，提醒用户添加 */
     data object WarningNoLayers : EditorOperation
     /** 没有选择控件层，提醒用户选择 */

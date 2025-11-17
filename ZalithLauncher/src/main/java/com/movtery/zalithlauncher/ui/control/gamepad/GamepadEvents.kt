@@ -35,9 +35,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
-import com.movtery.zalithlauncher.game.keycodes.Lwjgl2Keycode
-import com.movtery.zalithlauncher.game.keycodes.MinecraftKeyBindingMapper
-import com.movtery.zalithlauncher.game.launch.MCOptions
+import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_BACK
+import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_FORWARD
+import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_LEFT
+import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_RIGHT
+import com.movtery.zalithlauncher.game.keycodes.mapToControlEvent
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
 import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_UP_SINGLE
@@ -289,15 +291,6 @@ fun GamepadStickCameraListener(
     )
 }
 
-//W
-const val MOVEMENT_FORWARD = "key_key.forward"
-//A
-const val MOVEMENT_LEFT = "key_key.left"
-//S
-const val MOVEMENT_BACK = "key_key.back"
-//D
-const val MOVEMENT_RIGHT = "key_key.right"
-
 val directionMapping = mapOf(
     Joystick.Direction.East to listOf(MOVEMENT_RIGHT to true),
     Joystick.Direction.NorthEast to listOf(
@@ -347,16 +340,7 @@ fun GamepadStickMovementListener(
         mcKey: String,
         pressed: Boolean
     ) {
-        val binding = MCOptions.get(mcKey) ?: return
-        if (binding.startsWith("key.")) {
-            MinecraftKeyBindingMapper.getContentEvent(binding)
-        } else {
-            binding.toIntOrNull()?.let { lwjgl2Code ->
-                //MC旧版本直接存了LWJGL2的键值
-                //将旧版本LWJGL2的键码转换为控制事件标识
-                Lwjgl2Keycode.lwjgl2ToControlEvent(lwjgl2Code)
-            }
-        }?.let { event ->
+        mapToControlEvent(mcKey)?.let { event ->
             if (pressed) {
                 allPressEvent.add(event)
             } else {

@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
 /**
  * 按键点击事件
  * @param type 绑定的点击事件类型
- * @param key 事件唯一标识
+ * @param key 事件唯一标识/事件值
  */
 @Serializable
 data class ClickEvent(
@@ -63,7 +63,13 @@ data class ClickEvent(
          * 点击强制隐藏控件层
          */
         @SerialName("hide_layer")
-        HideLayer
+        HideLayer,
+
+        /**
+         * 点击发送聊天消息
+         */
+        @SerialName("send_text")
+        SendText
     }
 
     /**
