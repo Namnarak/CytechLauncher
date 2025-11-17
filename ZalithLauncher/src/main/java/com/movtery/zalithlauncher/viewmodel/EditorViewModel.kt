@@ -36,6 +36,8 @@ import com.movtery.layer_controller.observable.cloneText
 import com.movtery.layer_controller.utils.saveToFile
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorOperation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWarningOperation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWidgetOperation
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.PreviewScenario
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +64,16 @@ class EditorViewModel() : ViewModel() {
      * 编辑器各种操作项
      */
     var editorOperation by mutableStateOf<EditorOperation>(EditorOperation.None)
+
+    /**
+     * 编辑器对于控件的操作项
+     */
+    var editorWidgetOperation by mutableStateOf<EditorWidgetOperation>(EditorWidgetOperation.None)
+
+    /**
+     * 编辑器的一些警告状态项
+     */
+    var editorWarningOperation by mutableStateOf<EditorWarningOperation>(EditorWarningOperation.None)
 
     /**
      * 是否为预览控制布局模式
@@ -116,9 +128,9 @@ class EditorViewModel() : ViewModel() {
     fun addWidget(layers: List<ObservableControlLayer>, addToLayer: (ObservableControlLayer) -> Unit) {
         val layer = selectedLayer
         if (layers.isEmpty()) {
-            editorOperation = EditorOperation.WarningNoLayers
+            editorWarningOperation = EditorWarningOperation.WarningNoLayers
         } else if (layer == null) {
-            editorOperation = EditorOperation.WarningNoSelectLayer
+            editorWarningOperation = EditorWarningOperation.WarningNoSelectLayer
         } else {
             addToLayer(layer)
         }

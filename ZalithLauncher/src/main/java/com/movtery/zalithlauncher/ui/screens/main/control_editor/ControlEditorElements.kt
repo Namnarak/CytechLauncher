@@ -91,20 +91,8 @@ sealed interface EditorOperation {
     data object None : EditorOperation
     /** 选择了一个控件, 附带其所属控件层 */
     data class SelectButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
-    /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
-    data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
-    /** 编辑控件的显示文本 */
-    data class EditWidgetText(val string: ObservableTranslatableString) : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
-    /** 编辑切换控件层可见性事件 */
-    data class SwitchLayersVisibility(val data: ObservableNormalData, val type: ClickEvent.Type) : EditorOperation
-    /** 编辑发送的文本 */
-    data class SendText(val data: ObservableNormalData) : EditorOperation
-    /** 没有控件层级，提醒用户添加 */
-    data object WarningNoLayers : EditorOperation
-    /** 没有选择控件层，提醒用户选择 */
-    data object WarningNoSelectLayer : EditorOperation
     /** 打开控件外观列表 */
     data object OpenStyleList : EditorOperation
     /** 创建控件外观 */
@@ -115,6 +103,32 @@ sealed interface EditorOperation {
     data object Saving : EditorOperation
     /** 控制布局保存失败 */
     data class SaveFailed(val error: Throwable) : EditorOperation
+}
+
+/**
+ * 控制布局编辑器对控件的操作状态
+ */
+sealed interface EditorWidgetOperation {
+    data object None : EditorWidgetOperation
+    /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
+    data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorWidgetOperation
+    /** 编辑控件的显示文本 */
+    data class EditWidgetText(val string: ObservableTranslatableString) : EditorWidgetOperation
+    /** 编辑切换控件层可见性事件 */
+    data class SwitchLayersVisibility(val data: ObservableNormalData, val type: ClickEvent.Type) : EditorWidgetOperation
+    /** 编辑发送的文本 */
+    data class SendText(val data: ObservableNormalData) : EditorWidgetOperation
+}
+
+/**
+ * 控制布局编辑器的一些警告的操作状态
+ */
+sealed interface EditorWarningOperation {
+    data object None : EditorWarningOperation
+    /** 没有控件层，提醒用户添加 */
+    data object WarningNoLayers : EditorWarningOperation
+    /** 没有选择控件层，提醒用户选择 */
+    data object WarningNoSelectLayer : EditorWarningOperation
 }
 
 /**

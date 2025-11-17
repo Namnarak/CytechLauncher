@@ -204,6 +204,7 @@ fun BoxWithConstraintsScope.ControlEditor(
     EditorOperation(
         operation = viewModel.editorOperation,
         changeOperation = { viewModel.editorOperation = it },
+        changeWidgetOperation = { viewModel.editorWidgetOperation = it },
         onDeleteWidget = { data, layer ->
             viewModel.removeWidget(layer, data)
         },
@@ -212,9 +213,6 @@ fun BoxWithConstraintsScope.ControlEditor(
         },
         onMergeDownward = { layer ->
             viewModel.observableLayout.mergeDownward(layer)
-        },
-        onCloneWidgets = { widget, layers ->
-            viewModel.cloneWidgetToLayers(widget, layers)
         },
         onCreateStyle = { name ->
             viewModel.createNewStyle(name)
@@ -225,8 +223,21 @@ fun BoxWithConstraintsScope.ControlEditor(
         onDeleteStyle = { style ->
             viewModel.removeStyle(style)
         },
-        controlLayers = layers,
         styles = styles
+    )
+
+    EditorWidgetOperation(
+        operation = viewModel.editorWidgetOperation,
+        changeOperation = { viewModel.editorWidgetOperation = it },
+        controlLayers = layers,
+        onCloneWidgets = { widget, layers ->
+            viewModel.cloneWidgetToLayers(widget, layers)
+        }
+    )
+
+    EditorWarningOperation(
+        operation = viewModel.editorWarningOperation,
+        changeOperation = { viewModel.editorWarningOperation = it }
     )
 }
 
@@ -234,14 +245,13 @@ fun BoxWithConstraintsScope.ControlEditor(
 private fun EditorOperation(
     operation: EditorOperation,
     changeOperation: (EditorOperation) -> Unit,
+    changeWidgetOperation: (EditorWidgetOperation) -> Unit,
     onDeleteWidget: (ObservableWidget, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onMergeDownward: (ObservableControlLayer) -> Unit,
-    onCloneWidgets: (ObservableWidget, List<ObservableControlLayer>) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
     onDeleteStyle: (ObservableButtonStyle) -> Unit,
-    controlLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>
 ) {
     when (operation) {
@@ -260,45 +270,19 @@ private fun EditorOperation(
                     changeOperation(EditorOperation.None)
                 },
                 onClone = {
-                    changeOperation(EditorOperation.CloneButton(data, layer))
+                    changeWidgetOperation(EditorWidgetOperation.CloneButton(data, layer))
                 },
                 onEditWidgetText = { string ->
-                    changeOperation(EditorOperation.EditWidgetText(string))
+                    changeWidgetOperation(EditorWidgetOperation.EditWidgetText(string))
                 },
                 switchControlLayers = { data, type ->
-                    changeOperation(EditorOperation.SwitchLayersVisibility(data, type))
+                    changeWidgetOperation(EditorWidgetOperation.SwitchLayersVisibility(data, type))
                 },
                 sendText = { data ->
-                    changeOperation(EditorOperation.SendText(data))
+                    changeWidgetOperation(EditorWidgetOperation.SendText(data))
                 },
                 openStyleList = {
                     changeOperation(EditorOperation.OpenStyleList)
-                }
-            )
-        }
-        is EditorOperation.CloneButton -> {
-            val data = operation.data
-            val layer = operation.layer
-            SelectLayers(
-                layers= controlLayers,
-                initLayer = layer,
-                onDismissRequest = {
-                    changeOperation(EditorOperation.None)
-                },
-                title = stringResource(R.string.control_editor_edit_dialog_clone_widget_title),
-                confirmText = stringResource(R.string.control_editor_edit_dialog_clone_widget),
-                onConfirm = { layers ->
-                    onCloneWidgets(data, layers)
-                    changeOperation(EditorOperation.None)
-                }
-            )
-        }
-        is EditorOperation.EditWidgetText -> {
-            EditTranslatableTextDialog(
-                text = operation.string,
-                singleLine = false,
-                onClose = {
-                    changeOperation(EditorOperation.None)
                 }
             )
         }
@@ -317,66 +301,6 @@ private fun EditorOperation(
                     onMergeDownward(layer)
                 }
             )
-        }
-        is EditorOperation.SwitchLayersVisibility -> {
-            val data = operation.data
-            val type = operation.type
-            EditSwitchLayersVisibilityDialog(
-                data = data,
-                layers = controlLayers,
-                type = type,
-                onDismissRequest = {
-                    changeOperation(EditorOperation.None)
-                }
-            )
-        }
-        is EditorOperation.SendText -> {
-            val data = operation.data
-            //文本内容
-            var value by remember {
-                mutableStateOf(data.clickEvents.find { it.type == ClickEvent.Type.SendText }?.key ?: "")
-            }
-            SimpleEditDialog(
-                title = stringResource(R.string.control_editor_edit_event_launcher_send_text),
-                value = value,
-                onValueChange = { new ->
-                    value = new
-                },
-                extraBody = {
-                    Text(
-                        text = stringResource(R.string.control_editor_edit_event_launcher_send_text_summary),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                label = {
-                    Text(text = stringResource(R.string.control_editor_edit_event_launcher_send_text_hint))
-                },
-                singleLine = true,
-                onConfirm = {
-                    //清除所有发送文本事件，如果文本不为空则再添加
-                    data.removeAllEvent(ClickEvent.Type.SendText)
-                    if (value.isNotEmpty()) {
-                        data.addEvent(ClickEvent(ClickEvent.Type.SendText, value))
-                    }
-                    changeOperation(EditorOperation.None)
-                }
-            )
-        }
-        is EditorOperation.WarningNoLayers -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.control_editor_menu_no_layers_title),
-                text = stringResource(R.string.control_editor_menu_no_layers_message)
-            ) {
-                changeOperation(EditorOperation.None)
-            }
-        }
-        is EditorOperation.WarningNoSelectLayer -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.control_editor_menu_no_selected_layer_title),
-                text = stringResource(R.string.control_editor_menu_no_selected_layer_message)
-            ) {
-                changeOperation(EditorOperation.None)
-            }
         }
         is EditorOperation.OpenStyleList -> {
             StyleListDialog(
@@ -433,6 +357,114 @@ private fun EditorOperation(
                 text = operation.error.getMessageOrToString()
             ) {
                 changeOperation(EditorOperation.None)
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditorWidgetOperation(
+    operation: EditorWidgetOperation,
+    changeOperation: (EditorWidgetOperation) -> Unit,
+    controlLayers: List<ObservableControlLayer>,
+    onCloneWidgets: (ObservableWidget, List<ObservableControlLayer>) -> Unit,
+) {
+    when (operation) {
+        is EditorWidgetOperation.None -> {}
+        is EditorWidgetOperation.CloneButton -> {
+            val data = operation.data
+            val layer = operation.layer
+            SelectLayers(
+                layers= controlLayers,
+                initLayer = layer,
+                onDismissRequest = {
+                    changeOperation(EditorWidgetOperation.None)
+                },
+                title = stringResource(R.string.control_editor_edit_dialog_clone_widget_title),
+                confirmText = stringResource(R.string.control_editor_edit_dialog_clone_widget),
+                onConfirm = { layers ->
+                    onCloneWidgets(data, layers)
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.EditWidgetText -> {
+            EditTranslatableTextDialog(
+                text = operation.string,
+                singleLine = false,
+                onClose = {
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.SendText -> {
+            val data = operation.data
+            //文本内容
+            var value by remember {
+                mutableStateOf(data.clickEvents.find { it.type == ClickEvent.Type.SendText }?.key ?: "")
+            }
+            SimpleEditDialog(
+                title = stringResource(R.string.control_editor_edit_event_launcher_send_text),
+                value = value,
+                onValueChange = { new ->
+                    value = new
+                },
+                extraBody = {
+                    Text(
+                        text = stringResource(R.string.control_editor_edit_event_launcher_send_text_summary),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                label = {
+                    Text(text = stringResource(R.string.control_editor_edit_event_launcher_send_text_hint))
+                },
+                singleLine = true,
+                onConfirm = {
+                    //清除所有发送文本事件，如果文本不为空则再添加
+                    data.removeAllEvent(ClickEvent.Type.SendText)
+                    if (value.isNotEmpty()) {
+                        data.addEvent(ClickEvent(ClickEvent.Type.SendText, value))
+                    }
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+        is EditorWidgetOperation.SwitchLayersVisibility -> {
+            val data = operation.data
+            val type = operation.type
+            EditSwitchLayersVisibilityDialog(
+                data = data,
+                layers = controlLayers,
+                type = type,
+                onDismissRequest = {
+                    changeOperation(EditorWidgetOperation.None)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditorWarningOperation(
+    operation: EditorWarningOperation,
+    changeOperation: (EditorWarningOperation) -> Unit
+) {
+    when (operation) {
+        is EditorWarningOperation.None -> {}
+        is EditorWarningOperation.WarningNoLayers -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_menu_no_layers_title),
+                text = stringResource(R.string.control_editor_menu_no_layers_message)
+            ) {
+                changeOperation(EditorWarningOperation.None)
+            }
+        }
+        is EditorWarningOperation.WarningNoSelectLayer -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_menu_no_selected_layer_title),
+                text = stringResource(R.string.control_editor_menu_no_selected_layer_message)
+            ) {
+                changeOperation(EditorWarningOperation.None)
             }
         }
     }

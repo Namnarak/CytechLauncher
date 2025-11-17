@@ -69,14 +69,19 @@ data class ClickEvent(
          * 点击发送聊天消息
          */
         @SerialName("send_text")
-        SendText
+        SendText;
+
+        /**
+         * 该点击事件类型是否关于控件层
+         */
+        fun isAboutLayers(): Boolean =
+            this == SwitchLayer ||
+                    this == ShowLayer ||
+                    this == HideLayer
     }
 
     /**
      * 该点击事件是否关于控件层
      */
-    fun isAboutLayers(): Boolean =
-        type == Type.SwitchLayer ||
-                type == Type.ShowLayer ||
-                type == Type.HideLayer
+    fun isAboutLayers(): Boolean = type.isAboutLayers()
 }
