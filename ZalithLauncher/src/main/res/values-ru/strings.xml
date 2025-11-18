@@ -995,4 +995,9 @@
     <string name="import_modpack_finished_title">Импорт завершён успешно</string>
     <string name="import_modpack_finished_text">Выбранная сборка была успешно установлена!</string>
     <string name="import_modpack_failed_title">Ошибка импорта</string>
+    <string name="control_editor_edit_event_launcher_send_text">Отправить текст</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">При нажатии на эту кнопку будет введён следующий текст:</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">Оставьте пустым, для деактивации действия</string>
+    <string name="control_editor_edit_show_layers">Принудительно показать слои раскладки</string>
+    <string name="control_editor_edit_hide_layers">Принудительно скрыть слои раскладки</string>
 </resources>
