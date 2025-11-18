@@ -958,4 +958,26 @@
     <string name="settings_launcher_background_reset_message">ランチャーの背景をリセットしてもよろしいですか？</string>
     <string name="settings_gamepad_title">コントローラーでの操作</string>
     <string name="settings_gamepad_summary">コントローラーでの操作を有効または無効にします。他のデバイスが誤ってコントローラーとして認識される場合は、このオプションを無効にしてください。</string>
+    <string name="generic_tip">ヒント</string>
+    <string name="import_modpack">モッドパックをインポート</string>
+    <string name="import_modpack_tip">ローカルのモッドパックファイルをインポートできます。ランチャーは現在、以下の形式をサポートしています:</string>
+    <string name="import_modpack_task_unpack">ファイルのインポートと解凍</string>
+    <string name="import_modpack_task_parse">モッドパックを解析</string>
+    <string name="import_modpack_task_extract_files">モッドパックファイルを抽出</string>
+    <string name="import_modpack_task_extract_files_and_schedule_download">ダウンロードタスクの抽出と設定</string>
+    <string name="import_modpack_not_supported_title">サポートしていないモッドパック</string>
+    <string name="import_modpack_not_supported_formats">このモッドパックの形式をサポートしていません。サポートしているフォーマット:</string>
+    <string name="import_modpack_not_supported_text1">ランチャーは以下の理由によりモッドパックをインポートできません:</string>
+    <string name="import_modpack_not_supported_text2">1. モッドパックが破損しているため、解凍または解析ができません</string>
+    <string name="import_modpack_not_supported_text3">2. 選択したファイルは圧縮ファイルでない可能性があります</string>
+    <string name="import_modpack_not_supported_text4">正しいインポートの方法を確認するには、作成者の指示を確認してください。</string>
+    <string name="import_modpack_finished_title">インポート成功</string>
+    <string name="import_modpack_finished_text">選択したモッドパックが正常にインストールされました！</string>
+    <string name="import_modpack_failed_title">インポート失敗</string>
+    <string name="import_modpack_failed_text">モッドパックのインストール中にエラーが発生しました:</string>
+    <string name="control_editor_edit_event_launcher_send_text">テキストを送信</string>
+    <string name="control_editor_edit_event_launcher_send_text_summary">このコンポーネントをクリックしたら、ゲームは次のテキストを送信しようとします</string>
+    <string name="control_editor_edit_event_launcher_send_text_hint">何もしない場合は空白</string>
+    <string name="control_editor_edit_show_layers">コントロールレイヤーを強制的に表示</string>
+    <string name="control_editor_edit_hide_layers">コントロールレイヤーを強制的に非表示</string>
 </resources>
