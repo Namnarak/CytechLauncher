@@ -39,7 +39,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -65,7 +64,7 @@ class GameLibDownloader(
     /**
      * 计划下载所有支持库
      */
-    fun schedule(
+    suspend fun schedule(
         task: Task,
         targetDir: File = downloader.librariesTarget,
         updateProgress: Boolean = true
@@ -122,22 +121,16 @@ class GameLibDownloader(
 
             val progressJob = launch(Dispatchers.Main) {
                 while (isActive) {
-                    try {
-                        ensureActive()
-                        val currentFileSize = downloadedFileSize.get()
-                        val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
-                        task.updateProgress(
-                            (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
-                            taskMessageRes,
-                            downloadedFileCount.get(), totalFileCount.get(), //文件个数
-                            formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
-                        )
-                        delay(100)
-                    } catch (_: CancellationException) {
-                        break //取消
-                    } catch (_: InterruptedIOException) {
-                        break
-                    }
+                    ensureActive()
+                    val currentFileSize = downloadedFileSize.get()
+                    val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
+                    task.updateProgress(
+                        (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
+                        taskMessageRes,
+                        downloadedFileCount.get(), totalFileCount.get(), //文件个数
+                        formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
+                    )
+                    delay(100)
                 }
             }
 
@@ -146,9 +139,6 @@ class GameLibDownloader(
             } catch (e: CancellationException) {
                 downloadJobs.forEach { it.cancel("Parent cancelled", e) }
                 throw e
-            } catch (e: InterruptedIOException) {
-                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-                throw CancellationException("Task interrupted", e)
             } finally {
                 progressJob.cancel()
             }

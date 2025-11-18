@@ -19,7 +19,11 @@
 package com.movtery.zalithlauncher.coroutine
 
 import com.movtery.zalithlauncher.coroutine.TaskFlowExecutor.TaskPhase
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
+import com.movtery.zalithlauncher.utils.string.getMessageOrToString
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,8 +35,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.InterruptedIOException
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 动态任务流执行器，按照阶段顺序执行任务流
@@ -123,9 +125,6 @@ class TaskFlowExecutor(
                                 } catch (e: CancellationException) {
                                     task.task.onCancel()
                                     throw e
-                                } catch (e: InterruptedIOException) {
-                                    task.task.onCancel()
-                                    throw CancellationException("Task interrupted", e)
                                 } catch (e: Throwable) {
                                     task.task.onError(e)
                                     throw e
@@ -145,10 +144,11 @@ class TaskFlowExecutor(
                 //执行阶段完成回调
                 phase.onComplete?.invoke()
             } catch (th: Throwable) {
-                lWarning("An exception occurred while executing the task flow.", th)
-                if (th is CancellationException || th is InterruptedIOException) {
+                if (th is CancellationException || th.isInterruptedIOException()) {
+                    lDebug("The current task flow has been cancelled. ${th.getMessageOrToString()}")
                     onCancel()
                 } else {
+                    lWarning("An exception occurred while executing the task flow.", th)
                     onError(th)
                 }
                 return@withContext

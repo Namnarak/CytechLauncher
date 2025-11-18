@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.coroutine
 
+import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,7 @@ object TaskSystem {
                 task.task(this@launch, task)
                 task.taskState = TaskState.COMPLETED
             } catch (th: Throwable) {
-                if (th is CancellationException) return@launch
+                if (th is CancellationException || th.isInterruptedIOException()) return@launch
                 task.onError(th)
             } finally {
                 task.onFinally()

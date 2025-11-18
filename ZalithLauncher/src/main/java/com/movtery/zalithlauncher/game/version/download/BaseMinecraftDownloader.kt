@@ -31,6 +31,8 @@ import com.movtery.zalithlauncher.utils.classes.Quadruple
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import java.io.File
 
 const val DOWNLOADER_TAG = "MinecraftDownloader"
@@ -122,13 +124,15 @@ class BaseMinecraftDownloader(
     }
 
     /** 计划assets资产下载 */
-    fun loadAssetsDownload(
+    suspend fun loadAssetsDownload(
         assetIndex: AssetIndexJson?,
         resourcesTargetDir: File = resourcesTarget,
         assetsTargetDir: File = assetsTarget,
         scheduleDownload: (urls: List<String>, hash: String?, targetFile: File, size: Long) -> Unit
     ) {
         assetIndex?.objects?.forEach { (path, objectInfo) ->
+            currentCoroutineContext().ensureActive()
+
             val hashedPath = "${objectInfo.hash.substring(0, 2)}/${objectInfo.hash}"
             val targetPath = if (assetIndex.isMapToResources) resourcesTargetDir else assetsTargetDir
             val targetFile: File = if (assetIndex.isVirtual || assetIndex.isMapToResources) {
@@ -141,7 +145,7 @@ class BaseMinecraftDownloader(
     }
 
     /** 计划库文件下载 */
-    fun loadLibraryDownloads(
+    suspend fun loadLibraryDownloads(
         gameManifest: GameManifest,
         targetDir: File = librariesTarget,
         scheduleDownload: (urls: List<String>, hash: String?, targetFile: File, size: Long, isDownloadable: Boolean) -> Unit
@@ -149,6 +153,8 @@ class BaseMinecraftDownloader(
         gameManifest.libraries?.let { libraries ->
             processLibraries { libraries }
             libraries.forEach { library ->
+                currentCoroutineContext().ensureActive()
+
                 if (library.name.startsWith("org.lwjgl")) return@forEach
 
                 val artifactPath: String = artifactToPath(library) ?: return@forEach

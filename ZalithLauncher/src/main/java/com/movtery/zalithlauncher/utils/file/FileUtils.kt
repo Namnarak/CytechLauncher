@@ -25,7 +25,6 @@ import androidx.core.content.FileProvider
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.compareChar
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -38,7 +37,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.InterruptedIOException
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.zip.ZipEntry
@@ -307,56 +305,52 @@ private suspend fun <T : ZipEntryBase> extractZipEntries(
     val createdDirs = HashSet<String>()
 
     withContext(Dispatchers.IO) {
-        try {
-            while (entriesIter.hasNext()) {
-                ensureActive()
+        while (entriesIter.hasNext()) {
+            ensureActive()
 
-                val entry = entriesIter.next()
-                val name = entry.name
+            val entry = entriesIter.next()
+            val name = entry.name
 
-                //忽略非目标目录
-                if (!name.startsWith(prefix)) continue
+            //忽略非目标目录
+            if (!name.startsWith(prefix)) continue
 
-                val relative = name.removePrefix(prefix)
-                if (relative.isEmpty()) continue
+            val relative = name.removePrefix(prefix)
+            if (relative.isEmpty()) continue
 
-                //防止路径穿越
-                if (relative.contains("../") || relative.contains("..\\")) {
-                    throw SecurityException("Illegal path traversal detected: $name")
+            //防止路径穿越
+            if (relative.contains("../") || relative.contains("..\\")) {
+                throw SecurityException("Illegal path traversal detected: $name")
+            }
+
+            val targetFile = File(outputDir, relative)
+            val targetPath = targetFile.toPath().normalize()
+
+            if (!targetPath.startsWith(rootPath)) {
+                throw SecurityException("Illegal path outside output directory: $name")
+            }
+
+            if (entry.isDirectory) {
+                val absDir = targetFile.absolutePath
+                if (createdDirs.add(absDir)) {
+                    targetFile.mkdirs()
                 }
+                continue
+            }
 
-                val targetFile = File(outputDir, relative)
-                val targetPath = targetFile.toPath().normalize()
+            val parent = targetFile.parentFile
+            val parentPath = parent.absolutePath
+            if (createdDirs.add(parentPath)) {
+                parent.mkdirs()
+            }
 
-                if (!targetPath.startsWith(rootPath)) {
-                    throw SecurityException("Illegal path outside output directory: $name")
-                }
-
-                if (entry.isDirectory) {
-                    val absDir = targetFile.absolutePath
-                    if (createdDirs.add(absDir)) {
-                        targetFile.mkdirs()
-                    }
-                    continue
-                }
-
-                val parent = targetFile.parentFile
-                val parentPath = parent.absolutePath
-                if (createdDirs.add(parentPath)) {
-                    parent.mkdirs()
-                }
-
-                inputStreamProvider(entry).use { input ->
-                    FileOutputStream(targetFile).use { out ->
-                        var read: Int
-                        while (input.read(buffer).also { read = it } >= 0) {
-                            out.write(buffer, 0, read)
-                        }
+            inputStreamProvider(entry).use { input ->
+                FileOutputStream(targetFile).use { out ->
+                    var read: Int
+                    while (input.read(buffer).also { read = it } >= 0) {
+                        out.write(buffer, 0, read)
                     }
                 }
             }
-        } catch (_: CancellationException) {
-        } catch (_: InterruptedIOException) {
         }
     }
 }
@@ -488,16 +482,22 @@ fun collectFiles(
 /**
  * 在[sourceFiles]中找出[targetFiles]中不存在的文件
  */
-fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<File> {
-    if (targetFiles.isEmpty()) return sourceFiles
-    if (sourceFiles.isEmpty()) return emptyList()
+suspend fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<File> {
+    return withContext(Dispatchers.IO) {
+        if (targetFiles.isEmpty()) return@withContext sourceFiles
+        if (sourceFiles.isEmpty()) return@withContext emptyList()
 
-    val targetPaths = targetFiles.mapTo(
-        HashSet(targetFiles.size)
-    ) { it.absolutePath }
+        val targetPaths = targetFiles.mapTo(
+            HashSet(targetFiles.size)
+        ) {
+            ensureActive()
+            it.absolutePath
+        }
 
-    return sourceFiles.filter { sourceFile ->
-        sourceFile.absolutePath !in targetPaths
+        sourceFiles.filter { sourceFile ->
+            ensureActive()
+            sourceFile.absolutePath !in targetPaths
+        }
     }
 }
 
