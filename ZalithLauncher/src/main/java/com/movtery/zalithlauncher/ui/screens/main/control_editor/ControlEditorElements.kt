@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.ClickEvent
-import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
@@ -88,8 +87,8 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
  */
 sealed interface EditorOperation {
     data object None : EditorOperation
-    /** 选择了一个控件, 附带其所属控件层 */
-    data class SelectButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
+    /** 选择了一个控件进行编辑 */
+    data object SelectButton : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
     /** 打开控件外观列表 */
@@ -97,7 +96,7 @@ sealed interface EditorOperation {
     /** 创建控件外观 */
     data object CreateStyle : EditorOperation
     /** 编辑控件外观 */
-    data class EditStyle(val style: ObservableButtonStyle) : EditorOperation
+    data object EditStyle : EditorOperation
     /** 控制布局正在保存中 */
     data object Saving : EditorOperation
     /** 控制布局保存失败 */

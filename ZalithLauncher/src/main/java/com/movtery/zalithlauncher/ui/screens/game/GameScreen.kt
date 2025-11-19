@@ -76,7 +76,6 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerT
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.toAction
-import com.movtery.zalithlauncher.ui.activities.showExitEditorDialog
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.control.MinecraftHotbar
@@ -619,14 +618,12 @@ fun GameScreen(
                         viewModel.exitControlEditor()
                     },
                     menuExit = {
-                        viewModel.viewModelScope.launch {
-                            showExitEditorDialog(
-                                context = context,
-                                onExit = {
-                                    viewModel.exitControlEditor()
-                                }
-                            )
-                        }
+                        editorViewModel.showExitEditorDialog(
+                            context = context,
+                            onExit = {
+                                viewModel.exitControlEditor()
+                            }
+                        )
                     }
                 )
             }
@@ -654,7 +651,7 @@ fun GameScreen(
                     is EventViewModel.Event.Game.OnBack -> {
                         if (viewModel.isEditingLayout) {
                             //处于控制布局编辑模式
-                            showExitEditorDialog(
+                            editorViewModel.onBackPressed(
                                 context = context,
                                 onExit = {
                                     viewModel.exitControlEditor()

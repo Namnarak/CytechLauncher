@@ -18,7 +18,12 @@
 
 package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,12 +54,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.layer_controller.data.ButtonShape
@@ -69,120 +73,143 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
+import com.movtery.zalithlauncher.ui.screens.rememberSwapTween
 
 private data class TabItem(val titleRes: Int)
 
+/**
+ * 控件样式编辑对话框
+ * **不再真正使用Dialog，真的会有性能问题！**
+ */
 @Composable
 fun EditStyleDialog(
-    style: ObservableButtonStyle,
+    visible: Boolean,
+    style: ObservableButtonStyle?,
     onClose: () -> Unit
 ) {
-    val tabs = remember {
-        listOf(
-            TabItem(R.string.control_editor_edit_style_config_light),
-            TabItem(R.string.control_editor_edit_style_config_dark)
-        )
-    }
+    val tween = rememberSwapTween()
 
-    val pagerState = rememberPagerState(pageCount = { tabs.size })
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(selectedTabIndex) {
-        pagerState.animateScrollToPage(selectedTabIndex)
-    }
-
-    Dialog(
-        onDismissRequest = onClose,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+    AnimatedVisibility(
+        modifier = Modifier.fillMaxSize(),
+        visible = visible,
+        enter = fadeIn(animationSpec = tween),
+        exit = fadeOut(animationSpec = tween)
     ) {
+        val tabs = remember {
+            listOf(
+                TabItem(R.string.control_editor_edit_style_config_light),
+                TabItem(R.string.control_editor_edit_style_config_dark)
+            )
+        }
+
+        val pagerState = rememberPagerState(pageCount = { tabs.size })
+        var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+        LaunchedEffect(selectedTabIndex) {
+            pagerState.animateScrollToPage(selectedTabIndex)
+        }
+
         Box(
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(all = 3.dp),
-                shadowElevation = 3.dp,
-                shape = MaterialTheme.shapes.extraLarge
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(all = 12.dp)
-                            .weight(0.4f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        RendererBox(
-                            style = style,
-                            modifier = Modifier.weight(1f)
+            //作为背景层，被点击时关闭Dialog
+            if (visible) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(0f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = onClose
                         )
-                        //控件外观名称
-                        OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = style.name,
-                            onValueChange = { style.name = it },
-                            singleLine = true,
-                            label = {
-                                Text(text = stringResource(R.string.control_editor_edit_style_config_name))
-                            },
-                            shape = MaterialTheme.shapes.large
-                        )
-                        //启用动画过渡
-                        InfoLayoutSwitchItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            title = stringResource(R.string.control_editor_edit_style_config_animate_swap),
-                            value = style.animateSwap,
-                            onValueChange = { style.animateSwap = it }
-                        )
-                    }
+                )
+            }
 
-                    Column(
-                        modifier = Modifier
-                            .weight(0.6f)
-                            .fillMaxHeight()
+            if (style != null) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .fillMaxHeight()
+                        .padding(all = 16.dp),
+                    shadowElevation = 3.dp,
+                    shape = MaterialTheme.shapes.extraLarge
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxHeight()
                     ) {
-                        //顶贴标签栏
-                        SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-                            tabs.forEachIndexed { index, item ->
-                                Tab(
-                                    selected = index == selectedTabIndex,
-                                    onClick = {
-                                        selectedTabIndex = index
-                                    },
-                                    text = {
-                                        MarqueeText(text = stringResource(item.titleRes))
-                                    }
-                                )
-                            }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(all = 12.dp)
+                                .weight(0.4f),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            RendererBox(
+                                style = style,
+                                modifier = Modifier.weight(1f)
+                            )
+                            //控件外观名称
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = style.name,
+                                onValueChange = { style.name = it },
+                                singleLine = true,
+                                label = {
+                                    Text(text = stringResource(R.string.control_editor_edit_style_config_name))
+                                },
+                                shape = MaterialTheme.shapes.large
+                            )
+                            //启用动画过渡
+                            InfoLayoutSwitchItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.control_editor_edit_style_config_animate_swap),
+                                value = style.animateSwap,
+                                onValueChange = { style.animateSwap = it }
+                            )
                         }
 
-                        HorizontalPager(
-                            state = pagerState,
-                            userScrollEnabled = false,
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        ) { page ->
-                            when (page) {
-                                0 -> {
-                                    StyleConfigEditor(
-                                        modifier = Modifier.fillMaxSize(),
-                                        styleConfig = style.lightStyle
+                                .weight(0.6f)
+                                .fillMaxHeight()
+                        ) {
+                            //顶贴标签栏
+                            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                                tabs.forEachIndexed { index, item ->
+                                    Tab(
+                                        selected = index == selectedTabIndex,
+                                        onClick = {
+                                            selectedTabIndex = index
+                                        },
+                                        text = {
+                                            MarqueeText(text = stringResource(item.titleRes))
+                                        }
                                     )
                                 }
-                                1 -> {
-                                    StyleConfigEditor(
-                                        modifier = Modifier.fillMaxSize(),
-                                        styleConfig = style.darkStyle
-                                    )
+                            }
+
+                            HorizontalPager(
+                                state = pagerState,
+                                userScrollEnabled = false,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            ) { page ->
+                                when (page) {
+                                    0 -> {
+                                        StyleConfigEditor(
+                                            modifier = Modifier.fillMaxSize(),
+                                            styleConfig = style.lightStyle
+                                        )
+                                    }
+                                    1 -> {
+                                        StyleConfigEditor(
+                                            modifier = Modifier.fillMaxSize(),
+                                            styleConfig = style.darkStyle
+                                        )
+                                    }
                                 }
                             }
                         }

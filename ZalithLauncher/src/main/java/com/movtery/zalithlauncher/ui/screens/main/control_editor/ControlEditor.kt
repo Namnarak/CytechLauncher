@@ -59,6 +59,7 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_style.Styl
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.EditWidgetDialog
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectLayers
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectedWidgetData
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
 import java.io.File
@@ -107,7 +108,8 @@ fun BoxWithConstraintsScope.ControlEditor(
         ControlEditorLayer(
             observedLayout = viewModel.observableLayout,
             onButtonTap = { data, layer ->
-                viewModel.editorOperation = EditorOperation.SelectButton(data, layer)
+                viewModel.selectedWidget = SelectedWidgetData(data, layer)
+                viewModel.editorOperation = EditorOperation.SelectButton
             },
             enableSnap = AllSettings.editorEnableWidgetSnap.state,
             snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
@@ -202,18 +204,54 @@ fun BoxWithConstraintsScope.ControlEditor(
         viewModel.switchMenu()
     }
 
+    EditWidgetDialog(
+        data = viewModel.selectedWidget,
+        visible = viewModel.editorOperation == EditorOperation.SelectButton,
+        styles = styles,
+        onDismissRequest = {
+            viewModel.editorOperation = EditorOperation.None
+        },
+        onDelete = { data, layer ->
+            viewModel.removeWidget(layer, data)
+            viewModel.editorOperation = EditorOperation.None
+        },
+        onClone = { data, layer ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.CloneButton(data, layer)
+        },
+        onEditWidgetText = { string ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.EditWidgetText(string)
+        },
+        switchControlLayers = { data, type ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.SwitchLayersVisibility(data, type)
+        },
+        sendText = { data ->
+            viewModel.editorWidgetOperation = EditorWidgetOperation.SendText(data)
+        },
+        openStyleList = {
+            viewModel.editorOperation = EditorOperation.OpenStyleList
+        }
+    )
+
+    EditStyleDialog(
+        visible = viewModel.editorOperation == EditorOperation.EditStyle,
+        style = viewModel.selectedStyle,
+        onClose = {
+            viewModel.editorOperation = EditorOperation.None
+        }
+    )
+
     EditorOperation(
         operation = viewModel.editorOperation,
         changeOperation = { viewModel.editorOperation = it },
-        changeWidgetOperation = { viewModel.editorWidgetOperation = it },
-        onDeleteWidget = { data, layer ->
-            viewModel.removeWidget(layer, data)
-        },
         onDeleteLayer = { layer ->
             viewModel.removeLayer(layer)
         },
         onMergeDownward = { layer ->
             viewModel.observableLayout.mergeDownward(layer)
+        },
+        onEditStyle = { style ->
+            viewModel.selectedStyle = style
+            viewModel.editorOperation = EditorOperation.EditStyle
         },
         onCreateStyle = { name ->
             viewModel.createNewStyle(name)
@@ -246,47 +284,16 @@ fun BoxWithConstraintsScope.ControlEditor(
 private fun EditorOperation(
     operation: EditorOperation,
     changeOperation: (EditorOperation) -> Unit,
-    changeWidgetOperation: (EditorWidgetOperation) -> Unit,
-    onDeleteWidget: (ObservableWidget, ObservableControlLayer) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onMergeDownward: (ObservableControlLayer) -> Unit,
+    onEditStyle: (ObservableButtonStyle) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
     onDeleteStyle: (ObservableButtonStyle) -> Unit,
     styles: List<ObservableButtonStyle>
 ) {
     when (operation) {
-        is EditorOperation.None -> {}
-        is EditorOperation.SelectButton -> {
-            val data = operation.data
-            val layer = operation.layer
-            EditWidgetDialog(
-                data = data,
-                styles = styles,
-                onDismissRequest = {
-                    changeOperation(EditorOperation.None)
-                },
-                onDelete = {
-                    onDeleteWidget(data, layer)
-                    changeOperation(EditorOperation.None)
-                },
-                onClone = {
-                    changeWidgetOperation(EditorWidgetOperation.CloneButton(data, layer))
-                },
-                onEditWidgetText = { string ->
-                    changeWidgetOperation(EditorWidgetOperation.EditWidgetText(string))
-                },
-                switchControlLayers = { data, type ->
-                    changeWidgetOperation(EditorWidgetOperation.SwitchLayersVisibility(data, type))
-                },
-                sendText = { data ->
-                    changeWidgetOperation(EditorWidgetOperation.SendText(data))
-                },
-                openStyleList = {
-                    changeOperation(EditorOperation.OpenStyleList)
-                }
-            )
-        }
+        is EditorOperation.None, is EditorOperation.SelectButton -> {}
         is EditorOperation.EditLayer -> {
             val layer = operation.layer
             EditControlLayerDialog(
@@ -306,9 +313,7 @@ private fun EditorOperation(
         is EditorOperation.OpenStyleList -> {
             StyleListDialog(
                 styles = styles,
-                onEditStyle = { style ->
-                    changeOperation(EditorOperation.EditStyle(style))
-                },
+                onEditStyle = onEditStyle,
                 onCreate = {
                     changeOperation(EditorOperation.CreateStyle)
                 },
@@ -340,12 +345,6 @@ private fun EditorOperation(
             )
         }
         is EditorOperation.EditStyle -> {
-            EditStyleDialog(
-                style = operation.style,
-                onClose = {
-                    changeOperation(EditorOperation.None)
-                }
-            )
         }
         is EditorOperation.Saving -> {
             ProgressDialog(

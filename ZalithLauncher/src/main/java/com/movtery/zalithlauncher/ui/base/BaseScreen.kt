@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.base
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -135,7 +136,11 @@ private fun BaseScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .alpha(0f)
-                    .clickable { }
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = {}
+                    )
             )
         }
     }
