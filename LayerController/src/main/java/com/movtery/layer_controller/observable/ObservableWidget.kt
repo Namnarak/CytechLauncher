@@ -23,6 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.unit.IntSize
+import com.movtery.layer_controller.data.ButtonPosition
+import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.EventHandler
 
@@ -39,6 +42,26 @@ abstract class ObservableWidget {
      * 编辑模式中，记录实时偏移量
      */
     var movingOffset by mutableStateOf(Offset.Zero)
+
+    /**
+     * 控件的内部渲染大小
+     */
+    internal var size by mutableStateOf(IntSize.Zero)
+
+    /**
+     * 组件的位置属性
+     */
+    internal abstract val widgetPosition: ButtonPosition
+
+    /**
+     * 组件的样式 ID
+     */
+    internal abstract val styleId: String?
+
+    /**
+     * 组件的大小属性
+     */
+    internal abstract val widgetSize: ButtonSize
 
     /**
      * 确认该组件是否可以响应触摸事件

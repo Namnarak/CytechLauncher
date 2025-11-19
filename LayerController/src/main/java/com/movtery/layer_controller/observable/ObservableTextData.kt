@@ -22,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.PointerInputChange
+import com.movtery.layer_controller.data.ButtonPosition
+import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.cloneNew
@@ -41,6 +43,15 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
     var textItalic by mutableStateOf(data.textItalic)
     var textUnderline by mutableStateOf(data.textUnderline)
     var visibilityType by mutableStateOf(data.visibilityType)
+
+    override val widgetPosition: ButtonPosition
+        get() = position
+
+    override val styleId: String?
+        get() = buttonStyle
+
+    override val widgetSize: ButtonSize
+        get() = buttonSize
 
     override fun canTouch(): Boolean = false //不处理触摸事件
 

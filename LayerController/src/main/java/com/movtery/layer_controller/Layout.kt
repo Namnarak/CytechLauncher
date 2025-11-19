@@ -139,7 +139,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     val reversedLayers = remember(layers) { layers.reversed() }
     val styles by observedLayout.styles.collectAsState()
 
-    val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
     val allActiveWidgets = remember { mutableStateMapOf<PointerId, List<ObservableWidget>>() }
     val currentCheckOccupiedPointers by rememberUpdatedState(checkOccupiedPointers)
     val currentIsCursorGrabbing by rememberUpdatedState(isCursorGrabbing)
@@ -157,7 +156,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 
     Box(
         modifier = modifier
-            .pointerInput(reversedLayers, sizes, hideLayerWhen) {
+            .pointerInput(reversedLayers, hideLayerWhen) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent(pass = PointerEventPass.Initial)
@@ -198,7 +197,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                         return@fastFilter false
                                     }
 
-                                    val size = sizes[widget] ?: IntSize.Zero
+                                    val size = widget.size
                                     val offset = getWidgetPosition(widget, size, screenSize)
 
                                     val x = position.x
@@ -260,7 +259,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                     //检查组件是否可以响应移除边界即松开
                                     if (!widget.isReleaseOnOutOfBounds()) continue
 
-                                    val size = sizes[widget] ?: IntSize.Zero
+                                    val size = widget.size
                                     val offset = getWidgetPosition(widget, size, screenSize)
                                     val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
                                             position.y !in offset.y..(offset.y + size.height)
@@ -287,10 +286,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
             opacity = opacity,
             layers = reversedLayers,
             styles = styles,
-            sizes = sizes,
-            applySize = { data, size ->
-                sizes[data] = size
-            },
             screenSize = screenSize,
             isCursorGrabbing = currentIsCursorGrabbing,
             hideLayerWhen = currentHideLayerWhen
@@ -303,8 +298,6 @@ private fun ControlsRendererLayer(
     @FloatRange(0.0, 1.0) opacity: Float,
     layers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
-    sizes: Map<ObservableWidget, IntSize>,
-    applySize: (ObservableWidget, IntSize) -> Unit,
     screenSize: IntSize,
     isCursorGrabbing: Boolean,
     hideLayerWhen: HideLayerWhen
@@ -327,12 +320,11 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        allStyles = styles,
                         screenSize = screenSize,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
-                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
-                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                         isPressed = false //文本框不需要按压状态
                     )
                 }
@@ -341,12 +333,11 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        allStyles = styles,
                         screenSize = screenSize,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
-                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
-                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                         isPressed = data.isPressed
                     )
                 }
@@ -362,10 +353,7 @@ private fun ControlsRendererLayer(
             layer.textBoxes.value.fastForEach { data ->
                 if (index < placeables.size) {
                     val placeable = placeables[index]
-                    applySize(
-                        data,
-                        IntSize(placeable.width, placeable.height)
-                    )
+                    data.size = IntSize(placeable.width, placeable.height)
                     index++
                 }
             }
@@ -373,10 +361,7 @@ private fun ControlsRendererLayer(
             layer.normalButtons.value.fastForEach { data ->
                 if (index < placeables.size) {
                     val placeable = placeables[index]
-                    applySize(
-                        data,
-                        IntSize(placeable.width, placeable.height)
-                    )
+                    data.size = IntSize(placeable.width, placeable.height)
                     index++
                 }
             }
