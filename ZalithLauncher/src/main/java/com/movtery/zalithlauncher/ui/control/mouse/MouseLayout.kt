@@ -317,7 +317,7 @@ fun MousePointer(
     crossfade: Boolean = false
 ) {
     val context = LocalContext.current
-    val loader = remember(triggerRefresh, crossfade, context) {
+    val loader = remember(triggerRefresh, crossfade, mouseSize) {
         ImageLoader.Builder(context)
             .components { add(GifDecoder.Factory()) }
             .crossfade(crossfade)
