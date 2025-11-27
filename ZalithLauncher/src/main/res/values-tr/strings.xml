@@ -650,7 +650,7 @@
     <string name="download_assets_category_extra_large">Extra büyük</string>
     <string name="download_assets_category_kitchen_sink">Tümü Dahil</string>
     <string name="download_assets_category_traditional">Geleneksel</string>
-    <string name="download_assets_category_steampunk">Steampunk pelerini</string>
+    <string name="download_assets_category_steampunk">buharla çalışan makinalar</string>
     <string name="download_assets_category_modern">Modern</string>
     <string name="download_assets_category_photo_realistic">Fotogerçekçi</string>
     <string name="download_assets_category_animated">Animasyonlu</string>
@@ -706,7 +706,7 @@
     <string name="import_modpack_not_supported_text3">2. Seçilen dosya sıkıştırılmış bir arşiv olmayabilir</string>
     <string name="import_modpack_not_supported_text4">Doğru içe aktarma yöntemini sağlamak için yazarın talimatlarını kontrol edin.</string>
     <string name="import_modpack_finished_title">İçenaktarma başarılı</string>
-    <string name="import_modpack_finished_text">Seçilen modpack başarılı bir şekilde indirildi!</string>
+    <string name="import_modpack_finished_text">Seçilen modpack başarılı bir şekilde indirildi !</string>
     <string name="import_modpack_failed_title">İçe aktarma başarısız</string>
     <string name="import_modpack_failed_text">Mod paketi yüklenirken bir hata oluştu:</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Dünyada barış ve gökkuşağı renkleriyle dolu bir dünya için Sevgi ve Sarılmalar Güncellemesi.</string>
@@ -772,11 +772,11 @@
     <string name="cape_name_translator">Çevirmen</string>
     <string name="cape_name_cobalt">Kobalt</string>
     <string name="cape_name_vanilla">Vani̇lya</string>
-    <string name="cape_name_minecon2011">Minecon2011 pelerini</string>
-    <string name="cape_name_minecon2012">Minecon2012 pelerini</string>
-    <string name="cape_name_minecon2013">Minecon2013 pelerini</string>
-    <string name="cape_name_minecon2015">Minecon2015 pelerini</string>
-    <string name="cape_name_minecon2016">Minecon2016 pelerini</string>
+    <string name="cape_name_minecon2011">Minecon2011 pelerini</string>
+    <string name="cape_name_minecon2012">Minecon2012 pelerini</string>
+    <string name="cape_name_minecon2013">Minecon2013 pelerini</string>
+    <string name="cape_name_minecon2015">Minecon2015 pelerini</string>
+    <string name="cape_name_minecon2016">Minecon2016 pelerini</string>
     <string name="cape_name_cherry_blossom">Kiraz Çiçeği</string>
     <string name="cape_name_15_th_anniversary">15. Yıl Dönümü</string>
     <string name="cape_name_purple_heart">Mor Kalp</string>
@@ -884,7 +884,7 @@
     <string name="resource_pack_manage_name">Kaynak Paketi Adı</string>
     <string name="resource_pack_manage_delete_warning">%s kaynak paketini silmek istediğinizden emin misiniz? Bu eylem geri alınamaz!</string>
     <string name="resource_pack_manage_no_packs">Mevcut sürüm için kullanılabilir kaynak paketi yok</string>
-    <string name="settings_control_mouse_capture_sensitivity_summary">Yakalandığında fare hareketinin hassasiyetini ayarlar,örneğin oyun görünümünü hareket ettirme hassasiyeti</string>
+    <string name="settings_control_mouse_capture_sensitivity_summary">Yakalandığında fare hareketinin hassasiyetini ayarlar, örneğin oyun görünümünü hareket ettirme hassasiyeti</string>
     <string name="settings_control_mouse_pointer_arrow_title">Sanal Fare İşaretçisi (Varsayılan)</string>
     <string name="settings_control_mouse_pointer_arrow_summary">Varsayılan sanal fare işaretçisi görselini kişisel tercihlere uyacak şekilde özelleştirin</string>
     <string name="settings_control_mouse_pointer_link_title">Sanal Fare İşaretçisi (El)</string>
@@ -908,15 +908,15 @@
     <string name="settings_control_gyroscope_summary">Oyun sırasında cihazı döndürerek kamerayı kontrol edin</string>
     <string name="settings_control_gyroscope_sensitivity_title">Jiroskop hassasiyeti</string>
     <string name="settings_control_gyroscope_sample_rate_title">Jiroskop Örnekleme Hızı</string>
-    <string name="settings_control_gyroscope_sample_rate_summary">Örnekleme hızı, jiroskop verilerinin ne sıklıkta güncellendiğini belirler. Daha yüksek bir frekans, daha gerçek zamanlı veri anlamına gelir ancak pil kullanımı daha yüksek olur</string>
+    <string name="settings_control_gyroscope_sample_rate_summary">Örnekleme hızı, jiroskop verilerinin ne sıklıkta güncellendiğini belirler. Daha yüksek bir frekans, daha gerçek zamanlı veri anlamına gelir ancak pil kullanımı daha yüksek olur</string>
     <string name="settings_control_gyroscope_smoothing_title">Jiroskop Değeri Yumuşatma</string>
-    <string name="settings_control_gyroscope_smoothing_summary">Algılanan jiroskop değerlerini titreşimi azaltmak için yumuşatır,ancak daha fazla gecikme (latency) ekler</string>
+    <string name="settings_control_gyroscope_smoothing_summary">Algılanan jiroskop değerlerini titreşimi azaltmak için yumuşatır, ancak daha fazla gecikme (latency) ekler</string>
     <string name="settings_control_gyroscope_smoothing_window_title">Jiroskop Yumuşatma Pencere Boyutu</string>
-    <string name="settings_control_gyroscope_smoothing_window_summary">Yumuşatma için kaç veri noktasının ortalaması alınacağını belirler. Daha büyük değerler daha yumuşak çıktı, ancak daha yavaş tepki verir</string>
+    <string name="settings_control_gyroscope_smoothing_window_summary">Yumuşatma için kaç veri noktasının ortalaması alınacağını belirler . Daha büyük değerler daha yumuşak çıktı, ancak daha yavaş tepki verir</string>
     <string name="settings_control_gyroscope_invert_x_title">X Ekseni Ters Çevir</string>
-    <string name="settings_control_gyroscope_invert_x_summary">Etkinleştirildiğinde, cihazı sağa veya sola döndürmek kamerayı ters yönde kontrol eder</string>
+    <string name="settings_control_gyroscope_invert_x_summary">Etkinleştirildiğinde, cihazı sağa veya sola döndürmek kamerayı ters yönde kontrol eder</string>
     <string name="settings_control_gyroscope_invert_y_title">Y Ekseni Ters Çevir</string>
-    <string name="settings_control_gyroscope_invert_y_summary">Etkinleştirildiğinde, cihazı yukarı veya aşağı döndürmek kamerayı ters yönde kontrol eder</string>
+    <string name="settings_control_gyroscope_invert_y_summary">Etkinleştirildiğinde, cihazı yukarı veya aşağı döndürmek kamerayı ters yönde kontrol eder</string>
     <string name="settings_gamepad_title">Kontrolcü kontrolü</string>
     <string name="settings_gamepad_summary">Kontrolcü kontrolünü etkinleştirin veya devre dışı bırakın. Başka bir cihaz yanlışlıkla kontrolcü olarak tanınırsa, lütfen bu seçeneği kapatın.</string>
     <string name="settings_gamepad_deadzone_title">Kontrolcü ölü alanı</string>
@@ -936,10 +936,10 @@
     <string name="settings_gamepad_mapping_in_game">Oyun içi</string>
     <string name="settings_gamepad_mapping_in_menu">Menü içi</string>
     <string name="settings_gamepad_remapping_reset_title">Kontrolcü Düğme Atamalarını Sıfırla</string>
-    <string name="settings_gamepad_remapping_reset_summary">Düğme ataması, oyun kolunuza daha iyi uyum sağlamanıza yardımcı olur. Önceki kurulum yanlışsa, sıfırladıktan sonra oyunu yeniden başlatıp düğmeleri tekrar atayabilirsiniz</string>
+    <string name="settings_gamepad_remapping_reset_summary">Düğme ataması, oyun kolunuza daha iyi uyum sağlamanıza yardımcı olur. Önceki kurulum yanlışsa, sıfırladıktan sonra oyunu yeniden başlatıp düğmeleri tekrar atayabilirsiniz</string>
     <string name="settings_gamepad_remapping_reset_finished">Tüm kontrolcü düğme atamaları sıfırlandı</string>
     <string name="settings_gamepad_remapping_tip_title">Kontrolcü Düğme Yeniden Atama</string>
-    <string name="settings_gamepad_remapping_tip_summary">Farklı kontrolcü türlerini desteklemek için başlatıcı, oyun kolunuzun temel tuş düğmelerini atamanızı gerektiriyor. Lütfen atama işlemini tamamlamak için gelecek komutları takip edin.</string>
+    <string name="settings_gamepad_remapping_tip_summary">Farklı kontrolcü türlerini desteklemek için başlatıcı, oyun kolunuzun temel tuş düğmelerini atamanızı gerektiriyor. Lütfen atama işlemini tamamlamak için gelecek komutları takip edin.</string>
     <string name="settings_gamepad_remapping_previous">Önceki</string>
     <string name="settings_gamepad_remapping_skip">Atla</string>
     <string name="settings_gamepad_remapping_press">Şu düğmeye basın: %s. Oyun kolunuzda bu düğme yoksa, lütfen atlayın.</string>
@@ -956,7 +956,7 @@
     <string name="settings_launcher_animate_extent_title">Animasyon Yoğunluğu</string>
     <string name="settings_launcher_animate_extent_summary">Başlatıcının (launcher) animasyon yoğunluğunu ayarlayın</string>
     <string name="settings_launcher_log_retention_days_title">Günlük Tutma Gün Sayısı</string>
-    <string name="settings_launcher_log_retention_days_summary">Başlatıcı günlüklerinin kaç gün saklanacağını ayarlayın. Bu süreden daha eski olan günlükler otomatik olarak silinecektir</string>
+    <string name="settings_launcher_log_retention_days_summary">Başlatıcı günlüklerinin kaç gün saklanacağını ayarlayın. Bu süreden daha eski olan günlükler otomatik olarak silinecektir</string>
     <string name="settings_launcher_log_share_title">Başlatıcı Günlüklerini Paylaş</string>
     <string name="settings_launcher_log_share_summary">Başlatıcı günlük dosyalarını paylaşmak için dokunun, böylece geliştiriciler başlatıcıdaki sorunları tespit edebilir ve düzeltebilir</string>
     <string name="settings_launcher_log_share_packing">Başlatıcı Günlük Dosyalarını Paketle</string>
@@ -998,5 +998,5 @@
     <string name="control_editor_menu_no_selected_layer_title">Kontrol Katmanı Seçilmedi</string>
     <string name="control_editor_menu_no_selected_layer_message">Lütfen önce hedef olarak bir kontrol katmanı seçin.</string>
     <string name="control_editor_menu_preview_mode">Kontrol Düzeni Önizleme</string>
-    <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn) platformu</string>
+    <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
 </resources>
