@@ -26,6 +26,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
@@ -67,26 +68,28 @@ class ControlEditorActivity : BaseComponentActivity() {
 
         setContent {
             ZalithLauncherTheme {
-                BoxWithConstraints(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    ControlEditor(
-                        viewModel = editorViewModel,
-                        targetFile = controlFile,
-                        exit = {
-                            //已保存控制布局后进行的退出
-                            finish()
-                        },
-                        menuExit = {
-                            //菜单要求的直接退出，使用对话框让用户确认
-                            editorViewModel.showExitEditorDialog(
-                                context = this@ControlEditorActivity,
-                                onExit = {
-                                    this@ControlEditorActivity.finish()
-                                }
-                            )
-                        }
-                    )
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    BoxWithConstraints(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        ControlEditor(
+                            viewModel = editorViewModel,
+                            targetFile = controlFile,
+                            exit = {
+                                //已保存控制布局后进行的退出
+                                finish()
+                            },
+                            menuExit = {
+                                //菜单要求的直接退出，使用对话框让用户确认
+                                editorViewModel.showExitEditorDialog(
+                                    context = this@ControlEditorActivity,
+                                    onExit = {
+                                        this@ControlEditorActivity.finish()
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -19,21 +19,10 @@
 package com.movtery.layer_controller
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -80,6 +69,7 @@ fun ControlBoxLayout(
     @FloatRange(0.0, 1.0) opacity: Float = 1f,
     markPointerAsMoveOnly: (PointerId) -> Unit = {},
     hideLayerWhen: HideLayerWhen = HideLayerWhen.None,
+    isDark: Boolean = isSystemInDarkTheme(),
     content: @Composable BoxScope.() -> Unit
 ) {
     when {
@@ -109,6 +99,7 @@ fun ControlBoxLayout(
                             markPointerAsMoveOnly = markPointerAsMoveOnly,
                             isCursorGrabbing = isCursorGrabbing,
                             hideLayerWhen = hideLayerWhen,
+                            isDark = isDark,
                             content = content
                         )
                     }
@@ -131,6 +122,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
     hideLayerWhen: HideLayerWhen,
+    isDark: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
@@ -283,6 +275,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
         content()
 
         ControlsRendererLayer(
+            isDark = isDark,
             opacity = opacity,
             layers = reversedLayers,
             styles = styles,
@@ -295,6 +288,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 
 @Composable
 private fun ControlsRendererLayer(
+    isDark: Boolean,
     @FloatRange(0.0, 1.0) opacity: Float,
     layers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
@@ -322,6 +316,7 @@ private fun ControlsRendererLayer(
                         data = data,
                         allStyles = styles,
                         screenSize = screenSize,
+                        isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
@@ -335,6 +330,7 @@ private fun ControlsRendererLayer(
                         data = data,
                         allStyles = styles,
                         screenSize = screenSize,
+                        isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,

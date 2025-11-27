@@ -75,6 +75,7 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerI
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
@@ -504,7 +505,8 @@ fun GameScreen(
                 opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                hideLayerWhen = viewModel.controlLayerHideState
+                hideLayerWhen = viewModel.controlLayerHideState,
+                isDark = isLauncherInDarkTheme()
             ) {
                 val transformableState = rememberTransformableState { _, offsetChange, _ ->
                     incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标

@@ -19,16 +19,11 @@
 package com.movtery.layer_controller
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -70,6 +65,7 @@ fun ControlEditorLayer(
     snapInAllLayers: Boolean,
     snapMode: SnapMode,
     focusedLayer: ObservableControlLayer? = null,
+    isDark: Boolean = isSystemInDarkTheme(),
     localSnapRange: Dp = 20.dp,
     snapThresholdValue: Dp = 4.dp
 ) {
@@ -93,6 +89,7 @@ fun ControlEditorLayer(
             modifier = Modifier.fillMaxSize()
         ) {
             ControlWidgetRenderer(
+                isDark = isDark,
                 renderingLayers = renderingLayers,
                 styles = styles,
                 enableSnap = enableSnap,
@@ -161,6 +158,7 @@ private fun DrawScope.drawLine(
  */
 @Composable
 private fun BoxWithConstraintsScope.ControlWidgetRenderer(
+    isDark: Boolean,
     renderingLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     enableSnap: Boolean,
@@ -196,6 +194,7 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
             data = data,
             allStyles = styles,
             screenSize = screenSize,
+            isDark = isDark,
             enableSnap = enableSnap,
             snapMode = snapMode,
             localSnapRange = localSnapRange,

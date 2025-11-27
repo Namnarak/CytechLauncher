@@ -72,6 +72,7 @@
     <string name="theme_color_picker_title">颜色选择器</string>
     <string name="theme_color_picker_edit_hex">编辑 Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">无效 Hex</string>
+    <string name="theme_dark_mode_follow_system">跟随系统</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
     <string name="animate_type_jelly_bounce">回弹</string>
@@ -835,6 +836,7 @@
     <string name="settings_gamepad_remapping_finished_saved">已成功保存手柄映射，您可以关闭此对话框了！</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
+    <string name="settings_launcher_dark_mode_title">深色模式</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>
     <string name="settings_launcher_full_screen_summary">使启动器的页面全屏化，忽略刘海屏、挖孔屏等屏幕的安全区</string>
     <string name="settings_launcher_animate_speed_title">动画倍速</string>

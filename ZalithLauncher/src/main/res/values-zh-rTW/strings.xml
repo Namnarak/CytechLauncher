@@ -63,6 +63,7 @@
     <string name="theme_color_picker_title">顏色選擇器</string>
     <string name="theme_color_picker_edit_hex">編輯 Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">無效 Hex</string>
+    <string name="theme_dark_mode_follow_system">跟隨系統</string>
     <!--  動畫  -->
     <string name="animate_type_bounce">彈跳</string>
     <string name="animate_type_jelly_bounce">回彈</string>
@@ -777,6 +778,7 @@
     <string name="settings_gamepad_remapping_finished_saved">已成功儲存手把映射，您可以關閉此對話框了！</string>
     <string name="settings_launcher_color_theme_title">顏色主題</string>
     <string name="settings_launcher_color_theme_summary">變更啟動器的整體顏色主題</string>
+    <string name="settings_launcher_dark_mode_title">深色模式</string>
     <string name="settings_launcher_full_screen_title">頁面全螢幕化</string>
     <string name="settings_launcher_full_screen_summary">使啟動器的頁面全螢幕化，忽略瀏海螢幕、挖孔螢幕等螢幕的安全區域</string>
     <string name="settings_launcher_animate_speed_title">動畫倍速</string>

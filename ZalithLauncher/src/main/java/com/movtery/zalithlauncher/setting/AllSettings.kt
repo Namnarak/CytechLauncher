@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.setting.enums.DarkMode
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
@@ -309,6 +310,11 @@ object AllSettings : SettingsRegistry() {
      * 自定义颜色主题色
      */
     val launcherCustomColor = intSetting("launcherCustomColor", Color.Blue.toArgb())
+
+    /**
+     * 启动器UI深色主题
+     */
+    val launcherDarkMode = enumSetting("launcherDarkMode", DarkMode.FollowSystem)
 
     /**
      * 启动器部分屏幕全屏

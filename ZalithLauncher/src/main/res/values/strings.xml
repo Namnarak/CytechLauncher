@@ -73,6 +73,7 @@
     <string name="theme_color_picker_title">Color Picker</string>
     <string name="theme_color_picker_edit_hex">Edit Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Invalid Hex</string>
+    <string name="theme_dark_mode_follow_system">Follow System</string>
     <!-- Animations -->
     <string name="animate_type_bounce">Bounce</string>
     <string name="animate_type_jelly_bounce">Jelly Bounce</string>
@@ -836,6 +837,7 @@
     <string name="settings_gamepad_remapping_finished_saved">Gamepad mapping saved successfully. You can now close this dialog!</string>
     <string name="settings_launcher_color_theme_title">Color Theme</string>
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
+    <string name="settings_launcher_dark_mode_title">Dark Mode</string>
     <string name="settings_launcher_full_screen_title">Fullscreen mode</string>
     <string name="settings_launcher_full_screen_summary">Make the launcher pages fullscreen, ignoring safe areas like notches and punch-holes</string>
     <string name="settings_launcher_animate_speed_title">Animation Speed</string>

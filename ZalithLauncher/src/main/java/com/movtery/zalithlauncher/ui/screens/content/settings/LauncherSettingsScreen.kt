@@ -52,6 +52,7 @@ import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.DarkMode
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
@@ -138,6 +139,14 @@ fun LauncherSettingsScreen(
                         onRadioClick = { enum ->
                             if (enum == ColorThemeType.CUSTOM) customColorOperation = CustomColorOperation.Dialog
                         }
+                    )
+
+                    ListSettingsLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        unit = AllSettings.launcherDarkMode,
+                        items = DarkMode.entries,
+                        title = stringResource(R.string.settings_launcher_dark_mode_title),
+                        getItemText = { stringResource(it.textRes) }
                     )
 
                     SwitchSettingsLayout(

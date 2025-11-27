@@ -18,6 +18,7 @@
 
 package com.movtery.layer_controller.layout
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
@@ -32,12 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.TextAlignment
-import com.movtery.layer_controller.observable.DefaultObservableButtonStyle
-import com.movtery.layer_controller.observable.ObservableButtonStyle
-import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
-import com.movtery.layer_controller.observable.ObservableTranslatableString
-import com.movtery.layer_controller.observable.ObservableWidget
+import com.movtery.layer_controller.observable.*
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
@@ -70,6 +66,7 @@ internal fun TextButton(
     data: ObservableWidget,
     allStyles: List<ObservableButtonStyle>,
     screenSize: IntSize,
+    isDark: Boolean = isSystemInDarkTheme(),
     visible: Boolean = true,
     enableSnap: Boolean = false,
     snapMode: SnapMode = SnapMode.FullScreen,
@@ -109,7 +106,11 @@ internal fun TextButton(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val color by buttonContentColorAsState(style = style, isPressed = isPressed)
+            val color by buttonContentColorAsState(
+                style = style,
+                isDark = isDark,
+                isPressed = isPressed
+            )
             val buttonTextStyle = when (data) {
                 is ObservableNormalData -> ButtonTextStyle(
                     text = data.text,

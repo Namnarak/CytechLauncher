@@ -23,13 +23,7 @@ import android.os.Build
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -42,6 +36,7 @@ import com.google.android.material.color.utilities.DynamicScheme
 import com.google.android.material.color.utilities.Hct
 import com.google.android.material.color.utilities.Variant
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
@@ -764,7 +759,7 @@ private fun animateColorScheme(target: ColorScheme): ColorScheme {
 
 @Composable
 fun ZalithLauncherTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = isLauncherInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     backgroundViewModel: BackgroundViewModel? = null,

@@ -48,6 +48,7 @@ import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.ProgressDialog
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -114,7 +115,8 @@ fun BoxWithConstraintsScope.ControlEditor(
             enableSnap = AllSettings.editorEnableWidgetSnap.state,
             snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
             snapMode = AllSettings.editorWidgetSnapMode.state,
-            focusedLayer = viewModel.selectedLayer
+            focusedLayer = viewModel.selectedLayer,
+            isDark = isLauncherInDarkTheme()
         )
     }
 
