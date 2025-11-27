@@ -54,12 +54,14 @@ fun DraggableGameBall(
     onPositionChanged: (Offset) -> Unit,
     showGameFps: Boolean,
     showMemory: Boolean,
+    alpha: Float = 1f,
     onClick: () -> Unit = {}
 ) {
     FloatingBall(
         position = position,
         onPositionChanged = onPositionChanged,
-        onClick = onClick
+        onClick = onClick,
+        alpha = alpha
     ) {
         GameBallContent(
             showGameFps = showGameFps,

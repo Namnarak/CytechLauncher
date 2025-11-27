@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -52,12 +53,17 @@ fun FloatingBall(
     onPositionChanged: (Offset) -> Unit,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
+    alpha: Float = 1f,
     color: Color = Color.Black.copy(alpha = 0.25f),
     contentColor: Color = Color.White.copy(alpha = 0.95f),
     shape: Shape = MaterialTheme.shapes.medium,
     content: @Composable () -> Unit
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .alpha(alpha)
+            .fillMaxSize()
+    ) {
         val viewConfig = LocalViewConfiguration.current
 
         val parentWidth = constraints.maxWidth

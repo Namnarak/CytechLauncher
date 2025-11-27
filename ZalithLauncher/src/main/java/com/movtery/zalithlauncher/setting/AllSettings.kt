@@ -394,6 +394,11 @@ object AllSettings : SettingsRegistry() {
     val showMenuBall = boolSetting("showMenuBall", true)
 
     /**
+     * 游戏菜单悬浮窗不透明度
+     */
+    val menuBallOpacity = intSetting("menuBallOpacity", 100)
+
+    /**
      * 快捷栏判定箱计算规则
      */
     val hotbarRule = enumSetting("hotbarRule", HotbarRule.Auto)

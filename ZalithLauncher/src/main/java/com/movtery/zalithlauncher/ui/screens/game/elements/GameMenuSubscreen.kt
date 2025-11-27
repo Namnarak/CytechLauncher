@@ -222,6 +222,23 @@ fun GameMenuSubscreen(
                         }
                     )
                 }
+                //菜单悬浮窗不透明度
+                item {
+                    MenuSliderLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.game_menu_option_menu_ball_opacity),
+                        value = AllSettings.menuBallOpacity.state,
+                        valueRange = 20f..100f,
+                        onValueChange = { value ->
+                            AllSettings.menuBallOpacity.updateState(value)
+                        },
+                        onValueChangeFinished = { value ->
+                            AllSettings.menuBallOpacity.save(value)
+                        },
+                        suffix = "%",
+                        enabled = AllSettings.showMenuBall.state
+                    )
+                }
                 //帧率显示
                 item {
                     MenuSwitchButton(

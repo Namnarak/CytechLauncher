@@ -357,6 +357,7 @@
     <string name="game_menu_option_input_method">Switch Input Method</string>
     <string name="game_menu_option_switch_fps">FPS Display</string>
     <string name="game_menu_option_switch_memory">Memory Display</string>
+    <string name="game_menu_option_menu_ball_opacity">Menu Overlay Opacity</string>
     <string name="game_menu_option_send_keycode">Send Keycode</string>
     <string name="game_menu_option_replacement_control">Replace Control Layout</string>
     <string name="game_menu_option_hotbar_rule">Hotbar Positioning Rule</string>

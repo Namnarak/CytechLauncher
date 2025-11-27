@@ -638,6 +638,7 @@ fun GameScreen(
                     onPositionChanged = { viewModel.gameBallPosition = it },
                     showGameFps = AllSettings.showFPS.state,
                     showMemory = AllSettings.showMemory.state,
+                    alpha = AllSettings.menuBallOpacity.state / 100f,
                     onClick = {
                         viewModel.switchMenu()
                     }
