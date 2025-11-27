@@ -121,6 +121,8 @@ import java.io.File
 private class GameViewModel(private val version: Version) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
+    /** 游戏菜单悬浮球当前的位置 */
+    var gameBallPosition by mutableStateOf(Offset.Zero)
     /** 游戏菜单-控制设置区域Tab选择的索引 */
     var controlMenuTabIndex by mutableIntStateOf(0)
     /** 强制关闭弹窗操作状态 */
@@ -630,6 +632,8 @@ fun GameScreen(
         } else {
             if (AllSettings.showMenuBall.state) {
                 DraggableGameBall(
+                    position = viewModel.gameBallPosition,
+                    onPositionChanged = { viewModel.gameBallPosition = it },
                     showGameFps = AllSettings.showFPS.state,
                     showMemory = AllSettings.showMemory.state,
                     onClick = {

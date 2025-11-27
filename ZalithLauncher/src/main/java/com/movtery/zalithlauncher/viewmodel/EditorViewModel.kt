@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -73,6 +74,9 @@ class EditorViewModel() : ViewModel() {
      * 编辑器菜单状态
      */
     var editorMenu by mutableStateOf(MenuState.HIDE)
+
+    /** 编辑器菜单悬浮球当前的位置 */
+    var editorBallPosition by mutableStateOf(Offset.Zero)
 
     /**
      * 编辑器各种操作项

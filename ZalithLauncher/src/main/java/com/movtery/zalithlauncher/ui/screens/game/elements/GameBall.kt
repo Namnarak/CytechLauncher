@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.ui.components.FloatingBall
@@ -49,11 +50,15 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 
 @Composable
 fun DraggableGameBall(
+    position: Offset,
+    onPositionChanged: (Offset) -> Unit,
     showGameFps: Boolean,
     showMemory: Boolean,
     onClick: () -> Unit = {}
 ) {
     FloatingBall(
+        position = position,
+        onPositionChanged = onPositionChanged,
         onClick = onClick
     ) {
         GameBallContent(

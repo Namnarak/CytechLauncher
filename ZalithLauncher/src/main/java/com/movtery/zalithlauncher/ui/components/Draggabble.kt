@@ -22,14 +22,17 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,9 +44,12 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.roundToInt
 
 @Composable
 fun FloatingBall(
+    position: Offset,
+    onPositionChanged: (Offset) -> Unit,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     color: Color = Color.Black.copy(alpha = 0.25f),
@@ -58,18 +64,26 @@ fun FloatingBall(
         val parentHeight = constraints.maxHeight
 
         var ballSize by remember { mutableStateOf(IntSize.Zero) }
-        var offsetX by remember { mutableStateOf(Offset.Zero.x) }
-        var offsetY by remember { mutableStateOf(Offset.Zero.y) }
+        val currentPosition by rememberUpdatedState(position)
+
+        //在首次启动时，将悬浮球放到屏幕的 TopCenter
+        //确保这个行为只触发一次
+        var isInitialized by rememberSaveable { mutableStateOf(false) }
+        LaunchedEffect(Unit) { isInitialized = true }
 
         Surface(
             modifier = modifier
                 .onSizeChanged { size ->
                     ballSize = size
+                    if (isInitialized) return@onSizeChanged
                     val x = ((parentWidth - ballSize.width) / 2f) //默认位置 TopCenter
-                    offsetX = x.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
-                    offsetY = 0f.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
+                    val positionX = x.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
+                    val positionY = 0f.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
+                    onPositionChanged(Offset(positionX, positionY))
                 }
-                .offset { IntOffset(offsetX.toInt(), offsetY.toInt()) }
+                .absoluteOffset {
+                    IntOffset(currentPosition.x.roundToInt(), currentPosition.y.roundToInt())
+                }
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
@@ -88,10 +102,11 @@ fun FloatingBall(
                             }
 
                             if (isDragging) { //只有在拖动的情况下，才会变更位置
-                                val newX = offsetX + delta.x
-                                val newY = offsetY + delta.y
-                                offsetX = newX.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
-                                offsetY = newY.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
+                                val newX = currentPosition.x + delta.x
+                                val newY = currentPosition.y + delta.y
+                                val positionX = newX.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
+                                val positionY = newY.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
+                                onPositionChanged(Offset(positionX, positionY))
                             }
                             change.consume()
                         }

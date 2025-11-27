@@ -200,7 +200,10 @@ fun BoxWithConstraintsScope.ControlEditor(
         onExit = menuExit,
     )
 
-    MenuBox {
+    MenuBox(
+        position = viewModel.editorBallPosition,
+        onPositionChanged = { viewModel.editorBallPosition = it }
+    ) {
         viewModel.switchMenu()
     }
 
