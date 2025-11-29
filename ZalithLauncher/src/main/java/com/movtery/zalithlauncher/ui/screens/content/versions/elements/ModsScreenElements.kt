@@ -79,6 +79,8 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialo
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
+import com.movtery.zalithlauncher.game.version.mod.isEnabled
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -411,9 +413,6 @@ private fun ModsUpdateEntryItem(
         }
     }
 }
-
-import com.movtery.zalithlauncher.game.version.mod.isEnabled
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.*
 
 enum class ModStateFilter(val textRes: Int) {
     All(R.string.generic_all),
