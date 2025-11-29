@@ -232,7 +232,7 @@ private class ModsManageViewModel(
     }
 
     private fun filterMods(context: Context? = null) {
-        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, stateFilter, context)
+        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, stateFilter, context) ?: emptyList()
     }
 
     /** 在ViewModel的生命周期协程内调用 */
