@@ -177,7 +177,7 @@ private class ModsManageViewModel(
 
     var allMods by mutableStateOf<List<RemoteMod>>(emptyList())
         private set
-    var filteredMods by mutableStateOf<List<RemoteMod>?>(null)
+    var filteredMods by mutableStateOf<List<RemoteMod>>(emptyList())
         private set
 
     /**
