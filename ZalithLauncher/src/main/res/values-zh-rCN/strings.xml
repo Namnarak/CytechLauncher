@@ -45,6 +45,8 @@
     <string name="generic_file_name">文件名：%s</string>
     <string name="generic_file_size">文件大小：%s</string>
     <string name="generic_all">全部</string>
+    <string name="generic_enabled">已启用</string>
+    <string name="generic_disabled">已禁用</string>
     <string name="generic_unspecified">未指定</string>
     <string name="generic_save">保存</string>
     <string name="generic_share">分享</string>

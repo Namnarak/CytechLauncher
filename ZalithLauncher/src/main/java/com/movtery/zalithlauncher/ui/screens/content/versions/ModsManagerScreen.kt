@@ -55,16 +55,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -133,6 +137,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsConfirmOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsUpdateOperation
@@ -167,6 +172,7 @@ private class ModsManageViewModel(
     val modReader = AllModReader(modsDir)
 
     var nameFilter by mutableStateOf("")
+    var stateFilter by mutableStateOf(ModStateFilter.All)
 
     var allMods by mutableStateOf<List<RemoteMod>>(emptyList())
         private set
@@ -219,8 +225,13 @@ private class ModsManageViewModel(
         filterMods(context)
     }
 
+    fun updateStateFilter(filter: ModStateFilter, context: Context? = null) {
+        this.stateFilter = filter
+        filterMods(context)
+    }
+
     private fun filterMods(context: Context? = null) {
-        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, context)
+        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, stateFilter, context)
     }
 
     /** 在ViewModel的生命周期协程内调用 */
@@ -513,6 +524,8 @@ fun ModsManagerScreen(
                             modifier = Modifier.fillMaxWidth(),
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it, context) },
+                            stateFilter = viewModel.stateFilter,
+                            onStateFilterChange = { viewModel.updateStateFilter(it, context) },
                             hasModLoader = version.getVersionInfo()?.loaderInfo?.loader?.isLoader == true,
                             onUpdateMods = {
                                 if (
@@ -597,6 +610,8 @@ private fun ModsActionsHeader(
     modifier: Modifier,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit,
+    stateFilter: ModStateFilter,
+    onStateFilterChange: (ModStateFilter) -> Unit,
     hasModLoader: Boolean,
     onUpdateMods: () -> Unit,
     modsDir: File,
@@ -620,6 +635,40 @@ private fun ModsActionsHeader(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { expanded = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.FilterAlt,
+                            contentDescription = stringResource(R.string.mods_update_task_filter)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        ModStateFilter.entries.forEach { filter ->
+                            DropdownMenuItem(
+                                text = { Text(stringResource(filter.textRes)) },
+                                onClick = {
+                                    onStateFilterChange(filter)
+                                    expanded = false
+                                },
+                                trailingIcon = if (filter == stateFilter) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null
+                                        )
+                                    }
+                                } else null
+                            )
+                        }
+                    }
+                }
+
                 SimpleTextInputField(
                     modifier = Modifier
                         .weight(1f)
