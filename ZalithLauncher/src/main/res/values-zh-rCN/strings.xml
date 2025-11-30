@@ -45,9 +45,12 @@
     <string name="generic_file_name">文件名：%s</string>
     <string name="generic_file_size">文件大小：%s</string>
     <string name="generic_all">全部</string>
+    <string name="generic_enabled">已启用</string>
+    <string name="generic_disabled">已禁用</string>
     <string name="generic_unspecified">未指定</string>
     <string name="generic_save">保存</string>
     <string name="generic_share">分享</string>
+    <string name="generic_no_matching_items">没有符合条件的项目</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
@@ -72,6 +75,7 @@
     <string name="theme_color_picker_title">颜色选择器</string>
     <string name="theme_color_picker_edit_hex">编辑 Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">无效 Hex</string>
+    <string name="theme_dark_mode_follow_system">跟随系统</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
     <string name="animate_type_jelly_bounce">回弹</string>
@@ -355,6 +359,7 @@
     <string name="game_menu_option_input_method">切换输入法</string>
     <string name="game_menu_option_switch_fps">帧率显示</string>
     <string name="game_menu_option_switch_memory">内存显示</string>
+    <string name="game_menu_option_menu_ball_opacity">菜单悬浮窗不透明度</string>
     <string name="game_menu_option_send_keycode">发送键值</string>
     <string name="game_menu_option_replacement_control">更换控制布局</string>
     <string name="game_menu_option_hotbar_rule">快捷栏定位规则</string>
@@ -835,6 +840,7 @@
     <string name="settings_gamepad_remapping_finished_saved">已成功保存手柄映射，您可以关闭此对话框了！</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
+    <string name="settings_launcher_dark_mode_title">深色模式</string>
     <string name="settings_launcher_full_screen_title">页面全屏化</string>
     <string name="settings_launcher_full_screen_summary">使启动器的页面全屏化，忽略刘海屏、挖孔屏等屏幕的安全区</string>
     <string name="settings_launcher_animate_speed_title">动画倍速</string>

@@ -42,7 +42,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 class MinecraftDownloader(
@@ -109,7 +108,7 @@ class MinecraftDownloader(
             onError = { e ->
                 lError("Failed to download Minecraft!", e)
                 val message = when(e) {
-                    is CancellationException, is InterruptedIOException -> return@runTask
+                    is CancellationException -> return@runTask
                     is FileNotFoundException -> context.getString(R.string.minecraft_download_failed_notfound)
                     is DownloadFailedException -> {
                         val failedUrls = downloadFailedTasks.map { it.urls.joinToString(", ") }
@@ -142,22 +141,16 @@ class MinecraftDownloader(
 
             val progressJob = launch(Dispatchers.Main) {
                 while (isActive) {
-                    try {
-                        ensureActive()
-                        val currentFileSize = downloadedFileSize.get()
-                        val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
-                        task.updateProgress(
-                            (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
-                            taskMessageRes,
-                            downloadedFileCount.get(), totalFileCount.get(), //文件个数
-                            formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
-                        )
-                        delay(100)
-                    } catch (_: CancellationException) {
-                        break //取消
-                    } catch (_: InterruptedIOException) {
-                        break //取消
-                    }
+                    ensureActive()
+                    val currentFileSize = downloadedFileSize.get()
+                    val totalFileSize = totalFileSize.get().run { if (this < currentFileSize) currentFileSize else this }
+                    task.updateProgress(
+                        (currentFileSize.toFloat() / totalFileSize.toFloat()).coerceIn(0f, 1f),
+                        taskMessageRes,
+                        downloadedFileCount.get(), totalFileCount.get(), //文件个数
+                        formatFileSize(currentFileSize), formatFileSize(totalFileSize) //文件大小
+                    )
+                    delay(100)
                 }
             }
 
@@ -166,9 +159,6 @@ class MinecraftDownloader(
             } catch (e: CancellationException) {
                 downloadJobs.forEach { it.cancel("Parent cancelled", e) }
                 throw e
-            } catch (e: InterruptedIOException) {
-                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-                throw CancellationException("Task interrupted", e)
             } finally {
                 progressJob.cancel()
             }

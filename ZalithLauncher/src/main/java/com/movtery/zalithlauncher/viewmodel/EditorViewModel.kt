@@ -18,11 +18,14 @@
 
 package com.movtery.zalithlauncher.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.observable.ObservableButtonStyle
@@ -34,9 +37,13 @@ import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.observable.cloneNormal
 import com.movtery.layer_controller.observable.cloneText
 import com.movtery.layer_controller.utils.saveToFile
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorOperation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWarningOperation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.EditorWidgetOperation
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.PreviewScenario
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectedWidgetData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
@@ -49,19 +56,42 @@ class EditorViewModel() : ViewModel() {
         private set
 
     /**
-     * 当前选中的控制层级
+     * 当前选中的控件层
      */
     var selectedLayer by mutableStateOf<ObservableControlLayer?>(null)
+
+    /**
+     * 当前选中的组件（仅用于编辑组件对话框）
+     */
+    var selectedWidget by mutableStateOf<SelectedWidgetData?>(null)
+
+    /**
+     * 当前选中的控件样式（仅用于样式编辑对话框）
+     */
+    var selectedStyle by mutableStateOf<ObservableButtonStyle?>(null)
 
     /**
      * 编辑器菜单状态
      */
     var editorMenu by mutableStateOf(MenuState.HIDE)
 
+    /** 编辑器菜单悬浮球当前的位置 */
+    var editorBallPosition by mutableStateOf(Offset.Zero)
+
     /**
      * 编辑器各种操作项
      */
     var editorOperation by mutableStateOf<EditorOperation>(EditorOperation.None)
+
+    /**
+     * 编辑器对于控件的操作项
+     */
+    var editorWidgetOperation by mutableStateOf<EditorWidgetOperation>(EditorWidgetOperation.None)
+
+    /**
+     * 编辑器的一些警告状态项
+     */
+    var editorWarningOperation by mutableStateOf<EditorWarningOperation>(EditorWarningOperation.None)
 
     /**
      * 是否为预览控制布局模式
@@ -116,9 +146,9 @@ class EditorViewModel() : ViewModel() {
     fun addWidget(layers: List<ObservableControlLayer>, addToLayer: (ObservableControlLayer) -> Unit) {
         val layer = selectedLayer
         if (layers.isEmpty()) {
-            editorOperation = EditorOperation.WarningNoLayers
+            editorWarningOperation = EditorWarningOperation.WarningNoLayers
         } else if (layer == null) {
-            editorOperation = EditorOperation.WarningNoSelectLayer
+            editorWarningOperation = EditorWarningOperation.WarningNoSelectLayer
         } else {
             addToLayer(layer)
         }
@@ -203,6 +233,44 @@ class EditorViewModel() : ViewModel() {
                 onSaved()
             }
             editorOperation = EditorOperation.None
+        }
+    }
+
+    fun onBackPressed(
+        context: Context,
+        onExit: () -> Unit
+    ) {
+        //检查并退出编辑控件对话框、编辑控件样式对话框
+        if (editorOperation is EditorOperation.SelectButton || editorOperation is EditorOperation.EditStyle) {
+            editorOperation = EditorOperation.None
+        } else {
+            showExitEditorDialog(
+                context = context,
+                onExit = onExit
+            )
+        }
+    }
+
+    /**
+     * 弹出退出控制布局编辑器的对话框
+     * @param onExit 用户点击确认，退出编辑器
+     */
+    fun showExitEditorDialog(
+        context: Context,
+        onExit: () -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.Main) {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.generic_warning)
+                .setMessage(R.string.control_editor_exit_message)
+                .setPositiveButton(R.string.generic_cancel) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setNegativeButton(R.string.control_editor_exit_confirm) { dialog, _ ->
+                    dialog.dismiss()
+                    onExit()
+                }
+                .show()
         }
     }
 }

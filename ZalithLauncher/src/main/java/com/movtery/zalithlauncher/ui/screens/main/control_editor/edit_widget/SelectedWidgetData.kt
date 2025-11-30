@@ -16,18 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.setting.unit
+package com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget
 
-import com.movtery.zalithlauncher.setting.launcherMMKV
+import com.movtery.layer_controller.observable.ObservableControlLayer
+import com.movtery.layer_controller.observable.ObservableWidget
 
-class StringSettingUnit(key: String, defaultValue: String) : AbstractSettingUnit<String>(key, defaultValue) {
-    override fun getValue(): String {
-        return launcherMMKV().getString(key ,defaultValue)!!
-            .also { state = it }
-    }
-
-    override fun saveValue(v: String): String {
-        launcherMMKV().putString(key, v).apply()
-        return v
-    }
-}
+/**
+ * 将在组件编辑对话框中编辑的组件
+ * @param data 要编辑的组件
+ * @param layer 该组件所属的控件层
+ */
+data class SelectedWidgetData(
+    val data: ObservableWidget,
+    val layer: ObservableControlLayer
+)

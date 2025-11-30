@@ -23,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.util.fastAll
+import com.movtery.layer_controller.data.ButtonPosition
+import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.data.cloneNew
@@ -96,6 +98,15 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
 
         eventHandler.onKeyPressed(clickEvents, isPressed)
     }
+
+    override val widgetPosition: ButtonPosition
+        get() = position
+
+    override val styleId: String?
+        get() = buttonStyle
+
+    override val widgetSize: ButtonSize
+        get() = buttonSize
 
     override fun onCheckVisibilityType(): VisibilityType {
         return visibilityType

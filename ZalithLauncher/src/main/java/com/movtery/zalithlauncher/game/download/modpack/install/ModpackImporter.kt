@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
 import java.io.File
-import java.io.InterruptedIOException
 import org.apache.commons.compress.archivers.zip.ZipFile as ApacheZipFile
 import java.util.zip.ZipFile as JDKZipFile
 
@@ -133,14 +132,14 @@ class ModpackImporter(
                             zip.extractFromZip("", packDir)
                         }
                     } catch (e: Exception) {
-                        if (e is CancellationException || e is InterruptedIOException) return@addTask
+                        if (e is CancellationException) throw e
                         lWarning("JDK ZipFile failed to unpack, fallback to Apache ZipFile.", e)
                         try {
                             ApacheZipFile.builder().setFile(installerFile).get().use { zip ->
                                 zip.extractFromZip("", packDir)
                             }
                         } catch (e: Exception) {
-                            if (e is CancellationException || e is InterruptedIOException) return@addTask
+                            if (e is CancellationException) throw e
                             //如果兜底解压也失败了，则说明这可能不是一个压缩包
                             //或者压缩包已损坏，抛出不支持的异常终止任务流
                             lError("Unable to extract the installer file. Is it really a compressed archive?", e)

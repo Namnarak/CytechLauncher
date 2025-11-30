@@ -62,6 +62,10 @@ fun EditSwitchLayersVisibilityDialog(
     type: ClickEvent.Type,
     onDismissRequest: () -> Unit
 ) {
+    LaunchedEffect(type) {
+        if (!type.isAboutLayers()) error("This type {$type} is unrelated to the control layer.")
+    }
+
     /**
      * 缓存哪些控件层被选中
      */
@@ -107,8 +111,15 @@ fun EditSwitchLayersVisibilityDialog(
                     modifier = Modifier.padding(all = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val title = remember(type) {
+                        when (type) {
+                            ClickEvent.Type.ShowLayer -> R.string.control_editor_edit_show_layers
+                            ClickEvent.Type.HideLayer -> R.string.control_editor_edit_hide_layers
+                            else -> R.string.control_editor_edit_switch_layers
+                        }
+                    }
                     MarqueeText(
-                        text = stringResource(R.string.control_editor_edit_switch_layers),
+                        text = stringResource(title),
                         style = MaterialTheme.typography.titleMedium
                     )
 

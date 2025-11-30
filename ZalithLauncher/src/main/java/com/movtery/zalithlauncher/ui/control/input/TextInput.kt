@@ -48,6 +48,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.text.forEach
 
 /**
  * 一个用于处理 UI 元素文本输入的可组合修饰符
@@ -194,6 +195,16 @@ private class TextInputNode(
         private var composingStart = -1
         private var composingEnd = -1
 
+        /**
+         * 向游戏发送文本输入
+         */
+        private fun sendText(text: String) {
+            text.forEach { char -> sender.sendChar(char) }
+            //发送文本之后，应该完全清除缓冲区
+            cursorPosition = 0
+            textBuffer.clear()
+        }
+
         override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
             //如果当前有组合文本，先删除组合区
             if (composingStart in 0..<composingEnd) {
@@ -212,7 +223,7 @@ private class TextInputNode(
             cursorPosition += text.length
 
             val newText = text.toString()
-            newText.forEach { char -> sender.sendChar(char) }
+            sendText(newText)
 
             updateInputMethodState()
             return true
@@ -309,7 +320,7 @@ private class TextInputNode(
                 val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
                 if (safeStart < safeEnd) {
                     val composedText = textBuffer.substring(safeStart, safeEnd)
-                    composedText.forEach { char -> sender.sendChar(char) }
+                    sendText(composedText)
                 }
 
                 composingStart = -1

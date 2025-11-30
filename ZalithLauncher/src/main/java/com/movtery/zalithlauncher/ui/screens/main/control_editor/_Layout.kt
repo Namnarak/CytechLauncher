@@ -27,7 +27,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,14 +35,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -67,7 +63,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
@@ -138,7 +133,6 @@ fun InfoLayoutSliderItem(
 
 /**
  * 列表信息设置项
- * @param useMenu 使用DropdownMenu设置，提升性能
  */
 @Composable
 fun <E> InfoLayoutListItem(
@@ -148,7 +142,6 @@ fun <E> InfoLayoutListItem(
     selectedItem: E,
     onItemSelected: (E) -> Unit,
     getItemText: @Composable (E) -> String,
-    useMenu: Boolean = true,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     maxListHeight: Dp = 200.dp
@@ -182,74 +175,44 @@ fun <E> InfoLayoutListItem(
                     }
                 }
 
-                if (useMenu) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.TopEnd) //把菜单锚点对齐到右上角
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    AnimatedVisibility(
+                        visible = expanded,
+                        enter = expandVertically(animationSpec = getAnimateTween()),
+                        exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            shape = MaterialTheme.shapes.large,
-                            offset = DpOffset(x = 0.dp, y = (-8).dp)
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = maxListHeight)
+                                .padding(vertical = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
-                            items.forEach { item ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = getItemText(item),
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    },
-                                    onClick = {
-                                        onItemSelected(item)
-                                        expanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        AnimatedVisibility(
-                            visible = expanded,
-                            enter = expandVertically(animationSpec = getAnimateTween()),
-                            exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = maxListHeight)
-                                    .padding(vertical = 4.dp),
-                                contentPadding = PaddingValues(horizontal = 4.dp)
-                            ) {
-                                items(items) { item ->
-                                    Row(
-                                        modifier = modifier
-                                            .clip(shape = MaterialTheme.shapes.medium)
-                                            .clickable {
-                                                onClick(item)
-                                            },
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        RadioButton(
-                                            selected = selectedItem == item,
-                                            onClick = {
-                                                onClick(item)
-                                            }
-                                        )
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                                            content = {
-                                                MarqueeText(
-                                                    text = getItemText(item),
-                                                    style = MaterialTheme.typography.labelMedium
-                                                )
-                                            }
-                                        )
-                                    }
+                            items(items) { item ->
+                                Row(
+                                    modifier = modifier
+                                        .clip(shape = MaterialTheme.shapes.medium)
+                                        .clickable {
+                                            onClick(item)
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selectedItem == item,
+                                        onClick = {
+                                            onClick(item)
+                                        }
+                                    )
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        content = {
+                                            MarqueeText(
+                                                text = getItemText(item),
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                    )
                                 }
                             }
                         }

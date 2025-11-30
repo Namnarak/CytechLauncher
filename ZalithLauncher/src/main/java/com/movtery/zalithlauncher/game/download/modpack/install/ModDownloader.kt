@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import java.io.InterruptedIOException
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -98,7 +97,7 @@ class ModDownloader(
                                 //下载成功
                                 downloadedFileCount.incrementAndGet()
                             }.onFailure { e ->
-                                if (e is CancellationException || e is InterruptedIOException) return@onFailure
+                                if (e is CancellationException) throw e
                                 lError("Download failed: ${outputFile.absolutePath}, urls: ${urls.joinToString(", ")}", e)
                                 downloadFailedTasks.add(mod)
                             }
@@ -124,21 +123,15 @@ class ModDownloader(
 
             val progressJob = launch(Dispatchers.Main) {
                 while (isActive) {
-                    try {
-                        ensureActive()
-                        val currentFileCount = downloadedFileCount.get()
-                        task.updateProgress(
-                            (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
-                            taskMessageRes,
-                            downloadedFileCount.get(), totalFileCount,
-                            formatFileSize(downloadedFileSize.get())
-                        )
-                        delay(100)
-                    } catch (_: CancellationException) {
-                        break //取消
-                    } catch (_: InterruptedIOException) {
-                        break //取消
-                    }
+                    ensureActive()
+                    val currentFileCount = downloadedFileCount.get()
+                    task.updateProgress(
+                        (currentFileCount.toFloat() / totalFileCount.toFloat()).coerceIn(0f, 1f),
+                        taskMessageRes,
+                        downloadedFileCount.get(), totalFileCount,
+                        formatFileSize(downloadedFileSize.get())
+                    )
+                    delay(100)
                 }
             }
 
@@ -147,9 +140,6 @@ class ModDownloader(
             } catch (e: CancellationException) {
                 downloadJobs.forEach { it.cancel("Parent cancelled", e) }
                 throw e
-            } catch (e: InterruptedIOException) {
-                downloadJobs.forEach { it.cancel("Parent cancelled", e) }
-                throw CancellationException("Task interrupted", e)
             } finally {
                 progressJob.cancel()
             }

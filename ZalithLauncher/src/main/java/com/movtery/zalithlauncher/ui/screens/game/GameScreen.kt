@@ -75,8 +75,8 @@ import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerI
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.setting.enums.toAction
-import com.movtery.zalithlauncher.ui.activities.showExitEditorDialog
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.control.MinecraftHotbar
@@ -122,6 +122,8 @@ import java.io.File
 private class GameViewModel(private val version: Version) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
+    /** 游戏菜单悬浮球当前的位置 */
+    var gameBallPosition by mutableStateOf(Offset.Zero)
     /** 游戏菜单-控制设置区域Tab选择的索引 */
     var controlMenuTabIndex by mutableIntStateOf(0)
     /** 强制关闭弹窗操作状态 */
@@ -503,7 +505,8 @@ fun GameScreen(
                 opacity = (AllSettings.controlsOpacity.state.toFloat() / 100f).coerceIn(0f, 1f),
                 markPointerAsMoveOnly = { viewModel.moveOnlyPointers.add(it) },
                 isCursorGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
-                hideLayerWhen = viewModel.controlLayerHideState
+                hideLayerWhen = viewModel.controlLayerHideState,
+                isDark = isLauncherInDarkTheme()
             ) {
                 val transformableState = rememberTransformableState { _, offsetChange, _ ->
                     incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
@@ -619,22 +622,23 @@ fun GameScreen(
                         viewModel.exitControlEditor()
                     },
                     menuExit = {
-                        viewModel.viewModelScope.launch {
-                            showExitEditorDialog(
-                                context = context,
-                                onExit = {
-                                    viewModel.exitControlEditor()
-                                }
-                            )
-                        }
+                        editorViewModel.showExitEditorDialog(
+                            context = context,
+                            onExit = {
+                                viewModel.exitControlEditor()
+                            }
+                        )
                     }
                 )
             }
         } else {
             if (AllSettings.showMenuBall.state) {
                 DraggableGameBall(
+                    position = viewModel.gameBallPosition,
+                    onPositionChanged = { viewModel.gameBallPosition = it },
                     showGameFps = AllSettings.showFPS.state,
                     showMemory = AllSettings.showMemory.state,
+                    alpha = AllSettings.menuBallOpacity.state / 100f,
                     onClick = {
                         viewModel.switchMenu()
                     }
@@ -654,7 +658,7 @@ fun GameScreen(
                     is EventViewModel.Event.Game.OnBack -> {
                         if (viewModel.isEditingLayout) {
                             //处于控制布局编辑模式
-                            showExitEditorDialog(
+                            editorViewModel.onBackPressed(
                                 context = context,
                                 onExit = {
                                     viewModel.exitControlEditor()

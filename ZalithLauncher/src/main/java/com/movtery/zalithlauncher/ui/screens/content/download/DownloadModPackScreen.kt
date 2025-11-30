@@ -257,7 +257,7 @@ fun DownloadModPackScreen(
                         currentKey = downloadModPackScreenKey,
                         key = assetsKey,
                         eventViewModel = eventViewModel,
-                        onItemClicked = { _, version, iconUrl ->
+                        onItemClicked = { _, version, iconUrl, _ ->
                             if (viewModel.installOperation !is ModPackInstallOperation.None) {
                                 //不是待安装状态，拒绝此次安装
                                 return@DownloadAssetsScreen

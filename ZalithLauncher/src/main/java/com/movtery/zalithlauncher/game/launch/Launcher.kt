@@ -285,20 +285,21 @@ abstract class Launcher(
             "/vendor/$libName",
             "/vendor/$libName/hw",
             LibPath.JNA.absolutePath,
+            PathManager.DIR_RUNTIME_MOD?.absolutePath,
             PathManager.DIR_NATIVE_LIB
         )
         return path.joinToString(":")
     }
 
     protected fun getLibraryPath(): String {
-        val nativeDir = PathManager.DIR_NATIVE_LIB
         val libDirName = if (is64BitsDevice) "lib64" else "lib"
         val path = listOfNotNull(
             "/system/$libDirName",
             "/vendor/$libDirName",
             "/vendor/$libDirName/hw",
             RendererPluginManager.selectedRendererPlugin?.path,
-            nativeDir
+            PathManager.DIR_RUNTIME_MOD?.absolutePath,
+            PathManager.DIR_NATIVE_LIB
         )
         return path.joinToString(":")
     }
@@ -355,6 +356,7 @@ abstract class Launcher(
             map["PATH"] = path.joinToString(":")
             map["AWTSTUB_WIDTH"] = (CallbackBridge.windowWidth.takeIf { it > 0 } ?: CallbackBridge.physicalWidth).toString()
             map["AWTSTUB_HEIGHT"] = (CallbackBridge.windowHeight.takeIf { it > 0 } ?: CallbackBridge.physicalHeight).toString()
+            map["MOD_ANDROID_RUNTIME"] = PathManager.DIR_RUNTIME_MOD?.absolutePath ?: ""
 
             if (AllSettings.dumpShaders.getValue()) map["LIBGL_VGPU_DUMP"] = "1"
             if (AllSettings.zinkPreferSystemDriver.getValue()) map["POJAV_ZINK_PREFER_SYSTEM_DRIVER"] = "1"

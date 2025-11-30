@@ -48,6 +48,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 
 /**
@@ -145,18 +146,14 @@ fun downloadFileWithHttp(
                 totalReportedBytes -= attemptReportedBytes
             }
 
-            when (e) {
-                is CancellationException, is InterruptedIOException -> {
-                    lDebug("Download task cancelled. url: $url", e)
-                    return //取消了，不需要抛出异常
-                }
-                is FileNotFoundException -> {
-                    if (attempt >= maxAttempts) throw e  //目标不存在
-                }
-                else -> {
-                    if (attempt >= maxAttempts) {
-                        throw IOException("Download failed after $maxAttempts attempts: $url", e)
-                    }
+            if (e.isInterruptedIOException()) {
+                lDebug("Download task cancelled. url: $url")
+                return //取消了，不需要抛出异常
+            } else if (e is FileNotFoundException) {
+                if (attempt >= maxAttempts) throw e //目标不存在
+            } else {
+                if (attempt >= maxAttempts) {
+                    throw IOException("Download failed after $maxAttempts attempts: $url", e)
                 }
             }
         }
@@ -246,15 +243,13 @@ fun downloadFromMirrorList(
                     totalReportedBytes -= mirrorAttemptReported
                 }
 
-                when (e) {
-                    is CancellationException, is InterruptedIOException -> throw e
-                    is FileNotFoundException -> {
-                        errors.add(e)
-                        break
-                    }
-                    else -> {
-                        errors.add(e)
-                    }
+                if (e.isInterruptedIOException()) {
+                    throw e
+                } else if (e is FileNotFoundException) {
+                    errors.add(e)
+                    break
+                } else {
+                    errors.add(e)
                 }
             }
         }
@@ -302,13 +297,15 @@ suspend fun downloadFromMirrorListSuspend(
  */
 @Throws(IOException::class, IllegalArgumentException::class)
 suspend fun fetchStringFromUrl(url: String): String = withContext(Dispatchers.IO) {
-    call(url) { call ->
-        call.execute().use { response ->
-            if (!response.isSuccessful) {
-                throw IOException("HTTP ${response.code} - ${response.message}")
-            }
+    runInterruptible {
+        call(url) { call ->
+            call.execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw IOException("HTTP ${response.code} - ${response.message}")
+                }
 
-            return@call response.body.use { it.string() }
+                return@call response.body.use { it.string() }
+            }
         }
     }
 }
@@ -331,9 +328,10 @@ suspend fun fetchStringFromUrls(urls: List<String>): String = withContext(Dispat
             result = fetchStringFromUrl(url)
             succeed = true
             break@loop
-        }.onFailure {
-            lDebug("Source $url failed!", it)
-            lastException = it
+        }.onFailure { th ->
+            if (th is CancellationException || th.isInterruptedIOException()) throw th
+            lDebug("Source $url failed!", th)
+            lastException = th
         }
     }
 
@@ -389,4 +387,11 @@ fun Activity.openLink(link: String, dataType: String?) {
             dialog.dismiss()
         }
         .show()
+}
+
+/**
+ * 检查是不是单纯的中断异常，而不是网络超时导致的中断
+ */
+fun Throwable.isInterruptedIOException(): Boolean {
+    return this is InterruptedIOException && this !is SocketTimeoutException
 }

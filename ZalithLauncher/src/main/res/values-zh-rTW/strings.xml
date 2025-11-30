@@ -42,9 +42,12 @@
     <string name="generic_ignore">忽略</string>
     <string name="generic_authorization">授權</string>
     <string name="generic_all">全部</string>
+    <string name="generic_enabled">已啟用</string>
+    <string name="generic_disabled">已停用</string>
     <string name="generic_unspecified">未指定</string>
     <string name="generic_save">儲存</string>
     <string name="generic_share">分享</string>
+    <string name="generic_no_matching_items">沒有符合條件的項目</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
@@ -63,6 +66,7 @@
     <string name="theme_color_picker_title">顏色選擇器</string>
     <string name="theme_color_picker_edit_hex">編輯 Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">無效 Hex</string>
+    <string name="theme_dark_mode_follow_system">跟隨系統</string>
     <!--  動畫  -->
     <string name="animate_type_bounce">彈跳</string>
     <string name="animate_type_jelly_bounce">回彈</string>
@@ -324,6 +328,7 @@
     <string name="game_menu_option_input_method">切換輸入法</string>
     <string name="game_menu_option_switch_fps">幀率顯示</string>
     <string name="game_menu_option_switch_memory">記憶體顯示</string>
+    <string name="game_menu_option_menu_ball_opacity">選單懸浮窗不透明度</string>
     <string name="game_menu_option_send_keycode">發送鍵值</string>
     <string name="game_menu_option_replacement_control">更換控制佈局</string>
     <string name="game_menu_option_hotbar_rule">快捷列定位規則</string>
@@ -777,6 +782,7 @@
     <string name="settings_gamepad_remapping_finished_saved">已成功儲存手把映射，您可以關閉此對話框了！</string>
     <string name="settings_launcher_color_theme_title">顏色主題</string>
     <string name="settings_launcher_color_theme_summary">變更啟動器的整體顏色主題</string>
+    <string name="settings_launcher_dark_mode_title">深色模式</string>
     <string name="settings_launcher_full_screen_title">頁面全螢幕化</string>
     <string name="settings_launcher_full_screen_summary">使啟動器的頁面全螢幕化，忽略瀏海螢幕、挖孔螢幕等螢幕的安全區域</string>
     <string name="settings_launcher_animate_speed_title">動畫倍速</string>

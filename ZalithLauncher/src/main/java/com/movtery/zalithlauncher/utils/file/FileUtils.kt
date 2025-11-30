@@ -25,7 +25,6 @@ import androidx.core.content.FileProvider
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.compareChar
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -242,12 +241,15 @@ fun ZipEntry.readText(zip: ZipFile): String =
  * @throws SecurityException 如果检测到路径穿越攻击
  */
 suspend fun ZipFile.extractFromZip(internalPath: String, outputDir: File) {
-    val entries = entries()
-        .asSequence()
-        .map { JavaZipEntryAdapter(it) }
+    val e = entries()
+    val iterator = object : Iterator<JavaZipEntryAdapter> {
+        override fun hasNext(): Boolean = e.hasMoreElements()
+        override fun next(): JavaZipEntryAdapter =
+            JavaZipEntryAdapter(e.nextElement())
+    }
 
     extractZipEntries(
-        entries = entries,
+        entriesIter = iterator,
         inputStreamProvider = { entry -> getInputStream(entry.entry) },
         internalPath = internalPath,
         outputDir = outputDir
@@ -262,11 +264,16 @@ suspend fun ZipFile.extractFromZip(internalPath: String, outputDir: File) {
  * @throws SecurityException 如果检测到路径穿越攻击
  */
 suspend fun CompressZipFile.extractFromZip(internalPath: String, outputDir: File) {
-    val entries = entries.asSequence()
-        .map { CompressZipEntryAdapter(it as ZipArchiveEntry) }
+    val entriesEnum = entries
+    val iterator = object : Iterator<CompressZipEntryAdapter> {
+        private val it = entriesEnum.iterator()
+        override fun hasNext(): Boolean = it.hasNext()
+        override fun next(): CompressZipEntryAdapter =
+            CompressZipEntryAdapter(it.next() as ZipArchiveEntry)
+    }
 
     extractZipEntries(
-        entries = entries,
+        entriesIter = iterator,
         inputStreamProvider = { entry -> getInputStream(entry.entry) },
         internalPath = internalPath,
         outputDir = outputDir
@@ -276,14 +283,14 @@ suspend fun CompressZipFile.extractFromZip(internalPath: String, outputDir: File
 /**
  * 抽象核心提取逻辑，适用于任何类型的 ZIP 条目
  */
-private suspend fun <T> extractZipEntries(
-    entries: Sequence<T>,
+private suspend fun <T : ZipEntryBase> extractZipEntries(
+    entriesIter: Iterator<T>,
     inputStreamProvider: (T) -> InputStream,
     internalPath: String,
     outputDir: File
-) where T : ZipEntryBase {
+) {
     require(outputDir.isDirectory || outputDir.mkdirs()) {
-        "The output directory does not exist and cannot be created: $outputDir"
+        "Output directory does not exist and cannot be created: $outputDir"
     }
 
     val prefix = when {
@@ -291,33 +298,59 @@ private suspend fun <T> extractZipEntries(
         internalPath.endsWith("/") -> internalPath
         else -> "$internalPath/"
     }
-    val outputDirCanonical = outputDir.canonicalFile
+
+    val rootPath = outputDir.absoluteFile.toPath().normalize()
+
+    val buffer = ByteArray(32 * 1024)
+    val createdDirs = HashSet<String>()
 
     withContext(Dispatchers.IO) {
-        try {
-            entries
-                .filter { it.name.startsWith(prefix) }
-                .forEach { entry ->
-                    ensureActive()
-                    val relativePath = entry.name.removePrefix(prefix)
-                    val targetFile = File(outputDir, relativePath).canonicalFile
+        while (entriesIter.hasNext()) {
+            ensureActive()
 
-                    if (!targetFile.toPath().startsWith(outputDirCanonical.toPath())) {
-                        throw SecurityException("Illegal path traversal detected: ${entry.name}")
-                    }
+            val entry = entriesIter.next()
+            val name = entry.name
 
-                    when {
-                        entry.isDirectory -> targetFile.mkdirs()
-                        else -> {
-                            inputStreamProvider(entry).use { input ->
-                                targetFile.ensureParentDirectory()
-                                input.copyTo(targetFile.outputStream())
-                            }
-                        }
+            //忽略非目标目录
+            if (!name.startsWith(prefix)) continue
+
+            val relative = name.removePrefix(prefix)
+            if (relative.isEmpty()) continue
+
+            //防止路径穿越
+            if (relative.contains("../") || relative.contains("..\\")) {
+                throw SecurityException("Illegal path traversal detected: $name")
+            }
+
+            val targetFile = File(outputDir, relative)
+            val targetPath = targetFile.toPath().normalize()
+
+            if (!targetPath.startsWith(rootPath)) {
+                throw SecurityException("Illegal path outside output directory: $name")
+            }
+
+            if (entry.isDirectory) {
+                val absDir = targetFile.absolutePath
+                if (createdDirs.add(absDir)) {
+                    targetFile.mkdirs()
+                }
+                continue
+            }
+
+            val parent = targetFile.parentFile
+            val parentPath = parent.absolutePath
+            if (createdDirs.add(parentPath)) {
+                parent.mkdirs()
+            }
+
+            inputStreamProvider(entry).use { input ->
+                FileOutputStream(targetFile).use { out ->
+                    var read: Int
+                    while (input.read(buffer).also { read = it } >= 0) {
+                        out.write(buffer, 0, read)
                     }
                 }
-        } catch (_: CancellationException) {
-            lInfo("Task cancelled.")
+            }
         }
     }
 }
@@ -398,6 +431,7 @@ suspend fun copyDirectoryContents(
     val allFiles = mutableListOf<File>()
 
     normalizedFrom.walkTopDown().forEach { file ->
+        ensureActive()
         val targetPath = File(normalizedTo, file.relativeTo(normalizedFrom).path)
         if (file.isDirectory) {
             targetPath.mkdirs()
@@ -414,6 +448,7 @@ suspend fun copyDirectoryContents(
     }
 
     allFiles.forEachIndexed { index, file ->
+        ensureActive()
         val targetFile = File(normalizedTo, file.relativeTo(normalizedFrom).path)
         try {
             targetFile.ensureParentDirectory()
@@ -447,16 +482,22 @@ fun collectFiles(
 /**
  * 在[sourceFiles]中找出[targetFiles]中不存在的文件
  */
-fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<File> {
-    if (targetFiles.isEmpty()) return sourceFiles
-    if (sourceFiles.isEmpty()) return emptyList()
+suspend fun findRedundantFiles(sourceFiles: List<File>, targetFiles: List<File>): List<File> {
+    return withContext(Dispatchers.IO) {
+        if (targetFiles.isEmpty()) return@withContext sourceFiles
+        if (sourceFiles.isEmpty()) return@withContext emptyList()
 
-    val targetPaths = targetFiles.mapTo(
-        HashSet(targetFiles.size)
-    ) { it.absolutePath }
+        val targetPaths = targetFiles.mapTo(
+            HashSet(targetFiles.size)
+        ) {
+            ensureActive()
+            it.absolutePath
+        }
 
-    return sourceFiles.filter { sourceFile ->
-        sourceFile.absolutePath !in targetPaths
+        sourceFiles.filter { sourceFile ->
+            ensureActive()
+            sourceFile.absolutePath !in targetPaths
+        }
     }
 }
 

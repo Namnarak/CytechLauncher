@@ -79,6 +79,8 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialo
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
+import com.movtery.zalithlauncher.game.version.mod.isEnabled
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -412,17 +414,32 @@ private fun ModsUpdateEntryItem(
     }
 }
 
+enum class ModStateFilter(val textRes: Int) {
+    All(R.string.generic_all),
+    Enabled(R.string.generic_enabled),
+    Disabled(R.string.generic_disabled)
+}
+
 /**
  * 根据名称，筛选模组
  */
 fun List<RemoteMod>.filterMods(
     nameFilter: String,
+    stateFilter: ModStateFilter = All,
     context: Context? = null
 ) = this.filter { mod ->
-    nameFilter.isEmpty() || (
+    val matchesName = nameFilter.isEmpty() || (
             mod.localMod.file.name.contains(nameFilter, true) ||
             mod.localMod.name.contains(nameFilter, true) ||
             mod.projectInfo?.title?.contains(nameFilter, true) == true ||
             mod.mcMod?.getMcmodTitle(mod.localMod.name, context)?.contains(nameFilter, true) == true
     )
+
+    val matchesState = when (stateFilter) {
+        All -> true
+        Enabled -> mod.localMod.file.isEnabled()
+        Disabled -> !mod.localMod.file.isEnabled()
+    }
+
+    matchesName && matchesState
 }

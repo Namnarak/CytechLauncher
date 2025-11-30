@@ -76,7 +76,6 @@ internal fun Modifier.editMode(
     isEditMode: Boolean,
     data: ObservableWidget,
     screenSize: IntSize,
-    getSize: (ObservableWidget) -> IntSize,
     enableSnap: Boolean,
     snapMode: SnapMode,
     localSnapRange: Dp,
@@ -87,7 +86,7 @@ internal fun Modifier.editMode(
     onTapInEditMode: () -> Unit = {}
 ): Modifier {
     val screenSize1 by rememberUpdatedState(screenSize)
-    val getSize1 by rememberUpdatedState(getSize)
+    val widgetSize by rememberUpdatedState(data.size)
 
     val enableSnap1 by rememberUpdatedState(enableSnap)
     val snapMode1 by rememberUpdatedState(snapMode)
@@ -110,21 +109,20 @@ internal fun Modifier.editMode(
                         onDragStart = {
                             data.isEditingPos = false
                             data.movingOffset = Offset.Zero
-                            val currentOffset = getWidgetPosition(data, getSize1(data), screenSize1)
+                            val currentOffset = getWidgetPosition(data, widgetSize, screenSize1)
                             data.movingOffset = currentOffset
                             data.isEditingPos = true
                             onLineCancel1(data)
                         },
                         onDrag = { change, dragAmount ->
                             change.consume()
-                            val currentSize = getSize1(data)
-                            val currentOffset = getWidgetPosition(data, currentSize, screenSize1)
+                            val currentOffset = getWidgetPosition(data, widgetSize, screenSize1)
 
                             var newX = currentOffset.x + dragAmount.x
                             var newY = currentOffset.y + dragAmount.y
 
-                            val maxX = screenSize1.width.toFloat() - currentSize.width
-                            val maxY = screenSize1.height.toFloat() - currentSize.height
+                            val maxX = screenSize1.width.toFloat() - widgetSize.width
+                            val maxY = screenSize1.height.toFloat() - widgetSize.height
 
                             newX = newX.coerceIn(0f, maxX)
                             newY = newY.coerceIn(0f, maxY)
@@ -132,17 +130,16 @@ internal fun Modifier.editMode(
                             val newPosition = Offset(newX, newY).also { data.movingOffset = it }
 
                             val newPercentagePosition = newPosition.toPercentagePosition(
-                                widgetSize = currentSize,
+                                widgetSize = widgetSize,
                                 screenSize = screenSize1
                             )
 
                             val finalPosition = if (enableSnap1) {
                                 calculateSnapPosition(
                                     currentPosition = newPercentagePosition,
-                                    widgetSize = currentSize,
+                                    widgetSize = widgetSize,
                                     screenSize = screenSize1,
                                     otherWidgets = getOtherWidgets1(),
-                                    getSize = getSize1,
                                     snapThreshold = snapThreshold,
                                     snapMode = snapMode1,
                                     localSnapRange = localSnapRangePx,
@@ -197,7 +194,6 @@ private fun calculateSnapPosition(
     widgetSize: IntSize,
     screenSize: IntSize,
     otherWidgets: List<ObservableWidget>,
-    getSize: (ObservableWidget) -> IntSize,
     snapThreshold: Float,
     snapMode: SnapMode,
     localSnapRange: Float,
@@ -216,7 +212,7 @@ private fun calculateSnapPosition(
     val newYWithLines = mutableMapOf<Float, GuideLine>()
 
     for (otherData in otherWidgets) {
-        val otherSize = getSize(otherData)
+        val otherSize = otherData.size
         val otherPosition = getWidgetPosition(otherData, otherSize, screenSize)
         val otherLeft = otherPosition.x
         val otherRight = otherPosition.x + otherSize.width
@@ -302,11 +298,8 @@ internal fun Modifier.buttonSize(
     data: ObservableWidget,
     screenSize: IntSize
 ): Modifier {
-    val size = when (data) {
-        is ObservableNormalData -> data.buttonSize
-        is ObservableTextData -> data.buttonSize
-        else -> error("Unknown widget type")
-    }
+    val size = data.widgetSize
+
     return this.then(
         when (size.type) {
             ButtonSize.Type.Dp -> Modifier.size(
@@ -455,12 +448,7 @@ internal fun getWidgetPosition(
     screenSize: IntSize
 ): Offset {
     if (data.isEditingPos) return data.movingOffset
-    val position = when (data) {
-        is ObservableNormalData -> data.position
-        is ObservableTextData -> data.position
-        else -> error("Unknown widget type")
-    }
-    return getWidgetPosition(position, widgetSize, screenSize)
+    return getWidgetPosition(data.widgetPosition, widgetSize, screenSize)
 }
 
 /**

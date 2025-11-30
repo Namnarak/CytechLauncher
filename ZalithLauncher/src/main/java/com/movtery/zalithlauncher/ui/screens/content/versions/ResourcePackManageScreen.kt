@@ -493,7 +493,6 @@ private fun ResourcePackList(
     updateOperation: (ResourcePackOperation) -> Unit
 ) {
     packList?.let { list ->
-        //如果列表是空的，则是由搜索导致的
         if (list.isNotEmpty()) {
             LazyColumn(
                 modifier = modifier,
@@ -516,6 +515,15 @@ private fun ResourcePackList(
                         updateOperation = updateOperation
                     )
                 }
+            }
+        } else {
+            //如果列表是空的，则是由搜索导致的
+            //展示“无匹配项”文本
+            Box(modifier = Modifier.fillMaxSize()) {
+                ScalingLabel(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.generic_no_matching_items)
+                )
             }
         }
     } ?: run {

@@ -299,8 +299,7 @@ fun DownloadAssetsScreen(
     currentKey: NavKey?,
     key: NormalNavKey.DownloadAssets,
     eventViewModel: EventViewModel,
-    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?) -> Unit,
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit = { _, _ -> }
+    onItemClicked: (PlatformClasses, PlatformVersion, iconUrl: String?, deps: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>) -> Unit
 ) {
     val viewModel: DownloadScreenViewModel = rememberDownloadAssetsViewModel(key)
 
@@ -321,12 +320,13 @@ fun DownloadAssetsScreen(
                     .fillMaxHeight()
                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                 viewModel = viewModel,
-                defaultClasses = key.classes,
                 onReload = { viewModel.getVersions() },
                 onItemClicked = { version ->
-                    onItemClicked(key.classes, version, key.iconUrl)
+                    val deps = version.platformDependencies().mapNotNull { dep ->
+                        viewModel.cachedDependencyProject[dep.projectId]?.let { dep to it }
+                    }
+                    onItemClicked(key.classes, version, key.iconUrl, deps)
                 },
-                onDependencyClicked = onDependencyClicked
             )
 
             val xOffset by swapAnimateDpAsState(
@@ -359,10 +359,8 @@ fun DownloadAssetsScreen(
 private fun Versions(
     modifier: Modifier = Modifier,
     viewModel: DownloadScreenViewModel,
-    defaultClasses: PlatformClasses,
     onReload: () -> Unit = {},
-    onItemClicked: (PlatformVersion) -> Unit = {},
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
+    onItemClicked: (PlatformVersion) -> Unit = {}
 ) {
     when (val versions = viewModel.versionsResult) {
         is DownloadAssetsState.Getting -> {
@@ -477,12 +475,7 @@ private fun Versions(
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp),
                             infoMap = info,
-                            defaultClasses = defaultClasses,
-                            getDependency = { projectId ->
-                                viewModel.cachedDependencyProject[projectId]
-                            },
-                            onItemClicked = onItemClicked,
-                            onDependencyClicked = onDependencyClicked
+                            onItemClicked = onItemClicked
                         )
                     }
                 }

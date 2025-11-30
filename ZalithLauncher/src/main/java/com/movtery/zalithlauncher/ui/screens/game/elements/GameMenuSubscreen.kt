@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.GestureActionType
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
+import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
 import com.movtery.zalithlauncher.ui.components.MenuListLayout
 import com.movtery.zalithlauncher.ui.components.MenuSliderLayout
@@ -222,6 +223,23 @@ fun GameMenuSubscreen(
                         }
                     )
                 }
+                //菜单悬浮窗不透明度
+                item {
+                    MenuSliderLayout(
+                        modifier = Modifier.fillMaxWidth(),
+                        title = stringResource(R.string.game_menu_option_menu_ball_opacity),
+                        value = AllSettings.menuBallOpacity.state,
+                        valueRange = AllSettings.menuBallOpacity.floatRange,
+                        onValueChange = { value ->
+                            AllSettings.menuBallOpacity.updateState(value)
+                        },
+                        onValueChangeFinished = { value ->
+                            AllSettings.menuBallOpacity.save(value)
+                        },
+                        suffix = "%",
+                        enabled = AllSettings.showMenuBall.state
+                    )
+                }
                 //帧率显示
                 item {
                     MenuSwitchButton(
@@ -248,7 +266,7 @@ fun GameMenuSubscreen(
                         modifier = Modifier.fillMaxWidth(),
                         title = stringResource(R.string.settings_renderer_resolution_scale_title),
                         value = AllSettings.resolutionRatio.state,
-                        valueRange = 25f..300f,
+                        valueRange = AllSettings.resolutionRatio.floatRange,
                         onValueChange = { value ->
                             AllSettings.resolutionRatio.updateState(value)
 //                        onRefreshWindowSize()
@@ -329,7 +347,7 @@ private fun ControlOverview(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.game_menu_option_controls_opacity),
                 value = AllSettings.controlsOpacity.state,
-                valueRange = 0f..100f,
+                valueRange = AllSettings.controlsOpacity.floatRange,
                 onValueChange = { AllSettings.controlsOpacity.updateState(it) },
                 onValueChangeFinished = { AllSettings.controlsOpacity.save(it) },
                 suffix = "%"
@@ -361,10 +379,10 @@ private fun ControlOverview(
                 valueRange = 0f..100f,
                 enabled = AllSettings.hotbarRule.state == HotbarRule.Custom,
                 onValueChange = { value ->
-                    AllSettings.hotbarWidth.updateState((value * 10f).toInt().coerceIn(0, 1000))
+                    AllSettings.hotbarWidth.updateState((value * 10f).toInt())
                 },
                 onValueChangeFinished = { value ->
-                    AllSettings.hotbarWidth.save((value * 10f).toInt().coerceIn(0, 1000))
+                    AllSettings.hotbarWidth.save((value * 10f).toInt())
                 },
                 suffix = "%",
             )
@@ -379,10 +397,10 @@ private fun ControlOverview(
                 valueRange = 0f..100f,
                 enabled = AllSettings.hotbarRule.state == HotbarRule.Custom,
                 onValueChange = { value ->
-                    AllSettings.hotbarHeight.updateState((value * 10f).toInt().coerceIn(0, 1000))
+                    AllSettings.hotbarHeight.updateState((value * 10f).toInt())
                 },
                 onValueChangeFinished = { value ->
-                    AllSettings.hotbarHeight.save((value * 10f).toInt().coerceIn(0, 1000))
+                    AllSettings.hotbarHeight.save((value * 10f).toInt())
                 },
                 suffix = "%",
             )
@@ -426,7 +444,7 @@ private fun ControlMouse(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_size_title),
                 value = AllSettings.mouseSize.state,
-                valueRange = 5f..50f,
+                valueRange = AllSettings.mouseSize.floatRange,
                 onValueChange = { AllSettings.mouseSize.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseSize.save(it) },
                 suffix = "Dp"
@@ -438,7 +456,7 @@ private fun ControlMouse(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_sensitivity_title),
                 value = AllSettings.cursorSensitivity.state,
-                valueRange = 25f..300f,
+                valueRange = AllSettings.cursorSensitivity.floatRange,
                 onValueChange = { AllSettings.cursorSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.cursorSensitivity.save(it) },
                 suffix = "%"
@@ -450,7 +468,7 @@ private fun ControlMouse(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
                 value = AllSettings.mouseCaptureSensitivity.state,
-                valueRange = 25f..300f,
+                valueRange = AllSettings.mouseCaptureSensitivity.floatRange,
                 onValueChange = { AllSettings.mouseCaptureSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseCaptureSensitivity.save(it) },
                 suffix = "%"
@@ -462,7 +480,7 @@ private fun ControlMouse(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
                 value = AllSettings.mouseLongPressDelay.state,
-                valueRange = 100f..1000f,
+                valueRange = AllSettings.mouseLongPressDelay.floatRange,
                 onValueChange = { AllSettings.mouseLongPressDelay.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseLongPressDelay.save(it) },
                 suffix = "ms"
@@ -496,7 +514,7 @@ private fun ControlGamepad(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_deadzone_title),
                 value = AllSettings.gamepadDeadZoneScale.state,
-                valueRange = 50f..200f,
+                valueRange = AllSettings.gamepadDeadZoneScale.floatRange,
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadDeadZoneScale.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadDeadZoneScale.save(it) },
@@ -510,7 +528,7 @@ private fun ControlGamepad(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_cursor_sensitivity_title),
                 value = AllSettings.gamepadCursorSensitivity.state,
-                valueRange = 25f..300f,
+                valueRange = AllSettings.gamepadCursorSensitivity.floatRange,
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCursorSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCursorSensitivity.save(it) },
@@ -524,7 +542,7 @@ private fun ControlGamepad(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_gamepad_camera_sensitivity_title),
                 value = AllSettings.gamepadCameraSensitivity.state,
-                valueRange = 25f..300f,
+                valueRange = AllSettings.gamepadCameraSensitivity.floatRange,
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCameraSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCameraSensitivity.save(it) },
@@ -585,7 +603,7 @@ private fun ControlGesture(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
                 value = AllSettings.gestureLongPressDelay.state,
-                valueRange = 100f..1000f,
+                valueRange = AllSettings.gestureLongPressDelay.floatRange,
                 enabled = AllSettings.gestureControl.state,
                 onValueChange = { AllSettings.gestureLongPressDelay.updateState(it) },
                 onValueChangeFinished = { AllSettings.gestureLongPressDelay.save(it) },
@@ -626,7 +644,7 @@ private fun ControlGyroscope(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
                 value = AllSettings.gyroscopeSensitivity.state,
-                valueRange = 25f..300f,
+                valueRange = AllSettings.gyroscopeSensitivity.floatRange,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
                 onValueChange = { AllSettings.gyroscopeSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSensitivity.save(it) },
@@ -640,7 +658,7 @@ private fun ControlGyroscope(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
                 value = AllSettings.gyroscopeSampleRate.state,
-                valueRange = 5f..50f,
+                valueRange = AllSettings.gyroscopeSampleRate.floatRange,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
                 onValueChange = { AllSettings.gyroscopeSampleRate.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSampleRate.save(it) },
@@ -665,7 +683,7 @@ private fun ControlGyroscope(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
                 value = AllSettings.gyroscopeSmoothingWindow.state,
-                valueRange = 2f..10f,
+                valueRange = AllSettings.gyroscopeSmoothingWindow.floatRange,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state,
                 onValueChange = { AllSettings.gyroscopeSmoothingWindow.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSmoothingWindow.save(it) },

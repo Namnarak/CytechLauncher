@@ -45,9 +45,12 @@
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
     <string name="generic_all">All</string>
+    <string name="generic_enabled">Enabled</string>
+    <string name="generic_disabled">Disabled</string>
     <string name="generic_unspecified">Unspecified</string>
     <string name="generic_save">Save</string>
     <string name="generic_share">Share</string>
+    <string name="generic_no_matching_items">No matching items</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
@@ -73,6 +76,7 @@
     <string name="theme_color_picker_title">Color Picker</string>
     <string name="theme_color_picker_edit_hex">Edit Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Invalid Hex</string>
+    <string name="theme_dark_mode_follow_system">Follow System</string>
     <!-- Animations -->
     <string name="animate_type_bounce">Bounce</string>
     <string name="animate_type_jelly_bounce">Jelly Bounce</string>
@@ -356,6 +360,7 @@
     <string name="game_menu_option_input_method">Switch Input Method</string>
     <string name="game_menu_option_switch_fps">FPS Display</string>
     <string name="game_menu_option_switch_memory">Memory Display</string>
+    <string name="game_menu_option_menu_ball_opacity">Menu Overlay Opacity</string>
     <string name="game_menu_option_send_keycode">Send Keycode</string>
     <string name="game_menu_option_replacement_control">Replace Control Layout</string>
     <string name="game_menu_option_hotbar_rule">Hotbar Positioning Rule</string>
@@ -836,6 +841,7 @@
     <string name="settings_gamepad_remapping_finished_saved">Gamepad mapping saved successfully. You can now close this dialog!</string>
     <string name="settings_launcher_color_theme_title">Color Theme</string>
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
+    <string name="settings_launcher_dark_mode_title">Dark Mode</string>
     <string name="settings_launcher_full_screen_title">Fullscreen mode</string>
     <string name="settings_launcher_full_screen_summary">Make the launcher pages fullscreen, ignoring safe areas like notches and punch-holes</string>
     <string name="settings_launcher_animate_speed_title">Animation Speed</string>

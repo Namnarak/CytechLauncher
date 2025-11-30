@@ -102,6 +102,14 @@ fun <E: NavKey> NavBackStack<E>.addIfEmpty(navKey: E) {
 }
 
 @Composable
+fun rememberSwapTween(): FiniteAnimationSpec<Float> {
+    val speed = AllSettings.launcherAnimateSpeed.state
+    return remember(speed) {
+        tween(durationMillis = (getAnimateSpeed() / 5) * 2)
+    }
+}
+
+@Composable
 fun <T : Any> rememberTransitionSpec(): AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform {
     val type = AllSettings.launcherSwapAnimateType.state
     val speed = AllSettings.launcherAnimateSpeed.state

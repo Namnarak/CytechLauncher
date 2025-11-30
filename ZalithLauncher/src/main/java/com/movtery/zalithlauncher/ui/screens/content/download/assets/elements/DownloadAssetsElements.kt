@@ -31,25 +31,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -72,7 +67,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
@@ -81,7 +75,6 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
-import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
@@ -135,8 +128,6 @@ sealed interface DownloadAssetsVersionLoading {
 class VersionInfoMap(
     val gameVersion: String,
     val loader: PlatformDisplayLabel?,
-    val dependencies: List<PlatformVersion.PlatformDependency>,
-    val optionals: List<PlatformVersion.PlatformDependency>,
     val versions: List<PlatformVersion>,
     val isAdapt: Boolean
 )
@@ -169,16 +160,9 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
     }
 
     return grouped.map { (key, versions) ->
-        //去重依赖集合
-        val dependencies = versions
-            .flatMap { it.platformDependencies() }
-            .distinctBy { dep -> Pair(dep.projectId, dep.type) }
-
         VersionInfoMap(
             gameVersion = key.first,
             loader = key.second,
-            dependencies = dependencies.filter { it.type == PlatformDependencyType.REQUIRED },
-            optionals = dependencies.filter { it.type == PlatformDependencyType.OPTIONAL },
             versions = versions,
             isAdapt = when (classes) {
                 PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
@@ -229,22 +213,16 @@ private fun isVersionAdapt(gameVersion: String, loader: PlatformDisplayLabel?): 
 
 /**
  * 资源版本分组可折叠列表
- * @param defaultClasses    默认项目类型，跳转至依赖项目时。
- *                          若无法获取项目类型，将使用这个默认的项目类型
- * @param getDependency     根据项目Id获取依赖项目
  */
 @Composable
 fun AssetsVersionItemLayout(
     modifier: Modifier = Modifier,
     infoMap: VersionInfoMap,
-    defaultClasses: PlatformClasses,
-    getDependency: (projectId: String) -> PlatformProject?,
     maxListHeight: Dp = rememberMaxHeight(),
     shape: Shape = MaterialTheme.shapes.large,
     color: Color = backgroundLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    onItemClicked: (PlatformVersion) -> Unit = {},
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
+    onItemClicked: (PlatformVersion) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -278,40 +256,6 @@ fun AssetsVersionItemLayout(
                                 .padding(vertical = 4.dp),
                             contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
-                            infoMap.dependencies.takeIf { it.isNotEmpty() }?.let { dependencies ->
-                                val required = dependencies.mapNotNull { dependency ->
-                                    getDependency(dependency.projectId)?.let { dependency to it }
-                                }
-                                dependencyLayout(
-                                    list = required,
-                                    titleRes = R.string.download_assets_dependency_projects,
-                                    defaultClasses = defaultClasses,
-                                    onDependencyClicked = onDependencyClicked
-                                )
-                            }
-                            infoMap.optionals.takeIf { it.isNotEmpty() }?.let { optionals ->
-                                val optional = optionals.mapNotNull { dependency ->
-                                    getDependency(dependency.projectId)?.let { dependency to it }
-                                }
-                                dependencyLayout(
-                                    list = optional,
-                                    titleRes = R.string.download_assets_optional_projects,
-                                    defaultClasses = defaultClasses,
-                                    onDependencyClicked = onDependencyClicked
-                                )
-                            }
-                            //分割线
-                            if (infoMap.dependencies.isNotEmpty() || infoMap.optionals.isNotEmpty()) {
-                                item {
-                                    HorizontalDivider(
-                                        modifier = Modifier
-                                            .padding(horizontal = 12.dp)
-                                            .fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                                    )
-                                }
-                            }
-
                             items(infoMap.versions) { version ->
                                 AssetsVersionListItem(
                                     modifier = Modifier
@@ -327,35 +271,6 @@ fun AssetsVersionItemLayout(
                     }
                 }
             }
-        }
-    }
-}
-
-private fun LazyListScope.dependencyLayout(
-    list: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>,
-    titleRes: Int,
-    defaultClasses: PlatformClasses,
-    onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
-) {
-    if (list.isNotEmpty()) {
-        item {
-            Text(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                text = stringResource(titleRes),
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
-        //前置项目列表
-        items(list) { (dependency, dependencyProject) ->
-            AssetsVersionDependencyItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 4.dp),
-                project = dependencyProject,
-                onClick = {
-                    onDependencyClicked(dependency, dependencyProject.platformClasses(defaultClasses))
-                }
-            )
         }
     }
 }
@@ -420,54 +335,6 @@ private fun AssetsVersionHeadLayout(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun AssetsVersionDependencyItem(
-    modifier: Modifier = Modifier,
-    project: PlatformProject,
-    onClick: () -> Unit = {}
-) {
-    //项目基本信息
-    val platform = remember { project.platform() }
-    val title = remember { project.platformTitle() }
-    val summary = remember { project.platformSummary() }
-    val author = remember { project.platformAuthor() }
-    val iconUrl = remember { project.platformIconUrl() }
-
-    Row(
-        modifier = modifier
-            .clip(shape = MaterialTheme.shapes.medium)
-            .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AssetsIcon(
-            modifier = Modifier
-                .padding(all = 8.dp)
-                .clip(shape = RoundedCornerShape(10.dp)),
-            size = 42.dp,
-            iconUrl = iconUrl
-        )
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            ProjectTitleHead(
-                platform = platform,
-                title = title,
-                author = author
-            )
-            summary?.let { summary ->
-                Text(
-                    text = summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(2.dp))
     }
 }
 

@@ -126,8 +126,7 @@ fun EditControlLayerDialog(
                             items = VisibilityType.entries,
                             selectedItem = layer.visibilityType,
                             onItemSelected = { layer.visibilityType = it },
-                            getItemText = { it.getVisibilityText() },
-                            useMenu = false
+                            getItemText = { it.getVisibilityText() }
                         )
 
                         //默认隐藏控件层

@@ -18,11 +18,11 @@
 
 package com.movtery.layer_controller.layout
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,12 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.TextAlignment
-import com.movtery.layer_controller.observable.DefaultObservableButtonStyle
-import com.movtery.layer_controller.observable.ObservableButtonStyle
-import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
-import com.movtery.layer_controller.observable.ObservableTranslatableString
-import com.movtery.layer_controller.observable.ObservableWidget
+import com.movtery.layer_controller.observable.*
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonSize
 import com.movtery.layer_controller.utils.buttonStyle
@@ -56,6 +51,7 @@ private data class ButtonTextStyle(
 
 /**
  * 基础文本控件
+ * @param allStyles 当前控制布局所有的样式（用于加载控件的样式）
  * @param enableSnap 编辑模式下，是否开启吸附功能
  * @param snapMode 吸附模式
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
@@ -68,9 +64,10 @@ private data class ButtonTextStyle(
 internal fun TextButton(
     isEditMode: Boolean,
     data: ObservableWidget,
+    allStyles: List<ObservableButtonStyle>,
     screenSize: IntSize,
+    isDark: Boolean = isSystemInDarkTheme(),
     visible: Boolean = true,
-    getSize: (ObservableWidget) -> IntSize,
     enableSnap: Boolean = false,
     snapMode: SnapMode = SnapMode.FullScreen,
     localSnapRange: Dp = 50.dp,
@@ -78,20 +75,15 @@ internal fun TextButton(
     snapThresholdValue: Dp,
     drawLine: (ObservableWidget, List<GuideLine>) -> Unit = { _, _ -> },
     onLineCancel: (ObservableWidget) -> Unit = {},
-    getStyle: () -> ObservableButtonStyle?,
     isPressed: Boolean,
     onTapInEditMode: () -> Unit = {}
 ) {
     if (visible) {
-        val buttonStyle = when (data) {
-            is ObservableNormalData -> data.buttonStyle
-            is ObservableTextData -> data.buttonStyle
-            else -> error("Unknown widget type")
-        }
-
-        val style = remember(data, buttonStyle) {
-            getStyle() ?: DefaultObservableButtonStyle
-        }
+        val styleId = data.styleId
+        val style = allStyles
+            .takeIf { data.styleId != null }
+            ?.find { it.uuid == styleId }
+            ?: DefaultObservableButtonStyle
 
         val locale = LocalConfiguration.current.locales[0]
 
@@ -103,7 +95,6 @@ internal fun TextButton(
                     isEditMode = isEditMode,
                     data = data,
                     screenSize = screenSize,
-                    getSize = getSize,
                     enableSnap = enableSnap,
                     snapMode = snapMode,
                     localSnapRange = localSnapRange,
@@ -115,7 +106,11 @@ internal fun TextButton(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val color by buttonContentColorAsState(style = style, isPressed = isPressed)
+            val color by buttonContentColorAsState(
+                style = style,
+                isDark = isDark,
+                isPressed = isPressed
+            )
             val buttonTextStyle = when (data) {
                 is ObservableNormalData -> ButtonTextStyle(
                     text = data.text,

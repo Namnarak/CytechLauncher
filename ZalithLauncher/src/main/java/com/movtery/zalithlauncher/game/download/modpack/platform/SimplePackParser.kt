@@ -24,8 +24,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InterruptedIOException
-import java.util.concurrent.CancellationException
 
 /**
  * 较为简单的整合包解析器，适合结构较为简单的，以索引/清单文件为特征的整合包，
@@ -50,22 +48,17 @@ abstract class SimplePackParser<E: PackManifest>(
                 return@withContext null
             }
 
-            try {
-                //尝试读取并识别，如果识别成功，则判断其为该格式的整合包
-                val rawString = indexFile.readText()
-                val manifest = GSON.fromJson(rawString, manifestClass)
+            //尝试读取并识别，如果识别成功，则判断其为该格式的整合包
+            val rawString = indexFile.readText()
+            val manifest = GSON.fromJson(rawString, manifestClass)
 
-                //识别成功，开始额外的逻辑处理
-                if (extraProcess?.invoke(root) == false) {
-                    //判断失败了，排除这个格式
-                    return@withContext null
-                }
-
-                return@withContext buildPack(root, manifest)
-            } catch (th: Throwable) {
-                if (th is CancellationException || th is InterruptedIOException) return@withContext null
-                throw th
+            //识别成功，开始额外的逻辑处理
+            if (extraProcess?.invoke(root) == false) {
+                //判断失败了，排除这个格式
+                return@withContext null
             }
+
+            buildPack(root, manifest)
         }
     }
 }

@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItemColors
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -30,6 +29,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.viewmodel.influencedByBackground
 
 /**
@@ -50,7 +50,7 @@ fun Color.desaturate(factor: Float): Color {
 fun itemLayoutColor(
     influencedByBackground: Boolean = true
 ): Color {
-    val color = if (isSystemInDarkTheme()) {
+    val color = if (isLauncherInDarkTheme()) {
         lerp(MaterialTheme.colorScheme.surfaceVariant, Color.Black, 0.15f)
     } else {
         MaterialTheme.colorScheme.surface

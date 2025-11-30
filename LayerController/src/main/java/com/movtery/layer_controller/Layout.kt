@@ -19,21 +19,10 @@
 package com.movtery.layer_controller
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -80,6 +69,7 @@ fun ControlBoxLayout(
     @FloatRange(0.0, 1.0) opacity: Float = 1f,
     markPointerAsMoveOnly: (PointerId) -> Unit = {},
     hideLayerWhen: HideLayerWhen = HideLayerWhen.None,
+    isDark: Boolean = isSystemInDarkTheme(),
     content: @Composable BoxScope.() -> Unit
 ) {
     when {
@@ -109,6 +99,7 @@ fun ControlBoxLayout(
                             markPointerAsMoveOnly = markPointerAsMoveOnly,
                             isCursorGrabbing = isCursorGrabbing,
                             hideLayerWhen = hideLayerWhen,
+                            isDark = isDark,
                             content = content
                         )
                     }
@@ -131,6 +122,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     markPointerAsMoveOnly: (PointerId) -> Unit,
     isCursorGrabbing: Boolean,
     hideLayerWhen: HideLayerWhen,
+    isDark: Boolean,
     content: @Composable BoxScope.() -> Unit
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
@@ -139,7 +131,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
     val reversedLayers = remember(layers) { layers.reversed() }
     val styles by observedLayout.styles.collectAsState()
 
-    val sizes = remember { mutableStateMapOf<ObservableWidget, IntSize>() }
     val allActiveWidgets = remember { mutableStateMapOf<PointerId, List<ObservableWidget>>() }
     val currentCheckOccupiedPointers by rememberUpdatedState(checkOccupiedPointers)
     val currentIsCursorGrabbing by rememberUpdatedState(isCursorGrabbing)
@@ -157,7 +148,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 
     Box(
         modifier = modifier
-            .pointerInput(reversedLayers, sizes, hideLayerWhen) {
+            .pointerInput(reversedLayers, hideLayerWhen) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent(pass = PointerEventPass.Initial)
@@ -198,7 +189,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                         return@fastFilter false
                                     }
 
-                                    val size = sizes[widget] ?: IntSize.Zero
+                                    val size = widget.size
                                     val offset = getWidgetPosition(widget, size, screenSize)
 
                                     val x = position.x
@@ -260,7 +251,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                     //检查组件是否可以响应移除边界即松开
                                     if (!widget.isReleaseOnOutOfBounds()) continue
 
-                                    val size = sizes[widget] ?: IntSize.Zero
+                                    val size = widget.size
                                     val offset = getWidgetPosition(widget, size, screenSize)
                                     val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
                                             position.y !in offset.y..(offset.y + size.height)
@@ -284,13 +275,10 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
         content()
 
         ControlsRendererLayer(
+            isDark = isDark,
             opacity = opacity,
             layers = reversedLayers,
             styles = styles,
-            sizes = sizes,
-            applySize = { data, size ->
-                sizes[data] = size
-            },
             screenSize = screenSize,
             isCursorGrabbing = currentIsCursorGrabbing,
             hideLayerWhen = currentHideLayerWhen
@@ -300,11 +288,10 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 
 @Composable
 private fun ControlsRendererLayer(
+    isDark: Boolean,
     @FloatRange(0.0, 1.0) opacity: Float,
     layers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
-    sizes: Map<ObservableWidget, IntSize>,
-    applySize: (ObservableWidget, IntSize) -> Unit,
     screenSize: IntSize,
     isCursorGrabbing: Boolean,
     hideLayerWhen: HideLayerWhen
@@ -327,12 +314,12 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        allStyles = styles,
                         screenSize = screenSize,
+                        isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
-                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
-                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                         isPressed = false //文本框不需要按压状态
                     )
                 }
@@ -341,12 +328,12 @@ private fun ControlsRendererLayer(
                     TextButton(
                         isEditMode = false,
                         data = data,
+                        allStyles = styles,
                         screenSize = screenSize,
+                        isDark = isDark,
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
-                        getSize = { d1 -> sizes[d1] ?: IntSize.Zero },
-                        getStyle = { styles.takeIf { data.buttonStyle != null }?.find { it.uuid == data.buttonStyle } },
                         isPressed = data.isPressed
                     )
                 }
@@ -362,10 +349,7 @@ private fun ControlsRendererLayer(
             layer.textBoxes.value.fastForEach { data ->
                 if (index < placeables.size) {
                     val placeable = placeables[index]
-                    applySize(
-                        data,
-                        IntSize(placeable.width, placeable.height)
-                    )
+                    data.size = IntSize(placeable.width, placeable.height)
                     index++
                 }
             }
@@ -373,10 +357,7 @@ private fun ControlsRendererLayer(
             layer.normalButtons.value.fastForEach { data ->
                 if (index < placeables.size) {
                     val placeable = placeables[index]
-                    applySize(
-                        data,
-                        IntSize(placeable.width, placeable.height)
-                    )
+                    data.size = IntSize(placeable.width, placeable.height)
                     index++
                 }
             }

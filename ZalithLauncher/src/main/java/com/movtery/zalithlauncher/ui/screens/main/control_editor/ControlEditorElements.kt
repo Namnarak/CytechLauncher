@@ -23,7 +23,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -53,6 +52,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
@@ -61,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.ClickEvent
-import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
@@ -71,8 +70,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.CURSOR_ENABLED
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.ui.components.DraggableBox
 import com.movtery.zalithlauncher.ui.components.DualMenuSubscreen
+import com.movtery.zalithlauncher.ui.components.FloatingBall
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.MenuListLayout
 import com.movtery.zalithlauncher.ui.components.MenuState
@@ -89,32 +88,46 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
  */
 sealed interface EditorOperation {
     data object None : EditorOperation
-    /** 选择了一个控件, 附带其所属控件层 */
-    data class SelectButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
-    /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
-    data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorOperation
-    /** 编辑控件的显示文本 */
-    data class EditWidgetText(val string: ObservableTranslatableString) : EditorOperation
+    /** 选择了一个控件进行编辑 */
+    data object SelectButton : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
-    /** 编辑切换控件层可见性事件 */
-    data class SwitchLayersVisibility(val data: ObservableNormalData, val type: ClickEvent.Type) : EditorOperation
-    /** 编辑发送的文本 */
-    data class SendText(val data: ObservableNormalData) : EditorOperation
-    /** 没有控件层级，提醒用户添加 */
-    data object WarningNoLayers : EditorOperation
-    /** 没有选择控件层，提醒用户选择 */
-    data object WarningNoSelectLayer : EditorOperation
     /** 打开控件外观列表 */
     data object OpenStyleList : EditorOperation
     /** 创建控件外观 */
     data object CreateStyle : EditorOperation
     /** 编辑控件外观 */
-    data class EditStyle(val style: ObservableButtonStyle) : EditorOperation
+    data object EditStyle : EditorOperation
     /** 控制布局正在保存中 */
     data object Saving : EditorOperation
     /** 控制布局保存失败 */
     data class SaveFailed(val error: Throwable) : EditorOperation
+}
+
+/**
+ * 控制布局编辑器对控件的操作状态
+ */
+sealed interface EditorWidgetOperation {
+    data object None : EditorWidgetOperation
+    /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
+    data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorWidgetOperation
+    /** 编辑控件的显示文本 */
+    data class EditWidgetText(val string: ObservableTranslatableString) : EditorWidgetOperation
+    /** 编辑切换控件层可见性事件 */
+    data class SwitchLayersVisibility(val data: ObservableNormalData, val type: ClickEvent.Type) : EditorWidgetOperation
+    /** 编辑发送的文本 */
+    data class SendText(val data: ObservableNormalData) : EditorWidgetOperation
+}
+
+/**
+ * 控制布局编辑器的一些警告的操作状态
+ */
+sealed interface EditorWarningOperation {
+    data object None : EditorWarningOperation
+    /** 没有控件层，提醒用户添加 */
+    data object WarningNoLayers : EditorWarningOperation
+    /** 没有选择控件层，提醒用户选择 */
+    data object WarningNoSelectLayer : EditorWarningOperation
 }
 
 /**
@@ -140,10 +153,14 @@ fun VisibilityType.getVisibilityText(): String {
 }
 
 @Composable
-fun BoxWithConstraintsScope.MenuBox(
+fun MenuBox(
+    position: Offset,
+    onPositionChanged: (Offset) -> Unit,
     onClick: () -> Unit
 ) {
-    DraggableBox(
+    FloatingBall(
+        position = position,
+        onPositionChanged = onPositionChanged,
         onClick = onClick
     ) {
         Row(
@@ -168,7 +185,7 @@ fun EditorMenu(
     layers: List<ObservableControlLayer>,
     onReorder: (from: Int, to: Int) -> Unit,
     selectedLayer: ObservableControlLayer?,
-    onLayerSelected: (ObservableControlLayer) -> Unit,
+    onLayerSelected: (ObservableControlLayer?) -> Unit,
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
     addNewButton: () -> Unit,
@@ -395,7 +412,7 @@ private fun ColumnScope.ControlLayerMenu(
     layers: List<ObservableControlLayer>,
     onReorder: (from: Int, to: Int) -> Unit,
     selectedLayer: ObservableControlLayer?,
-    onLayerSelected: (ObservableControlLayer) -> Unit,
+    onLayerSelected: (ObservableControlLayer?) -> Unit,
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
     influencedByBackground: Boolean = false,
@@ -431,6 +448,9 @@ private fun ColumnScope.ControlLayerMenu(
                     onSelected = {
                         onLayerSelected(layer)
                     },
+                    onUnSelected = {
+                        onLayerSelected(null)
+                    },
                     onAttribute = {
                         onAttribute(layer)
                     },
@@ -458,6 +478,7 @@ private fun ControlLayerItem(
     dragButtonModifier: Modifier,
     selected: Boolean,
     onSelected: () -> Unit,
+    onUnSelected: () -> Unit,
     onAttribute: () -> Unit,
     influencedByBackground: Boolean = false,
     color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
@@ -483,8 +504,8 @@ private fun ControlLayerItem(
         shape = shape,
         shadowElevation = shadowElevation,
         onClick = {
-            if (selected) return@Surface
-            onSelected()
+            if (selected) onUnSelected()
+            else onSelected()
         },
         enabled = enabled
     ) {
