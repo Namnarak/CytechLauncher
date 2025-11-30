@@ -42,9 +42,12 @@
     <string name="generic_ignore">忽略</string>
     <string name="generic_authorization">授權</string>
     <string name="generic_all">全部</string>
+    <string name="generic_enabled">已啟用</string>
+    <string name="generic_disabled">已停用</string>
     <string name="generic_unspecified">未指定</string>
     <string name="generic_save">儲存</string>
     <string name="generic_share">分享</string>
+    <string name="generic_no_matching_items">沒有符合條件的項目</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>

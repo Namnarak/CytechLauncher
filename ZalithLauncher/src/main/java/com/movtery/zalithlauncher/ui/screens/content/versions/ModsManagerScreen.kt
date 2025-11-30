@@ -124,7 +124,6 @@ import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
-import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.TooltipIconButton
@@ -177,7 +176,7 @@ private class ModsManageViewModel(
 
     var allMods by mutableStateOf<List<RemoteMod>>(emptyList())
         private set
-    var filteredMods by mutableStateOf<List<RemoteMod>>(emptyList())
+    var filteredMods by mutableStateOf<List<RemoteMod>?>(null)
         private set
 
     /**
@@ -232,7 +231,7 @@ private class ModsManageViewModel(
     }
 
     private fun filterMods(context: Context? = null) {
-        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, stateFilter, context) ?: emptyList()
+        filteredMods = allMods.takeIf { it.isNotEmpty() }?.filterMods(nameFilter, stateFilter, context)
     }
 
     /** 在ViewModel的生命周期协程内调用 */
@@ -635,7 +634,7 @@ private fun ModsActionsHeader(
                 Box {
                     var expanded by remember { mutableStateOf(false) }
                     IconButton(
-                        onClick = { expanded = true }
+                        onClick = { expanded = !expanded }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.FilterAlt,
@@ -783,7 +782,7 @@ private fun ModsActionsHeader(
 @Composable
 private fun ModsList(
     modifier: Modifier = Modifier,
-    modsList: List<RemoteMod>,
+    modsList: List<RemoteMod>?,
     selectedMods: List<RemoteMod>,
     removeFromSelected: (RemoteMod) -> Unit,
     addToSelected: (RemoteMod) -> Unit,
@@ -794,53 +793,64 @@ private fun ModsList(
     onSwapMoreInfo: (id: String, Platform) -> Unit,
     onDelete: (RemoteMod) -> Unit
 ) {
-    if (modsList.isNotEmpty()) {
-        LazyColumn(
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            items(modsList) { mod ->
-                ModItemLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    mod = mod,
-                    onLoad = {
-                        onLoad(mod)
-                    },
-                    onForceRefresh = {
-                        onForceRefresh(mod)
-                    },
-                    onClick = {
-                        if (mod.isLoaded) {
-                            //仅加载了项目信息的模组允许被选择
-                            if (selectedMods.contains(mod)) {
-                                removeFromSelected(mod)
-                            } else {
-                                addToSelected(mod)
+    modsList?.let { list ->
+        if (list.isNotEmpty()) {
+            LazyColumn(
+                modifier = modifier,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                items(list) { mod ->
+                    ModItemLayout(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        mod = mod,
+                        onLoad = {
+                            onLoad(mod)
+                        },
+                        onForceRefresh = {
+                            onForceRefresh(mod)
+                        },
+                        onClick = {
+                            if (mod.isLoaded) {
+                                //仅加载了项目信息的模组允许被选择
+                                if (selectedMods.contains(mod)) {
+                                    removeFromSelected(mod)
+                                } else {
+                                    addToSelected(mod)
+                                }
                             }
-                        }
-                    },
-                    onEnable = {
-                        onEnable(mod)
-                    },
-                    onDisable = {
-                        onDisable(mod)
-                    },
-                    onSwapMoreInfo = onSwapMoreInfo,
-                    onDelete = {
-                        onDelete(mod)
-                    },
-                    selected = selectedMods.contains(mod)
+                        },
+                        onEnable = {
+                            onEnable(mod)
+                        },
+                        onDisable = {
+                            onDisable(mod)
+                        },
+                        onSwapMoreInfo = onSwapMoreInfo,
+                        onDelete = {
+                            onDelete(mod)
+                        },
+                        selected = selectedMods.contains(mod)
+                    )
+                }
+            }
+        } else {
+            //如果列表是空的，则是由搜索导致的
+            //展示“无匹配项”文本
+            Box(modifier = Modifier.fillMaxSize()) {
+                ScalingLabel(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(R.string.generic_no_matching_items)
                 )
             }
         }
-    } else {
-        //如果为空，则代表本身就没有模组可以展示
+    } ?: run {
+        //如果为null，则代表本身就没有模组可以展示
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.generic_empty_list)
+                text = stringResource(R.string.mods_manage_no_mods)
             )
         }
     }
