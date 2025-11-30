@@ -459,7 +459,7 @@
     <string name="account_microsoft_authenticate_minecraft">验证 Minecraft 基本信息</string>
     <string name="account_microsoft_verify_game_ownership">验证是否拥有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">获取玩家账户信息</string>
-    <string name="account_microsoft_exit_by_user">您离开了网页屏幕，已为您取消了微软登录流程</string>
+    <string name="account_microsoft_exit_by_user">您离开了网页屏幕，已为您取消了微软登录流程。</string>
     <string name="account_local_create_account">创建离线账号</string>
     <string name="account_other_login_baseurl_not_set">未设置基础 URL</string>
     <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
