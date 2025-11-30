@@ -557,58 +557,39 @@ fun ModsManagerScreen(
                             submitError = submitError
                         )
 
-                        if (viewModel.filteredMods.isNotEmpty()) {
-                            ModsList(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                modsList = viewModel.filteredMods,
-                                selectedMods = viewModel.selectedMods,
-                                removeFromSelected = { mod ->
-                                    viewModel.selectedMods.remove(mod)
-                                },
-                                addToSelected = { mod ->
-                                    viewModel.selectedMods.add(mod)
-                                },
-                                onLoad = { mod ->
-                                    viewModel.loadMod(mod)
-                                },
-                                onForceRefresh = { mod ->
-                                    viewModel.loadMod(mod, loadFromCache = false)
-                                },
-                                onEnable = { mod ->
-                                    viewModel.doInScope {
-                                        withContext(Dispatchers.IO) {
-                                            mod.localMod.enable()
-                                        }
-                                    }
-                                },
-                                onDisable = { mod ->
-                                    viewModel.doInScope {
-                                        withContext(Dispatchers.IO) {
-                                            mod.localMod.disable()
-                                        }
-                                    }
-                                },
-                                onSwapMoreInfo = onSwapMoreInfo,
-                                onDelete = { mod ->
-                                    modsOperation = ModsOperation.Delete(mod.localMod)
+                        ModsList(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            modsList = viewModel.filteredMods,
+                            selectedMods = viewModel.selectedMods,
+                            removeFromSelected = { mod ->
+                                viewModel.selectedMods.remove(mod)
+                            },
+                            addToSelected = { mod ->
+                                viewModel.selectedMods.add(mod)
+                            },
+                            onLoad = { mod ->
+                                viewModel.loadMod(mod)
+                            },
+                            onForceRefresh = { mod ->
+                                viewModel.loadMod(mod, loadFromCache = false)
+                            },
+                            onEnable = { mod ->
+                                runProgress {
+                                    mod.localMod.enable()
                                 }
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.generic_empty_list),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                )
+                            },
+                            onDisable = { mod ->
+                                runProgress {
+                                    mod.localMod.disable()
+                                }
+                            },
+                            onSwapMoreInfo = onSwapMoreInfo,
+                            onDelete = { mod ->
+                                modsOperation = ModsOperation.Delete(mod.localMod)
                             }
-                        }
+                        )
                     }
                 }
                 LoadingState.Loading -> {
@@ -663,7 +644,8 @@ private fun ModsActionsHeader(
                     }
                     DropdownMenu(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onDismissRequest = { expanded = false },
+                        shape = MaterialTheme.shapes.large
                     ) {
                         ModStateFilter.entries.forEach { filter ->
                             DropdownMenuItem(
@@ -801,7 +783,7 @@ private fun ModsActionsHeader(
 @Composable
 private fun ModsList(
     modifier: Modifier = Modifier,
-    modsList: List<RemoteMod>?,
+    modsList: List<RemoteMod>,
     selectedMods: List<RemoteMod>,
     removeFromSelected: (RemoteMod) -> Unit,
     addToSelected: (RemoteMod) -> Unit,
@@ -812,56 +794,53 @@ private fun ModsList(
     onSwapMoreInfo: (id: String, Platform) -> Unit,
     onDelete: (RemoteMod) -> Unit
 ) {
-    modsList?.let { list ->
-        //如果列表是空的，则是由搜索导致的
-        if (list.isNotEmpty()) {
-            LazyColumn(
-                modifier = modifier,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-            ) {
-                items(list) { mod ->
-                    ModItemLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        mod = mod,
-                        onLoad = {
-                            onLoad(mod)
-                        },
-                        onForceRefresh = {
-                            onForceRefresh(mod)
-                        },
-                        onClick = {
-                            if (mod.isLoaded) {
-                                //仅加载了项目信息的模组允许被选择
-                                if (selectedMods.contains(mod)) {
-                                    removeFromSelected(mod)
-                                } else {
-                                    addToSelected(mod)
-                                }
+    if (modsList.isNotEmpty()) {
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            items(modsList) { mod ->
+                ModItemLayout(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    mod = mod,
+                    onLoad = {
+                        onLoad(mod)
+                    },
+                    onForceRefresh = {
+                        onForceRefresh(mod)
+                    },
+                    onClick = {
+                        if (mod.isLoaded) {
+                            //仅加载了项目信息的模组允许被选择
+                            if (selectedMods.contains(mod)) {
+                                removeFromSelected(mod)
+                            } else {
+                                addToSelected(mod)
                             }
-                        },
-                        onEnable = {
-                            onEnable(mod)
-                        },
-                        onDisable = {
-                            onDisable(mod)
-                        },
-                        onSwapMoreInfo = onSwapMoreInfo,
-                        onDelete = {
-                            onDelete(mod)
-                        },
-                        selected = selectedMods.contains(mod)
-                    )
-                }
+                        }
+                    },
+                    onEnable = {
+                        onEnable(mod)
+                    },
+                    onDisable = {
+                        onDisable(mod)
+                    },
+                    onSwapMoreInfo = onSwapMoreInfo,
+                    onDelete = {
+                        onDelete(mod)
+                    },
+                    selected = selectedMods.contains(mod)
+                )
             }
         }
-    } ?: run {
-        //如果为null，则代表本身就没有模组可以展示
+    } else {
+        //如果为空，则代表本身就没有模组可以展示
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.mods_manage_no_mods)
+                text = stringResource(R.string.generic_empty_list)
             )
         }
     }
