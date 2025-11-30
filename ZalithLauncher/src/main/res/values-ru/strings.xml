@@ -1000,4 +1000,10 @@
     <string name="control_editor_edit_event_launcher_send_text_hint">Оставьте пустым, для деактивации действия</string>
     <string name="control_editor_edit_show_layers">Принудительно показать слои раскладки</string>
     <string name="control_editor_edit_hide_layers">Принудительно скрыть слои раскладки</string>
+    <string name="generic_enabled">Включено</string>
+    <string name="generic_disabled">Отключено</string>
+    <string name="generic_no_matching_items">Нет подходящих элементов</string>
+    <string name="theme_dark_mode_follow_system">Как в системе</string>
+    <string name="game_menu_option_menu_ball_opacity">Прозрачность меню-наложения</string>
+    <string name="settings_launcher_dark_mode_title">Тёмный режим</string>
 </resources>
