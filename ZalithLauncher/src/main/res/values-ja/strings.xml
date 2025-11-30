@@ -980,4 +980,10 @@
     <string name="control_editor_edit_event_launcher_send_text_hint">何もしない場合は空白</string>
     <string name="control_editor_edit_show_layers">コントロールレイヤーを強制的に表示</string>
     <string name="control_editor_edit_hide_layers">コントロールレイヤーを強制的に非表示</string>
+    <string name="generic_enabled">有効</string>
+    <string name="generic_disabled">無効</string>
+    <string name="generic_no_matching_items">一致する項目はありません</string>
+    <string name="theme_dark_mode_follow_system">システムに従う</string>
+    <string name="game_menu_option_menu_ball_opacity">メニューオーバーレイの不透明度</string>
+    <string name="settings_launcher_dark_mode_title">ダークモード</string>
 </resources>

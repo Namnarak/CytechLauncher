@@ -293,4 +293,20 @@
     <string name="download_assets_features_locale">موقع</string>
     <string name="download_assets_features_models">نماذج</string>
     <string name="version_summary_fools_the_love_and_hugs_update">تحديث الحب والعناق، يملأ العالم بالسلام وقوس قزح.</string>
+    <string name="import_modpack">استيراد مودباك</string>
+    <string name="import_modpack_tip">يمكنك استيراد ملفات مودباك محلية. يدعم اللانشر حاليًا التنسيقات التالية:</string>
+    <string name="import_modpack_task_unpack">استيراد وفك ضغط الملف</string>
+    <string name="import_modpack_task_parse">تحليل حزمة المودباك</string>
+    <string name="import_modpack_task_extract_files">استخراج ملفات المودباك</string>
+    <string name="import_modpack_task_extract_files_and_schedule_download">استخراج وتجهيز التنزيلات</string>
+    <string name="import_modpack_not_supported_title">مودباك غير مدعوم</string>
+    <string name="import_modpack_not_supported_formats">صيغة المودباك هذه غير مدعومة. الصيغ المدعومة:</string>
+    <string name="import_modpack_not_supported_text1">لا يمكن للانشر استيراد المودباك هذا للأسباب التالية:</string>
+    <string name="import_modpack_not_supported_text2">1. المودباك تالف، ولا يمكن فك ضغطه أو تحليله</string>
+    <string name="import_modpack_not_supported_text3">2. قد لا يكون الملف المحدد أرشيفًا مضغوطًا</string>
+    <string name="import_modpack_not_supported_text4">تحقق من تعليمات المؤلف للتأكد من طريقة الاستيراد الصحيحة.</string>
+    <string name="import_modpack_finished_title">تم الاستيراد بنجاح</string>
+    <string name="import_modpack_finished_text">تم تثبيت المودباك المحدد بنجاح!</string>
+    <string name="import_modpack_failed_title">فشل الاستيراد</string>
+    <string name="import_modpack_failed_text">حدث خطأ أثناء تثبيت المودباك:</string>
 </resources>

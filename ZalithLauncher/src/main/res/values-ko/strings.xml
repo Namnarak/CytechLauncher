@@ -82,4 +82,6 @@
     <string name="crash_share_logs">로그 공유</string>
     <string name="crash_restart">재시작</string>
     <string name="crash_exit">종료</string>
+    <string name="generic_tip">팁</string>
+    <string name="crash_launch_crash_title">앱 실행 실패</string>
 </resources>
