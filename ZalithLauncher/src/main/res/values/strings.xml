@@ -45,9 +45,12 @@
     <string name="generic_file_name">File Name: %s</string>
     <string name="generic_file_size">File Size: %s</string>
     <string name="generic_all">All</string>
+    <string name="generic_enabled">Enabled</string>
+    <string name="generic_disabled">Disabled</string>
     <string name="generic_unspecified">Unspecified</string>
     <string name="generic_save">Save</string>
     <string name="generic_share">Share</string>
+    <string name="generic_no_matching_items">No matching items</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
