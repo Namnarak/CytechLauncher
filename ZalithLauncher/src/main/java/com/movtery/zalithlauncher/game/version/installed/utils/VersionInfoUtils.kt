@@ -37,7 +37,8 @@ private val OPTIFINE_ID_REGEX = """$VERSION_PATTERN-OptiFine""".toRegex()
 // "1.21.3-forge-53.0.23"               -> 1.21.3
 private val FORGE_REGEX = """$VERSION_PATTERN-forge""".toRegex()
 // "1.7.10-Forge10.13.4.1614-1.7.10"    -> 1.7.10
-private val FORGE_OLD_REGEX = """^$VERSION_PATTERN-Forge""".toRegex()
+// "1.7.2-10.12.2.1161-mc172"           -> 1.7.2
+private val FORGE_OLD_REGEX = """^$VERSION_PATTERN-(Forge[\d.]*)-mc\d+""".toRegex()
 // "fabric-loader-0.15.7-1.20.4"        -> 1.20.4
 // "fabric-loader-0.16.9-1.21.3"        -> 1.21.3
 private val FABRIC_REGEX = """fabric-loader-[\w.-]+-$VERSION_PATTERN""".toRegex()
@@ -192,8 +193,10 @@ private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
                     //新版：1.21.4-54.0.26                 -> 54.0.26
                     version.count { it == '-' } == 1 -> version.substringAfterLast('-')
                     //旧版：1.7.10-10.13.4.1614-1.7.10     -> 10.13.4.1614
+                    //旧版：1.7.2-10.12.2.1161-mc172       -> 10.12.2.1161
                     version.count { it == '-' } >= 2 -> version.split("-").let { parts ->
                         when {
+                            parts.size >= 3 && parts.last().startsWith("mc") -> parts[1]
                             parts.size >= 3 && parts[0] == parts.last() -> parts[1]
                             else -> version
                         }
