@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import java.io.File
 
 private const val VERSION_PATTERN = """(\d+\.\d+\.\d+|\d{2}w\d{2}[a-z])"""
@@ -142,6 +143,13 @@ private fun extractMinecraftVersion(json: JsonObject): String {
                 return minecraft.get("version").asString
             }
         }
+    }
+
+    //尝试识别PCL导出的整合包给的版本
+    //PCL顺手加的 [按住 W 开始思索]
+    if (json.has("clientVersion") && json.get("clientVersion").isJsonPrimitive) {
+        val clientVersion = json.get("clientVersion").asString
+        if (clientVersion.isNotEmptyOrBlank()) return clientVersion
     }
 
     //尝试从 LaunchFor (ZL安装的版本) 获取信息
