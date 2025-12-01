@@ -46,12 +46,17 @@ abstract class ObservableWidget {
     /**
      * 控件的内部渲染大小
      */
-    internal var size by mutableStateOf(IntSize.Zero)
+    internal var internalRenderSize by mutableStateOf(IntSize.Zero)
 
     /**
-     * 组件的位置属性
+     * 组件的内部渲染位置属性
      */
-    internal abstract val widgetPosition: ButtonPosition
+    internal abstract val internalRenderPosition: ButtonPosition
+
+    /**
+     * 存入内部渲染位置属性
+     */
+    internal abstract fun putRenderPosition(position: ButtonPosition)
 
     /**
      * 组件的样式 ID
