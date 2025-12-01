@@ -18,12 +18,19 @@
 
 package com.movtery.zalithlauncher.ui.components
 
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -58,11 +65,26 @@ fun Modifier.fadeEdge(
     style: FadeStyle = createDefaultFadeStyle(direction)
 ): Modifier {
     val fadePx = with(LocalDensity.current) { length.toPx() }
+
+    var initialized by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.maxValue) {
+        initialized = true
+    }
+
+    val animationSpec: AnimationSpec<Float> = if (initialized) {
+        spring()
+    } else {
+        snap()
+    }
+
     val startFade by animateFloatAsState(
-        targetValue = if (state.canScrollBackward) fadePx else 0f
+        targetValue = if (state.canScrollBackward) fadePx else 0f,
+        animationSpec = animationSpec
     )
     val endFade by animateFloatAsState(
-        targetValue = if (state.canScrollForward) fadePx else 0f
+        targetValue = if (state.canScrollForward) fadePx else 0f,
+        animationSpec = animationSpec
     )
 
     return this

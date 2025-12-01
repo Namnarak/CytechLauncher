@@ -57,6 +57,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
@@ -139,12 +140,14 @@ private fun TabMenu(
         isHorizontal = true
     )
 
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier
+            .fadeEdge(scrollState)
             .width(IntrinsicSize.Min)
             .padding(start = 8.dp)
             .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(12.dp))
