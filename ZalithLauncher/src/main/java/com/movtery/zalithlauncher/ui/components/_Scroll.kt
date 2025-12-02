@@ -18,19 +18,10 @@
 
 package com.movtery.zalithlauncher.ui.components
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -66,26 +57,15 @@ fun Modifier.fadeEdge(
 ): Modifier {
     val fadePx = with(LocalDensity.current) { length.toPx() }
 
-    var initialized by remember { mutableStateOf(false) }
+    val topDistance = state.value.toFloat()
+    val startFade = if (state.canScrollBackward) {
+        (topDistance / fadePx).coerceIn(0f, 1f) * fadePx
+    } else 0f
 
-    LaunchedEffect(state.maxValue) {
-        initialized = true
-    }
-
-    val animationSpec: AnimationSpec<Float> = if (initialized) {
-        spring()
-    } else {
-        snap()
-    }
-
-    val startFade by animateFloatAsState(
-        targetValue = if (state.canScrollBackward) fadePx else 0f,
-        animationSpec = animationSpec
-    )
-    val endFade by animateFloatAsState(
-        targetValue = if (state.canScrollForward) fadePx else 0f,
-        animationSpec = animationSpec
-    )
+    val bottomDistance = (state.maxValue - state.value).toFloat()
+    val endFade = if (state.canScrollForward) {
+        (bottomDistance / fadePx).coerceIn(0f, 1f) * fadePx
+    } else 0f
 
     return this
         //使用离屏合成，让混合模式只影响当前组件，不污染父级与同级元素
@@ -116,12 +96,31 @@ fun Modifier.fadeEdge(
     style: FadeStyle = createDefaultFadeStyle(direction)
 ): Modifier {
     val fadePx = with(LocalDensity.current) { length.toPx() }
-    val startFade by animateFloatAsState(
-        targetValue = if (state.canScrollBackward) fadePx else 0f
-    )
-    val endFade by animateFloatAsState(
-        targetValue = if (state.canScrollForward) fadePx else 0f
-    )
+    val layoutInfo = state.layoutInfo
+
+    val firstItem = layoutInfo.visibleItemsInfo.firstOrNull()
+    val topDistancePx = when {
+        firstItem == null -> 0f
+        state.firstVisibleItemIndex == 0 -> -firstItem.offset.toFloat()
+        else -> fadePx //说明已经不在顶部了，直接满强度
+    }
+    val startFade = if (state.canScrollBackward) {
+        (topDistancePx / fadePx).coerceIn(0f, 1f) * fadePx
+    } else 0f
+
+    val lastItem = layoutInfo.visibleItemsInfo.lastOrNull()
+    val viewportHeight = layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset
+    val bottomDistancePx = when {
+        lastItem == null -> 0f
+        state.canScrollForward.not() -> 0f
+        state.firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size == layoutInfo.totalItemsCount &&
+                lastItem.offset + lastItem.size > viewportHeight ->
+            (lastItem.offset + lastItem.size - viewportHeight).toFloat()
+        else -> fadePx //还没到底部，直接满强度
+    }
+    val endFade = if (state.canScrollForward) {
+        (bottomDistancePx / fadePx).coerceIn(0f, 1f) * fadePx
+    } else 0f
 
     return this
         //使用离屏合成，让混合模式只影响当前组件，不污染父级与同级元素
