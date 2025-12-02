@@ -171,53 +171,55 @@ fun GamePathItemLayout(
         badge = {
             var menuExpanded by remember { mutableStateOf(false) }
 
-            IconButton(
-                modifier = Modifier.size(24.dp),
-                onClick = { menuExpanded = !menuExpanded }
-            ) {
-                Icon(
-                    modifier = Modifier.size(20.dp),
-                    imageVector = Icons.Default.MoreHoriz,
-                    contentDescription = stringResource(R.string.generic_more),
-                )
-            }
+            Row {
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = { menuExpanded = !menuExpanded }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(20.dp),
+                        imageVector = Icons.Default.MoreHoriz,
+                        contentDescription = stringResource(R.string.generic_more),
+                    )
+                }
 
-            DropdownMenu(
-                expanded = menuExpanded,
-                shape = MaterialTheme.shapes.large,
-                shadowElevation = 3.dp,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    enabled = notDefault,
-                    text = { Text(text = stringResource(R.string.generic_rename)) },
-                    leadingIcon = {
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = stringResource(R.string.generic_rename)
-                        )
-                    },
-                    onClick = {
-                        onRename()
-                        menuExpanded = false
-                    }
-                )
-                DropdownMenuItem(
-                    enabled = notDefault,
-                    text = { Text(text = stringResource(R.string.generic_delete)) },
-                    leadingIcon = {
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = stringResource(R.string.generic_delete)
-                        )
-                    },
-                    onClick = {
-                        onDelete()
-                        menuExpanded = false
-                    }
-                )
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    shape = MaterialTheme.shapes.large,
+                    shadowElevation = 3.dp,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        enabled = notDefault,
+                        text = { Text(text = stringResource(R.string.generic_rename)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = stringResource(R.string.generic_rename)
+                            )
+                        },
+                        onClick = {
+                            onRename()
+                            menuExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        enabled = notDefault,
+                        text = { Text(text = stringResource(R.string.generic_delete)) },
+                        leadingIcon = {
+                            Icon(
+                                modifier = Modifier.size(20.dp),
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = stringResource(R.string.generic_delete)
+                            )
+                        },
+                        onClick = {
+                            onDelete()
+                            menuExpanded = false
+                        }
+                    )
+                }
             }
         },
         selected = selected,
