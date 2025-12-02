@@ -40,7 +40,7 @@
     <string name="generic_anyway">اسخدام على اي حال</string>
     <string name="generic_go_it">فهمت</string>
     <string name="generic_ignore">تجاهل</string>
-    <string name="generic_authorization">Authorization</string>
+    <string name="generic_authorization">إذن</string>
     <string name="generic_file_name">اسم الملف: %s</string>
     <string name="generic_file_size">حجم الملف: %s</string>
     <string name="generic_all">الكل</string>
@@ -309,4 +309,5 @@
     <string name="import_modpack_finished_text">تم تثبيت المودباك المحدد بنجاح!</string>
     <string name="import_modpack_failed_title">فشل الاستيراد</string>
     <string name="import_modpack_failed_text">حدث خطأ أثناء تثبيت المودباك:</string>
+    <string name="unit_day">يوم</string>
 </resources>
