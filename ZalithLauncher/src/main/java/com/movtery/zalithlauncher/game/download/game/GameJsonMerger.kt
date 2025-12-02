@@ -121,7 +121,11 @@ fun mergeGameJson(
     if (minecraftJar != outputJar) {
         val outputJarFile = File(outputJar)
         if (outputJarFile.exists()) outputJarFile.delete()
-        File(minecraftJar).copyTo(File(outputJar))
+
+        val originalJarFile = File(minecraftJar)
+        if (originalJarFile.exists()) {
+            originalJarFile.copyTo(outputJarFile)
+        }
     }
 }
 

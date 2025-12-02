@@ -18,16 +18,25 @@
 
 package com.movtery.zalithlauncher.game.addons.modloader
 
-enum class ModLoader(val displayName: String, val isLoader: Boolean = true) {
-    UNKNOWN("", false),
-    OPTIFINE("OptiFine", false),
-    FORGE("Forge"),
-    NEOFORGE("NeoForge"),
-    FABRIC("Fabric"),
-    FABRIC_API("Fabric API", false),
-    QUILT("Quilt"),
-    QUILT_API("Quilted Fabric API", false),
-    LITE_LOADER("LiteLoader"),
-    CLEANROOM("Cleanroom"),
-    PACK("Pack", false)
+/**
+ * 模组加载器/模组类别枚举
+ * @param isLoader 该类别是一个模组加载器
+ * @param autoDownloadable 该模组加载器是启动器支持自动安装的加载器
+ */
+enum class ModLoader(
+    val displayName: String,
+    val isLoader: Boolean = true,
+    val autoDownloadable: Boolean = true
+) {
+    UNKNOWN(displayName = "", isLoader = false, autoDownloadable = false),
+    OPTIFINE(displayName = "OptiFine", isLoader = false, autoDownloadable = false),
+    FORGE(displayName = "Forge"),
+    NEOFORGE(displayName = "NeoForge"),
+    FABRIC(displayName = "Fabric"),
+    FABRIC_API(displayName = "Fabric API", isLoader = false, autoDownloadable = false),
+    QUILT(displayName = "Quilt"),
+    QUILT_API(displayName = "Quilted Fabric API", isLoader = false, autoDownloadable = false),
+    LITE_LOADER(displayName = "LiteLoader", autoDownloadable = false),
+    CLEANROOM(displayName = "Cleanroom", autoDownloadable = false),
+    PACK(displayName = "Pack", isLoader = false, autoDownloadable = false)
 }

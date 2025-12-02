@@ -18,7 +18,9 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import android.content.Context
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -34,51 +36,161 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Public
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
+import com.movtery.zalithlauncher.game.download.game.GameDownloadInfo
+import com.movtery.zalithlauncher.game.download.game.GameInstaller
+import com.movtery.zalithlauncher.game.download.game.optifine.CantFetchingOptiFineUrlException
+import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
+import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.VersionsManager
+import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
+import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
+import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
+import com.movtery.zalithlauncher.ui.screens.content.versions.AddonDiffs
 import com.movtery.zalithlauncher.ui.screens.content.versions.ModsManagerScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.ResourcePackManageScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.SavesManagerScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.ShadersManagerScreen
+import com.movtery.zalithlauncher.ui.screens.content.versions.UpdateLoaderScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionConfigScreen
 import com.movtery.zalithlauncher.ui.screens.content.versions.VersionOverViewScreen
 import com.movtery.zalithlauncher.ui.screens.navigateOnce
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import java.nio.channels.UnresolvedAddressException
+
+/** 更新加载器状态操作 */
+private sealed interface UpdateLoaderOperation {
+    data object None: UpdateLoaderOperation
+    /** 提醒加载器的变更情况 */
+    data class Tip(val diffs: AddonDiffs, val info: GameDownloadInfo): UpdateLoaderOperation
+    /** 警告通知权限，可以无视，并直接开始安装 */
+    data class WarningForNotification(val diffs: AddonDiffs, val info: GameDownloadInfo): UpdateLoaderOperation
+    /** 开始安装 */
+    data object Install: UpdateLoaderOperation
+    /** 安装过程中出现异常 */
+    data class Error(val th: Throwable): UpdateLoaderOperation
+}
+
+private class UpdateLoaderViewModel: ViewModel() {
+    var installOperation by mutableStateOf<UpdateLoaderOperation>(UpdateLoaderOperation.None)
+
+    /**
+     * 游戏安装器
+     */
+    var installer by mutableStateOf<GameInstaller?>(null)
+
+    fun install(
+        context: Context,
+        info: GameDownloadInfo,
+        backToMainScreen: () -> Unit
+    ) {
+        installOperation = UpdateLoaderOperation.Install
+        installer = GameInstaller(context, info, viewModelScope).also {
+            it.updateLoader(
+                onInstalled = {
+                    installer = null
+                    installOperation = UpdateLoaderOperation.None
+
+                    viewModelScope.launch(Dispatchers.Main) {
+                        backToMainScreen()
+                        VersionsManager.refresh("[UpdateLoader] GameInstaller.onInstalled")
+
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.download_install_success_title)
+                            .setMessage(R.string.versions_update_loader_success_message)
+                            .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                },
+                onError = { th ->
+                    installer = null
+                    installOperation = UpdateLoaderOperation.Error(th)
+                }
+            )
+        }
+    }
+
+    fun cancel() {
+        installer?.cancelInstall()
+        installer = null
+        installOperation = UpdateLoaderOperation.None
+    }
+
+    override fun onCleared() {
+        cancel()
+    }
+}
+
+@Composable
+private fun rememberUpdateLoaderViewModel(
+    key: NestedNavKey.VersionSettings
+): UpdateLoaderViewModel {
+    return viewModel(
+        key = key.toString() + "_UpdateLoader"
+    ) {
+        UpdateLoaderViewModel()
+    }
+}
 
 @Composable
 fun VersionSettingsScreen(
@@ -88,6 +200,21 @@ fun VersionSettingsScreen(
     launchGameViewModel: LaunchGameViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel = rememberUpdateLoaderViewModel(key = key)
+
+    UpdateLoaderOperation(
+        operation = viewModel.installOperation,
+        changeOperation = { viewModel.installOperation = it },
+        installer = viewModel.installer,
+        onInstall = { info ->
+            viewModel.install(context, info, backToMainScreen)
+        },
+        onCancel = {
+            viewModel.cancel()
+        }
+    )
+
     BaseScreen(
         screenKey = key,
         currentKey = backScreenViewModel.mainScreen.currentKey
@@ -97,12 +224,14 @@ fun VersionSettingsScreen(
                 isVisible = isVisible,
                 backStack = key.backStack,
                 versionsScreenKey = key.currentKey,
+                canUpdateLoader = key.version.getVersionInfo()?.loaderInfo?.loader?.autoDownloadable == true,
                 modifier = Modifier.fillMaxHeight()
             )
 
             NavigationUI(
                 modifier = Modifier.fillMaxHeight(),
                 key = key,
+                viewModel = viewModel,
                 backScreenViewModel = backScreenViewModel,
                 versionsScreenKey = key.currentKey,
                 onCurrentKeyChange = { newKey ->
@@ -120,6 +249,7 @@ fun VersionSettingsScreen(
 private val settingItems = listOf(
     CategoryItem(NormalNavKey.Versions.OverView, { CategoryIcon(Icons.Outlined.Dashboard, R.string.versions_settings_overview) }, R.string.versions_settings_overview),
     CategoryItem(NormalNavKey.Versions.Config, { CategoryIcon(Icons.Outlined.Build, R.string.versions_settings_config) }, R.string.versions_settings_config),
+    CategoryItem(NormalNavKey.Versions.UpdateLoader, { CategoryIcon(Icons.Default.Update, R.string.versions_update_loader) }, R.string.versions_update_loader),
     CategoryItem(NormalNavKey.Versions.ModsManager, { CategoryIcon(Icons.Outlined.Extension, R.string.mods_manage) }, R.string.mods_manage, division = true),
     CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage),
     CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
@@ -131,6 +261,7 @@ private fun TabMenu(
     isVisible: Boolean,
     backStack: NavBackStack<NavKey>,
     versionsScreenKey: NavKey?,
+    canUpdateLoader: Boolean,
     modifier: Modifier = Modifier
 ) {
     val xOffset by swapAnimateDpAsState(
@@ -150,7 +281,12 @@ private fun TabMenu(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(12.dp))
-        settingItems.forEach { item ->
+        settingItems.fastForEach { item ->
+            if (!canUpdateLoader && item.key == NormalNavKey.Versions.UpdateLoader) {
+                //无法更新模组加载器，跳过这个选项
+                return@fastForEach
+            }
+
             if (item.division) {
                 HorizontalDivider(
                     modifier = Modifier
@@ -188,6 +324,7 @@ private fun TabMenu(
 private fun NavigationUI(
     modifier: Modifier = Modifier,
     key: NestedNavKey.VersionSettings,
+    viewModel: UpdateLoaderViewModel,
     backScreenViewModel: ScreenBackStackViewModel,
     versionsScreenKey: NavKey?,
     onCurrentKeyChange: (NavKey?) -> Unit,
@@ -196,6 +333,7 @@ private fun NavigationUI(
     version: Version,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
+    val context = LocalContext.current
     val mainScreenKey = backScreenViewModel.mainScreen.currentKey
 
     val backStack = key.backStack
@@ -231,6 +369,24 @@ private fun NavigationUI(
                         backToMainScreen = backToMainScreen,
                         submitError = submitError
                     )
+                }
+                entry<NormalNavKey.Versions.UpdateLoader> {
+                    UpdateLoaderScreen(
+                        mainScreenKey = mainScreenKey,
+                        versionsScreenKey = versionsScreenKey,
+                        version = version
+                    ) { diffs, info ->
+                        if (viewModel.installOperation !is UpdateLoaderOperation.None) {
+                            //不是待安装状态，拒绝此次安装
+                            return@UpdateLoaderScreen
+                        }
+                        if (!NotificationManager.checkNotificationEnabled(context)) {
+                            //警告通知权限
+                            viewModel.installOperation = UpdateLoaderOperation.WarningForNotification(diffs, info)
+                        } else {
+                            viewModel.installOperation = UpdateLoaderOperation.Tip(diffs, info)
+                        }
+                    }
                 }
                 entry(NormalNavKey.Versions.ModsManager) {
                     ModsManagerScreen(
@@ -302,5 +458,141 @@ private fun NavigationUI(
         )
     } else {
         Box(modifier)
+    }
+}
+
+@Composable
+private fun UpdateLoaderOperation(
+    operation: UpdateLoaderOperation,
+    changeOperation: (UpdateLoaderOperation) -> Unit,
+    installer: GameInstaller?,
+    onInstall: (GameDownloadInfo) -> Unit,
+    onCancel: () -> Unit
+) {
+    when (operation) {
+        is UpdateLoaderOperation.None -> {}
+        is UpdateLoaderOperation.WarningForNotification -> {
+            NotificationCheck(
+                onGranted = {
+                    changeOperation(UpdateLoaderOperation.Tip(operation.diffs, operation.info))
+                },
+                onIgnore = {
+                    changeOperation(UpdateLoaderOperation.Tip(operation.diffs, operation.info))
+                },
+                onDismiss = {
+                    changeOperation(UpdateLoaderOperation.None)
+                }
+            )
+        }
+        is UpdateLoaderOperation.Tip -> {
+            val dismiss = {
+                changeOperation(UpdateLoaderOperation.None)
+            }
+            AlertDialog(
+                onDismissRequest = dismiss,
+                title = {
+                    Text(text = stringResource(R.string.generic_tip))
+                },
+                text = {
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .verticalScroll(state = scrollState),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = stringResource(R.string.versions_update_loader_diff_message))
+
+                        //格式化差异文本
+                        operation.diffs.list.forEach { diff ->
+                            val modloader = diff.getLoader().displayName
+                            val string = when (diff) {
+                                is AddonDiffs.VersionChangeDiff -> {
+                                    stringResource(R.string.versions_update_loader_diff_change, modloader, diff.original, diff.updateTo)
+                                }
+                                is AddonDiffs.RemoveDiff -> {
+                                    stringResource(R.string.versions_update_loader_diff_remove, modloader)
+                                }
+                                is AddonDiffs.NewLoadDiff -> {
+                                    stringResource(R.string.versions_update_loader_diff_load, modloader, diff.version)
+                                }
+                            }
+                            Text(text = string)
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { onInstall(operation.info) }
+                    ) {
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = dismiss) {
+                        MarqueeText(text = stringResource(R.string.generic_cancel))
+                    }
+                }
+            )
+        }
+        is UpdateLoaderOperation.Install -> {
+            if (installer != null) {
+                val updateLoader by installer.tasksFlow.collectAsState()
+                if (updateLoader.isNotEmpty()) {
+                    //安装/变更加载器流程对话框
+                    TitleTaskFlowDialog(
+                        title = stringResource(R.string.versions_update_loader),
+                        tasks = updateLoader,
+                        onCancel = {
+                            onCancel()
+                            changeOperation(UpdateLoaderOperation.None)
+                        }
+                    )
+                }
+            }
+        }
+        is UpdateLoaderOperation.Error -> {
+            val th = operation.th
+            lError("Failed to download the game!", th)
+            val message = when (th) {
+                is HttpRequestTimeoutException, is SocketTimeoutException -> stringResource(R.string.error_timeout)
+                is UnknownHostException, is UnresolvedAddressException -> stringResource(R.string.error_network_unreachable)
+                is ConnectException -> stringResource(R.string.error_connection_failed)
+                is SerializationException, is JsonSyntaxException -> stringResource(R.string.error_parse_failed)
+                is CantFetchingOptiFineUrlException -> stringResource(R.string.download_install_error_cant_fetch_optifine_download_url)
+                is JvmCrashException -> stringResource(R.string.download_install_error_jvm_crash, th.code)
+                is DownloadFailedException -> stringResource(R.string.download_install_error_download_failed)
+                else -> {
+                    val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"
+                    stringResource(R.string.error_unknown, errorMessage)
+                }
+            }
+            val dismiss = {
+                changeOperation(UpdateLoaderOperation.None)
+            }
+            AlertDialog(
+                onDismissRequest = dismiss,
+                title = {
+                    Text(text = stringResource(R.string.download_install_error_title))
+                },
+                text = {
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .verticalScroll(state = scrollState),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(text = stringResource(R.string.versions_update_loader_error_message))
+                        Text(text = message)
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = dismiss) {
+                        MarqueeText(text = stringResource(R.string.generic_confirm))
+                    }
+                }
+            )
+        }
     }
 }

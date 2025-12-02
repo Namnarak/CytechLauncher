@@ -27,6 +27,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.game.version.installed.utils.parseJsonToVersionInfo
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -86,10 +87,11 @@ object VersionsManager {
         else folder.exists()
     }
 
-    fun refresh() {
+    fun refresh(tag: String) {
         currentJob?.cancel()
         currentJob = scope.launch {
             isRefreshing = true
+            lDebug("Initiated by $tag: starting to refresh the version list.")
 
             _versions.update { emptyList() }
             _vanillaVersions.update { emptyList() }
@@ -119,6 +121,7 @@ object VersionsManager {
             _modloaderVersions.update { newVersions.filter { ver -> ver.versionType == VersionType.MODLOADERS } }
 
             currentGameInfo = refreshCurrentInfo()
+            lDebug("Version list refreshed, refreshing the current version now.")
             refreshCurrentVersion()
 
             isRefreshing = false
@@ -166,21 +169,26 @@ object VersionsManager {
         currentVersion = run {
             if (_versions.value.isEmpty()) return@run null
 
-            fun returnVersionByFirst(): Version? {
+            fun getVersionByFirst(): Version? {
                 return _versions.value.find { it.isValid() }?.apply {
                     //确保版本有效
-                    saveCurrentVersion(getVersionName())
+                    saveCurrentVersion(getVersionName(), refresh = false)
                 }
             }
 
             runCatching {
                 val versionString = currentGameInfo!!.version
-                getVersion(versionString) ?: returnVersionByFirst()
+                getVersion(versionString) ?: run {
+                    lDebug("Stored version $versionString not found, using the first available version instead.")
+                    getVersionByFirst()
+                }
             }.onFailure { e ->
                 lWarning("The current version information has not been initialized yet.", e)
             }.getOrElse {
-                returnVersionByFirst()
+                getVersionByFirst()
             }
+        }.also { version ->
+            lDebug("The current version is: ${version?.getVersionName()}")
         }
     }
 
@@ -235,13 +243,16 @@ object VersionsManager {
     /**
      * 保存当前选择的版本
      */
-    fun saveCurrentVersion(versionName: String) {
+    fun saveCurrentVersion(versionName: String, refresh: Boolean = true) {
         runCatching {
             currentGameInfo!!.apply {
                 version = versionName
                 saveCurrentInfo()
             }
-            refreshCurrentVersion()
+            if (refresh) {
+                lDebug("Current game info file saved, refreshing the current version now.")
+                refreshCurrentVersion()
+            }
         }.onFailure { e ->
             lError("An exception occurred while saving the currently selected version information.", e)
         }
@@ -303,7 +314,7 @@ object VersionsManager {
             saveCurrentVersion(name)
         }
 
-        refresh()
+        refresh("VersionsManager.renameVersion")
     }
 
     /**
@@ -349,7 +360,7 @@ object VersionsManager {
             config.saveWithThrowable()
         }
 
-        refresh()
+        refresh("VersionsManager.copyVersion")
     }
 
     /**
@@ -357,6 +368,6 @@ object VersionsManager {
      */
     fun deleteVersion(version: Version) {
         FileUtils.deleteQuietly(version.getVersionPath())
-        refresh()
+        refresh("VersionsManager.deleteVersion")
     }
 }
