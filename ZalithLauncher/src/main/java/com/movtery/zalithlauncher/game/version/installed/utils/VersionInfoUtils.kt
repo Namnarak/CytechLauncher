@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import java.io.File
 
 private const val VERSION_PATTERN = """(\d+\.\d+\.\d+|\d{2}w\d{2}[a-z])"""
@@ -37,7 +38,8 @@ private val OPTIFINE_ID_REGEX = """$VERSION_PATTERN-OptiFine""".toRegex()
 // "1.21.3-forge-53.0.23"               -> 1.21.3
 private val FORGE_REGEX = """$VERSION_PATTERN-forge""".toRegex()
 // "1.7.10-Forge10.13.4.1614-1.7.10"    -> 1.7.10
-private val FORGE_OLD_REGEX = """^$VERSION_PATTERN-Forge""".toRegex()
+// "1.7.2-10.12.2.1161-mc172"           -> 1.7.2
+private val FORGE_OLD_REGEX = """^$VERSION_PATTERN-(Forge[\d.]*)-mc\d+""".toRegex()
 // "fabric-loader-0.15.7-1.20.4"        -> 1.20.4
 // "fabric-loader-0.16.9-1.21.3"        -> 1.21.3
 private val FABRIC_REGEX = """fabric-loader-[\w.-]+-$VERSION_PATTERN""".toRegex()
@@ -143,6 +145,13 @@ private fun extractMinecraftVersion(json: JsonObject): String {
         }
     }
 
+    //尝试识别PCL导出的整合包给的版本
+    //PCL顺手加的 [按住 W 开始思索]
+    if (json.has("clientVersion") && json.get("clientVersion").isJsonPrimitive) {
+        val clientVersion = json.get("clientVersion").asString
+        if (clientVersion.isNotEmptyOrBlank()) return clientVersion
+    }
+
     //尝试从 LaunchFor (ZL安装的版本) 获取信息
     json.getAsJsonObject("launchFor")
         ?.getAsJsonArray("infos")
@@ -192,8 +201,10 @@ private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
                     //新版：1.21.4-54.0.26                 -> 54.0.26
                     version.count { it == '-' } == 1 -> version.substringAfterLast('-')
                     //旧版：1.7.10-10.13.4.1614-1.7.10     -> 10.13.4.1614
+                    //旧版：1.7.2-10.12.2.1161-mc172       -> 10.12.2.1161
                     version.count { it == '-' } >= 2 -> version.split("-").let { parts ->
                         when {
+                            parts.size >= 3 && parts.last().startsWith("mc") -> parts[1]
                             parts.size >= 3 && parts[0] == parts.last() -> parts[1]
                             else -> version
                         }

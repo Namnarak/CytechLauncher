@@ -189,7 +189,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                         return@fastFilter false
                                     }
 
-                                    val size = widget.size
+                                    val size = widget.internalRenderSize
                                     val offset = getWidgetPosition(widget, size, screenSize)
 
                                     val x = position.x
@@ -251,7 +251,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                     //检查组件是否可以响应移除边界即松开
                                     if (!widget.isReleaseOnOutOfBounds()) continue
 
-                                    val size = widget.size
+                                    val size = widget.internalRenderSize
                                     val offset = getWidgetPosition(widget, size, screenSize)
                                     val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
                                             position.y !in offset.y..(offset.y + size.height)
@@ -345,52 +345,37 @@ private fun ControlsRendererLayer(
         }
 
         var index = 0
-        layers.fastForEach { layer ->
-            layer.textBoxes.value.fastForEach { data ->
-                if (index < placeables.size) {
-                    val placeable = placeables[index]
-                    data.size = IntSize(placeable.width, placeable.height)
-                    index++
-                }
+        fun ObservableWidget.putSize() {
+            if (index < placeables.size) {
+                val placeable = placeables[index]
+                this.internalRenderSize = IntSize(placeable.width, placeable.height)
+                index++
             }
+        }
 
-            layer.normalButtons.value.fastForEach { data ->
-                if (index < placeables.size) {
-                    val placeable = placeables[index]
-                    data.size = IntSize(placeable.width, placeable.height)
-                    index++
-                }
-            }
+        layers.fastForEach { layer ->
+            layer.textBoxes.value.fastForEach { it.putSize() }
+            layer.normalButtons.value.fastForEach { it.putSize() }
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             var placeableIndex = 0
-            layers.fastForEach { layer ->
-                layer.textBoxes.value.fastForEach { data ->
-                    if (placeableIndex < placeables.size) {
-                        val placeable = placeables[placeableIndex]
-                        val position = getWidgetPosition(
-                            data = data,
-                            widgetSize = IntSize(placeable.width, placeable.height),
-                            screenSize = screenSize
-                        )
-                        placeable.place(position.x.toInt(), position.y.toInt())
-                        placeableIndex++
-                    }
+            fun ObservableWidget.place() {
+                if (placeableIndex < placeables.size) {
+                    val placeable = placeables[placeableIndex]
+                    val position = getWidgetPosition(
+                        data = this,
+                        widgetSize = IntSize(placeable.width, placeable.height),
+                        screenSize = screenSize
+                    )
+                    placeable.place(position.x.toInt(), position.y.toInt())
+                    placeableIndex++
                 }
+            }
 
-                layer.normalButtons.value.fastForEach { data ->
-                    if (placeableIndex < placeables.size) {
-                        val placeable = placeables[placeableIndex]
-                        val position = getWidgetPosition(
-                            data = data,
-                            widgetSize = IntSize(placeable.width, placeable.height),
-                            screenSize = screenSize
-                        )
-                        placeable.place(position.x.toInt(), position.y.toInt())
-                        placeableIndex++
-                    }
-                }
+            layers.fastForEach { layer ->
+                layer.textBoxes.value.fastForEach { it.place() }
+                layer.normalButtons.value.fastForEach { it.place() }
             }
         }
     }

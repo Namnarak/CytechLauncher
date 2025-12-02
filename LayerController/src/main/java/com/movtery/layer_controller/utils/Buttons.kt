@@ -49,8 +49,6 @@ import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.toAndroidShape
 import com.movtery.layer_controller.observable.ObservableButtonStyle
-import com.movtery.layer_controller.observable.ObservableNormalData
-import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
@@ -86,7 +84,7 @@ internal fun Modifier.editMode(
     onTapInEditMode: () -> Unit = {}
 ): Modifier {
     val screenSize1 by rememberUpdatedState(screenSize)
-    val widgetSize by rememberUpdatedState(data.size)
+    val widgetSize by rememberUpdatedState(data.internalRenderSize)
 
     val enableSnap1 by rememberUpdatedState(enableSnap)
     val snapMode1 by rememberUpdatedState(snapMode)
@@ -155,10 +153,7 @@ internal fun Modifier.editMode(
                                 newPercentagePosition
                             }
 
-                            when (data) {
-                                is ObservableNormalData -> data.position = finalPosition
-                                is ObservableTextData -> data.position = finalPosition
-                            }
+                            data.putRenderPosition(finalPosition)
                         },
                         onDragEnd = {
                             data.isEditingPos = false
@@ -212,7 +207,7 @@ private fun calculateSnapPosition(
     val newYWithLines = mutableMapOf<Float, GuideLine>()
 
     for (otherData in otherWidgets) {
-        val otherSize = otherData.size
+        val otherSize = otherData.internalRenderSize
         val otherPosition = getWidgetPosition(otherData, otherSize, screenSize)
         val otherLeft = otherPosition.x
         val otherRight = otherPosition.x + otherSize.width
@@ -448,7 +443,7 @@ internal fun getWidgetPosition(
     screenSize: IntSize
 ): Offset {
     if (data.isEditingPos) return data.movingOffset
-    return getWidgetPosition(data.widgetPosition, widgetSize, screenSize)
+    return getWidgetPosition(data.internalRenderPosition, widgetSize, screenSize)
 }
 
 /**

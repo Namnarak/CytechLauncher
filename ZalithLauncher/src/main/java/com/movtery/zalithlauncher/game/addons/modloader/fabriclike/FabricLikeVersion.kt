@@ -24,7 +24,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.Fabric
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 
-open class FabricLikeVersion(
+abstract class FabricLikeVersion(
     /** Minecraft 版本 */
     inherit: String,
     /** 加载器名称 */
@@ -47,6 +47,11 @@ open class FabricLikeVersion(
             inherit.replace("∞", "infinite")
         }/$version/profile/json"
 
+    override fun getAddonVersion(): String = this.version
+
+    override fun isVersion(versionString: String): Boolean {
+        return this.version == versionString
+    }
 
     private fun getUrl(fabric: String, quilt: String): String =
         when (this) {

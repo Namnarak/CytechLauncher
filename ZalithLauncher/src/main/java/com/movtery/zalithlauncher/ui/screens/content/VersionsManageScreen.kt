@@ -180,7 +180,7 @@ fun VersionsManageScreen(
                 submitError = submitError,
                 onRefresh = {
                     if (!VersionsManager.isRefreshing) {
-                        VersionsManager.refresh()
+                        VersionsManager.refresh("VersionsManageScreen.onRefresh")
                     }
                 },
                 onInstall = {

@@ -157,7 +157,7 @@ private class ModpackViewModel : ViewModel() {
             it.startImport(
                 onFinished = {
                     importer = null
-                    VersionsManager.refresh()
+                    VersionsManager.refresh("[Modpack] ModpackImporter.onFinished")
                     importOperation = ModpackImportOperation.Finished
                 },
                 onError = { th ->

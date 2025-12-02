@@ -99,8 +99,12 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
-    override val widgetPosition: ButtonPosition
+    override val internalRenderPosition: ButtonPosition
         get() = position
+
+    override fun putRenderPosition(position: ButtonPosition) {
+        this.position = position
+    }
 
     override val styleId: String?
         get() = buttonStyle

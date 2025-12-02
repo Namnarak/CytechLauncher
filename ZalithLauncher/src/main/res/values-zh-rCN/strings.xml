@@ -605,6 +605,14 @@
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
     <string name="versions_config_microphone_check_title">检查麦克风</string>
     <string name="versions_config_microphone_check_summary">检查系统麦克风是否可用，或确认启动器是否已获得麦克风权限。这项检查将确保您可以使用像“简单的语音聊天”这样的需要使用麦克风的模组。</string>
+    <string name="versions_update_loader">更新加载器</string>
+    <string name="versions_update_loader_waiting_for_others">等待其他项完成加载</string>
+    <string name="versions_update_loader_diff_message">你确定要变更当前游戏的加载器吗？</string>
+    <string name="versions_update_loader_diff_change">变更：%1$s %2$s → %3$s</string>
+    <string name="versions_update_loader_diff_remove">移除：%s</string>
+    <string name="versions_update_loader_diff_load">载入：%1$s %2$s</string>
+    <string name="versions_update_loader_error_message">在安装加载器的过程中出现了异常：</string>
+    <string name="versions_update_loader_success_message">已成功变更该游戏的加载器版本！</string>
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部删除</string>
     <string name="manage_delete_all_message">您确定要删除全部选中的资源文件吗？此操作将不可撤销，请谨慎选择。</string>

@@ -44,8 +44,12 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
     var textUnderline by mutableStateOf(data.textUnderline)
     var visibilityType by mutableStateOf(data.visibilityType)
 
-    override val widgetPosition: ButtonPosition
+    override val internalRenderPosition: ButtonPosition
         get() = position
+
+    override fun putRenderPosition(position: ButtonPosition) {
+        this.position = position
+    }
 
     override val styleId: String?
         get() = buttonStyle
@@ -113,6 +117,6 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
     }
 }
 
-public fun ObservableTextData.cloneText(): ObservableTextData {
+fun ObservableTextData.cloneText(): ObservableTextData {
     return ObservableTextData(packText().cloneNew())
 }

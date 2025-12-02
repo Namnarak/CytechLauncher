@@ -36,4 +36,11 @@ open class ModVersion(
     val file: ModrinthFile
 ) : AddonVersion(
     inherit = inherit
-)
+) {
+
+    override fun getAddonVersion(): String = this.version.versionNumber
+
+    override fun isVersion(versionString: String): Boolean {
+        return this.version.versionNumber == versionString
+    }
+}

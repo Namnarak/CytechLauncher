@@ -88,11 +88,12 @@ object GamePathManager {
 
             if (!checkStoragePermissions()) {
                 currentPath = defaultGamePath
-                saveDefaultPath()
+                saveDefaultPath(false)
             } else {
-                refreshCurrentPath()
+                refreshCurrentPath(false)
             }
 
+            VersionsManager.refresh("GamePathManager.reloadPath")
             lInfo("Loaded ${_gamePathData.value.size} game paths")
         }
     }
@@ -150,8 +151,8 @@ object GamePathManager {
     /**
      * 保存为默认的游戏目录
      */
-    fun saveDefaultPath() {
-        saveCurrentPathUncheck(DEFAULT_ID)
+    fun saveDefaultPath(reloadVersions: Boolean = true) {
+        saveCurrentPathUncheck(DEFAULT_ID, reloadVersions)
     }
 
     /**
@@ -159,26 +160,28 @@ object GamePathManager {
      * @throws IllegalStateException 未授予存储/管理所有文件权限
      * @throws IllegalArgumentException 未找到匹配项
      */
-    fun saveCurrentPath(id: String) {
+    fun saveCurrentPath(id: String, reloadVersions: Boolean = true) {
         if (!checkStoragePermissions()) throw IllegalStateException("Storage permissions are not granted")
         if (!containsId(id)) throw IllegalArgumentException("No match found!")
-        saveCurrentPathUncheck(id)
+        saveCurrentPathUncheck(id, reloadVersions)
     }
 
-    private fun saveCurrentPathUncheck(id: String) {
+    private fun saveCurrentPathUncheck(id: String, reloadVersions: Boolean) {
         if (currentGamePathId.getValue() == id) return
         currentGamePathId.save(id)
-        refreshCurrentPath()
+        refreshCurrentPath(reloadVersions)
     }
 
-    private fun refreshCurrentPath() {
+    private fun refreshCurrentPath(reloadVersions: Boolean) {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
             if (currentPath == item.path) return //避免重复刷新
             currentPath = item.path
             currentPath.createNoMediaFile()
-            VersionsManager.refresh()
-        } ?: saveCurrentPath(DEFAULT_ID)
+            if (reloadVersions) {
+                VersionsManager.refresh("GamePathManager.refreshCurrentPath")
+            }
+        } ?: saveCurrentPath(DEFAULT_ID, reloadVersions)
     }
 
     private fun generateUUID(): String {

@@ -217,7 +217,7 @@ private fun RightMenu(
                         .padding(8.dp),
                     swapToVersionManage = toVersionManageScreen
                 )
-                version?.takeIf { it.isValid() }?.let {
+                version?.takeIf { !VersionsManager.isRefreshing && it.isValid() }?.let {
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
                         onClick = toVersionSettingsScreen
@@ -256,59 +256,55 @@ private fun VersionManagerLayout(
     modifier: Modifier = Modifier,
     swapToVersionManage: () -> Unit = {}
 ) {
-    Box(
+    Row(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.large)
             .clickable(onClick = swapToVersionManage)
+            .padding(PaddingValues(all = 8.dp))
     ) {
-        Row(
-            modifier = Modifier
-                .padding(PaddingValues(all = 8.dp))
-        ) {
-            if (VersionsManager.isRefreshing) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.Center))
-                }
-            } else {
-                VersionIconImage(
-                    version = version,
-                    modifier = Modifier
-                        .size(28.dp)
-                        .align(Alignment.CenterVertically)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+        if (VersionsManager.isRefreshing) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                CircularProgressIndicator(modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.Center))
+            }
+        } else {
+            VersionIconImage(
+                version = version,
+                modifier = Modifier
+                    .size(28.dp)
+                    .align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
 
-                if (version == null) {
+            if (version == null) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .basicMarquee(iterations = Int.MAX_VALUE),
+                    text = stringResource(R.string.versions_manage_no_versions),
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
+                ) {
                     Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .basicMarquee(iterations = Int.MAX_VALUE),
-                        text = stringResource(R.string.versions_manage_no_versions),
+                        modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                        text = version.getVersionName(),
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 1
                     )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(Alignment.CenterVertically)
-                    ) {
+                    if (version.isValid()) {
                         Text(
                             modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                            text = version.getVersionName(),
-                            style = MaterialTheme.typography.labelMedium,
+                            text = version.getVersionSummary(),
+                            style = MaterialTheme.typography.labelSmall,
                             maxLines = 1
                         )
-                        if (version.isValid()) {
-                            Text(
-                                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                                text = version.getVersionSummary(),
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1
-                            )
-                        }
                     }
                 }
             }

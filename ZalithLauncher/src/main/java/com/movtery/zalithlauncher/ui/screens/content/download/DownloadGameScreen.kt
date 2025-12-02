@@ -117,7 +117,7 @@ private class GameDownloadViewModel(): ViewModel() {
             it.installGame(
                 onInstalled = {
                     installer = null
-                    VersionsManager.refresh()
+                    VersionsManager.refresh("[DownloadGame] GameInstaller.onInstalled")
                     installOperation = GameInstallOperation.Success
                     refreshVersionNameCheck()
                 },

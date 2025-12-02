@@ -23,7 +23,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.AddonVersion
 /**
  * [Reference PCL2](https://github.com/Hex-Dragon/PCL2/blob/44aea3e/Plain%20Craft%20Launcher%202/Modules/Minecraft/ModDownload.vb#L512-L563)
  */
-open class ForgeLikeVersion(
+abstract class ForgeLikeVersion(
     /** 加载器展示名称 */
     val loaderName: String,
     /** 标准化后的版本号，仅可用于比较与排序 */
@@ -42,4 +42,11 @@ open class ForgeLikeVersion(
      * NeoForge：MC 版本是否为 1.20.1。（1.20.1 的版本号首位人为规定为 19 开头）
      */
     val isLegacy: Boolean get() = forgeBuildVersion.major < 20
+
+    override fun getAddonVersion(): String = forgeBuildVersion.toString()
+
+    override fun isVersion(versionString: String): Boolean {
+        val target = ForgeBuildVersion.parse(versionString).toString()
+        return target == forgeBuildVersion.toString()
+    }
 }

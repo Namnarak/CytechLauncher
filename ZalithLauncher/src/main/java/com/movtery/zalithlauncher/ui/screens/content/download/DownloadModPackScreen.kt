@@ -152,7 +152,7 @@ private class ModPackViewModel: ViewModel() {
             it.installModPack(
                 onInstalled = {
                     installer = null
-                    VersionsManager.refresh()
+                    VersionsManager.refresh("[Modpack] ModPackInstaller.onInstalled")
                     installOperation = ModPackInstallOperation.Success
                 },
                 onError = { th ->

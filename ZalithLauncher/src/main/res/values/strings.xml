@@ -606,6 +606,14 @@
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
     <string name="versions_config_microphone_check_title">Check Microphone</string>
     <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
+    <string name="versions_update_loader">Update Loader</string>
+    <string name="versions_update_loader_waiting_for_others">Waiting for other items to finish loading</string>
+    <string name="versions_update_loader_diff_message">Are you sure you want to change the current game\'s loader?</string>
+    <string name="versions_update_loader_diff_change">Change: %1$s %2$s → %3$s</string>
+    <string name="versions_update_loader_diff_remove">Remove: %s</string>
+    <string name="versions_update_loader_diff_load">Load: %1$s %2$s</string>
+    <string name="versions_update_loader_error_message">An error occurred while installing the loader:</string>
+    <string name="versions_update_loader_success_message">The game\'s loader version has been successfully updated!</string>
     <string name="manage_only_show_valid">Available</string>
     <string name="manage_delete_all">Delete All</string>
     <string name="manage_delete_all_message">Are you sure you want to delete all selected resource files? This action cannot be undone. Please proceed with caution.</string>

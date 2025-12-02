@@ -44,4 +44,10 @@ class OptiFineVersion(
      */
     val realVersion: String
         get() = displayName.removePrefix(inherit).trim()
+
+    override fun getAddonVersion(): String = this.version
+
+    override fun isVersion(versionString: String): Boolean {
+        return this.version == versionString
+    }
 }

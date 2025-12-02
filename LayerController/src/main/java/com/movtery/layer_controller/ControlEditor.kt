@@ -46,7 +46,6 @@ import com.movtery.layer_controller.utils.getWidgetPosition
 import com.movtery.layer_controller.utils.snap.GuideLine
 import com.movtery.layer_controller.utils.snap.LineDirection
 import com.movtery.layer_controller.utils.snap.SnapMode
-import kotlin.math.roundToInt
 
 /**
  * 控制布局编辑器渲染层
@@ -240,52 +239,37 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
         }
 
         var index = 0
-        renderingLayers.fastForEach { layer ->
-            layer.textBoxes.value.fastForEach { data ->
-                if (index < placeables.size) {
-                    val placeable = placeables[index]
-                    data.size = IntSize(placeable.width, placeable.height)
-                    index++
-                }
+        fun ObservableWidget.putSize() {
+            if (index < placeables.size) {
+                val placeable = placeables[index]
+                this.internalRenderSize = IntSize(placeable.width, placeable.height)
+                index++
             }
+        }
 
-            layer.normalButtons.value.fastForEach { data ->
-                if (index < placeables.size) {
-                    val placeable = placeables[index]
-                    data.size = IntSize(placeable.width, placeable.height)
-                    index++
-                }
-            }
+        renderingLayers.fastForEach { layer ->
+            layer.textBoxes.value.fastForEach { it.putSize() }
+            layer.normalButtons.value.fastForEach { it.putSize() }
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             var placeableIndex = 0
-            renderingLayers.fastForEach { layer ->
-                layer.textBoxes.value.fastForEach { data ->
-                    if (placeableIndex < placeables.size) {
-                        val placeable = placeables[placeableIndex]
-                        val position = getWidgetPosition(
-                            data = data,
-                            widgetSize = IntSize(placeable.width, placeable.height),
-                            screenSize = screenSize
-                        )
-                        placeable.place(position.x.toInt(), position.y.toInt())
-                        placeableIndex++
-                    }
+            fun ObservableWidget.place() {
+                if (placeableIndex < placeables.size) {
+                    val placeable = placeables[placeableIndex]
+                    val position = getWidgetPosition(
+                        data = this,
+                        widgetSize = IntSize(placeable.width, placeable.height),
+                        screenSize = screenSize
+                    )
+                    placeable.place(position.x.toInt(), position.y.toInt())
+                    placeableIndex++
                 }
+            }
 
-                layer.normalButtons.value.fastForEach { data ->
-                    if (placeableIndex < placeables.size) {
-                        val placeable = placeables[placeableIndex]
-                        val position = getWidgetPosition(
-                            data = data,
-                            widgetSize = IntSize(placeable.width, placeable.height),
-                            screenSize = screenSize
-                        )
-                        placeable.place(position.x.roundToInt(), position.y.roundToInt())
-                        placeableIndex++
-                    }
-                }
+            renderingLayers.fastForEach { layer ->
+                layer.textBoxes.value.fastForEach { it.place() }
+                layer.normalButtons.value.fastForEach { it.place() }
             }
         }
     }
