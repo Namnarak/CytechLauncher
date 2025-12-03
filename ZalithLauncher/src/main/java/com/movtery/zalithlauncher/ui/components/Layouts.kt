@@ -489,6 +489,7 @@ fun SwitchLayout(
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
     shape: Shape = RoundedCornerShape(22.0.dp),
     trailingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
@@ -498,7 +499,8 @@ fun SwitchLayout(
             .clip(shape = shape)
             .clickable(enabled = enabled) { onCheckedChange(!checked) }
             .padding(all = 8.dp)
-            .padding(bottom = 4.dp)
+            .padding(bottom = 4.dp),
+        verticalAlignment = verticalAlignment
     ) {
         Column(
             modifier = Modifier

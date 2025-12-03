@@ -43,6 +43,7 @@ const val URL_PROJECT: String = "https://github.com/ZalithLauncher/ZalithLaunche
 const val URL_COMMUNITY: String = "https://github.com/ZalithLauncher/ZalithLauncher2/graphs/contributors"
 const val URL_WEBLATE: String = "https://hosted.weblate.org/projects/zalithlauncher2"
 const val URL_SUPPORT: String = "https://afdian.com/a/MovTery"
+const val URL_EASYTIER: String = "https://easytier.cn/"
 
 val GLOBAL_JSON = Json {
     ignoreUnknownKeys = true

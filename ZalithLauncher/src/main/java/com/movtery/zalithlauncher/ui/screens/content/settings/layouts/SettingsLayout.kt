@@ -69,6 +69,7 @@ class SettingsLayoutScope {
         title: String,
         summary: String? = null,
         enabled: Boolean = true,
+        verticalAlignment: Alignment.Vertical = Alignment.Top,
         onCheckedChange: (Boolean) -> Unit = {},
         trailingIcon: @Composable (RowScope.() -> Unit)? = null
     ) {
@@ -82,6 +83,7 @@ class SettingsLayoutScope {
             title = title,
             summary = summary,
             enabled = enabled,
+            verticalAlignment = verticalAlignment,
             trailingIcon = trailingIcon
         )
     }
@@ -273,14 +275,16 @@ class SettingsLayoutScope {
         modifier: Modifier = Modifier,
         title: String,
         summary: String? = null,
+        enabled: Boolean = true,
         onClick: () -> Unit = {}
     ) {
         Column(
             modifier = modifier
                 .clip(shape = RoundedCornerShape(22.0.dp))
-                .clickable(onClick = onClick)
+                .clickable(onClick = onClick, enabled = enabled)
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
+                .alpha(if (enabled) 1f else 0.5f)
         ) {
             TitleAndSummary(
                 title = title,

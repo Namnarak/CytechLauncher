@@ -256,6 +256,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
     }
 
+    override fun onDestroy() {
+        runIfHandlerInitialized { it.onDestroy(this@VMActivity) }
+        super.onDestroy()
+    }
+
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val code = AllSettings.physicalKeyImeCode.state

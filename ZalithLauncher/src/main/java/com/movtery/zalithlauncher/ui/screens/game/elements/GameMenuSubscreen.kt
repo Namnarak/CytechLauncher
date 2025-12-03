@@ -91,6 +91,8 @@ fun GameMenuSubscreen(
     closeScreen: () -> Unit,
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
+    enableTerracotta: Boolean,
+    onOpenTerracottaMenu: () -> Unit,
     onRefreshWindowSize: () -> Unit,
     onInputMethod: () -> Unit,
     onSendKeycode: () -> Unit,
@@ -199,6 +201,22 @@ fun GameMenuSubscreen(
                         text = stringResource(R.string.game_menu_option_switch_log),
                         onClick = onSwitchLog
                     )
+                }
+
+                //如果开启多人联机，则展示这个按钮
+                if (enableTerracotta) {
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    //打开联机菜单
+                    item {
+                        MenuTextButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(R.string.terracotta_menu),
+                            onClick = onOpenTerracottaMenu
+                        )
+                    }
                 }
 
                 item {

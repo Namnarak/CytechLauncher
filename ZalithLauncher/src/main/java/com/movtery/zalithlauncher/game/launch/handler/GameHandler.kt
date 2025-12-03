@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.launch.handler
 
+import android.app.Activity
 import android.content.Context
 import android.view.KeyEvent
 import android.view.Surface
@@ -43,6 +44,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.ui.control.gamepad.isGamepadKeyEvent
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -110,6 +112,10 @@ class GameHandler(
     override fun onResume() {
         refreshControls()
         eventViewModel.sendEvent(EventViewModel.Event.Game.OnResume)
+    }
+
+    override fun onDestroy(activity: Activity) {
+        Terracotta.setWaiting(activity, false)
     }
 
     override fun onGraphicOutput() {

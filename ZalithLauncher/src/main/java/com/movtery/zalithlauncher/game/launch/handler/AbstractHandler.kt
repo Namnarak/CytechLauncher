@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.launch.handler
 
+import android.app.Activity
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.annotation.CallSuper
@@ -56,6 +57,7 @@ abstract class AbstractHandler(
 
     abstract fun onPause()
     abstract fun onResume()
+    abstract fun onDestroy(activity: Activity)
     abstract fun onGraphicOutput()
     abstract fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean
     abstract fun sendMouseRight(isPressed: Boolean)
