@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
@@ -71,7 +72,9 @@ class SettingsLayoutScope {
         enabled: Boolean = true,
         verticalAlignment: Alignment.Vertical = Alignment.Top,
         onCheckedChange: (Boolean) -> Unit = {},
-        trailingIcon: @Composable (RowScope.() -> Unit)? = null
+        trailingIcon: @Composable (RowScope.() -> Unit)? = null,
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
     ) {
         SwitchLayout(
             checked = unit.state,
@@ -84,7 +87,9 @@ class SettingsLayoutScope {
             summary = summary,
             enabled = enabled,
             verticalAlignment = verticalAlignment,
-            trailingIcon = trailingIcon
+            trailingIcon = trailingIcon,
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
         )
     }
 
@@ -99,7 +104,9 @@ class SettingsLayoutScope {
         suffix: String? = null,
         onValueChange: (Int) -> Unit = {},
         enabled: Boolean = true,
-        fineTuningControl: Boolean = false
+        fineTuningControl: Boolean = false,
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
     ) {
         var value by rememberSaveable { mutableIntStateOf(unit.getValue()) }
 
@@ -118,7 +125,9 @@ class SettingsLayoutScope {
             },
             onValueChangeFinished = { unit.save(value) },
             enabled = enabled,
-            fineTuningControl = fineTuningControl
+            fineTuningControl = fineTuningControl,
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
         )
     }
 
@@ -133,6 +142,8 @@ class SettingsLayoutScope {
         getRadioText: @Composable (E) -> String,
         getRadioEnable: (E) -> Boolean,
         maxItemsInEachRow: Int = Int.MAX_VALUE,
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
         onRadioClick: (E) -> Unit = {},
         onValueChange: (E) -> Unit = {}
     ) {
@@ -144,7 +155,9 @@ class SettingsLayoutScope {
         ) {
             TitleAndSummary(
                 title = title,
-                summary = summary
+                summary = summary,
+                titleStyle = titleStyle,
+                summaryStyle = summaryStyle
             )
             FlowRow(
                 modifier = Modifier
@@ -191,6 +204,8 @@ class SettingsLayoutScope {
         getItemSummary: (@Composable (E) -> Unit)? = null,
         enabled: Boolean = true,
         itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
         onValueChange: (E) -> Unit = {}
     ) {
         SimpleListLayout(
@@ -208,7 +223,9 @@ class SettingsLayoutScope {
             onValueChange = { item ->
                 unit.save(getItemId(item))
                 onValueChange(item)
-            }
+            },
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
         )
     }
 
@@ -223,6 +240,8 @@ class SettingsLayoutScope {
         getItemSummary: (@Composable (E) -> Unit)? = null,
         enabled: Boolean = true,
         itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
         onValueChange: (E) -> Unit = {}
     ) {
         SimpleListLayout(
@@ -240,7 +259,9 @@ class SettingsLayoutScope {
             onValueChange = { item ->
                 unit.save(item)
                 onValueChange(item)
-            }
+            },
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
         )
     }
 
@@ -252,7 +273,9 @@ class SettingsLayoutScope {
         summary: String? = null,
         label: String? = null,
         onValueChange: (String) -> Unit = {},
-        singleLine: Boolean = true
+        singleLine: Boolean = true,
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
     ) {
         TextInputLayout(
             modifier = modifier,
@@ -266,7 +289,9 @@ class SettingsLayoutScope {
             label = {
                 Text(text = label ?: stringResource(R.string.settings_label_ignore_if_blank))
             },
-            singleLine = singleLine
+            singleLine = singleLine,
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
         )
     }
 
@@ -276,19 +301,22 @@ class SettingsLayoutScope {
         title: String,
         summary: String? = null,
         enabled: Boolean = true,
+        titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+        summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
         onClick: () -> Unit = {}
     ) {
         Column(
             modifier = modifier
                 .clip(shape = RoundedCornerShape(22.0.dp))
                 .clickable(onClick = onClick, enabled = enabled)
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
+                .padding(horizontal = 8.dp, vertical = 12.dp)
                 .alpha(if (enabled) 1f else 0.5f)
         ) {
             TitleAndSummary(
                 title = title,
-                summary = summary
+                summary = summary,
+                titleStyle = titleStyle,
+                summaryStyle = summaryStyle
             )
         }
     }

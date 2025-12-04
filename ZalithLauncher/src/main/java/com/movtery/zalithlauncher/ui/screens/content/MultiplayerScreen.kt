@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,10 +64,12 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedRow
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.influencedByBackgroundColor
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
+import com.movtery.zalithlauncher.viewmodel.influencedByBackground
 
 @Composable
 fun MultiplayerScreen(
@@ -83,21 +86,21 @@ fun MultiplayerScreen(
             delayIncrement = 0 //同时进行
         ) { scope ->
             AnimatedItem(scope) { xOffset ->
-                MainMenu(
+                TutorialMenu(
                     modifier = Modifier
                         .weight(0.5f)
                         .offset { IntOffset(x = -xOffset.roundToPx(), y = 0) }
-                        .padding(start = 12.dp),
-                    eventViewModel = eventViewModel
+                        .padding(start = 12.dp)
                 )
             }
 
             AnimatedItem(scope) { xOffset ->
-                TutorialMenu(
+                MainMenu(
                     modifier = Modifier
                         .weight(0.5f)
                         .offset { IntOffset(x = xOffset.roundToPx(), y = 0) }
-                        .padding(end = 12.dp)
+                        .padding(end = 12.dp),
+                    eventViewModel = eventViewModel
                 )
             }
         }
@@ -129,7 +132,8 @@ private fun MainMenu(
         ) {
             Text(
                 modifier = Modifier.padding(all = 16.dp),
-                text = stringResource(R.string.terracotta_warning_region)
+                text = stringResource(R.string.terracotta_warning_region),
+                style = MaterialTheme.typography.titleSmall
             )
         }
 
@@ -160,17 +164,6 @@ private fun MainMenu(
                 )
             }
         }
-
-        //用户须知
-        SingleTitleCard(
-            modifier = Modifier.fillMaxWidth(),
-            title = stringResource(R.string.terracotta_confirm_title),
-            text = {
-                Text(stringResource(R.string.terracotta_confirm_software))
-                Text(stringResource(R.string.terracotta_confirm_p2p))
-                Text(stringResource(R.string.terracotta_confirm_law))
-            }
-        )
 
         //关于 EasyTier
         BackgroundCard(
@@ -218,6 +211,7 @@ private fun TutorialMenu(
     ) {
         val tabs = remember {
             listOf(
+                TabItem(R.string.terracotta_confirm_title),
                 TabItem(R.string.terracotta_tutorial_host_tab),
                 TabItem(R.string.terracotta_tutorial_guest_tab)
             )
@@ -231,7 +225,13 @@ private fun TutorialMenu(
         }
 
         //顶贴标签栏
-        SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+        SecondaryTabRow(
+            containerColor = influencedByBackgroundColor(
+                color = TabRowDefaults.secondaryContainerColor.copy(alpha = 0.5f),
+                influencedAlpha = 0.5f * (AllSettings.launcherBackgroundOpacity.state.toFloat() / 100f)
+            ),
+            selectedTabIndex = selectedTabIndex
+        ) {
             tabs.forEachIndexed { index, item ->
                 Tab(
                     selected = index == selectedTabIndex,
@@ -252,41 +252,55 @@ private fun TutorialMenu(
         ) { page ->
             when(page) {
                 0 -> {
-                    //房主教程
-                    DoubleTitleColumn(
-                        firstTitle = stringResource(R.string.terracotta_tutorial_host_tip),
-                        firstText = {
-                            Text(stringResource(R.string.terracotta_tutorial_step_enable_multiplayer))
-                            Text(stringResource(R.string.terracotta_tutorial_step_open_multiplayer_menu))
-                            Text(stringResource(R.string.terracotta_tutorial_host_step_become_host))
-                            Text(stringResource(R.string.terracotta_tutorial_host_step_open_lan))
-                            Text(stringResource(R.string.terracotta_tutorial_step_vpn_permission))
-                            Text(stringResource(R.string.terracotta_tutorial_host_step_copy_invite))
-                            Text(stringResource(R.string.terracotta_tutorial_host_step_send_invite))
-                        },
-                        secondTitle = stringResource(R.string.terracotta_tutorial_note_title),
-                        secondText = {
-                            Text(stringResource(R.string.terracotta_tutorial_step_offline_account_support))
-                            Text(stringResource(R.string.terracotta_tutorial_step_interoperability))
+                    //用户须知
+                    SingleTitleColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        title = stringResource(R.string.terracotta_confirm_title),
+                        text = {
+                            BodyText(stringResource(R.string.terracotta_confirm_software))
+                            BodyText(stringResource(R.string.terracotta_confirm_p2p))
+                            BodyText(stringResource(R.string.terracotta_confirm_law))
                         }
                     )
                 }
                 1 -> {
-                    //房客教程
+                    //房主教程
                     DoubleTitleColumn(
-                        firstTitle = stringResource(R.string.terracotta_tutorial_guest_tip),
+                        modifier = Modifier.fillMaxSize(),
+                        firstTitle = stringResource(R.string.terracotta_tutorial_host_tip),
                         firstText = {
-                            Text(stringResource(R.string.terracotta_tutorial_step_enable_multiplayer))
-                            Text(stringResource(R.string.terracotta_tutorial_step_open_multiplayer_menu))
-                            Text(stringResource(R.string.terracotta_tutorial_guest_step_become_guest))
-                            Text(stringResource(R.string.terracotta_tutorial_step_vpn_permission))
-                            Text(stringResource(R.string.terracotta_tutorial_guest_step_join_room))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_enable_multiplayer))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_open_multiplayer_menu))
+                            BodyText(stringResource(R.string.terracotta_tutorial_host_step_become_host))
+                            BodyText(stringResource(R.string.terracotta_tutorial_host_step_open_lan))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_vpn_permission))
+                            BodyText(stringResource(R.string.terracotta_tutorial_host_step_copy_invite))
+                            BodyText(stringResource(R.string.terracotta_tutorial_host_step_send_invite))
                         },
                         secondTitle = stringResource(R.string.terracotta_tutorial_note_title),
                         secondText = {
-                            Text(stringResource(R.string.terracotta_tutorial_step_offline_account_support))
-                            Text(stringResource(R.string.terracotta_tutorial_step_interoperability))
-                            Text(stringResource(R.string.terracotta_tutorial_guest_step_alternate_server))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_offline_account_support))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_interoperability))
+                        }
+                    )
+                }
+                2 -> {
+                    //房客教程
+                    DoubleTitleColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        firstTitle = stringResource(R.string.terracotta_tutorial_guest_tip),
+                        firstText = {
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_enable_multiplayer))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_open_multiplayer_menu))
+                            BodyText(stringResource(R.string.terracotta_tutorial_guest_step_become_guest))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_vpn_permission))
+                            BodyText(stringResource(R.string.terracotta_tutorial_guest_step_join_room))
+                        },
+                        secondTitle = stringResource(R.string.terracotta_tutorial_note_title),
+                        secondText = {
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_offline_account_support))
+                            BodyText(stringResource(R.string.terracotta_tutorial_step_interoperability))
+                            BodyText(stringResource(R.string.terracotta_tutorial_guest_step_alternate_server))
                         }
                     )
                 }
@@ -296,22 +310,22 @@ private fun TutorialMenu(
 }
 
 /**
- * 单标题文本卡片，标题+正文的布局
+ * 单标题文本Column，标题+正文的布局
  */
 @Composable
-private fun SingleTitleCard(
+private fun SingleTitleColumn(
     modifier: Modifier = Modifier,
     title: String,
-    shape: Shape = MaterialTheme.shapes.extraLarge,
-    text: @Composable ColumnScope.() -> Unit
+    text: @Composable ColumnScope.() -> Unit,
+    scrollState: ScrollState = rememberScrollState()
 ) {
-    BackgroundCard(modifier = modifier, shape = shape) {
-        TitleTextLayout(
-            modifier = Modifier.padding(all = 16.dp),
-            title = title,
-            text = text
-        )
-    }
+    TitleTextLayout(
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(all = 16.dp),
+        title = title,
+        text = text
+    )
 }
 
 /**
@@ -345,7 +359,7 @@ private fun TitleTextLayout(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = title,
@@ -357,4 +371,16 @@ private fun TitleTextLayout(
             content = text
         )
     }
+}
+
+@Composable
+private fun BodyText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        style = MaterialTheme.typography.bodySmall
+    )
 }

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -61,16 +62,23 @@ fun MultiplayerDialog(
             dismissOnClickOutside = false
         )
     ) {
-        Box(modifier = Modifier.fillMaxWidth(0.7f)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .fillMaxHeight()
+                .padding(vertical = 24.dp)
+        ) {
             Surface(
-                modifier = Modifier.padding(all = 16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(all = 6.dp),
                 shape = MaterialTheme.shapes.extraLarge,
                 shadowElevation = 6.dp
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(all = 16.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize()
+                        .padding(all = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
@@ -79,14 +87,14 @@ fun MultiplayerDialog(
                     )
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         //房主
                         SimpleCard(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(3f / 2f),
+                            modifier = Modifier.weight(1f),
                             icon = Icons.Filled.Home,
                             title = stringResource(R.string.terracotta_status_waiting_host_title),
                             description = stringResource(R.string.terracotta_status_waiting_host_desc)
@@ -96,9 +104,7 @@ fun MultiplayerDialog(
 
                         //房客
                         SimpleCard(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(3f / 2f),
+                            modifier = Modifier.weight(1f),
                             icon = Icons.Filled.Group,
                             title = stringResource(R.string.terracotta_status_waiting_guest_title),
                             description = stringResource(R.string.terracotta_status_waiting_guest_desc)
@@ -144,22 +150,16 @@ private fun SimpleCard(
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
         ) {
-            val (topSpacer, icons, desc, bottomSpacer) = createRefs()
-
-            Spacer(
-                Modifier.constrainAs(topSpacer) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(icons.top)
-                    height = Dimension.fillToConstraints
-                }
-            )
+            val (icons, desc) = createRefs()
 
             //图文区
             Column(
                 modifier = Modifier.constrainAs(icons) {
-                    top.linkTo(topSpacer.bottom)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom, margin = 24.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
@@ -179,20 +179,12 @@ private fun SimpleCard(
             //这个卡片的描述
             Text(
                 modifier = Modifier.constrainAs(desc) {
-                    top.linkTo(icons.bottom, margin = 12.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
+                    bottom.linkTo(parent.bottom)
                 },
                 text = description,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Spacer(
-                Modifier.constrainAs(bottomSpacer) {
-                    top.linkTo(desc.bottom)
-                    bottom.linkTo(parent.bottom)
-                    height = Dimension.fillToConstraints
-                }
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }

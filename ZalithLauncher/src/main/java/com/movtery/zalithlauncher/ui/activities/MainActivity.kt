@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.Background
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
+import com.movtery.zalithlauncher.ui.screens.game.multiplayer.DebugTerracotta
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
@@ -176,6 +177,8 @@ class MainActivity : BaseComponentActivity() {
                             )
                         }
                     )
+
+                    DebugTerracotta()
                 }
             }
         }
