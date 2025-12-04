@@ -24,6 +24,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
@@ -79,11 +81,15 @@ fun TerracottaOperation(
                 viewModel.getUserName()
             } ?: anonymousString //未设置，使用“匿名玩家”
 
+            //支持任何房间，实时展示所有玩家配置
+            val profiles by viewModel.profiles.collectAsState()
+
             MultiplayerDialog(
                 onClose = { viewModel.operation = TerracottaOperation.None },
                 dialogState = viewModel.dialogState,
                 terracottaVer = viewModel.terracottaVer,
                 easyTierVer = viewModel.easyTierVer,
+                profiles = profiles,
                 onHostRoleClick = {
                     runCatching {
                         Terracotta.setScanning(null, userName)

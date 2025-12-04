@@ -24,14 +24,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,6 +58,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.terracotta.TerracottaState
+import com.movtery.zalithlauncher.terracotta.profile.TerracottaProfile
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 
@@ -60,6 +66,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
  * 多人联机菜单Dialog
  * @param terracottaVer 陶瓦联机核心版本号
  * @param easyTierVer EasyTier版本号
+ * @param profiles 陶瓦联机当前房间所有玩家配置
  * @param onHostRoleClick 用户选择成为房主
  * @param onHostCopyCode 房主复制房间邀请码
  * @param onHostBack 房主退出扫描/取消启动房间/退出房间
@@ -70,6 +77,7 @@ fun MultiplayerDialog(
     dialogState: TerracottaState.Ready?,
     terracottaVer: String?,
     easyTierVer: String?,
+    profiles: List<TerracottaProfile>,
     onHostRoleClick: () -> Unit,
     onHostCopyCode: (TerracottaState.HostOK) -> Unit,
     onHostBack: () -> Unit
@@ -137,6 +145,8 @@ fun MultiplayerDialog(
                         is TerracottaState.HostOK -> {
                             HostOkRoomUI(
                                 modifier = commonModifier,
+                                roomCode = dialogState.code ?: "",//不会为null
+                                profiles = profiles,
                                 onCopy = {
                                     onHostCopyCode(dialogState)
                                 },
@@ -254,9 +264,19 @@ private fun HostStartingUI(
 @Composable
 private fun HostOkRoomUI(
     modifier: Modifier = Modifier,
+    roomCode: String,
+    profiles: List<TerracottaProfile>,
     onCopy: () -> Unit,
     onExit: () -> Unit,
 ) {
+    val hostOkText = stringResource(R.string.terracotta_status_host_ok)
+    val codeLabel = stringResource(R.string.terracotta_status_host_ok_code)
+    val copyTitle = stringResource(R.string.terracotta_status_host_ok_code_copy)
+    val copyDesc = stringResource(R.string.terracotta_status_host_ok_code_desc)
+    val backTitle = stringResource(R.string.terracotta_back)
+    val backDesc = stringResource(R.string.terracotta_status_host_ok_back)
+    val profilesLabel = stringResource(R.string.terracotta_player_list)
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -272,9 +292,16 @@ private fun HostOkRoomUI(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = stringResource(R.string.terracotta_status_host_ok))
+                Text(text = hostOkText)
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                Text(text = stringResource(R.string.terracotta_status_host_ok_code))
+                Text(
+                    text = codeLabel,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Text(
+                    text = roomCode,
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
             //按钮部分
             Column(
@@ -283,28 +310,82 @@ private fun HostOkRoomUI(
                 //复制按钮
                 SimpleRowButton(
                     modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.AutoMirrored.Default.ArrowLeft,
-                    title = stringResource(R.string.terracotta_status_host_ok_code_copy),
-                    description = stringResource(R.string.terracotta_status_host_ok_code_desc),
+                    icon = Icons.Default.ContentCopy,
+                    title = copyTitle,
+                    description = copyDesc,
                     onClick = onCopy
                 )
                 //退出按钮
                 SimpleRowButton(
                     modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.AutoMirrored.Default.ArrowLeft,
-                    title = stringResource(R.string.terracotta_back),
-                    description = stringResource(R.string.terracotta_status_host_ok_back),
+                    icon = Icons.AutoMirrored.Default.ArrowBack,
+                    title = backTitle,
+                    description = backDesc,
                     onClick = onExit
                 )
             }
         }
 
         //玩家列表
+        ProfileListPanel(
+            modifier = Modifier.weight(1f),
+            title = profilesLabel,
+            profiles = profiles
+        )
+    }
+}
+
+/**
+ * 通用房间玩家列表
+ */
+@Composable
+private fun ProfileListPanel(
+    title: String,
+    profiles: List<TerracottaProfile>,
+    modifier: Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(text = title)
+        HorizontalDivider()
+
         LazyColumn(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            //TODO 玩家列表
+            items(items = profiles, key = { it.toString() }) { profile ->
+                TerracottaProfileLayout(
+                    modifier = Modifier.fillMaxWidth(),
+                    profile = profile
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun TerracottaProfileLayout(
+    profile: TerracottaProfile,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            maxLines = 2
+        ) {
+            //玩家名字
+            MarqueeText(text = profile.name ?: stringResource(R.string.terracotta_player_anonymous))
+            //身份/类别
+            Text(text = stringResource(profile.type.textRes))
+        }
+        MarqueeText(
+            modifier = Modifier.alpha(0.7f),
+            text = profile.vendor,
+            style = MaterialTheme.typography.labelSmall
+        )
     }
 }
 
@@ -407,11 +488,12 @@ private fun SimpleRowButton(
     Row(
         modifier = modifier
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(all = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Icon(
+            modifier = Modifier.size(18.dp),
             imageVector = icon,
             contentDescription = title
         )
@@ -424,7 +506,7 @@ private fun SimpleRowButton(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall
             )
             //描述
             MarqueeText(

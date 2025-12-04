@@ -26,7 +26,11 @@ class TerracottaProfile private constructor(
     @SerializedName("name")
     val name: String?,
     @SerializedName("vendor")
-    val vendor: String?,
+    val vendor: String,
     @SerializedName("kind")
-    val type: ProfileKind?
-)
+    val type: ProfileKind
+) {
+    override fun toString(): String {
+        return "TerracottaProfile:{machineID=$machineID,name=$name,vendor=$vendor,type=$type}"
+    }
+}

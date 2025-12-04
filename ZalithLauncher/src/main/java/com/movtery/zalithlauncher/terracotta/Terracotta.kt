@@ -131,10 +131,6 @@ object Terracotta {
         return TODO("直接用e.getEnumType().textRes")
     }
 
-    fun parseProfileKind(context: Context, kind: ProfileKind): String {
-        return TODO("直接用kind.textRes")
-    }
-
     fun parseRoomCode(room: String?): TerracottaAndroidAPI.RoomType? {
         if (!initialized || room == null) return null
         return TerracottaAndroidAPI.parseRoomCode(room)

@@ -35,11 +35,15 @@ import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.terracotta.TerracottaState
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
+import com.movtery.zalithlauncher.terracotta.profile.TerracottaProfile
 import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -69,6 +73,12 @@ class TerracottaViewModel(
      * VPN权限申请，由TerracottaOperation设置
      */
     var vpnLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>? = null
+
+    private val _profiles = MutableStateFlow<List<TerracottaProfile>>(emptyList())
+    /**
+     * 陶瓦联机当前房间的玩家列表
+     */
+    val profiles: StateFlow<List<TerracottaProfile>> = _profiles
 
     private val allJobs: MutableList<Job> = mutableListOf()
 
@@ -101,6 +111,16 @@ class TerracottaViewModel(
     }
 
     /**
+     * 更新当前陶瓦联机的玩家列表
+     */
+    private fun updateProfiles(profiles: List<TerracottaProfile>?) {
+        //在这里仅更新玩家列表，为避免频繁更新dialogState造成大面积重组
+        _profiles.update {
+            profiles ?: emptyList()
+        }
+    }
+
+    /**
      * 初始化陶瓦联机
      */
     private fun initialize() {
@@ -121,16 +141,24 @@ class TerracottaViewModel(
                     if (old !is TerracottaState.HostOK) {
                         //刚切换到这个状态，默认复制一次邀请码
                         copyInviteCode(new)
+                        //然后首次更新玩家列表状态
+                        updateProfiles(new.profiles)
                     }
                     if (new.isForkOf(old)) {
-                        //TODO refresh hostOk UI
+                        updateProfiles(new.profiles)
                         return@collect
                     }
                 } else if (new is TerracottaState.GuestOK) {
+                    if (old !is TerracottaState.GuestOK) {
+                        updateProfiles(new.profiles)
+                    }
                     if (new.isForkOf(old)) {
-                        //TODO refresh guestOk UI
+                        updateProfiles(new.profiles)
                         return@collect
                     }
+                } else if (_profiles.value.isNotEmpty()) {
+                    //当前已经不在房间内，所以需要清空所有玩家配置
+                    updateProfiles(emptyList())
                 }
                 dialogState = new
             }
