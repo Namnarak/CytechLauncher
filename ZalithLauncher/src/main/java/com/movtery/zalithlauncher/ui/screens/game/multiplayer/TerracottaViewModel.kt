@@ -18,8 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.game.multiplayer
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.widget.Toast
@@ -29,11 +27,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.terracotta.TerracottaState
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
@@ -46,6 +44,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TerracottaViewModel(
+    val gameHandler: GameHandler,
     val eventViewModel: EventViewModel,
     val getUserName: () -> String?
 ): ViewModel() {
@@ -76,11 +75,11 @@ class TerracottaViewModel(
     /**
      * 打开陶瓦联机菜单
      */
-    fun openMenu(activity: Activity) {
+    fun openMenu() {
         if (operation !is TerracottaOperation.None) return
 
-        if (!Terracotta.initialized) initialize(activity)
-        if (allJobs.isEmpty()) initJobs(activity)
+        if (!Terracotta.initialized) initialize()
+        if (allJobs.isEmpty()) initJobs()
 
         operation = TerracottaOperation.ShowMenu
     }
@@ -89,9 +88,9 @@ class TerracottaViewModel(
      * 复制房间邀请码到系统剪贴板
      */
     fun copyInviteCode(
-        context: Context,
         state: TerracottaState.HostOK
     ) {
+        val context = gameHandler.activity
         val code = state.code ?: return //理论上不会是null
         copyText(
             label = "invite_code",
@@ -104,22 +103,24 @@ class TerracottaViewModel(
     /**
      * 初始化陶瓦联机
      */
-    private fun initialize(context: Context) {
-        Terracotta.initialize(context, viewModelScope, eventViewModel)
-        Terracotta.setWaiting(context, true)
+    private fun initialize() {
+        Terracotta.initialize(gameHandler.activity, viewModelScope, eventViewModel)
+        Terracotta.setWaiting(true)
 
         val metadata = Terracotta.getMetadata()
         terracottaVer = metadata.terracottaVersion
         easyTierVer = metadata.easyTierVersion
     }
 
-    private fun initJobs(activity: Activity) {
+    private fun initJobs() {
+        val activity = gameHandler.activity
+
         val stateChangeJob = viewModelScope.launch {
             Terracotta.stateChanges.collect { (old, new) ->
                 if (new is TerracottaState.HostOK) {
                     if (old !is TerracottaState.HostOK) {
                         //刚切换到这个状态，默认复制一次邀请码
-                        copyInviteCode(activity, new)
+                        copyInviteCode(new)
                     }
                     if (new.isForkOf(old)) {
                         //TODO refresh hostOk UI
@@ -146,19 +147,27 @@ class TerracottaViewModel(
                                 if (intent != null) {
                                     vpnLauncher?.launch(intent)
                                 } else {
-                                    val vpnIntent = Intent(activity, TerracottaVPNService::class.java).apply {
-                                        action = TerracottaVPNService.ACTION_START
-                                    }
-                                    ContextCompat.startForegroundService(activity, vpnIntent)
+                                    val vpnIntent = Intent(activity, TerracottaVPNService::class.java)
+                                        .setAction(TerracottaVPNService.ACTION_START)
+                                    activity.startForegroundService(vpnIntent)
                                 }
                             }
                         }
+                        is EventViewModel.Event.Terracotta.VPNUpdateState -> {
+                            withContext(Dispatchers.Main) {
+                                val vpnIntent = Intent(activity, TerracottaVPNService::class.java)
+                                    .setAction(TerracottaVPNService.ACTION_UPDATE_STATE)
+                                    .putExtra(TerracottaVPNService.EXTRA_STATE_TEXT, event.text)
+                                activity.startForegroundService(vpnIntent)
+                            }
+                        }
                         is EventViewModel.Event.Terracotta.StopVPN -> {
-                            if (TerracottaVPNService.isRunning()) {
-                                val vpnIntent = Intent(activity, TerracottaVPNService::class.java).apply {
-                                    action = TerracottaVPNService.ACTION_STOP
+                            withContext(Dispatchers.Main) {
+                                if (TerracottaVPNService.isRunning()) {
+                                    val vpnIntent = Intent(activity, TerracottaVPNService::class.java)
+                                        .setAction(TerracottaVPNService.ACTION_STOP)
+                                    activity.startForegroundService(vpnIntent)
                                 }
-                                ContextCompat.startForegroundService(activity, vpnIntent)
                             }
                         }
                     }
@@ -178,12 +187,17 @@ class TerracottaViewModel(
 @Composable
 fun rememberTerracottaViewModel(
     keyTag: String,
+    gameHandler: GameHandler,
     eventViewModel: EventViewModel,
     getUserName: () -> String?
 ): TerracottaViewModel {
     return viewModel(
         key = keyTag
     ) {
-        TerracottaViewModel(eventViewModel, getUserName)
+        TerracottaViewModel(
+            gameHandler = gameHandler,
+            eventViewModel = eventViewModel,
+            getUserName = getUserName
+        )
     }
 }

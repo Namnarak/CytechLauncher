@@ -26,7 +26,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme.ZalithLauncher"
         android:appCategory="game"
-        android:process=":launcher"
         android:supportsRtl="true"
         android:isGame="true"
         android:allowBackup="true"
@@ -61,7 +60,6 @@
             android:name=".ui.activities.VMActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
-            android:launchMode="singleTop"
             android:process=":game"
             android:screenOrientation="sensorLandscape" />
         <activity android:name=".ui.activities.ErrorActivity"
@@ -81,6 +79,7 @@
             android:name=".terracotta.TerracottaVPNService"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:exported="true"
+            android:process=":game"
             android:foregroundServiceType="connectedDevice|dataSync"
             tools:ignore="VpnServicePolicy">
             <intent-filter>

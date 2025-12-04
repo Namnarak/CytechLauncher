@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.game.launch.handler
 
 import android.app.Activity
-import android.content.Context
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
@@ -70,7 +69,7 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.createTempDirectory
 
 class GameHandler(
-    private val context: Context,
+    val activity: Activity,
     private val version: Version,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
@@ -92,7 +91,7 @@ class GameHandler(
     override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
-        MCOptions.setup(context, version)
+        MCOptions.setup(activity, version)
 
         MCOptions.apply {
             set("fullscreen", "false")
@@ -114,8 +113,8 @@ class GameHandler(
         eventViewModel.sendEvent(EventViewModel.Event.Game.OnResume)
     }
 
-    override fun onDestroy(activity: Activity) {
-        Terracotta.setWaiting(activity, false)
+    override fun onDestroy() {
+        Terracotta.setWaiting(false)
     }
 
     override fun onGraphicOutput() {
@@ -177,6 +176,7 @@ class GameHandler(
     ) {
         GameScreen(
             version = version,
+            gameHandler = this,
             isGameRendering = isGameRendering,
             logState = logState,
             onLogStateChange = { logState = it },

@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.game
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -72,6 +71,7 @@ import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.keycodes.OPEN_CHAT
 import com.movtery.zalithlauncher.game.keycodes.mapToKeycode
+import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -416,6 +416,7 @@ private fun rememberGameViewModel(
 @Composable
 fun GameScreen(
     version: Version,
+    gameHandler: GameHandler,
     isGameRendering: Boolean,
     logState: LogState,
     onLogStateChange: (LogState) -> Unit,
@@ -429,14 +430,14 @@ fun GameScreen(
     gamepadViewModel: GamepadViewModel
 ) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
     val viewModel = rememberGameViewModel(version)
     val editorViewModel: EditorViewModel = viewModel()
     val isGrabbing = remember(ZLBridgeStates.cursorMode) {
         ZLBridgeStates.cursorMode == CURSOR_DISABLED
     }
     val terracottaViewModel = rememberTerracottaViewModel(
-        keyTag = version.toString() + "_Terracotta",
+        keyTag = gameHandler.toString() + "_Terracotta",
+        gameHandler = gameHandler,
         eventViewModel = eventViewModel,
         getUserName = getAccountName
     )
@@ -617,7 +618,7 @@ fun GameScreen(
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
             enableTerracotta = AllSettings.enableTerracotta.state,
-            onOpenTerracottaMenu = { terracottaViewModel.openMenu(activity!!) },
+            onOpenTerracottaMenu = { terracottaViewModel.openMenu() },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { viewModel.switchIME() },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },

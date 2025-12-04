@@ -60,6 +60,8 @@ class EventViewModel : ViewModel() {
         sealed interface Terracotta : Event {
             /** 申请 VPN 权限 */
             data object RequestVPN : Terracotta
+            /** 更新 VPN 状态文本 */
+            data class VPNUpdateState(val text: String): Terracotta
             /** 关停 VPN */
             data object StopVPN : Terracotta
         }

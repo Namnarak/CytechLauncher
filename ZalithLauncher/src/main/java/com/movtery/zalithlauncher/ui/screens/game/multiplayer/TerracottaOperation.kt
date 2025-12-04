@@ -25,7 +25,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.movtery.zalithlauncher.R
@@ -50,11 +49,10 @@ sealed interface TerracottaOperation {
 fun TerracottaOperation(
     viewModel: TerracottaViewModel
 ) {
-    val context = LocalContext.current
-
     val vpnLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        val context = viewModel.gameHandler.activity
         if (result.resultCode == Activity.RESULT_OK) {
             val vpnIntent = Intent(context, TerracottaVPNService::class.java).apply {
                 action = TerracottaVPNService.ACTION_START
@@ -94,11 +92,11 @@ fun TerracottaOperation(
                     }
                 },
                 onHostCopyCode = { state ->
-                    viewModel.copyInviteCode(context, state)
+                    viewModel.copyInviteCode(state)
                 },
                 onHostBack = {
                     //取消端口扫描/取消启动房间/退出房间
-                    Terracotta.setWaiting(context, true)
+                    Terracotta.setWaiting(true)
                 }
             )
         }

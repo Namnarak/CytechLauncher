@@ -18,9 +18,8 @@
 
 package com.movtery.zalithlauncher.terracotta
 
+import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import androidx.core.content.ContextCompat
 import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.coroutine.MutableTransitionStateFlow
@@ -32,7 +31,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.burningtnt.terracotta.TerracottaAndroidAPI
 import java.io.IOException
 import java.io.StringWriter
@@ -69,16 +67,16 @@ object Terracotta {
     private val stateRef = AtomicReference<TerracottaState.Ready?>(null)
 
     fun initialize(
-        context: Context,
+        activity: Activity,
         lifecycleScope: CoroutineScope,
         eventViewModel: EventViewModel
     ) {
         if (initialized) return
         this.eventViewModel = eventViewModel
 
-        metadata = TerracottaAndroidAPI.initialize(context) {
+        metadata = TerracottaAndroidAPI.initialize(activity) {
             eventViewModel.sendEvent(EventViewModel.Event.Terracotta.RequestVPN)
-            lifecycleScope.startNotificationJob(context)
+            lifecycleScope.startNotificationJob()
         }
 
         lifecycleScope.launch(Dispatchers.Default) {
@@ -103,7 +101,7 @@ object Terracotta {
         initialized = true
     }
 
-    fun setWaiting(context: Context, manual: Boolean) {
+    fun setWaiting(manual: Boolean) {
         if (!initialized) return
 
         stopNotificationJob()
@@ -179,18 +177,12 @@ object Terracotta {
         }
     }
 
-    private fun CoroutineScope.startNotificationJob(context: Context) {
+    private fun CoroutineScope.startNotificationJob() {
         notificationJob?.cancel()
         notificationJob = launch(Dispatchers.Default) {
             state.collect { state ->
                 if (state != null && state !is TerracottaState.Waiting) {
-                    withContext(Dispatchers.Main) {
-                        val intent = Intent(context, TerracottaVPNService::class.java).apply {
-                            action = TerracottaVPNService.ACTION_UPDATE_STATE
-                            putExtra(TerracottaVPNService.EXTRA_STATE_TEXT, "terracotta_status_$state") //TODO 本地化
-                        }
-                        ContextCompat.startForegroundService(context, intent)
-                    }
+                    eventViewModel?.sendEvent(EventViewModel.Event.Terracotta.VPNUpdateState("terracotta_status_$state")) //TODO 本地化
                 }
             }
         }

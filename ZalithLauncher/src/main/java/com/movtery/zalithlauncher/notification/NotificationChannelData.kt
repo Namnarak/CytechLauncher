@@ -19,13 +19,24 @@
 package com.movtery.zalithlauncher.notification
 
 import android.app.NotificationManager.IMPORTANCE_HIGH
+import android.app.NotificationManager.IMPORTANCE_LOW
+import android.content.Context
 import com.movtery.zalithlauncher.R
 
 enum class NotificationChannelData(
     val channelId: String,
-    val channelName: Int,
-    val channelDescription: Int?,
+    val channelName: (Context) -> String,
+    val channelDescription: ((Context) -> String)?,
     val level: Int,
+    val showBadge: Boolean = true
 ) {
-    JVM_SERVICE_CHANNEL("jvm.service", R.string.notification_data_jvm_service_name, null, IMPORTANCE_HIGH)
+    /**
+     * Jvm 任务服务
+     */
+    JVM_SERVICE_CHANNEL("jvm.service", { it.getString(R.string.notification_data_jvm_service_name) }, null, IMPORTANCE_HIGH),
+
+    /**
+     * 陶瓦联机 VPN 状态显示服务
+     */
+    TERRACOTTA_VPN_CHANNEL("terracotta_vpn_channel", { "Terracotta VPN" }, { it.getString(R.string.terracotta_terracotta) }, IMPORTANCE_LOW, false)
 }

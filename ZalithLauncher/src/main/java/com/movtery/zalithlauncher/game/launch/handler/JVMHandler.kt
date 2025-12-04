@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.game.launch.handler
 
-import android.app.Activity
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.KeyEvent
@@ -105,7 +104,7 @@ class JVMHandler(
     override fun onResume() {
     }
 
-    override fun onDestroy(activity: Activity) {
+    override fun onDestroy() {
     }
 
     override fun onGraphicOutput() {

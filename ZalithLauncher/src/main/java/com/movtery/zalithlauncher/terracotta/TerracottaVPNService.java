@@ -2,7 +2,6 @@ package com.movtery.zalithlauncher.terracotta;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,6 +12,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import com.movtery.zalithlauncher.R;
+import com.movtery.zalithlauncher.notification.NotificationChannelData;
 
 import net.burningtnt.terracotta.TerracottaAndroidAPI;
 
@@ -26,7 +26,6 @@ public class TerracottaVPNService extends VpnService {
 
     private static final String TAG                  = "TerracottaVPNService";
 
-    private static final String CHANNEL_ID           = "terracotta_vpn_channel";
     private static final int VPN_NOTIFICATION_ID     = 1;
 
     public static final String ACTION_START          = "net.burningtnt.terracotta.action.START";
@@ -37,8 +36,7 @@ public class TerracottaVPNService extends VpnService {
     private static final String EXTRA_FROM_DELETE    = "from_delete";
     public static final String EXTRA_STATE_TEXT      = "terracotta_state_text";
 
-    public static final int VPN_PERMISSION_CODE      = 1000;
-    public static final int VPN_REQUEST_CODE         = 1050;
+    public static final int VPN_REQUEST_CODE         = 1000;
 
     private NotificationManager notificationManager;
     private String currentStateText = null;
@@ -99,8 +97,6 @@ public class TerracottaVPNService extends VpnService {
 
         isStopping = false;
 
-        createNotificationChannelIfNeeded();
-
         Notification notification = buildVpnNotification();
         if (notification == null)
             return Service.START_NOT_STICKY;
@@ -123,7 +119,7 @@ public class TerracottaVPNService extends VpnService {
     public void onRevoke() {
         Log.w(TAG, "onRevoke(): preempted by another VPN or revoked by user; tearing down.");
         isStopping = true;
-        Terracotta.INSTANCE.setWaiting(this, false);
+        Terracotta.INSTANCE.setWaiting(false);
         cleanup();
         stopForeground(true);
         stopSelf();
@@ -133,29 +129,14 @@ public class TerracottaVPNService extends VpnService {
     public void onDestroy() {
         Log.d(TAG, "onDestroy(): vpn service finished");
         isStopping = true;
-        Terracotta.INSTANCE.setWaiting(this, false);
+        Terracotta.INSTANCE.setWaiting(false);
         cleanup();
         super.onDestroy();
     }
 
-    private void createNotificationChannelIfNeeded() {
-        if (notificationManager == null)
-            return;
-
-        NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID,
-                "Terracotta VPN",
-                NotificationManager.IMPORTANCE_LOW
-        );
-        channel.setDescription("Terracotta VPN state");
-        channel.setShowBadge(false);
-        notificationManager.createNotificationChannel(channel);
-    }
-
     private Notification buildVpnNotification() {
         Terracotta.Mode mode = Terracotta.INSTANCE.getMode();
-        if (mode == null)
-            return null;
+        if (mode == null) return null;
 
         String title = getString(R.string.terracotta_notification_title);
         String modeText = mode == Terracotta.Mode.Host ? getString(R.string.terracotta_player_kind_host) : getString(R.string.terracotta_player_kind_guest);
@@ -168,7 +149,7 @@ public class TerracottaVPNService extends VpnService {
         String contentText = String.format(getString(R.string.terracotta_notification_desc), modeText, currentStateText);
 
         Notification.Builder builder;
-        builder = new Notification.Builder(this, CHANNEL_ID);
+        builder = new Notification.Builder(this, NotificationChannelData.TERRACOTTA_VPN_CHANNEL.getChannelId());
 
         Intent deleteIntent = new Intent(this, TerracottaVPNService.class)
                 .setAction(ACTION_REPOST)
@@ -181,7 +162,7 @@ public class TerracottaVPNService extends VpnService {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        builder.setSmallIcon(R.drawable.ic_launcher_foreground)
+        builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(contentText)
                 .setWhen(System.currentTimeMillis())
