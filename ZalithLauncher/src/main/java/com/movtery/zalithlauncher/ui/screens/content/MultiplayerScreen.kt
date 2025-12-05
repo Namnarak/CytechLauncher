@@ -135,7 +135,8 @@ private sealed interface MultiplayerOperation {
 private fun MultiplayerOperation(
     operation: MultiplayerOperation,
     onChange: (MultiplayerOperation) -> Unit,
-    onNoticeRead: () -> Unit
+    onNoticeRead: () -> Unit,
+    onNoticeRefused: () -> Unit
 ) {
     when (operation) {
         is MultiplayerOperation.None -> {}
@@ -144,7 +145,8 @@ private fun MultiplayerOperation(
                 title = stringResource(R.string.generic_warning),
                 text = stringResource(R.string.terracotta_status_uninitialized_desc),
                 dismissByDialog = false,
-                onDismiss = onNoticeRead
+                onDismiss = onNoticeRefused,
+                onConfirm = onNoticeRead
             )
         }
         is MultiplayerOperation.WarningNotification -> {
@@ -186,6 +188,10 @@ private fun MainMenu(
             } else {
                 MultiplayerOperation.None
             }
+        },
+        onNoticeRefused = {
+            AllSettings.enableTerracotta.save(false)
+            operation = MultiplayerOperation.None
         }
     )
 
