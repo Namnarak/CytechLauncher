@@ -180,7 +180,7 @@ class TerracottaStateTypeAdapterFactory : TypeAdapterFactory {
                     "host-scanning" -> hostScanningAdapter.fromJsonTree(jsonElement)
                     "host-starting" -> hostStartingAdapter.fromJsonTree(jsonElement)
                     "host-ok" -> hostOKAdapter.fromJsonTree(jsonElement)
-                    "guest-starting" -> guestStartingAdapter.fromJsonTree(jsonElement)
+                    "guest-connecting", "guest-starting" -> guestStartingAdapter.fromJsonTree(jsonElement)
                     "guest-ok" -> guestOKAdapter.fromJsonTree(jsonElement)
                     "exception" -> exceptionAdapter.fromJsonTree(jsonElement)
                     else -> throw JsonParseException("Unknown state type: $stateName")

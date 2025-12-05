@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.screens.game.multiplayer
 
+import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import android.widget.Toast
@@ -100,14 +101,36 @@ class TerracottaViewModel(
     fun copyInviteCode(
         state: TerracottaState.HostOK
     ) {
-        val context = gameHandler.activity
         val code = state.code ?: return //理论上不会是null
+        copyText(label = "invite_code", text = code) {
+            it.getString(R.string.terracotta_status_host_ok_code_copy_toast)
+        }
+    }
+
+    /**
+     * 复制房间备用链接到系统剪贴板
+     */
+    fun copyServerAddress(
+        state: TerracottaState.GuestOK
+    ) {
+        val address = state.url ?: return
+        copyText(label = "server_address", text = address) {
+            it.getString(R.string.terracotta_status_guest_ok_address_copy_toast)
+        }
+    }
+
+    private fun copyText(
+        label: String,
+        text: String,
+        toast: (Context) -> String
+    ) {
+        val context = gameHandler.activity
         copyText(
-            label = "invite_code",
-            text = code,
+            label = label,
+            text = text,
             context = context
         )
-        Toast.makeText(context, context.getString(R.string.terracotta_status_host_ok_code_copy_toast), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, toast(context), Toast.LENGTH_SHORT).show()
     }
 
     /**

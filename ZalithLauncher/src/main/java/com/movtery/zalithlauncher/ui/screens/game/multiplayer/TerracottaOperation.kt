@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.ui.screens.game.multiplayer
 
 import android.app.Activity
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.movtery.zalithlauncher.R
@@ -84,6 +86,8 @@ fun TerracottaOperation(
             //支持任何房间，实时展示所有玩家配置
             val profiles by viewModel.profiles.collectAsState()
 
+            val context = LocalContext.current
+
             MultiplayerDialog(
                 onClose = { viewModel.operation = TerracottaOperation.None },
                 dialogState = viewModel.dialogState,
@@ -94,16 +98,28 @@ fun TerracottaOperation(
                     runCatching {
                         Terracotta.setScanning(null, userName)
                     }.onFailure { e ->
-                        lWarning("Error occurred at \"Terracotta.setGuesting(null, userName)\", message = ${e.message}")
+                        lWarning("Error occurred at \"Terracotta.setScanning(null, userName)\", message = ${e.message}")
                     }
                 },
                 onHostCopyCode = { state ->
                     viewModel.copyInviteCode(state)
                 },
-                onHostBack = {
-                    //取消端口扫描/取消启动房间/退出房间
+                onGuestPositive = { roomCode ->
+                    runCatching {
+                        val success = Terracotta.setGuesting(roomCode, userName)
+                        if (!success) {
+                            Toast.makeText(context, context.getString(R.string.terracotta_status_waiting_guest_prompt_invalid), Toast.LENGTH_SHORT).show()
+                        }
+                    }.onFailure { e ->
+                        lWarning("Error occurred at \"Terracotta.setGuesting(roomCode, userName)\", message = ${e.message}")
+                    }
+                },
+                onGuestCopyUrl = { state ->
+                    viewModel.copyServerAddress(state)
+                },
+                onBack = {
                     Terracotta.setWaiting(true)
-                }
+                },
             )
         }
     }

@@ -48,6 +48,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -69,7 +73,9 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
  * @param profiles 陶瓦联机当前房间所有玩家配置
  * @param onHostRoleClick 用户选择成为房主
  * @param onHostCopyCode 房主复制房间邀请码
- * @param onHostBack 房主退出扫描/取消启动房间/退出房间
+ * @param onGuestPositive 房客正确输入邀请码
+ * @param onGuestCopyUrl 房客复制备用链接
+ * @param onBack 退出当前步骤
  */
 @Composable
 fun MultiplayerDialog(
@@ -80,7 +86,9 @@ fun MultiplayerDialog(
     profiles: List<TerracottaProfile>,
     onHostRoleClick: () -> Unit,
     onHostCopyCode: (TerracottaState.HostOK) -> Unit,
-    onHostBack: () -> Unit
+    onGuestPositive: (roomCode: String) -> Unit,
+    onGuestCopyUrl: (TerracottaState.GuestOK) -> Unit,
+    onBack: () -> Unit
 ) {
     Dialog(
         onDismissRequest = {},
@@ -127,35 +135,71 @@ fun MultiplayerDialog(
                             WaitingUI(
                                 modifier = commonModifier,
                                 onHostClick = onHostRoleClick,
-                                onGuestClick = {}
+                                onGuestPositive = onGuestPositive
                             )
                         }
                         is TerracottaState.HostScanning -> {
-                            HostScanningUI(
+                            CommonProgressLayout(
                                 modifier = commonModifier,
-                                onBack = onHostBack
+                                progress = stringResource(R.string.terracotta_status_host_scanning),
+                                text = {
+                                    Text(text = stringResource(R.string.terracotta_status_host_scanning_desc))
+                                },
+                                backDescription = stringResource(R.string.terracotta_status_host_scanning_back),
+                                onBack = onBack
                             )
                         }
                         is TerracottaState.HostStarting -> {
-                            HostStartingUI(
+                            CommonProgressLayout(
                                 modifier = commonModifier,
-                                onBack = onHostBack
+                                progress = stringResource(R.string.terracotta_status_host_starting),
+                                backDescription = stringResource(R.string.terracotta_status_host_starting_back),
+                                onBack = onBack
                             )
                         }
                         is TerracottaState.HostOK -> {
-                            HostOkRoomUI(
+                            OkRoomUI(
                                 modifier = commonModifier,
-                                roomCode = dialogState.code ?: "",//不会为null
+                                code = dialogState.code ?: "",//不会为null
                                 profiles = profiles,
                                 onCopy = {
                                     onHostCopyCode(dialogState)
                                 },
-                                onExit = onHostBack
+                                onExit = onBack,
+                                okText = stringResource(R.string.terracotta_status_host_ok),
+                                codeLabel = stringResource(R.string.terracotta_status_host_ok_code),
+                                copyTitle = stringResource(R.string.terracotta_status_host_ok_code_copy),
+                                copyDesc = stringResource(R.string.terracotta_status_host_ok_code_desc),
+                                backDesc = stringResource(R.string.terracotta_status_host_ok_back)
                             )
                         }
-                        is TerracottaState.GuestStarting -> {}
-                        is TerracottaState.GuestOK -> {}
-                        is TerracottaState.Exception -> {}
+                        is TerracottaState.GuestStarting -> {
+                            CommonProgressLayout(
+                                modifier = commonModifier,
+                                progress = stringResource(R.string.terracotta_status_guest_starting),
+                                backDescription = stringResource(R.string.terracotta_status_guest_starting_back),
+                                onBack = onBack
+                            )
+                        }
+                        is TerracottaState.GuestOK -> {
+                            OkRoomUI(
+                                modifier = commonModifier,
+                                code = dialogState.url ?: "",
+                                profiles = profiles,
+                                onCopy = {
+                                    onGuestCopyUrl(dialogState)
+                                },
+                                onExit = onBack,
+                                okText = stringResource(R.string.terracotta_status_guest_ok),
+                                codeLabel = stringResource(R.string.terracotta_status_guest_ok_address),
+                                copyTitle = stringResource(R.string.terracotta_status_guest_ok_address_copy),
+                                copyDesc = stringResource(R.string.terracotta_status_guest_ok_address_desc),
+                                backDesc = stringResource(R.string.terracotta_status_guest_ok_back)
+                            )
+                        }
+                        is TerracottaState.Exception -> {
+
+                        }
                     }
 
                     Row(
@@ -195,10 +239,12 @@ fun MultiplayerDialog(
 @Composable
 private fun WaitingUI(
     onHostClick: () -> Unit,
-    onGuestClick: () -> Unit,
+    onGuestPositive: (roomCode: String) -> Unit,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState()
 ) {
+    var guestOperation by remember { mutableStateOf<GuestWaitingOperation>(GuestWaitingOperation.None) }
+
     Column(
         modifier = modifier.verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -218,65 +264,37 @@ private fun WaitingUI(
             icon = Icons.Filled.Group,
             title = stringResource(R.string.terracotta_status_waiting_guest_title),
             description = stringResource(R.string.terracotta_status_waiting_guest_desc),
-            onClick = onGuestClick
+            onClick = {
+                guestOperation = GuestWaitingOperation.OnClick
+            }
         )
     }
-}
 
-/**
- * 房主：扫描游戏端口
- */
-@Composable
-private fun HostScanningUI(
-    modifier: Modifier = Modifier,
-    onBack: () -> Unit
-) {
-    CommonProgressLayout(
-        modifier = modifier,
-        progress = stringResource(R.string.terracotta_status_host_scanning),
-        text = {
-            Text(text = stringResource(R.string.terracotta_status_host_scanning_desc))
-        },
-        backDescription = stringResource(R.string.terracotta_status_host_scanning_back),
-        onBack = onBack
+    GuestWaitingOperation(
+        operation = guestOperation,
+        onChange = { guestOperation = it },
+        onPositive = onGuestPositive
     )
 }
 
 /**
- * 房主：启动房间中
+ * 已进入房间
  */
 @Composable
-private fun HostStartingUI(
+private fun OkRoomUI(
     modifier: Modifier = Modifier,
-    onBack: () -> Unit
-) {
-    CommonProgressLayout(
-        modifier = modifier,
-        progress = stringResource(R.string.terracotta_status_host_starting),
-        backDescription = stringResource(R.string.terracotta_status_host_starting_back),
-        onBack = onBack
-    )
-}
-
-/**
- * 房主：已进入房间
- */
-@Composable
-private fun HostOkRoomUI(
-    modifier: Modifier = Modifier,
-    roomCode: String,
+    code: String,
     profiles: List<TerracottaProfile>,
     onCopy: () -> Unit,
     onExit: () -> Unit,
+    okText: String,
+    codeLabel: String,
+    copyTitle: String,
+    copyDesc: String,
+    backTitle: String = stringResource(R.string.terracotta_back),
+    backDesc: String,
+    profilesLabel: String = stringResource(R.string.terracotta_player_list)
 ) {
-    val hostOkText = stringResource(R.string.terracotta_status_host_ok)
-    val codeLabel = stringResource(R.string.terracotta_status_host_ok_code)
-    val copyTitle = stringResource(R.string.terracotta_status_host_ok_code_copy)
-    val copyDesc = stringResource(R.string.terracotta_status_host_ok_code_desc)
-    val backTitle = stringResource(R.string.terracotta_back)
-    val backDesc = stringResource(R.string.terracotta_status_host_ok_back)
-    val profilesLabel = stringResource(R.string.terracotta_player_list)
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -292,14 +310,14 @@ private fun HostOkRoomUI(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = hostOkText)
+                Text(text = okText)
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
                 Text(
                     text = codeLabel,
                     style = MaterialTheme.typography.labelMedium
                 )
                 Text(
-                    text = roomCode,
+                    text = code,
                     style = MaterialTheme.typography.labelMedium
                 )
             }
