@@ -31,6 +31,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.decodeUnicode
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -135,16 +136,25 @@ class AuthServerApi(private var baseUrl: String) {
                 val result: AuthResult = response.safeBodyAsJson()
                 onSuccess(result)
             } else {
-                val errorMessage = "(${response.status.value}) ${parseError(response)}"
+                val errorMessage = response.getErrorMessage()
                 lError(errorMessage)
                 onFailed(ResponseException(errorMessage))
             }
-        } catch (_: CancellationException) {
+        } catch (e: ClientRequestException) {
+            val errorMessage = e.response.getErrorMessage()
+            lError(errorMessage, e)
+            onFailed(ResponseException(errorMessage))
+        } catch (e: CancellationException) {
             lDebug("Login cancelled")
+            throw e
         } catch (e: Exception) {
             lError("Request failed", e)
             onFailed(e)
         }
+    }
+
+    private suspend fun HttpResponse.getErrorMessage(): String {
+        return "(${status.value}) ${parseError(this)}"
     }
 
     private suspend fun parseError(response: HttpResponse): String {

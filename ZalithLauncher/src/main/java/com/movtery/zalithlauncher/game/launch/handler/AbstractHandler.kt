@@ -56,6 +56,7 @@ abstract class AbstractHandler(
 
     abstract fun onPause()
     abstract fun onResume()
+    abstract fun onDestroy()
     abstract fun onGraphicOutput()
     abstract fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean
     abstract fun sendMouseRight(isPressed: Boolean)

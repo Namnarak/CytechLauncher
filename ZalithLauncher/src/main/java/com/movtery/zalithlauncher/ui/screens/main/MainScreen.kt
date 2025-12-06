@@ -48,6 +48,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Task
@@ -95,6 +96,7 @@ import com.movtery.zalithlauncher.ui.screens.content.DownloadScreen
 import com.movtery.zalithlauncher.ui.screens.content.FileSelectorScreen
 import com.movtery.zalithlauncher.ui.screens.content.LauncherScreen
 import com.movtery.zalithlauncher.ui.screens.content.LicenseScreen
+import com.movtery.zalithlauncher.ui.screens.content.MultiplayerScreen
 import com.movtery.zalithlauncher.ui.screens.content.SettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionSettingsScreen
 import com.movtery.zalithlauncher.ui.screens.content.VersionsManageScreen
@@ -172,6 +174,12 @@ fun MainScreen(
                 },
                 toDownloadScreen = {
                     screenBackStackModel.navigateToDownload()
+                },
+                toMultiplayerScreen = {
+                    screenBackStackModel.mainScreen.removeAndNavigateTo(
+                        removes = screenBackStackModel.clearBeforeNavKeys,
+                        screenKey = NormalNavKey.Multiplayer
+                    )
                 }
             ) {
                 changeTasksExpandedState()
@@ -219,9 +227,11 @@ private fun TopBar(
     toMainScreen: () -> Unit,
     toSettingsScreen: () -> Unit,
     toDownloadScreen: () -> Unit,
+    toMultiplayerScreen: () -> Unit,
     changeExpandedState: () -> Unit = {}
 ) {
     val inLauncherScreen = mainScreenKey == null || mainScreenKey is NormalNavKey.LauncherMain
+    val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
 
@@ -336,6 +346,16 @@ private fun TopBar(
                         )
                     }
                 }
+
+                TopBarRailItem(
+                    selected = inMultiplayerScreen,
+                    icon = Icons.Filled.Group,
+                    text = stringResource(R.string.terracotta),
+                    onClick = {
+                        if (!inMultiplayerScreen) toMultiplayerScreen()
+                    },
+                    color = contentColor
+                )
 
                 TopBarRailItem(
                     selected = inDownloadScreen,
@@ -504,6 +524,12 @@ private fun NavigationUI(
                         backScreenViewModel = screenBackStackModel,
                         eventViewModel = eventViewModel,
                         submitError = submitError
+                    )
+                }
+                entry<NormalNavKey.Multiplayer> {
+                    MultiplayerScreen(
+                        backScreenViewModel = screenBackStackModel,
+                        eventViewModel = eventViewModel
                     )
                 }
             }

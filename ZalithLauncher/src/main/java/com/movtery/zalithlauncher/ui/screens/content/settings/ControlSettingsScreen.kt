@@ -287,6 +287,13 @@ fun ControlSettingsScreen(
                         enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
                     )
 
+                    SwitchSettingsLayout(
+                        unit = AllSettings.enableMouseClick,
+                        title = stringResource(R.string.settings_control_mouse_enable_click_title),
+                        summary = stringResource(R.string.settings_control_mouse_enable_click_summary),
+                        enabled = AllSettings.mouseControlMode.state == MouseControlMode.SLIDE //仅滑动模式下可更改设置
+                    )
+
                     ListSettingsLayout(
                         modifier = Modifier.fillMaxWidth(),
                         unit = AllSettings.mouseControlMode,

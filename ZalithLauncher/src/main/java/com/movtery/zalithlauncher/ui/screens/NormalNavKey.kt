@@ -43,6 +43,8 @@ sealed interface NormalNavKey : NavKey {
         val selectFile: Boolean,
         val saveKey: NavKey
     ) : NormalNavKey
+    /** 多人联机屏幕 */
+    @Serializable data object Multiplayer: NormalNavKey
 
     /** 设置嵌套子屏幕 */
     sealed interface Settings : NormalNavKey {

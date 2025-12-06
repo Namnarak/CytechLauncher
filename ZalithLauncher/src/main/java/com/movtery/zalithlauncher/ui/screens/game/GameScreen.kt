@@ -71,6 +71,7 @@ import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.keycodes.OPEN_CHAT
 import com.movtery.zalithlauncher.game.keycodes.mapToKeycode
+import com.movtery.zalithlauncher.game.launch.handler.GameHandler
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerInputModifier
 import com.movtery.zalithlauncher.game.support.touch_controller.touchControllerTouchModifier
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -102,6 +103,8 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlOpe
 import com.movtery.zalithlauncher.ui.screens.game.elements.ReplacementControlState
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.SendKeycodeState
+import com.movtery.zalithlauncher.ui.screens.game.multiplayer.TerracottaOperation
+import com.movtery.zalithlauncher.ui.screens.game.multiplayer.rememberTerracottaViewModel
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.ControlEditor
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.EditorViewModel
@@ -413,6 +416,7 @@ private fun rememberGameViewModel(
 @Composable
 fun GameScreen(
     version: Version,
+    gameHandler: GameHandler,
     isGameRendering: Boolean,
     logState: LogState,
     onLogStateChange: (LogState) -> Unit,
@@ -421,6 +425,7 @@ fun GameScreen(
     surfaceOffset: Offset,
     incrementScreenOffset: (Offset) -> Unit,
     resetScreenOffset: () -> Unit,
+    getAccountName: () -> String,
     eventViewModel: EventViewModel,
     gamepadViewModel: GamepadViewModel
 ) {
@@ -430,6 +435,12 @@ fun GameScreen(
     val isGrabbing = remember(ZLBridgeStates.cursorMode) {
         ZLBridgeStates.cursorMode == CURSOR_DISABLED
     }
+    val terracottaViewModel = rememberTerracottaViewModel(
+        keyTag = gameHandler.toString() + "_Terracotta",
+        gameHandler = gameHandler,
+        eventViewModel = eventViewModel,
+        getUserName = getAccountName
+    )
 
     SendKeycodeOperation(
         operation = viewModel.sendKeycodeState,
@@ -448,6 +459,10 @@ fun GameScreen(
         onChange = { viewModel.replacementControlState = it },
         currentLayout = viewModel.currentControlFile,
         replacementControl = { viewModel.loadControlLayout(it) }
+    )
+
+    TerracottaOperation(
+        viewModel = terracottaViewModel
     )
 
     BoxWithConstraints(
@@ -602,6 +617,8 @@ fun GameScreen(
             closeScreen = { viewModel.gameMenuState = MenuState.HIDE },
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },
+            enableTerracotta = AllSettings.enableTerracotta.state,
+            onOpenTerracottaMenu = { terracottaViewModel.openMenu() },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
             onInputMethod = { viewModel.switchIME() },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },

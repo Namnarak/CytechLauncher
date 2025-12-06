@@ -61,10 +61,11 @@ object NotificationManager {
 
     private fun createNotificationChannel(activity: Activity, channelData: NotificationChannelData) {
         val manager = activity.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(channelData.channelId, activity.getString(channelData.channelName), channelData.level).apply {
-            channelData.channelDescription?.let { desRes ->
-                description = activity.getString(desRes)
+        val channel = NotificationChannel(channelData.channelId, channelData.channelName(activity), channelData.level).apply {
+            channelData.channelDescription?.invoke(activity)?.let { desc ->
+                description = desc
             }
+            setShowBadge(channelData.showBadge)
         }
         manager.createNotificationChannel(channel)
     }

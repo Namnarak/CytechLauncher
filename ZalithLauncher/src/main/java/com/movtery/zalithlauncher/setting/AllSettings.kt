@@ -216,6 +216,11 @@ object AllSettings : SettingsRegistry() {
     val mouseLongPressDelay = intSetting("mouseLongPressDelay", 300, 100..1000)
 
     /**
+     * 是否开启虚拟鼠标点击操作
+     */
+    val enableMouseClick = boolSetting("enableMouseClick", true)
+
+    /**
      * 是否启用手柄控制
      */
     val gamepadControl = boolSetting("gamepadControl", true)
@@ -432,4 +437,14 @@ object AllSettings : SettingsRegistry() {
      * 控制布局编辑器：控件吸附模式
      */
     val editorWidgetSnapMode = enumSetting("editorWidgetSnapMode", SnapMode.FullScreen)
+
+    /**
+     * 是否启用陶瓦联机
+     */
+    val enableTerracotta = boolSetting("enableTerracotta", false)
+
+    /**
+     * 陶瓦联机公告版本号
+     */
+    val terracottaNoticeVer = intSetting("terracottaNoticeVer", -1)
 }

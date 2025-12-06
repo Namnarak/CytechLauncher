@@ -78,7 +78,12 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            isShrinkResources = false
             signingConfig = signingConfigs.getByName("releaseBuild")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         debug {
             isMinifyEnabled = false
@@ -240,6 +245,7 @@ dependencies {
     //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
+    implementation(project(":Terracotta"))
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)

@@ -67,6 +67,7 @@ private data class DragState(
 /**
  * 原始触摸控制模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
+ * @param enableMouseClick          是否开启虚拟鼠标点击操作（仅适用于滑动控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param pointerIcon               实体指针图标
@@ -88,6 +89,7 @@ private data class DragState(
 fun TouchpadLayout(
     modifier: Modifier = Modifier,
     controlMode: MouseControlMode = MouseControlMode.SLIDE,
+    enableMouseClick: Boolean = true,
     longPressTimeoutMillis: Long = -1L,
     requestPointerCapture: Boolean = true,
     pointerIcon: PointerIcon = PointerIcon.Default,
@@ -112,6 +114,7 @@ fun TouchpadLayout(
     //确保 pointerInput 中总是调用到最新的回调，避免闭包捕获旧值
     val currentOnTouch by rememberUpdatedState(onTouch)
     val currentControlMode by rememberUpdatedState(controlMode)
+    val currentEnableMouseClick by rememberUpdatedState(enableMouseClick)
     val currentLongPressTimeoutMillis by rememberUpdatedState(longPressTimeoutMillis)
     val currentOnTap by rememberUpdatedState(onTap)
     val currentOnLongPress by rememberUpdatedState(onLongPress)
@@ -159,7 +162,7 @@ fun TouchpadLayout(
 
                                         dragStates[pointerId] = DragState(startPosition = change.position)
 
-                                        if (!isMoveOnly && currentControlMode == MouseControlMode.SLIDE) {
+                                        if (!isMoveOnly && currentControlMode == MouseControlMode.SLIDE && currentEnableMouseClick) {
                                             longPressJobs[pointerId] = launch {
                                                 //只在滑动点击模式下进行长按计时
                                                 val timeout = if (currentLongPressTimeoutMillis > 0) {
@@ -194,15 +197,21 @@ fun TouchpadLayout(
                                         val isMoveOnly = isMoveOnlyPointer(pointerId)
 
                                         if (currentControlMode == MouseControlMode.SLIDE) {
-                                            val distanceFromStart = (moveChange.position - dragState.startPosition).getDistance()
+                                            if (currentEnableMouseClick) {
+                                                val distanceFromStart = (moveChange.position - dragState.startPosition).getDistance()
 
-                                            if (distanceFromStart > viewConfig.touchSlop && !dragState.isDragging) {
-                                                //超出了滑动检测距离，说明是真的在进行滑动
+                                                if (distanceFromStart > viewConfig.touchSlop && !dragState.isDragging) {
+                                                    //超出了滑动检测距离，说明是真的在进行滑动
+                                                    dragState.isDragging = true
+                                                    longPressJobs.remove(pointerId)?.cancel() //取消长按计时
+                                                }
+
+                                                if (dragState.isDragging || dragState.longPressTriggered) {
+                                                    val delta = moveChange.positionChange()
+                                                    currentOnPointerMove(delta)
+                                                }
+                                            } else {
                                                 dragState.isDragging = true
-                                                longPressJobs.remove(pointerId)?.cancel() //取消长按计时
-                                            }
-
-                                            if (dragState.isDragging || dragState.longPressTriggered) {
                                                 val delta = moveChange.positionChange()
                                                 currentOnPointerMove(delta)
                                             }
@@ -238,7 +247,7 @@ fun TouchpadLayout(
                                             } else {
                                                 when (currentControlMode) {
                                                     MouseControlMode.SLIDE -> {
-                                                        if (dragState?.isDragging != true) {
+                                                        if (currentEnableMouseClick && dragState?.isDragging != true) {
                                                             currentOnTap(change.position)
                                                         }
                                                     }

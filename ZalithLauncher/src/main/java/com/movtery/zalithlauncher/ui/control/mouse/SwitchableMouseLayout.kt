@@ -51,6 +51,7 @@ typealias CursorMode = Int
  * 可根据指针抓取模式，自切换的虚拟指针模拟层
  * @param cursorMode                当前指针抓取模式
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
+ * @param enableMouseClick          是否开启虚拟鼠标点击操作（仅适用于滑动控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param hideMouseInClickMode      是否在鼠标为点击控制模式时，隐藏鼠标指针
@@ -79,6 +80,7 @@ fun SwitchableMouseLayout(
     screenSize: IntSize,
     cursorMode: CursorMode,
     controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
+    enableMouseClick: Boolean = AllSettings.enableMouseClick.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     hideMouseInClickMode: Boolean = AllSettings.hideMouse.state,
@@ -232,6 +234,7 @@ fun SwitchableMouseLayout(
                 //捕获模式下，只有滑动控制模式才能获取到滑动偏移量
                 MouseControlMode.SLIDE
             },
+            enableMouseClick = enableMouseClick,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture1,
             pointerIcon = cursorShape.composeIcon,
