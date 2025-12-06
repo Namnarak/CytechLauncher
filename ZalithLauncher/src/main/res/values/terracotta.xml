@@ -9,6 +9,8 @@
     <string name="terracotta_back">Exit</string>
     <string name="terracotta_enable">Enable Multiplayer</string>
     <string name="terracotta_feedback_title">Fill Out Feedback Form</string>
+    <string name="terracotta_log">View Logs</string>
+    <string name="terracotta_log_exit">Close the log and return to the feature page.</string>
     <string name="terracotta_export_log">You can share logs on the launcher\'s multiplayer page to provide more information for error analysis.</string>
     <string name="terracotta_export_log_share">Share Multiplayer Core log</string>
     <string name="terracotta_export_log_share_null">No log found</string>

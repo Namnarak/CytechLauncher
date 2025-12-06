@@ -8,6 +8,8 @@
     <string name="terracotta_back">退出</string>
     <string name="terracotta_enable">启用多人联机</string>
     <string name="terracotta_feedback_title">填写反馈表</string>
+    <string name="terracotta_log">查看日志</string>
+    <string name="terracotta_log_exit">关闭日志，并回到功能页。</string>
     <string name="terracotta_export_log">可在启动器多人联机页面中分享日志，为分析错误提供更多信息</string>
     <string name="terracotta_export_log_share">分享联机核心日志</string>
     <string name="terracotta_export_log_share_null">未找到联机核心日志</string>

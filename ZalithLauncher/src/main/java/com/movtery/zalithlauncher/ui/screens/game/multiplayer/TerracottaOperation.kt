@@ -93,6 +93,9 @@ fun TerracottaOperation(
             MultiplayerDialog(
                 onClose = { viewModel.operation = TerracottaOperation.None },
                 dialogState = viewModel.dialogState,
+                logOperation = viewModel.dialogLogOperation,
+                onShowLog = { viewModel.showLog() },
+                onHideLog = { viewModel.hideLog() },
                 isWaitingInteractive = viewModel.isWaitingInteractive,
                 terracottaVer = viewModel.terracottaVer,
                 easyTierVer = viewModel.easyTierVer,

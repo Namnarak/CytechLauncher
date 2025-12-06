@@ -46,6 +46,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class TerracottaViewModel(
@@ -59,6 +61,12 @@ class TerracottaViewModel(
      * 联机菜单状态
      */
     var dialogState by mutableStateOf<TerracottaState.Ready?>(null)
+
+    /**
+     * 联机菜单日志展示状态
+     */
+    var dialogLogOperation by mutableStateOf<TerracottaLogOperation>(TerracottaLogOperation.None)
+        private set
 
     /**
      * 陶瓦联机核心版本号，在初始化完成后非null
@@ -98,6 +106,35 @@ class TerracottaViewModel(
         if (allJobs.isEmpty()) initJobs()
 
         operation = TerracottaOperation.ShowMenu
+    }
+
+    private val logMutex = Mutex()
+    /**
+     * 在联机菜单中显示当前核心的日志
+     */
+    fun showLog() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = logMutex.withLock {
+                if (dialogLogOperation is TerracottaLogOperation.CollectingLog) return@withLock null
+                TerracottaLogOperation.CollectingLog
+            }
+
+            result ?: return@launch
+            dialogLogOperation = result
+
+            val finalState = Terracotta.collectLogs()?.let { logString ->
+                TerracottaLogOperation.EnableLog(logString)
+            } ?: TerracottaLogOperation.None //收集失败，回退到正常状态
+
+            dialogLogOperation = finalState
+        }
+    }
+
+    /**
+     * 让联机菜单退出日志状态
+     */
+    fun hideLog() {
+        dialogLogOperation = TerracottaLogOperation.None
     }
 
     /**

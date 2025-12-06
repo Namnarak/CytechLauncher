@@ -6,13 +6,19 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -130,8 +136,11 @@ public final class TerracottaAndroidAPI {
     private static final class RuntimeContext {
         private final VpnServiceCallback vpnServiceCallback;
 
-        public RuntimeContext(VpnServiceCallback vpnServiceCallback) {
+        private final RandomAccessFile logging;
+
+        public RuntimeContext(VpnServiceCallback vpnServiceCallback, RandomAccessFile logging) {
             this.vpnServiceCallback = vpnServiceCallback;
+            this.logging = logging;
         }
     }
 
@@ -181,8 +190,10 @@ public final class TerracottaAndroidAPI {
             throw new RuntimeException("Cannot create net.burningtnt.terracotta/rs directory.");
         }
 
+        RandomAccessFile logging;
         int fd;
-        try (RandomAccessFile logging = new RandomAccessFile(new File(logFile), "rw")) {
+        try {
+            logging = new RandomAccessFile(new File(logFile), "rw");
             fd = ParcelFileDescriptor.dup(logging.getFD()).detachFd();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -193,7 +204,7 @@ public final class TerracottaAndroidAPI {
             throw new RuntimeException("Cannot start Terracotta Android: " + code);
         }
 
-        runtimeContext = new RuntimeContext(callback);
+        runtimeContext = new RuntimeContext(callback, logging);
 
         String[] parts = getMetadata0().split("\0", 4);
         if (parts.length != 3) {
@@ -291,6 +302,79 @@ public final class TerracottaAndroidAPI {
             default:
                 throw new AssertionError("Should NOT be here.");
         }
+    }
+
+    /**
+     * <p>Collect logs of Terracotta Android.</p>
+     *
+     * <p>Developers must immediately copy all data out of the returned reader and close it.
+     * Otherwise all methods, except 'parseRoomCode', will be blocked.</p>
+     *
+     * @return A reader containing logs.
+     * @throws RuntimeException if logging export is unsupported.
+     */
+    public static Reader collectLogs() throws IOException {
+        assertStarted();
+
+        long ptr = prepareExportLogs0();
+        if (ptr == 0) {
+            throw new RuntimeException("Cannot export logs from Terracotta Android.");
+        }
+
+        RandomAccessFile file = runtimeContext.logging;
+        file.seek(0);
+
+        return new BufferedReader(new InputStreamReader(new InputStream() {
+            private final AtomicBoolean closed = new AtomicBoolean(false);
+
+            @Override
+            public int read() throws IOException {
+                assertOpen();
+                return file.read();
+            }
+
+            @Override
+            public int read(byte[] b) throws IOException {
+                assertOpen();
+                return file.read(b);
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                assertOpen();
+                return file.read(b, off, len);
+            }
+
+            @Override
+            public int available() throws IOException {
+                assertOpen();
+                return Math.toIntExact(file.length() - file.getFilePointer());
+            }
+
+            @Override
+            public void close() throws IOException {
+                super.close();
+                cleanup();
+            }
+
+            @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+                cleanup();
+            }
+
+            private void assertOpen() throws IOException {
+                if (closed.get()) {
+                    throw new IOException("Stream has already been closed");
+                }
+            }
+
+            private void cleanup() {
+                if (closed.compareAndSet(false, true)) {
+                    finishExportLogs0(ptr);
+                }
+            }
+        }, StandardCharsets.UTF_8));
     }
 
     /**

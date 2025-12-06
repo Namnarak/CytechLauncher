@@ -66,8 +66,20 @@ import com.movtery.zalithlauncher.terracotta.profile.TerracottaProfile
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 
+sealed interface TerracottaLogOperation {
+    /** 正常情况下，不展示日志内容，显示对话框 UI */
+    data object None : TerracottaLogOperation
+    /** 正在收集日志 */
+    data object CollectingLog : TerracottaLogOperation
+    /** 切换到展示日志的模式 */
+    data class EnableLog(val logString: String) : TerracottaLogOperation
+}
+
 /**
  * 多人联机菜单Dialog
+ * @param logOperation 陶瓦联机核心日志展示状态
+ * @param onShowLog 联机菜单请求切换到日志展示状态
+ * @param onHideLog 联机菜单请求退出日志展示状态
  * @param isWaitingInteractive 在等待页面是否可以进行交互
  * @param terracottaVer 陶瓦联机核心版本号
  * @param easyTierVer EasyTier版本号
@@ -82,6 +94,9 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 fun MultiplayerDialog(
     onClose: () -> Unit,
     dialogState: TerracottaState.Ready?,
+    logOperation: TerracottaLogOperation,
+    onShowLog: () -> Unit,
+    onHideLog: () -> Unit,
     isWaitingInteractive: Boolean,
     terracottaVer: String?,
     easyTierVer: String?,
@@ -124,90 +139,101 @@ fun MultiplayerDialog(
                         .weight(1f, fill = false)
                         .fillMaxWidth()
 
-                    when (dialogState) {
-                        null -> {
-                            Box(
-                                modifier = commonModifier,
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                    when (logOperation) {
+                        is TerracottaLogOperation.None, TerracottaLogOperation.CollectingLog -> {
+                            when (dialogState) {
+                                null -> {
+                                    Box(
+                                        modifier = commonModifier,
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                                is TerracottaState.Waiting -> {
+                                    WaitingUI(
+                                        modifier = commonModifier,
+                                        onHostClick = onHostRoleClick,
+                                        onGuestPositive = onGuestPositive,
+                                        isInteractive = isWaitingInteractive
+                                    )
+                                }
+                                is TerracottaState.HostScanning -> {
+                                    CommonProgressLayout(
+                                        modifier = commonModifier,
+                                        progress = stringResource(R.string.terracotta_status_host_scanning),
+                                        text = {
+                                            Text(
+                                                text = stringResource(R.string.terracotta_status_host_scanning_desc),
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        },
+                                        backDescription = stringResource(R.string.terracotta_status_host_scanning_back),
+                                        onBack = onBack
+                                    )
+                                }
+                                is TerracottaState.HostStarting -> {
+                                    CommonProgressLayout(
+                                        modifier = commonModifier,
+                                        progress = stringResource(R.string.terracotta_status_host_starting),
+                                        backDescription = stringResource(R.string.terracotta_status_host_starting_back),
+                                        onBack = onBack
+                                    )
+                                }
+                                is TerracottaState.HostOK -> {
+                                    OkRoomUI(
+                                        modifier = commonModifier,
+                                        code = dialogState.code ?: "",//不会为null
+                                        profiles = profiles,
+                                        onCopy = {
+                                            onHostCopyCode(dialogState)
+                                        },
+                                        onExit = onBack,
+                                        okText = stringResource(R.string.terracotta_status_host_ok),
+                                        codeLabel = stringResource(R.string.terracotta_status_host_ok_code),
+                                        copyTitle = stringResource(R.string.terracotta_status_host_ok_code_copy),
+                                        copyDesc = stringResource(R.string.terracotta_status_host_ok_code_desc),
+                                        backDesc = stringResource(R.string.terracotta_status_host_ok_back)
+                                    )
+                                }
+                                is TerracottaState.GuestStarting -> {
+                                    CommonProgressLayout(
+                                        modifier = commonModifier,
+                                        progress = stringResource(R.string.terracotta_status_guest_starting),
+                                        backDescription = stringResource(R.string.terracotta_status_guest_starting_back),
+                                        onBack = onBack
+                                    )
+                                }
+                                is TerracottaState.GuestOK -> {
+                                    OkRoomUI(
+                                        modifier = commonModifier,
+                                        code = dialogState.url ?: "",
+                                        profiles = profiles,
+                                        onCopy = {
+                                            onGuestCopyUrl(dialogState)
+                                        },
+                                        onExit = onBack,
+                                        okText = stringResource(R.string.terracotta_status_guest_ok),
+                                        codeLabel = stringResource(R.string.terracotta_status_guest_ok_address),
+                                        copyTitle = stringResource(R.string.terracotta_status_guest_ok_address_copy),
+                                        copyDesc = stringResource(R.string.terracotta_status_guest_ok_address_desc),
+                                        backDesc = stringResource(R.string.terracotta_status_guest_ok_back)
+                                    )
+                                }
+                                is TerracottaState.Exception -> {
+                                    ExceptionUI(
+                                        modifier = commonModifier,
+                                        title = stringResource(dialogState.getEnumType().textRes),
+                                        onExit = onBack
+                                    )
+                                }
                             }
                         }
-                        is TerracottaState.Waiting -> {
-                            WaitingUI(
+                        is TerracottaLogOperation.EnableLog -> {
+                            LogUI(
                                 modifier = commonModifier,
-                                onHostClick = onHostRoleClick,
-                                onGuestPositive = onGuestPositive,
-                                isInteractive = isWaitingInteractive
-                            )
-                        }
-                        is TerracottaState.HostScanning -> {
-                            CommonProgressLayout(
-                                modifier = commonModifier,
-                                progress = stringResource(R.string.terracotta_status_host_scanning),
-                                text = {
-                                    Text(
-                                        text = stringResource(R.string.terracotta_status_host_scanning_desc),
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                },
-                                backDescription = stringResource(R.string.terracotta_status_host_scanning_back),
-                                onBack = onBack
-                            )
-                        }
-                        is TerracottaState.HostStarting -> {
-                            CommonProgressLayout(
-                                modifier = commonModifier,
-                                progress = stringResource(R.string.terracotta_status_host_starting),
-                                backDescription = stringResource(R.string.terracotta_status_host_starting_back),
-                                onBack = onBack
-                            )
-                        }
-                        is TerracottaState.HostOK -> {
-                            OkRoomUI(
-                                modifier = commonModifier,
-                                code = dialogState.code ?: "",//不会为null
-                                profiles = profiles,
-                                onCopy = {
-                                    onHostCopyCode(dialogState)
-                                },
-                                onExit = onBack,
-                                okText = stringResource(R.string.terracotta_status_host_ok),
-                                codeLabel = stringResource(R.string.terracotta_status_host_ok_code),
-                                copyTitle = stringResource(R.string.terracotta_status_host_ok_code_copy),
-                                copyDesc = stringResource(R.string.terracotta_status_host_ok_code_desc),
-                                backDesc = stringResource(R.string.terracotta_status_host_ok_back)
-                            )
-                        }
-                        is TerracottaState.GuestStarting -> {
-                            CommonProgressLayout(
-                                modifier = commonModifier,
-                                progress = stringResource(R.string.terracotta_status_guest_starting),
-                                backDescription = stringResource(R.string.terracotta_status_guest_starting_back),
-                                onBack = onBack
-                            )
-                        }
-                        is TerracottaState.GuestOK -> {
-                            OkRoomUI(
-                                modifier = commonModifier,
-                                code = dialogState.url ?: "",
-                                profiles = profiles,
-                                onCopy = {
-                                    onGuestCopyUrl(dialogState)
-                                },
-                                onExit = onBack,
-                                okText = stringResource(R.string.terracotta_status_guest_ok),
-                                codeLabel = stringResource(R.string.terracotta_status_guest_ok_address),
-                                copyTitle = stringResource(R.string.terracotta_status_guest_ok_address_copy),
-                                copyDesc = stringResource(R.string.terracotta_status_guest_ok_address_desc),
-                                backDesc = stringResource(R.string.terracotta_status_guest_ok_back)
-                            )
-                        }
-                        is TerracottaState.Exception -> {
-                            ExceptionUI(
-                                modifier = commonModifier,
-                                title = stringResource(dialogState.getEnumType().textRes),
-                                onExit = onBack
+                                logString = logOperation.logString,
+                                onExit = onHideLog
                             )
                         }
                     }
@@ -228,6 +254,19 @@ fun MultiplayerDialog(
                                 text = stringResource(R.string.terracotta_metadata_easytier_ver, easyTierVer0),
                                 style = MaterialTheme.typography.labelMedium
                             )
+                        }
+
+                        //查看日志
+                        TextButton(
+                            onClick = onShowLog,
+                            enabled = logOperation !is TerracottaLogOperation.CollectingLog
+                        ) {
+                            if (logOperation is TerracottaLogOperation.EnableLog) {
+                                //切换文字到 -> 刷新
+                                Text(text = stringResource(R.string.generic_refresh))
+                            } else {
+                                Text(text = stringResource(R.string.terracotta_log))
+                            }
                         }
 
                         //关闭
@@ -459,6 +498,39 @@ private fun ExceptionUI(
     }
 }
 
+/**
+ * 展示日志
+ */
+@Composable
+private fun LogUI(
+    logString: String,
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(text = logString)
+        }
+        //退出按钮
+        SimpleRowButton(
+            modifier = Modifier.fillMaxWidth(),
+            icon = Icons.AutoMirrored.Default.ArrowBack,
+            title = stringResource(R.string.terracotta_back),
+            description = stringResource(R.string.terracotta_log_exit),
+            onClick = onExit
+        )
+    }
+}
+
 @Composable
 private fun CommonProgressLayout(
     progress: String,
@@ -537,7 +609,9 @@ private fun SimpleCardButton(
                 )
                 //描述
                 Text(
-                    modifier = Modifier.fillMaxWidth().alpha(0.7f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .alpha(0.7f),
                     text = description,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -582,7 +656,9 @@ private fun SimpleRowButton(
             )
             //描述
             MarqueeText(
-                modifier = Modifier.fillMaxWidth().alpha(0.7f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.7f),
                 text = description,
                 style = MaterialTheme.typography.bodySmall
             )
