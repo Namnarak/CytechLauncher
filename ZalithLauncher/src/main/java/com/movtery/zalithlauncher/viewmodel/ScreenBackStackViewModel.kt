@@ -19,11 +19,9 @@
 package com.movtery.zalithlauncher.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.addIfEmpty
-import kotlin.reflect.KClass
 
 class ScreenBackStackViewModel : ViewModel() {
     /** 主屏幕 */
@@ -62,5 +60,9 @@ class ScreenBackStackViewModel : ViewModel() {
      * 在跳转前，先将导航栈中所有属于 [clearBeforeNavKeys] 的页面全部移除
      * 这样可以避免用户在这几个页面间产生叠加栈或多层返回的情况
      */
-    val clearBeforeNavKeys = listOf<KClass<out NavKey>>(settingsScreen::class, downloadScreen::class)
+    val clearBeforeNavKeys = listOf(
+        settingsScreen::class,
+        downloadScreen::class,
+        NormalNavKey.Multiplayer::class
+    )
 }

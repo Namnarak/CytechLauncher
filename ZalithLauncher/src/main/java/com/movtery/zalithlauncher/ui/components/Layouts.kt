@@ -175,7 +175,9 @@ fun <E> SimpleListLayout(
     autoCollapse: Boolean = true,
     itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
     onValueChange: (E) -> Unit = {},
-    selectableAreaShape: Shape = RoundedCornerShape(22.0.dp)
+    selectableAreaShape: Shape = RoundedCornerShape(22.0.dp),
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
@@ -212,7 +214,9 @@ fun <E> SimpleListLayout(
                 ) {
                     TitleAndSummary(
                         title = title,
-                        summary = summary
+                        summary = summary,
+                        titleStyle = titleStyle,
+                        summaryStyle = summaryStyle
                     )
                     Text(
                         modifier = Modifier.alpha(0.7f),
@@ -343,7 +347,9 @@ fun TextInputLayout(
     onValueChange: (String) -> Unit = {},
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     var value by remember { mutableStateOf(currentValue) }
 
@@ -354,7 +360,12 @@ fun TextInputLayout(
             .padding(bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        TitleAndSummary(title = title, summary = summary)
+        TitleAndSummary(
+            title = title,
+            summary = summary,
+            titleStyle = titleStyle,
+            summaryStyle = summaryStyle
+        )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = value,
@@ -385,6 +396,8 @@ fun SimpleIntSliderLayout(
     enabled: Boolean = true,
     shorter: Boolean = true,
     fineTuningControl: Boolean = false,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
     appendContent: @Composable () -> Unit = {}
 ) {
     var showValueEditDialog by remember { mutableStateOf(false) }
@@ -400,7 +413,9 @@ fun SimpleIntSliderLayout(
         ) {
             TitleAndSummary(
                 title = title,
-                summary = summary
+                summary = summary,
+                titleStyle = titleStyle,
+                summaryStyle = summaryStyle
             )
         }
         SimpleTextSlider(
@@ -489,7 +504,10 @@ fun SwitchLayout(
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
+    verticalAlignment: Alignment.Vertical = Alignment.Top,
     shape: Shape = RoundedCornerShape(22.0.dp),
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall,
     trailingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
     Row(
@@ -497,8 +515,8 @@ fun SwitchLayout(
             .fillMaxWidth()
             .clip(shape = shape)
             .clickable(enabled = enabled) { onCheckedChange(!checked) }
-            .padding(all = 8.dp)
-            .padding(bottom = 4.dp)
+            .padding(all = 8.dp),
+        verticalAlignment = verticalAlignment
     ) {
         Column(
             modifier = Modifier
@@ -508,7 +526,9 @@ fun SwitchLayout(
         ) {
             TitleAndSummary(
                 title = title,
-                summary = summary
+                summary = summary,
+                titleStyle = titleStyle,
+                summaryStyle = summaryStyle
             )
         }
 
@@ -529,7 +549,9 @@ fun SwitchLayout(
 fun TitleAndSummary(
     modifier: Modifier = Modifier,
     title: String,
-    summary: String? = null
+    summary: String? = null,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     Column(
         modifier = modifier,
@@ -537,13 +559,13 @@ fun TitleAndSummary(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall
+            style = titleStyle
         )
         summary?.let { text ->
             Text(
                 modifier = Modifier.alpha(0.7f),
                 text = text,
-                style = MaterialTheme.typography.labelSmall
+                style = summaryStyle
             )
         }
     }

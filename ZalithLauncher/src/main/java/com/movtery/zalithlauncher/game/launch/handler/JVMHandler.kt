@@ -104,6 +104,9 @@ class JVMHandler(
     override fun onResume() {
     }
 
+    override fun onDestroy() {
+    }
+
     override fun onGraphicOutput() {
     }
 

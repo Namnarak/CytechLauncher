@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE"/>
 
     <application
         android:name="ZLApplication"
@@ -25,7 +26,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme.ZalithLauncher"
         android:appCategory="game"
-        android:process=":launcher"
         android:supportsRtl="true"
         android:isGame="true"
         android:allowBackup="true"
@@ -60,7 +60,6 @@
             android:name=".ui.activities.VMActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
-            android:launchMode="singleTop"
             android:process=":game"
             android:screenOrientation="sensorLandscape" />
         <activity android:name=".ui.activities.ErrorActivity"
@@ -75,6 +74,18 @@
             android:enabled="true"
             android:foregroundServiceType="dataSync"
             android:process=":jvm" />
+
+        <service
+            android:name=".terracotta.TerracottaVPNService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="true"
+            android:process=":game"
+            android:foregroundServiceType="connectedDevice|dataSync"
+            tools:ignore="VpnServicePolicy">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
 
         <provider
             android:name=".provider.FolderProvider"

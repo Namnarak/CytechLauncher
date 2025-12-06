@@ -18,7 +18,7 @@
 
 package com.movtery.zalithlauncher.game.launch.handler
 
-import android.content.Context
+import android.app.Activity
 import android.view.KeyEvent
 import android.view.Surface
 import androidx.compose.runtime.Composable
@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.ui.control.gamepad.isGamepadKeyEvent
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
@@ -68,12 +69,12 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.createTempDirectory
 
 class GameHandler(
-    private val context: Context,
+    val activity: Activity,
     private val version: Version,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
     getWindowSize: () -> IntSize,
-    gameLauncher: GameLauncher,
+    private val gameLauncher: GameLauncher,
     onExit: (code: Int) -> Unit
 ) : AbstractHandler(HandlerType.GAME, eventViewModel, getWindowSize, gameLauncher, onExit) {
     private val isTouchProxyEnabled = version.isTouchProxyEnabled()
@@ -90,7 +91,7 @@ class GameHandler(
     override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         ZLBridge.setupBridgeWindow(surface)
 
-        MCOptions.setup(context, version)
+        MCOptions.setup(activity, version)
 
         MCOptions.apply {
             set("fullscreen", "false")
@@ -110,6 +111,10 @@ class GameHandler(
     override fun onResume() {
         refreshControls()
         eventViewModel.sendEvent(EventViewModel.Event.Game.OnResume)
+    }
+
+    override fun onDestroy() {
+        Terracotta.setWaiting(false)
     }
 
     override fun onGraphicOutput() {
@@ -171,6 +176,7 @@ class GameHandler(
     ) {
         GameScreen(
             version = version,
+            gameHandler = this,
             isGameRendering = isGameRendering,
             logState = logState,
             onLogStateChange = { logState = it },
@@ -179,6 +185,7 @@ class GameHandler(
             surfaceOffset = surfaceOffset,
             incrementScreenOffset = incrementScreenOffset,
             resetScreenOffset = resetScreenOffset,
+            getAccountName = { gameLauncher.account.username },
             eventViewModel = eventViewModel,
             gamepadViewModel = gamepadViewModel
         )

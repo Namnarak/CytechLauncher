@@ -141,7 +141,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 onExit = exitListener
             ).also { launcher ->
                 handler = GameHandler(
-                    context = this,
+                    activity = this,
                     version = version,
                     eventViewModel = eventViewModel,
                     gamepadViewModel = gamepadViewModel,
@@ -254,6 +254,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             delay(500)
             refreshSize()
         }
+    }
+
+    override fun onDestroy() {
+        runIfHandlerInitialized { it.onDestroy() }
+        super.onDestroy()
     }
 
     @SuppressLint("RestrictedApi")
@@ -408,7 +413,6 @@ fun runGame(context: Context, version: Version) {
     val intent = Intent(context, VMActivity::class.java).apply {
         putExtra(INTENT_RUN_GAME, true)
         putExtra(INTENT_VERSION, version)
-        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
     context.startActivity(intent)
 }
@@ -441,7 +445,6 @@ fun runJar(
     val intent = Intent(context, VMActivity::class.java).apply {
         putExtra(INTENT_RUN_JAR, true)
         putExtra(INTENT_JAR_INFO, jvmLaunchInfo)
-        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
     }
     context.startActivity(intent)
 }
