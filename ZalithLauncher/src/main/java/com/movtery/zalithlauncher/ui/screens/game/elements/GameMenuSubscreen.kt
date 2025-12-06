@@ -445,6 +445,16 @@ private fun ControlMouse(
                 enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK
             )
         }
+        //触控板式操作
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.settings_control_mouse_enable_click_title),
+                switch = AllSettings.enableMouseClick.state,
+                onSwitch = { AllSettings.enableMouseClick.save(it) },
+                enabled = AllSettings.mouseControlMode.state == MouseControlMode.SLIDE
+            )
+        }
         //鼠标控制模式
         item {
             MenuListLayout(

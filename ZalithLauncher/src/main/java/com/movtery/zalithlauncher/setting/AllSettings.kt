@@ -216,6 +216,11 @@ object AllSettings : SettingsRegistry() {
     val mouseLongPressDelay = intSetting("mouseLongPressDelay", 300, 100..1000)
 
     /**
+     * 是否开启虚拟鼠标点击操作
+     */
+    val enableMouseClick = boolSetting("enableMouseClick", true)
+
+    /**
      * 是否启用手柄控制
      */
     val gamepadControl = boolSetting("gamepadControl", true)

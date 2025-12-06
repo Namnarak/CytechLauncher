@@ -99,6 +99,7 @@ val notAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("not_allow
 /**
  * 虚拟指针模拟层
  * @param controlMode               控制模式：SLIDE（滑动控制）、CLICK（点击控制）
+ * @param enableMouseClick          是否开启虚拟鼠标点击操作（仅适用于滑动控制）
  * @param longPressTimeoutMillis    长按触发检测时长
  * @param requestPointerCapture     是否使用鼠标抓取方案
  * @param hideMouseInClickMode      是否在鼠标为点击控制模式时，隐藏鼠标指针
@@ -119,6 +120,7 @@ val notAllowedPointerFile: File = PathManager.DIR_MOUSE_POINTER.child("not_allow
 fun VirtualPointerLayout(
     modifier: Modifier = Modifier,
     controlMode: MouseControlMode = AllSettings.mouseControlMode.state,
+    enableMouseClick: Boolean = AllSettings.enableMouseClick.state,
     longPressTimeoutMillis: Long = AllSettings.mouseLongPressDelay.state.toLong(),
     requestPointerCapture: Boolean = !AllSettings.physicalMouseMode.state,
     hideMouseInClickMode: Boolean = AllSettings.hideMouse.state,
@@ -190,6 +192,7 @@ fun VirtualPointerLayout(
         TouchpadLayout(
             modifier = Modifier.fillMaxSize(),
             controlMode = controlMode,
+            enableMouseClick = enableMouseClick,
             longPressTimeoutMillis = longPressTimeoutMillis,
             requestPointerCapture = requestPointerCapture,
             pointerIcon = cursorShape.composeIcon,
