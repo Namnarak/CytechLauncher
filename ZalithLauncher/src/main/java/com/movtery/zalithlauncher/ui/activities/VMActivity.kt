@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.view.InputDevice
@@ -34,6 +33,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -85,6 +86,7 @@ import kotlinx.coroutines.launch
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
+import android.graphics.Color as NativeColor
 
 private const val INTENT_RUN_GAME = "BUNDLE_RUN_GAME"
 private const val INTENT_RUN_JAR = "INTENT_RUN_JAR"
@@ -175,7 +177,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         refreshWindowSize()
 
         window?.apply {
-            setBackgroundDrawable(Color.BLACK.toDrawable())
+            setBackgroundDrawable(NativeColor.BLACK.toDrawable())
             if (AllSettings.sustainedPerformance.getValue()) {
                 setSustainedPerformanceMode(true)
             }
@@ -334,6 +336,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             val inputArea by handler.inputArea.collectAsState()
 
             Layout(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
                 content = {
                     AndroidView(
                         modifier = Modifier
