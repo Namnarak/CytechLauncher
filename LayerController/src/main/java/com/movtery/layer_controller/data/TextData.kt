@@ -19,6 +19,7 @@
 package com.movtery.layer_controller.data
 
 import com.movtery.layer_controller.data.lang.TranslatableString
+import com.movtery.layer_controller.observable.Modifiable
 import com.movtery.layer_controller.utils.getAButtonUUID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -48,12 +49,25 @@ data class TextData(
     val textUnderline: Boolean = false,
     @SerialName("visibilityType")
     val visibilityType: VisibilityType
-): Widget
+): Widget, Modifiable<TextData> {
+    override fun isModified(other: TextData): Boolean {
+        return this.text.isModified(other.text) ||
+                this.uuid != other.uuid ||
+                this.position.isModified(other.position) ||
+                this.buttonSize.isModified(other.buttonSize) ||
+                this.buttonStyle != other.buttonStyle ||
+                this.textAlignment != other.textAlignment ||
+                this.textBold != other.textBold ||
+                this.textItalic != other.textItalic ||
+                this.textUnderline != other.textUnderline ||
+                this.visibilityType != other.visibilityType
+    }
+}
 
 /**
  * 克隆一个新的TextData对象（UUID、位置不同）
  */
-public fun TextData.cloneNew(): TextData = TextData(
+fun TextData.cloneNew(): TextData = TextData(
     text = this.text,
     uuid = getAButtonUUID(),
     position = CenterPosition,

@@ -18,6 +18,8 @@
 
 package com.movtery.layer_controller.data.lang
 
+import com.movtery.layer_controller.observable.Modifiable
+import com.movtery.layer_controller.observable.isModified
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Locale
@@ -32,7 +34,7 @@ data class TranslatableString(
     val default: String,
     @SerialName("matchQueue")
     val matchQueue: List<LocalizedString>
-) {
+): Modifiable<TranslatableString> {
     fun translate(locale: Locale = Locale.getDefault()): String {
         matchQueue.forEach { ls ->
             val value = ls.check(locale)
@@ -40,10 +42,15 @@ data class TranslatableString(
         }
         return default
     }
+
+    override fun isModified(other: TranslatableString): Boolean {
+        return this.default != other.default ||
+                this.matchQueue.isModified(other.matchQueue)
+    }
 }
 
-public val EmptyTranslatableString = TranslatableString("", emptyList())
+val EmptyTranslatableString = TranslatableString("", emptyList())
 
-public fun createTranslatable(default: String, vararg matchQueue: LocalizedString): TranslatableString {
+fun createTranslatable(default: String, vararg matchQueue: LocalizedString): TranslatableString {
     return TranslatableString(default = default, matchQueue = matchQueue.toList())
 }

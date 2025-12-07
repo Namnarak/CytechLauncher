@@ -31,7 +31,9 @@ import kotlinx.coroutines.flow.update
 /**
  * 可观察的ControlLayer包装类
  */
-class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
+class ObservableControlLayer(
+    private val layer: ControlLayer
+): Packable<ControlLayer> {
     val uuid: String = layer.uuid
 
     var editorHide by mutableStateOf(layer.hide)
@@ -119,5 +121,9 @@ class ObservableControlLayer(layer: ControlLayer): Packable<ControlLayer> {
             normalButtons = _normalButtons.value.map { it.packNormal() },
             textBoxes = _textBoxes.value.map { it.packText() }
         )
+    }
+
+    override fun isModified(): Boolean {
+        return this.layer.isModified(pack())
     }
 }

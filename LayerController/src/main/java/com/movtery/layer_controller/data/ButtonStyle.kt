@@ -20,6 +20,7 @@ package com.movtery.layer_controller.data
 
 import androidx.compose.ui.graphics.Color
 import com.movtery.layer_controller.data.ButtonStyle.StyleConfig
+import com.movtery.layer_controller.observable.Modifiable
 import com.movtery.layer_controller.utils.randomUUID
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -43,7 +44,7 @@ data class ButtonStyle(
     val lightStyle: StyleConfig,
     @SerialName("darkStyle")
     val darkStyle: StyleConfig
-) {
+): Modifiable<ButtonStyle> {
     /**
      * @param alpha 整体不透明度
      * @param backgroundColor 背景颜色
@@ -84,10 +85,33 @@ data class ButtonStyle(
         val borderRadius: ButtonShape,
         @SerialName("pressedBorderRadius")
         val pressedBorderRadius: ButtonShape
-    )
+    ): Modifiable<StyleConfig> {
+        override fun isModified(other: StyleConfig): Boolean {
+            return this.alpha != other.alpha ||
+                    this.pressedAlpha != other.pressedAlpha ||
+                    this.backgroundColor != other.backgroundColor ||
+                    this.pressedBackgroundColor != other.pressedBackgroundColor ||
+                    this.contentColor != other.contentColor ||
+                    this.pressedContentColor != other.pressedContentColor ||
+                    this.borderWidth != other.borderWidth ||
+                    this.pressedBorderWidth != other.pressedBorderWidth ||
+                    this.borderColor != other.borderColor ||
+                    this.pressedBorderColor != other.pressedBorderColor ||
+                    this.borderRadius.isModified(other.borderRadius) ||
+                    this.pressedBorderRadius.isModified(other.pressedBorderRadius)
+        }
+    }
+
+    override fun isModified(other: ButtonStyle): Boolean {
+        return this.name != other.name ||
+                this.uuid != other.uuid ||
+                this.animateSwap != other.animateSwap ||
+                this.lightStyle.isModified(other.lightStyle) ||
+                this.darkStyle.isModified(other.darkStyle)
+    }
 }
 
-public val DefaultStyleConfig = StyleConfig(
+val DefaultStyleConfig = StyleConfig(
     alpha = 1f,
     backgroundColor = Color.Black.copy(alpha = 0.5f),
     contentColor = Color.White,
@@ -102,7 +126,7 @@ public val DefaultStyleConfig = StyleConfig(
     pressedBorderRadius = ButtonShape(0f)
 )
 
-public val DefaultStyle = ButtonStyle(
+val DefaultStyle = ButtonStyle(
     name = "Default",
     uuid = randomUUID(),
     animateSwap = false,
@@ -110,12 +134,12 @@ public val DefaultStyle = ButtonStyle(
     darkStyle = DefaultStyleConfig
 )
 
-public fun createNewStyle(name: String): ButtonStyle = DefaultStyle.copy(name = name, uuid = randomUUID())
+fun createNewStyle(name: String): ButtonStyle = DefaultStyle.copy(name = name, uuid = randomUUID())
 
 /**
  * 克隆一个新的ButtonStyle对象（UUID不同）
  */
-public fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
+fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
     name = name,
     uuid = randomUUID(),
     animateSwap = animateSwap,

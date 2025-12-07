@@ -28,7 +28,9 @@ import kotlinx.coroutines.flow.update
 /**
  * 可观察的ControlLayout包装类，用于监听变化
  */
-class ObservableControlLayout(private val layout: ControlLayout): Packable<ControlLayout> {
+class ObservableControlLayout(
+    private val layout: ControlLayout
+): Packable<ControlLayout> {
     val info = ObservableControlInfo(layout.info)
 
     private val _layers = MutableStateFlow(layout.layers.map { ObservableControlLayer(it) })
@@ -146,5 +148,9 @@ class ObservableControlLayout(private val layout: ControlLayout): Packable<Contr
             layers = _layers.value.map { it.pack() },
             styles = _styles.value.map { it.pack() }
         )
+    }
+
+    override fun isModified(): Boolean {
+        return this.layout.isModified(pack())
     }
 }

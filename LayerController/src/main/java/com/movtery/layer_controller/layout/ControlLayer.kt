@@ -21,6 +21,8 @@ package com.movtery.layer_controller.layout
 import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.data.VisibilityType
+import com.movtery.layer_controller.observable.Modifiable
+import com.movtery.layer_controller.observable.isModified
 import com.movtery.layer_controller.utils.randomUUID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -53,9 +55,20 @@ data class ControlLayer(
     val normalButtons: List<NormalData> = emptyList(),
     @SerialName("textBoxes")
     val textBoxes: List<TextData> = emptyList()
-)
+): Modifiable<ControlLayer> {
+    override fun isModified(other: ControlLayer): Boolean {
+        return this.name != other.name ||
+                this.uuid != other.uuid ||
+                this.hide != other.hide ||
+                this.hideWhenMouse != other.hideWhenMouse ||
+                this.hideWhenGamepad != other.hideWhenGamepad ||
+                this.visibilityType != other.visibilityType ||
+                this.normalButtons.isModified(other.normalButtons) ||
+                this.textBoxes.isModified(other.textBoxes)
+    }
+}
 
-public fun createNewLayer(defaultLayerName: String = ""): ControlLayer {
+fun createNewLayer(defaultLayerName: String = ""): ControlLayer {
     return ControlLayer(
         name = defaultLayerName,
         uuid = randomUUID(),

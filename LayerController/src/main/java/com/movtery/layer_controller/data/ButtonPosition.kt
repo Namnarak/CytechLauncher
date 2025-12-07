@@ -18,6 +18,7 @@
 
 package com.movtery.layer_controller.data
 
+import com.movtery.layer_controller.observable.Modifiable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,7 +33,7 @@ data class ButtonPosition(
     val x: Int,
     @SerialName("y")
     val y: Int
-) {
+): Modifiable<ButtonPosition> {
     /**
      * 计算x坐标百分比
      */
@@ -46,29 +47,34 @@ data class ButtonPosition(
     fun yPercentage(): Float {
         return (y / 10000f).coerceAtMost(1f).coerceAtLeast(0f)
     }
+
+    override fun isModified(other: ButtonPosition): Boolean {
+        return this.x != other.x ||
+                this.y != other.y
+    }
 }
 
 /**
  * 位于屏幕左上角
  */
-public val TopStartPosition = ButtonPosition(0, 0)
+val TopStartPosition = ButtonPosition(0, 0)
 
 /**
  * 位于屏幕右上角
  */
-public val TopEndPosition = ButtonPosition(10000, 0)
+val TopEndPosition = ButtonPosition(10000, 0)
 
 /**
  * 位于屏幕中心
  */
-public val CenterPosition = ButtonPosition(5000, 5000)
+val CenterPosition = ButtonPosition(5000, 5000)
 
 /**
  * 位于屏幕左下角
  */
-public val BottomStartPosition = ButtonPosition(0, 10000)
+val BottomStartPosition = ButtonPosition(0, 10000)
 
 /**
  * 位于屏幕右下角
  */
-public val BottomEndPosition = ButtonPosition(10000, 10000)
+val BottomEndPosition = ButtonPosition(10000, 10000)

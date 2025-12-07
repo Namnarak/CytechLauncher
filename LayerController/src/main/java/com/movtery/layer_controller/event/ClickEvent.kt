@@ -18,6 +18,7 @@
 
 package com.movtery.layer_controller.event
 
+import com.movtery.layer_controller.observable.Modifiable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,7 +33,7 @@ data class ClickEvent(
     val type: Type,
     @SerialName("key")
     val key: String
-) {
+): Modifiable<ClickEvent> {
     @Serializable
     enum class Type {
         /**
@@ -84,4 +85,9 @@ data class ClickEvent(
      * 该点击事件是否关于控件层
      */
     fun isAboutLayers(): Boolean = type.isAboutLayers()
+
+    override fun isModified(other: ClickEvent): Boolean {
+        return this.type != other.type ||
+                this.key != other.key
+    }
 }

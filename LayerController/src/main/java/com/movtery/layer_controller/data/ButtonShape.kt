@@ -19,6 +19,7 @@
 package com.movtery.layer_controller.data
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.movtery.layer_controller.observable.Modifiable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,7 +27,7 @@ import kotlinx.serialization.Serializable
  * 简易的描述按钮的各角的数据类，单位：Dp
  */
 @Serializable
-data class ButtonShape public constructor(
+data class ButtonShape(
     @SerialName("topStart")
     val topStart: Float,
     @SerialName("topEnd")
@@ -35,8 +36,15 @@ data class ButtonShape public constructor(
     val bottomEnd: Float,
     @SerialName("bottomStart")
     val bottomStart: Float
-) {
+): Modifiable<ButtonShape> {
     constructor(size: Float) : this(size, size, size, size)
+
+    override fun isModified(other: ButtonShape): Boolean {
+        return this.topStart != other.topStart ||
+                this.topEnd != other.topEnd ||
+                this.bottomEnd != other.bottomEnd ||
+                this.bottomStart != other.bottomStart
+    }
 }
 
 /**
