@@ -583,6 +583,7 @@ private fun TaskMenu(
                             onClick = changeExpandedState
                         ) {
                             Icon(
+                                modifier = Modifier.size(28.dp),
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowLeft,
                                 contentDescription = stringResource(R.string.generic_collapse)
                             )

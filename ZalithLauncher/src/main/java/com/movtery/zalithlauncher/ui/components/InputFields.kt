@@ -20,8 +20,8 @@ package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -47,9 +46,7 @@ fun SimpleTextInputField(
     hint: (@Composable () -> Unit)? = null,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shape: Shape = RoundedCornerShape(50f),
-    shadowElevation: Dp = 1.dp,
-    height: Dp = 32.dp,
+    shape: Shape = RoundedCornerShape(percent = 50),
     contextPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
     textStyle: TextStyle = TextStyle(color = contentColor).copy(fontSize = 12.sp),
     cursorBrush: Brush = SolidColor(LocalTextSelectionColors.current.handleColor),
@@ -59,12 +56,11 @@ fun SimpleTextInputField(
         modifier = modifier,
         color = color,
         contentColor = contentColor,
-        shape = shape,
-        shadowElevation = shadowElevation
+        shape = shape
     ) {
         BasicTextField(
             modifier = Modifier
-                .height(height)
+                .wrapContentHeight()
                 .padding(contextPadding),
             value = value,
             onValueChange = onValueChange,
