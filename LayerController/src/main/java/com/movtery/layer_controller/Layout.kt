@@ -158,9 +158,13 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                             val pointerId = change.id
                             val isPressed = change.pressed
 
-                            if (change.type != PointerType.Touch || currentCheckOccupiedPointers(pointerId)) {
+                            if (
                                 //不处理非触摸指针
+                                change.type != PointerType.Touch ||
+                                change.isConsumed ||
                                 //不处理被子级占用的指针
+                                currentCheckOccupiedPointers(pointerId)
+                            ) {
                                 return@fastForEach
                             }
 
