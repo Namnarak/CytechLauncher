@@ -1006,4 +1006,15 @@
     <string name="theme_dark_mode_follow_system">Как в системе</string>
     <string name="game_menu_option_menu_ball_opacity">Прозрачность меню-наложения</string>
     <string name="settings_launcher_dark_mode_title">Тёмный режим</string>
+    <string name="notification_data_terracotta_message">Во время мультиплеера лаунчер использует службу переднего плана для отображения текущего статуса соединения, поэтому требуется разрешение на отправку уведомлений.</string>
+    <string name="versions_update_loader">Обновить мод-лоудер</string>
+    <string name="versions_update_loader_waiting_for_others">Ожидание завершения загрузки других задач</string>
+    <string name="versions_update_loader_diff_message">Вы уверены, что хотите изменить мод-лоудер для текущей сборки?</string>
+    <string name="versions_update_loader_diff_change">Изменение: %1$s %2$s → %3$s</string>
+    <string name="versions_update_loader_diff_remove">Удалить: %s</string>
+    <string name="versions_update_loader_diff_load">Установить: %1$s %2$s</string>
+    <string name="versions_update_loader_error_message">При установке мод-лоудера произошла ошибка:</string>
+    <string name="versions_update_loader_success_message">Версия мод-лоудера сборки была успешно обновлена!</string>
+    <string name="settings_control_mouse_enable_click_title">Режим тачпада</string>
+    <string name="settings_control_mouse_enable_click_summary">Включает механику управление как на тачпаде: Касание = левая кнопка мыши, долгое нажатие = удержание левой кнопки мыши. Эта настройка не затрагивает физическую мышь или обычное сенсорное управление.</string>
 </resources>
