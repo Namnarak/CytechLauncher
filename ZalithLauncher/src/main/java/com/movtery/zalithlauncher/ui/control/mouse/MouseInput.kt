@@ -143,6 +143,7 @@ fun TouchpadLayout(
                         dragStates.clear()
                         longPressJobs.values.forEach { it.cancel() }
                         longPressJobs.clear()
+                        occupiedPointers.forEach { onReleasePointer(it) }
                         occupiedPointers.clear()
                     }
 
