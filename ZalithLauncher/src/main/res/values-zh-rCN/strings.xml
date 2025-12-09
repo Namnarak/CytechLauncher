@@ -53,7 +53,7 @@
     <string name="generic_no_matching_items">没有符合条件的项目</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
-    <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
+    <string name="date_format">yyyy \'年\' MM \'月\' dd \'日\' HH:mm:ss</string>
     <string name="just_now">刚刚</string>
     <string name="minutes_ago">%d 分钟前</string>
     <string name="hours_ago">%d 小时前</string>

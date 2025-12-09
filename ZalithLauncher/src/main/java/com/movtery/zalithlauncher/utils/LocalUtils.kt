@@ -34,6 +34,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 import java.io.PrintStream
 import java.text.DateFormat
@@ -53,16 +54,23 @@ import kotlin.math.floor
 
 val GSON = GsonBuilder().setPrettyPrinting().create()
 
+const val DEFAULT_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss"
+
 /**
  * 格式化时间戳
  */
 fun formatDate(
     date: Date,
-    pattern: String = "yyyy-MM-dd HH:mm:ss",
+    pattern: String = DEFAULT_DATE_PATTERN,
     locale: Locale = Locale.getDefault(),
     timeZone: TimeZone = TimeZone.getDefault()
 ): String {
-    val formatter = SimpleDateFormat(pattern, locale)
+    val formatter = try {
+        SimpleDateFormat(pattern, locale)
+    } catch (e: IllegalArgumentException) {
+        lWarning("Encountered an illegal format string while initializing time string formatting: $pattern", e)
+        SimpleDateFormat(DEFAULT_DATE_PATTERN, locale)
+    }
     formatter.timeZone = timeZone
     return formatter.format(date)
 }
@@ -72,14 +80,20 @@ fun formatDate(
  */
 fun formatDate(
     input: String,
-    pattern: String = "yyyy-MM-dd HH:mm:ss",
+    pattern: String = DEFAULT_DATE_PATTERN,
     locale: Locale = Locale.getDefault(),
     zoneId: ZoneId = ZoneId.systemDefault()
 ): String {
-    val formatter = DateTimeFormatter.ofPattern(pattern)
+    val formatter = try {
+        DateTimeFormatter.ofPattern(pattern)
+    } catch (e: IllegalArgumentException) {
+        lWarning("Encountered an illegal format string while initializing time string formatting: $pattern", e)
+        DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN)
+    }
+    return formatter
         .withLocale(locale)
         .withZone(zoneId)
-    return formatter.format(
+        .format(
         OffsetDateTime.parse(input).toZonedDateTime()
     )
 }
