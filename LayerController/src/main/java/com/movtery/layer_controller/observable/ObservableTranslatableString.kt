@@ -27,7 +27,9 @@ import com.movtery.layer_controller.data.lang.LocalizedString
 import com.movtery.layer_controller.data.lang.TranslatableString
 import java.util.Locale
 
-class ObservableTranslatableString(private val text: TranslatableString): Packable<TranslatableString> {
+class ObservableTranslatableString(
+    private val text: TranslatableString
+): Packable<TranslatableString> {
     var default by mutableStateOf(text.default)
     var matchQueue = mutableStateListOf<ObservableLocalizedString>()
         .apply { addAll(getMatchQueues()) }
@@ -74,5 +76,9 @@ class ObservableTranslatableString(private val text: TranslatableString): Packab
             default = default,
             matchQueue = matchQueue.mapNotNull { it.pack() }
         )
+    }
+
+    override fun isModified(): Boolean {
+        return this.text.isModified(pack())
     }
 }

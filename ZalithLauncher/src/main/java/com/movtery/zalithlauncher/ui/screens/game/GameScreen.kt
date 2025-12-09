@@ -548,20 +548,6 @@ fun GameScreen(
                             onTouch = { viewModel.switchControlLayer(HideLayerWhen.None) },
                             gamepadViewModel = gamepadViewModel.takeIf { AllSettings.gamepadControl.state }
                         )
-
-                        MinecraftHotbar(
-                            screenSize = screenSize,
-                            rule = AllSettings.hotbarRule.state,
-                            widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
-                            heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
-                            onClickSlot = { keycode ->
-                                CallbackBridge.sendKeyPress(keycode)
-                            },
-                            isGrabbing = isGrabbing,
-                            resolutionRatio = AllSettings.resolutionRatio.state,
-                            onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                            onReleasePointer = { viewModel.occupiedPointers.remove(it) }
-                        )
                     },
                     emptyAreaContent = {
                         Box(
@@ -577,6 +563,20 @@ fun GameScreen(
                     }
                 )
             }
+
+            MinecraftHotbar(
+                screenSize = screenSize,
+                rule = AllSettings.hotbarRule.state,
+                widthPercentage = AllSettings.hotbarWidth.state.hotbarPercentage(),
+                heightPercentage = AllSettings.hotbarHeight.state.hotbarPercentage(),
+                onClickSlot = { keycode ->
+                    CallbackBridge.sendKeyPress(keycode)
+                },
+                isGrabbing = isGrabbing,
+                resolutionRatio = AllSettings.resolutionRatio.state,
+                onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                onReleasePointer = { viewModel.occupiedPointers.remove(it) }
+            )
 
             if (AllSettings.gamepadControl.state) {
                 //手柄事件捕获层

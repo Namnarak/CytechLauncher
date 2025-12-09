@@ -23,6 +23,8 @@ import com.movtery.layer_controller.data.ButtonStyle
 import com.movtery.layer_controller.data.lang.EmptyTranslatableString
 import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.layout.ControlLayout.Info
+import com.movtery.layer_controller.observable.Modifiable
+import com.movtery.layer_controller.observable.isModified
 import com.movtery.layer_controller.updateLayoutToNew
 import com.movtery.layer_controller.utils.layoutJson
 import kotlinx.serialization.SerialName
@@ -49,7 +51,7 @@ data class ControlLayout(
     val styles: List<ButtonStyle>,
     @SerialName("editorVersion")
     val editorVersion: Int
-) {
+): Modifiable<ControlLayout> {
     @Serializable
     data class Info(
         @SerialName("name")
@@ -62,10 +64,25 @@ data class ControlLayout(
         val versionCode: Int,
         @SerialName("versionName")
         val versionName: String
-    )
+    ): Modifiable<Info> {
+        override fun isModified(other: Info): Boolean {
+            return other.name.isModified(this.name) ||
+                    other.author.isModified(this.author) ||
+                    other.description.isModified(this.description) ||
+                    this.versionCode != other.versionCode ||
+                    this.versionName != other.versionName
+        }
+    }
+
+    override fun isModified(other: ControlLayout): Boolean {
+        return this.info.isModified(other.info) ||
+                this.layers.isModified(other.layers) ||
+                this.styles.isModified(other.styles) ||
+                this.editorVersion != other.editorVersion
+    }
 }
 
-public val EmptyLayoutInfo = Info(
+val EmptyLayoutInfo = Info(
     name = EmptyTranslatableString,
     author = EmptyTranslatableString,
     description = EmptyTranslatableString,
@@ -73,7 +90,7 @@ public val EmptyLayoutInfo = Info(
     versionName = ""
 )
 
-public val EmptyControlLayout = ControlLayout(
+val EmptyControlLayout = ControlLayout(
     editorVersion = EDITOR_VERSION,
     info = EmptyLayoutInfo,
     layers = emptyList(),
@@ -83,12 +100,12 @@ public val EmptyControlLayout = ControlLayout(
 /**
  * 从文件加载控制布局配置（检查版本号，大于编辑器版本则抛出`IllegalArgumentException`）
  */
-public fun loadLayoutFromFile(file: File): ControlLayout {
+fun loadLayoutFromFile(file: File): ControlLayout {
     val jsonString = file.readText()
     return loadLayoutFromString(jsonString)
 }
 
-public fun loadLayoutFromString(jsonString: String): ControlLayout {
+fun loadLayoutFromString(jsonString: String): ControlLayout {
     val jsonObject = layoutJson.decodeFromString<JsonObject>(jsonString)
     if (jsonObject["editorVersion"] == null) throw IOException("The file does not contain the key \"editorVersion\".")
     val version = jsonObject["editorVersion"]!!.jsonPrimitive.int
@@ -104,7 +121,7 @@ public fun loadLayoutFromString(jsonString: String): ControlLayout {
 /**
  * 从文件加载控制布局配置（不检查版本号）
  */
-public fun loadLayoutFromFileUncheck(file: File): ControlLayout {
+fun loadLayoutFromFileUncheck(file: File): ControlLayout {
     val jsonString = file.readText()
     return layoutJson.decodeFromString<ControlLayout>(jsonString)
 }

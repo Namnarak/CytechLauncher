@@ -211,7 +211,10 @@ private fun Modifier.mainTouchLogic(
             val event = awaitPointerEvent(PointerEventPass.Initial)
 
             event.changes.forEach { change ->
-                if (change.type == PointerType.Touch) {
+                if (
+                    change.type == PointerType.Touch ||
+                    !change.isConsumed
+                ) {
                     val pointerId = change.id
                     if (pointerId !in occupiedPointers) {
                         onOccupiedPointer(pointerId)

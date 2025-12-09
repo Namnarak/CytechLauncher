@@ -20,6 +20,7 @@ package com.movtery.layer_controller.data
 
 import com.movtery.layer_controller.data.ButtonSize.Reference
 import com.movtery.layer_controller.data.ButtonSize.Type
+import com.movtery.layer_controller.observable.Modifiable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -46,7 +47,7 @@ data class ButtonSize(
     val widthReference: Reference,
     @SerialName("heightReference")
     val heightReference: Reference
-) {
+): Modifiable<ButtonSize> {
     /**
      * 大小计算类型
      */
@@ -80,12 +81,22 @@ data class ButtonSize(
          */
         @SerialName("screen_height") ScreenHeight,
     }
+
+    override fun isModified(other: ButtonSize): Boolean {
+        return this.type != other.type ||
+                this.widthDp != other.widthDp ||
+                this.heightDp != other.heightDp ||
+                this.widthPercentage != other.widthPercentage ||
+                this.heightPercentage != other.heightPercentage ||
+                this.widthReference != other.widthReference ||
+                this.heightReference != other.heightReference
+    }
 }
 
 /**
  * 默认大小：以百分比值进行存储
  */
-public val DefaultSize = ButtonSize(
+val DefaultSize = ButtonSize(
     type = Type.Percentage,
     widthDp = 50f,
     heightDp = 50f,
@@ -98,7 +109,7 @@ public val DefaultSize = ButtonSize(
 /**
  * 创建一个默认的百分比尺寸，根据参考尺寸计算出合适的值
  */
-public fun createAdaptiveButtonSize(
+fun createAdaptiveButtonSize(
     referenceLength: Int,
     type: Type = Type.Percentage,
     reference: Reference = Reference.ScreenHeight,

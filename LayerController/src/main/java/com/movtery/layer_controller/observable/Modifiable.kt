@@ -18,14 +18,26 @@
 
 package com.movtery.layer_controller.observable
 
-interface Packable<E> {
-    /**
-     * @return 打包后的对象，类型为 [E]
-     */
-    fun pack(): E
-
+interface Modifiable<E> {
     /**
      * @return 对象自上次检查以来是否被修改过，否则为`false`
      */
-    fun isModified(): Boolean
+    fun isModified(other: E): Boolean
+}
+
+fun <E> List<E>.isModified(
+    others: List<E>
+): Boolean where E : Modifiable<E> {
+    if (this.size != others.size) return true
+
+    for (i in this.indices) {
+        val current = this[i]
+        val other = others[i]
+
+        if (current.isModified(other)) {
+            return true
+        }
+    }
+
+    return false
 }

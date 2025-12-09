@@ -307,7 +307,7 @@
     <string name="generic_ignore">無視</string>
     <string name="generic_authorization">認証</string>
     <string name="unit_day">日</string>
-    <string name="date_format">yyyy 年 MM 月 dd 日 HH:mm:ss</string>
+    <string name="date_format">yyyy \'年\' MM \'月\' dd \'日\' HH:mm:ss</string>
     <string name="theme_color_dynamic">ダイナミック (Android 12+)</string>
     <string name="theme_color_embermire">エンバーマイア</string>
     <string name="theme_color_velvet_rose">ベルベットローズ</string>

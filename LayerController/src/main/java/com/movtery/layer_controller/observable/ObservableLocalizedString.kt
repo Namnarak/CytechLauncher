@@ -24,7 +24,9 @@ import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.lang.LocalizedString
 import java.util.Locale
 
-class ObservableLocalizedString(string: LocalizedString): Packable<LocalizedString?> {
+class ObservableLocalizedString(
+    private val string: LocalizedString
+): Packable<LocalizedString?> {
     var languageTag by mutableStateOf(string.languageTag)
     var value by mutableStateOf(string.value)
 
@@ -36,12 +38,17 @@ class ObservableLocalizedString(string: LocalizedString): Packable<LocalizedStri
             value = value
         )
     }
+
+    override fun isModified(): Boolean {
+        val packedNew = pack() ?: return true
+        return this.string.isModified(packedNew)
+    }
 }
 
 /**
  * 尝试检查语言是否匹配
  */
-public fun ObservableLocalizedString.check(
+fun ObservableLocalizedString.check(
     locale: Locale = Locale.getDefault()
 ): String? = value.takeIf {
     locale.toLanguageTag() == languageTag

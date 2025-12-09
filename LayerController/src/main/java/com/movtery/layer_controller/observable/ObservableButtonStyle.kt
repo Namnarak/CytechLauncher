@@ -28,7 +28,9 @@ import com.movtery.layer_controller.data.cloneNew
 /**
  * 可观察的ButtonStyle包装类
  */
-class ObservableButtonStyle(style: ButtonStyle): Packable<ButtonStyle> {
+class ObservableButtonStyle(
+    private val style: ButtonStyle
+): Packable<ButtonStyle> {
     val uuid = style.uuid
     var name by mutableStateOf(style.name)
     var animateSwap by mutableStateOf(style.animateSwap)
@@ -44,10 +46,14 @@ class ObservableButtonStyle(style: ButtonStyle): Packable<ButtonStyle> {
             darkStyle = this.darkStyle.pack()
         )
     }
+
+    override fun isModified(): Boolean {
+        return style.isModified(pack())
+    }
 }
 
-public val DefaultObservableButtonStyle = ObservableButtonStyle(DefaultStyle)
+val DefaultObservableButtonStyle = ObservableButtonStyle(DefaultStyle)
 
-public fun ObservableButtonStyle.cloneNew(): ObservableButtonStyle {
+fun ObservableButtonStyle.cloneNew(): ObservableButtonStyle {
     return ObservableButtonStyle(pack().cloneNew())
 }

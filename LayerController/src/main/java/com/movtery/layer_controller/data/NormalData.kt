@@ -20,6 +20,8 @@ package com.movtery.layer_controller.data
 
 import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.event.ClickEvent
+import com.movtery.layer_controller.observable.Modifiable
+import com.movtery.layer_controller.observable.isModified
 import com.movtery.layer_controller.utils.getAButtonUUID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -60,11 +62,28 @@ data class NormalData(
     val isPenetrable: Boolean,
     @SerialName("isToggleable")
     val isToggleable: Boolean
-): Widget {
+): Widget, Modifiable<NormalData> {
     val clickEvents: List<ClickEvent> get() = _clickEvents
 
     init {
         _clickEvents = _clickEvents.filterValidEvent()
+    }
+
+    override fun isModified(other: NormalData): Boolean {
+        return this.text.isModified(other.text) ||
+                this.uuid != other.uuid ||
+                this.position.isModified(other.position) ||
+                this.buttonSize.isModified(other.buttonSize) ||
+                this.buttonStyle != other.buttonStyle ||
+                this.textAlignment != other.textAlignment ||
+                this.textBold != other.textBold ||
+                this.textItalic != other.textItalic ||
+                this.textUnderline != other.textUnderline ||
+                this.visibilityType != other.visibilityType ||
+                this._clickEvents.isModified(other._clickEvents) ||
+                this.isSwipple != other.isSwipple ||
+                this.isPenetrable != other.isPenetrable ||
+                this.isToggleable != other.isToggleable
     }
 }
 

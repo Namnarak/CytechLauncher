@@ -28,7 +28,9 @@ import com.movtery.layer_controller.data.ButtonStyle
 /**
  * 可观察的StyleConfig包装类
  */
-class ObservableStyleConfig(config: ButtonStyle.StyleConfig): Packable<ButtonStyle.StyleConfig> {
+class ObservableStyleConfig(
+    private val config: ButtonStyle.StyleConfig
+): Packable<ButtonStyle.StyleConfig> {
     var alpha by mutableFloatStateOf(config.alpha)
     var backgroundColor by mutableStateOf(config.backgroundColor)
     var contentColor by mutableStateOf(config.contentColor)
@@ -57,5 +59,20 @@ class ObservableStyleConfig(config: ButtonStyle.StyleConfig): Packable<ButtonSty
             pressedBorderColor = this.pressedBorderColor,
             pressedBorderRadius = this.pressedBorderRadius
         )
+    }
+
+    override fun isModified(): Boolean {
+        return this.alpha != config.alpha ||
+                this.backgroundColor != config.backgroundColor ||
+                this.contentColor != config.contentColor ||
+                this.borderWidth != config.borderWidth ||
+                this.borderColor != config.borderColor ||
+                config.borderRadius.isModified(this.borderRadius) ||
+                this.pressedAlpha != config.pressedAlpha ||
+                this.pressedBackgroundColor != config.pressedBackgroundColor ||
+                this.pressedContentColor != config.pressedContentColor ||
+                this.pressedBorderWidth != config.pressedBorderWidth ||
+                this.pressedBorderColor != config.pressedBorderColor ||
+                config.pressedBorderRadius.isModified(this.pressedBorderRadius)
     }
 }

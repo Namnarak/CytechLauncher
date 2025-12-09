@@ -458,7 +458,7 @@
     <string name="download_assets_category_social">Sunucu</string>
     <string name="generic_go_it">Anlaşıldı</string>
     <string name="generic_all">Hepsi</string>
-    <string name="date_format">MMM d, yyyy, h:mm:ss a ÖÖ/ÖS</string>
+    <string name="date_format">MMM d, yyyy, h:mm:ss a \'ÖÖ/ÖS\'</string>
     <string name="crash_type">Oyundan atılma türü:%s</string>
     <string name="crash_type_launcher">Başlatıcı Çökmesi</string>
     <string name="crash_type_game">Oyun Çökmesi</string>

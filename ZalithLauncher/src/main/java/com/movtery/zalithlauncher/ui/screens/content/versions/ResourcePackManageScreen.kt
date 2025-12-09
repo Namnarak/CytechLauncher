@@ -353,8 +353,7 @@ private fun ResourcePackHeader(
     onRefresh: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     inputFieldColor: Color = itemLayoutColor(),
-    inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation()
+    inputFieldContentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     CardTitleLayout(modifier = modifier) {
         BoxWithConstraints(
@@ -378,7 +377,6 @@ private fun ResourcePackHeader(
                     },
                     color = inputFieldColor,
                     contentColor = inputFieldContentColor,
-                    shadowElevation = shadowElevation,
                     singleLine = true
                 )
 

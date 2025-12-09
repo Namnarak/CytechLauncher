@@ -24,7 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.layout.ControlLayout
 
-class ObservableControlInfo(private val info: ControlLayout.Info) : Packable<ControlLayout.Info> {
+class ObservableControlInfo(
+    private val info: ControlLayout.Info
+) : Packable<ControlLayout.Info> {
     val name = ObservableTranslatableString(info.name)
     val author = ObservableTranslatableString(info.author)
     val description = ObservableTranslatableString(info.description)
@@ -47,5 +49,9 @@ class ObservableControlInfo(private val info: ControlLayout.Info) : Packable<Con
             versionCode = versionCode,
             versionName = versionName
         )
+    }
+
+    override fun isModified(): Boolean {
+        return this.info.isModified(pack())
     }
 }

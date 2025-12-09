@@ -18,6 +18,7 @@
 
 package com.movtery.layer_controller.data.lang
 
+import com.movtery.layer_controller.observable.Modifiable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.util.Locale
@@ -32,14 +33,19 @@ data class LocalizedString(
     val languageTag: String,
     @SerialName("value")
     val value: String
-)
+): Modifiable<LocalizedString> {
+    override fun isModified(other: LocalizedString): Boolean {
+        return this.languageTag != other.languageTag ||
+                this.value != other.value
+    }
+}
 
-public val EmptyLocalizedString = LocalizedString(languageTag = "", value = "")
+val EmptyLocalizedString = LocalizedString(languageTag = "", value = "")
 
 /**
  * 尝试检查语言是否匹配
  */
-public fun LocalizedString.check(
+fun LocalizedString.check(
     locale: Locale = Locale.getDefault()
 ): String? = value.takeIf {
     locale.toLanguageTag() == languageTag

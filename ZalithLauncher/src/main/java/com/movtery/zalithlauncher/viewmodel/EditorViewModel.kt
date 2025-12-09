@@ -46,6 +46,9 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.PreviewScenario
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_widget.SelectedWidgetData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -252,6 +255,11 @@ class EditorViewModel() : ViewModel() {
     }
 
     /**
+     * 用于检查控制布局是否被修改过
+     */
+    private val checkModified = Mutex()
+
+    /**
      * 弹出退出控制布局编辑器的对话框
      * @param onExit 用户点击确认，退出编辑器
      */
@@ -259,18 +267,36 @@ class EditorViewModel() : ViewModel() {
         context: Context,
         onExit: () -> Unit
     ) {
-        viewModelScope.launch(Dispatchers.Main) {
-            MaterialAlertDialogBuilder(context)
-                .setTitle(R.string.generic_warning)
-                .setMessage(R.string.control_editor_exit_message)
-                .setPositiveButton(R.string.generic_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.control_editor_exit_confirm) { dialog, _ ->
-                    dialog.dismiss()
-                    onExit()
-                }
-                .show()
+        viewModelScope.launch {
+            val isModified = checkModified.withLock {
+                observableLayout.isModified()
+            }
+            if (isModified) {
+                showExitEditorDialogSuspend(
+                    context = context,
+                    onExit = onExit
+                )
+            } else {
+                //未被修改，可以直接退出
+                onExit()
+            }
         }
+    }
+
+    private suspend fun showExitEditorDialogSuspend(
+        context: Context,
+        onExit: () -> Unit
+    ) = withContext(Dispatchers.Main) {
+        MaterialAlertDialogBuilder(context)
+            .setTitle(R.string.generic_warning)
+            .setMessage(R.string.control_editor_exit_message)
+            .setPositiveButton(R.string.generic_cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.control_editor_exit_confirm) { dialog, _ ->
+                dialog.dismiss()
+                onExit()
+            }
+            .show()
     }
 }
