@@ -50,4 +50,6 @@
     <string name="months_ago">%d Monate zuvor</string>
     <string name="years_ago">%d Jahre zuvor</string>
     <string name="launcher_version_debug_warning">Sie verwenden eine Testversion von %s! Diese Version ist möglicherweise instabil und ist hauptsächlich für Funktionstests und den frühen Zugriff gedacht. Sie wird nicht für die langfristige Nutzung empfohlen! Wenn Sie während des Testens auf Probleme stoßen, melden Sie diese bitte über GitHub an uns, und wir werden uns so schnell wie möglich darum kümmern.</string>
+    <string name="download_category_modpack">Modpaket</string>
+    <string name="download_category_mod">Mod</string>
 </resources>
