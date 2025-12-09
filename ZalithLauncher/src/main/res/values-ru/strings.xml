@@ -1017,4 +1017,6 @@
     <string name="versions_update_loader_success_message">Версия мод-лоудера сборки была успешно обновлена!</string>
     <string name="settings_control_mouse_enable_click_title">Режим тачпада</string>
     <string name="settings_control_mouse_enable_click_summary">Включает механику управление как на тачпаде: Касание = левая кнопка мыши, долгое нажатие = удержание левой кнопки мыши. Эта настройка не затрагивает физическую мышь или обычное сенсорное управление.</string>
+    <string name="settings_launcher_background_video_volume_title">Громкость видео на заднем фоне</string>
+    <string name="settings_launcher_background_video_volume_summary">Когда в качестве фона установлено видео, вы можете отрегулировать его громкость с помощью этой опции.</string>
 </resources>
