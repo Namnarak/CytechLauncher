@@ -269,14 +269,18 @@ private fun MainMenu(
         ) {
             Row(
                 modifier = Modifier.padding(all = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Link,
                     contentDescription = stringResource(R.string.terracotta_easytier)
                 )
 
-                Text(stringResource(R.string.terracotta_easytier))
+                Text(
+                    text = stringResource(R.string.terracotta_easytier),
+                    style = MaterialTheme.typography.titleSmall
+                )
             }
         }
     }
