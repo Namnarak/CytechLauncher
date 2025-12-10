@@ -93,6 +93,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -110,7 +111,8 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
@@ -454,11 +456,19 @@ private fun ResourcePackHeader(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    ImportFileButton(
-                        extension = "zip",
+                    val taskBuilder = rememberMultipleUriImportTaskBuilder(
+                        id = "ContentManager.ResourcePacks.Import",
                         targetDir = resourcePackDir,
                         submitError = submitError,
                         onImported = onRefresh
+                    )
+                    ImportMultipleFileButton(
+                        extension = "zip",
+                        progressUris = { uris ->
+                            TaskSystem.submitTask(
+                                taskBuilder(uris)
+                            )
+                        }
                     )
 
                     IconTextButton(

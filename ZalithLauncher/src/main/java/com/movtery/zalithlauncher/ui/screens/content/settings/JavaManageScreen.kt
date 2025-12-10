@@ -76,7 +76,8 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportSingleFileButton
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -144,7 +145,7 @@ fun JavaManageScreen(
                         contentDescription = stringResource(R.string.generic_refresh),
                         text = stringResource(R.string.generic_refresh),
                     )
-                    ImportFileButton(
+                    ImportMultipleFileButton(
                         extension = "xz",
                         progressUris = { uris ->
                             uris.forEach { uri ->
@@ -157,13 +158,13 @@ fun JavaManageScreen(
                             }
                         }
                     )
-                    ImportFileButton(
+                    ImportSingleFileButton(
                         extension = "jar",
                         progressUris = { uris ->
                             uris[0].let { uri ->
                                 RuntimesManager.getExactJreName(8) ?: run {
                                     Toast.makeText(context, R.string.multirt_no_java_8, Toast.LENGTH_LONG).show()
-                                    return@ImportFileButton
+                                    return@ImportSingleFileButton
                                 }
                                 (context as? Activity)?.let { activity ->
                                     val jreName = AllSettings.javaRuntime.takeIf { AllSettings.autoPickJavaRuntime.getValue() }?.getValue()
@@ -172,8 +173,7 @@ fun JavaManageScreen(
                             }
                         },
                         imageVector = Icons.Default.Terminal,
-                        text = stringResource(R.string.execute_jar_title),
-                        allowMultiple = false
+                        text = stringResource(R.string.execute_jar_title)
                     )
                 }
             }

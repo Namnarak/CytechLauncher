@@ -869,7 +869,7 @@ private fun AccountsLayout(
                     )
 
                     val skinPicker = rememberLauncherForActivityResult(
-                        contract = ActivityResultContracts.OpenDocument()
+                        contract = ActivityResultContracts.OpenDocument() //需要使用长久化的Uri
                     ) { uri ->
                         uri?.let { result ->
                             when {
@@ -895,7 +895,7 @@ private fun AccountsLayout(
                         },
                         onChangeSkin = {
                             if (!account.isAuthServerAccount()) {
-                                skinPicker.launch(arrayOf("image/*"))
+                                skinPicker.launch(arrayOf("image/png"))
                             }
                         },
                         onChangeCape = {

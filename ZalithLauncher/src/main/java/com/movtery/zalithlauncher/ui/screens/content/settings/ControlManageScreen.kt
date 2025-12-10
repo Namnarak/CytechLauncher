@@ -117,7 +117,7 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.file.shareFile
@@ -495,7 +495,7 @@ private fun ControlListHeader(
                 contentDescription = stringResource(R.string.generic_refresh),
                 text = stringResource(R.string.generic_refresh),
             )
-            ImportFileButton(
+            ImportMultipleFileButton(
                 extension = "json",
                 progressUris = { uris ->
                     fun showError(

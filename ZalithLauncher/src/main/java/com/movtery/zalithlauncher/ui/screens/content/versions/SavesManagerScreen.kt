@@ -89,6 +89,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
@@ -109,7 +110,8 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
@@ -387,16 +389,24 @@ private fun SavesActionsHeader(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    ImportFileButton(
-                        extension = "zip",
+                    val taskBuilder = rememberMultipleUriImportTaskBuilder(
+                        id = "ContentManager.Saves.Import",
                         targetDir = savesDir,
                         errorMessage = stringResource(R.string.saves_manage_import_failed),
+                        submitError = submitError,
+                        onImported = refreshSaves,
                         onFileCopied = { task, file ->
                             task.updateProgress(-1f, R.string.saves_manage_import_unpacking, file.name)
                             unpackSaveZip(file, savesDir)
-                        },
-                        onImported = refreshSaves,
-                        submitError = submitError
+                        }
+                    )
+                    ImportMultipleFileButton(
+                        extension = "zip",
+                        progressUris = { uris ->
+                            TaskSystem.submitTask(
+                                taskBuilder(uris)
+                            )
+                        }
                     )
 
                     IconTextButton(

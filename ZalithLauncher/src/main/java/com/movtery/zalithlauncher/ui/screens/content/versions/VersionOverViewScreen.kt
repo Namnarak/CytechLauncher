@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -54,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
+import com.movtery.zalithlauncher.contract.MediaPickerContract
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -73,6 +73,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialo
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
+import com.movtery.zalithlauncher.utils.image.isImageFile
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -217,17 +218,22 @@ private fun VersionInfoLayout(
             )
             Row {
                 ImportFileButton(
-                    contract = ActivityResultContracts.OpenDocument(),
+                    contract = MediaPickerContract(
+                        allowImages = true,
+                        allowVideos = false,
+                        allowMultiple = false
+                    ),
                     onLaunch = { launcher ->
-                        launcher.launch(arrayOf("image/*"))
+                        launcher.launch(Unit)
                     },
                     progressOutput = { uri ->
-                        uri?.let { result ->
+                        uri?.get(0)?.let { result ->
                             TaskSystem.submitTask(
                                 Task.runTask(
                                     dispatcher = Dispatchers.IO,
                                     task = {
                                         context.copyLocalFile(result, iconFile)
+                                        if (!iconFile.isImageFile()) error("The selected file is not an image!")
                                     },
                                     onError = { e ->
                                         lError("Failed to import icon!", e)

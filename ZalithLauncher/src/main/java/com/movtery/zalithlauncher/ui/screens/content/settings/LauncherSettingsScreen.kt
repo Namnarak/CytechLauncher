@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -48,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.contract.MediaPickerContract
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.path.PathManager
@@ -356,7 +356,11 @@ private fun SettingsLayoutScope.CustomBackground(
     )
 
     val filePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
+        contract = MediaPickerContract(
+            allowImages = true,
+            allowVideos = true,
+            allowMultiple = false
+        )
     ) { result ->
         if (result != null) {
             TaskSystem.submitTask(
@@ -364,7 +368,7 @@ private fun SettingsLayoutScope.CustomBackground(
                     dispatcher = Dispatchers.IO,
                     task = { task ->
                         task.updateMessage(R.string.settings_launcher_background_importing)
-                        backgroundViewModel.import(context, result)
+                        backgroundViewModel.import(context, result[0] /* 取决于上面的allowMultiple，此处一定会是单个元素的列表 */)
                     },
                     onError = { th ->
                         backgroundViewModel.delete()
@@ -389,7 +393,7 @@ private fun SettingsLayoutScope.CustomBackground(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.settings_launcher_background_title),
             summary = stringResource(R.string.settings_launcher_background_summary),
-            onClick = { filePicker.launch(arrayOf("image/*", "video/*")) }
+            onClick = { filePicker.launch(Unit) }
         )
 
         AnimatedVisibility(

@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.viewmodel
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
@@ -31,7 +30,7 @@ import androidx.lifecycle.viewModelScope
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.image.isImageFile
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.video.isVideoFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -69,7 +68,7 @@ class BackgroundViewModel(): ViewModel() {
         val (isImage0, isVideo0) = withContext(Dispatchers.IO) {
             val isImage = backgroundFile.isImageFile()
             //如果文件是图片，则不检查是否为视频
-            val isVideo = if (!isImage) isVideoFile() else false
+            val isVideo = if (!isImage) backgroundFile.isVideoFile() else false
             isImage to isVideo
         }
         //更新状态
@@ -78,22 +77,6 @@ class BackgroundViewModel(): ViewModel() {
             isVideo = isVideo0
             isValid = backgroundFile.exists() && (isImage0 || isVideo0)
             refreshTrigger = !refreshTrigger
-        }
-    }
-
-    private fun isVideoFile(): Boolean {
-        if (!backgroundFile.exists()) return false
-        val retriever = MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(backgroundFile.absolutePath)
-            val hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH) != null &&
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT) != null
-            hasVideo
-        } catch (e: Exception) {
-            lWarning("An exception occurred while trying to determine if ${backgroundFile.absolutePath} is a video.", e)
-            false
-        } finally {
-            retriever.release()
         }
     }
 
@@ -114,6 +97,11 @@ class BackgroundViewModel(): ViewModel() {
         withContext(Dispatchers.IO) {
             FileUtils.deleteQuietly(backgroundFile)
             context.copyLocalFile(result, backgroundFile)
+            if (!backgroundFile.isImageFile() && !backgroundFile.isVideoFile()) {
+                //不是媒体类文件
+                FileUtils.deleteQuietly(backgroundFile)
+                error("The selected file is not an image or a video!")
+            }
             updateState()
         }
     }

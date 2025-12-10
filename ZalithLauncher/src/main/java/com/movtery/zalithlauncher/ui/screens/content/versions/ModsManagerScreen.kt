@@ -106,6 +106,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
@@ -133,7 +134,8 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
@@ -750,11 +752,19 @@ private fun ModsActionsHeader(
                         .horizontalScroll(scrollState),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ImportFileButton(
-                        extension = "jar",
+                    val taskBuilder = rememberMultipleUriImportTaskBuilder(
+                        id = "ContentManager.Mods.Import",
                         targetDir = modsDir,
                         submitError = submitError,
                         onImported = refresh
+                    )
+                    ImportMultipleFileButton(
+                        extension = "jar",
+                        progressUris = { uris ->
+                            TaskSystem.submitTask(
+                                taskBuilder(uris)
+                            )
+                        }
                     )
 
                     IconTextButton(

@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -58,6 +57,7 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CursorShape
 import com.movtery.zalithlauncher.context.copyLocalFile
+import com.movtery.zalithlauncher.contract.MediaPickerContract
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -90,6 +90,7 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
 import com.movtery.zalithlauncher.utils.formatKeyCode
+import com.movtery.zalithlauncher.utils.image.isImageFile
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
@@ -611,14 +612,19 @@ private fun MousePointerLayout(
     )
 
     val filePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
+        contract = MediaPickerContract(
+            allowImages = true,
+            allowVideos = false,
+            allowMultiple = false
+        )
     ) { result ->
         if (result != null) {
             TaskSystem.submitTask(
                 Task.runTask(
                     dispatcher = Dispatchers.IO,
                     task = {
-                        context.copyLocalFile(result, mousePointerFile)
+                        context.copyLocalFile(result[0], mousePointerFile)
+                        if (!mousePointerFile.isImageFile()) error("The selected file is not an image!")
                         triggerState++
                         changeOperation(MousePointerOperation.None)
                     },
@@ -641,7 +647,7 @@ private fun MousePointerLayout(
             modifier = Modifier
                 .weight(1f)
                 .clip(shape = RoundedCornerShape(22.0.dp))
-                .clickable { filePicker.launch(arrayOf("image/*")) }
+                .clickable { filePicker.launch(Unit) }
                 .padding(all = 8.dp)
                 .padding(bottom = 4.dp)
         ) {

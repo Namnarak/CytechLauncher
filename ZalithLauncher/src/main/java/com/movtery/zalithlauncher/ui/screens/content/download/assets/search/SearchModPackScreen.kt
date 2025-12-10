@@ -206,7 +206,7 @@ fun SearchModPackScreen(
     val viewModel = rememberModpackViewModel()
 
     val filePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
+        contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let { uri ->
             viewModel.import(context, uri)
@@ -218,7 +218,7 @@ fun SearchModPackScreen(
         changeOperation = { viewModel.importOperation = it },
         selectedUri = {
             //允许导入任意文件，在导入整合包的流程中会对文件进行判断
-            filePicker.launch(arrayOf("*/*"))
+            filePicker.launch("*/*")
         },
         importer = viewModel.importer,
         onCancel = {
