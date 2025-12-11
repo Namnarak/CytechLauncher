@@ -45,6 +45,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Download
@@ -89,6 +90,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -104,7 +106,10 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.SortByDropdownMenu
+import com.movtery.zalithlauncher.ui.screens.content.elements.SortByEnum
+import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
@@ -132,6 +137,10 @@ private class ShadersManageViewModel(
     var allShaders by mutableStateOf<List<ShaderPackInfo>>(emptyList())
         private set
     var filteredShaders by mutableStateOf<List<ShaderPackInfo>?>(null)
+        private set
+    var sortByEnum by mutableStateOf(SortByEnum.FileName)
+        private set
+    var isAscending by mutableStateOf(true)
         private set
 
     var shadersState by mutableStateOf<LoadingState>(LoadingState.None)
@@ -194,8 +203,38 @@ private class ShadersManageViewModel(
         filterShaders()
     }
 
+    fun updateSortBy(sortByEnum: SortByEnum) {
+        this.sortByEnum = sortByEnum
+        filterShaders()
+    }
+
+    fun updateSortOrder() {
+        this.isAscending = !this.isAscending
+        filterShaders()
+    }
+
+    val supportedSortByEnums = listOf(
+        SortByEnum.FileName, SortByEnum.FileModifiedTime
+    )
+
     private fun filterShaders() {
-        filteredShaders = allShaders.takeIf { it.isNotEmpty() }?.filterShaders(nameFilter)
+        filteredShaders = allShaders
+            .takeIf { it.isNotEmpty() }
+            ?.filterShaders(nameFilter)
+            ?.sortedWith { o1, o2 ->
+                val file1 = o1.file
+                val file2 = o2.file
+                val value = when (sortByEnum) {
+                    SortByEnum.FileName -> file1.name.compareTo(file2.name)
+                    SortByEnum.FileModifiedTime -> file2.lastModified().compareTo(file1.lastModified())
+                    else -> error("This sorting method is not supported: $sortByEnum")
+                }
+                if (isAscending) {
+                    value
+                } else {
+                    -value
+                }
+            }
     }
 }
 
@@ -286,6 +325,11 @@ fun ShadersManagerScreen(
                             modifier = Modifier.fillMaxWidth(),
                             nameFilter = viewModel.nameFilter,
                             onNameFilterChange = { viewModel.updateFilter(it) },
+                            supportedSortByEnums = viewModel.supportedSortByEnums,
+                            sortByEnum = viewModel.sortByEnum,
+                            onSortByChanged = { viewModel.updateSortBy(it) },
+                            isAscending = viewModel.isAscending,
+                            onToggleSortOrder = { viewModel.updateSortOrder() },
                             shadersDir = shadersDir,
                             onDeleteAll = {
                                 if (
@@ -332,6 +376,11 @@ private fun ShadersActionsHeader(
     modifier: Modifier,
     nameFilter: String,
     onNameFilterChange: (String) -> Unit,
+    supportedSortByEnums: List<SortByEnum>,
+    sortByEnum: SortByEnum,
+    onSortByChanged: (SortByEnum) -> Unit,
+    isAscending: Boolean,
+    onToggleSortOrder: () -> Unit,
     shadersDir: File,
     onDeleteAll: () -> Unit,
     isFilesSelected: Boolean,
@@ -351,6 +400,27 @@ private fun ShadersActionsHeader(
                 .padding(top = 4.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { expanded = !expanded }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.Sort,
+                            contentDescription = stringResource(R.string.sort_by)
+                        )
+                    }
+                    SortByDropdownMenu(
+                        expanded = expanded,
+                        onClose = { expanded = false },
+                        enums = supportedSortByEnums,
+                        currentEnum = sortByEnum,
+                        onEnumChanged = onSortByChanged,
+                        isAscending = isAscending,
+                        onToggleSortOrder = onToggleSortOrder
+                    )
+                }
+
                 SimpleTextInputField(
                     modifier = Modifier
                         .weight(1f)
@@ -430,11 +500,19 @@ private fun ShadersActionsHeader(
                 ) {
                     Spacer(modifier = Modifier.width(6.dp))
 
-                    ImportFileButton(
-                        extension = "zip",
+                    val taskBuilder = rememberMultipleUriImportTaskBuilder(
+                        id = "ContentManager.Shaders.Import",
                         targetDir = shadersDir,
                         submitError = submitError,
                         onImported = refresh
+                    )
+                    ImportMultipleFileButton(
+                        extension = "zip",
+                        progressUris = { uris ->
+                            TaskSystem.submitTask(
+                                taskBuilder(uris)
+                            )
+                        }
                     )
 
                     IconTextButton(

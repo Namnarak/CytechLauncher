@@ -22,6 +22,7 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -44,11 +45,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -58,10 +63,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -75,10 +82,9 @@ import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.context.getFileName
-import com.movtery.zalithlauncher.contract.ExtensionFilteredDocumentPicker
+import com.movtery.zalithlauncher.contract.extensionToMimeType
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskState
-import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.coroutine.TitledTask
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -124,31 +130,95 @@ data class CategoryItem(
     val division: Boolean = false
 )
 
+/**
+ * 排序方式枚举
+ */
+enum class SortByEnum(val textRes: Int) {
+    /** 按照名称排序 */
+    Name(R.string.sort_by_name),
+    /** 按照文件名称排序 */
+    FileName(R.string.sort_by_file_name),
+    /** 按照文件上次修改时间排序 */
+    FileModifiedTime(R.string.sort_by_last_modified),
+    /** 按照上次游玩时间排序 */
+    LastPlayed(R.string.sort_by_last_played)
+}
+
+/**
+ * 通用的排序方式下来菜单
+ * @param enums 当前菜单支持的排序方式
+ * @param currentEnum 当前的排序方式
+ * @param onEnumChanged 变更当前的排序方式
+ * @param isAscending 当前是否为升序
+ * @param onToggleSortOrder 切换当前的排序顺序
+ */
 @Composable
-fun ImportFileButton(
-    extension: String,
+fun SortByDropdownMenu(
+    expanded: Boolean,
+    onClose: () -> Unit,
+    enums: List<SortByEnum>,
+    currentEnum: SortByEnum,
+    onEnumChanged: (SortByEnum) -> Unit,
+    isAscending: Boolean,
+    onToggleSortOrder: () -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onClose,
+        shape = MaterialTheme.shapes.large
+    ) {
+        enums.forEach { item ->
+            DropdownMenuItem(
+                text = { Text(stringResource(item.textRes)) },
+                onClick = {
+                    onEnumChanged(item)
+                },
+                trailingIcon = if (item == currentEnum) {
+                    {
+                        IconButton(
+                            onClick = onToggleSortOrder
+                        ) {
+                            val rotation by animateFloatAsState(
+                                if (isAscending) 0f else 180f
+                            )
+                            Icon(
+                                modifier = Modifier.rotate(rotation),
+                                imageVector = Icons.Default.KeyboardDoubleArrowUp,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                } else null
+            )
+        }
+    }
+}
+
+/**
+ * 多 Uri 导入文件任务构建器
+ */
+@Composable
+fun rememberMultipleUriImportTaskBuilder(
+    id: String,
     targetDir: File,
-    modifier: Modifier = Modifier,
-    imageVector: ImageVector = Icons.Default.Add,
-    text: String = stringResource(R.string.generic_import),
-    allowMultiple: Boolean = true,
     errorTitle: String = stringResource(R.string.generic_error),
     errorMessage: String? = stringResource(R.string.error_import_file),
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {},
     onFileCopied: suspend (Task, File) -> Unit = { _, _ -> },
     onImported: () -> Unit = {}
-) {
+): (List<Uri>) -> Task {
     val context = LocalContext.current
+    val cErrorTitle by rememberUpdatedState(errorTitle)
+    val cErrorMessage by rememberUpdatedState(errorMessage)
+    val cSubmitError by rememberUpdatedState(submitError)
+    val cOnFileCopied by rememberUpdatedState(onFileCopied)
+    val cOnImported by rememberUpdatedState(onImported)
 
-    ImportFileButton(
-        modifier = modifier,
-        extension = extension,
-        imageVector = imageVector,
-        text = text,
-        allowMultiple = allowMultiple,
-        progressUris = { uris ->
-            TaskSystem.submitTask(
-                Task.runTask(
+    return remember(id) {
+        object : (List<Uri>) -> Task {
+            override fun invoke(uris: List<Uri>): Task {
+                return Task.runTask(
+                    id = id,
                     dispatcher = Dispatchers.IO,
                     task = { task ->
                         task.updateProgress(-1f, null)
@@ -159,42 +229,41 @@ fun ImportFileButton(
                                 val outputFile = File(targetDir, fileName)
                                 context.copyLocalFile(uri, outputFile)
                                 //成功复制，如调用者有额外操作，可使用回调运行
-                                onFileCopied(task, outputFile)
+                                cOnFileCopied(task, outputFile)
                             } catch (e: Exception) {
                                 val eString = e.getMessageOrToString()
-                                val messageString = if (errorMessage != null) {
-                                    errorMessage + "\n" + eString
+                                val messageString = if (cErrorMessage != null) {
+                                    cErrorMessage + "\n" + eString
                                 } else {
                                     eString
                                 }
 
-                                submitError(
+                                cSubmitError(
                                     ErrorViewModel.ThrowableMessage(
-                                        title = errorTitle,
+                                        title = cErrorTitle,
                                         message = messageString
                                     )
                                 )
                             }
                         }
-                        onImported()
+                        cOnImported()
                     }
                 )
-            )
+            }
         }
-    )
+    }
 }
 
 @Composable
-fun ImportFileButton(
+fun ImportMultipleFileButton(
     extension: String,
     progressUris: (uris: List<Uri>) -> Unit,
     modifier: Modifier = Modifier,
     imageVector: ImageVector = Icons.Default.Add,
-    text: String = stringResource(R.string.generic_import),
-    allowMultiple: Boolean = true
+    text: String = stringResource(R.string.generic_import)
 ) {
     val launcher = rememberLauncherForActivityResult(
-        contract = ExtensionFilteredDocumentPicker(extension = extension, allowMultiple = allowMultiple)
+        contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         uris.takeIf { it.isNotEmpty() }?.let { uris1 ->
             progressUris(uris1)
@@ -204,7 +273,33 @@ fun ImportFileButton(
     IconTextButton(
         modifier = modifier,
         onClick = {
-            launcher.launch("")
+            launcher.launch(extension.extensionToMimeType())
+        },
+        imageVector = imageVector,
+        text = text
+    )
+}
+
+@Composable
+fun ImportSingleFileButton(
+    extension: String,
+    progressUris: (uris: List<Uri>) -> Unit,
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector = Icons.Default.Add,
+    text: String = stringResource(R.string.generic_import)
+) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { uri1 ->
+            progressUris(listOf(uri1))
+        }
+    }
+
+    IconTextButton(
+        modifier = modifier,
+        onClick = {
+            launcher.launch(extension.extensionToMimeType())
         },
         imageVector = imageVector,
         text = text

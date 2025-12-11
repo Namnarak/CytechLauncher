@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Download
@@ -93,6 +94,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -110,7 +112,10 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
+import com.movtery.zalithlauncher.ui.screens.content.elements.SortByDropdownMenu
+import com.movtery.zalithlauncher.ui.screens.content.elements.SortByEnum
+import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUriImportTaskBuilder
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ByteArrayIcon
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.DeleteAllOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
@@ -143,6 +148,10 @@ private class ResourcePackManageViewModel(
     var allPacks by mutableStateOf<List<ResourcePackInfo>>(emptyList())
         private set
     var filteredPacks by mutableStateOf<List<ResourcePackInfo>?>(null)
+        private set
+    var sortByEnum by mutableStateOf(SortByEnum.Name)
+        private set
+    var isAscending by mutableStateOf(true)
         private set
 
     var packState by mutableStateOf<LoadingState>(LoadingState.None)
@@ -202,8 +211,36 @@ private class ResourcePackManageViewModel(
         filterPacks()
     }
 
+    fun updateSortBy(sortByEnum: SortByEnum) {
+        this.sortByEnum = sortByEnum
+        filterPacks()
+    }
+
+    fun updateSortOrder() {
+        this.isAscending = !this.isAscending
+        filterPacks()
+    }
+
+    val supportedSortByEnums = listOf(
+        SortByEnum.Name, SortByEnum.FileModifiedTime
+    )
+
     private fun filterPacks() {
-        filteredPacks = allPacks.takeIf { it.isNotEmpty() }?.filterPacks(packFilter)
+        filteredPacks = allPacks
+            .takeIf { it.isNotEmpty() }
+            ?.filterPacks(packFilter)
+            ?.sortedWith { o1, o2 ->
+                val value = when (sortByEnum) {
+                    SortByEnum.Name -> o1.displayName.compareTo(o2.displayName)
+                    SortByEnum.FileModifiedTime -> o2.file.lastModified().compareTo(o1.file.lastModified())
+                    else -> error("This sorting method is not supported: $sortByEnum")
+                }
+                if (isAscending) {
+                    value
+                } else {
+                    -value
+                }
+            }
     }
 }
 
@@ -296,6 +333,11 @@ fun ResourcePackManageScreen(
                             modifier = Modifier.fillMaxWidth(),
                             packFilter = viewModel.packFilter,
                             changePackFilter = { viewModel.updateFilter(it) },
+                            supportedSortByEnums = viewModel.supportedSortByEnums,
+                            sortByEnum = viewModel.sortByEnum,
+                            onSortByChanged = { viewModel.updateSortBy(it) },
+                            isAscending = viewModel.isAscending,
+                            onToggleSortOrder = { viewModel.updateSortOrder() },
                             resourcePackDir = resourcePackDir,
                             onDeleteAll = {
                                 if (
@@ -344,6 +386,11 @@ private fun ResourcePackHeader(
     modifier: Modifier = Modifier,
     packFilter: ResourcePackFilter,
     changePackFilter: (ResourcePackFilter) -> Unit,
+    supportedSortByEnums: List<SortByEnum>,
+    sortByEnum: SortByEnum,
+    onSortByChanged: (SortByEnum) -> Unit,
+    isAscending: Boolean,
+    onToggleSortOrder: () -> Unit,
     resourcePackDir: File,
     onDeleteAll: () -> Unit,
     isFilesSelected: Boolean,
@@ -363,6 +410,27 @@ private fun ResourcePackHeader(
                 .padding(top = 4.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
+                    IconButton(
+                        onClick = { expanded = !expanded }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.Sort,
+                            contentDescription = stringResource(R.string.sort_by)
+                        )
+                    }
+                    SortByDropdownMenu(
+                        expanded = expanded,
+                        onClose = { expanded = false },
+                        enums = supportedSortByEnums,
+                        currentEnum = sortByEnum,
+                        onEnumChanged = onSortByChanged,
+                        isAscending = isAscending,
+                        onToggleSortOrder = onToggleSortOrder
+                    )
+                }
+
                 SimpleTextInputField(
                     modifier = Modifier
                         .weight(1f)
@@ -454,11 +522,19 @@ private fun ResourcePackHeader(
 
                     Spacer(modifier = Modifier.width(12.dp))
 
-                    ImportFileButton(
-                        extension = "zip",
+                    val taskBuilder = rememberMultipleUriImportTaskBuilder(
+                        id = "ContentManager.ResourcePacks.Import",
                         targetDir = resourcePackDir,
                         submitError = submitError,
                         onImported = onRefresh
+                    )
+                    ImportMultipleFileButton(
+                        extension = "zip",
+                        progressUris = { uris ->
+                            TaskSystem.submitTask(
+                                taskBuilder(uris)
+                            )
+                        }
                     )
 
                     IconTextButton(
