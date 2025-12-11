@@ -151,4 +151,10 @@
     <string name="download_game_install_game_files_progress">Installa file di gioco</string>
     <string name="download_install">Installa</string>
     <string name="download_install_error_title">Installazione Fallita</string>
+    <string name="download_install_error_message">È stato riscontrato un problema durante l\'installazione del tuo gioco:</string>
+    <string name="download_install_error_cant_fetch_optifine_download_url">Impossibile recuperare il link di download per il file principale OptiFine</string>
+    <string name="download_install_error_jvm_crash">È stato riscontrato un problema durante l\'installazione, codice uscita: %s</string>
+    <string name="download_install_error_download_failed">Alcuni file non sono stati scaricati, possibilmente per problemi di internet.</string>
+    <string name="download_install_success_title">Installazione finita con Sucesso</string>
+    <string name="download_install_success_message">Il tuo gioco è stato installato correttamente!</string>
 </resources>
