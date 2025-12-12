@@ -298,7 +298,6 @@ fun VersionCategoryItem(
     versionsCount: Int,
     selected: Boolean,
     shape: Shape = MaterialTheme.shapes.large,
-    backgroundColor: Color = itemLayoutColor(influencedByBackground = false),
     selectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = MaterialTheme.typography.labelMedium,
@@ -321,7 +320,6 @@ fun VersionCategoryItem(
         onClick = onClick,
         selected = selected,
         shape = shape,
-        backgroundColor = backgroundColor,
         selectedContentColor = selectedContentColor,
         unselectedContentColor = unselectedContentColor,
         enabled = enabled
