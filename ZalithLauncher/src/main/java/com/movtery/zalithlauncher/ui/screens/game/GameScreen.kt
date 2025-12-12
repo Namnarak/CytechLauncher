@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -493,7 +492,7 @@ fun GameScreen(
                     gamepadViewModel = gamepadViewModel,
                     isGrabbing = ZLBridgeStates.cursorMode == CURSOR_DISABLED,
                     onKeyEvent = { events, pressed ->
-                        events.fastForEach { event ->
+                        events.forEach { event ->
                             viewModel.onKeyEvent(event, pressed)
                         }
                     },
