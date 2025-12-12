@@ -62,6 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -728,6 +729,7 @@ fun VersionItemLayout(
                         painterResource(R.drawable.ic_pinned_outlined)
                     }
                     Icon(
+                        modifier = Modifier.rotate(45.0f),
                         painter = icon,
                         contentDescription = stringResource(R.string.versions_manage_pin)
                     )
