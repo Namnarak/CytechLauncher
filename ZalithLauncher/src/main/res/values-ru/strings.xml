@@ -258,7 +258,7 @@
     <string name="versions_manage_install_exists">Название версии уже существует!</string>
     <string name="versions_manage_install_cannot_use_mc_name">Не используйте ванильные названия для модифицированных версий.</string>
     <string name="versions_manage_invalid">Недопустимая версия</string>
-    <string name="versions_manage_rename_version">Переименовать версию</string>
+    <string name="versions_manage_rename_version">Переименовать сборку</string>
     <string name="versions_manage_copy_version">Копировать версию</string>
     <string name="versions_manage_copy_version_tip">Скопировать эту версию с включённой изоляцией. Отметьте «Копировать все файлы», чтобы включить ресурсы.</string>
     <string name="versions_manage_copy_version_all">Копировать все файлы</string>
