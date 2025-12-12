@@ -262,12 +262,12 @@
     <string name="versions_manage_copy_version">Копировать версию</string>
     <string name="versions_manage_copy_version_tip">Скопировать эту версию с включённой изоляцией. Отметьте «Копировать все файлы», чтобы включить ресурсы.</string>
     <string name="versions_manage_copy_version_all">Копировать все файлы</string>
-    <string name="versions_manage_delete_version">Удалить версию</string>
+    <string name="versions_manage_delete_version">Удалить сборку</string>
     <string name="versions_manage_delete_version_tip_hint1">Удаление версии также удалит все файлы в директории «./versions/%s», включая важные ресурсы, такие как миры, ресурс-паки, моды и многое другое для этой версии.</string>
     <string name="versions_manage_delete_version_tip_hint2">Если включена изоляция версии, связанные файлы хранятся только в этой директории, поэтому удаление версии удалит эти файлы;</string>
     <string name="versions_manage_delete_version_tip_hint3">Если изоляция версии не включена, файлы игры хранятся в корневой директории, и удаление версии не очистит все связанные файлы.</string>
     <string name="versions_manage_delete_version_tip_hint4">Пожалуйста, обязательно сделайте резервную копию важных данных перед продолжением и удаляйте с осторожностью!</string>
-    <string name="versions_manage_delete_version_tip_invalid">Текущая версия не содержит JSON-файл или имеет недопустимый формат, поэтому она помечена как недействительная. Вы не можете выбрать эту версию. Нажмите OK, чтобы удалить эту неисправную версию.</string>
+    <string name="versions_manage_delete_version_tip_invalid">Текущая сборка не содержит JSON-файл или имеет недопустимый формат, поэтому она помечена как недействительная. Вы не можете выбрать эту сборку. Нажмите OK, чтобы удалить эту неисправную сборку.</string>
     <string name="versions_manage_task_error">Ошибка операции с версией</string>
     <string name="versions_manage_install_new">Установить новую</string>
     <string name="versions_manage_settings">Настройки версии</string>
@@ -1019,4 +1019,9 @@
     <string name="settings_control_mouse_enable_click_summary">Включает механику управление как на тачпаде: Касание = левая кнопка мыши, долгое нажатие = удержание левой кнопки мыши. Эта настройка не затрагивает физическую мышь или обычное сенсорное управление.</string>
     <string name="settings_launcher_background_video_volume_title">Громкость видео на заднем фоне</string>
     <string name="settings_launcher_background_video_volume_summary">Когда в качестве фона установлено видео, вы можете отрегулировать его громкость с помощью этой опции.</string>
+    <string name="sort_by_name">Сортировать по имени</string>
+    <string name="sort_by_file_name">Сортировать по имени файла</string>
+    <string name="sort_by_last_modified">Сортировать по дате редактирования</string>
+    <string name="sort_by_last_played">Сортировать по дате последней игры</string>
+    <string name="versions_manage_pin">Закрепить</string>
 </resources>
