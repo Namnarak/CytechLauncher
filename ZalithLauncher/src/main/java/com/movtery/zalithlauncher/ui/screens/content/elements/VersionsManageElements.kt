@@ -302,6 +302,7 @@ fun VersionCategoryItem(
     selectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     unselectedContentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = MaterialTheme.typography.labelMedium,
+    enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     TextRailItem(
@@ -322,7 +323,8 @@ fun VersionCategoryItem(
         shape = shape,
         backgroundColor = backgroundColor,
         selectedContentColor = selectedContentColor,
-        unselectedContentColor = unselectedContentColor
+        unselectedContentColor = unselectedContentColor,
+        enabled = enabled
     )
 }
 
