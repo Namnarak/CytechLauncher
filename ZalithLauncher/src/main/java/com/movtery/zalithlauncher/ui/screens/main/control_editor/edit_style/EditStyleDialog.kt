@@ -240,8 +240,7 @@ private fun RendererBox(
         ),
         color = color,
         contentColor = contentColor,
-        shape = shape,
-        shadowElevation = 1.dp
+        shape = shape
     ) {
         ConstraintLayout(
             modifier = Modifier.fillMaxSize().padding(all = 16.dp)
