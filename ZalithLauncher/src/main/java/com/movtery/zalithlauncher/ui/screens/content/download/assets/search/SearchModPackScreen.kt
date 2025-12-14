@@ -154,9 +154,9 @@ private class ModpackViewModel : ViewModel() {
             waitForVersionName = ::waitForVersionName
         ).also {
             it.startImport(
-                onFinished = {
+                onFinished = { version ->
                     importer = null
-                    VersionsManager.refresh("[Modpack] ModpackImporter.onFinished")
+                    VersionsManager.refresh("[Modpack] ModpackImporter.onFinished", version)
                     importOperation = ModpackImportOperation.Finished
                 },
                 onError = { th ->

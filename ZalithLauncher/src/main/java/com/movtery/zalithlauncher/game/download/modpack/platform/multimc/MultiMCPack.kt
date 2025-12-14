@@ -61,6 +61,10 @@ open class MultiMCPack(
      */
     private lateinit var gameDownloadInfo: GameDownloadInfo
 
+    override fun getFinalClientName(): String {
+        return targetVersionName
+    }
+
     override fun buildTaskPhases(
         context: Context,
         scope: CoroutineScope,
