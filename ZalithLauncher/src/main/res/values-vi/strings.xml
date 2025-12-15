@@ -43,7 +43,7 @@
     <string name="generic_file_name">Tên tệp: %s</string>
     <string name="generic_file_size">Dung lượng tệp: %s</string>
     <string name="unit_day">ngày</string>
-    <string name="date_format">HH:mm:ss, \'ngày\' dd \'tháng\' MM \'năm\' yyyy</string>
+    <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
     <string name="just_now">vừa xong</string>
     <string name="minutes_ago">%d phút trước</string>
     <string name="hours_ago">%d giờ trước</string>
