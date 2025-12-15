@@ -1004,4 +1004,6 @@
     <string name="settings_launcher_background_video_volume_title">Âm lượng Video Nền</string>
     <string name="settings_launcher_background_video_volume_summary">Khi phông nền là một đoạn video, bạn có thể điều chỉnh âm lượng thông qua tùy chọn này.</string>
     <string name="versions_update_loader_diff_remove">Gỡ bỏ: %s</string>
+    <string name="control_editor_edit_text_size">Cỡ Chữ</string>
+    <string name="control_editor_edit_text_size_custom">Tùy Chỉnh Cỡ Chữ</string>
 </resources>
