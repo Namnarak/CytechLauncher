@@ -18,16 +18,30 @@
 
 package com.movtery.zalithlauncher.setting.unit
 
-val DEFAULT_INT_RANGE: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
+val IntSettingUnit.min: Int
+    get() = valueRange.first
 
-val DEFAULT_FLOAT_RANGE: ClosedFloatingPointRange<Float> = Float.MIN_VALUE..Float.MAX_VALUE
+val IntSettingUnit.max: Int
+    get() = valueRange.last
 
-val DEFAULT_LONG_RANGE: LongRange = Long.MIN_VALUE..Long.MAX_VALUE
+val NullableIntSettingUnit.min: Int
+    get() = valueRange.first
 
-fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> = start.toFloat()..endInclusive.toFloat()
+val NullableIntSettingUnit.max: Int
+    get() = valueRange.last
 
-val IntSettingUnit.floatRange: ClosedFloatingPointRange<Float>
-    get() = valueRange.toFloatRange()
+fun NullableIntSettingUnit.getOrMin(): Int = getValue() ?: min
 
-val NullableIntSettingUnit.floatRange: ClosedFloatingPointRange<Float>
-    get() = valueRange.toFloatRange()
+fun NullableIntSettingUnit.getOrMax(): Int = getValue() ?: max
+
+val FloatSettingUnit.min: Float
+    get() = valueRange.start
+
+val FloatSettingUnit.max: Float
+    get() = valueRange.endInclusive
+
+val LongSettingUnit.min: Long
+    get() = valueRange.first
+
+val LongSettingUnit.max: Long
+    get() = valueRange.last
