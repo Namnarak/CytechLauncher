@@ -1004,4 +1004,6 @@
     <string name="sort_by_last_modified">最終更新日順に並び替え</string>
     <string name="sort_by_last_played">最終プレイ日順に並び替え</string>
     <string name="versions_manage_pin">ピン留め</string>
+    <string name="control_editor_edit_text_size">テキストサイズ</string>
+    <string name="control_editor_edit_text_size_custom">カスタムテキストサイズ</string>
 </resources>
