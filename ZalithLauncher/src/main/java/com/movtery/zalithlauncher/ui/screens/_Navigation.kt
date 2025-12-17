@@ -88,11 +88,12 @@ fun <E: NavKey> NavBackStack<E>.removeAndNavigateTo(removes: List<KClass<*>>, sc
  * 清除所有栈，并加入指定的key
  */
 fun <E: NavKey> NavBackStack<E>.clearWith(navKey: E) {
-    //批量替换内容，避免 Nav3 看到空帧
-    this.apply {
-        clear()
+    val targetClass = navKey::class.java
+    if (none { it::class.java == targetClass }) {
+        //提前加入，避免让 Nav3 看到空帧
         add(navKey)
     }
+    removeIf { it::class.java != targetClass }
 }
 
 fun <E: NavKey> NavBackStack<E>.addIfEmpty(navKey: E) {

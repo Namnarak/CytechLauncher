@@ -483,9 +483,7 @@ private fun NavigationUI(
                 entry<NormalNavKey.AccountManager> {
                     AccountManageScreen(
                         backStackViewModel = screenBackStackModel,
-                        backToMainScreen = {
-                            screenBackStackModel.mainScreen.clearWith(NormalNavKey.LauncherMain)
-                        },
+                        backToMainScreen = toMainScreen,
                         openLink = { url ->
                             eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
                         },
