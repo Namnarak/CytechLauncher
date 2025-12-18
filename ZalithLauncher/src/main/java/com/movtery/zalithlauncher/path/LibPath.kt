@@ -29,6 +29,7 @@ class LibPath {
 
         @JvmField val CACIO_8 = File(DIR_COMPONENTS, "caciocavallo")
         @JvmField val CACIO_17 = File(DIR_COMPONENTS, "caciocavallo17")
+        @JvmField val CACIO_17_AGENT = File(CACIO_17, "cacio-agent.jar")
 
         @JvmField val JNA = File(DIR_JNA, "jna")
 
