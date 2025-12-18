@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="generic_cancel">Отмена</string>
-    <string name="generic_confirm">Ок</string>
+    <string name="generic_confirm">ОК</string>
     <string name="generic_error">Ошибка</string>
     <string name="generic_warning">Предупреждение</string>
     <string name="generic_back">Назад</string>
@@ -493,7 +493,7 @@
     <string name="microphone_check_no_permissions">Лаунчер не получил разрешение на использование микрофона</string>
     <string name="download_game_addon_request_addon">Пожалуйста, сначала выберите версию %s</string>
     <string name="download_game_install_base_download_file2">Скачать основной файл %s</string>
-    <string name="download_install_clear_temp">Очистить файлы кэша</string>
+    <string name="download_install_clear_temp">Очистка файлов кэша</string>
     <string name="download_install_input_version_name">Ожидание ввода пользователем названия версии</string>
     <string name="download_install_input_version_name_title">Введите название преустановленной версии</string>
     <string name="download_assets_filter_search_name">Поиск по имени</string>
