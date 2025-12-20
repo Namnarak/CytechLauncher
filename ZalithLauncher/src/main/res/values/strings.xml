@@ -437,6 +437,7 @@
     <string name="account_change_cape">Change Cape</string>
     <string name="account_change_cape_fetch_all">Fetching all capes</string>
     <string name="account_change_cape_fetch_all_failed">Unable to fetch capes</string>
+    <string name="account_change_cape_cache_all">Caching All Capes</string>
     <string name="account_change_cape_select_cape">Select Cape</string>
     <string name="account_change_cape_apply">Applying cape</string>
     <string name="account_change_cape_apply_success">Successfully changed your cape to: %s</string>

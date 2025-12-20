@@ -388,6 +388,7 @@
     <string name="account_change_cape">更換披風</string>
     <string name="account_change_cape_fetch_all">正在取得所有披風</string>
     <string name="account_change_cape_fetch_all_failed">無法取得披風</string>
+    <string name="account_change_cape_cache_all">正在快取所有披風</string>
     <string name="account_change_cape_select_cape">選擇披風</string>
     <string name="account_change_cape_apply">正在更改披風</string>
     <string name="account_change_cape_apply_success">成功將您的披風更改為：%s</string>

@@ -83,10 +83,10 @@ import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.game.account.wardrobe.validateSkinFile
+import com.movtery.zalithlauncher.game.account.yggdrasil.cacheAllCapes
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
-import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -110,6 +110,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOper
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
+import com.movtery.zalithlauncher.ui.screens.content.elements.SelectCapeDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
@@ -505,6 +506,10 @@ private fun MicrosoftChangeCapeOperation(
                                 apiUrl = MINECRAFT_SERVICES_URL,
                                 accessToken = account.accessToken
                             )
+                            task.updateProgress(-1f, R.string.account_change_cape_cache_all)
+                            cacheAllCapes(
+                                profile = profile
+                            )
                             updateOperation(MicrosoftChangeCapeOperation.SelectCape(account, profile))
                         },
                         onRefreshRequest = {
@@ -536,22 +541,13 @@ private fun MicrosoftChangeCapeOperation(
                 listOf(EmptyCape) + profile.capes
             }
 
-            SimpleListDialog(
-                title = stringResource(R.string.account_change_cape_select_cape),
-                items = capes,
-                itemTextProvider = { cape ->
-                    cape.capeTranslatedName()
-                },
-                onItemSelected = { cape ->
+            SelectCapeDialog(
+                capes = capes,
+                onSelected = { cape ->
                     updateOperation(MicrosoftChangeCapeOperation.RunTask(account, cape))
                 },
-                isCurrent = { cape ->
-                    cape.isUsing()
-                },
-                onDismissRequest = { selected ->
-                    if (!selected) {
-                        updateOperation(MicrosoftChangeCapeOperation.None)
-                    }
+                onDismiss = {
+                    updateOperation(MicrosoftChangeCapeOperation.None)
                 }
             )
         }

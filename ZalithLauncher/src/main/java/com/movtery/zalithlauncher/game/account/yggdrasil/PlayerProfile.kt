@@ -22,6 +22,7 @@ import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import java.io.File
 
 @Serializable
 data class PlayerProfile(
@@ -87,4 +88,11 @@ fun PlayerProfile.Skin.getSkinModel(): SkinModelType {
         "SLIM" -> SkinModelType.ALEX
         else -> SkinModelType.NONE
     }
+}
+
+/**
+ * 获取披风在本地的目标文件
+ */
+fun PlayerProfile.Cape.getFile(path: File): File {
+    return File(path, "$id.png")
 }

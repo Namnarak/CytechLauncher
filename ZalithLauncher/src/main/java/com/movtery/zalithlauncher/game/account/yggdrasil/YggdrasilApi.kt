@@ -23,7 +23,9 @@ import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileExcepti
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException.ExceptionStatus.PROFILE_NOT_EXISTS
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
 import io.ktor.client.plugins.ResponseException
@@ -38,9 +40,19 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.apache.commons.io.FileUtils
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * 使用 Yggdrasil 上传皮肤
@@ -124,6 +136,52 @@ suspend fun getPlayerProfile(
     GLOBAL_CLIENT.get("$apiUrl/minecraft/profile") {
         header(HttpHeaders.Authorization, "Bearer $accessToken")
     }.safeBodyAsJson<PlayerProfile>()
+}.onFailure { e ->
+    if (e is ResponseException) {
+        when (e.response.status.value) {
+            429 -> throw MinecraftProfileException(FREQUENT)
+            404 -> throw MinecraftProfileException(PROFILE_NOT_EXISTS)
+        }
+    }
+}.getOrThrow()
+
+/**
+ * 缓存玩家的所有披风图片文件
+ */
+suspend fun cacheAllCapes(
+    profile: PlayerProfile,
+    maxThreads: Int = 6
+) = runCatching {
+    withContext(Dispatchers.IO) {
+        val semaphore = Semaphore(maxThreads)
+
+        val downloadJobs = profile.capes.map { cape ->
+            launch {
+                semaphore.withPermit {
+                    val file = cape.getFile(PathManager.DIR_ACCOUNT_CAPE)
+                    if (file.exists()) {
+                        if (file.lastModified() + TimeUnit.DAYS.toMillis(7) < System.currentTimeMillis()) {
+                            //超过一周，更新一次缓存
+                            FileUtils.deleteQuietly(file)
+                        } else {
+                            return@withPermit
+                        }
+                    }
+                    downloadFileSuspend(
+                        url = cape.url,
+                        outputFile = file
+                    )
+                }
+            }
+        }
+
+        try {
+            downloadJobs.joinAll()
+        } catch (e: CancellationException) {
+            downloadJobs.forEach { it.cancel("Parent cancelled", e) }
+            throw e
+        }
+    }
 }.onFailure { e ->
     if (e is ResponseException) {
         when (e.response.status.value) {

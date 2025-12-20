@@ -32,6 +32,7 @@ class PathManager {
         lateinit var DIR_GAME: File
         lateinit var DIR_DATA_BASES: File
         lateinit var DIR_ACCOUNT_SKIN: File
+        lateinit var DIR_ACCOUNT_CAPE: File
         lateinit var DIR_MULTIRT: File
         lateinit var DIR_JNA: File
         lateinit var DIR_COMPONENTS: File
@@ -64,6 +65,7 @@ class PathManager {
             DIR_DATA_BASES = File(DIR_FILES_PRIVATE.parentFile, "databases")
             DIR_GAME = File(DIR_FILES_PRIVATE, "games")
             DIR_ACCOUNT_SKIN = File(DIR_GAME, "account_skins")
+            DIR_ACCOUNT_CAPE = File(DIR_GAME, "account_capes")
             DIR_MULTIRT = File(DIR_GAME, "runtimes")
             DIR_JNA = File(DIR_GAME, "jna_dir")
             DIR_COMPONENTS = File(DIR_FILES_PRIVATE, "components")
@@ -93,6 +95,7 @@ class PathManager {
             DIR_RUNTIME_MOD?.mkdirs()
             DIR_GAME.mkdirs()
             DIR_ACCOUNT_SKIN.mkdirs()
+            DIR_ACCOUNT_CAPE.mkdirs()
             DIR_MULTIRT.mkdirs()
             DIR_JNA.mkdirs()
             DIR_COMPONENTS.mkdirs()

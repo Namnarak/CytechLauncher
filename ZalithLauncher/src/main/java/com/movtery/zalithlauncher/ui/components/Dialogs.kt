@@ -456,6 +456,19 @@ fun <T> SimpleListDialog(
     onItemSelected: (T) -> Unit,
     onDismissRequest: (selected: Boolean) -> Unit,
     isCurrent: (T) -> Boolean = { false },
+    itemLayout: @Composable (
+        item: T,
+        isCurrent: Boolean,
+        text: String,
+        onClick: () -> Unit
+    ) -> Unit = { _, isCurrent, text, onClick ->
+        SimpleListItem(
+            selected = isCurrent,
+            itemName = text,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onClick
+        )
+    },
     showConfirmAndCancel: Boolean = false
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
@@ -493,13 +506,15 @@ fun <T> SimpleListDialog(
                         state = state
                     ) {
                         items(items) { item ->
-                            SimpleListItem(
-                                selected = isCurrent(item),
-                                itemName = itemTextProvider(item),
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = {
+                            val isCurrent = remember(item) { isCurrent(item) }
+                            val text = itemTextProvider(item)
+                            itemLayout(
+                                item,
+                                isCurrent,
+                                text,
+                                {
                                     selectedItem = item
-                                    if (!showConfirmAndCancel && !isCurrent(item)) {
+                                    if (!showConfirmAndCancel && !isCurrent) {
                                         onItemSelected(item)
                                         onDismissRequest(true)
                                     }
