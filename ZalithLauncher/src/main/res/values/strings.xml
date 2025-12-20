@@ -519,6 +519,7 @@
     <string name="cape_name_pan">Pan</string>
     <string name="cape_name_founder_s">Founder\'s</string>
     <string name="cape_name_copper">Copper</string>
+    <string name="cape_name_zombie_horse">Zombie Horse</string>
     <!-- File Management -->
     <string name="files_back_to_parent">Back</string>
     <string name="files_create_dir">Create Folder</string>
