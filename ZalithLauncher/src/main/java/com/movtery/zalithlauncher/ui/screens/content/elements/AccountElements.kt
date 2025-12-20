@@ -106,14 +106,21 @@ import com.movtery.zalithlauncher.game.account.getAccountTypeName
 import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
+import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
+import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
+import com.movtery.zalithlauncher.game.account.yggdrasil.getFile
+import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_MINECRAFT_PURCHASE
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListDialog
+import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
@@ -291,7 +298,7 @@ fun PlayerFace(
 ) {
     val context = LocalContext.current
     val avatarBitmap = remember(account, refreshKey, AccountsManager.refreshAccountAvatar) {
-        getAvatarFromAccount(context, account, avatarSize).asImageBitmap()
+        getSkinAvatarFromAccount(context, account, avatarSize).asImageBitmap()
     }
 
     val newAvatarSize = avatarBitmap.width.dp
@@ -874,18 +881,138 @@ fun SelectSkinModelDialog(
     }
 }
 
-@Throws(Exception::class)
-private fun getAvatarFromAccount(context: Context, account: Account, size: Int): Bitmap {
+@Composable
+fun SelectCapeDialog(
+    capes: List<PlayerProfile.Cape>,
+    onSelected: (PlayerProfile.Cape) -> Unit,
+    onDismiss: () -> Unit
+) {
+    SimpleListDialog(
+        title = stringResource(R.string.account_change_cape_select_cape),
+        items = capes,
+        itemTextProvider = { cape ->
+            cape.capeTranslatedName()
+        },
+        onItemSelected = { cape ->
+            onSelected(cape)
+        },
+        isCurrent = { cape ->
+            cape.isUsing()
+        },
+        itemLayout = { cape, isCurrent, text, onClick ->
+            val avatar = remember(cape) {
+                if (cape != EmptyCape) {
+                    getCapeAvatar(cape = cape, size = 32)
+                } else null
+            }
+            if (avatar != null) {
+                CapeListItem(
+                    selected = isCurrent,
+                    name = text,
+                    avatar = avatar,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClick
+                )
+            } else {
+                SimpleListItem(
+                    selected = isCurrent,
+                    itemName = text,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClick
+                )
+            }
+        },
+        onDismissRequest = { selected ->
+            if (!selected) {
+                onDismiss()
+            }
+        }
+    )
+}
+
+@Composable
+fun CapeListItem(
+    modifier: Modifier = Modifier,
+    selected: Boolean,
+    name: String,
+    avatar: Bitmap,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .clip(shape = MaterialTheme.shapes.large)
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick
+        )
+
+        val avatarBitmap = remember(avatar) {
+            avatar.asImageBitmap()
+        }
+
+        Image(
+            modifier = Modifier
+                .width(avatarBitmap.width.dp)
+                .height(avatarBitmap.height.dp),
+            bitmap = avatarBitmap,
+            contentDescription = null
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+private fun getCapeAvatar(cape: PlayerProfile.Cape, size: Int): Bitmap? {
+    val capeFile = cape.getFile(PathManager.DIR_ACCOUNT_CAPE)
+    if (capeFile.exists()) {
+        runCatching {
+            Files.newInputStream(capeFile.toPath()).use { `is` ->
+                val bitmap = BitmapFactory.decodeStream(`is`)
+                    ?: throw IOException("Failed to read the cape picture and try to parse it to a bitmap")
+                return getCapeAvatar(bitmap, size)
+            }
+        }.onFailure { e ->
+            lError("Failed to load cape avatar from locally!", e)
+        }
+    }
+    return null
+}
+
+private fun getCapeAvatar(cape: Bitmap, size: Int): Bitmap {
+    val scaleFactor = cape.width / 64.0f
+    val start = scaleFactor.roundToInt()
+    val capeWidth = (10 * scaleFactor).roundToInt()
+    val capeHeight = (16 * scaleFactor).roundToInt()
+    val capeBitmap = Bitmap.createBitmap(cape, start, start, capeWidth, capeHeight, null, false)
+    val scale = size.toFloat() / capeHeight
+    val matrix = Matrix()
+    matrix.postScale(scale, scale)
+    return Bitmap.createBitmap(capeBitmap, 0, 0, capeBitmap.width, capeBitmap.height, matrix, false)
+}
+
+private fun getSkinAvatarFromAccount(context: Context, account: Account, size: Int): Bitmap {
     val skin = account.getSkinFile()
     if (skin.exists()) {
         runCatching {
             Files.newInputStream(skin.toPath()).use { `is` ->
                 val bitmap = BitmapFactory.decodeStream(`is`)
                     ?: throw IOException("Failed to read the skin picture and try to parse it to a bitmap")
-                return getAvatar(bitmap, size)
+                return getSkinAvatar(bitmap, size)
             }
         }.onFailure { e ->
-            lError("Failed to load avatar from locally!", e)
+            lError("Failed to load skin avatar from locally!", e)
         }
     }
     return getDefaultAvatar(context, size)
@@ -894,15 +1021,15 @@ private fun getAvatarFromAccount(context: Context, account: Account, size: Int):
 @Throws(Exception::class)
 private fun getDefaultAvatar(context: Context, size: Int): Bitmap {
     val `is` = context.assets.open("steve.png")
-    return getAvatar(BitmapFactory.decodeStream(`is`), size)
+    return getSkinAvatar(BitmapFactory.decodeStream(`is`), size)
 }
 
-private fun getAvatar(skin: Bitmap, size: Int): Bitmap {
+private fun getSkinAvatar(skin: Bitmap, size: Int): Bitmap {
     val faceOffset = (size / 18.0).roundToInt().toFloat()
     val scaleFactor = skin.width / 64.0f
     val faceSize = (8 * scaleFactor).roundToInt()
-    val faceBitmap = Bitmap.createBitmap(skin, faceSize, faceSize, faceSize, faceSize, null as Matrix?, false)
-    val hatBitmap = Bitmap.createBitmap(skin, (40 * scaleFactor).roundToInt(), faceSize, faceSize, faceSize, null as Matrix?, false)
+    val faceBitmap = Bitmap.createBitmap(skin, faceSize, faceSize, faceSize, faceSize, null, false)
+    val hatBitmap = Bitmap.createBitmap(skin, (40 * scaleFactor).roundToInt(), faceSize, faceSize, faceSize, null, false)
     val avatar = createBitmap(size, size)
     val canvas = android.graphics.Canvas(avatar)
     val faceScale = ((size - 2 * faceOffset) / faceSize)
