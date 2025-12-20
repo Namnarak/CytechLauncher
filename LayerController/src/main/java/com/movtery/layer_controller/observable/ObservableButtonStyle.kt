@@ -22,7 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.data.ButtonStyle
-import com.movtery.layer_controller.data.DefaultStyle
+import com.movtery.layer_controller.data.DefaultButtonStyle
 import com.movtery.layer_controller.data.cloneNew
 
 /**
@@ -52,7 +52,7 @@ class ObservableButtonStyle(
     }
 }
 
-val DefaultObservableButtonStyle = ObservableButtonStyle(DefaultStyle)
+val DefaultObservableButtonStyle = ObservableButtonStyle(DefaultButtonStyle)
 
 fun ObservableButtonStyle.cloneNew(): ObservableButtonStyle {
     return ObservableButtonStyle(pack().cloneNew())

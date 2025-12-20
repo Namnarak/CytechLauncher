@@ -18,6 +18,7 @@
 
 package com.movtery.layer_controller.utils
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -487,9 +488,28 @@ internal fun getWidgetPosition(
     widgetSize: IntSize,
     screenSize: IntSize
 ): Offset {
-    val x = (screenSize.width - widgetSize.width) * (position.xPercentage())
-    val y = (screenSize.height - widgetSize.height) * (position.yPercentage())
-    return Offset(x, y)
+    return widgetPosition(
+        xPercentage = position.xPercentage(),
+        yPercentage = position.yPercentage(),
+        widgetSize = widgetSize,
+        screenSize = screenSize
+    )
+}
+
+/**
+ * 用 X, Y 百分比的计算方式，计算组件在屏幕上的 Offset
+ */
+fun widgetPosition(
+    @FloatRange(from = 0.0, to = 1.0)
+    xPercentage: Float,
+    @FloatRange(from = 0.0, to = 1.0)
+    yPercentage: Float,
+    widgetSize: IntSize,
+    screenSize: IntSize
+): Offset {
+    val newX = (screenSize.width - widgetSize.width) * xPercentage
+    val newY = (screenSize.height - widgetSize.height) * yPercentage
+    return Offset(newX, newY)
 }
 
 /**

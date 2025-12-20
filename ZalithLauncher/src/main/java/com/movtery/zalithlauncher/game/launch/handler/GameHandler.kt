@@ -52,6 +52,7 @@ import com.movtery.zalithlauncher.utils.file.child
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.zipDirRecursive
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -71,12 +72,20 @@ import kotlin.io.path.createTempDirectory
 class GameHandler(
     val activity: Activity,
     private val version: Version,
+    errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
     getWindowSize: () -> IntSize,
     private val gameLauncher: GameLauncher,
     onExit: (code: Int) -> Unit
-) : AbstractHandler(HandlerType.GAME, eventViewModel, getWindowSize, gameLauncher, onExit) {
+) : AbstractHandler(
+    type = HandlerType.GAME,
+    errorViewModel = errorViewModel,
+    eventViewModel = eventViewModel,
+    getWindowSize = getWindowSize,
+    launcher = gameLauncher,
+    onExit = onExit
+) {
     private val isTouchProxyEnabled = version.isTouchProxyEnabled()
     private val _inputArea = MutableStateFlow<IntRect?>(null)
     override val inputArea = _inputArea.asStateFlow()
@@ -187,7 +196,10 @@ class GameHandler(
             resetScreenOffset = resetScreenOffset,
             getAccountName = { gameLauncher.account.username },
             eventViewModel = eventViewModel,
-            gamepadViewModel = gamepadViewModel
+            gamepadViewModel = gamepadViewModel,
+            submitError = {
+                errorViewModel.showError(it)
+            }
         )
     }
 

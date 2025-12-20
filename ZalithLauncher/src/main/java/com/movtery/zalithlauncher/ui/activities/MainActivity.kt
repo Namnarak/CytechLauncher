@@ -31,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.notification.NotificationManager
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
@@ -54,7 +52,6 @@ import com.movtery.zalithlauncher.viewmodel.ModpackVersionNameOperation
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : BaseComponentActivity() {
     /**
@@ -105,16 +102,10 @@ class MainActivity : BaseComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 errorViewModel.errorEvents.collect { tm ->
-                    withContext(Dispatchers.Main) {
-                        //展示一个一次性的错误信息对话框
-                        MaterialAlertDialogBuilder(this@MainActivity)
-                            .setTitle(tm.title)
-                            .setMessage(tm.message)
-                            .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
-                                dialog.dismiss()
-                            }.setCancelable(false)
-                            .show()
-                    }
+                    errorViewModel.showErrorDialog(
+                        context = this@MainActivity,
+                        tm = tm
+                    )
                 }
             }
         }

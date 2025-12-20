@@ -53,7 +53,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
@@ -78,6 +80,7 @@ import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
@@ -95,6 +98,8 @@ private const val INTENT_JAR_INFO = "INTENT_JAR_INFO"
 private var isRunning = false
 
 class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
+    private val errorViewModel: ErrorViewModel by viewModels()
+
     private val eventViewModel: EventViewModel by viewModels()
     /**
      * 手柄状态存储 ViewModel
@@ -145,6 +150,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 handler = GameHandler(
                     activity = this,
                     version = version,
+                    errorViewModel = errorViewModel,
                     eventViewModel = eventViewModel,
                     gamepadViewModel = gamepadViewModel,
                     getWindowSize = getWindowSize,
@@ -164,6 +170,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             ).also { launcher ->
                 handler = JVMHandler(
                     jvmLauncher = launcher,
+                    errorViewModel = errorViewModel,
                     eventViewModel = eventViewModel,
                     getWindowSize = getWindowSize
                 ) { code ->
@@ -187,6 +194,18 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         val logFile = File(PathManager.DIR_FILES_EXTERNAL, "${launcher.getLogName()}.log")
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
         LoggerBridge.start(logFile.absolutePath)
+
+        //错误信息展示
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                errorViewModel.errorEvents.collect { tm ->
+                    errorViewModel.showErrorDialog(
+                        context = this@VMActivity,
+                        tm = tm
+                    )
+                }
+            }
+        }
 
         lifecycleScope.launch {
             //开始接收事件

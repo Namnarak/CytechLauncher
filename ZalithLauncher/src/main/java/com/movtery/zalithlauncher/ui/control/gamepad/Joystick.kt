@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.control.gamepad
 
 import androidx.compose.ui.geometry.Offset
+import com.movtery.zalithlauncher.ui.control.joystick.JoystickDirection
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel.Event
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -40,7 +41,7 @@ class Joystick(
     /**
      * 摇杆当前方向
      */
-    var direction: Direction = Direction.None
+    var direction: JoystickDirection = JoystickDirection.None
         private set
 
     private var angleRadian: Double? = null
@@ -92,37 +93,19 @@ class Joystick(
 
     fun calculateDirection(
         angleRadian: Double = getAngleRadian()
-    ): Direction {
+    ): JoystickDirection {
         val magnitude = getMagnitude()
-        if (magnitude == 0.0) return Direction.None
+        if (magnitude == 0.0) return JoystickDirection.None
 
         val angleDeg = Math.toDegrees(angleRadian).let { if (it < 0) it + 360.0 else it }
         val index = (((angleDeg + 22.5) / 45).toInt() % 8 + 8) % 8
 
-        return Direction.entries.getOrNull(index) ?: Direction.None
+        return JoystickDirection.entries.getOrNull(index) ?: JoystickDirection.None
     }
 
     fun getMagnitude(): Double {
         val x = abs(horizontalValue)
         val y = abs(verticalValue)
         return hypot(x.toDouble(), y.toDouble())
-    }
-
-    /**
-     * 摇杆当前方向
-     */
-    enum class Direction {
-        East,
-        NorthEast,
-        North,
-        NorthWest,
-        West,
-        SouthWest,
-        South,
-        SouthEast,
-        /**
-         * 无方向
-         */
-        None
     }
 }

@@ -51,6 +51,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +65,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
@@ -85,6 +88,7 @@ fun InfoLayoutSliderItem(
     suffix: String? = null,
     fineTuningControl: Boolean = true,
     fineTuningStep: Float = 0.5f,
+    enabled: Boolean = true,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
@@ -93,6 +97,7 @@ fun InfoLayoutSliderItem(
     InfoLayoutItem(
         modifier = modifier,
         onClick = {},
+        enabled = enabled,
         color = color,
         contentColor = contentColor
     ) {
@@ -106,6 +111,7 @@ fun InfoLayoutSliderItem(
                 shorter = true,
                 value = value,
                 decimalFormat = decimalFormat,
+                enabled = enabled,
                 onValueChange = onValueChange,
                 valueRange = valueRange,
                 onValueChangeFinished = onValueChangeFinished,
@@ -279,6 +285,7 @@ fun InfoLayoutSwitchItem(
     title: String,
     value: Boolean,
     onValueChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     color: Color = itemLayoutColorOnSurface(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
@@ -287,6 +294,7 @@ fun InfoLayoutSwitchItem(
         onClick = {
             onValueChange(!value)
         },
+        enabled = enabled,
         color = color,
         contentColor = contentColor
     ) {
@@ -297,7 +305,8 @@ fun InfoLayoutSwitchItem(
         )
         Switch(
             checked = value,
-            onCheckedChange = onValueChange
+            onCheckedChange = onValueChange,
+            enabled = enabled
         )
     }
 }
@@ -380,10 +389,52 @@ fun InfoLayoutTextItem(
 }
 
 @Composable
+fun InfoLayoutColorItem(
+    modifier: Modifier = Modifier,
+    title: String,
+    color: Color,
+    onColorChanged: (Color) -> Unit
+) {
+    var showColorDialog by remember { mutableStateOf(false) }
+
+    InfoLayoutTextItem(
+        modifier = modifier,
+        title = title,
+        onClick = {
+            showColorDialog = true
+        }
+    )
+
+    if (showColorDialog) {
+        var tempColor by remember { mutableStateOf(color) }
+        val colorController = rememberColorPickerController(initialColor = tempColor)
+
+        val currentColor by remember(colorController) { colorController.color }
+
+        LaunchedEffect(currentColor) {
+            onColorChanged(currentColor)
+        }
+
+        ColorPickerDialog(
+            colorController = colorController,
+            onCancel = {
+                onColorChanged(colorController.getOriginalColor())
+                showColorDialog = false
+            },
+            onConfirm = { color ->
+                showColorDialog = false
+                onColorChanged(color)
+            }
+        )
+    }
+}
+
+@Composable
 fun InfoLayoutItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     selected: Boolean = false,
+    enabled: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     color: Color = itemLayoutColorOnSurface(),
@@ -405,7 +456,8 @@ fun InfoLayoutItem(
         contentColor = contentColor,
         shape = shape,
         shadowElevation = 1.dp,
-        onClick = onClick
+        onClick = onClick,
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier

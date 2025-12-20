@@ -49,7 +49,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,7 +59,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.layer_controller.data.ALPHA_RANGE
 import com.movtery.layer_controller.data.BORDER_WIDTH
 import com.movtery.layer_controller.data.ButtonShape
@@ -71,12 +69,11 @@ import com.movtery.layer_controller.layout.RendererStyleBox
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableStyleConfig
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutColorItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
-import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.ui.screens.rememberSwapTween
 
 private data class TabItem(val titleRes: Int)
@@ -86,7 +83,7 @@ private data class TabItem(val titleRes: Int)
  * **不再真正使用Dialog，真的会有性能问题！**
  */
 @Composable
-fun EditStyleDialog(
+fun EditButtonStyleDialog(
     visible: Boolean,
     style: ObservableButtonStyle?,
     onClose: () -> Unit
@@ -152,6 +149,7 @@ fun EditStyleDialog(
                         ) {
                             RendererBox(
                                 style = style,
+                                isDarkTheme = selectedTabIndex == 1,
                                 modifier = Modifier.weight(1f)
                             )
                             //控件外观名称
@@ -230,6 +228,7 @@ fun EditStyleDialog(
 @Composable
 private fun RendererBox(
     style: ObservableButtonStyle,
+    isDarkTheme: Boolean,
     modifier: Modifier = Modifier,
     color: Color = itemLayoutColorOnSurface(3.dp),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -247,62 +246,36 @@ private fun RendererBox(
         shape = shape
     ) {
         ConstraintLayout(
-            modifier = Modifier.fillMaxSize().padding(all = 16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 16.dp)
         ) {
-            val (lightNormal, lightPressed, darkNormal, darkPressed) = createRefs()
+            val (normal, pressed) = createRefs()
             val boxModifier = Modifier.size(50.dp)
 
-            //浅色 普通状态
+            //普通状态
             RendererStyleBox(
                 style = style,
-                isDark = false,
+                isDark = isDarkTheme,
                 isPressed = false,
                 text = "abc",
-                modifier = boxModifier.constrainAs(lightNormal) {
+                modifier = boxModifier.constrainAs(normal) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
-                    end.linkTo(lightPressed.start)
-                    bottom.linkTo(darkNormal.top)
-                }
-            )
-
-            //浅色 按下状态
-            RendererStyleBox(
-                style = style,
-                isDark = false,
-                isPressed = true,
-                text = "abc",
-                modifier = boxModifier.constrainAs(lightPressed) {
-                    top.linkTo(parent.top)
-                    start.linkTo(lightNormal.end)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(darkPressed.top)
-                }
-            )
-
-            //暗色 普通状态
-            RendererStyleBox(
-                style = style,
-                isDark = true,
-                isPressed = false,
-                text = "abc",
-                modifier = boxModifier.constrainAs(darkNormal) {
-                    top.linkTo(lightNormal.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(darkPressed.start)
+                    end.linkTo(pressed.start)
                     bottom.linkTo(parent.bottom)
                 }
             )
 
-            //暗色 按下状态
+            //按下状态
             RendererStyleBox(
                 style = style,
-                isDark = true,
+                isDark = isDarkTheme,
                 isPressed = true,
                 text = "abc",
-                modifier = boxModifier.constrainAs(darkPressed) {
-                    top.linkTo(lightPressed.bottom)
-                    start.linkTo(darkNormal.end)
+                modifier = boxModifier.constrainAs(pressed) {
+                    top.linkTo(parent.top)
+                    start.linkTo(normal.end)
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                 }
@@ -321,7 +294,9 @@ private fun StyleConfigEditor(
         contentPadding = PaddingValues(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        val itemModifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 12.dp)
+        val itemModifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 4.dp, end = 12.dp)
 
         //普通
         item(key = "normal_title") {
@@ -506,7 +481,9 @@ private fun LazyListScope.commonStyleConfig(
     //控件圆角
     item(key = "corner_radius_$tag") {
         Column(
-            modifier = Modifier.fillMaxWidth().animateItem(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateItem(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             //左上角
@@ -548,46 +525,4 @@ private fun LazyListScope.commonStyleConfig(
         }
     }
 }
-
-@Composable
-private fun InfoLayoutColorItem(
-    modifier: Modifier = Modifier,
-    title: String,
-    color: Color,
-    onColorChanged: (Color) -> Unit
-) {
-    var showColorDialog by remember { mutableStateOf(false) }
-
-    InfoLayoutTextItem(
-        modifier = modifier,
-        title = title,
-        onClick = {
-            showColorDialog = true
-        }
-    )
-
-    if (showColorDialog) {
-        var tempColor by remember { mutableStateOf(color) }
-        val colorController = rememberColorPickerController(initialColor = tempColor)
-
-        val currentColor by remember(colorController) { colorController.color }
-
-        LaunchedEffect(currentColor) {
-            onColorChanged(currentColor)
-        }
-
-        ColorPickerDialog(
-            colorController = colorController,
-            onCancel = {
-                onColorChanged(colorController.getOriginalColor())
-                showColorDialog = false
-            },
-            onConfirm = { color ->
-                showColorDialog = false
-                onColorChanged(color)
-            }
-        )
-    }
-}
-
 

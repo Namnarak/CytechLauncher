@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.ui.screens.game.JVMScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,11 +44,18 @@ import kotlinx.coroutines.launch
 
 class JVMHandler(
     jvmLauncher: JvmLauncher,
+    errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
     getWindowSize: () -> IntSize,
     onExit: (code: Int) -> Unit
-) : AbstractHandler(HandlerType.JVM, eventViewModel, getWindowSize, jvmLauncher, onExit) {
-
+) : AbstractHandler(
+    type = HandlerType.JVM,
+    errorViewModel = errorViewModel,
+    eventViewModel = eventViewModel,
+    getWindowSize = getWindowSize,
+    launcher = jvmLauncher,
+    onExit = onExit
+) {
     /**
      * 日志展示状态
      */

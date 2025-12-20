@@ -40,6 +40,9 @@ class ObservableControlLayout(
     private val _styles = MutableStateFlow(layout.styles.map { ObservableButtonStyle(it) })
     val styles: StateFlow<List<ObservableButtonStyle>> = _styles
 
+    private val _special = MutableStateFlow(ObservableSpecial(layout.special))
+    val special: StateFlow<ObservableSpecial> = _special
+
     /**
      * 添加控制层
      */
@@ -148,6 +151,7 @@ class ObservableControlLayout(
             info = info.pack(),
             layers = _layers.value.map { it.pack() },
             styles = _styles.value.map { it.pack() },
+            special = _special.value.pack(),
             editorVersion = EDITOR_VERSION
         )
     }

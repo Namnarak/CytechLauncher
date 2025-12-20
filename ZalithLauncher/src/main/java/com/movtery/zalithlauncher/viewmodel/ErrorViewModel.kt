@@ -18,11 +18,16 @@
 
 package com.movtery.zalithlauncher.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.movtery.zalithlauncher.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ErrorViewModel : ViewModel() {
     private val _errorEvents = MutableSharedFlow<ThrowableMessage>()
@@ -31,6 +36,25 @@ class ErrorViewModel : ViewModel() {
     fun showError(message: ThrowableMessage) {
         viewModelScope.launch {
             _errorEvents.emit(message)
+        }
+    }
+
+    /**
+     * 通用的错误信息展示对话框
+     */
+    suspend fun showErrorDialog(
+        context: Context,
+        tm: ThrowableMessage
+    ) {
+        withContext(Dispatchers.Main) {
+            //展示一个一次性的错误信息对话框
+            MaterialAlertDialogBuilder(context)
+                .setTitle(tm.title)
+                .setMessage(tm.message)
+                .setPositiveButton(R.string.generic_confirm) { dialog, _ ->
+                    dialog.dismiss()
+                }.setCancelable(false)
+                .show()
         }
     }
 

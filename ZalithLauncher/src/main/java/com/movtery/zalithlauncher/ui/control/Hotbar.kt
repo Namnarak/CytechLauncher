@@ -45,14 +45,23 @@ import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_1
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_1_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_2
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_2_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_3
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_3_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_4
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_4_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_5
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_5_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_6
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_6_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_7
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_7_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_8
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_8_VALUE
 import com.movtery.zalithlauncher.game.keycodes.HOTBAR_9
+import com.movtery.zalithlauncher.game.keycodes.HOTBAR_9_VALUE
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.keycodes.mapToKeycode
 import com.movtery.zalithlauncher.game.launch.MCOptions
@@ -79,15 +88,15 @@ fun Int.hotbarPercentage() = this / 1000f
  * 快捷栏按键绑定键
  */
 private val hotbarList = listOf(
-    HOTBAR_1,
-    HOTBAR_2,
-    HOTBAR_3,
-    HOTBAR_4,
-    HOTBAR_5,
-    HOTBAR_6,
-    HOTBAR_7,
-    HOTBAR_8,
-    HOTBAR_9,
+    HOTBAR_1 to HOTBAR_1_VALUE,
+    HOTBAR_2 to HOTBAR_2_VALUE,
+    HOTBAR_3 to HOTBAR_3_VALUE,
+    HOTBAR_4 to HOTBAR_4_VALUE,
+    HOTBAR_5 to HOTBAR_5_VALUE,
+    HOTBAR_6 to HOTBAR_6_VALUE,
+    HOTBAR_7 to HOTBAR_7_VALUE,
+    HOTBAR_8 to HOTBAR_8_VALUE,
+    HOTBAR_9 to HOTBAR_9_VALUE,
 )
 
 private val keyList = listOf(
@@ -183,7 +192,10 @@ fun BoxScope.MinecraftHotbar(
                         hotbarSize = hotbarSize,
                         density = density,
                         onClickSlot = { index: Int ->
-                            val keyCode = mapToKeycode(hotbarList[index]) ?: keyList[index].toInt()
+                            val pair = hotbarList[index]
+                            val keyCode = mapToKeycode(pair.first, pair.second)
+                                ?: keyList[index].toInt()
+
                             onClickSlot(keyCode)
                         },
                         onOccupiedPointer = onOccupiedPointer,

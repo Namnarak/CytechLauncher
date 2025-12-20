@@ -124,13 +124,6 @@ class EditorViewModel() : ViewModel() {
         }
     }
 
-    /**
-     * 强制更改被编辑的控制布局
-     */
-    fun forceChangeLayout(layout: ControlLayout) {
-        this.observableLayout = ObservableControlLayout(layout)
-    }
-
 
 
     /**
@@ -197,7 +190,7 @@ class EditorViewModel() : ViewModel() {
      */
     fun createNewStyle(name: String) {
         observableLayout.addStyle(
-            com.movtery.layer_controller.data.createNewStyle(name)
+            com.movtery.layer_controller.data.createNewButtonStyle(name)
         )
     }
 
@@ -249,7 +242,7 @@ class EditorViewModel() : ViewModel() {
         onExit: () -> Unit
     ) {
         //检查并退出编辑控件对话框、编辑控件样式对话框
-        if (editorOperation is EditorOperation.SelectButton || editorOperation is EditorOperation.EditStyle) {
+        if (editorOperation is EditorOperation.SelectButton || editorOperation is EditorOperation.EditButtonStyle) {
             editorOperation = EditorOperation.None
         } else {
             showExitEditorDialog(
