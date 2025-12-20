@@ -35,14 +35,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
-import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_BACK
-import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_FORWARD
-import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_LEFT
-import com.movtery.zalithlauncher.game.keycodes.MOVEMENT_RIGHT
 import com.movtery.zalithlauncher.game.keycodes.mapToControlEvent
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_DOWN_SINGLE
 import com.movtery.zalithlauncher.ui.control.event.LAUNCHER_EVENT_SCROLL_UP_SINGLE
+import com.movtery.zalithlauncher.ui.control.joystick.allAction
+import com.movtery.zalithlauncher.ui.control.joystick.directionMapping
 import com.movtery.zalithlauncher.viewmodel.GamepadRemapperViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.CancellationException
@@ -291,32 +289,6 @@ fun GamepadStickCameraListener(
     )
 }
 
-val directionMapping = mapOf(
-    Joystick.Direction.East to listOf(MOVEMENT_RIGHT to true),
-    Joystick.Direction.NorthEast to listOf(
-        MOVEMENT_FORWARD to true,
-        MOVEMENT_RIGHT to true
-    ),
-    Joystick.Direction.North to listOf(MOVEMENT_FORWARD to true),
-    Joystick.Direction.NorthWest to listOf(
-        MOVEMENT_FORWARD to true,
-        MOVEMENT_LEFT to true
-    ),
-    Joystick.Direction.West to listOf(MOVEMENT_LEFT to true),
-    Joystick.Direction.SouthWest to listOf(
-        MOVEMENT_BACK to true,
-        MOVEMENT_LEFT to true
-    ),
-    Joystick.Direction.South to listOf(MOVEMENT_BACK to true),
-    Joystick.Direction.SouthEast to listOf(
-        MOVEMENT_BACK to true,
-        MOVEMENT_RIGHT to true
-    ),
-    Joystick.Direction.None to emptyList()
-)
-
-val allAction = listOf(MOVEMENT_FORWARD, MOVEMENT_BACK, MOVEMENT_LEFT, MOVEMENT_RIGHT)
-
 /**
  * 统一实现的手柄摇杆控制玩家移动的事件监听器
  * @param isGrabbing 判断当前是否在游戏中，若在游戏内，则根据事件中的摇杆类型判定以哪个摇杆的方向，控制玩家移动
@@ -338,9 +310,10 @@ fun GamepadStickMovementListener(
 
     fun sendKeyEvent(
         mcKey: String,
+        defaultValue: String,
         pressed: Boolean
     ) {
-        mapToControlEvent(mcKey)?.let { event ->
+        mapToControlEvent(mcKey, defaultValue)?.let { event ->
             if (pressed) {
                 allPressEvent.add(event)
             } else {
@@ -382,12 +355,12 @@ fun GamepadStickMovementListener(
 
                 if (event.joystickType != movementStick) return@GamepadEventListener
 
-                allAction.forEach { key ->
-                    sendKeyEvent(key, false)
+                allAction.forEach { (key, defaultValue) ->
+                    sendKeyEvent(key, defaultValue, false)
                 }
 
-                directionMapping[event.direction]?.forEach { (key, pressed) ->
-                    sendKeyEvent(key, pressed)
+                directionMapping[event.direction]?.forEach { (key, defaultValue) ->
+                    sendKeyEvent(key, defaultValue, true)
                 }
             }
         },

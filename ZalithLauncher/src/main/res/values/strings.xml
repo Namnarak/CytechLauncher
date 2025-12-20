@@ -49,6 +49,7 @@
     <string name="generic_disabled">Disabled</string>
     <string name="generic_unspecified">Unspecified</string>
     <string name="generic_save">Save</string>
+    <string name="generic_saved">Saved</string>
     <string name="generic_share">Share</string>
     <string name="generic_no_matching_items">No matching items</string>
     <!-- Unit -->
@@ -377,6 +378,17 @@
     <string name="game_menu_option_show_menu">Enable Menu Overlay</string>
     <string name="game_menu_option_show_menu_hided">Game menu overlay has been disabled. You can open the game menu using the system back button</string>
     <string name="game_menu_option_controls_opacity">Control Layout Opacity</string>
+    <string name="game_styles_joystick">Manage Joystick</string>
+    <string name="game_styles_joystick_enable">Enable Joystick</string>
+    <string name="game_styles_joystick_x">Joystick X Position</string>
+    <string name="game_styles_joystick_y">Joystick Y Position</string>
+    <string name="game_styles_joystick_size">Joystick Size</string>
+    <string name="game_styles_joystick_edit">Edit Joystick Style</string>
+    <string name="game_styles_joystick_can_lock">Forward Lock</string>
+    <string name="game_styles_joystick_lock_sprint">Force Sprint When Locked</string>
+    <string name="game_styles_joystick_hide_when_mouse">Hide When Using Physical Mouse</string>
+    <string name="game_styles_joystick_hide_when_gamepad">Hide When Using Gamepad</string>
+    <string name="game_styles_save_failed">Failed to Save Style</string>
     <!-- Renderers -->
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>
@@ -1010,6 +1022,18 @@
     <string name="control_editor_edit_style_config_widget_radius_right_top">Top Right Corner</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">Bottom Left Corner</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">Bottom Right Corner</string>
+    <string name="control_editor_special_joystick_style">Joystick Style</string>
+    <string name="control_editor_special_joystick_style_create_title">Create Joystick Style</string>
+    <string name="control_editor_special_joystick_style_create_summary">Create a joystick style configuration provided by the control layout. If the current control layout does not provide a joystick style, the launcher\'s joystick style will be used.</string>
+    <string name="control_editor_special_joystick_style_delete_title">Delete Joystick Style</string>
+    <string name="control_editor_special_joystick_style_delete_summary">Delete the joystick style configuration for the current control layout and use the launcher\'s joystick style.</string>
+    <string name="control_editor_special_joystick_style_joystick_color">Joystick Color</string>
+    <string name="control_editor_special_joystick_style_joystick_can_lock_color">Joystick Color (Lockable)</string>
+    <string name="control_editor_special_joystick_style_joystick_locked_color">Joystick Color (Locked)</string>
+    <string name="control_editor_special_joystick_style_lock_mark_color">Forward Lock Indicator Color</string>
+    <string name="control_editor_special_joystick_style_background_rounded_corner">Background Corner Radius</string>
+    <string name="control_editor_special_joystick_style_joystick_rounded_corner">Joystick Corner Radius</string>
+    <string name="control_editor_special_joystick_style_joystick_size">Joystick Size</string>
     <string name="control_editor_exit_message">Are you sure you want to exit directly? This will cause any changes to be unsaved. If you need to save, please check the editor menu.</string>
     <string name="control_editor_exit_confirm">Exit Directly</string>
     <!-- About -->

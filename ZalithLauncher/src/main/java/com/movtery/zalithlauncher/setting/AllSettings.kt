@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.setting
 import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.movtery.layer_controller.data.POSITION_RANGE
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.info.InfoDistributor
@@ -452,4 +453,45 @@ object AllSettings : SettingsRegistry() {
      * 陶瓦联机公告版本号
      */
     val terracottaNoticeVer = intSetting("terracottaNoticeVer", -1)
+
+    //特殊样式
+    /**
+     * 是否在游戏中启用摇杆移动组件
+     */
+    val enableJoystickControl = boolSetting("enableJoystickControl", false)
+
+    /**
+     * 游戏中摇杆移动组件的 X 坐标 0~10000
+     */
+    val joystickControlX = intSetting("joystickControlX", 5000, POSITION_RANGE)
+
+    /**
+     * 游戏中摇杆移动组件的 Y 坐标 0~10000
+     */
+    val joystickControlY = intSetting("joystickControlY", 5000, POSITION_RANGE)
+
+    /**
+     * 游戏中摇杆移动组件的大小 Dp
+     */
+    val joystickControlSize = intSetting("joystickControlSize", 120, 80..180)
+
+    /**
+     * 游戏中摇杆移动组件是否在使用实体鼠标时隐藏
+     */
+    val joystickHideWhenMouse = boolSetting("joystickHideWhenMouse", true)
+
+    /**
+     * 游戏中摇杆移动组件是否在使用手柄时隐藏
+     */
+    val joystickHideWhenGamepad = boolSetting("joystickHideWhenGamepad", true)
+
+    /**
+     * 游戏中摇杆移动组件是否可锁定
+     */
+    val joystickControlCanLock = boolSetting("joystickControlCanLock", true)
+
+    /**
+     * 游戏中摇杆移动组件在前进锁定时，是否强制疾跑
+     */
+    val joystickControlLockSpring = boolSetting("joystickControlLockSpring", true)
 }

@@ -97,6 +97,7 @@ fun GameMenuSubscreen(
     onInputMethod: () -> Unit,
     onSendKeycode: () -> Unit,
     onReplacementControl: () -> Unit,
+    onManageJoystick: () -> Unit,
     onEditLayout: () -> Unit
 ) {
     //检查陀螺仪是否可用
@@ -162,6 +163,7 @@ fun GameMenuSubscreen(
                                 onInputMethod = onInputMethod,
                                 onSendKeycode = onSendKeycode,
                                 onReplacementControl = onReplacementControl,
+                                onManageJoystick = onManageJoystick,
                                 onEditLayout = onEditLayout
                             )
                         }
@@ -308,6 +310,7 @@ private fun ControlOverview(
     onInputMethod: () -> Unit,
     onSendKeycode: () -> Unit,
     onReplacementControl: () -> Unit,
+    onManageJoystick: () -> Unit,
     onEditLayout: () -> Unit
 ) {
     LazyColumn(
@@ -369,6 +372,18 @@ private fun ControlOverview(
                 onValueChange = { AllSettings.controlsOpacity.updateState(it) },
                 onValueChangeFinished = { AllSettings.controlsOpacity.save(it) },
                 suffix = "%"
+            )
+        }
+
+        //管理摇杆
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_styles_joystick),
+                onClick = {
+                    onManageJoystick()
+                    closeScreen()
+                }
             )
         }
 

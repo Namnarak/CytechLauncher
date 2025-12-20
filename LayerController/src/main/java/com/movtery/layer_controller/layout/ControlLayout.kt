@@ -20,6 +20,7 @@ package com.movtery.layer_controller.layout
 
 import com.movtery.layer_controller.EDITOR_VERSION
 import com.movtery.layer_controller.data.ButtonStyle
+import com.movtery.layer_controller.data.JoystickStyle
 import com.movtery.layer_controller.data.lang.EmptyTranslatableString
 import com.movtery.layer_controller.data.lang.TranslatableString
 import com.movtery.layer_controller.layout.ControlLayout.Info
@@ -39,6 +40,7 @@ import java.io.IOException
  * 描述一个控制布局结构
  * @param info 控制布局基本信息
  * @param layers 控制层级列表
+ * @param special 可以变更启动器层的部分组件的扩展设定
  * @param editorVersion 使用编辑器版本
  */
 @Serializable
@@ -46,9 +48,11 @@ data class ControlLayout(
     @SerialName("info")
     val info: Info,
     @SerialName("layers")
-    val layers: List<ControlLayer>,
+    val layers: List<ControlLayer> = emptyList(),
     @SerialName("styles")
-    val styles: List<ButtonStyle>,
+    val styles: List<ButtonStyle> = emptyList(),
+    @SerialName("special")
+    val special: Special = Special(),
     @SerialName("editorVersion")
     val editorVersion: Int
 ): Modifiable<ControlLayout> {
@@ -74,10 +78,33 @@ data class ControlLayout(
         }
     }
 
+    /**
+     * 特殊设定，比如由控制布局改变启动器的部分组件属性之类的
+     * @param joystickStyle 控制启动器层的摇杆的样式
+     */
+    @Serializable
+    data class Special(
+        val joystickStyle: JoystickStyle? = null
+        //将来可扩展更多设定
+    ): Modifiable<Special> {
+        override fun isModified(other: Special): Boolean {
+            val joystickStyle0 = this.joystickStyle
+            val joystickModified = if (joystickStyle0 == null) {
+                other.joystickStyle != null
+            } else {
+                if (other.joystickStyle == null) true
+                else joystickStyle0.isModified(other.joystickStyle)
+            }
+
+            return joystickModified
+        }
+    }
+
     override fun isModified(other: ControlLayout): Boolean {
         return this.info.isModified(other.info) ||
                 this.layers.isModified(other.layers) ||
                 this.styles.isModified(other.styles) ||
+                this.special.isModified(other.special) ||
                 this.editorVersion != other.editorVersion
     }
 }

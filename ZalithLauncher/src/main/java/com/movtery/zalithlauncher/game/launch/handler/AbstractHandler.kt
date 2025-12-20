@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.game.launch.Launcher
+import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 
 abstract class AbstractHandler(
     val type: HandlerType,
+    protected val errorViewModel: ErrorViewModel,
     protected val eventViewModel: EventViewModel,
     protected val getWindowSize: () -> IntSize,
     val launcher: Launcher,

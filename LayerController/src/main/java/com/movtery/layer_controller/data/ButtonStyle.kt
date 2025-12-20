@@ -151,7 +151,7 @@ data class ButtonStyle(
     }
 }
 
-val DefaultStyleConfig = StyleConfig(
+val DefaultButtonStyleConfig = StyleConfig(
     alpha = 1f,
     backgroundColor = Color.Black.copy(alpha = 0.5f),
     contentColor = Color.White,
@@ -168,15 +168,15 @@ val DefaultStyleConfig = StyleConfig(
     pressedBorderRadius = ButtonShape(0f)
 )
 
-val DefaultStyle = ButtonStyle(
+val DefaultButtonStyle = ButtonStyle(
     name = "Default",
     uuid = randomUUID(),
     animateSwap = false,
-    lightStyle = DefaultStyleConfig,
-    darkStyle = DefaultStyleConfig
+    lightStyle = DefaultButtonStyleConfig,
+    darkStyle = DefaultButtonStyleConfig
 )
 
-fun createNewStyle(name: String): ButtonStyle = DefaultStyle.copy(name = name, uuid = randomUUID())
+fun createNewButtonStyle(name: String): ButtonStyle = DefaultButtonStyle.copy(name = name, uuid = randomUUID())
 
 /**
  * 克隆一个新的ButtonStyle对象（UUID不同）

@@ -46,6 +46,7 @@
     <string name="generic_disabled">已停用</string>
     <string name="generic_unspecified">未指定</string>
     <string name="generic_save">儲存</string>
+    <string name="generic_saved">已儲存</string>
     <string name="generic_share">分享</string>
     <string name="generic_no_matching_items">沒有符合條件的項目</string>
     <!--  单位  -->
@@ -339,6 +340,17 @@
     <string name="game_menu_option_show_menu">開啟選單懸浮窗</string>
     <string name="game_menu_option_show_menu_hided">已關閉遊戲選單懸浮窗，您可以透過系統返回鍵呼叫遊戲選單</string>
     <string name="game_menu_option_controls_opacity">控制佈局不透明度</string>
+    <string name="game_styles_joystick">管理搖桿</string>
+    <string name="game_styles_joystick_enable">啟用搖桿</string>
+    <string name="game_styles_joystick_x">搖桿 X 座標</string>
+    <string name="game_styles_joystick_y">搖桿 Y 座標</string>
+    <string name="game_styles_joystick_size">搖桿大小</string>
+    <string name="game_styles_joystick_edit">編輯搖桿樣式</string>
+    <string name="game_styles_joystick_can_lock">前進鎖定</string>
+    <string name="game_styles_joystick_lock_sprint">鎖定時強制疾跑</string>
+    <string name="game_styles_joystick_hide_when_mouse">使用實體滑鼠時隱藏</string>
+    <string name="game_styles_joystick_hide_when_gamepad">使用手把時隱藏</string>
+    <string name="game_styles_save_failed">儲存樣式失敗</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>
@@ -1031,6 +1043,18 @@
     <string name="control_editor_edit_style_config_widget_radius_right_top">右上角</string>
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
+    <string name="control_editor_special_joystick_style">搖桿樣式</string>
+    <string name="control_editor_special_joystick_style_create_title">建立搖桿樣式</string>
+    <string name="control_editor_special_joystick_style_create_summary">建立由控制佈局提供的搖桿樣式設定；若目前的控制佈局未提供搖桿樣式，則會使用啟動器的搖桿樣式。</string>
+    <string name="control_editor_special_joystick_style_delete_title">刪除搖桿樣式</string>
+    <string name="control_editor_special_joystick_style_delete_summary">刪除目前控制佈局的搖桿樣式設定，並改用啟動器的搖桿樣式。</string>
+    <string name="control_editor_special_joystick_style_joystick_color">搖桿顏色</string>
+    <string name="control_editor_special_joystick_style_joystick_can_lock_color">搖桿顏色（可鎖定時）</string>
+    <string name="control_editor_special_joystick_style_joystick_locked_color">搖桿顏色（鎖定時）</string>
+    <string name="control_editor_special_joystick_style_lock_mark_color">前進鎖定標記顏色</string>
+    <string name="control_editor_special_joystick_style_background_rounded_corner">背景層圓角</string>
+    <string name="control_editor_special_joystick_style_joystick_rounded_corner">搖桿圓角</string>
+    <string name="control_editor_special_joystick_style_joystick_size">搖桿大小</string>
     <string name="control_editor_exit_message">您確定要直接退出嗎？這將導致您的任何變更都無法被儲存。若需要儲存，請檢查編輯器選單。</string>
     <string name="control_editor_exit_confirm">直接退出</string>
 </resources>

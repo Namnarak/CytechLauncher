@@ -99,7 +99,13 @@ sealed interface EditorOperation {
     /** 创建控件外观 */
     data object CreateStyle : EditorOperation
     /** 编辑控件外观 */
-    data object EditStyle : EditorOperation
+    data object EditButtonStyle : EditorOperation
+    /** 创建摇杆样式独立设定 */
+    data object CreateJoystickStyle : EditorOperation
+    /** 打开摇杆样式独立设定页面 */
+    data object EditJoystickStyle : EditorOperation
+    /** 删除摇杆样式独立设定 */
+    data object DeleteJoystickStyle : EditorOperation
     /** 控制布局正在保存中 */
     data object Saving : EditorOperation
     /** 控制布局保存失败 */
@@ -193,6 +199,7 @@ fun EditorMenu(
     addNewButton: () -> Unit,
     addNewText: () -> Unit,
     openStyleList: () -> Unit,
+    onEditJoystickStyle: () -> Unit,
     isLayerFocus: Boolean,
     onLayerFocusChanged: (Boolean) -> Unit,
     isPreviewMode: Boolean,
@@ -249,6 +256,19 @@ fun EditorMenu(
                         enabled = isPreviewMode.not(),
                         onClick = {
                             openStyleList()
+                            closeScreen()
+                        }
+                    )
+                }
+
+                //摇杆样式
+                item {
+                    MenuTextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.control_editor_special_joystick_style),
+                        enabled = isPreviewMode.not(),
+                        onClick = {
+                            onEditJoystickStyle()
                             closeScreen()
                         }
                     )

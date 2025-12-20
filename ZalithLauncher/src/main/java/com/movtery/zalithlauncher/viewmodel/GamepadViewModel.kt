@@ -30,6 +30,7 @@ import com.movtery.zalithlauncher.ui.control.gamepad.GamepadRemap
 import com.movtery.zalithlauncher.ui.control.gamepad.Joystick
 import com.movtery.zalithlauncher.ui.control.gamepad.JoystickType
 import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
+import com.movtery.zalithlauncher.ui.control.joystick.JoystickDirection
 
 private const val BUTTON_PRESS_THRESHOLD = 0.85f
 
@@ -293,7 +294,7 @@ class GamepadViewModel() : ViewModel() {
          * 手柄摇杆方向变更事件
          * @param joystickType 摇杆类型（左、右）
          */
-        data class StickDirection(val joystickType: JoystickType, val direction: Joystick.Direction) : Event
+        data class StickDirection(val joystickType: JoystickType, val direction: JoystickDirection) : Event
 
         /**
          * 手柄方向键按下/松开事件
