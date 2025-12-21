@@ -496,7 +496,7 @@ fun GameScreen(
     surfaceOffset: Offset,
     incrementScreenOffset: (Offset) -> Unit,
     resetScreenOffset: () -> Unit,
-    getAccountName: () -> String,
+    getAccountName: () -> String?,
     eventViewModel: EventViewModel,
     gamepadViewModel: GamepadViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit

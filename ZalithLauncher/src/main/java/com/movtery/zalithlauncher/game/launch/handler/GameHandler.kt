@@ -194,7 +194,9 @@ class GameHandler(
             surfaceOffset = surfaceOffset,
             incrementScreenOffset = incrementScreenOffset,
             resetScreenOffset = resetScreenOffset,
-            getAccountName = { gameLauncher.account.username },
+            getAccountName = {
+                AccountsManager.currentAccountFlow.value?.username //不太可能为空，启动前拦截了这个情况
+            },
             eventViewModel = eventViewModel,
             gamepadViewModel = gamepadViewModel,
             submitError = {
