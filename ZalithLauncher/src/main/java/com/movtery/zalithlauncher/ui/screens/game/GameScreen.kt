@@ -139,6 +139,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
@@ -254,12 +256,26 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         }
     }
 
-    fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
-        observableLayout = null
-        currentControlFile = layoutFile
-        val layout = getLayout(layoutFile)
-        //将控制布局加载为可供Compose加载的形式
-        observableLayout = ObservableControlLayout(layout)
+    fun replaceControlLayout(layoutFile: File) {
+        viewModelScope.launch(Dispatchers.Main) {
+            loadControlLayout(layoutFile)
+        }
+    }
+
+    private val layoutMutex = Mutex()
+    suspend fun loadControlLayout(layoutFile: File? = version.getControlPath()) {
+        layoutMutex.withLock {
+            withContext(Dispatchers.Main) {
+                observableLayout = null
+                val layout = withContext(Dispatchers.IO) {
+                    delay(10L) //刻意等待一会再加载
+                    currentControlFile = layoutFile
+                    getLayout(layoutFile)
+                }
+                //将控制布局加载为可供Compose加载的形式
+                observableLayout = ObservableControlLayout(layout)
+            }
+        }
     }
 
     private fun getLayout(layoutFile: File? = currentControlFile): ControlLayout {
@@ -288,10 +304,12 @@ private class GameViewModel(private val version: Version) : ViewModel() {
      * 退出编辑控制布局模式（如果当前确实正在编辑控制布局）
      */
     fun exitControlEditor() {
-        if (isEditingLayout) {
-            isEditingLayout = false
-            loadControlLayout(currentControlFile)
-            editorRefresh++
+        viewModelScope.launch(Dispatchers.Main) {
+            if (isEditingLayout) {
+                isEditingLayout = false
+                loadControlLayout(currentControlFile)
+                editorRefresh++
+            }
         }
     }
 
@@ -322,8 +340,8 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     init {
-        loadControlLayout()
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
+            loadControlLayout()
             launcherJoystickStyle = loadJoystickStyle(PathManager.DIR_STYLES)
         }
     }
@@ -518,7 +536,7 @@ fun GameScreen(
         operation = viewModel.replacementControlState,
         onChange = { viewModel.replacementControlState = it },
         currentLayout = viewModel.currentControlFile,
-        replacementControl = { viewModel.loadControlLayout(it) }
+        replacementControl = { viewModel.replaceControlLayout(it) }
     )
 
     TerracottaOperation(
