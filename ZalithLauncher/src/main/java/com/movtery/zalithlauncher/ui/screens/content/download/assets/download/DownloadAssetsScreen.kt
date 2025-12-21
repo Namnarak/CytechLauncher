@@ -77,7 +77,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.isAllNull
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.getMcmodTitle
 import com.movtery.zalithlauncher.game.download.assets.utils.getTranslations
-import com.movtery.zalithlauncher.game.versioninfo.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.versioninfo.filterRelease
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.CheckChip
@@ -140,7 +140,7 @@ private class DownloadScreenViewModel(
 
     private fun List<VersionInfoMap>.filterInfos(): List<VersionInfoMap> {
         return filter { info ->
-            (!showOnlyMCRelease || RELEASE_REGEX.matcher(info.gameVersion).find()) &&
+            (!showOnlyMCRelease || filterRelease(info.gameVersion)) &&
                     (searchMCVersion.isEmpty() || info.gameVersion.contains(searchMCVersion, true))
         }
     }

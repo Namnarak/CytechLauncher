@@ -113,6 +113,16 @@ val allAprilFools = listOf(
 )
 
 /**
- * MC 正式版版本匹配
+ * 旧的 MC 正式版版本规则匹配
  */
-val RELEASE_REGEX = Pattern.compile("^\\d+\\.\\d+\\.\\d+$|^\\d+\\.\\d+$")
+const val LEGACY_RELEASE_REGEX = """^\d+\.\d+\.\d+$|^\d+\.\d+$"""
+
+/**
+ * 给出的 MC 版本号是否为正式版
+ */
+fun filterRelease(versionString: String): Boolean {
+    //先检查旧的正式版版本规则匹配
+    if (Pattern.compile(LEGACY_RELEASE_REGEX).matcher(versionString).find()) return true
+    //开始使用新的版本号规则进行匹配
+    return parseNewVersionFormat(versionString)?.isRelease() ?: false
+}
