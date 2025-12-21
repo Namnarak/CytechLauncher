@@ -74,6 +74,7 @@ import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.clearWith
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.rememberSwapTween
+import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 
 private enum class EditWidgetDialogState(val alpha: Float, val buttonText: Int) {
     /** 完全不透明 */
@@ -314,34 +315,46 @@ private fun EditWidgetNavigation(
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
 ) {
+    val currentKey = backStack.lastOrNull()
+
     if (backStack.isNotEmpty()) {
         NavDisplay(
             modifier = modifier,
             backStack = backStack,
             onBack = { /* 忽略 */ },
+            transitionSpec = rememberTransitionSpec(),
+            popTransitionSpec = rememberTransitionSpec(),
             entryProvider = entryProvider {
-                entry<EditWidgetCategory.Info> {
+                entry<EditWidgetCategory.Info> { key ->
                     EditWidgetInfo(
+                        screenKey = key,
+                        currentKey = currentKey,
                         data = data,
                         onPreviewRequested = onPreviewRequested,
                         onDismissRequested = onDismissRequested
                     )
                 }
-                entry<EditWidgetCategory.TextStyle> {
+                entry<EditWidgetCategory.TextStyle> { key ->
                     EditTextStyle(
+                        screenKey = key,
+                        currentKey = currentKey,
                         data = data,
                         onEditWidgetText = onEditWidgetText
                     )
                 }
-                entry<EditWidgetCategory.ClickEvent> {
+                entry<EditWidgetCategory.ClickEvent> { key ->
                     EditWidgetClickEvent(
+                        screenKey = key,
+                        currentKey = currentKey,
                         data = data as ObservableNormalData,
                         switchControlLayers = switchControlLayers,
                         sendText = sendText
                     )
                 }
-                entry<EditWidgetCategory.Style> {
+                entry<EditWidgetCategory.Style> { key ->
                     EditWidgetStyle(
+                        screenKey = key,
+                        currentKey = currentKey,
                         data = data,
                         styles = styles,
                         openStyleList = openStyleList

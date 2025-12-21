@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.layout.RendererStyleBox
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableNormalData
@@ -36,6 +37,7 @@ import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
@@ -46,30 +48,37 @@ import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
  */
 @Composable
 fun EditWidgetStyle(
+    screenKey: NavKey,
+    currentKey: NavKey?,
     data: ObservableWidget,
     styles: List<ObservableButtonStyle>,
     openStyleList: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    BaseScreen(
+        screenKey = screenKey,
+        currentKey = currentKey
     ) {
-        when (data) {
-            is ObservableTextData -> {
-                MainContent(
-                    styles = styles,
-                    buttonStyle = data.buttonStyle,
-                    onButtonStyleChanged = { data.buttonStyle = it },
-                    openStyleList = openStyleList
-                )
-            }
-            is ObservableNormalData -> {
-                MainContent(
-                    styles = styles,
-                    buttonStyle = data.buttonStyle,
-                    onButtonStyleChanged = { data.buttonStyle = it },
-                    openStyleList = openStyleList
-                )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            when (data) {
+                is ObservableTextData -> {
+                    MainContent(
+                        styles = styles,
+                        buttonStyle = data.buttonStyle,
+                        onButtonStyleChanged = { data.buttonStyle = it },
+                        openStyleList = openStyleList
+                    )
+                }
+                is ObservableNormalData -> {
+                    MainContent(
+                        styles = styles,
+                        buttonStyle = data.buttonStyle,
+                        onButtonStyleChanged = { data.buttonStyle = it },
+                        openStyleList = openStyleList
+                    )
+                }
             }
         }
     }
