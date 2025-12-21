@@ -51,7 +51,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import com.movtery.zalithlauncher.setting.enums.MouseControlMode
 import com.movtery.zalithlauncher.ui.components.FocusableBox
-import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -279,7 +278,6 @@ fun TouchpadLayout(
                                 }
 
                             if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
-                                lDebug("No touch is currently on the screen; clear all states.")
                                 resetTouchState()
                             }
                         }
