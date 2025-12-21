@@ -108,7 +108,8 @@ fun BoxWithConstraintsScope.ControlEditor(
             modifier = Modifier.fillMaxSize(),
             observableLayout = viewModel.observableLayout,
             previewScenario = viewModel.previewScenario,
-            previewHideLayerWhen = viewModel.previewHideLayerWhen
+            previewHideLayerWhen = viewModel.previewHideLayerWhen,
+            enableJoystick = viewModel.enableJoystick
         )
     } else {
         ControlEditorLayer(
@@ -206,6 +207,10 @@ fun BoxWithConstraintsScope.ControlEditor(
         previewHideLayerWhen = viewModel.previewHideLayerWhen,
         onPreviewHideLayerChanged = { hideWhen ->
             viewModel.previewHideLayerWhen = hideWhen
+        },
+        enableJoystick = viewModel.enableJoystick,
+        onJoystickSwitch = { value ->
+            viewModel.enableJoystick = value
         },
         onSave = {
             viewModel.save(targetFile, onSaved = {})

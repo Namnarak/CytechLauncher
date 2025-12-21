@@ -116,6 +116,11 @@ class EditorViewModel() : ViewModel() {
      */
     var previewHideLayerWhen by mutableStateOf(HideLayerWhen.None)
 
+    /**
+     * 预览控制布局时是否启用摇杆
+     */
+    var enableJoystick by mutableStateOf(false)
+
 
 
     fun initLayout(layout: ControlLayout) {

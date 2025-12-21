@@ -56,6 +56,7 @@ fun BoxWithConstraintsScope.PreviewControlBox(
     observableLayout: ObservableControlLayout,
     previewScenario: PreviewScenario,
     previewHideLayerWhen: HideLayerWhen,
+    enableJoystick: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val occupiedPointers = remember(observableLayout) { mutableStateSetOf<PointerId>() }
@@ -98,6 +99,7 @@ fun BoxWithConstraintsScope.PreviewControlBox(
     PreviewJoystickControlLayout(
         special = special,
         screenSize = screenSize,
+        enableJoystick = enableJoystick,
         previewHideLayerWhen = previewHideLayerWhen,
         previewScenario = previewScenario
     )
@@ -142,6 +144,7 @@ private fun PreviewMouseLayout(
 private fun PreviewJoystickControlLayout(
     screenSize: IntSize,
     special: ObservableSpecial,
+    enableJoystick: Boolean,
     previewHideLayerWhen: HideLayerWhen,
     previewScenario: PreviewScenario
 ) {
@@ -155,7 +158,7 @@ private fun PreviewJoystickControlLayout(
         HideLayerWhen.None -> false
     }
 
-    if (previewScenario.isCursorGrabbing && !hideState) {
+    if (enableJoystick && previewScenario.isCursorGrabbing && !hideState) {
         val size = AllSettings.joystickControlSize.state.dp
         val x = AllSettings.joystickControlX.state
         val y = AllSettings.joystickControlY.state
