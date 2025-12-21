@@ -996,4 +996,26 @@
     <string name="settings_control_mouse_enable_click_title">Mode Touchpad</string>
     <string name="settings_control_mouse_enable_click_summary">Mengetuk layar dianggap sebagai klik kiri, tekan lama dianggap sebagai tahan klik kiri; pengaturan ini tidak memengaruhi kontrol dengan mouse fisik atau kontrol ketuk</string>
     <string name="settings_launcher_dark_mode_title">Mode Gelap</string>
+    <string name="generic_saved">Tersimpan</string>
+    <string name="sort_by_name">Urutkan berdasarkan nama</string>
+    <string name="sort_by_file_name">Urutkan berdasarkan nama File</string>
+    <string name="sort_by_last_modified">Urutkan berdasarkan terakhir diubah</string>
+    <string name="sort_by_last_played">Urutkan berdasarkan terakhir dimainkan</string>
+    <string name="game_menu_option_menu_ball_opacity">Transparansi Overlay Menu</string>
+    <string name="game_styles_joystick">Atur Joystick</string>
+    <string name="game_styles_joystick_enable">Nyalakan Joystick</string>
+    <string name="game_styles_joystick_x">Posisi X Joystick</string>
+    <string name="game_styles_joystick_y">Posisi Y Joystick</string>
+    <string name="game_styles_joystick_size">Ukuran Joystick</string>
+    <string name="game_styles_joystick_edit">Edit Gaya Joystick</string>
+    <string name="game_styles_joystick_hide_when_mouse">Sembunyikan Saat Menggunakan Mouse Fisik</string>
+    <string name="game_styles_joystick_hide_when_gamepad">Sembunyikan Saat Menggunakan Gamepad</string>
+    <string name="game_styles_save_failed">Gagal menyimpan gaya</string>
+    <string name="settings_launcher_background_video_volume_title">Volume Video Latar Belakang</string>
+    <string name="settings_launcher_background_video_volume_summary">Jika latarnya berupa video, kamu bisa mengatur volumenya lewat opsi ini.</string>
+    <string name="control_editor_edit_text_size">Ukuran teks</string>
+    <string name="control_editor_special_joystick_style_joystick_color">Warna Joystick</string>
+    <string name="control_editor_special_joystick_style_joystick_can_lock_color">Warna Joystick (Bisa dikunci)</string>
+    <string name="control_editor_special_joystick_style_joystick_locked_color">Warna Joystick (Terkunci)</string>
+    <string name="control_editor_special_joystick_style_joystick_size">Ukuran Joystick</string>
 </resources>
