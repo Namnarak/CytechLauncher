@@ -20,11 +20,10 @@ package com.movtery.zalithlauncher.ui.screens.content
 
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,12 +32,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
@@ -53,8 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -73,7 +66,10 @@ import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.influencedByBackgroundColor
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
@@ -218,10 +214,13 @@ private fun MainMenu(
         }
 
         //多人联机设置菜单
-        SettingsBackground(modifier = Modifier.fillMaxWidth()) {
+        SettingsCardColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             //启用多人联机
-            SwitchSettingsLayout(
+            SwitchSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
+                position = CardPosition.Top,
                 unit = AllSettings.enableTerracotta,
                 title = stringResource(R.string.terracotta_enable),
                 verticalAlignment = Alignment.CenterVertically,
@@ -243,45 +242,25 @@ private fun MainMenu(
             val terracottaEnabled = AllSettings.enableTerracotta.state
 
             //分享联机核心日志
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(22.0.dp))
-                    .clickable(onClick = onShareLogs, enabled = terracottaEnabled)
-                    .padding(horizontal = 8.dp, vertical = 16.dp)
-                    .padding(bottom = 4.dp)
-                    .alpha(if (terracottaEnabled) 1f else 0.5f)
-            ) {
-                Text(
-                    text = stringResource(R.string.terracotta_export_log_share),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-        }
+            SettingsCard(
+                modifier = Modifier.fillMaxWidth(),
+                position = CardPosition.Middle,
+                title = stringResource(R.string.terracotta_export_log_share),
+                innerPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+                onClick = onShareLogs,
+                enabled = terracottaEnabled
+            )
 
-        //关于 EasyTier
-        BackgroundCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            onClick = {
-                eventViewModel.sendEvent(EventViewModel.Event.OpenLink(URL_EASYTIER))
-            }
-        ) {
-            Row(
-                modifier = Modifier.padding(all = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Link,
-                    contentDescription = stringResource(R.string.terracotta_easytier)
-                )
-
-                Text(
-                    text = stringResource(R.string.terracotta_easytier),
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
+            //关于 EasyTier
+            SettingsCard(
+                modifier = Modifier.fillMaxWidth(),
+                position = CardPosition.Bottom,
+                title = stringResource(R.string.terracotta_easytier),
+                innerPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+                onClick = {
+                    eventViewModel.sendEvent(EventViewModel.Event.OpenLink(URL_EASYTIER))
+                }
+            )
         }
     }
 }

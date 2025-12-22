@@ -67,7 +67,12 @@ import com.movtery.zalithlauncher.ui.control.gamepad.getNameByGamepadEvent
 import com.movtery.zalithlauncher.ui.control.gamepad.remapperMMKV
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,14 +122,17 @@ fun GamepadSettingsScreen(
             isVisible = isVisible
         ) { scope ->
             animatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     val scope = rememberCoroutineScope()
                     val context = LocalContext.current
 
-                    ClickableSettingsLayout(
+                    SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         title = stringResource(R.string.settings_gamepad_remapping_reset_title),
                         summary = stringResource(R.string.settings_gamepad_remapping_reset_summary),
                         onClick = {
@@ -142,15 +150,17 @@ fun GamepadSettingsScreen(
                         }
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gamepadControl,
                         title = stringResource(R.string.settings_gamepad_title),
                         summary = stringResource(R.string.settings_gamepad_summary)
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gamepadDeadZoneScale,
                         title = stringResource(R.string.settings_gamepad_deadzone_title),
                         summary = stringResource(R.string.settings_gamepad_deadzone_summary),
@@ -160,8 +170,9 @@ fun GamepadSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gamepadCursorSensitivity,
                         title = stringResource(R.string.settings_gamepad_cursor_sensitivity_title),
                         summary = stringResource(R.string.settings_gamepad_cursor_sensitivity_summary),
@@ -171,8 +182,9 @@ fun GamepadSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gamepadCameraSensitivity,
                         title = stringResource(R.string.settings_gamepad_camera_sensitivity_title),
                         summary = stringResource(R.string.settings_gamepad_camera_sensitivity_summary),
@@ -182,7 +194,9 @@ fun GamepadSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.joystickControlMode,
                         items = JoystickMode.entries,
                         title = stringResource(R.string.settings_gamepad_joystick_mode_title),
@@ -239,15 +253,18 @@ fun GamepadSettingsScreen(
                 items = GamepadMap.entries,
                 key = { it.identifier }
             ) { _, item, yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                SettingsCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    position = CardPosition.Single,
                     onClick = {
                         operation = BindKeyOperation.OnBind(item)
                     }
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(all = 8.dp)
+                            .padding(all = 16.dp)
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)

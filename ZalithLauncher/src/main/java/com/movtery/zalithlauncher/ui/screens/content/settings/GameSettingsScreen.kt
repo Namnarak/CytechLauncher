@@ -40,7 +40,12 @@ import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.TextInputSettingsCard
 import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 
 @Composable
@@ -61,25 +66,30 @@ fun GameSettingsScreen(
             isVisible = isVisible
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.versionIsolation,
                         title = stringResource(R.string.settings_game_version_isolation_title),
                         summary = stringResource(R.string.settings_game_version_isolation_summary)
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.skipGameIntegrityCheck,
                         title = stringResource(R.string.settings_game_skip_game_integrity_check_title),
                         summary = stringResource(R.string.settings_game_skip_game_integrity_check_summary)
                     )
 
-                    TextInputSettingsLayout(
+                    TextInputSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.versionCustomInfo,
                         title = stringResource(R.string.settings_game_version_custom_info_title),
                         summary = stringResource(R.string.settings_game_version_custom_info_summary)
@@ -88,11 +98,14 @@ fun GameSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.javaRuntime,
                         items = RuntimesManager.getRuntimes().filter { it.isCompatible() },
                         title = stringResource(R.string.settings_game_java_runtime_title),
@@ -101,39 +114,42 @@ fun GameSettingsScreen(
                         getItemId = { it.name }
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.autoPickJavaRuntime,
                         title = stringResource(R.string.settings_game_auto_pick_java_runtime_title),
                         summary = stringResource(R.string.settings_game_auto_pick_java_runtime_summary)
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.ramAllocation,
                         title = stringResource(R.string.settings_game_java_memory_title),
                         summary = stringResource(R.string.settings_game_java_memory_summary),
                         valueRange = AllSettings.ramAllocation.floatRange.start..getMaxMemoryForSettings(LocalContext.current).toFloat(),
                         suffix = "MB",
-                        fineTuningControl = true
-                    )
-
-                    MemoryPreview(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .padding(start = 2.dp, bottom = 12.dp),
-                        preview = (AllSettings.ramAllocation.state ?: AllSettings.ramAllocation.min).toDouble(),
-                        usedText = { usedMemory, totalMemory ->
-                            stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
-                        },
-                        previewText = { preview ->
-                            stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
+                        fineTuningControl = true,
+                        previewContent = {
+                            MemoryPreview(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 2.dp),
+                                preview = (AllSettings.ramAllocation.state ?: AllSettings.ramAllocation.min).toDouble(),
+                                usedText = { usedMemory, totalMemory ->
+                                    stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
+                                },
+                                previewText = { preview ->
+                                    stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
+                                }
+                            )
                         }
                     )
 
-                    TextInputSettingsLayout(
+                    TextInputSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.jvmArgs,
                         title = stringResource(R.string.settings_game_jvm_args_title),
                         summary = stringResource(R.string.settings_game_jvm_args_summary)
@@ -142,18 +158,22 @@ fun GameSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.showLogAutomatic,
                         title = stringResource(R.string.settings_game_show_log_automatic_title),
                         summary = stringResource(R.string.settings_game_show_log_automatic_summary)
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.logTextSize,
                         title = stringResource(R.string.settings_game_log_text_size_title),
                         summary = stringResource(R.string.settings_game_log_text_size_summary),
@@ -162,8 +182,9 @@ fun GameSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.logBufferFlushInterval,
                         title = stringResource(R.string.settings_game_log_buffer_flush_interval_title),
                         summary = stringResource(R.string.settings_game_log_buffer_flush_interval_summary),

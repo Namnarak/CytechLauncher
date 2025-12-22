@@ -78,7 +78,8 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 
 @Composable
 fun AboutInfoScreen(
@@ -224,9 +225,9 @@ private fun ChunkLayout(
     title: String,
     content: @Composable () -> Unit
 ) {
-    SettingsBackground(
+    SettingsCard(
         modifier = modifier,
-        contentPadding = 0.dp
+        position = CardPosition.Single
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             CardTitleLayout {

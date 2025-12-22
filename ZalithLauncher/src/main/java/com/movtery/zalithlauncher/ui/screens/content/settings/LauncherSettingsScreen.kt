@@ -21,7 +21,9 @@ package com.movtery.zalithlauncher.ui.screens.content.settings
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -60,10 +62,16 @@ import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsLayoutScope
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.EnumSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
@@ -105,8 +113,10 @@ fun LauncherSettingsScreen(
             isVisible = isVisible
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     var customColorOperation by remember { mutableStateOf<CustomColorOperation>(CustomColorOperation.None) }
                     CustomColorOperation(
@@ -114,8 +124,9 @@ fun LauncherSettingsScreen(
                         updateOperation = { customColorOperation = it }
                     )
 
-                    EnumSettingsLayout(
+                    EnumSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.launcherColorTheme,
                         title = stringResource(R.string.settings_launcher_color_theme_title),
                         summary = stringResource(R.string.settings_launcher_color_theme_summary),
@@ -142,16 +153,18 @@ fun LauncherSettingsScreen(
                         }
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.launcherDarkMode,
                         items = DarkMode.entries,
                         title = stringResource(R.string.settings_launcher_dark_mode_title),
                         getItemText = { stringResource(it.textRes) }
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.launcherFullScreen,
                         title = stringResource(R.string.settings_launcher_full_screen_title),
                         summary = stringResource(R.string.settings_launcher_full_screen_summary),
@@ -165,17 +178,25 @@ fun LauncherSettingsScreen(
             //启动器背景设置板块
             LocalBackgroundViewModel.current?.let { backgroundViewModel ->
                 AnimatedItem(scope) { yOffset ->
-                    SettingsBackground(
-                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                    SettingsCardColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                     ) {
-                        CustomBackground(
+                        SettingsCard(
                             modifier = Modifier.fillMaxWidth(),
-                            backgroundViewModel = backgroundViewModel,
-                            submitError = submitError
-                        )
+                            position = CardPosition.Top
+                        ) {
+                            CustomBackground(
+                                modifier = Modifier.fillMaxWidth(),
+                                backgroundViewModel = backgroundViewModel,
+                                submitError = submitError
+                            )
+                        }
 
-                        SliderSettingsLayout(
+                        IntSliderSettingsCard(
                             modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
                             unit = AllSettings.launcherBackgroundOpacity,
                             title = stringResource(R.string.settings_launcher_background_opacity_title),
                             summary = stringResource(R.string.settings_launcher_background_opacity_summary),
@@ -185,8 +206,9 @@ fun LauncherSettingsScreen(
                             fineTuningControl = true
                         )
 
-                        SliderSettingsLayout(
+                        IntSliderSettingsCard(
                             modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Bottom,
                             unit = AllSettings.videoBackgroundVolume,
                             title = stringResource(R.string.settings_launcher_background_video_volume_title),
                             summary = stringResource(R.string.settings_launcher_background_video_volume_summary),
@@ -201,11 +223,14 @@ fun LauncherSettingsScreen(
 
             //动画设置板块
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.launcherAnimateSpeed,
                         title = stringResource(R.string.settings_launcher_animate_speed_title),
                         summary = stringResource(R.string.settings_launcher_animate_speed_summary),
@@ -214,8 +239,9 @@ fun LauncherSettingsScreen(
                         suffix = "x"
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.launcherAnimateExtent,
                         title = stringResource(R.string.settings_launcher_animate_extent_title),
                         summary = stringResource(R.string.settings_launcher_animate_extent_summary),
@@ -224,8 +250,9 @@ fun LauncherSettingsScreen(
                         suffix = "x"
                     )
 
-                    EnumSettingsLayout(
+                    EnumSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.launcherSwapAnimateType,
                         title = stringResource(R.string.settings_launcher_swap_animate_type_title),
                         summary = stringResource(R.string.settings_launcher_swap_animate_type_summary),
@@ -239,27 +266,32 @@ fun LauncherSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.fetchModLoaderSource,
                         items = MirrorSourceType.entries,
                         title = stringResource(R.string.settings_launcher_mirror_modloader_title),
                         getItemText = { stringResource(it.textRes) }
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.fileDownloadSource,
                         items = MirrorSourceType.entries,
                         title = stringResource(R.string.settings_launcher_mirror_file_download_title),
                         getItemText = { stringResource(it.textRes) }
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.launcherLogRetentionDays,
                         title = stringResource(R.string.settings_launcher_log_retention_days_title),
                         summary = stringResource(R.string.settings_launcher_log_retention_days_summary),
@@ -267,8 +299,9 @@ fun LauncherSettingsScreen(
                         suffix = stringResource(R.string.unit_day)
                     )
 
-                    ClickableSettingsLayout(
+                    SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         title = stringResource(R.string.settings_launcher_log_share_title),
                         summary = stringResource(R.string.settings_launcher_log_share_summary),
                         onClick = {
@@ -341,7 +374,7 @@ private sealed interface BackgroundOperation {
 }
 
 @Composable
-private fun SettingsLayoutScope.CustomBackground(
+private fun CustomBackground(
     backgroundViewModel: BackgroundViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
     modifier: Modifier = Modifier
@@ -389,12 +422,17 @@ private fun SettingsLayoutScope.CustomBackground(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        ClickableSettingsLayout(
-            modifier = Modifier.weight(1f),
-            title = stringResource(R.string.settings_launcher_background_title),
-            summary = stringResource(R.string.settings_launcher_background_summary),
-            onClick = { filePicker.launch(Unit) }
-        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable { filePicker.launch(Unit) }
+                .padding(all = 16.dp),
+        ) {
+            TitleAndSummary(
+                title = stringResource(R.string.settings_launcher_background_title),
+                summary = stringResource(R.string.settings_launcher_background_summary),
+            )
+        }
 
         AnimatedVisibility(
             visible = backgroundViewModel.isValid

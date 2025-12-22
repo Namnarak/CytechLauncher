@@ -124,7 +124,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesOper
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSaves
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
-import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
@@ -286,7 +286,7 @@ fun SavesManagerScreen(
             swapIn = isVisible
         )
 
-        VersionSettingsBackground(
+        VersionChunkBackground(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 12.dp)
