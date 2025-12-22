@@ -476,6 +476,11 @@ object AllSettings : SettingsRegistry() {
     val joystickControlSize = intSetting("joystickControlSize", 120, 80..180)
 
     /**
+     * 游戏中摇杆移动组件是否使用控制布局提供的样式
+     */
+    val joystickUseStyleByLayout = boolSetting("joystickUseStyleByLayout", true)
+
+    /**
      * 游戏中摇杆移动组件是否在使用实体鼠标时隐藏
      */
     val joystickHideWhenMouse = boolSetting("joystickHideWhenMouse", true)

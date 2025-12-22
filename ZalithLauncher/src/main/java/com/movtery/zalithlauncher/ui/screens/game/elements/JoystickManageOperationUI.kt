@@ -238,11 +238,24 @@ private fun JoystickManageDialog(
                                 enabled = AllSettings.enableJoystickControl.state
                             )
 
+                            Spacer(Modifier)
+
                             //编辑摇杆样式
                             InfoLayoutTextItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.game_styles_joystick_edit),
                                 onClick = onEditStyle
+                            )
+
+                            //使用控制布局提供的样式
+                            InfoLayoutSwitchItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.game_styles_joystick_edit_use_control_layout),
+                                value = AllSettings.joystickUseStyleByLayout.state,
+                                onValueChange = {
+                                    AllSettings.joystickUseStyleByLayout.save(it)
+                                },
+                                enabled = AllSettings.enableJoystickControl.state
                             )
 
                             Spacer(Modifier)

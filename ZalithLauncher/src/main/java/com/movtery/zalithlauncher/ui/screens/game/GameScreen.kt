@@ -1045,7 +1045,12 @@ private fun JoystickControlLayout(
                 .absoluteOffset {
                     IntOffset(x = position.x.toInt(), y = position.y.toInt())
                 },
-            style = joystickStyle ?: defaultStyle,
+            style = if (AllSettings.joystickUseStyleByLayout.state) {
+                //启用后，优先使用控制布局提供的样式
+                joystickStyle ?: defaultStyle
+            } else {
+                defaultStyle
+            },
             size = size,
             onDirectionChanged = { direction ->
                 viewModel.onListen(direction)
