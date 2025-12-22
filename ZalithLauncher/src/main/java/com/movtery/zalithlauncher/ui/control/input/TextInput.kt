@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.ui.control.input
 
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
@@ -111,7 +112,11 @@ private class TextInputNode(
                         val inputMethodManager = view.context.getSystemService<InputMethodManager>()
                             ?: error("InputMethodManager not supported")
 
-                        val connection = InputConnectionImpl(view, inputMethodManager)
+                        val inputMethodIdentifier = Settings.Secure.getString(
+                            view.context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD
+                        )
+
+                        val connection = InputConnectionImpl(view, inputMethodManager, inputMethodIdentifier)
 
                         inputMethodManager.updateCursorAnchorInfo(
                             view,
@@ -188,28 +193,55 @@ private class TextInputNode(
      */
     private inner class InputConnectionImpl(
         private val view: View,
-        private val imm: InputMethodManager
+        private val imm: InputMethodManager,
+        private val inputMethodIdentifier: String
     ) : InputConnection {
         private val textBuffer = StringBuilder()
         private var cursorPosition = 0
         private var composingStart = -1
         private var composingEnd = -1
 
+        private var inBatchEdit = false
+        private var pendingBackspaceCount = 0
+        private var pendingTextToSend = StringBuilder()
+
+        private val isMicrosoftSwiftKey: Boolean
+            get() = inputMethodIdentifier.contains("com.microsoft.swiftkey") ||
+                    inputMethodIdentifier.contains("com.touchtype.swiftkey") ||
+                    inputMethodIdentifier.contains("swiftkey")
+
         /**
          * 向游戏发送文本输入
          */
         private fun sendText(text: String) {
             text.forEach { char -> sender.sendChar(char) }
-            //发送文本之后，应该完全清除缓冲区
-            cursorPosition = 0
-            textBuffer.clear()
+            if (isMicrosoftSwiftKey) {
+                //发送文本之后，针对 Microsoft SwiftKey，应该完全清除缓冲区
+                cursorPosition = 0
+                textBuffer.clear()
+            }
+        }
+
+        /**
+         * 批量编辑结束时，发送待处理的文本
+         */
+        private fun flushPendingText() {
+            repeat(pendingBackspaceCount) { sender.sendBackspace() }
+            pendingBackspaceCount = 0
+
+            if (pendingTextToSend.isNotEmpty()) {
+                sendText(pendingTextToSend.toString())
+                pendingTextToSend.clear()
+            }
         }
 
         override fun commitText(text: CharSequence, newCursorPosition: Int): Boolean {
+            var composingLength = 0
             //如果当前有组合文本，先删除组合区
             if (composingStart in 0..<composingEnd) {
                 val safeStart = composingStart.coerceIn(0, textBuffer.length)
                 val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
+                composingLength = safeEnd - safeStart
                 if (safeStart < safeEnd) {
                     textBuffer.delete(safeStart, safeEnd)
                     cursorPosition = safeStart
@@ -223,7 +255,24 @@ private class TextInputNode(
             cursorPosition += text.length
 
             val newText = text.toString()
-            sendText(newText)
+
+            if (isMicrosoftSwiftKey) {
+                sendText(newText)
+            } else {
+                if (inBatchEdit) {
+                    if (composingLength > 0) {
+                        pendingBackspaceCount += composingLength
+                    }
+                    pendingTextToSend.append(newText)
+                } else {
+                    if (composingLength > 0) {
+                        repeat(composingLength) { sender.sendBackspace() }
+                    }
+                    if (newText.isNotEmpty()) {
+                        sendText(newText)
+                    }
+                }
+            }
 
             updateInputMethodState()
             return true
@@ -293,8 +342,10 @@ private class TextInputNode(
             if (composingStart in 0..<composingEnd) {
                 val safeStart = composingStart.coerceIn(0, textBuffer.length)
                 val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
-                textBuffer.delete(safeStart, safeEnd)
-                cursorPosition = safeStart
+                if (isMicrosoftSwiftKey || safeStart < safeEnd) {
+                    textBuffer.delete(safeStart, safeEnd)
+                    cursorPosition = safeStart
+                }
             } else {
                 //如果没有明确的组合区，但输入法重新开始组合，删除可能的末尾重复
                 if (cursorPosition < textBuffer.length) {
@@ -320,7 +371,15 @@ private class TextInputNode(
                 val safeEnd = composingEnd.coerceIn(0, textBuffer.length)
                 if (safeStart < safeEnd) {
                     val composedText = textBuffer.substring(safeStart, safeEnd)
-                    sendText(composedText)
+                    if (isMicrosoftSwiftKey) {
+                        sendText(composedText)
+                    } else {
+                        if (inBatchEdit) {
+                            pendingTextToSend.append(composedText)
+                        } else {
+                            sendText(composedText)
+                        }
+                    }
                 }
 
                 composingStart = -1
@@ -346,7 +405,11 @@ private class TextInputNode(
             if (deleteStart < deleteEnd) {
                 textBuffer.delete(deleteStart, deleteEnd)
                 cursorPosition = deleteStart
-                repeat(beforeLength) { sender.sendBackspace() }
+                if (isMicrosoftSwiftKey || !inBatchEdit) {
+                    repeat(beforeLength) { sender.sendBackspace() }
+                } else {
+                    pendingBackspaceCount += beforeLength
+                }
             }
             updateInputMethodState()
             return true
@@ -358,14 +421,33 @@ private class TextInputNode(
             if (deleteStart < deleteEnd) {
                 textBuffer.delete(deleteStart, deleteEnd)
                 cursorPosition = deleteStart
-                repeat(beforeLength) { sender.sendBackspace() }
+                if (isMicrosoftSwiftKey) {
+                    repeat(beforeLength) { sender.sendBackspace() }
+                }
                 updateInputMethodState()
             }
             return true
         }
 
-        override fun beginBatchEdit(): Boolean = true
-        override fun endBatchEdit(): Boolean = true
+        override fun beginBatchEdit(): Boolean {
+            if (!isMicrosoftSwiftKey) {
+                inBatchEdit = true
+                //重置待处理状态
+                pendingBackspaceCount = 0
+                pendingTextToSend.clear()
+            }
+            return true
+        }
+
+        override fun endBatchEdit(): Boolean {
+            if (!isMicrosoftSwiftKey) {
+                inBatchEdit = false
+                //批量编辑结束，发送积累的操作
+                flushPendingText()
+            }
+            return true
+        }
+
         override fun clearMetaKeyStates(p0: Int): Boolean = true
         override fun closeConnection() {}
         override fun commitCompletion(p0: CompletionInfo?): Boolean = false
