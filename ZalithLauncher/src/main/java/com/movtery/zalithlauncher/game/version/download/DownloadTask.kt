@@ -18,11 +18,12 @@
 
 package com.movtery.zalithlauncher.game.version.download
 
+import com.movtery.zalithlauncher.utils.file.check7z
+import com.movtery.zalithlauncher.utils.file.checkZip
 import com.movtery.zalithlauncher.utils.file.compareSHA1
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorList
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
-import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -94,14 +95,38 @@ class DownloadTask(
      * @return 是否跳过此次下载
      */
     private fun verifySha1(): Boolean {
-        if (targetFile.exists()) {
-            sha1?.takeIf { it.isNotEmptyOrBlank() } ?: return true //sha1 不存在，可能目标无法被下载
-            if (!verifyIntegrity || compareSHA1(targetFile, sha1)) {
+        if (!targetFile.exists()) return false
+        if (!verifyIntegrity) return true
+
+        if (sha1.isNullOrBlank()) {
+            //排除目标无法被下载的情况，比如Forge的client
+            if (!isDownloadable) return true
+            return verifyFileWithoutSha1()
+        }
+
+        return if (compareSHA1(targetFile, sha1)) {
+            true
+        } else {
+            FileUtils.deleteQuietly(targetFile)
+            false
+        }
+    }
+
+    private fun verifyFileWithoutSha1(): Boolean {
+        val isAvailable = when (targetFile.extension.lowercase()) {
+            "zip", "jar" -> checkZip(targetFile)
+            "7z" -> check7z(targetFile)
+            else -> {
+                //普通文件或是暂不受支持的压缩包
                 return true
-            } else {
-                FileUtils.deleteQuietly(targetFile)
             }
         }
+
+        if (isAvailable) {
+            return true
+        }
+
+        FileUtils.deleteQuietly(targetFile)
         return false
     }
 }
