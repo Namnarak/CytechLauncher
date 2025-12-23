@@ -317,4 +317,8 @@
     <string name="sort_by_file_name">الترتيب حسب اسم الملف</string>
     <string name="sort_by_last_modified">الترتيب حسب تاريخ آخر تعديل</string>
     <string name="sort_by_last_played">الترتيب حسب آخر تشغيل</string>
+    <string name="generic_tip">نصيحة</string>
+    <string name="generic_saved">محفوض</string>
+    <string name="theme_dark_mode_follow_system">أتباع اعدادات الهاتف</string>
+    <string name="error_unauthorized">ليس لديك صلاحيات</string>
 </resources>
