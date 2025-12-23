@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
@@ -31,8 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.movtery.zalithlauncher.BuildConfig
+import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.notification.NotificationManager
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
@@ -46,6 +50,8 @@ import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
+import com.movtery.zalithlauncher.viewmodel.LauncherUpgradeOperation
+import com.movtery.zalithlauncher.viewmodel.LauncherUpgradeViewModel
 import com.movtery.zalithlauncher.viewmodel.ModpackImportOperation
 import com.movtery.zalithlauncher.viewmodel.ModpackImportViewModel
 import com.movtery.zalithlauncher.viewmodel.ModpackVersionNameOperation
@@ -85,6 +91,11 @@ class MainActivity : BaseComponentActivity() {
     val modpackImportViewModel: ModpackImportViewModel by viewModels()
 
     /**
+     * 启动器更新状态 ViewModel
+     */
+    val launcherUpgradeViewModel: LauncherUpgradeViewModel by viewModels()
+
+    /**
      * 是否开启捕获按键模式
      */
     private var isCaptureKey = false
@@ -96,7 +107,14 @@ class MainActivity : BaseComponentActivity() {
         NotificationManager.initManager(this)
 
         //处理外部导入
-        handleImportIfNeeded(intent)
+        val isImporting = handleImportIfNeeded(intent)
+
+        //检查更新
+        if (!isImporting && launcherUpgradeViewModel.operation == LauncherUpgradeOperation.None) {
+            lifecycleScope.launch {
+                launcherUpgradeViewModel.fastDoAll()
+            }
+        }
 
         //错误信息展示
         lifecycleScope.launch {
@@ -131,6 +149,30 @@ class MainActivity : BaseComponentActivity() {
                     is EventViewModel.Event.RefreshFullScreen -> {
                         lifecycleScope.launch(Dispatchers.Main) {
                             ignoreNotch()
+                        }
+                    }
+                    is EventViewModel.Event.CheckUpdate -> {
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val hasRemote = launcherUpgradeViewModel.checkRemote() ?: return@launch //太频繁了
+                            if (hasRemote) {
+                                launcherUpgradeViewModel.checkUpgrade(
+                                    currentVersionCode = BuildConfig.VERSION_CODE,
+                                    lastIgnored = null,
+                                    onUpgrade = { data ->
+                                        launcherUpgradeViewModel.operation = LauncherUpgradeOperation.Upgrade(data)
+                                    },
+                                    onIsLatest = {
+                                        lifecycleScope.launch(Dispatchers.Main) {
+                                            Toast.makeText(this@MainActivity, getString(R.string.upgrade_is_latest), Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            } else {
+                                //检查失败
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(this@MainActivity, getString(R.string.upgrade_get_remote_failed), Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
                     }
                     else -> {
@@ -181,24 +223,34 @@ class MainActivity : BaseComponentActivity() {
                             )
                         }
                     )
-
-                    ModpackImportOperation(
-                        operation = modpackImportViewModel.importOperation,
-                        changeOperation = { modpackImportViewModel.importOperation = it },
-                        importer = modpackImportViewModel.importer,
-                        onCancel = {
-                            modpackImportViewModel.cancel()
-                        }
-                    )
-
-                    //用户确认版本名称 操作流程
-                    ModpackVersionNameOperation(
-                        operation = modpackImportViewModel.versionNameOperation,
-                        onConfirmVersionName = { name ->
-                            modpackImportViewModel.confirmVersionName(name)
-                        }
-                    )
                 }
+
+                ModpackImportOperation(
+                    operation = modpackImportViewModel.importOperation,
+                    changeOperation = { modpackImportViewModel.importOperation = it },
+                    importer = modpackImportViewModel.importer,
+                    onCancel = {
+                        modpackImportViewModel.cancel()
+                    }
+                )
+
+                //用户确认版本名称 操作流程
+                ModpackVersionNameOperation(
+                    operation = modpackImportViewModel.versionNameOperation,
+                    onConfirmVersionName = { name ->
+                        modpackImportViewModel.confirmVersionName(name)
+                    }
+                )
+
+                //检查更新操作流程
+                LauncherUpgradeOperation(
+                    operation = launcherUpgradeViewModel.operation,
+                    onChanged = { launcherUpgradeViewModel.operation = it },
+                    onIgnoredClick = { ver ->
+                        AllSettings.lastIgnoredVersion.save(ver)
+                    },
+                    onLinkClick = { eventViewModel.sendEvent(EventViewModel.Event.OpenLink(it)) }
+                )
             }
         }
     }
@@ -210,23 +262,31 @@ class MainActivity : BaseComponentActivity() {
 
     /**
      * 处理外部导入
+     * @return 是否有导入任务正在进行中
      */
-    private fun handleImportIfNeeded(intent: Intent?) {
-        if (intent == null) return
+    private fun handleImportIfNeeded(intent: Intent?): Boolean {
+        if (intent == null) return false
 
-        val type = intent.getStringExtra(EXTRA_IMPORT_TYPE) ?: return
-        if (type == IMPORT_TYPE_MODPACK) {
-            handleModpackImport(intent)
+        val type = intent.getStringExtra(EXTRA_IMPORT_TYPE) ?: return false
+
+        val importing = when (type) {
+            IMPORT_TYPE_MODPACK -> handleModpackImport(intent)
+            else -> false
         }
 
         intent.removeExtra(EXTRA_IMPORT_TYPE)
+        return importing
     }
 
-    private fun handleModpackImport(intent: Intent) {
+    /**
+     * @return 是否已经触发了整合包导入程序
+     */
+    private fun handleModpackImport(intent: Intent): Boolean {
         val uri: Uri? = intent.getParcelableExtra(EXTRA_IMPORT_URI)
         if (uri != null) {
             modpackImportViewModel.import(this@MainActivity, uri)
         }
+        return uri != null
     }
 
     override fun onResume() {

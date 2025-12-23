@@ -836,6 +836,16 @@
     <string name="about_acknowledgements_weblate_community_text">所有參與社群語言在地化的翻譯者</string>
     <string name="about_plugin_title">已載入的外掛程式</string>
     <string name="about_library_title">額外引入的相依性項目</string>
+    <string name="upgrade_title">檢查更新</string>
+    <string name="upgrade_new">發現新版本</string>
+    <string name="upgrade_more">查看</string>
+    <string name="upgrade_files">可用 APK</string>
+    <string name="upgrade_files_arch">架構：%s</string>
+    <string name="upgrade_version_change">版本號：%s</string>
+    <string name="upgrade_version_size">大小：%s</string>
+    <string name="upgrade_version_create_at">更新時間：%s</string>
+    <string name="upgrade_get_remote_failed">取得更新失敗，請稍後再試</string>
+    <string name="upgrade_is_latest">目前已是最新版本</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-tw</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-tw</string>

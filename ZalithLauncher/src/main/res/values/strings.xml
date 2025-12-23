@@ -1060,6 +1060,17 @@
     <string name="about_acknowledgements_weblate_community_text">All translators who participated in community language localization</string>
     <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
+    <!--  Check for Updates  -->
+    <string name="upgrade_title">Check for Updates</string>
+    <string name="upgrade_new">New Version Found</string>
+    <string name="upgrade_more">View</string>
+    <string name="upgrade_files">Available APK</string>
+    <string name="upgrade_files_arch">Architecture: %s</string>
+    <string name="upgrade_version_change">Version: %s</string>
+    <string name="upgrade_version_size">Size: %s</string>
+    <string name="upgrade_version_create_at">Updated At: %s</string>
+    <string name="upgrade_get_remote_failed">Failed to Check for Updates. Please Try Again Later.</string>
+    <string name="upgrade_is_latest">You Are Already on the Latest Version</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>

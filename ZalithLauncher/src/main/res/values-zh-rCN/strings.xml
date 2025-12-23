@@ -1059,6 +1059,17 @@
     <string name="about_acknowledgements_weblate_community_text">所有参与社区语言本地化的翻译者</string>
     <string name="about_plugin_title">已加载的插件</string>
     <string name="about_library_title">额外引入的依赖项目</string>
+    <!--  检查更新  -->
+    <string name="upgrade_title">检查更新</string>
+    <string name="upgrade_new">发现新版本</string>
+    <string name="upgrade_more">查看</string>
+    <string name="upgrade_files">可用安装包</string>
+    <string name="upgrade_files_arch">架构：%s</string>
+    <string name="upgrade_version_change">版本号：%s</string>
+    <string name="upgrade_version_size">大小：%s</string>
+    <string name="upgrade_version_create_at">更新时间：%s</string>
+    <string name="upgrade_get_remote_failed">获取更新失败，请稍后再试</string>
+    <string name="upgrade_is_latest">当前已是最新版本</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-cn</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>

@@ -353,6 +353,11 @@ object AllSettings : SettingsRegistry() {
     val videoBackgroundVolume = intSetting("videoBackgroundVolume", 0, 0..100)
 
     /**
+     * 启动器上次检查更新时，用户选择忽略的版本号
+     */
+    val lastIgnoredVersion = intSetting("lastIgnoredVersion", null)
+
+    /**
      * 启动器日志保留天数
      */
     val launcherLogRetentionDays = intSetting("launcherLogRetentionDays", 7, 1..14)

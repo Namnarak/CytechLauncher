@@ -446,7 +446,8 @@ fun SimpleCheckEditDialog(
  * @param itemTextProvider 提供单个item的展示文本
  * @param onItemSelected item被点击的回调
  * @param onDismissRequest dialog被关闭的回调
- * @param showConfirmAndCancel 是否通过确认和取消按钮来触发item的点击回调
+ * @param showConfirm 是否通过确认按钮来触发item的点击回调
+ * @param onUpdateItem 当[showConfirm]为true时，通过这个回调更新外部的状态
  */
 @Composable
 fun <T> SimpleListDialog(
@@ -455,7 +456,7 @@ fun <T> SimpleListDialog(
     itemTextProvider: @Composable (T) -> String,
     onItemSelected: (T) -> Unit,
     onDismissRequest: (selected: Boolean) -> Unit,
-    isCurrent: (T) -> Boolean = { false },
+    isCurrent: ((T) -> Boolean)? = null,
     itemLayout: @Composable (
         item: T,
         isCurrent: Boolean,
@@ -469,7 +470,8 @@ fun <T> SimpleListDialog(
             onClick = onClick
         )
     },
-    showConfirmAndCancel: Boolean = false
+    showConfirm: Boolean = false,
+    onUpdateItem: (T) -> Unit = {}
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
     Dialog(
@@ -506,26 +508,35 @@ fun <T> SimpleListDialog(
                         state = state
                     ) {
                         items(items) { item ->
-                            val isCurrent = remember(item) { isCurrent(item) }
+                            val isCurrent0 = isCurrent?.let {
+                                remember(item, selectedItem) {
+                                    it.invoke(item)
+                                }
+                            } ?: (selectedItem == item)
+
                             val text = itemTextProvider(item)
+
                             itemLayout(
                                 item,
-                                isCurrent,
-                                text,
-                                {
-                                    selectedItem = item
-                                    if (!showConfirmAndCancel && !isCurrent) {
-                                        onItemSelected(item)
-                                        onDismissRequest(true)
-                                    }
+                                isCurrent0,
+                                text
+                            ) {
+                                selectedItem = item
+                                if (!showConfirm && !isCurrent0) {
+                                    onItemSelected(item)
+                                    onDismissRequest(true)
                                 }
-                            )
+                                if (showConfirm) {
+                                    onUpdateItem(item)
+                                }
+                            }
                         }
                     }
                     Spacer(modifier = Modifier.size(4.dp))
 
-                    if (showConfirmAndCancel) {
+                    if (showConfirm) {
                         Button(
+                            modifier = Modifier.fillMaxWidth(),
                             onClick = {
                                 if (selectedItem != null) {
                                     onItemSelected(selectedItem!!)
