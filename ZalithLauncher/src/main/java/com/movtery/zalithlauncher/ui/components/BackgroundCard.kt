@@ -73,7 +73,8 @@ fun BackgroundCard(
     shape: Shape = CardDefaults.shape,
     colors: CardColors = CardDefaults.cardColors(
         containerColor = backgroundLayoutColor(influencedByBackground),
-        contentColor = MaterialTheme.colorScheme.onSurface
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor = backgroundLayoutColor(influencedByBackground)
     ),
     elevation: CardElevation = CardDefaults.cardElevation(),
     border: BorderStroke? = null,

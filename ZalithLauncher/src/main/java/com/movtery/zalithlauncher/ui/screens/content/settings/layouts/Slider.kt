@@ -40,6 +40,7 @@ import com.movtery.zalithlauncher.setting.unit.min
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
 import com.movtery.zalithlauncher.ui.components.SliderValueEditDialog
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 
 @Composable
 fun IntSliderSettingsCard(
@@ -78,7 +79,7 @@ fun IntSliderSettingsCard(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Column(
-                modifier = Modifier.alpha(alpha = if (enabled) 1f else 0.5f)
+                modifier = Modifier.alpha(alpha = if (enabled) 1f else DisabledAlpha)
             ) {
                 TitleAndSummary(
                     title = title,

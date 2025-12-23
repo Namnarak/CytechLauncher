@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 
 /**
  * 导航栏item组件，可包含图标与文字。当item被选中时，
@@ -90,7 +91,7 @@ fun TextRailItem(
         modifier = modifier
             .clip(shape)
             .clickable(enabled = enabled, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.5f)
+            .alpha(if (enabled) 1f else DisabledAlpha)
     ) {
         //背景扩散动画
         Canvas(

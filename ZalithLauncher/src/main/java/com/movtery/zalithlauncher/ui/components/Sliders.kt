@@ -49,6 +49,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 import com.movtery.zalithlauncher.utils.math.addBigDecimal
 import com.movtery.zalithlauncher.utils.math.subtractBigDecimal
 import java.text.DecimalFormat
@@ -123,7 +124,7 @@ fun SimpleTextSlider(
         }
         Surface(
             modifier = Modifier
-                .alpha(alpha = if (enabled) 1f else 0.5f)
+                .alpha(alpha = if (enabled) 1f else DisabledAlpha)
                 .padding(start = 12.dp)
                 .align(Alignment.CenterVertically),
             shape = MaterialTheme.shapes.medium,

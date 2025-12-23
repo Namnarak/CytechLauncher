@@ -57,6 +57,7 @@ import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.ui.components.IDItem
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 
 @Composable
@@ -104,7 +105,7 @@ fun <E> ListSettingsCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .alpha(alpha = if (enabled) 1f else 0.5f)
+                .alpha(alpha = if (enabled) 1f else DisabledAlpha)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
