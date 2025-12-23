@@ -20,15 +20,10 @@ package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,7 +35,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -59,11 +53,6 @@ import com.movtery.zalithlauncher.setting.unit.getOrMin
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.IDItem
-import com.movtery.zalithlauncher.ui.components.SimpleIDListLayout
-import com.movtery.zalithlauncher.ui.components.SimpleIntSliderLayout
-import com.movtery.zalithlauncher.ui.components.SimpleListLayout
-import com.movtery.zalithlauncher.ui.components.TextInputLayout
-import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
@@ -71,7 +60,16 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckOpe
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrophoneCheckState
 import com.movtery.zalithlauncher.ui.screens.content.settings.DriverSummaryLayout
 import com.movtery.zalithlauncher.ui.screens.content.settings.RendererSummaryLayout
-import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SimpleIDListCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.TextInputSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.StatefulDropdownMenuFollowGlobal
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.ToggleableIntSliderSettingsCard
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -107,24 +105,30 @@ fun VersionConfigScreen(
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
                 VersionConfigs(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     config = config,
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     submitError = submitError
                 )
             }
 
             AnimatedItem(scope) { yOffset ->
                 GameConfigs(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     config = config,
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     submitError = submitError
                 )
             }
 
             AnimatedItem(scope) { yOffset ->
                 SupportConfigs(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     config = config,
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     submitError = submitError
                 )
             }
@@ -140,7 +144,9 @@ private fun VersionConfigs(
 ) {
     val context = LocalContext.current
 
-    VersionSettingsBackground(modifier = modifier) {
+    SettingsCardColumn(
+        modifier = modifier
+    ) {
         Text(
             modifier = Modifier.padding(all = 8.dp),
             text = stringResource(R.string.versions_config_version_settings),
@@ -149,6 +155,8 @@ private fun VersionConfigs(
         )
 
         StatefulDropdownMenuFollowGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Top,
             currentValue = config.isolationType,
             onValueChange = { type ->
                 if (config.isolationType != type) {
@@ -161,6 +169,8 @@ private fun VersionConfigs(
         )
 
         StatefulDropdownMenuFollowGlobal(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
             currentValue = config.skipGameIntegrityCheck,
             onValueChange = { type ->
                 if (config.skipGameIntegrityCheck != type) {
@@ -174,7 +184,9 @@ private fun VersionConfigs(
 
         val renderers = Renderers.getCompatibleRenderers(context).second
         val renderersIdList = getIDList(renderers) { IDItem(it.getUniqueIdentifier(), it.getRendererName()) }
-        SimpleListLayout(
+        ListSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
             items = renderersIdList,
             currentId = config.renderer,
             defaultId = "",
@@ -196,7 +208,9 @@ private fun VersionConfigs(
 
         val drivers = DriverPluginManager.getDriverList()
         val driversIdList = getIDList(drivers) { IDItem(it.id, it.name) }
-        SimpleListLayout(
+        ListSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
             items = driversIdList,
             currentId = config.driver,
             defaultId = "",
@@ -220,7 +234,9 @@ private fun VersionConfigs(
         val controlsIdList = getIDList(controls.filter { it.isSupport }) {
             IDItem(it.file.name, it.controlLayout.info.name.translate())
         }
-        SimpleListLayout(
+        ListSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Bottom,
             items = controlsIdList,
             currentId = config.control,
             defaultId = "",
@@ -245,7 +261,9 @@ private fun GameConfigs(
 ) {
     val context = LocalContext.current
 
-    VersionSettingsBackground(modifier = modifier) {
+    SettingsCardColumn(
+        modifier = modifier
+    ) {
         Text(
             modifier = Modifier.padding(all = 8.dp),
             text = stringResource(R.string.versions_config_game_settings),
@@ -253,7 +271,9 @@ private fun GameConfigs(
             style = MaterialTheme.typography.labelLarge
         )
 
-        SimpleIDListLayout(
+        SimpleIDListCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Top,
             items = getIDList(RuntimesManager.getRuntimes().filter { it.isCompatible() }) { IDItem(it.name, it.name) },
             currentId = config.javaRuntime,
             defaultId = "",
@@ -271,7 +291,9 @@ private fun GameConfigs(
          * 临时已分配内存，用于UI状态更新
          */
         var ramAllocation by remember { mutableIntStateOf(config.ramAllocation) }
-        ToggleableSliderSetting(
+        ToggleableIntSliderSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
             currentValue = config.ramAllocation,
             valueRange = AllSettings.ramAllocation.floatRange.start..getMaxMemoryForSettings(LocalContext.current).toFloat(),
             defaultValue = AllSettings.ramAllocation.getOrMin(),
@@ -282,51 +304,56 @@ private fun GameConfigs(
                 config.ramAllocation = it
                 ramAllocation = it
             },
-            onValueChangeFinished = { config.saveOrShowError(context, submitError) }
+            onValueChangeFinished = { config.saveOrShowError(context, submitError) },
+            previewContent = {
+                AnimatedVisibility(
+                    modifier = Modifier.fillMaxWidth(),
+                    visible = ramAllocation >= 256
+                ) {
+                    MemoryPreview(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 2.dp, end = 8.dp),
+                        preview = ramAllocation.takeIf { it >= 256 }?.toDouble(),
+                        usedText = { usedMemory, totalMemory ->
+                            stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
+                        },
+                        previewText = { preview ->
+                            stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
+                        }
+                    )
+                }
+            }
         )
 
-        AnimatedVisibility(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .padding(start = 2.dp),
-            visible = ramAllocation >= 256
-        ) {
-            Column {
-                MemoryPreview(
-                    modifier = Modifier.fillMaxWidth(),
-                    preview = ramAllocation.takeIf { it >= 256 }?.toDouble(),
-                    usedText = { usedMemory, totalMemory ->
-                        stringResource(R.string.settings_game_java_memory_used_text, usedMemory.toInt(), totalMemory.toInt())
-                    },
-                    previewText = { preview ->
-                        stringResource(R.string.settings_game_java_memory_allocation_text, preview.toInt())
-                    }
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-        }
-
-        TextInputLayout(
-            currentValue = config.customInfo,
-            title = stringResource(R.string.settings_game_version_custom_info_title),
-            summary = stringResource(R.string.settings_game_version_custom_info_summary),
+        var customInfo by remember { mutableStateOf(config.customInfo) }
+        TextInputSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
+            value = customInfo,
             onValueChange = { value ->
+                customInfo = value
                 if (config.customInfo != value) {
                     config.customInfo = value
                     config.saveOrShowError(context, submitError)
                 }
             },
+            title = stringResource(R.string.settings_game_version_custom_info_title),
+            summary = stringResource(R.string.settings_game_version_custom_info_summary),
             label = {
                 Text(text = stringResource(R.string.versions_config_follow_global_if_blank))
             }
         )
 
-        TextInputLayout(
-            currentValue = config.jvmArgs,
+        var jvmArgs by remember { mutableStateOf(config.jvmArgs) }
+        TextInputSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
+            value = jvmArgs,
             title = stringResource(R.string.settings_game_jvm_args_title),
             summary = stringResource(R.string.settings_game_jvm_args_summary),
             onValueChange = { value ->
+                jvmArgs = value
                 if (config.jvmArgs != value) {
                     config.jvmArgs = value
                     config.saveOrShowError(context, submitError)
@@ -337,12 +364,15 @@ private fun GameConfigs(
             }
         )
 
-        TextInputLayout(
-            modifier = Modifier.padding(bottom = 4.dp),
-            currentValue = config.serverIp,
+        var serverIp by remember { mutableStateOf(config.serverIp) }
+        TextInputSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Bottom,
+            value = serverIp,
             title = stringResource(R.string.versions_config_auto_join_server_ip_title),
             summary = stringResource(R.string.versions_config_auto_join_server_ip_summary),
             onValueChange = { value ->
+                serverIp = value
                 if (config.serverIp != value) {
                     config.serverIp = value
                     config.saveOrShowError(context, submitError)
@@ -363,7 +393,7 @@ private fun SupportConfigs(
 ) {
     val context = LocalContext.current
 
-    VersionSettingsBackground(modifier = modifier) {
+    SettingsCardColumn(modifier = modifier) {
         Text(
             modifier = Modifier.padding(all = 8.dp),
             text = stringResource(R.string.versions_config_support_settings),
@@ -372,9 +402,10 @@ private fun SupportConfigs(
         )
 
         var enableTouchProxy by remember { mutableStateOf(config.enableTouchProxy) }
-
-        SwitchConfigLayout(
-            currentValue = enableTouchProxy,
+        SwitchSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Top,
+            checked = enableTouchProxy,
             onCheckedChange = { value ->
                 enableTouchProxy = value
                 if (config.enableTouchProxy != value) {
@@ -387,8 +418,9 @@ private fun SupportConfigs(
         )
 
         var touchVibrateDuration by remember { mutableIntStateOf(config.touchVibrateDuration) }
-
-        SimpleIntSliderLayout(
+        IntSliderSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
             value = touchVibrateDuration,
             title = stringResource(R.string.versions_config_vibrate_duration_title),
             summary = stringResource(R.string.versions_config_vibrate_duration_summary),
@@ -404,35 +436,20 @@ private fun SupportConfigs(
             fineTuningControl = true
         )
 
-        CheckMicrophoneLayout(
-            modifier = Modifier.fillMaxWidth()
+        //检查麦克风
+        var microphoneState by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
+        MicrophoneCheckOperation(
+            state = microphoneState,
+            changeState = { microphoneState = it }
         )
-    }
-}
-
-@Composable
-private fun CheckMicrophoneLayout(
-    modifier: Modifier = Modifier
-) {
-    var state by remember { mutableStateOf<MicrophoneCheckState>(MicrophoneCheckState.None) }
-
-    MicrophoneCheckOperation(
-        state = state,
-        changeState = { state = it }
-    )
-
-    Column(
-        modifier = modifier
-            .clip(shape = RoundedCornerShape(22.0.dp))
-            .clickable {
-                state = MicrophoneCheckState.Start
-            }
-            .padding(all = 8.dp)
-            .padding(bottom = 4.dp)
-    ) {
-        TitleAndSummary(
+        SettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Bottom,
             title = stringResource(R.string.versions_config_microphone_check_title),
-            summary = stringResource(R.string.versions_config_microphone_check_summary)
+            summary = stringResource(R.string.versions_config_microphone_check_summary),
+            onClick = {
+                microphoneState = MicrophoneCheckState.Start
+            }
         )
     }
 }

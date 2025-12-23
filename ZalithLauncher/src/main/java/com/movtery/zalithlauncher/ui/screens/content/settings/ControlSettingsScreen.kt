@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RestartAlt
@@ -47,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -88,7 +86,12 @@ import com.movtery.zalithlauncher.ui.control.mouse.resizeEWPointerFile
 import com.movtery.zalithlauncher.ui.control.mouse.resizeNSPointerFile
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.utils.formatKeyCode
 import com.movtery.zalithlauncher.utils.image.isImageFile
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -120,11 +123,14 @@ fun ControlSettingsScreen(
             isVisible = isVisible
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.physicalMouseMode,
                         title = stringResource(R.string.settings_control_mouse_physical_mouse_mode_title),
                         summary = stringResource(R.string.settings_control_mouse_physical_mouse_mode_summary),
@@ -146,23 +152,35 @@ fun ControlSettingsScreen(
                     )
 
                     var operation by remember { mutableStateOf<PhysicalKeyOperation>(PhysicalKeyOperation.None) }
-                    PhysicalKeyImeTrigger(
+                    SettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        operation = operation,
-                        changeOperation = { operation = it },
-                        eventViewModel = eventViewModel
-                    )
+                        position = CardPosition.Bottom,
+                        onClick = { operation = PhysicalKeyOperation.Bind }
+                    ) {
+                        PhysicalKeyImeTrigger(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(all = 16.dp),
+                            operation = operation,
+                            changeOperation = { operation = it },
+                            eventViewModel = eventViewModel
+                        )
+                    }
                 }
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     val mouseSize = AllSettings.mouseSize.state
 
                     var arrowMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         title = stringResource(R.string.settings_control_mouse_pointer_arrow_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_arrow_summary),
                         mouseSize = mouseSize,
@@ -175,7 +193,9 @@ fun ControlSettingsScreen(
                     )
 
                     var linkMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_link_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_link_summary),
                         mouseSize = mouseSize,
@@ -188,7 +208,9 @@ fun ControlSettingsScreen(
                     )
 
                     var ibeamMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_ibeam_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_ibeam_summary),
                         mouseSize = mouseSize,
@@ -201,7 +223,9 @@ fun ControlSettingsScreen(
                     )
 
                     var crosshairMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_crosshair_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
                         mouseSize = mouseSize,
@@ -214,7 +238,9 @@ fun ControlSettingsScreen(
                     )
 
                     var resizeNSMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_ns_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_resize_ns_summary),
                         mouseSize = mouseSize,
@@ -227,7 +253,9 @@ fun ControlSettingsScreen(
                     )
 
                     var resizeEWMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_ew_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_resize_ew_summary),
                         mouseSize = mouseSize,
@@ -240,7 +268,9 @@ fun ControlSettingsScreen(
                     )
 
                     var resizeAllMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_resize_all_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_common_summary),
                         mouseSize = mouseSize,
@@ -253,7 +283,9 @@ fun ControlSettingsScreen(
                     )
 
                     var notAllowedMouseOperation by remember { mutableStateOf<MousePointerOperation>(MousePointerOperation.None) }
-                    MousePointerLayout(
+                    MousePointerCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_pointer_not_allowed_title),
                         summary = stringResource(R.string.settings_control_mouse_pointer_not_allowed_summary),
                         mouseSize = mouseSize,
@@ -265,8 +297,9 @@ fun ControlSettingsScreen(
                         submitError = submitError
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.mouseSize,
                         title = stringResource(R.string.settings_control_mouse_size_title),
                         valueRange = AllSettings.mouseSize.floatRange,
@@ -277,26 +310,31 @@ fun ControlSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.hideMouse,
                         title = stringResource(R.string.settings_control_mouse_hide_title),
                         summary = stringResource(R.string.settings_control_mouse_hide_summary),
                         enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK //仅点击模式下可更改设置
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         unit = AllSettings.enableMouseClick,
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.settings_control_mouse_enable_click_title),
                         summary = stringResource(R.string.settings_control_mouse_enable_click_summary),
                         enabled = AllSettings.mouseControlMode.state == MouseControlMode.SLIDE //仅滑动模式下可更改设置
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.mouseControlMode,
                         items = MouseControlMode.entries,
                         title = stringResource(R.string.settings_control_mouse_control_mode_title),
@@ -304,8 +342,9 @@ fun ControlSettingsScreen(
                         getItemText = { stringResource(it.nameRes) }
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.cursorSensitivity,
                         title = stringResource(R.string.settings_control_mouse_sensitivity_title),
                         summary = stringResource(R.string.settings_control_mouse_sensitivity_summary),
@@ -314,8 +353,9 @@ fun ControlSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.mouseCaptureSensitivity,
                         title = stringResource(R.string.settings_control_mouse_capture_sensitivity_title),
                         summary = stringResource(R.string.settings_control_mouse_capture_sensitivity_summary),
@@ -324,8 +364,9 @@ fun ControlSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.mouseLongPressDelay,
                         title = stringResource(R.string.settings_control_mouse_long_press_delay_title),
                         summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
@@ -337,18 +378,22 @@ fun ControlSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.gestureControl,
                         title = stringResource(R.string.settings_control_gesture_control_title),
                         summary = stringResource(R.string.settings_control_gesture_control_summary)
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gestureTapMouseAction,
                         items = GestureActionType.entries,
                         title = stringResource(R.string.settings_control_gesture_tap_action_title),
@@ -357,8 +402,9 @@ fun ControlSettingsScreen(
                         enabled = AllSettings.gestureControl.state
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gestureLongPressMouseAction,
                         items = GestureActionType.entries,
                         title = stringResource(R.string.settings_control_gesture_long_press_action_title),
@@ -367,8 +413,9 @@ fun ControlSettingsScreen(
                         enabled = AllSettings.gestureControl.state
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.gestureLongPressDelay,
                         title = stringResource(R.string.settings_control_gesture_long_press_delay_title),
                         summary = stringResource(R.string.settings_control_mouse_long_press_delay_summary),
@@ -381,8 +428,10 @@ fun ControlSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
                     //检查陀螺仪是否可用
                     val context = LocalContext.current
@@ -390,8 +439,9 @@ fun ControlSettingsScreen(
                         isGyroscopeAvailable(context = context)
                     }
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.gyroscopeControl,
                         title = stringResource(R.string.settings_control_gyroscope_title),
                         summary = stringResource(R.string.settings_control_gyroscope_summary),
@@ -415,8 +465,9 @@ fun ControlSettingsScreen(
                         } else null
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gyroscopeSensitivity,
                         title = stringResource(R.string.settings_control_gyroscope_sensitivity_title),
                         valueRange = AllSettings.gyroscopeSensitivity.floatRange,
@@ -425,8 +476,9 @@ fun ControlSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gyroscopeSampleRate,
                         title = stringResource(R.string.settings_control_gyroscope_sample_rate_title),
                         summary = stringResource(R.string.settings_control_gyroscope_sample_rate_summary),
@@ -436,16 +488,18 @@ fun ControlSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gyroscopeSmoothing,
                         title = stringResource(R.string.settings_control_gyroscope_smoothing_title),
                         summary = stringResource(R.string.settings_control_gyroscope_smoothing_summary),
                         enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gyroscopeSmoothingWindow,
                         title = stringResource(R.string.settings_control_gyroscope_smoothing_window_title),
                         summary = stringResource(R.string.settings_control_gyroscope_smoothing_window_summary),
@@ -453,16 +507,18 @@ fun ControlSettingsScreen(
                         enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.gyroscopeInvertX,
                         title = stringResource(R.string.settings_control_gyroscope_invert_x_title),
                         summary = stringResource(R.string.settings_control_gyroscope_invert_x_summary),
                         enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.gyroscopeInvertY,
                         title = stringResource(R.string.settings_control_gyroscope_invert_y_title),
                         summary = stringResource(R.string.settings_control_gyroscope_invert_y_summary),
@@ -486,16 +542,15 @@ private fun PhysicalKeyImeTrigger(
     changeOperation: (PhysicalKeyOperation) -> Unit,
     eventViewModel: EventViewModel
 ) {
-    Row(modifier = modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .clip(shape = RoundedCornerShape(22.0.dp))
-                .clickable { changeOperation(PhysicalKeyOperation.Bind) }
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
                 .animateContentSize()
-        ) Column@{
+        ) {
             TitleAndSummary(
                 title = stringResource(R.string.settings_control_physical_key_bind_ime_title),
                 summary = stringResource(R.string.settings_control_physical_key_bind_ime_summary)
@@ -541,9 +596,7 @@ private fun PhysicalKeyImeTrigger(
         }
 
         Row(
-            modifier = Modifier
-                .padding(start = 8.dp, end = 4.dp)
-                .align(Alignment.CenterVertically)
+            modifier = Modifier.padding(start = 8.dp)
         ) {
             val code = AllSettings.physicalKeyImeCode.state
             when {
@@ -581,7 +634,9 @@ private sealed interface MousePointerOperation {
 }
 
 @Composable
-private fun MousePointerLayout(
+private fun MousePointerCard(
+    modifier: Modifier = Modifier,
+    position: CardPosition,
     title: String,
     summary: String,
     mouseSize: Int,
@@ -642,61 +697,64 @@ private fun MousePointerLayout(
         }
     }
 
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(shape = RoundedCornerShape(22.0.dp))
-                .clickable { filePicker.launch(Unit) }
-                .padding(all = 8.dp)
-                .padding(bottom = 4.dp)
-        ) {
-            TitleAndSummary(
-                title = title,
-                summary = summary
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .padding(end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MousePointer(
-                modifier = Modifier.padding(all = 8.dp),
-                mouseSize = mouseSize.dp,
-                cursorShape = cursorShape,
-                mouseFile = mousePointerFile,
-                centerIcon = true,
-                triggerRefresh = triggerState,
-                crossfade = true
-            )
-
-            IconTextButton(
-                onClick = {
-                    if (mouseOperation == MousePointerOperation.None) {
-                        changeOperation(MousePointerOperation.Hotspot)
-                    }
-                },
-                painter = painterResource(R.drawable.ic_highlight_mouse_cursor),
-                contentDescription = stringResource(R.string.settings_control_mouse_pointer_hotspot),
-                text = stringResource(R.string.settings_control_mouse_pointer_hotspot)
-            )
-
-            AnimatedVisibility(
-                visible = fileExists
+    SettingsCard(
+        modifier = modifier,
+        position = position
+    ) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { filePicker.launch(Unit) }
+                    .padding(all = 16.dp)
             ) {
+                TitleAndSummary(
+                    title = title,
+                    summary = summary
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MousePointer(
+                    modifier = Modifier.padding(all = 8.dp),
+                    mouseSize = mouseSize.dp,
+                    cursorShape = cursorShape,
+                    mouseFile = mousePointerFile,
+                    centerIcon = true,
+                    triggerRefresh = triggerState,
+                    crossfade = true
+                )
+
                 IconTextButton(
                     onClick = {
                         if (mouseOperation == MousePointerOperation.None) {
-                            changeOperation(MousePointerOperation.PreReset)
+                            changeOperation(MousePointerOperation.Hotspot)
                         }
                     },
-                    imageVector = Icons.Default.RestartAlt,
-                    contentDescription = stringResource(R.string.generic_reset),
-                    text = stringResource(R.string.generic_reset)
+                    painter = painterResource(R.drawable.ic_highlight_mouse_cursor),
+                    contentDescription = stringResource(R.string.settings_control_mouse_pointer_hotspot),
+                    text = stringResource(R.string.settings_control_mouse_pointer_hotspot)
                 )
+
+                AnimatedVisibility(
+                    visible = fileExists
+                ) {
+                    IconTextButton(
+                        onClick = {
+                            if (mouseOperation == MousePointerOperation.None) {
+                                changeOperation(MousePointerOperation.PreReset)
+                            }
+                        },
+                        imageVector = Icons.Default.RestartAlt,
+                        contentDescription = stringResource(R.string.generic_reset),
+                        text = stringResource(R.string.generic_reset)
+                    )
+                }
             }
         }
     }

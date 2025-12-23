@@ -234,9 +234,18 @@ private fun NavigationUI(
                     ControlManageScreen(key, settingsScreenKey, mainScreenKey, submitError)
                 }
                 entry<NormalNavKey.Settings.AboutInfo> {
-                    AboutInfoScreen(key, settingsScreenKey, mainScreenKey, openLicenseScreen) { url ->
-                        eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
-                    }
+                    AboutInfoScreen(
+                        key = key,
+                        settingsScreenKey = settingsScreenKey,
+                        mainScreenKey = mainScreenKey,
+                        checkUpdate = {
+                            eventViewModel.sendEvent(EventViewModel.Event.CheckUpdate)
+                        },
+                        openLicense = openLicenseScreen,
+                        openLink = { url ->
+                            eventViewModel.sendEvent(EventViewModel.Event.OpenLink(url))
+                        }
+                    )
                 }
             }
         )

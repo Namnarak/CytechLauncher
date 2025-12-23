@@ -54,6 +54,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.fadeEdge
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
@@ -139,7 +140,7 @@ private fun JoystickManageDialog(
             /** 设置属性时降低对话框透明度进行预览 */
             var enableAlpha by remember { mutableStateOf(false) }
             val alpha by animateFloatAsState(
-                targetValue = if (enableAlpha) 0.5f else 1.0f
+                targetValue = if (enableAlpha) DisabledAlpha else 1.0f
             )
 
             Box(
@@ -238,11 +239,24 @@ private fun JoystickManageDialog(
                                 enabled = AllSettings.enableJoystickControl.state
                             )
 
+                            Spacer(Modifier)
+
                             //编辑摇杆样式
                             InfoLayoutTextItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.game_styles_joystick_edit),
                                 onClick = onEditStyle
+                            )
+
+                            //使用控制布局提供的样式
+                            InfoLayoutSwitchItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.game_styles_joystick_edit_use_control_layout),
+                                value = AllSettings.joystickUseStyleByLayout.state,
+                                onValueChange = {
+                                    AllSettings.joystickUseStyleByLayout.save(it)
+                                },
+                                enabled = AllSettings.enableJoystickControl.state
                             )
 
                             Spacer(Modifier)

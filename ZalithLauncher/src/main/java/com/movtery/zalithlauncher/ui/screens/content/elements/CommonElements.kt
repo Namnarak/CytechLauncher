@@ -103,6 +103,11 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 
+/**
+ * [androidx.compose.material3.DisabledAlpha]
+ */
+const val DisabledAlpha = 0.38f
+
 @Composable
 fun CategoryIcon(iconRes: Int, textRes: Int, iconPadding: PaddingValues = PaddingValues()) {
     Icon(

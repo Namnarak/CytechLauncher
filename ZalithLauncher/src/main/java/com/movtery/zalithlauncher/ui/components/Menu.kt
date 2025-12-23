@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -48,6 +49,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -78,6 +81,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenJellyBounce
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -364,7 +368,7 @@ fun MenuTextButton(
         MarqueeText(
             modifier = Modifier
                 .padding(all = 16.dp)
-                .alpha(if (enabled) 1f else 0.5f),
+                .alpha(if (enabled) 1f else DisabledAlpha),
             text = text,
             style = MaterialTheme.typography.titleSmall
         )
@@ -404,14 +408,25 @@ fun MenuSwitchButton(
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
                     .weight(1f)
-                    .alpha(if (enabled) 1f else 0.5f),
+                    .alpha(if (enabled) 1f else DisabledAlpha),
                 text = text,
                 style = MaterialTheme.typography.titleSmall
             )
             Switch(
                 checked = switch,
                 onCheckedChange = onSwitch,
-                enabled = enabled
+                enabled = enabled,
+                thumbContent = {
+                    Crossfade(
+                        targetState = switch
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(16.dp),
+                            imageVector = if (it) Icons.Default.Check else Icons.Default.Close,
+                            contentDescription = null
+                        )
+                    }
+                }
             )
         }
     }
@@ -453,7 +468,7 @@ fun <E> MenuListLayout(
             MenuListHeader(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .alpha(if (enabled) 1f else 0.5f),
+                    .alpha(if (enabled) 1f else DisabledAlpha),
                 items = items,
                 title = title,
                 selectedItemLayout = {
@@ -619,7 +634,7 @@ fun MenuSliderLayout(
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .fillMaxWidth()
-                    .alpha(if (enabled) 1f else 0.5f),
+                    .alpha(if (enabled) 1f else DisabledAlpha),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 MarqueeText(
@@ -686,7 +701,7 @@ fun MenuSliderLayout(
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .fillMaxWidth()
-                    .alpha(if (enabled) 1f else 0.5f),
+                    .alpha(if (enabled) 1f else DisabledAlpha),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 MarqueeText(

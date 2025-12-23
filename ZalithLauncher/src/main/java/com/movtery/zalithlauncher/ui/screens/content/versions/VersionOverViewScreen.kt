@@ -70,7 +70,8 @@ import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
-import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionOverviewItem
 import com.movtery.zalithlauncher.utils.file.ensureDirectory
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.image.isImageFile
@@ -199,7 +200,7 @@ private fun VersionInfoLayout(
         VersionsManager.getVersionIconFile(version)
     }
 
-    VersionSettingsBackground(
+    VersionChunkBackground(
         modifier = modifier,
         paddingValues = PaddingValues(all = 8.dp)
     ) {
@@ -273,7 +274,7 @@ private fun VersionManagementLayout(
     onRename: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
-    VersionSettingsBackground(
+    VersionChunkBackground(
         modifier = modifier,
         paddingValues = PaddingValues(all = 8.dp)
     ) {
@@ -324,7 +325,7 @@ private fun VersionQuickActions(
     modifier: Modifier = Modifier,
     accessFolder: (folderName: String) -> Unit = {}
 ) {
-    VersionSettingsBackground(
+    VersionChunkBackground(
         modifier = modifier,
         paddingValues = PaddingValues(all = 8.dp)
     ) {

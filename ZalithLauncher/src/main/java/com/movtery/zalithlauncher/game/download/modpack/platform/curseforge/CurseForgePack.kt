@@ -95,7 +95,7 @@ class CurseForgePack(
                                 is IOException, is JsonParseException -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
                                 else -> lWarning("Unable to fetch the file name projectID=${manifestFile.projectID}, fileID=${manifestFile.fileID}", e)
                             }
-                        }.getOrNull()
+                        }.getOrThrow()
                     }
                 )
             } else {

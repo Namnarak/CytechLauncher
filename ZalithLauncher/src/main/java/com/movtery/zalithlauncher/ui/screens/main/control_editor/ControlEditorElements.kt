@@ -208,6 +208,8 @@ fun EditorMenu(
     onPreviewScenarioChanged: (PreviewScenario) -> Unit,
     previewHideLayerWhen: HideLayerWhen,
     onPreviewHideLayerChanged: (HideLayerWhen) -> Unit,
+    enableJoystick: Boolean,
+    onJoystickSwitch: (Boolean) -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -330,6 +332,19 @@ fun EditorMenu(
                                 if (value) HideLayerWhen.WhenGamepad
                                 else HideLayerWhen.None
                             )
+                        },
+                        enabled = isPreviewMode
+                    )
+                }
+
+                //启用摇杆
+                item {
+                    MenuSwitchButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.game_styles_joystick_enable),
+                        switch = enableJoystick,
+                        onSwitch = { value ->
+                            onJoystickSwitch(value)
                         },
                         enabled = isPreviewMode
                     )

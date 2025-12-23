@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -78,13 +79,15 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 
 @Composable
 fun AboutInfoScreen(
     key: NestedNavKey.Settings,
     settingsScreenKey: NavKey?,
     mainScreenKey: NavKey?,
+    checkUpdate: () -> Unit,
     openLicense: (raw: Int) -> Unit,
     openLink: (url: String) -> Unit
 ) {
@@ -107,16 +110,31 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.img_launcher),
                             title = InfoDistributor.LAUNCHER_NAME,
                             text = stringResource(R.string.about_launcher_version, BuildConfig.VERSION_NAME),
-                            buttonText = stringResource(R.string.about_launcher_project_link),
-                            onButtonClick = { openLink(URL_PROJECT) }
+                            button = {
+                                OutlinedButton(
+                                    onClick = checkUpdate
+                                ) {
+                                    Text(text = stringResource(R.string.upgrade_title))
+                                }
+                                OutlinedButton(
+                                    onClick = { openLink(URL_PROJECT) }
+                                ) {
+                                    Text(text = stringResource(R.string.about_launcher_project_link))
+                                }
+                            }
                         )
 
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_movtery),
                             title = stringResource(R.string.about_launcher_author_movtery_title),
                             text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
-                            buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { openLink(URL_SUPPORT) }
+                            button = {
+                                OutlinedButton(
+                                    onClick = { openLink(URL_SUPPORT) }
+                                ) {
+                                    Text(text = stringResource(R.string.about_sponsor))
+                                }
+                            }
                         )
                     }
                 }
@@ -132,8 +150,13 @@ fun AboutInfoScreen(
                             icon = painterResource(R.drawable.img_bangbang93),
                             title = "bangbang93",
                             text = stringResource(R.string.about_acknowledgements_bangbang93_text, InfoDistributor.LAUNCHER_SHORT_NAME),
-                            buttonText = stringResource(R.string.about_sponsor),
-                            onButtonClick = { openLink("https://afdian.com/a/bangbang93") }
+                            button = {
+                                OutlinedButton(
+                                    onClick = { openLink("https://afdian.com/a/bangbang93") }
+                                ) {
+                                    Text(text = stringResource(R.string.about_sponsor))
+                                }
+                            }
                         )
                         LinkIconItem(
                             icon = painterResource(R.drawable.img_launcher_fcl),
@@ -224,9 +247,9 @@ private fun ChunkLayout(
     title: String,
     content: @Composable () -> Unit
 ) {
-    SettingsBackground(
+    SettingsCard(
         modifier = modifier,
-        contentPadding = 0.dp
+        position = CardPosition.Single
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             CardTitleLayout {
@@ -341,8 +364,7 @@ private fun ButtonIconItem(
     icon: Painter,
     title: String,
     text: String,
-    buttonText: String,
-    onButtonClick: () -> Unit,
+    button: @Composable RowScope.() -> Unit,
     color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation()
@@ -385,11 +407,7 @@ private fun ButtonIconItem(
                 )
             }
 
-            OutlinedButton(
-                onClick = onButtonClick
-            ) {
-                Text(text = buttonText)
-            }
+            button()
         }
     }
 }

@@ -52,10 +52,13 @@ import com.movtery.zalithlauncher.setting.unit.floatRange
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedColumn
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
-import com.movtery.zalithlauncher.ui.components.SwitchLayout
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
 import com.movtery.zalithlauncher.utils.device.checkVulkanSupport
 import com.movtery.zalithlauncher.utils.isAdrenoGPU
 
@@ -79,11 +82,14 @@ fun RendererSettingsScreen(
             isVisible = isVisible
         ) { scope ->
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.renderer,
                         items = Renderers.getCompatibleRenderers(context).second,
                         title = stringResource(R.string.settings_renderer_global_renderer_title),
@@ -95,8 +101,9 @@ fun RendererSettingsScreen(
                         }
                     )
 
-                    ListSettingsLayout(
+                    ListSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.vulkanDriver,
                         items = DriverPluginManager.getDriverList(),
                         title = stringResource(R.string.settings_renderer_global_vulkan_driver_title),
@@ -107,8 +114,9 @@ fun RendererSettingsScreen(
                         }
                     )
 
-                    SliderSettingsLayout(
+                    IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.resolutionRatio,
                         title = stringResource(R.string.settings_renderer_resolution_scale_title),
                         summary = stringResource(R.string.settings_renderer_resolution_scale_summary),
@@ -117,8 +125,9 @@ fun RendererSettingsScreen(
                         fineTuningControl = true
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.gameFullScreen,
                         title = stringResource(R.string.settings_renderer_full_screen_title),
                         summary = stringResource(R.string.settings_renderer_full_screen_summary)
@@ -127,11 +136,14 @@ fun RendererSettingsScreen(
             }
 
             AnimatedItem(scope) { yOffset ->
-                SettingsBackground(
-                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                SettingsCardColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
                         unit = AllSettings.sustainedPerformance,
                         title = stringResource(R.string.settings_renderer_sustained_performance_title),
                         summary = stringResource(R.string.settings_renderer_sustained_performance_summary)
@@ -140,21 +152,14 @@ fun RendererSettingsScreen(
                     if (checkVulkanSupport(LocalContext.current.packageManager)) {
                         var adrenoGPUAlert by remember { mutableStateOf(false) }
 
-                        var value by remember { mutableStateOf(AllSettings.zinkPreferSystemDriver.getValue()) }
-
-                        fun change(value1: Boolean) {
-                            value = value1
-                            AllSettings.zinkPreferSystemDriver.save(value)
-                        }
-
-                        SwitchLayout(
+                        SwitchSettingsCard(
                             modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            unit = AllSettings.zinkPreferSystemDriver,
                             title = stringResource(R.string.settings_renderer_vulkan_driver_system_title),
                             summary = stringResource(R.string.settings_renderer_vulkan_driver_system_summary),
-                            checked = value,
                             onCheckedChange = { checked ->
                                 if (checked && isAdrenoGPU()) adrenoGPUAlert = true
-                                else change(checked)
                             }
                         )
 
@@ -163,33 +168,36 @@ fun RendererSettingsScreen(
                                 title = stringResource(R.string.generic_warning),
                                 text = stringResource(R.string.settings_renderer_zink_driver_adreno),
                                 onConfirm = {
-                                    change(true)
+                                    AllSettings.zinkPreferSystemDriver.save(true)
                                     adrenoGPUAlert = false
                                 },
                                 onDismiss = {
-                                    change(false)
+                                    AllSettings.zinkPreferSystemDriver.save(false)
                                     adrenoGPUAlert = false
                                 }
                             )
                         }
                     }
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.vsyncInZink,
                         title = stringResource(R.string.settings_renderer_vsync_in_zink_title),
                         summary = stringResource(R.string.settings_renderer_vsync_in_zink_summary)
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Middle,
                         unit = AllSettings.bigCoreAffinity,
                         title = stringResource(R.string.settings_renderer_force_big_core_title),
                         summary = stringResource(R.string.settings_renderer_force_big_core_summary)
                     )
 
-                    SwitchSettingsLayout(
+                    SwitchSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Bottom,
                         unit = AllSettings.dumpShaders,
                         title = stringResource(R.string.settings_renderer_shader_dump_title),
                         summary = stringResource(R.string.settings_renderer_shader_dump_summary)

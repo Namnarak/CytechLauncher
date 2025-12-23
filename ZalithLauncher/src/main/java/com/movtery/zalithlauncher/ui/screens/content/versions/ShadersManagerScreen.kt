@@ -115,7 +115,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingSt
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ShaderOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ShaderPackInfo
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterShaders
-import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
@@ -282,7 +282,7 @@ fun ShadersManagerScreen(
             swapIn = isVisible
         )
 
-        VersionSettingsBackground(
+        VersionChunkBackground(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 12.dp)

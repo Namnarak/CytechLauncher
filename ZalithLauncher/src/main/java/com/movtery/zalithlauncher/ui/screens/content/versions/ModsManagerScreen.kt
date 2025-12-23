@@ -147,7 +147,7 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsConfi
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModsUpdateOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterMods
-import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionSettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.file.formatFileSize
@@ -530,7 +530,7 @@ fun ModsManagerScreen(
             swapIn = isVisible
         )
 
-        VersionSettingsBackground(
+        VersionChunkBackground(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(all = 12.dp)

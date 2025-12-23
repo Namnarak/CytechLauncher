@@ -24,6 +24,7 @@ import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.utils.file.formatFileSize
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
+import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -109,9 +111,15 @@ class ModDownloader(
                         mod.getFile?.let { getter ->
                             //在这里统一获取下载链接
                             //也能够蹭到下载器的多线程优化（很爽XD）
-                            val file = getter()
-                            if (file == null) downloadedFileCount.incrementAndGet()
-                            else download(file)
+                            val file = try {
+                                getter() //可能获取失败，若不是网络问题则直接中断安装
+                            } catch (e: IOException) {
+                                if (!e.isInterruptedIOException()) {
+                                    downloadFailedTasks.add(mod)
+                                }
+                                return@withPermit
+                            }
+                            download(file)
                         } ?: run {
                             //只有已经获取到下载链接的 ModFile，getFile参数才是 null
                             //可以放心使用 downloadUrls 和 outputFile 参数

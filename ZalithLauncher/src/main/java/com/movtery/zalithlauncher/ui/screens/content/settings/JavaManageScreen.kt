@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -78,7 +78,8 @@ import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportSingleFileButton
-import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsBackground
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
@@ -120,17 +121,12 @@ fun JavaManageScreen(
             submitError = submitError
         )
 
-        SettingsBackground(
+        SettingsCard(
             modifier = Modifier
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(all = 12.dp)
-                .offset {
-                    IntOffset(
-                        x = 0,
-                        y = yOffset.roundToPx()
-                    )
-                },
-            contentPadding = 0.dp
+                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+            position = CardPosition.Single
         ) {
             CardTitleLayout {
                 Row(

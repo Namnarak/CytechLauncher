@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -39,6 +40,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -306,7 +309,18 @@ fun InfoLayoutSwitchItem(
         Switch(
             checked = value,
             onCheckedChange = onValueChange,
-            enabled = enabled
+            enabled = enabled,
+            thumbContent = {
+                Crossfade(
+                    targetState = value
+                ) {
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        imageVector = if (it) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = null
+                    )
+                }
+            }
         )
     }
 }

@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.data.ButtonPosition
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.MIN_SIZE_DP
@@ -43,6 +44,7 @@ import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
@@ -52,54 +54,61 @@ import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityTe
  */
 @Composable
 fun EditWidgetInfo(
+    screenKey: NavKey,
+    currentKey: NavKey?,
     data: ObservableWidget,
     onPreviewRequested: () -> Unit,
     onDismissRequested: () -> Unit
 ) {
-    val screenSize = LocalWindowInfo.current.containerSize
-    val density = LocalDensity.current
-    val screenWidth = remember(screenSize, density) {
-        with(density) { screenSize.width.toDp() }.value
-    }
-    val screenHeight = remember(screenSize, density) {
-        with(density) { screenSize.height.toDp() }.value
-    }
-
-    LazyColumn(
-        modifier = Modifier
-            .padding(start = 4.dp, end = 8.dp)
-            .fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    BaseScreen(
+        screenKey = screenKey,
+        currentKey = currentKey
     ) {
-        when (data) {
-            is ObservableTextData -> {
-                commonInfos(
-                    onPreviewRequested = onPreviewRequested,
-                    onDismissRequested = onDismissRequested,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                    visibilityType = data.visibilityType,
-                    onVisibilityTypeChanged = { data.visibilityType = it },
-                    position = data.position,
-                    onPositionChanged = { data.position = it },
-                    buttonSize = data.buttonSize,
-                    onButtonSizeChanged = { data.buttonSize = it }
-                )
-            }
-            is ObservableNormalData -> {
-                commonInfos(
-                    onPreviewRequested = onPreviewRequested,
-                    onDismissRequested = onDismissRequested,
-                    screenWidth = screenWidth,
-                    screenHeight = screenHeight,
-                    visibilityType = data.visibilityType,
-                    onVisibilityTypeChanged = { data.visibilityType = it },
-                    position = data.position,
-                    onPositionChanged = { data.position = it },
-                    buttonSize = data.buttonSize,
-                    onButtonSizeChanged = { data.buttonSize = it }
-                )
+        val screenSize = LocalWindowInfo.current.containerSize
+        val density = LocalDensity.current
+        val screenWidth = remember(screenSize, density) {
+            with(density) { screenSize.width.toDp() }.value
+        }
+        val screenHeight = remember(screenSize, density) {
+            with(density) { screenSize.height.toDp() }.value
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .padding(start = 4.dp, end = 8.dp)
+                .fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            when (data) {
+                is ObservableTextData -> {
+                    commonInfos(
+                        onPreviewRequested = onPreviewRequested,
+                        onDismissRequested = onDismissRequested,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                        visibilityType = data.visibilityType,
+                        onVisibilityTypeChanged = { data.visibilityType = it },
+                        position = data.position,
+                        onPositionChanged = { data.position = it },
+                        buttonSize = data.buttonSize,
+                        onButtonSizeChanged = { data.buttonSize = it }
+                    )
+                }
+                is ObservableNormalData -> {
+                    commonInfos(
+                        onPreviewRequested = onPreviewRequested,
+                        onDismissRequested = onDismissRequested,
+                        screenWidth = screenWidth,
+                        screenHeight = screenHeight,
+                        visibilityType = data.visibilityType,
+                        onVisibilityTypeChanged = { data.visibilityType = it },
+                        position = data.position,
+                        onPositionChanged = { data.position = it },
+                        buttonSize = data.buttonSize,
+                        onButtonSizeChanged = { data.buttonSize = it }
+                    )
+                }
             }
         }
     }

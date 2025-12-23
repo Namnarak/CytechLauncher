@@ -52,11 +52,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.event.ClickEvent
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeyName
 import com.movtery.zalithlauncher.game.keycodes.ControlEventKeycode
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.control.Keyboard
@@ -74,70 +76,77 @@ private data class TabItem(val title: Int)
 
 @Composable
 fun EditWidgetClickEvent(
+    screenKey: NavKey,
+    currentKey: NavKey?,
     data: ObservableNormalData,
     switchControlLayers: (ObservableNormalData, ClickEvent.Type) -> Unit,
     sendText: (ObservableNormalData) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .padding(start = 4.dp, end = 8.dp)
-            .fillMaxSize()
+    BaseScreen(
+        screenKey = screenKey,
+        currentKey = currentKey
     ) {
-        val tabs = remember {
-            listOf(
-                TabItem(R.string.control_editor_edit_event_basic),
-                TabItem(R.string.control_editor_edit_event_launcher),
-                TabItem(R.string.control_editor_edit_event_key)
-            )
-        }
-
-        val pagerState = rememberPagerState(pageCount = { tabs.size })
-        var selectedTabIndex by remember { mutableIntStateOf(0) }
-
-        LaunchedEffect(selectedTabIndex) {
-            pagerState.animateScrollToPage(selectedTabIndex)
-        }
-
-        //顶贴标签栏
-        SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-            tabs.forEachIndexed { index, item ->
-                Tab(
-                    selected = index == selectedTabIndex,
-                    onClick = {
-                        selectedTabIndex = index
-                    },
-                    text = {
-                        MarqueeText(text = stringResource(item.title))
-                    }
+        Column(
+            modifier = Modifier
+                .padding(start = 4.dp, end = 8.dp)
+                .fillMaxSize()
+        ) {
+            val tabs = remember {
+                listOf(
+                    TabItem(R.string.control_editor_edit_event_basic),
+                    TabItem(R.string.control_editor_edit_event_launcher),
+                    TabItem(R.string.control_editor_edit_event_key)
                 )
             }
-        }
 
-        HorizontalPager(
-            state = pagerState,
-            userScrollEnabled = false,
-            modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
-        ) { page ->
-            when (page) {
-                0 -> {
-                    EditBasicEvent(
-                        modifier = Modifier.fillMaxSize(),
-                        data = data,
-                        switchControlLayers = switchControlLayers
+            val pagerState = rememberPagerState(pageCount = { tabs.size })
+            var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+            LaunchedEffect(selectedTabIndex) {
+                pagerState.animateScrollToPage(selectedTabIndex)
+            }
+
+            //顶贴标签栏
+            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                tabs.forEachIndexed { index, item ->
+                    Tab(
+                        selected = index == selectedTabIndex,
+                        onClick = {
+                            selectedTabIndex = index
+                        },
+                        text = {
+                            MarqueeText(text = stringResource(item.title))
+                        }
                     )
                 }
-                1 -> {
-                    EditLauncherEvent(
-                        modifier = Modifier.fillMaxSize(),
-                        data = data,
-                        sendText = sendText
-                    )
-                }
-                2 -> {
-                    EditKeyEvent(
-                        modifier = Modifier.fillMaxSize(),
-                        data = data
-                    )
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = false,
+                modifier = Modifier.fillMaxWidth().weight(1f, fill = false)
+            ) { page ->
+                when (page) {
+                    0 -> {
+                        EditBasicEvent(
+                            modifier = Modifier.fillMaxSize(),
+                            data = data,
+                            switchControlLayers = switchControlLayers
+                        )
+                    }
+                    1 -> {
+                        EditLauncherEvent(
+                            modifier = Modifier.fillMaxSize(),
+                            data = data,
+                            sendText = sendText
+                        )
+                    }
+                    2 -> {
+                        EditKeyEvent(
+                            modifier = Modifier.fillMaxSize(),
+                            data = data
+                        )
+                    }
                 }
             }
         }

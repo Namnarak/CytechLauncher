@@ -65,6 +65,8 @@ class EventViewModel : ViewModel() {
             /** 关停 VPN */
             data object StopVPN : Terracotta
         }
+        /** 检查更新 */
+        data object CheckUpdate : Event
         /** 在浏览器访问链接 */
         data class OpenLink(val url: String) : Event
         /** 刷新全屏 */

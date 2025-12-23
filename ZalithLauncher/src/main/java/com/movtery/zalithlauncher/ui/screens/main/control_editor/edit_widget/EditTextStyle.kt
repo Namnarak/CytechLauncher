@@ -36,74 +36,83 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.data.TextAlignment
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTextData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.observable.ObservableWidget
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSelectItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 
 @Composable
 fun EditTextStyle(
+    screenKey: NavKey,
+    currentKey: NavKey?,
     data: ObservableWidget,
     onEditWidgetText: (ObservableTranslatableString) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .padding(start = 4.dp, end = 8.dp)
-            .fillMaxSize(),
-        contentPadding = PaddingValues(vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    BaseScreen(
+        screenKey = screenKey,
+        currentKey = currentKey
     ) {
-        when(data) {
-            is ObservableTextData -> {
-                commonStyles(
-                    onEditWidgetText = {
-                        onEditWidgetText(data.text)
-                    },
-                    textAlignment = data.textAlignment,
-                    onTextAlignmentChanged = { value ->
-                        data.textAlignment = value
-                    },
-                    textBold = data.textBold,
-                    onTextBoldChanged = { value ->
-                        data.textBold = value
-                    },
-                    textItalic = data.textItalic,
-                    onTextItalicChanged = { value ->
-                        data.textItalic = value
-                    },
-                    textUnderline = data.textUnderline,
-                    onTextUnderlineChanged = { value ->
-                        data.textUnderline = value
-                    }
-                )
-            }
-            is ObservableNormalData -> {
-                commonStyles(
-                    onEditWidgetText = {
-                        onEditWidgetText(data.text)
-                    },
-                    textAlignment = data.textAlignment,
-                    onTextAlignmentChanged = { value ->
-                        data.textAlignment = value
-                    },
-                    textBold = data.textBold,
-                    onTextBoldChanged = { value ->
-                        data.textBold = value
-                    },
-                    textItalic = data.textItalic,
-                    onTextItalicChanged = { value ->
-                        data.textItalic = value
-                    },
-                    textUnderline = data.textUnderline,
-                    onTextUnderlineChanged = { value ->
-                        data.textUnderline = value
-                    }
-                )
+        LazyColumn(
+            modifier = Modifier
+                .padding(start = 4.dp, end = 8.dp)
+                .fillMaxSize(),
+            contentPadding = PaddingValues(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            when(data) {
+                is ObservableTextData -> {
+                    commonStyles(
+                        onEditWidgetText = {
+                            onEditWidgetText(data.text)
+                        },
+                        textAlignment = data.textAlignment,
+                        onTextAlignmentChanged = { value ->
+                            data.textAlignment = value
+                        },
+                        textBold = data.textBold,
+                        onTextBoldChanged = { value ->
+                            data.textBold = value
+                        },
+                        textItalic = data.textItalic,
+                        onTextItalicChanged = { value ->
+                            data.textItalic = value
+                        },
+                        textUnderline = data.textUnderline,
+                        onTextUnderlineChanged = { value ->
+                            data.textUnderline = value
+                        }
+                    )
+                }
+                is ObservableNormalData -> {
+                    commonStyles(
+                        onEditWidgetText = {
+                            onEditWidgetText(data.text)
+                        },
+                        textAlignment = data.textAlignment,
+                        onTextAlignmentChanged = { value ->
+                            data.textAlignment = value
+                        },
+                        textBold = data.textBold,
+                        onTextBoldChanged = { value ->
+                            data.textBold = value
+                        },
+                        textItalic = data.textItalic,
+                        onTextItalicChanged = { value ->
+                            data.textItalic = value
+                        },
+                        textUnderline = data.textUnderline,
+                        onTextUnderlineChanged = { value ->
+                            data.textUnderline = value
+                        }
+                    )
+                }
             }
         }
     }

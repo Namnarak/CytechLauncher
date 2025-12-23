@@ -74,6 +74,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
 import kotlinx.coroutines.launch
 
 @Composable
@@ -204,7 +205,7 @@ private fun BaseIconTextButton(
             .clip(shape = shape)
             .clickable(enabled = enabled, onClick = onClick)
             .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp))
-            .alpha(if (enabled) 1f else 0.5f),
+            .alpha(if (enabled) 1f else DisabledAlpha),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         icon(Modifier.align(Alignment.CenterVertically))

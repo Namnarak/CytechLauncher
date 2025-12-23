@@ -25,7 +25,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformReleaseT
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeFile.Hash
 import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
-import com.movtery.zalithlauncher.game.versioninfo.RELEASE_REGEX
+import com.movtery.zalithlauncher.game.versioninfo.filterRelease
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.string.parseInstant
 import kotlinx.serialization.KSerializer
@@ -273,7 +273,7 @@ class CurseForgeFile(
 
     override fun platformGameVersion(): Array<String> {
         return thisPrimaryFile.gameVersions.filter { gameVersion ->
-            RELEASE_REGEX.matcher(gameVersion).find()
+            filterRelease(gameVersion)
         }.toTypedArray()
     }
 

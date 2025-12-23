@@ -353,6 +353,11 @@ object AllSettings : SettingsRegistry() {
     val videoBackgroundVolume = intSetting("videoBackgroundVolume", 0, 0..100)
 
     /**
+     * 启动器上次检查更新时，用户选择忽略的版本号
+     */
+    val lastIgnoredVersion = intSetting("lastIgnoredVersion", null)
+
+    /**
      * 启动器日志保留天数
      */
     val launcherLogRetentionDays = intSetting("launcherLogRetentionDays", 7, 1..14)
@@ -474,6 +479,11 @@ object AllSettings : SettingsRegistry() {
      * 游戏中摇杆移动组件的大小 Dp
      */
     val joystickControlSize = intSetting("joystickControlSize", 120, 80..180)
+
+    /**
+     * 游戏中摇杆移动组件是否使用控制布局提供的样式
+     */
+    val joystickUseStyleByLayout = boolSetting("joystickUseStyleByLayout", true)
 
     /**
      * 游戏中摇杆移动组件是否在使用实体鼠标时隐藏
