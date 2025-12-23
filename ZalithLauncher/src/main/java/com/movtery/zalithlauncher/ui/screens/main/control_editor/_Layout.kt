@@ -311,7 +311,11 @@ fun InfoLayoutSwitchItem(
             onCheckedChange = onValueChange,
             enabled = enabled,
             thumbContent = {
+                val rotation by animateFloatAsState(
+                    if (value) 0.0f else -(180.0f)
+                )
                 Crossfade(
+                    modifier = Modifier.rotate(rotation),
                     targetState = value
                 ) {
                     Icon(

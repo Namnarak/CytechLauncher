@@ -417,7 +417,11 @@ fun MenuSwitchButton(
                 onCheckedChange = onSwitch,
                 enabled = enabled,
                 thumbContent = {
+                    val rotation by animateFloatAsState(
+                        if (switch) 0.0f else -(180.0f)
+                    )
                     Crossfade(
+                        modifier = Modifier.rotate(rotation),
                         targetState = switch
                     ) {
                         Icon(
