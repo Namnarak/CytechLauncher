@@ -1018,4 +1018,9 @@
     <string name="control_editor_special_joystick_style_joystick_can_lock_color">Warna Joystick (Bisa dikunci)</string>
     <string name="control_editor_special_joystick_style_joystick_locked_color">Warna Joystick (Terkunci)</string>
     <string name="control_editor_special_joystick_style_joystick_size">Ukuran Joystick</string>
+    <string name="control_editor_special_joystick_style_create_title">Buat Gaya Joystick</string>
+    <string name="control_editor_special_joystick_style_create_summary">Buat konfigurasi gaya joystick berdasarkan layout kontrol. Jika layout kontrol saat ini tidak menyediakan gaya joystick, maka gaya joystick dari launcher akan digunakan.</string>
+    <string name="game_styles_joystick_can_lock">Kunci Gerak Maju</string>
+    <string name="control_editor_special_joystick_style_lock_mark_color">Warna Indikator Kunci Gerak Maju</string>
+    <string name="account_change_cape_cache_all">Mencache Semua Cape</string>
 </resources>
