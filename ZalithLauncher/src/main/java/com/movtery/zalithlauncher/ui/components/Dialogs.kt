@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -471,6 +472,9 @@ fun <T> SimpleListDialog(
         )
     },
     showConfirm: Boolean = false,
+    confirmText: @Composable RowScope.() -> Unit = {
+        MarqueeText(text = stringResource(R.string.generic_confirm))
+    },
     onUpdateItem: (T) -> Unit = {}
 ) {
     var selectedItem: T? by remember { mutableStateOf(null) }
@@ -544,7 +548,7 @@ fun <T> SimpleListDialog(
                                 }
                             }
                         ) {
-                            MarqueeText(text = stringResource(R.string.generic_confirm))
+                            confirmText()
                         }
                     }
                 }

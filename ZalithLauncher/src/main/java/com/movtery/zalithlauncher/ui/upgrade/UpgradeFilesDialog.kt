@@ -92,6 +92,9 @@ fun UpgradeFilesDialog(
             )
         },
         showConfirm = true,
+        confirmText = {
+            MarqueeText(text = stringResource(R.string.generic_download))
+        },
         onUpdateItem = { file ->
             currentFile = file
         }
