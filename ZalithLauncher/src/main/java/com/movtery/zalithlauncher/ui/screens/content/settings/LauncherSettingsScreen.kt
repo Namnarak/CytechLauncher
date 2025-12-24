@@ -235,7 +235,6 @@ fun LauncherSettingsScreen(
                         title = stringResource(R.string.settings_launcher_animate_speed_title),
                         summary = stringResource(R.string.settings_launcher_animate_speed_summary),
                         valueRange = AllSettings.launcherAnimateSpeed.floatRange,
-                        steps = 9,
                         suffix = "x"
                     )
 
@@ -246,7 +245,6 @@ fun LauncherSettingsScreen(
                         title = stringResource(R.string.settings_launcher_animate_extent_title),
                         summary = stringResource(R.string.settings_launcher_animate_extent_summary),
                         valueRange = AllSettings.launcherAnimateExtent.floatRange,
-                        steps = 9,
                         suffix = "x"
                     )
 
