@@ -62,7 +62,11 @@ fun UpgradeDialog(
         data.bodies.find { it.language == language } ?: data.defaultBody
     }
     val cloudDrive = remember(language, data) {
-        data.cloudDrives.find { it.language == language } ?: data.defaultCloudDrive
+        data.cloudDrives.find { it.language == language } ?: data.defaultCloudDrive?.takeIf {
+            //如果是 NULL，则是全区域可用
+            //否则根据语言决定是否可用
+            it.language == "NULL" || it.language == language
+        }
     }
 
     Dialog(
