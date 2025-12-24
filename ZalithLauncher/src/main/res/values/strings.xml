@@ -1069,8 +1069,9 @@
     <string name="upgrade_version_change">Version: %s</string>
     <string name="upgrade_version_size">Size: %s</string>
     <string name="upgrade_version_create_at">Updated At: %s</string>
-    <string name="upgrade_get_remote_failed">Failed to Check for Updates. Please Try Again Later.</string>
-    <string name="upgrade_is_latest">You Are Already on the Latest Version</string>
+    <string name="upgrade_get_remote_failed">Failed to check for updates. Please try again later.</string>
+    <string name="upgrade_is_latest">You are already on the latest version</string>
+    <string name="upgrade_cloud_drive">Cloud Drive</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
     <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>

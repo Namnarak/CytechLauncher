@@ -887,6 +887,9 @@ fun SelectCapeDialog(
     onSelected: (PlayerProfile.Cape) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val current = remember(capes) {
+        capes.find { it.isUsing() }
+    }
     SimpleListDialog(
         title = stringResource(R.string.account_change_cape_select_cape),
         items = capes,
@@ -896,9 +899,7 @@ fun SelectCapeDialog(
         onItemSelected = { cape ->
             onSelected(cape)
         },
-        isCurrent = { cape ->
-            cape.isUsing()
-        },
+        current = current,
         itemLayout = { cape, isCurrent, text, onClick ->
             val avatar = remember(cape) {
                 if (cape != EmptyCape) {

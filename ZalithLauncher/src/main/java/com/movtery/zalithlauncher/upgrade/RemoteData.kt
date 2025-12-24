@@ -26,6 +26,8 @@ import kotlinx.serialization.Serializable
  * @param code 最新启动器的版本号
  * @param version 最新启动器的版本名称
  * @param createdAt 发布时间
+ * @param defaultCloudDrive 默认的网盘链接
+ * @param cloudDrives 可用的网盘链接
  * @param files 可下载安装包文件
  * @param defaultBody 默认更新日志，当 [bodies] 中没有匹配的语言日志时使用
  * @param bodies 针对不同语言的更新日志列表
@@ -38,13 +40,30 @@ data class RemoteData(
     val version: String,
     @SerialName("created_at")
     val createdAt: String,
+    @SerialName("default_cloud_drive")
+    val defaultCloudDrive: CloudDrive? = null,
+    @SerialName("cloud_drives")
+    val cloudDrives: List<CloudDrive> = emptyList(),
     @SerialName("files")
     val files: List<RemoteFile>,
-    @SerialName("defaultBody")
+    @SerialName("default_body")
     val defaultBody: RemoteBody,
     @SerialName("bodies")
     val bodies: List<RemoteBody>
 ) {
+    /**
+     * 网盘链接，按语言区分
+     * @param language 语言标识
+     * @param link 网盘链接
+     */
+    @Serializable
+    data class CloudDrive(
+        @SerialName("language")
+        val language: String,
+        @SerialName("link")
+        val link: String
+    )
+
     /**
      * 最新版本的启动器的安装包文件
      * @param fileName 可直接展示的文件名称

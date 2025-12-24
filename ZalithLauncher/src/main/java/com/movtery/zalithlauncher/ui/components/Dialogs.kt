@@ -457,7 +457,7 @@ fun <T> SimpleListDialog(
     itemTextProvider: @Composable (T) -> String,
     onItemSelected: (T) -> Unit,
     onDismissRequest: (selected: Boolean) -> Unit,
-    isCurrent: ((T) -> Boolean)? = null,
+    current: T? = null,
     itemLayout: @Composable (
         item: T,
         isCurrent: Boolean,
@@ -474,10 +474,10 @@ fun <T> SimpleListDialog(
     showConfirm: Boolean = false,
     confirmText: @Composable RowScope.() -> Unit = {
         MarqueeText(text = stringResource(R.string.generic_confirm))
-    },
-    onUpdateItem: (T) -> Unit = {}
+    }
 ) {
-    var selectedItem: T? by remember { mutableStateOf(null) }
+    var selectedItem: T? by remember { mutableStateOf(current) }
+
     Dialog(
         onDismissRequest = {
             onDismissRequest(false)
@@ -488,9 +488,9 @@ fun <T> SimpleListDialog(
             contentAlignment = Alignment.Center
         ) {
             Surface(
-                modifier = Modifier.padding(all = 6.dp),
+                modifier = Modifier.padding(all = 3.dp),
                 shape = MaterialTheme.shapes.extraLarge,
-                shadowElevation = 6.dp
+                shadowElevation = 3.dp
             ) {
                 Column(
                     modifier = Modifier
@@ -512,26 +512,19 @@ fun <T> SimpleListDialog(
                         state = state
                     ) {
                         items(items) { item ->
-                            val isCurrent0 = isCurrent?.let {
-                                remember(item, selectedItem) {
-                                    it.invoke(item)
-                                }
-                            } ?: (selectedItem == item)
+                            val isCurrent = selectedItem == item
 
                             val text = itemTextProvider(item)
 
                             itemLayout(
                                 item,
-                                isCurrent0,
+                                isCurrent,
                                 text
                             ) {
                                 selectedItem = item
-                                if (!showConfirm && !isCurrent0) {
+                                if (!showConfirm && !isCurrent) {
                                     onItemSelected(item)
                                     onDismissRequest(true)
-                                }
-                                if (showConfirm) {
-                                    onUpdateItem(item)
                                 }
                             }
                         }
