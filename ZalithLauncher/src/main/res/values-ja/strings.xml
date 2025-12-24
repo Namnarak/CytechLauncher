@@ -1043,4 +1043,5 @@
     <string name="upgrade_version_create_at">更新日時: %s</string>
     <string name="upgrade_get_remote_failed">アップデートの確認に失敗しました。後ほどもう一度お試しください。</string>
     <string name="upgrade_is_latest">すでに最新バージョンです</string>
+    <string name="upgrade_cloud_drive">クラウドドライブ</string>
 </resources>
