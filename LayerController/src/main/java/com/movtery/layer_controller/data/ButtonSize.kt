@@ -34,19 +34,19 @@ const val MIN_SIZE_DP = 5.0f
 /**
  * 按钮大小百分比取值范围
  */
-val SIZE_PERCENTAGE: ClosedFloatingPointRange<Float> = 500.0f..10000.0f
+val SIZE_PERCENTAGE: ClosedFloatingPointRange<Float> = 100.0f..10000.0f
 
 /**
  * 给编辑器使用的百分比取值范围
  */
-val SIZE_PERCENTAGE_EDITOR: ClosedFloatingPointRange<Float> = 5.0f..100.0f
+val SIZE_PERCENTAGE_EDITOR: ClosedFloatingPointRange<Float> = 1.0f..100.0f
 
 /**
  * 按钮的大小
- * @param widthDp 绝对值宽度 0~设备总Dp
- * @param heightDp 绝对值高度 0~设备总Dp
- * @param widthPercentage 百分比宽度 0~10000
- * @param heightPercentage 百分比高度 0~10000
+ * @param widthDp 绝对值宽度 5~设备总Dp
+ * @param heightDp 绝对值高度 5~设备总Dp
+ * @param widthPercentage 百分比宽度 100~10000
+ * @param heightPercentage 百分比高度 100~10000
  */
 @Serializable
 data class ButtonSize(

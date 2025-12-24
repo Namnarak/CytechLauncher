@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.upgrade
 
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,10 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -65,7 +63,10 @@ fun UpgradeFilesDialog(
             else -> RemoteData.RemoteFile.Arch.ALL
         }
     }
-    var currentFile by remember { mutableStateOf(data.files.find { it.arch == currentArch }) }
+
+    val current = remember(data) {
+        data.files.find { it.arch == currentArch }
+    }
 
     SimpleListDialog(
         title = stringResource(R.string.upgrade_files),
@@ -79,9 +80,7 @@ fun UpgradeFilesDialog(
         onDismissRequest = {
             onDismissRequest()
         },
-        isCurrent = { file ->
-            currentFile == file
-        },
+        current = current,
         itemLayout = { item, isCurrent, _, onClick ->
             UpgradeFileLayout(
                 modifier = Modifier.fillMaxWidth(),
@@ -92,8 +91,8 @@ fun UpgradeFilesDialog(
             )
         },
         showConfirm = true,
-        onUpdateItem = { file ->
-            currentFile = file
+        confirmText = {
+            MarqueeText(text = stringResource(R.string.generic_download))
         }
     )
 }
@@ -138,19 +137,25 @@ private fun UpgradeFileLayout(
                         contentDescription = null
                     )
                 }
-                //架构信息
-                Text(
-                    text = file.arch.getDisplayString(),
-                    style = MaterialTheme.typography.labelSmall
-                )
-                //大小
-                val sizeString = remember(file) {
-                    formatFileSize(file.size)
+                Row(
+                    modifier = Modifier.basicMarquee(Int.MAX_VALUE),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    //架构信息
+                    Text(
+                        text = file.arch.getDisplayString(),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    //大小
+                    val sizeString = remember(file) {
+                        formatFileSize(file.size)
+                    }
+                    Text(
+                        text = stringResource(R.string.upgrade_version_size, sizeString),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
-                Text(
-                    text = stringResource(R.string.upgrade_version_size, sizeString),
-                    style = MaterialTheme.typography.labelSmall
-                )
             }
         }
     }

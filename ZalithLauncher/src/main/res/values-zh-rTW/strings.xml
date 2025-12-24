@@ -846,6 +846,7 @@
     <string name="upgrade_version_create_at">更新時間：%s</string>
     <string name="upgrade_get_remote_failed">取得更新失敗，請稍後再試</string>
     <string name="upgrade_is_latest">目前已是最新版本</string>
+    <string name="upgrade_cloud_drive">網路硬碟</string>
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-tw</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-tw</string>

@@ -29,17 +29,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.upgrade.RemoteData
 import com.movtery.zalithlauncher.utils.formatDate
@@ -59,61 +61,103 @@ fun UpgradeDialog(
     val body = remember(language, data) {
         data.bodies.find { it.language == language } ?: data.defaultBody
     }
+    val cloudDrive = remember(language, data) {
+        data.cloudDrives.find { it.language == language } ?: data.defaultCloudDrive
+    }
 
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(text = stringResource(R.string.upgrade_new))
-        },
-        text = {
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Surface(
+            modifier = Modifier.padding(all = 3.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 3.dp
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                //版本号
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.upgrade_version_change, data.version)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 16.dp),
+                    text = stringResource(R.string.upgrade_new)
                 )
 
-                //更新时间
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(
-                        R.string.upgrade_version_create_at,
-                        formatDate(
-                            input = data.createdAt,
-                            pattern = stringResource(R.string.date_format)
+                //更新详情
+                Column(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    //版本号
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.upgrade_version_change, data.version)
+                    )
+
+                    //更新时间
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(
+                            R.string.upgrade_version_create_at,
+                            formatDate(
+                                input = data.createdAt,
+                                pattern = stringResource(R.string.date_format)
+                            )
                         )
                     )
-                )
 
-                //更新日志
-                Spacer(Modifier.height(8.dp))
-                BodyUI(
-                    modifier = Modifier.fillMaxWidth(),
-                    body = body,
-                    onLinkClick = onLinkClick
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = onFilesClick
-            ) {
-                Text(text = stringResource(R.string.upgrade_more))
-            }
-        },
-        dismissButton = {
-            FilledTonalButton(
-                onClick = onIgnored
-            ) {
-                Text(text = stringResource(R.string.generic_ignore))
+                    //更新日志
+                    Spacer(Modifier.height(8.dp))
+                    BodyUI(
+                        modifier = Modifier.fillMaxWidth(),
+                        body = body,
+                        onLinkClick = onLinkClick
+                    )
+                }
+
+                //按钮
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (cloudDrive == null) {
+                        Spacer(Modifier.weight(1f))
+                    } else {
+                        FilledTonalButton(
+                            onClick = {
+                                onLinkClick(cloudDrive.link)
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.upgrade_cloud_drive))
+                        }
+                        Spacer(Modifier.weight(1f))
+                    }
+
+                    FilledTonalButton(
+                        onClick = onIgnored
+                    ) {
+                        Text(text = stringResource(R.string.generic_ignore))
+                    }
+
+                    Button(
+                        onClick = onFilesClick
+                    ) {
+                        Text(text = stringResource(R.string.upgrade_more))
+                    }
+                }
             }
         }
-    )
+    }
 }
 
 @Composable

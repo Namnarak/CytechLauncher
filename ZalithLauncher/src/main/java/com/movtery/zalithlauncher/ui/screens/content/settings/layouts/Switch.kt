@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -32,8 +33,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -94,7 +97,11 @@ fun SwitchSettingsCard(
                 enabled = enabled,
                 onCheckedChange = { value -> onCheckedChange(value) },
                 thumbContent = {
+                    val rotation by animateFloatAsState(
+                        if (checked) 0.0f else -(180.0f)
+                    )
                     Crossfade(
+                        modifier = Modifier.rotate(rotation),
                         targetState = checked
                     ) {
                         Icon(

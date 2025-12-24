@@ -30,6 +30,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.io.IOUtils
 import java.io.File
@@ -538,4 +539,50 @@ fun locateRealRoot(directory: File): File {
     }
 
     return currentDir
+}
+
+/**
+ * @return 检查文件是否为 zip jar 压缩包，以是否能够读取为判断标准
+ */
+fun checkZip(file: File): Boolean {
+    return runCatching {
+        val zipFile = CompressZipFile.Builder()
+            .setFile(file)
+            .get()
+        zipFile.use { zip ->
+            val buffer = ByteArray(8 * 1024)
+            val entries = zip.entries
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                zip.getInputStream(entry).use { input ->
+                    while (input.read(buffer) != -1) {
+                        // 触发 CRC 校验
+                    }
+                }
+            }
+        }
+        true
+    }.getOrDefault(false)
+}
+
+/**
+ * @return 检查文件是否为 7z 压缩包，以是否能够读取为判断标准
+ */
+fun check7z(file: File): Boolean {
+    return runCatching {
+        val sevenZ = SevenZFile.Builder()
+            .setFile(file)
+            .get()
+        sevenZ.use { sevenZ ->
+            val buffer = ByteArray(8 * 1024)
+            var entry = sevenZ.nextEntry
+            while (entry != null) {
+                while (sevenZ.read(buffer) > 0) {
+                    // 仅流式读取
+                }
+                entry = sevenZ.nextEntry
+            }
+        }
+        true
+    }.getOrDefault(false)
 }

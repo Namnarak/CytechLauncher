@@ -72,11 +72,15 @@ private fun ReplacementControlDialog(
     if (controls.isNotEmpty()) {
         val locale = LocalConfiguration.current.locales[0]
 
+        val current = remember(controls) {
+            controls.find { currentLayout?.name == it.file.name }
+        }
+
         SimpleListDialog(
             title = stringResource(R.string.game_menu_option_replacement_control),
             items = controls,
             itemTextProvider = { it.controlLayout.info.name.translate(locale) },
-            isCurrent = { currentLayout?.name == it.file.name },
+            current = current,
             onItemSelected = onLayoutSelected,
             onDismissRequest = onDismissRequest
         )
