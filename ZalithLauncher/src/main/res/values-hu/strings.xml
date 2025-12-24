@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">Mégse</string>
+    <string name="generic_confirm">Megerősít</string>
+    <string name="generic_error">Hiba</string>
+    <string name="generic_warning">Figyelmeztetés</string>
+    <string name="generic_back">Vissza</string>
+    <string name="generic_refresh">Frissít</string>
+    <string name="generic_reset">Visszaállítás</string>
+    <string name="generic_delete">Törlés</string>
+    <string name="generic_rename">Újranevezés</string>
+    <string name="generic_copy">Másol</string>
+    <string name="generic_paste">Bemásol</string>
+    <string name="generic_more">Több</string>
+    <string name="generic_setting">Beállítások</string>
+    <string name="generic_collapse">Összezár</string>
+    <string name="generic_main_menu">Főmenü</string>
+    <string name="generic_download">Letöltés</string>
 </resources>
