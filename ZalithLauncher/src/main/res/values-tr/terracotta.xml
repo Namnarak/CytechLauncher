@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="terracotta">Çok Oyunculu</string>
+    <string name="terracotta_metadata_ver">Terracotta Versiyonu: %s</string>
+    <string name="terracotta_metadata_easytier_ver">EasyTier Sürümü: %s</string>
+    <string name="terracotta_easytier">EasyTier Hakkında</string>
+    <string name="terracotta_terracotta">Terracotta | Çok Oyunculu</string>
+    <string name="terracotta_back">Çıkış</string>
+    <string name="terracotta_enable">Çok oyunculu modu etkinleştirin</string>
+    <string name="terracotta_feedback_title">Geri Bildirim Formunu Doldurun</string>
+    <string name="terracotta_difficulty_easiest">Mükemmel ağ bağlantısı: neredeyse bağlantı kuruldu!</string>
+    <string name="terracotta_difficulty_simple">İyi ağ bağlantısı: bağlantı biraz zaman alabilir</string>
+    <string name="terracotta_difficulty_medium">Ortalama ağ: Yedek yönlendirme yolları etkinleştiriliyor, ancak bağlantı başarısız olabilir</string>
+    <string name="terracotta_difficulty_tough">Zayıf ağ: Yedek yollar etkinleştiriliyor, ancak bağlantı başarısız olabilir</string>
+    <string name="terracotta_difficulty_estimate_only">Başarı oranı, sunucu ve istemci NAT türlerine dayalı bir tahmindir ve yalnızca referans amaçlıdır!</string>
+    <string name="terracotta_log">Günlükleri Görüntüle</string>
+    <string name="terracotta_log_exit">Günlüğü kapatın ve özellik sayfasına geri dönün.</string>
+    <string name="terracotta_export_log">Hata analizine daha fazla bilgi sağlamak için, başlatıcının çok oyunculu sayfasında günlükleri paylaşabilirsiniz.</string>
 </resources>
