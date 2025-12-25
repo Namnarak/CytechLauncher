@@ -220,7 +220,7 @@
     <string name="download_assets_category_utility">Fungsi</string>
     <string name="download_assets_category_game_mechanics">Mekanisme game</string>
     <string name="download_assets_category_optimization">Optimisasi</string>
-    <string name="download_assets_category_multiplayer">Multi pemain</string>
+    <string name="download_assets_category_multiplayer">Multiplayer</string>
     <string name="download_assets_category_challenging">Hardcore</string>
     <string name="download_assets_category_combat">Pertarungan</string>
     <string name="download_assets_category_quests">Misi</string>
@@ -966,7 +966,7 @@
     <string name="import_modpack">Masukkan Modpack</string>
     <string name="import_modpack_tip">kami dapat mengimpor berkas modpack lokal. Peluncur saat ini mendukung format berikut:</string>
     <string name="import_modpack_task_unpack">Impor dan buka paket file</string>
-    <string name="import_modpack_task_parse">Baca modpack</string>
+    <string name="import_modpack_task_parse">Memproses modpack</string>
     <string name="import_modpack_task_extract_files">Ekstrak file modpack</string>
     <string name="import_modpack_task_extract_files_and_schedule_download">Ekstrak dan siapkan unduhan</string>
     <string name="import_modpack_not_supported_title">Modpack tidak didukung</string>
@@ -1018,4 +1018,27 @@
     <string name="control_editor_special_joystick_style_joystick_can_lock_color">Warna Joystick (Bisa dikunci)</string>
     <string name="control_editor_special_joystick_style_joystick_locked_color">Warna Joystick (Terkunci)</string>
     <string name="control_editor_special_joystick_style_joystick_size">Ukuran Joystick</string>
+    <string name="control_editor_special_joystick_style_create_title">Buat Gaya Joystick</string>
+    <string name="control_editor_special_joystick_style_create_summary">Buat konfigurasi gaya joystick berdasarkan layout kontrol. Jika layout kontrol saat ini tidak menyediakan gaya joystick, maka gaya joystick dari launcher akan digunakan.</string>
+    <string name="game_styles_joystick_can_lock">Kunci Gerak Maju</string>
+    <string name="control_editor_special_joystick_style_lock_mark_color">Warna Indikator Kunci Gerak Maju</string>
+    <string name="account_change_cape_cache_all">Mencache Semua Cape</string>
+    <string name="versions_manage_pin">Sematkan</string>
+    <string name="control_editor_special_joystick_style">Gaya Joystick</string>
+    <string name="control_editor_special_joystick_style_delete_title">Hapus Gaya Joystick</string>
+    <string name="control_editor_special_joystick_style_delete_summary">Hapus konfigurasi gaya joystick untuk layout kontrol saat ini dan gunakan gaya joystick dari launcher.</string>
+    <string name="control_editor_special_joystick_style_background_rounded_corner">Radius Sudut Latar Belakang</string>
+    <string name="control_editor_special_joystick_style_joystick_rounded_corner">Sudut Membulat Joystick</string>
+    <string name="game_styles_joystick_edit_use_control_layout">Gunakan gaya yang disediakan oleh layout kontrol</string>
+    <string name="game_styles_joystick_lock_sprint">Paksa Lari Saat Dikunci</string>
+    <string name="upgrade_title">Cek Pembaruan</string>
+    <string name="upgrade_new">Versi Baru Ditemukan</string>
+    <string name="upgrade_more">Lihat</string>
+    <string name="upgrade_files">APK Tersedia</string>
+    <string name="upgrade_files_arch">Arsitektur: %s</string>
+    <string name="upgrade_version_change">Versi: %s</string>
+    <string name="upgrade_version_size">Ukuran: %s</string>
+    <string name="upgrade_version_create_at">Terakhir Diperbarui: %s</string>
+    <string name="upgrade_get_remote_failed">Gagal mengecek pembaruan. Silakan coba lagi nanti.</string>
+    <string name="upgrade_is_latest">Kamu sudah menggunakan versi terbaru.</string>
 </resources>

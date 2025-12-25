@@ -1,3 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">Cancelar</string>
+    <string name="generic_confirm">Confirmar</string>
+    <string name="generic_error">Erro</string>
+    <string name="generic_tip">Dica</string>
+    <string name="generic_warning">Aviso</string>
+    <string name="generic_back">Voltar</string>
+    <string name="generic_refresh">Recarregar</string>
+    <string name="generic_reset">Resetar</string>
+    <string name="generic_delete">Apagar</string>
+    <string name="generic_rename">Renomear</string>
+    <string name="generic_copy">Copiar</string>
+    <string name="generic_paste">Colar</string>
+    <string name="generic_more">Mais</string>
+    <string name="generic_setting">Configurações</string>
 </resources>
