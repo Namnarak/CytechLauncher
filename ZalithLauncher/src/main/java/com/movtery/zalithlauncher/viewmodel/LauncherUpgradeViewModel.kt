@@ -33,6 +33,7 @@ import com.movtery.zalithlauncher.ui.upgrade.UpgradeDialog
 import com.movtery.zalithlauncher.ui.upgrade.UpgradeFilesDialog
 import com.movtery.zalithlauncher.upgrade.GithubContentApi
 import com.movtery.zalithlauncher.upgrade.RemoteData
+import com.movtery.zalithlauncher.upgrade.TooFrequentOperationException
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
@@ -65,11 +66,6 @@ private const val LATEST_API_URL = "$URL_PROJECT_INFO/latest_version.json"
 class LauncherUpgradeViewModel: ViewModel() {
     var operation by mutableStateOf<LauncherUpgradeOperation>(LauncherUpgradeOperation.None)
 
-    var initialized = false
-        private set
-
-    private var latestData: RemoteData? = null
-
     private val checkMutex = Mutex()
 
     private fun lastCheck(
@@ -86,13 +82,14 @@ class LauncherUpgradeViewModel: ViewModel() {
     /**
      * 在启动时，快速完成所有的检查，含更新检测限频
      */
-    fun fastDoAll() {
+    fun firstCheck() {
         viewModelScope.launch {
             if (!lastCheck(TimeUnit.HOURS.toMillis(1L))) return@launch
 
-            val needCheck = initialize()
-            if (needCheck) {
+            val data = syncRemote()
+            if (data != null) {
                 checkUpgrade(
+                    data = data,
                     currentVersionCode = BuildConfig.VERSION_CODE,
                     lastIgnored = AllSettings.lastIgnoredVersion.getValue(),
                     onUpgrade = { data ->
@@ -104,40 +101,14 @@ class LauncherUpgradeViewModel: ViewModel() {
     }
 
     /**
-     * 初始化，并检查一次更新
-     * @return `true` 表示已获取最新启动器信息
-     *         `false` 表示已经初始化或者无法获取到最新的启动器信息
-     */
-    suspend fun initialize(): Boolean {
-        return checkMutex.withLock {
-            if (initialized) return@withLock false
-            if (latestData != null) {
-                initialized = true
-                return@withLock false
-            }
-
-            latestData = syncRemote()
-
-            initialized = true
-            latestData != null
-        }
-    }
-
-    /**
      * 从远端获取最新的启动器信息
-     * @return `null` 表示太频繁了
-     *         `true` 表示已获取最新启动器信息
-     *         `false` 表示无法获取到最新的启动器信息
      */
-    suspend fun checkRemote(): Boolean? {
+    suspend fun checkRemote(): RemoteData? {
         return checkMutex.withLock {
-            if (!lastCheck(TimeUnit.SECONDS.toMillis(5L))) return@withLock null
-
-            val data = syncRemote()
-            if (data != null) {
-                latestData = data
+            if (!lastCheck(TimeUnit.SECONDS.toMillis(5L))) {
+                throw TooFrequentOperationException()
             }
-            data != null
+            syncRemote()
         }
     }
 
@@ -166,15 +137,13 @@ class LauncherUpgradeViewModel: ViewModel() {
      * @param onIsLatest 当前已是最新版本时
      */
     suspend fun checkUpgrade(
+        data: RemoteData,
         currentVersionCode: Int,
         lastIgnored: Int? = null,
         onUpgrade: (RemoteData) -> Unit,
         onIsLatest: () -> Unit = {}
     ) {
         checkMutex.withLock {
-            val data = latestData
-            if (!initialized || data == null) return@withLock
-
             if (currentVersionCode < data.code) {
                 //启动器为旧版本
                 when {
