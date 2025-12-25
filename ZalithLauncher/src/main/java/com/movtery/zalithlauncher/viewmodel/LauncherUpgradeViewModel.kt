@@ -72,11 +72,24 @@ class LauncherUpgradeViewModel: ViewModel() {
 
     private val checkMutex = Mutex()
 
+    private fun lastCheck(
+        time: Long
+    ): Boolean {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - AllSettings.lastUpgradeCheck.getValue() < time) {
+            return false
+        }
+        AllSettings.lastUpgradeCheck.save(currentTime)
+        return true
+    }
+
     /**
-     * 快速完成所有的检查
+     * 在启动时，快速完成所有的检查，含更新检测限频
      */
     fun fastDoAll() {
         viewModelScope.launch {
+            if (!lastCheck(TimeUnit.HOURS.toMillis(1L))) return@launch
+
             val needCheck = initialize()
             if (needCheck) {
                 checkUpgrade(
@@ -110,9 +123,6 @@ class LauncherUpgradeViewModel: ViewModel() {
         }
     }
 
-    /** 上次检测时间 */
-    private var lastCheckTime: Long = 0L
-
     /**
      * 从远端获取最新的启动器信息
      * @return `null` 表示太频繁了
@@ -121,11 +131,7 @@ class LauncherUpgradeViewModel: ViewModel() {
      */
     suspend fun checkRemote(): Boolean? {
         return checkMutex.withLock {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastCheckTime < TimeUnit.SECONDS.toMillis(5L)) {
-                return@withLock null
-            }
-            lastCheckTime = currentTime
+            if (!lastCheck(TimeUnit.SECONDS.toMillis(5L))) return@withLock null
 
             val data = syncRemote()
             if (data != null) {
