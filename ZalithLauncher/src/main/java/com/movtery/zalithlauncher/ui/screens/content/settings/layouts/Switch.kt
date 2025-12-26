@@ -18,29 +18,20 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.settings.layouts
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
+import com.movtery.zalithlauncher.ui.components.DefaultSwitch
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 
 @Composable
@@ -92,25 +83,10 @@ fun SwitchSettingsCard(
                 trailingIcon?.invoke(this)
             }
 
-            Switch(
+            DefaultSwitch(
                 checked = checked,
                 enabled = enabled,
-                onCheckedChange = { value -> onCheckedChange(value) },
-                thumbContent = {
-                    val rotation by animateFloatAsState(
-                        if (checked) 0.0f else -(180.0f)
-                    )
-                    Crossfade(
-                        modifier = Modifier.rotate(rotation),
-                        targetState = checked
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(16.dp),
-                            imageVector = if (it) Icons.Default.Check else Icons.Default.Close,
-                            contentDescription = null
-                        )
-                    }
-                }
+                onCheckedChange = { value -> onCheckedChange(value) }
             )
         }
     }
@@ -119,10 +95,10 @@ fun SwitchSettingsCard(
 @Composable
 fun SwitchSettingsCard(
     unit: BooleanSettingUnit,
+    modifier: Modifier = Modifier,
     onCheckedChange: (Boolean) -> Unit = {},
     title: String,
     position: CardPosition,
-    modifier: Modifier = Modifier,
     outerShape: Dp = 28.dp,
     innerShape: Dp = 4.dp,
     summary: String? = null,

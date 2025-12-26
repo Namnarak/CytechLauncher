@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -40,8 +39,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowRight
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +48,6 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SingleChoiceSegmentedButtonRowScope
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
+import com.movtery.zalithlauncher.ui.components.DefaultSwitch
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleTextSlider
@@ -306,25 +303,10 @@ fun InfoLayoutSwitchItem(
             text = title,
             style = MaterialTheme.typography.bodyMedium
         )
-        Switch(
+        DefaultSwitch(
             checked = value,
             onCheckedChange = onValueChange,
-            enabled = enabled,
-            thumbContent = {
-                val rotation by animateFloatAsState(
-                    if (value) 0.0f else -(180.0f)
-                )
-                Crossfade(
-                    modifier = Modifier.rotate(rotation),
-                    targetState = value
-                ) {
-                    Icon(
-                        modifier = Modifier.size(16.dp),
-                        imageVector = if (it) Icons.Default.Check else Icons.Default.Close,
-                        contentDescription = null
-                    )
-                }
-            }
+            enabled = enabled
         )
     }
 }
