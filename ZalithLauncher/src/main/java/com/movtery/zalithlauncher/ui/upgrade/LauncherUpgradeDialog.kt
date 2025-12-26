@@ -101,7 +101,8 @@ fun UpgradeDialog(
                     //版本号
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.upgrade_version_change, data.version)
+                        text = stringResource(R.string.upgrade_version_change, data.version),
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
                     //更新时间
@@ -113,7 +114,8 @@ fun UpgradeDialog(
                                 input = data.createdAt,
                                 pattern = stringResource(R.string.date_format)
                             )
-                        )
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
                     //更新日志
@@ -148,7 +150,10 @@ fun UpgradeDialog(
                     }
 
                     FilledTonalButton(
-                        onClick = onIgnored
+                        onClick = {
+                            onIgnored()
+                            onDismissRequest()
+                        }
                     ) {
                         Text(text = stringResource(R.string.generic_ignore))
                     }
