@@ -433,6 +433,7 @@ private fun CustomBackground(
         }
 
         AnimatedVisibility(
+            modifier = Modifier.padding(horizontal = 16.dp),
             visible = backgroundViewModel.isValid
         ) {
             IconTextButton(

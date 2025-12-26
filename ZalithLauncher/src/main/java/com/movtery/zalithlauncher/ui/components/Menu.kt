@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -49,8 +48,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,7 +56,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -412,25 +408,10 @@ fun MenuSwitchButton(
                 text = text,
                 style = MaterialTheme.typography.titleSmall
             )
-            Switch(
+            DefaultSwitch(
                 checked = switch,
                 onCheckedChange = onSwitch,
-                enabled = enabled,
-                thumbContent = {
-                    val rotation by animateFloatAsState(
-                        if (switch) 0.0f else -(180.0f)
-                    )
-                    Crossfade(
-                        modifier = Modifier.rotate(rotation),
-                        targetState = switch
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(16.dp),
-                            imageVector = if (it) Icons.Default.Check else Icons.Default.Close,
-                            contentDescription = null
-                        )
-                    }
-                }
+                enabled = enabled
             )
         }
     }

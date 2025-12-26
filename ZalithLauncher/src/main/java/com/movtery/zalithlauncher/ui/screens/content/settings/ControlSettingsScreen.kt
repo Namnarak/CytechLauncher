@@ -717,7 +717,7 @@ private fun MousePointerCard(
             Row(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 4.dp),
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 MousePointer(

@@ -504,4 +504,9 @@ object AllSettings : SettingsRegistry() {
      * 游戏中摇杆移动组件在前进锁定时，是否强制疾跑
      */
     val joystickControlLockSpring = boolSetting("joystickControlLockSpring", true)
+
+    /**
+     * 上次检查更新的时间戳
+     */
+    val lastUpgradeCheck = longSetting("lastUpgradeCheck", 0L)
 }

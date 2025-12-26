@@ -44,6 +44,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.Background
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.upgrade.TooFrequentOperationException
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.openLink
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
@@ -58,6 +59,7 @@ import com.movtery.zalithlauncher.viewmodel.ModpackVersionNameOperation
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : BaseComponentActivity() {
     /**
@@ -112,7 +114,7 @@ class MainActivity : BaseComponentActivity() {
         //检查更新
         if (!isImporting && launcherUpgradeViewModel.operation == LauncherUpgradeOperation.None) {
             lifecycleScope.launch {
-                launcherUpgradeViewModel.fastDoAll()
+                launcherUpgradeViewModel.firstCheck()
             }
         }
 
@@ -153,25 +155,30 @@ class MainActivity : BaseComponentActivity() {
                     }
                     is EventViewModel.Event.CheckUpdate -> {
                         lifecycleScope.launch(Dispatchers.IO) {
-                            val hasRemote = launcherUpgradeViewModel.checkRemote() ?: return@launch //太频繁了
-                            if (hasRemote) {
-                                launcherUpgradeViewModel.checkUpgrade(
-                                    currentVersionCode = BuildConfig.VERSION_CODE,
-                                    lastIgnored = null,
-                                    onUpgrade = { data ->
-                                        launcherUpgradeViewModel.operation = LauncherUpgradeOperation.Upgrade(data)
-                                    },
-                                    onIsLatest = {
-                                        lifecycleScope.launch(Dispatchers.Main) {
-                                            Toast.makeText(this@MainActivity, getString(R.string.upgrade_is_latest), Toast.LENGTH_SHORT).show()
+                            try {
+                                launcherUpgradeViewModel.checkRemote()?.let { data ->
+                                    launcherUpgradeViewModel.checkUpgrade(
+                                        data = data,
+                                        currentVersionCode = BuildConfig.VERSION_CODE,
+                                        lastIgnored = null,
+                                        onUpgrade = { data ->
+                                            launcherUpgradeViewModel.operation = LauncherUpgradeOperation.Upgrade(data)
+                                        },
+                                        onIsLatest = {
+                                            lifecycleScope.launch(Dispatchers.Main) {
+                                                Toast.makeText(this@MainActivity, getString(R.string.upgrade_is_latest), Toast.LENGTH_SHORT).show()
+                                            }
                                         }
-                                    }
-                                )
-                            } else {
-                                //检查失败
-                                lifecycleScope.launch(Dispatchers.Main) {
+                                    )
+                                }
+                            } catch (_: TooFrequentOperationException) {
+                                //太频繁了
+                                return@launch
+                            } catch (_: Exception) {
+                                withContext(Dispatchers.Main) {
                                     Toast.makeText(this@MainActivity, getString(R.string.upgrade_get_remote_failed), Toast.LENGTH_SHORT).show()
                                 }
+                                return@launch
                             }
                         }
                     }

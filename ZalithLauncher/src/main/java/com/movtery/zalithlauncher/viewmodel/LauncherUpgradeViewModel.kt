@@ -26,21 +26,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
+import com.movtery.zalithlauncher.path.GLOBAL_JSON
 import com.movtery.zalithlauncher.path.URL_PROJECT_INFO
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.upgrade.UpgradeDialog
 import com.movtery.zalithlauncher.ui.upgrade.UpgradeFilesDialog
+import com.movtery.zalithlauncher.upgrade.GithubContentApi
 import com.movtery.zalithlauncher.upgrade.RemoteData
+import com.movtery.zalithlauncher.upgrade.TooFrequentOperationException
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.withRetry
+import com.movtery.zalithlauncher.utils.string.decodeBase64
 import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 sealed interface LauncherUpgradeOperation {
@@ -55,6 +60,7 @@ sealed interface LauncherUpgradeOperation {
  * 最新版本的信息获取源
  */
 private const val LATEST_API_URL = "$URL_PROJECT_INFO/latest_version.json"
+private const val LATEST_API_CHINESE_URL = "https://fcl.lemwood.icu/zalith-info/v2/latest_version.json"
 
 /**
  * 用于记录启动器更新 ViewModel
@@ -62,21 +68,30 @@ private const val LATEST_API_URL = "$URL_PROJECT_INFO/latest_version.json"
 class LauncherUpgradeViewModel: ViewModel() {
     var operation by mutableStateOf<LauncherUpgradeOperation>(LauncherUpgradeOperation.None)
 
-    var initialized = false
-        private set
-
-    private var latestData: RemoteData? = null
-
     private val checkMutex = Mutex()
 
+    private fun lastCheck(
+        time: Long
+    ): Boolean {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - AllSettings.lastUpgradeCheck.getValue() < time) {
+            return false
+        }
+        AllSettings.lastUpgradeCheck.save(currentTime)
+        return true
+    }
+
     /**
-     * 快速完成所有的检查
+     * 在启动时，快速完成所有的检查，含更新检测限频
      */
-    fun fastDoAll() {
+    fun firstCheck() {
         viewModelScope.launch {
-            val needCheck = initialize()
-            if (needCheck) {
+            if (!lastCheck(TimeUnit.HOURS.toMillis(1L))) return@launch
+
+            val data = syncRemote()
+            if (data != null) {
                 checkUpgrade(
+                    data = data,
                     currentVersionCode = BuildConfig.VERSION_CODE,
                     lastIgnored = AllSettings.lastIgnoredVersion.getValue(),
                     onUpgrade = { data ->
@@ -88,47 +103,14 @@ class LauncherUpgradeViewModel: ViewModel() {
     }
 
     /**
-     * 初始化，并检查一次更新
-     * @return `true` 表示已获取最新启动器信息
-     *         `false` 表示已经初始化或者无法获取到最新的启动器信息
-     */
-    suspend fun initialize(): Boolean {
-        return checkMutex.withLock {
-            if (initialized) return@withLock false
-            if (latestData != null) {
-                initialized = true
-                return@withLock false
-            }
-
-            latestData = syncRemote()
-
-            initialized = true
-            latestData != null
-        }
-    }
-
-    /** 上次检测时间 */
-    private var lastCheckTime: Long = 0L
-
-    /**
      * 从远端获取最新的启动器信息
-     * @return `null` 表示太频繁了
-     *         `true` 表示已获取最新启动器信息
-     *         `false` 表示无法获取到最新的启动器信息
      */
-    suspend fun checkRemote(): Boolean? {
+    suspend fun checkRemote(): RemoteData? {
         return checkMutex.withLock {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastCheckTime < TimeUnit.SECONDS.toMillis(5L)) {
-                return@withLock null
+            if (!lastCheck(TimeUnit.SECONDS.toMillis(5L))) {
+                throw TooFrequentOperationException()
             }
-            lastCheckTime = currentTime
-
-            val data = syncRemote()
-            if (data != null) {
-                latestData = data
-            }
-            data != null
+            syncRemote()
         }
     }
 
@@ -137,12 +119,23 @@ class LauncherUpgradeViewModel: ViewModel() {
             runCatching {
                 withRetry(logTag = "LauncherUpgrade", maxRetries = 2) {
                     //获取最新的启动器信息
-                    GLOBAL_CLIENT.get(LATEST_API_URL).safeBodyAsJson<RemoteData>()
+                    val api = GLOBAL_CLIENT.get(LATEST_API_URL).safeBodyAsJson<GithubContentApi>()
+                    //需要Base64解密
+                    val contentString = decodeBase64(api.content)
+                    GLOBAL_JSON.decodeFromString(RemoteData.serializer(), contentString)
                 }
-            }.onFailure { e ->
-                lWarning("Failed to check for launcher upgrade!", e)
-                //如果检查失败了，就不管了，下次启动时继续检查
-            }.getOrNull()
+            }.getOrElse { e ->
+                if (Locale.getDefault().language == "zh") {
+                    lInfo("Check for updates in the Chinese region.")
+                    //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
+                    withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
+                        GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                    }
+                } else {
+                    lWarning("Failed to check for launcher upgrade!", e)
+                    null
+                }
+            }
         }
     }
 
@@ -154,15 +147,13 @@ class LauncherUpgradeViewModel: ViewModel() {
      * @param onIsLatest 当前已是最新版本时
      */
     suspend fun checkUpgrade(
+        data: RemoteData,
         currentVersionCode: Int,
         lastIgnored: Int? = null,
         onUpgrade: (RemoteData) -> Unit,
         onIsLatest: () -> Unit = {}
     ) {
         checkMutex.withLock {
-            val data = latestData
-            if (!initialized || data == null) return@withLock
-
             if (currentVersionCode < data.code) {
                 //启动器为旧版本
                 when {

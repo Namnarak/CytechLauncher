@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.movtery.zalithlauncher.components.InstallableItem
@@ -54,16 +53,21 @@ fun SplashScreen(
     unpackItems: List<InstallableItem>,
     screenViewModel: SplashBackStackViewModel
 ) {
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         TopBar(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
-                .zIndex(10f),
+                .height(40.dp),
             color = MaterialTheme.colorScheme.surfaceContainer
         )
 
-        Surface(modifier = Modifier.fillMaxSize().weight(1f)) {
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
             NavigationUI(
                 modifier = Modifier
                     .fillMaxSize()

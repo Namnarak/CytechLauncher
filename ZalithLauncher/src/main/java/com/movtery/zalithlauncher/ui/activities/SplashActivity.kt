@@ -26,6 +26,8 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.movtery.zalithlauncher.SplashException
@@ -62,8 +64,8 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
     private val backStackViewModel: SplashBackStackViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen()
+        super.onCreate(savedInstanceState)
 
         initUnpackItems()
         checkAllTask()
@@ -74,7 +76,9 @@ class SplashActivity : BaseComponentActivity(refreshData = false) {
 
         setContent {
             ZalithLauncherTheme {
-                Box {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     SplashScreen(
                         startAllTask = { startAllTask() },
                         unpackItems = unpackItems,
