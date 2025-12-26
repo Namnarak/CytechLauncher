@@ -175,10 +175,15 @@ class LauncherUpgradeViewModel: ViewModel() {
                 }
             }.getOrElse { e ->
                 if (Locale.getDefault().language == "zh") {
-                    lInfo("Check for updates in the Chinese region.")
-                    //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
-                    withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
-                        GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                    runCatching {
+                        lInfo("Check for updates in the Chinese region.")
+                        //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
+                        withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
+                            GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                        }
+                    }.getOrElse { e ->
+                        lWarning("Failed to check for launcher upgrade!", e)
+                        null
                     }
                 } else {
                     lWarning("Failed to check for launcher upgrade!", e)
