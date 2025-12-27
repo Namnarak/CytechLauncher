@@ -245,6 +245,7 @@ dependencies {
     //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
+    implementation(project(":NG-GL4ES"))
     implementation(project(":Terracotta"))
     //Utils
     implementation(libs.bytehook)
