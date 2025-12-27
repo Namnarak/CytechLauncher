@@ -36,8 +36,3 @@ android {
 
     ndkVersion = "27.0.12077973"
 }
-
-dependencies {
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.core:core-ktx:1.13.1")
-}
