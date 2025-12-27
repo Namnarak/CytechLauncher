@@ -22,7 +22,7 @@ import java.io.File
 
 private fun String.replaceSeparator(): String = this.replace("/", File.separator)
 
-fun getGameHome(): String = GamePathManager.currentPath
+fun getGameHome(): String = GamePathManager.currentPath.value
 
 fun getVersionsHome(): String = "${getGameHome()}/versions".replaceSeparator()
 

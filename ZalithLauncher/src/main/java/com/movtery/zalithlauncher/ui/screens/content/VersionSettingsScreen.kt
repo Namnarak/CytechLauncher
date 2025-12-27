@@ -52,7 +52,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
@@ -65,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
@@ -550,7 +550,7 @@ private fun UpdateLoaderOperation(
         }
         is UpdateLoaderOperation.Install -> {
             if (installer != null) {
-                val updateLoader by installer.tasksFlow.collectAsState()
+                val updateLoader by installer.tasksFlow.collectAsStateWithLifecycle()
                 if (updateLoader.isNotEmpty()) {
                     //安装/变更加载器流程对话框
                     TitleTaskFlowDialog(

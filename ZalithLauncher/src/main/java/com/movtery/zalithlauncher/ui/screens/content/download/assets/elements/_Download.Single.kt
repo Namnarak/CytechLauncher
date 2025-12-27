@@ -42,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDependencyType
@@ -131,9 +133,10 @@ private fun DownloadDialog(
     onDependencyClicked: (PlatformVersion.PlatformDependency, PlatformClasses) -> Unit
 ) {
     val versions = remember { VersionsManager.versions.filter { it.isValid() } }
-    val version = VersionsManager.currentVersion
+    val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+    val version0 = version
 
-    if (version == null || versions.isEmpty()) {
+    if (version0 == null || versions.isEmpty()) {
         SimpleAlertDialog(
             title = stringResource(R.string.generic_warning),
             text = stringResource(R.string.download_assets_no_installed_versions),
@@ -142,7 +145,7 @@ private fun DownloadDialog(
         )
     } else {
         //当前选择的版本，将会把资源安装到该版本
-        val selectedVersions = remember { mutableStateListOf(version) }
+        val selectedVersions = remember { mutableStateListOf(version0) }
 
         //拆分依赖项目、可选项目
         val dependencies = remember(dependencyProjects) {

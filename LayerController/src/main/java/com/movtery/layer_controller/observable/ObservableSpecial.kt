@@ -20,7 +20,7 @@ package com.movtery.layer_controller.observable
 
 import com.movtery.layer_controller.layout.ControlLayout
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class ObservableSpecial(
@@ -31,7 +31,7 @@ class ObservableSpecial(
             ObservableJoystickStyle(style)
         }
     )
-    val joystickStyle: StateFlow<ObservableJoystickStyle?> = _joystickStyle
+    val joystickStyle = _joystickStyle.asStateFlow()
 
     /**
      * 设置摇杆独立样式

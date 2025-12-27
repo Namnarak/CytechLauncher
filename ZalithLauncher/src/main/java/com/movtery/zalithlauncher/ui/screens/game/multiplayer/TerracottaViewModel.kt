@@ -42,7 +42,7 @@ import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -92,7 +92,7 @@ class TerracottaViewModel(
     /**
      * 陶瓦联机当前房间的玩家列表
      */
-    val profiles: StateFlow<List<TerracottaProfile>> = _profiles
+    val profiles = _profiles.asStateFlow()
 
     private val allJobs: MutableList<Job> = mutableListOf()
 

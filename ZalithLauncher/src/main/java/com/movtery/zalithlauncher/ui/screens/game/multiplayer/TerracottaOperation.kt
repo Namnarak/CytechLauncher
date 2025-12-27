@@ -25,12 +25,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.terracotta.TerracottaVPNService
@@ -86,7 +86,7 @@ fun TerracottaOperation(
             } ?: anonymousString //未设置，使用“匿名玩家”
 
             //支持任何房间，实时展示所有玩家配置
-            val profiles by viewModel.profiles.collectAsState()
+            val profiles by viewModel.profiles.collectAsStateWithLifecycle()
 
             val context = LocalContext.current
 

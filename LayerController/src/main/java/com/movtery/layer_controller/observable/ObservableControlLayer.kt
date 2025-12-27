@@ -25,7 +25,7 @@ import com.movtery.layer_controller.data.NormalData
 import com.movtery.layer_controller.data.TextData
 import com.movtery.layer_controller.layout.ControlLayer
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
@@ -45,10 +45,10 @@ class ObservableControlLayer(
     var visibilityType by mutableStateOf(layer.visibilityType)
     
     private val _normalButtons = MutableStateFlow(layer.normalButtons.map { ObservableNormalData(it) })
-    val normalButtons: StateFlow<List<ObservableNormalData>> = _normalButtons
+    val normalButtons = _normalButtons.asStateFlow()
     
     private val _textBoxes = MutableStateFlow(layer.textBoxes.map { ObservableTextData(it) })
-    val textBoxes: StateFlow<List<ObservableTextData>> = _textBoxes
+    val textBoxes = _textBoxes.asStateFlow()
 
     /**
      * 添加一个普通的按钮

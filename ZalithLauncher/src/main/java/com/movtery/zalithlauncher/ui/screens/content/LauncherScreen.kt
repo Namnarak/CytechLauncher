@@ -44,7 +44,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -107,7 +107,7 @@ fun LauncherScreen(
                     )
                 },
                 toVersionSettingsScreen = {
-                    VersionsManager.currentVersion?.let { version ->
+                    VersionsManager.currentVersion.value?.let { version ->
                         navigateToVersions(version)
                     }
                 }
@@ -182,8 +182,9 @@ private fun RightMenu(
         modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        val account by AccountsManager.currentAccountFlow.collectAsState()
-        val version = VersionsManager.currentVersion
+        val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
+        val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+        val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
 
         ConstraintLayout(
             modifier = Modifier.fillMaxSize()
@@ -211,13 +212,14 @@ private fun RightMenu(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 VersionManagerLayout(
+                    isRefreshing = isRefreshing,
                     version = version,
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp),
                     swapToVersionManage = toVersionManageScreen
                 )
-                version?.takeIf { !VersionsManager.isRefreshing && it.isValid() }?.let {
+                version?.takeIf { !isRefreshing && it.isValid() }?.let {
                     IconButton(
                         modifier = Modifier.padding(end = 8.dp),
                         onClick = toVersionSettingsScreen
@@ -240,7 +242,7 @@ private fun RightMenu(
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp),
                 onClick = {
                     launchGameViewModel.tryLaunch(
-                        VersionsManager.currentVersion
+                        VersionsManager.currentVersion.value
                     )
                 },
             ) {
@@ -252,6 +254,7 @@ private fun RightMenu(
 
 @Composable
 private fun VersionManagerLayout(
+    isRefreshing: Boolean,
     version: Version?,
     modifier: Modifier = Modifier,
     swapToVersionManage: () -> Unit = {}
@@ -262,7 +265,7 @@ private fun VersionManagerLayout(
             .clickable(onClick = swapToVersionManage)
             .padding(PaddingValues(all = 8.dp))
     ) {
-        if (VersionsManager.isRefreshing) {
+        if (isRefreshing) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 CircularProgressIndicator(modifier = Modifier
                     .size(24.dp)

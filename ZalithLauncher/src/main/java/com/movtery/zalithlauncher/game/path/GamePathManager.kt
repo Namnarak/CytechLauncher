@@ -19,9 +19,6 @@
 package com.movtery.zalithlauncher.game.path
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.movtery.zalithlauncher.database.AppDatabase
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
@@ -32,7 +29,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -53,17 +50,16 @@ object GamePathManager {
     const val DEFAULT_ID = "default"
 
     private val _gamePathData = MutableStateFlow<List<GamePath>>(listOf())
-    val gamePathData: StateFlow<List<GamePath>> = _gamePathData
+    val gamePathData = _gamePathData.asStateFlow()
 
-    /**
-     * 当前选择的路径
-     */
-    var currentPath by mutableStateOf<String>(defaultGamePath)
+    private val _currentPath = MutableStateFlow(defaultGamePath)
+    /** 当前选择的路径 */
+    val currentPath = _currentPath.asStateFlow()
 
     /**
      * 当前用户路径
      */
-    fun getUserHome(): String = File(currentPath).parentFile!!.absolutePath
+    fun getUserHome(): String = File(_currentPath.value).parentFile!!.absolutePath
 
     private lateinit var database: AppDatabase
     private lateinit var gamePathDao: GamePathDao
@@ -91,7 +87,7 @@ object GamePathManager {
                 _gamePathData.update { newValue }
 
                 if (!checkStoragePermissions()) {
-                    currentPath = defaultGamePath
+                    _currentPath.update { defaultGamePath }
                     saveDefaultPath(false)
                 } else {
                     refreshCurrentPath(false)
@@ -187,9 +183,10 @@ object GamePathManager {
     private fun refreshCurrentPath(reloadVersions: Boolean) {
         val id = currentGamePathId.getValue()
         _gamePathData.value.find { it.id == id }?.let { item ->
-            if (currentPath == item.path) return //避免重复刷新
-            currentPath = item.path
-            currentPath.createNoMediaFile()
+            if (_currentPath.value == item.path) return //避免重复刷新
+            val path = item.path
+            _currentPath.update { path }
+            path.createNoMediaFile()
             if (reloadVersions) {
                 VersionsManager.refresh("GamePathManager.refreshCurrentPath")
             }

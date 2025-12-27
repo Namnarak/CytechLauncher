@@ -50,7 +50,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +68,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
@@ -78,6 +78,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformProject
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
@@ -159,6 +160,8 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
         }
     }
 
+    val currentVersion = VersionsManager.currentVersion.value
+
     return grouped.map { (key, versions) ->
         VersionInfoMap(
             gameVersion = key.first,
@@ -166,7 +169,7 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
             versions = versions,
             isAdapt = when (classes) {
                 PlatformClasses.MOD_PACK -> false //整合包将作为单独的版本下载，不再需要与现有版本进行匹配
-                else -> isVersionAdapt(key.first, key.second)
+                else -> isVersionAdapt(currentVersion, key.first, key.second)
             }
         )
     }.sortedByVersionAndLoader()
@@ -192,8 +195,11 @@ private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap
 /**
  * 当前资源版本是否与当前选择的游戏版本匹配
  */
-private fun isVersionAdapt(gameVersion: String, loader: PlatformDisplayLabel?): Boolean {
-    val currentVersion = VersionsManager.currentVersion
+private fun isVersionAdapt(
+    currentVersion: Version?,
+    gameVersion: String,
+    loader: PlatformDisplayLabel?
+): Boolean {
     return if (currentVersion == null) {
         false //没安装版本，无法判断
     } else {
@@ -465,7 +471,7 @@ fun ScreenshotItemLayout(
         error = painterResource(R.drawable.ic_unknown_icon)
     )
 
-    val state by painter.state.collectAsState()
+    val state by painter.state.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier,
