@@ -50,7 +50,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import org.apache.commons.codec.digest.DigestUtils.sha256Hex
+import org.jackhuang.hmcl.util.DigestUtils
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.PublicKey
@@ -169,7 +169,7 @@ class OfflineYggdrasilServer(
         val skinFile = account.getSkinFile()
 
         val skinBytes = skinFile.takeIf { it.exists() }?.readBytes()
-        val skinHash = skinBytes?.let { sha256Hex(it) } //用 SHA-256 计算哈希
+        val skinHash = skinBytes?.let { DigestUtils.digestToString("SHA-256", it) }
 
         val character = Character(
             uuid = account.profileId.replace("-", ""),
