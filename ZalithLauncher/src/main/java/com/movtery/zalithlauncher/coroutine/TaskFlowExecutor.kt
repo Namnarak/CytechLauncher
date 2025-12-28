@@ -31,7 +31,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,7 +56,7 @@ class TaskFlowExecutor(
     private val phases: MutableList<TaskPhase> = mutableListOf()
 
     private val _tasksFlow: MutableStateFlow<List<TitledTask>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<TitledTask>> = _tasksFlow
+    val tasksFlow = _tasksFlow.asStateFlow()
 
     private var job: Job? = null
     /** 当前正在执行的任务的Job */

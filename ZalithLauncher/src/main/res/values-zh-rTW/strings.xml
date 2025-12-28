@@ -347,6 +347,7 @@
     <string name="game_styles_joystick_size">搖桿大小</string>
     <string name="game_styles_joystick_edit">編輯搖桿樣式</string>
     <string name="game_styles_joystick_edit_use_control_layout">使用控制佈局提供的樣式</string>
+    <string name="game_styles_joystick_deadzone">搖桿死區範圍</string>
     <string name="game_styles_joystick_can_lock">前進鎖定</string>
     <string name="game_styles_joystick_lock_sprint">鎖定時強制疾跑</string>
     <string name="game_styles_joystick_hide_when_mouse">使用實體滑鼠時隱藏</string>
@@ -1058,6 +1059,8 @@
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
     <string name="control_editor_special_joystick_style">搖桿樣式</string>
+    <string name="control_editor_special_joystick_style_tip_title">無法建立搖桿？</string>
+    <string name="control_editor_special_joystick_style_tip_summary">由於實作難度較高，控制佈局系統無法直接整合搖桿元件。若要使用搖桿元件，您只能在遊戲內的選單中啟用通用搖桿元件。不過您仍然可以透過控制佈局提供搖桿外觀，以統一風格。</string>
     <string name="control_editor_special_joystick_style_create_title">建立搖桿樣式</string>
     <string name="control_editor_special_joystick_style_create_summary">建立由控制佈局提供的搖桿樣式設定；若目前的控制佈局未提供搖桿樣式，則會使用啟動器的搖桿樣式。</string>
     <string name="control_editor_special_joystick_style_delete_title">刪除搖桿樣式</string>

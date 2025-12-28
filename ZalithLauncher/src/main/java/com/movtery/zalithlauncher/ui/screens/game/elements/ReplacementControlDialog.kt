@@ -19,11 +19,11 @@
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.control.ControlData
 import com.movtery.zalithlauncher.game.control.ControlManager
@@ -66,7 +66,7 @@ private fun ReplacementControlDialog(
     onLayoutSelected: (ControlData) -> Unit,
     onDismissRequest: (selected: Boolean) -> Unit
 ) {
-    val dataList by ControlManager.dataList.collectAsState()
+    val dataList by ControlManager.dataList.collectAsStateWithLifecycle()
     val controls = remember(dataList) { dataList.filter { it.isSupport } }
 
     if (controls.isNotEmpty()) {

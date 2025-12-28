@@ -42,7 +42,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.context.getFileName
@@ -277,7 +277,7 @@ private fun ServerTypeMenu(
                 updateLocalLoginOperation(LocalLoginOperation.Edit)
             }
 
-            val authServers by AccountsManager.authServersFlow.collectAsState()
+            val authServers by AccountsManager.authServersFlow.collectAsStateWithLifecycle()
             authServers.forEach { server ->
                 ServerItem(
                     server = server,
@@ -832,8 +832,8 @@ private fun AccountsLayout(
 
     val context = LocalContext.current
 
-    val accounts by AccountsManager.accountsFlow.collectAsState()
-    val currentAccount by AccountsManager.currentAccountFlow.collectAsState()
+    val accounts by AccountsManager.accountsFlow.collectAsStateWithLifecycle()
+    val currentAccount by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
 
     var accountOperation by remember { mutableStateOf<AccountOperation>(AccountOperation.None) }
     AccountOperation(

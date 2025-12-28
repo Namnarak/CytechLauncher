@@ -25,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
 object TaskSystem {
     private val scope = CoroutineScope(Dispatchers.Default)
     private val _tasksFlow: MutableStateFlow<List<Task>> = MutableStateFlow(emptyList())
-    val tasksFlow: StateFlow<List<Task>> = _tasksFlow
+    val tasksFlow = _tasksFlow.asStateFlow()
 
     private val allJobs = ConcurrentHashMap<String, Job>()
     private val allListeners = ConcurrentHashMap<String, () -> Unit>()

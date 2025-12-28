@@ -384,6 +384,7 @@
     <string name="game_styles_joystick_size">摇杆大小</string>
     <string name="game_styles_joystick_edit">编辑摇杆样式</string>
     <string name="game_styles_joystick_edit_use_control_layout">使用控制布局提供的样式</string>
+    <string name="game_styles_joystick_deadzone">摇杆死区范围</string>
     <string name="game_styles_joystick_can_lock">前进锁定</string>
     <string name="game_styles_joystick_lock_sprint">锁定时强制疾跑</string>
     <string name="game_styles_joystick_hide_when_mouse">在实体鼠标操作时隐藏</string>
@@ -1025,6 +1026,8 @@
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">左下角</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">右下角</string>
     <string name="control_editor_special_joystick_style">摇杆样式</string>
+    <string name="control_editor_special_joystick_style_tip_title">无法创建摇杆？</string>
+    <string name="control_editor_special_joystick_style_tip_summary">由于实现难度较高，控制布局系统无法直接集成摇杆组件。若要使用摇杆组件，您只能在游戏内的菜单中启用通用摇杆组件。不过您仍然可以通过控制布局提供摇杆组件的外观，以统一风格。</string>
     <string name="control_editor_special_joystick_style_create_title">创建摇杆样式</string>
     <string name="control_editor_special_joystick_style_create_summary">创建由控制布局提供的摇杆的样式设定，如果当前控制布局未提供摇杆样式，则会使用启动器的摇杆样式。</string>
     <string name="control_editor_special_joystick_style_delete_title">删除摇杆样式</string>

@@ -57,7 +57,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,6 +79,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
@@ -193,7 +193,7 @@ fun ControlManageScreen(
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberControlViewModel()
-    val dataList by ControlManager.dataList.collectAsState()
+    val dataList by ControlManager.dataList.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val configuration = LocalConfiguration.current
@@ -236,6 +236,9 @@ fun ControlManageScreen(
         Triple(key, mainScreenKey, false),
         Triple(NormalNavKey.Settings.ControlManager, settingsScreenKey, false)
     ) { isVisible ->
+        val selectedLayout by ControlManager.selectedLayout.collectAsStateWithLifecycle()
+        val isRefreshing by ControlManager.isRefreshing.collectAsStateWithLifecycle()
+
         AnimatedRow(
             modifier = Modifier
                 .fillMaxSize()
@@ -249,7 +252,7 @@ fun ControlManageScreen(
                         .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
                     dataList = dataList,
                     locale = locale,
-                    isLoading = ControlManager.isRefreshing,
+                    isLoading = isRefreshing,
                     onRefresh = {
                         ControlManager.refresh()
                     },
@@ -268,8 +271,8 @@ fun ControlManageScreen(
                     modifier = Modifier
                         .weight(0.5f)
                         .offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
-                    isLoading = ControlManager.isRefreshing,
-                    data = ControlManager.selectedLayout,
+                    isLoading = isRefreshing,
+                    data = selectedLayout,
                     locale = locale,
                     onShareLayout = { data ->
                         shareFile(context, data.file)

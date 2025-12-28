@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.movtery.zalithlauncher.BuildConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.notification.NotificationManager
@@ -114,7 +113,7 @@ class MainActivity : BaseComponentActivity() {
         //检查更新
         if (!isImporting && launcherUpgradeViewModel.operation == LauncherUpgradeOperation.None) {
             lifecycleScope.launch {
-                launcherUpgradeViewModel.firstCheck()
+                launcherUpgradeViewModel.checkOnAppStart()
             }
         }
 
@@ -156,21 +155,19 @@ class MainActivity : BaseComponentActivity() {
                     is EventViewModel.Event.CheckUpdate -> {
                         lifecycleScope.launch(Dispatchers.IO) {
                             try {
-                                launcherUpgradeViewModel.checkRemote()?.let { data ->
-                                    launcherUpgradeViewModel.checkUpgrade(
-                                        data = data,
-                                        currentVersionCode = BuildConfig.VERSION_CODE,
-                                        lastIgnored = null,
-                                        onUpgrade = { data ->
-                                            launcherUpgradeViewModel.operation = LauncherUpgradeOperation.Upgrade(data)
-                                        },
-                                        onIsLatest = {
-                                            lifecycleScope.launch(Dispatchers.Main) {
-                                                Toast.makeText(this@MainActivity, getString(R.string.upgrade_is_latest), Toast.LENGTH_SHORT).show()
-                                            }
+                                val success = launcherUpgradeViewModel.checkManually(
+                                    onInProgress = {
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(this@MainActivity, getString(R.string.generic_in_progress), Toast.LENGTH_SHORT).show()
                                         }
-                                    )
-                                }
+                                    },
+                                    onIsLatest = {
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(this@MainActivity, getString(R.string.upgrade_is_latest), Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                                if (!success) throw RuntimeException()
                             } catch (_: TooFrequentOperationException) {
                                 //太频繁了
                                 return@launch

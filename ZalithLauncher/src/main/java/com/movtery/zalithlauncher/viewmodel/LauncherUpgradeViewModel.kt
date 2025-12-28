@@ -70,51 +70,100 @@ class LauncherUpgradeViewModel: ViewModel() {
 
     private val checkMutex = Mutex()
 
-    private fun lastCheck(
-        time: Long
+    /**
+     * 检查是否在限频时间内
+     * @param time 限频时间（毫秒）
+     * @param lastCheckTime 上次检查的时间戳
+     * @return true 如果已经超过限频时间，可以进行检查；false 如果还在限频时间内
+     */
+    private fun isWithinRateLimit(
+        time: Long,
+        lastCheckTime: Long
     ): Boolean {
         val currentTime = System.currentTimeMillis()
-        if (currentTime - AllSettings.lastUpgradeCheck.getValue() < time) {
-            return false
-        }
-        AllSettings.lastUpgradeCheck.save(currentTime)
-        return true
+        return currentTime - lastCheckTime < time
     }
 
     /**
-     * 在启动时，快速完成所有的检查，含更新检测限频
+     * 更新最后一次检查的时间
      */
-    fun firstCheck() {
-        viewModelScope.launch {
-            if (!lastCheck(TimeUnit.HOURS.toMillis(1L))) return@launch
+    private fun updateLastCheckTime() {
+        AllSettings.lastUpgradeCheck.save(System.currentTimeMillis())
+    }
 
-            val data = syncRemote()
+    /**
+     * 在启动时，快速完成所有的检查
+     */
+    fun checkOnAppStart(
+        onIsLatest: suspend () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            if (
+                isWithinRateLimit(
+                    time = TimeUnit.HOURS.toMillis(1L),
+                    lastCheckTime = AllSettings.lastUpgradeCheck.getValue()
+                )
+            ) {
+                lInfo("App start check: Within rate limit, skipping")
+                return@launch
+            }
+
+            val data = fetchRemoteData()
             if (data != null) {
-                checkUpgrade(
+                checkForUpgrade(
                     data = data,
-                    currentVersionCode = BuildConfig.VERSION_CODE,
                     lastIgnored = AllSettings.lastIgnoredVersion.getValue(),
+                    ignoreDismissedVersions = true, //启动时检查忽略用户已忽略的版本
                     onUpgrade = { data ->
                         operation = LauncherUpgradeOperation.Upgrade(data)
-                    }
+                    },
+                    onIsLatest = onIsLatest
                 )
             }
+            updateLastCheckTime()
+        }
+    }
+
+    /**
+     * 用户在设置内手动点击检查更新
+     * @param onInProgress 准备检查更新
+     * @param onIsLatest 当前启动器是最新版
+     */
+    suspend fun checkManually(
+        onInProgress: suspend () -> Unit = {},
+        onIsLatest: suspend () -> Unit = {}
+    ): Boolean {
+        return checkMutex.withLock {
+            if (
+                isWithinRateLimit(
+                    time = TimeUnit.SECONDS.toMillis(5L),
+                    lastCheckTime = AllSettings.lastUpgradeCheck.getValue()
+                )
+            ) throw TooFrequentOperationException()
+
+            onInProgress()
+
+            val data = fetchRemoteData()
+            if (data != null) {
+                checkForUpgrade(
+                    data = data,
+                    lastIgnored = AllSettings.lastIgnoredVersion.getValue(),
+                    ignoreDismissedVersions = false,
+                    onUpgrade = { data ->
+                        operation = LauncherUpgradeOperation.Upgrade(data)
+                    },
+                    onIsLatest = onIsLatest
+                )
+            }
+            updateLastCheckTime()
+            data != null
         }
     }
 
     /**
      * 从远端获取最新的启动器信息
      */
-    suspend fun checkRemote(): RemoteData? {
-        return checkMutex.withLock {
-            if (!lastCheck(TimeUnit.SECONDS.toMillis(5L))) {
-                throw TooFrequentOperationException()
-            }
-            syncRemote()
-        }
-    }
-
-    private suspend fun syncRemote(): RemoteData? {
+    private suspend fun fetchRemoteData(): RemoteData? {
         return withContext(Dispatchers.IO) {
             runCatching {
                 withRetry(logTag = "LauncherUpgrade", maxRetries = 2) {
@@ -126,10 +175,15 @@ class LauncherUpgradeViewModel: ViewModel() {
                 }
             }.getOrElse { e ->
                 if (Locale.getDefault().language == "zh") {
-                    lInfo("Check for updates in the Chinese region.")
-                    //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
-                    withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
-                        GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                    runCatching {
+                        lInfo("Check for updates in the Chinese region.")
+                        //在中国地区，可能因为无法访问 Github API 导致获取更新信息失败
+                        withRetry(logTag = "LauncherUpgrade_Chinese", maxRetries = 2) {
+                            GLOBAL_CLIENT.get(LATEST_API_CHINESE_URL).safeBodyAsJson<RemoteData>()
+                        }
+                    }.getOrElse { e ->
+                        lWarning("Failed to check for launcher upgrade!", e)
+                        null
                     }
                 } else {
                     lWarning("Failed to check for launcher upgrade!", e)
@@ -141,36 +195,35 @@ class LauncherUpgradeViewModel: ViewModel() {
 
     /**
      * 检查启动器是否需要更新
-     * @param currentVersionCode 当前软件的版本号，用于比较
-     * @param lastIgnored 上次弹出更新弹窗时，用户所忽略的版本号，
-     *                    如果为null，则表示不再忽略新的更新弹窗
+     * @param lastIgnored 上次弹出更新弹窗时，用户所忽略的版本号
+     * @param ignoreDismissedVersions 是否忽略用户已忽略的版本
+     * @param onUpgrade 发现需要更新时调用
      * @param onIsLatest 当前已是最新版本时
      */
-    suspend fun checkUpgrade(
+    private suspend fun checkForUpgrade(
         data: RemoteData,
-        currentVersionCode: Int,
-        lastIgnored: Int? = null,
-        onUpgrade: (RemoteData) -> Unit,
-        onIsLatest: () -> Unit = {}
+        lastIgnored: Int?,
+        ignoreDismissedVersions: Boolean,
+        onUpgrade: suspend (RemoteData) -> Unit,
+        onIsLatest: suspend () -> Unit = {}
     ) {
-        checkMutex.withLock {
-            if (currentVersionCode < data.code) {
-                //启动器为旧版本
-                when {
-                    lastIgnored == data.code -> {
-                        //忽略这次更新
-                        lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, but ignored by user")
-                    }
-                    else -> {
-                        //弹出更新弹窗
-                        lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, dialog shown to user")
-                        onUpgrade(data)
-                    }
+        val currentVersionCode = BuildConfig.VERSION_CODE
+        if (currentVersionCode < data.code) {
+            //启动器为旧版本
+            when {
+                ignoreDismissedVersions && lastIgnored == data.code -> {
+                    //忽略这次更新
+                    lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, but ignored by user")
                 }
-            } else {
-                lInfo("Launcher is running the latest version: $currentVersionCode")
-                onIsLatest()
+                else -> {
+                    //弹出更新弹窗
+                    lInfo("Launcher update detected: $currentVersionCode -> ${data.code}, dialog shown to user")
+                    onUpgrade(data)
+                }
             }
+        } else {
+            lInfo("Launcher is running the latest version: $currentVersionCode")
+            onIsLatest()
         }
     }
 }

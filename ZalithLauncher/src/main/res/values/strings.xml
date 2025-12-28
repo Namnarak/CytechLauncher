@@ -385,6 +385,7 @@
     <string name="game_styles_joystick_size">Joystick Size</string>
     <string name="game_styles_joystick_edit">Edit Joystick Style</string>
     <string name="game_styles_joystick_edit_use_control_layout">Use Style Provided by Control Layout</string>
+    <string name="game_styles_joystick_deadzone">Joystick Deadzone Range</string>
     <string name="game_styles_joystick_can_lock">Forward Lock</string>
     <string name="game_styles_joystick_lock_sprint">Force Sprint When Locked</string>
     <string name="game_styles_joystick_hide_when_mouse">Hide When Using Physical Mouse</string>
@@ -1026,6 +1027,8 @@
     <string name="control_editor_edit_style_config_widget_radius_left_bottom">Bottom Left Corner</string>
     <string name="control_editor_edit_style_config_widget_radius_right_bottom">Bottom Right Corner</string>
     <string name="control_editor_special_joystick_style">Joystick Style</string>
+    <string name="control_editor_special_joystick_style_tip_title">Can\'t Create Joystick?</string>
+    <string name="control_editor_special_joystick_style_tip_summary">Due to high implementation complexity, the control layout system cannot directly integrate joystick components. To use joystick components, you can only enable the universal joystick in the in-game menu. However, you can still provide the joystick appearance through the control layout to maintain a consistent style.</string>
     <string name="control_editor_special_joystick_style_create_title">Create Joystick Style</string>
     <string name="control_editor_special_joystick_style_create_summary">Create a joystick style configuration provided by the control layout. If the current control layout does not provide a joystick style, the launcher\'s joystick style will be used.</string>
     <string name="control_editor_special_joystick_style_delete_title">Delete Joystick Style</string>

@@ -37,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +54,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.layer_controller.ControlBoxLayout
@@ -661,7 +661,7 @@ fun GameScreen(
 
             //摇杆控制层
             viewModel.observableLayout?.let { layout ->
-                val special by layout.special.collectAsState()
+                val special by layout.special.collectAsStateWithLifecycle()
                 JoystickControlLayout(
                     screenSize = screenSize,
                     isGrabbing = isGrabbing,
@@ -1004,7 +1004,7 @@ private fun JoystickControlLayout(
     viewModel: JoystickMovementViewModel,
     onKeyEvent: (ClickEvent, pressed: Boolean) -> Unit
 ) {
-    val joystickStyle by special.joystickStyle.collectAsState()
+    val joystickStyle by special.joystickStyle.collectAsStateWithLifecycle()
 
     val density = LocalDensity.current
 
@@ -1055,6 +1055,7 @@ private fun JoystickControlLayout(
             onDirectionChanged = { direction ->
                 viewModel.onListen(direction)
             },
+            deadZoneRatio = AllSettings.joystickDeadZoneRatio.state / 100f,
             canLock = AllSettings.joystickControlCanLock.state,
             onLock = { lock ->
                 if (AllSettings.joystickControlLockSpring.state) {

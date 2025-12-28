@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.layout.TextButton
 import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
@@ -74,8 +74,8 @@ fun ControlEditorLayer(
     snapThresholdValue: Dp = 4.dp
 ) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        val layers by observedLayout.layers.collectAsState()
-        val styles by observedLayout.styles.collectAsState()
+        val layers by observedLayout.layers.collectAsStateWithLifecycle()
+        val styles by observedLayout.styles.collectAsStateWithLifecycle()
 
         val guideLines = remember { mutableStateMapOf<ObservableWidget, List<GuideLine>>() }
 
@@ -223,8 +223,8 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
         content = {
             //按图层顺序渲染所有可见的控件
             renderingLayers.forEach { layer ->
-                val normalButtons by layer.normalButtons.collectAsState()
-                val textBoxes by layer.textBoxes.collectAsState()
+                val normalButtons by layer.normalButtons.collectAsStateWithLifecycle()
+                val textBoxes by layer.textBoxes.collectAsStateWithLifecycle()
 
                 val widgetsInLayer = normalButtons + textBoxes
                 allWidgetsMap[layer] = widgetsInLayer

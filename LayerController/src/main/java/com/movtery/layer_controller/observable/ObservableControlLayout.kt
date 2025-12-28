@@ -23,7 +23,7 @@ import com.movtery.layer_controller.data.ButtonStyle
 import com.movtery.layer_controller.layout.ControlLayer
 import com.movtery.layer_controller.layout.ControlLayout
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
@@ -35,13 +35,13 @@ class ObservableControlLayout(
     val info = ObservableControlInfo(layout.info)
 
     private val _layers = MutableStateFlow(layout.layers.map { ObservableControlLayer(it) })
-    val layers: StateFlow<List<ObservableControlLayer>> = _layers
+    val layers = _layers.asStateFlow()
     
     private val _styles = MutableStateFlow(layout.styles.map { ObservableButtonStyle(it) })
-    val styles: StateFlow<List<ObservableButtonStyle>> = _styles
+    val styles = _styles.asStateFlow()
 
     private val _special = MutableStateFlow(ObservableSpecial(layout.special))
-    val special: StateFlow<ObservableSpecial> = _special
+    val special = _special.asStateFlow()
 
     /**
      * 添加控制层

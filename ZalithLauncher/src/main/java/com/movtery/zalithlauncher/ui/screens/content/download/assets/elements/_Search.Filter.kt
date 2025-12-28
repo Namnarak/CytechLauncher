@@ -51,7 +51,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +65,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayLabel
@@ -179,7 +179,7 @@ fun SearchFilter(
         }
 
         item {
-            val versions by MinecraftVersions.releasesFlow.collectAsState()
+            val versions by MinecraftVersions.releasesFlow.collectAsStateWithLifecycle()
             //刷新真实的版本列表
             LaunchedEffect(Unit) {
                 runCatching {

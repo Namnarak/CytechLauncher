@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.movtery.zalithlauncher.R
@@ -360,7 +360,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     ) {
         if (this::handler.isInitialized) {
             val imeInsets = WindowInsets.ime
-            val inputArea by handler.inputArea.collectAsState()
+            val inputArea by handler.inputArea.collectAsStateWithLifecycle()
 
             Layout(
                 modifier = Modifier.fillMaxSize().background(Color.Black),

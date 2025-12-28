@@ -133,7 +133,7 @@ private val DEFAULT_LAUNCHER_PROFILES = """{"profiles":{"default":{"lastVersionI
  */
 private fun generateLauncherProfiles(userHome: String?) {
     runCatching {
-        File(userHome?.let { "$it/.minecraft" } ?: GamePathManager.currentPath, "launcher_profiles.json").run {
+        File(userHome?.let { "$it/.minecraft" } ?: GamePathManager.currentPath.value, "launcher_profiles.json").run {
             if (!exists()) {
                 if (parentFile?.exists() == false) parentFile?.mkdirs()
                 if (!createNewFile()) throw IOException("Failed to create launcher_profiles.json file!")

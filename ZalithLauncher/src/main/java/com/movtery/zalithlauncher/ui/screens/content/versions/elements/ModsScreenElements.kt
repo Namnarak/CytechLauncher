@@ -47,7 +47,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +58,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformVersion
@@ -67,6 +67,7 @@ import com.movtery.zalithlauncher.game.download.jvm_server.JvmCrashException
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.mod.LocalMod
 import com.movtery.zalithlauncher.game.version.mod.RemoteMod
+import com.movtery.zalithlauncher.game.version.mod.isEnabled
 import com.movtery.zalithlauncher.game.version.mod.update.ModData
 import com.movtery.zalithlauncher.game.version.mod.update.ModUpdater
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -76,11 +77,12 @@ import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.AssetsIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.All
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.Disabled
+import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.Enabled
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.serialization.SerializationException
-import com.movtery.zalithlauncher.game.version.mod.isEnabled
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ModStateFilter.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -170,7 +172,7 @@ fun ModsUpdateOperation(
         }
         is ModsUpdateOperation.Update -> {
             if (modsUpdater != null) {
-                val tasks = modsUpdater.tasksFlow.collectAsState()
+                val tasks = modsUpdater.tasksFlow.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
                     //更新模组流程对话框
                     TitleTaskFlowDialog(

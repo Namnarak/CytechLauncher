@@ -29,7 +29,7 @@ import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.apache.commons.io.FileUtils
@@ -39,7 +39,7 @@ object MinecraftVersions {
     private var manifest: VersionManifest? = null
 
     private val _releasesFlow = MutableStateFlow<List<String>?>(null)
-    val releasesFlow: StateFlow<List<String>?> = _releasesFlow
+    val releasesFlow = _releasesFlow.asStateFlow()
 
     /**
      * 刷新Minecraft正式版本的版本号列表

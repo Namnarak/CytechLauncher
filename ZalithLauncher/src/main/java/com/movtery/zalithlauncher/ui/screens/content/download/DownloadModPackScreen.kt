@@ -32,7 +32,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -332,7 +332,7 @@ private fun ModPackInstallOperation(
         }
         is ModPackInstallOperation.Install -> {
             if (installer != null) {
-                val tasks = installer.tasksFlow.collectAsState()
+                val tasks = installer.tasksFlow.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
                     //安装整合包流程对话框
                     TitleTaskFlowDialog(

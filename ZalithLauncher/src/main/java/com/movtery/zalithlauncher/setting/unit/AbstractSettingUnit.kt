@@ -47,14 +47,21 @@ abstract class AbstractSettingUnit<V>(
     }
 
     /**
-     * @return 存入值
+     * 保存当前状态值
+     */
+    fun save() {
+        saveValue(this.state)
+    }
+
+    /**
+     * 存入值
      */
     fun save(value: V) {
         this.state = saveValue(value)
     }
 
     /**
-     * @return **仅更新状态**，不保存值
+     * **仅更新状态**，不保存值
      */
     open fun updateState(value: V) {
         this.state = value

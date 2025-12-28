@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.data.ButtonSize
 import com.movtery.layer_controller.data.CenterPosition
@@ -80,10 +80,10 @@ fun BoxWithConstraintsScope.ControlEditor(
     exit: () -> Unit,
     menuExit: () -> Unit
 ) {
-    val layers by viewModel.observableLayout.layers.collectAsState()
-    val styles by viewModel.observableLayout.styles.collectAsState()
-    val special by viewModel.observableLayout.special.collectAsState()
-    val joystickStyle by special.joystickStyle.collectAsState()
+    val layers by viewModel.observableLayout.layers.collectAsStateWithLifecycle()
+    val styles by viewModel.observableLayout.styles.collectAsStateWithLifecycle()
+    val special by viewModel.observableLayout.special.collectAsStateWithLifecycle()
+    val joystickStyle by special.joystickStyle.collectAsStateWithLifecycle()
 
     /** 默认新建的控件层的名称 */
     val defaultLayerName = stringResource(R.string.control_editor_edit_layer_default)
@@ -211,6 +211,9 @@ fun BoxWithConstraintsScope.ControlEditor(
         enableJoystick = viewModel.enableJoystick,
         onJoystickSwitch = { value ->
             viewModel.enableJoystick = value
+        },
+        onJoystickTip = {
+            viewModel.editorOperation = EditorOperation.TipJoystick
         },
         onSave = {
             viewModel.save(targetFile, onSaved = {})
@@ -391,6 +394,15 @@ private fun EditorOperation(
                 onConfirm = {
                     onCreateStyle(name)
                     changeOperation(EditorOperation.OpenStyleList)
+                }
+            )
+        }
+        is EditorOperation.TipJoystick -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_special_joystick_style_tip_title),
+                text = stringResource(R.string.control_editor_special_joystick_style_tip_summary),
+                onDismiss = {
+                    changeOperation(EditorOperation.None)
                 }
             )
         }

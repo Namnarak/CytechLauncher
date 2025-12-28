@@ -30,7 +30,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonSyntaxException
 import com.movtery.zalithlauncher.R
@@ -175,7 +175,7 @@ fun ModpackImportOperation(
         is ModpackImportOperation.None -> {}
         is ModpackImportOperation.Import -> {
             if (importer != null) {
-                val tasks by importer.taskFlow.collectAsState()
+                val tasks by importer.taskFlow.collectAsStateWithLifecycle()
                 if (tasks.isNotEmpty()) {
                     TitleTaskFlowDialog(
                         title = stringResource(R.string.import_modpack),

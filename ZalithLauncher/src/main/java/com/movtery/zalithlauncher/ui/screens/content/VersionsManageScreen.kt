@@ -41,7 +41,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.R
@@ -90,7 +90,7 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -103,7 +103,7 @@ private class VersionsScreenViewModel() : ViewModel() {
         private set
 
     private val _versions = MutableStateFlow<List<Version>>(emptyList())
-    val versions: StateFlow<List<Version>> = _versions
+    val versions = _versions.asStateFlow()
 
     /** 全部版本的数量 */
     var allVersionsCount by mutableIntStateOf(0)
@@ -116,7 +116,7 @@ private class VersionsScreenViewModel() : ViewModel() {
         private set
 
     fun startRefreshVersions() {
-        if (!VersionsManager.isRefreshing) {
+        if (!VersionsManager.isRefreshing.value) {
             _versions.update { emptyList() }
             VersionsManager.refresh("VersionsScreenViewModel.startRefreshVersions")
         }
@@ -251,6 +251,10 @@ fun VersionsManageScreen(
     val viewModel = rememberVersionViewModel()
     val context = LocalContext.current
 
+    val versions by viewModel.versions.collectAsStateWithLifecycle()
+    val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
+    val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
+
     BaseScreen(
         screenKey = NormalNavKey.VersionsManager,
         currentKey = backScreenViewModel.mainScreen.currentKey
@@ -258,6 +262,7 @@ fun VersionsManageScreen(
         Row {
             LeftMenu(
                 isVisible = isVisible,
+                isRefreshing = isRefreshing,
                 swapToFileSelector = { path ->
                     backScreenViewModel.mainScreen.backStack.navigateToFileSelector(
                         startPath = path,
@@ -276,11 +281,11 @@ fun VersionsManageScreen(
                     .weight(2.5f)
             )
 
-            val versions by viewModel.versions.collectAsState()
-
             VersionsLayout(
                 isVisible = isVisible,
+                isRefreshing = isRefreshing,
                 versions = versions,
+                currentVersion = currentVersion,
                 versionCategory = viewModel.versionCategory,
                 onCategoryChange = { viewModel.changeCategory(it) },
                 allVersionsCount = viewModel.allVersionsCount,
@@ -323,6 +328,7 @@ fun VersionsManageScreen(
 @Composable
 private fun LeftMenu(
     isVisible: Boolean,
+    isRefreshing: Boolean,
     swapToFileSelector: (path: String) -> Unit,
     onCleanupGameFiles: () -> Unit,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
@@ -352,8 +358,8 @@ private fun LeftMenu(
     Column(
         modifier = modifier.offset { IntOffset(x = surfaceXOffset.roundToPx(), y = 0) },
     ) {
-        val gamePaths by GamePathManager.gamePathData.collectAsState()
-        val currentPath = GamePathManager.currentPath
+        val gamePaths by GamePathManager.gamePathData.collectAsStateWithLifecycle()
+        val currentPath by GamePathManager.currentPath.collectAsStateWithLifecycle()
         val context = LocalContext.current
 
         LazyColumn(
@@ -367,7 +373,7 @@ private fun LeftMenu(
                     item = pathItem,
                     selected = currentPath == pathItem.path,
                     onClick = {
-                        if (!VersionsManager.isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
+                        if (!isRefreshing) { //避免频繁刷新，防止currentGameInfo意外重置
                             if (pathItem.id == GamePathManager.DEFAULT_ID) {
                                 GamePathManager.saveDefaultPath()
                             } else {
@@ -430,7 +436,9 @@ private fun LeftMenu(
 private fun VersionsLayout(
     modifier: Modifier = Modifier,
     isVisible: Boolean,
+    isRefreshing: Boolean,
     versions: List<Version>,
+    currentVersion: Version?,
     versionCategory: VersionCategory,
     onCategoryChange: (VersionCategory) -> Unit,
     allVersionsCount: Int,
@@ -451,7 +459,7 @@ private fun VersionsLayout(
         modifier = modifier.offset { IntOffset(x = 0, y = surfaceYOffset.roundToPx()) },
         shape = MaterialTheme.shapes.extraLarge
     ) {
-        if (VersionsManager.isRefreshing) { //版本正在刷新中
+        if (isRefreshing) { //版本正在刷新中
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -527,14 +535,14 @@ private fun VersionsLayout(
                         items(versions, key = { it.toString() }) { version ->
                             VersionItemLayout(
                                 version = version,
-                                selected = version == VersionsManager.currentVersion,
+                                selected = version == currentVersion,
                                 submitError = submitError,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 6.dp)
                                     .animateItem(),
                                 onSelected = {
-                                    if (version.isValid() && version != VersionsManager.currentVersion) {
+                                    if (version.isValid() && version != currentVersion) {
                                         VersionsManager.saveCurrentVersion(version.getVersionName())
                                     } else {
                                         //不允许选择无效版本

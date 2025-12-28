@@ -54,7 +54,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,6 +73,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
@@ -583,7 +583,7 @@ fun CleanupOperation(
         }
         is CleanupOperation.Clean -> {
             if (cleaner != null) {
-                val tasks = cleaner.tasksFlow.collectAsState()
+                val tasks = cleaner.tasksFlow.collectAsStateWithLifecycle()
                 if (tasks.value.isNotEmpty()) {
                     //清理无用游戏文件流程对话框
                     TitleTaskFlowDialog(

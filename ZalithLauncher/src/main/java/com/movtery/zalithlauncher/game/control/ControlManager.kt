@@ -19,9 +19,6 @@
 package com.movtery.zalithlauncher.game.control
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.loadLayoutFromFile
 import com.movtery.layer_controller.layout.loadLayoutFromFileUncheck
@@ -38,7 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,20 +51,17 @@ object ControlManager {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _dataList = MutableStateFlow<List<ControlData>>(emptyList())
-    val dataList: StateFlow<List<ControlData>> = _dataList
-
-    /**
-     * 当前选择的控制布局
-     */
-    var selectedLayout by mutableStateOf<ControlData?>(null)
+    val dataList = _dataList.asStateFlow()
 
     private var currentJob: Job? = null
 
-    /**
-     * 是否正在刷新控制布局
-     */
-    var isRefreshing by mutableStateOf(false)
-        private set
+    private val _selectedLayout = MutableStateFlow<ControlData?>(null)
+    /** 当前选择的控制布局 */
+    val selectedLayout = _selectedLayout.asStateFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    /** 是否正在刷新控制布局 */
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     /**
      * 获取一个新的布局文件文件，名称随机
@@ -94,7 +88,7 @@ object ControlManager {
     fun refresh() {
         currentJob?.cancel()
         currentJob = scope.launch(Dispatchers.IO) {
-            isRefreshing = true
+            _isRefreshing.update { true }
 
             _dataList.update { emptyList() }
             PathManager.DIR_CONTROL_LAYOUTS.listFiles()?.mapNotNull { file ->
@@ -130,7 +124,7 @@ object ControlManager {
             }
             checkSettings()
 
-            isRefreshing = false
+            _isRefreshing.update { false }
         }
     }
 
@@ -140,13 +134,15 @@ object ControlManager {
     private fun checkSettings() {
         val setting = AllSettings.controlLayout.getValue()
 
-        selectedLayout = _dataList.value.find { it.file.name == setting && it.isSupport }
+        val layout = _dataList.value.find { it.file.name == setting && it.isSupport }
             ?: dataList.value.firstOrNull { it.isSupport }
                 ?.also { AllSettings.controlLayout.save(it.file.name) }
 
-        if (selectedLayout == null) {
+        if (layout == null) {
             AllSettings.controlLayout.reset()
         }
+
+        _selectedLayout.update { layout }
     }
 
     /**
@@ -169,7 +165,7 @@ object ControlManager {
     fun selectControl(data: ControlData) {
         if (!data.file.exists() || !data.isSupport) return
         AllSettings.controlLayout.save(data.file.name)
-        selectedLayout = data
+        _selectedLayout.update { data }
     }
 
     /**

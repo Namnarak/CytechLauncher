@@ -19,9 +19,6 @@
 package com.movtery.zalithlauncher.game.version.installed
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.path.getVersionsHome
@@ -34,6 +31,9 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -68,22 +68,17 @@ object VersionsManager {
     /**
      * 当前的游戏信息
      */
-    var currentGameInfo by mutableStateOf<CurrentGameInfo?>(null)
+    var gameInfo: CurrentGameInfo? = null
         private set
 
-    /**
-     * 当前的版本
-     */
-    var currentVersion by mutableStateOf<Version?>(null)
-        private set
+    private val _currentVersion = MutableStateFlow<Version?>(null)
+    val currentVersion = _currentVersion.asStateFlow()
 
     private var currentJob: Job? = null
 
-    /**
-     * 是否正在刷新版本
-     */
-    var isRefreshing by mutableStateOf(false)
-        private set
+    private val _isRefreshing = MutableStateFlow(false)
+    /** 是否正在刷新版本 */
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     /**
      * 检查版本是否已经存在
@@ -104,7 +99,7 @@ object VersionsManager {
         currentJob?.cancel()
         currentJob = scope.launch {
             mutex.withLock {
-                isRefreshing = true
+                _isRefreshing.update { true }
                 lDebug("Initiated by $tag: starting to refresh the version list.")
 
                 if (trySetVersion != null) {
@@ -125,13 +120,13 @@ object VersionsManager {
 
                 versions = newVersions.toList()
 
-                currentGameInfo = refreshCurrentInfo()
+                gameInfo = refreshCurrentInfo()
                 lDebug("Version list refreshed, refreshing the current version now.")
                 refreshCurrentVersion()
 
                 listeners.forEach { it.invoke(versions) }
 
-                isRefreshing = false
+                _isRefreshing.update { false }
             }
         }
     }
@@ -181,7 +176,7 @@ object VersionsManager {
     }
 
     private fun refreshCurrentVersion() {
-        currentVersion = run {
+        val version = run {
             if (versions.isEmpty()) return@run null
 
             fun getVersionByFirst(): Version? {
@@ -192,7 +187,7 @@ object VersionsManager {
             }
 
             runCatching {
-                val versionString = currentGameInfo!!.version
+                val versionString = gameInfo!!.version
                 getVersion(versionString) ?: run {
                     lDebug("Stored version $versionString not found, using the first available version instead.")
                     getVersionByFirst()
@@ -205,6 +200,8 @@ object VersionsManager {
         }.also { version ->
             lDebug("The current version is: ${version?.getVersionName()}")
         }
+
+        _currentVersion.update { version }
     }
 
     private fun getVersion(name: String?): Version? {
@@ -260,7 +257,7 @@ object VersionsManager {
      */
     fun saveCurrentVersion(versionName: String, refresh: Boolean = true) {
         runCatching {
-            currentGameInfo!!.apply {
+            gameInfo!!.apply {
                 version = versionName
                 saveCurrentInfo()
             }
@@ -299,7 +296,7 @@ object VersionsManager {
      * 重命名当前版本，但并不会在这里对即将重命名的名称，进行非法性判断
      */
     fun renameVersion(version: Version, name: String) {
-        val currentVersionName = currentVersion?.getVersionName()
+        val currentVersionName = _currentVersion.value?.getVersionName()
         //如果当前的版本是即将被重命名的版本，那么就把将要重命名的名字设置为当前版本
         val saveToCurrent = version.getVersionName() == currentVersionName
 

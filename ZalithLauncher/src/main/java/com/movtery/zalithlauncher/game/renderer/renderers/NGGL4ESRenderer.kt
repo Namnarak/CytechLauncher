@@ -16,18 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.path
+package com.movtery.zalithlauncher.game.renderer.renderers
 
-import java.io.File
+import com.movtery.zalithlauncher.game.renderer.RendererInterface
 
-private fun String.replaceSeparator(): String = this.replace("/", File.separator)
+object NGGL4ESRenderer : RendererInterface {
+    override fun getRendererId(): String = "opengles3_ng_gl4es"
 
-fun getGameHome(): String = GamePathManager.currentPath.value
+    override fun getUniqueIdentifier(): String = "e7b90ed6-e518-4d4e-93dc-5c7133cd5b31"
 
-fun getVersionsHome(): String = "${getGameHome()}/versions".replaceSeparator()
+    override fun getRendererName(): String = "Krypton Wrapper"
 
-fun getLibrariesHome(): String = "${getGameHome()}/libraries".replaceSeparator()
 
-fun getAssetsHome(): String = "${getGameHome()}/assets".replaceSeparator()
+    override fun getRendererEnv(): Lazy<Map<String, String>> = lazy { emptyMap() }
 
-fun getResourcesHome(): String = "${getGameHome()}/resources".replaceSeparator()
+    override fun getDlopenLibrary(): Lazy<List<String>> = lazy { emptyList() }
+
+    override fun getRendererLibrary(): String = "libng_gl4es.so"
+}

@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.EventHandler
@@ -136,9 +136,9 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
 ) {
 //    val isDarkMode by rememberUpdatedState(isSystemInDarkTheme())
 
-    val layers by observedLayout.layers.collectAsState()
+    val layers by observedLayout.layers.collectAsStateWithLifecycle()
     val reversedLayers = remember(layers) { layers.reversed() }
-    val styles by observedLayout.styles.collectAsState()
+    val styles by observedLayout.styles.collectAsStateWithLifecycle()
 
     val allActiveWidgets = remember { mutableStateMapOf<PointerId, List<ObservableWidget>>() }
     val currentCheckOccupiedPointers by rememberUpdatedState(checkOccupiedPointers)
@@ -267,16 +267,26 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                             position.y !in offset.y..(offset.y + size.height)
 
                                     if (isOutOfBounds) {
-                                        widget.onReleaseEvent(eventHandler, reversedLayers, change)
+                                        widget.onReleaseEvent(eventHandler, reversedLayers)
                                     } else {
                                         widget.onPointerBackInBounds(eventHandler, reversedLayers)
                                     }
                                 }
                             } else {
                                 allActiveWidgets.remove(pointerId)?.forEach { widget ->
-                                    widget.onReleaseEvent(eventHandler, reversedLayers, change)
+                                    widget.onReleaseEvent(eventHandler, reversedLayers)
                                 }
                             }
+                        }
+
+                        //未触摸时清除所有状态
+                        if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                            allActiveWidgets.forEach { (_, widgets) ->
+                                widgets.forEach { widget ->
+                                    widget.onReleaseEvent(eventHandler, reversedLayers)
+                                }
+                            }
+                            allActiveWidgets.clear()
                         }
                     }
                 }
@@ -317,8 +327,8 @@ private fun ControlsRendererLayer(
                     isCursorGrabbing = isCursorGrabbing,
                     visibilityType = layer.visibilityType
                 )
-                val normalButtons by layer.normalButtons.collectAsState()
-                val textBoxes by layer.textBoxes.collectAsState()
+                val normalButtons by layer.normalButtons.collectAsStateWithLifecycle()
+                val textBoxes by layer.textBoxes.collectAsStateWithLifecycle()
 
                 textBoxes.forEach { data ->
                     TextButton(

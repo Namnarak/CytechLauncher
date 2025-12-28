@@ -20,7 +20,6 @@ package com.movtery.zalithlauncher.ui.control.joystick
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -47,7 +46,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -60,10 +65,10 @@ import com.movtery.layer_controller.observable.ObservableJoystickStyle
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.atan2
-import kotlin.onFailure
 
 private const val JSON_FILE_NAME = "joystick.json"
 
@@ -335,19 +340,13 @@ fun Joystick(
         modifier = modifier
             .size(size)
             .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = { offset ->
+                simpleDrag(
+                    onPointerMove = { offset ->
                         lastDragPosition = offset
                         if (isLocked) isLocked = false
                         updateJoystickState(offset)
                     },
-                    onDrag = { change, _ ->
-                        change.consume()
-                        lastDragPosition = change.position
-                        if (isLocked) isLocked = false
-                        updateJoystickState(change.position)
-                    },
-                    onDragEnd = {
+                    onPointerRelease = {
                         if (internalCanLock) {
                             isLocked = true
                             updateJoystickState(currentLockPosition)
@@ -397,6 +396,64 @@ fun Joystick(
                         center = currentLockPosition,
                         radius = 4f
                     )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 从虚拟鼠标层精简过来的单指针简单拖动处理
+ * [com.movtery.zalithlauncher.ui.control.mouse.TouchpadLayout]
+ */
+private suspend fun PointerInputScope.simpleDrag(
+    onPointerMove: (position: Offset) -> Unit,
+    onPointerRelease: () -> Unit
+) {
+    coroutineScope {
+        /** 当前正在被处理的指针 */
+        var activePointer: PointerId? = null
+
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+
+                event.changes
+                    .filter { it.changedToDown() && it.type == PointerType.Touch }
+                    .forEach { change ->
+                        val pointerId = change.id
+
+                        if (activePointer == null) {
+                            activePointer = pointerId
+
+                            onPointerMove(change.position)
+                        }
+                    }
+
+                //处理移动事件（仅处理活跃指针）
+                activePointer?.let { pointerId ->
+                    event.changes
+                        .firstOrNull { it.id == pointerId && it.positionChanged() && !it.isConsumed }
+                        ?.let { moveChange ->
+                            onPointerMove(moveChange.position)
+                            moveChange.consume()
+                        }
+                }
+
+                //释放
+                event.changes
+                    .filter { it.changedToUpIgnoreConsumed() && it.type == PointerType.Touch }
+                    .forEach { change ->
+                        val pointerId = change.id
+
+                        if (pointerId == activePointer) {
+                            onPointerRelease()
+                            activePointer = null
+                        }
+                    }
+
+                if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                    activePointer = null
                 }
             }
         }

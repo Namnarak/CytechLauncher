@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -33,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.ControlBoxLayout
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.observable.DefaultObservableJoystickStyle
@@ -95,7 +95,7 @@ fun BoxWithConstraintsScope.PreviewControlBox(
     }
 
     //预览摇杆
-    val special by observableLayout.special.collectAsState()
+    val special by observableLayout.special.collectAsStateWithLifecycle()
     PreviewJoystickControlLayout(
         special = special,
         screenSize = screenSize,
@@ -148,7 +148,7 @@ private fun PreviewJoystickControlLayout(
     previewHideLayerWhen: HideLayerWhen,
     previewScenario: PreviewScenario
 ) {
-    val joystickStyle by special.joystickStyle.collectAsState()
+    val joystickStyle by special.joystickStyle.collectAsStateWithLifecycle()
 
     val density = LocalDensity.current
 
@@ -187,6 +187,7 @@ private fun PreviewJoystickControlLayout(
                 },
             style = joystickStyle ?: DefaultObservableJoystickStyle, //预览模式不显示启动器默认样式
             size = size,
+            deadZoneRatio = AllSettings.joystickDeadZoneRatio.state / 100f,
             canLock = AllSettings.joystickControlCanLock.state
         )
     }

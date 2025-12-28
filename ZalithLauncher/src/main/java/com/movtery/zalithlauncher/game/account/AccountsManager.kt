@@ -35,7 +35,7 @@ import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.apache.commons.io.FileUtils
 import java.util.concurrent.CopyOnWriteArrayList
@@ -46,15 +46,15 @@ object AccountsManager {
     //账号相关
     private val _accounts = CopyOnWriteArrayList<Account>()
     private val _accountsFlow = MutableStateFlow<List<Account>>(emptyList())
-    val accountsFlow: StateFlow<List<Account>> = _accountsFlow
+    val accountsFlow = _accountsFlow.asStateFlow()
 
     private val _currentAccountFlow = MutableStateFlow<Account?>(null)
-    val currentAccountFlow: StateFlow<Account?> = _currentAccountFlow
+    val currentAccountFlow = _currentAccountFlow.asStateFlow()
 
     //认证服务器
     private val _authServers = CopyOnWriteArrayList<AuthServer>()
     private val _authServersFlow = MutableStateFlow<List<AuthServer>>(emptyList())
-    val authServersFlow: StateFlow<List<AuthServer>> = _authServersFlow
+    val authServersFlow = _authServersFlow.asStateFlow()
 
     /** 控制刷新所有账号头像的变量 */
     var refreshAccountAvatar by mutableStateOf(false)
