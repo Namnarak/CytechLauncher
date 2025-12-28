@@ -52,10 +52,10 @@ object Renderers {
         }
 
         addRenderers(
+            NGGL4ESRenderer,
             GL4ESRenderer,
             VulkanZinkRenderer,
             VirGLRenderer,
-            NGGL4ESRenderer,
             FreedrenoRenderer,
             PanfrostRenderer
         )
