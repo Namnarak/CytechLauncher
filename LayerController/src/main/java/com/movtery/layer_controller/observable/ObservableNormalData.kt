@@ -171,8 +171,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
 
     override fun onReleaseEvent(
         eventHandler: EventHandler,
-        allLayers: List<ObservableControlLayer>,
-        change: PointerInputChange
+        allLayers: List<ObservableControlLayer>
     ) {
         pressEnd(eventHandler)
     }

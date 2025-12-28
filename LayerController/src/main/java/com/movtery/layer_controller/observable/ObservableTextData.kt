@@ -95,8 +95,7 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
 
     override fun onReleaseEvent(
         eventHandler: EventHandler,
-        allLayers: List<ObservableControlLayer>,
-        change: PointerInputChange
+        allLayers: List<ObservableControlLayer>
     ) {
         //不处理触摸事件
     }

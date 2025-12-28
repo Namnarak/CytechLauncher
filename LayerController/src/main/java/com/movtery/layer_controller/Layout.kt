@@ -267,16 +267,26 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                             position.y !in offset.y..(offset.y + size.height)
 
                                     if (isOutOfBounds) {
-                                        widget.onReleaseEvent(eventHandler, reversedLayers, change)
+                                        widget.onReleaseEvent(eventHandler, reversedLayers)
                                     } else {
                                         widget.onPointerBackInBounds(eventHandler, reversedLayers)
                                     }
                                 }
                             } else {
                                 allActiveWidgets.remove(pointerId)?.forEach { widget ->
-                                    widget.onReleaseEvent(eventHandler, reversedLayers, change)
+                                    widget.onReleaseEvent(eventHandler, reversedLayers)
                                 }
                             }
+                        }
+
+                        //未触摸时清除所有状态
+                        if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                            allActiveWidgets.forEach { (_, widgets) ->
+                                widgets.forEach { widget ->
+                                    widget.onReleaseEvent(eventHandler, reversedLayers)
+                                }
+                            }
+                            allActiveWidgets.clear()
                         }
                     }
                 }
