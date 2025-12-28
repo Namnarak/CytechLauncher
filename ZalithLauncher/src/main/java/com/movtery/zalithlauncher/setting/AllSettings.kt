@@ -496,6 +496,11 @@ object AllSettings : SettingsRegistry() {
     val joystickHideWhenGamepad = boolSetting("joystickHideWhenGamepad", true)
 
     /**
+     * 摇杆组件死区缩放
+     */
+    val joystickDeadZoneRatio = intSetting("joystickDeadZoneRatio", 30, 10..50)
+
+    /**
      * 游戏中摇杆移动组件是否可锁定
      */
     val joystickControlCanLock = boolSetting("joystickControlCanLock", true)

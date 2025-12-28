@@ -190,11 +190,12 @@ private fun JoystickManageDialog(
                                 title = stringResource(R.string.game_styles_joystick_x),
                                 value = AllSettings.joystickControlX.state / 100f,
                                 onValueChange = {
-                                    AllSettings.joystickControlX.save((it * 100).toInt())
+                                    AllSettings.joystickControlX.updateState((it * 100).toInt())
                                     enableAlpha = true
                                 },
                                 valueRange = 0f..100f,
                                 onValueChangeFinished = {
+                                    AllSettings.joystickControlX.save()
                                     enableAlpha = false
                                 },
                                 decimalFormat = "#0.00",
@@ -208,11 +209,12 @@ private fun JoystickManageDialog(
                                 title = stringResource(R.string.game_styles_joystick_y),
                                 value = AllSettings.joystickControlY.state / 100f,
                                 onValueChange = {
-                                    AllSettings.joystickControlY.save((it * 100).toInt())
+                                    AllSettings.joystickControlY.updateState((it * 100).toInt())
                                     enableAlpha = true
                                 },
                                 valueRange = 0f..100f,
                                 onValueChangeFinished = {
+                                    AllSettings.joystickControlY.save()
                                     enableAlpha = false
                                 },
                                 decimalFormat = "#0.00",
@@ -226,11 +228,12 @@ private fun JoystickManageDialog(
                                 title = stringResource(R.string.game_styles_joystick_size),
                                 value = AllSettings.joystickControlSize.state.toFloat(),
                                 onValueChange = {
-                                    AllSettings.joystickControlSize.save(it.toInt())
+                                    AllSettings.joystickControlSize.updateState(it.toInt())
                                     enableAlpha = true
                                 },
                                 valueRange = AllSettings.joystickControlSize.floatRange,
                                 onValueChangeFinished = {
+                                    AllSettings.joystickControlSize.save()
                                     enableAlpha = false
                                 },
                                 decimalFormat = "#0",
@@ -284,6 +287,19 @@ private fun JoystickManageDialog(
                             )
 
                             Spacer(Modifier)
+
+                            InfoLayoutSliderItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.game_styles_joystick_deadzone),
+                                value = AllSettings.joystickDeadZoneRatio.state.toFloat(),
+                                onValueChange = { AllSettings.joystickDeadZoneRatio.updateState(it.toInt()) },
+                                onValueChangeFinished = { AllSettings.joystickDeadZoneRatio.save() },
+                                valueRange = AllSettings.joystickDeadZoneRatio.floatRange,
+                                decimalFormat = "#0",
+                                suffix = "%",
+                                fineTuningStep = 1.0f,
+                                enabled = AllSettings.enableJoystickControl.state
+                            )
 
                             //前进锁定
                             InfoLayoutSwitchItem(

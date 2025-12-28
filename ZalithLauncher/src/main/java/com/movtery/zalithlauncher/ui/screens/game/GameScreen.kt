@@ -1055,6 +1055,7 @@ private fun JoystickControlLayout(
             onDirectionChanged = { direction ->
                 viewModel.onListen(direction)
             },
+            deadZoneRatio = AllSettings.joystickDeadZoneRatio.state / 100f,
             canLock = AllSettings.joystickControlCanLock.state,
             onLock = { lock ->
                 if (AllSettings.joystickControlLockSpring.state) {

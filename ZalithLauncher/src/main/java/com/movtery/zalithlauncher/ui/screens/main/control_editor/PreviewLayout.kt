@@ -187,6 +187,7 @@ private fun PreviewJoystickControlLayout(
                 },
             style = joystickStyle ?: DefaultObservableJoystickStyle, //预览模式不显示启动器默认样式
             size = size,
+            deadZoneRatio = AllSettings.joystickDeadZoneRatio.state / 100f,
             canLock = AllSettings.joystickControlCanLock.state
         )
     }
