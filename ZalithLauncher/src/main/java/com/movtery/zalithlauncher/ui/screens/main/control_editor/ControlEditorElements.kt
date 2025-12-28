@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.CenterFocusStrong
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.MoreHoriz
@@ -102,6 +103,8 @@ sealed interface EditorOperation {
     data object EditButtonStyle : EditorOperation
     /** 创建摇杆样式独立设定 */
     data object CreateJoystickStyle : EditorOperation
+    /** 关于摇杆的提醒 */
+    data object TipJoystick : EditorOperation
     /** 打开摇杆样式独立设定页面 */
     data object EditJoystickStyle : EditorOperation
     /** 删除摇杆样式独立设定 */
@@ -210,6 +213,7 @@ fun EditorMenu(
     onPreviewHideLayerChanged: (HideLayerWhen) -> Unit,
     enableJoystick: Boolean,
     onJoystickSwitch: (Boolean) -> Unit,
+    onJoystickTip: () -> Unit,
     onSave: () -> Unit,
     saveAndExit: () -> Unit,
     onExit: () -> Unit
@@ -269,6 +273,21 @@ fun EditorMenu(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.control_editor_special_joystick_style),
                         enabled = isPreviewMode.not(),
+                        appendLayout = {
+                            //摇杆提示弹窗
+                            IconButton(
+                                onClick = {
+                                    onJoystickTip()
+                                    closeScreen()
+                                },
+                                enabled = isPreviewMode.not()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                                    contentDescription = stringResource(R.string.generic_tip)
+                                )
+                            }
+                        },
                         onClick = {
                             onEditJoystickStyle()
                             closeScreen()

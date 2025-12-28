@@ -212,6 +212,9 @@ fun BoxWithConstraintsScope.ControlEditor(
         onJoystickSwitch = { value ->
             viewModel.enableJoystick = value
         },
+        onJoystickTip = {
+            viewModel.editorOperation = EditorOperation.TipJoystick
+        },
         onSave = {
             viewModel.save(targetFile, onSaved = {})
         },
@@ -391,6 +394,15 @@ private fun EditorOperation(
                 onConfirm = {
                     onCreateStyle(name)
                     changeOperation(EditorOperation.OpenStyleList)
+                }
+            )
+        }
+        is EditorOperation.TipJoystick -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.control_editor_special_joystick_style_tip_title),
+                text = stringResource(R.string.control_editor_special_joystick_style_tip_summary),
+                onDismiss = {
+                    changeOperation(EditorOperation.None)
                 }
             )
         }

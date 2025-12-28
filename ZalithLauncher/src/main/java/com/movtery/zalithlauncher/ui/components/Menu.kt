@@ -348,6 +348,7 @@ fun MenuTextButton(
     color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
+    appendLayout: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
     MenuButtonLayout(
@@ -364,10 +365,13 @@ fun MenuTextButton(
         MarqueeText(
             modifier = Modifier
                 .padding(all = 16.dp)
-                .alpha(if (enabled) 1f else DisabledAlpha),
+                .alpha(if (enabled) 1f else DisabledAlpha)
+                .weight(1f),
             text = text,
             style = MaterialTheme.typography.titleSmall
         )
+
+        appendLayout?.invoke()
     }
 }
 
