@@ -1046,5 +1046,5 @@
     <string name="upgrade_cloud_drive">Bulut Sürücü</string>
     <string name="game_styles_joystick_deadzone">Joystick Ölü Bölge Aralığı</string>
     <string name="control_editor_special_joystick_style_tip_title">Joystick oluşturamıyor musunuz?</string>
-    <string name="control_editor_special_joystick_style_tip_summary">Yüksek uygulama karmaşıklığı nedeniyle, kontrol düzeni sistemi joystick bileşenlerini doğrudan entegre edemez. Joystick bileşenlerini kullanmak için, oyun içi modda yalnızca evrensel joystick\'i etkinleştirmeniz gerekir.</string>
+    <string name="control_editor_special_joystick_style_tip_summary">Uygulamasının zor olması nedeniyle, kontrol düzeni sistemi joystick bileşenlerini doğrudan entegre edemez. Joystick bileşenini kullanmak istiyorsanız, yalnızca oyun içi menüde evrensel joystick bileşenini etkinleştirebilirsiniz. Ancak, kontrol düzeni aracılığıyla joystick bileşeninin görünümünü sağlayarak stil birliğini koruyabilirsiniz.</string>
 </resources>
