@@ -33,12 +33,11 @@ enum class WindowMode {
 }
 
 abstract class FullScreenComponentActivity : AbstractComponentActivity() {
-    private var currentWindowMode = WindowMode.DEFAULT
-
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setWindowMode(getWindowMode())
+        setupSystemUiVisibilityListener()
     }
 
     @CallSuper
@@ -51,31 +50,48 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            applyWindowMode(currentWindowMode)
+            applyFullscreen(getWindowMode())
         }
     }
 
     abstract fun getWindowMode(): WindowMode
 
     fun setWindowMode(mode: WindowMode) {
-        currentWindowMode = mode
-        applyWindowMode(mode)
+        applyFullscreen(mode)
         window.decorView.requestApplyInsets()
     }
 
-    private fun applyWindowMode(mode: WindowMode) {
-        when (mode) {
-            WindowMode.DEFAULT -> applyDefaultWindowMode()
-            WindowMode.FULL_IMMERSIVE -> applyFullImmersiveMode()
+    @Suppress("DEPRECATION")
+    private val systemUIVisibility = (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
+
+    @Suppress("DEPRECATION")
+    private fun setupSystemUiVisibilityListener() {
+        val decorView = window.decorView
+        val listener = View.OnSystemUiVisibilityChangeListener { visibility ->
+            if ((visibility and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                decorView.systemUiVisibility = systemUIVisibility
+            }
         }
+        decorView.setOnSystemUiVisibilityChangeListener(listener)
+        listener.onSystemUiVisibilityChange(decorView.systemUiVisibility)
     }
 
-    private fun applyFullImmersiveMode() {
+    private fun applyFullscreen(mode: WindowMode) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes = window.attributes.apply {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                layoutInDisplayCutoutMode = when (mode) {
+                    WindowMode.DEFAULT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+                    WindowMode.FULL_IMMERSIVE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
             }
         }
 
@@ -86,41 +102,7 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
-        }
-    }
-
-    private fun applyDefaultWindowMode() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes = window.attributes.apply {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
-            }
-        }
-
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.systemBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
+            window.decorView.systemUiVisibility = systemUIVisibility
         }
     }
 
