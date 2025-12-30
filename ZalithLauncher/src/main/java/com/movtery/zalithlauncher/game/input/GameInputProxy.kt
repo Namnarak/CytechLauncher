@@ -89,7 +89,10 @@ class GameInputProxy(
         //因为输入法选区时会发出Shift键的事件，但同步为游戏内的文本进行选区会比较复杂
         //比如选区时没法拿到当前输入框选择了哪些文本，极容易导致输入框与游戏内的文本出现状态差异
         //这类比较打破预期的情况应该尽量避免，所以应该忽略Shift
-        return !(keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT)
+        val isShift = keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT
+        //避免处理Ctrl，大部分输入法不支持处理这个，而在游戏内可能会影响到指针位置
+        val isCtrl = keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT
+        return !isShift && !isCtrl
     }
     
     /**
