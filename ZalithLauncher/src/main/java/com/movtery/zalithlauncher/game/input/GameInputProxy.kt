@@ -59,8 +59,17 @@ class GameInputProxy(
     }
 
     private fun handleDelete(diff: TextDifference.Delete) {
-        repeat(diff.deletedText.length) {
-            sender.sendBackspace()
+        if (diff.isSelectAll) {
+            repeat(diff.deletedText.length) {
+                sender.sendRight()
+            }
+            repeat(diff.deletedText.length) {
+                sender.sendBackspace()
+            }
+        } else {
+            repeat(diff.deletedText.length) {
+                sender.sendBackspace()
+            }
         }
     }
 
@@ -145,7 +154,8 @@ sealed class TextDifference {
     ) : TextDifference()
 
     data class Delete(
-        val deletedText: String
+        val deletedText: String,
+        val isSelectAll: Boolean = false
     ) : TextDifference()
 
     data class MoveCursor(
@@ -175,6 +185,16 @@ fun calculateTextDifference(
     val oldLength = oldText.length
     val newLength = newText.length
 
+    // 全选后删除所有文本
+    // 当旧文本有内容，新文本为空，且旧选区覆盖了整个文本
+    if (newText.isEmpty() && oldText.isNotEmpty() &&
+        !oldSelection.collapsed && oldSelection.min == 0 && oldSelection.max == oldLength) {
+        return TextDifference.Delete(
+            deletedText = oldText,
+            isSelectAll = true
+        )
+    }
+
     // 当有选区时，删除操作应该只删除选区内的文本
     if (!oldSelection.collapsed) {
         // 选区范围
@@ -188,7 +208,8 @@ fun calculateTextDifference(
 
             if (newText == expectedText) {
                 return TextDifference.Delete(
-                    deletedText = oldText.substring(selectionStart, selectionEnd)
+                    deletedText = oldText.substring(selectionStart, selectionEnd),
+                    isSelectAll = (selectionStart == 0 && selectionEnd == oldLength)
                 )
             }
         }
@@ -225,7 +246,8 @@ fun calculateTextDifference(
         // 简单逻辑：如果新文本是旧文本的前缀，那么是从末尾删除
         if (newText == oldText.take(newLength)) {
             return TextDifference.Delete(
-                deletedText = oldText.substring(newLength)
+                deletedText = oldText.substring(newLength),
+                isSelectAll = false
             )
         }
 
@@ -235,7 +257,8 @@ fun calculateTextDifference(
             val potentialDeleted = oldText.take(cursorPos - 1) + oldText.substring(cursorPos)
             if (potentialDeleted == newText) {
                 return TextDifference.Delete(
-                    deletedText = oldText.substring(cursorPos - 1, cursorPos)
+                    deletedText = oldText.substring(cursorPos - 1, cursorPos),
+                    isSelectAll = false
                 )
             }
         }
@@ -255,7 +278,8 @@ fun calculateTextDifference(
 
         if (firstDiffIndex != -1) {
             return TextDifference.Delete(
-                deletedText = oldText.substring(firstDiffIndex)
+                deletedText = oldText.substring(firstDiffIndex),
+                isSelectAll = false
             )
         }
     }
