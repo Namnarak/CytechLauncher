@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import com.movtery.zalithlauncher.bridge.ZLBridge
@@ -45,6 +44,7 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.ui.control.gamepad.isGamepadKeyEvent
+import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.screens.game.GameScreen
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.ui.screens.game.elements.mutableStateOfLog
@@ -83,6 +83,7 @@ class GameHandler(
     errorViewModel = errorViewModel,
     eventViewModel = eventViewModel,
     getWindowSize = getWindowSize,
+    sender = LWJGLCharSender,
     launcher = gameLauncher,
     onExit = onExit
 ) {
@@ -179,9 +180,7 @@ class GameHandler(
 
     @Composable
     override fun ComposableLayout(
-        surfaceOffset: Offset,
-        incrementScreenOffset: (Offset) -> Unit,
-        resetScreenOffset: () -> Unit
+        textInputMode: TextInputMode
     ) {
         GameScreen(
             version = version,
@@ -189,11 +188,9 @@ class GameHandler(
             isGameRendering = isGameRendering,
             logState = logState,
             onLogStateChange = { logState = it },
+            textInputMode = textInputMode,
             isTouchProxyEnabled = isTouchProxyEnabled,
             onInputAreaRectUpdated = { _inputArea.value = it },
-            surfaceOffset = surfaceOffset,
-            incrementScreenOffset = incrementScreenOffset,
-            resetScreenOffset = resetScreenOffset,
             getAccountName = {
                 AccountsManager.currentAccountFlow.value?.username //不太可能为空，启动前拦截了这个情况
             },

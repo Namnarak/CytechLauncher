@@ -22,8 +22,6 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -104,8 +102,6 @@ import com.movtery.zalithlauncher.ui.control.gyroscope.GyroscopeReader
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
 import com.movtery.zalithlauncher.ui.control.hotbarPercentage
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
-import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
-import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.joystick.JoystickDirectionListener
 import com.movtery.zalithlauncher.ui.control.joystick.StyleableJoystick
 import com.movtery.zalithlauncher.ui.control.joystick.loadJoystickStyle
@@ -145,7 +141,10 @@ import kotlinx.coroutines.withContext
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 
-private class GameViewModel(private val version: Version) : ViewModel() {
+private class GameViewModel(
+    private val version: Version,
+    private val onChangeTextInputMode: (TextInputMode?) -> Unit
+) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
     /** 游戏菜单悬浮球当前的位置 */
@@ -158,8 +157,6 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     var sendKeycodeState by mutableStateOf<SendKeycodeState>(SendKeycodeState.None)
     /** 更换控制布局操作状态 */
     var replacementControlState by mutableStateOf<ReplacementControlState>(ReplacementControlState.None)
-    /** 输入法状态 */
-    var textInputMode by mutableStateOf(TextInputMode.DISABLE)
     /** 被控制布局层标记为仅滑动的指针列表 */
     var moveOnlyPointers = mutableSetOf<PointerId>()
     /** 鼠标触摸指针处理层占用指针列表 */
@@ -218,7 +215,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         launcherEvent(
             eventKey = key,
             isPressed = pressed,
-            onSwitchIME = { switchIME() },
+            onSwitchIME = { onChangeTextInputMode(null) },
             onSwitchMenu = { switchMenu() },
             onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
             onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
@@ -314,13 +311,6 @@ private class GameViewModel(private val version: Version) : ViewModel() {
     }
 
     /**
-     * 切换输入法
-     */
-    fun switchIME() {
-        this.textInputMode = this.textInputMode.switch()
-    }
-
-    /**
      * 切换游戏菜单
      */
     fun switchMenu() {
@@ -336,7 +326,7 @@ private class GameViewModel(private val version: Version) : ViewModel() {
         gameTextSender.cancel()
         pressedKeyEvents.clearEvent()
         pressedLauncherEvents.clearEvent()
-        textInputMode = TextInputMode.DISABLE
+        onChangeTextInputMode(TextInputMode.DISABLE)
     }
 
     init {
@@ -468,11 +458,12 @@ private class GameTextSender(private val scope: CoroutineScope) {
 
 @Composable
 private fun rememberGameViewModel(
-    version: Version
+    version: Version,
+    onChangeTextInputMode: (TextInputMode?) -> Unit
 ) = viewModel(
     key = version.toString()
 ) {
-    GameViewModel(version)
+    GameViewModel(version, onChangeTextInputMode)
 }
 
 @Composable
@@ -491,18 +482,18 @@ fun GameScreen(
     isGameRendering: Boolean,
     logState: LogState,
     onLogStateChange: (LogState) -> Unit,
+    textInputMode: TextInputMode,
     isTouchProxyEnabled: Boolean,
     onInputAreaRectUpdated: (IntRect?) -> Unit,
-    surfaceOffset: Offset,
-    incrementScreenOffset: (Offset) -> Unit,
-    resetScreenOffset: () -> Unit,
     getAccountName: () -> String?,
     eventViewModel: EventViewModel,
     gamepadViewModel: GamepadViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel = rememberGameViewModel(version)
+    val viewModel = rememberGameViewModel(version) { mode ->
+        eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(mode))
+    }
     val editorViewModel = rememberEditorViewModel("ControlEditor_Times=${viewModel.editorRefresh}")
     val isGrabbing = remember(ZLBridgeStates.cursorMode) {
         ZLBridgeStates.cursorMode == CURSOR_DISABLED
@@ -602,45 +593,22 @@ fun GameScreen(
                 hideLayerWhen = viewModel.controlLayerHideState,
                 isDark = isLauncherInDarkTheme()
             ) {
-                val transformableState = rememberTransformableState { _, offsetChange, _ ->
-                    incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
-                }
-
                 //虚拟鼠标控制层
-                TopOverlayAboveIme(
-                    content = {
-                        MouseControlLayout(
-                            isTouchProxyEnabled = isTouchProxyEnabled,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
-                            screenSize = screenSize,
-                            onInputAreaRectUpdated = onInputAreaRectUpdated,
-                            textInputMode = viewModel.textInputMode,
-                            onCloseInputMethod = { viewModel.textInputMode = TextInputMode.DISABLE },
-                            isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
-                            onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
-                            onReleasePointer = {
-                                viewModel.occupiedPointers.remove(it)
-                                viewModel.moveOnlyPointers.remove(it)
-                            },
-                            onMouseMoved = { viewModel.switchControlLayer(HideLayerWhen.WhenMouse) },
-                            onTouch = { viewModel.switchControlLayer(HideLayerWhen.None) },
-                            gamepadViewModel = gamepadViewModel.takeIf { AllSettings.gamepadControl.state }
-                        )
+                MouseControlLayout(
+                    isTouchProxyEnabled = isTouchProxyEnabled,
+                    modifier = Modifier.fillMaxSize(),
+                    screenSize = screenSize,
+                    onInputAreaRectUpdated = onInputAreaRectUpdated,
+                    textInputMode = textInputMode,
+                    isMoveOnlyPointer = { viewModel.moveOnlyPointers.contains(it) },
+                    onOccupiedPointer = { viewModel.occupiedPointers.add(it) },
+                    onReleasePointer = {
+                        viewModel.occupiedPointers.remove(it)
+                        viewModel.moveOnlyPointers.remove(it)
                     },
-                    emptyAreaContent = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .transformable(state = transformableState)
-                        )
-                    },
-                    onAreaChanged = { show ->
-                        if (!show) {
-                            resetScreenOffset()
-                        }
-                    }
+                    onMouseMoved = { viewModel.switchControlLayer(HideLayerWhen.WhenMouse) },
+                    onTouch = { viewModel.switchControlLayer(HideLayerWhen.None) },
+                    gamepadViewModel = gamepadViewModel.takeIf { AllSettings.gamepadControl.state }
                 )
             }
 
@@ -717,7 +685,9 @@ fun GameScreen(
             enableTerracotta = AllSettings.enableTerracotta.state,
             onOpenTerracottaMenu = { terracottaViewModel.openMenu() },
             onRefreshWindowSize = { eventViewModel.sendEvent(EventViewModel.Event.Game.RefreshSize) },
-            onInputMethod = { viewModel.switchIME() },
+            onInputMethod = {
+                eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(null))
+            },
             onSendKeycode = { viewModel.sendKeycodeState = SendKeycodeState.ShowDialog },
             onReplacementControl = { viewModel.replacementControlState = ReplacementControlState.Show },
             onManageJoystick = {
@@ -794,9 +764,6 @@ fun GameScreen(
             .filterIsInstance<EventViewModel.Event.Game>()
             .collect { event ->
                 when (event) {
-                    is EventViewModel.Event.Game.ShowIme -> {
-                        viewModel.textInputMode = TextInputMode.ENABLE
-                    }
                     is EventViewModel.Event.Game.OnBack -> {
                         if (viewModel.isEditingLayout) {
                             //处于控制布局编辑模式
@@ -893,7 +860,6 @@ private fun MouseControlLayout(
     screenSize: IntSize,
     onInputAreaRectUpdated: (IntRect?) -> Unit,
     textInputMode: TextInputMode,
-    onCloseInputMethod: () -> Unit,
     isMoveOnlyPointer: (PointerId) -> Boolean,
     onOccupiedPointer: (PointerId) -> Unit,
     onReleasePointer: (PointerId) -> Unit,
@@ -911,11 +877,6 @@ private fun MouseControlLayout(
                             onInputAreaRectUpdated = onInputAreaRectUpdated,
                         )
                 } else Modifier
-            )
-            .textInputHandler(
-                mode = textInputMode,
-                sender = LWJGLCharSender,
-                onCloseInputMethod = onCloseInputMethod
             )
     ) {
 

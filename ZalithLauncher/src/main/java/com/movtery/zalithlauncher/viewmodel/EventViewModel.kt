@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.viewmodel
 import android.view.KeyEvent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -49,7 +50,7 @@ class EventViewModel : ViewModel() {
         }
         sealed interface Game : Event {
             /** 呼出IME */
-            data object ShowIme : Game
+            data class SwitchIme(val mode: TextInputMode?) : Game
             /** 刷新游戏画面分辨率 */
             data object RefreshSize : Game
             /** 用户按下系统返回键 */

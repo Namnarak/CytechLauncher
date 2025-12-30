@@ -41,15 +41,12 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
@@ -75,6 +72,9 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.base.WindowMode
+import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBar
+import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBarArea
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
@@ -111,6 +111,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     private lateinit var launcher: Launcher
     private lateinit var handler: AbstractHandler
+
+    /**
+     * 当前输入法开启状态
+     */
+    var textInputMode by mutableStateOf(TextInputMode.DISABLE)
 
     private fun runIfHandlerInitialized(
         block: (AbstractHandler) -> Unit
@@ -215,6 +220,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     is EventViewModel.Event.Game.RefreshSize -> {
                         refreshSize()
                     }
+                    is EventViewModel.Event.Game.SwitchIme -> {
+                        textInputMode = event.mode ?: textInputMode.switch()
+                    }
                     else -> { /* Ignore */ }
                 }
             }
@@ -222,21 +230,70 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
         setContent {
             ZalithLauncherTheme {
-                //Surface屏幕整体偏移
-                var surfaceOffset by remember { mutableStateOf(Offset.Zero) }
+                Screen {
+                    handler.ComposableLayout(textInputMode)
 
-                Screen(
-                    surfaceOffset = surfaceOffset
-                ) {
-                    handler.ComposableLayout(
-                        surfaceOffset = surfaceOffset,
-                        incrementScreenOffset = { new: Offset ->
-                            surfaceOffset += new
-                        },
-                        resetScreenOffset = {
-                            surfaceOffset = Offset.Zero
-                        }
-                    )
+                    //输入栏控制区域
+                    TextInputBarArea {innerModifier, mode ->
+                        TextInputBar(
+                            modifier = innerModifier,
+                            mode = mode,
+                            show = textInputMode == TextInputMode.ENABLE,
+                            onClose = { textInputMode = TextInputMode.DISABLE },
+                            onSendText = { text ->
+                                runIfHandlerInitialized {
+                                    text.forEach { char ->
+                                        it.sender.sendChar(char)
+                                    }
+                                }
+                            },
+                            onShiftClick = { press ->
+                                runIfHandlerInitialized {
+                                    it.sender.sendModifierShift(press)
+                                }
+                            },
+                            onCtrlClick = { press ->
+                                runIfHandlerInitialized {
+                                    it.sender.sendModifierCtrl(press)
+                                }
+                            },
+                            onTabClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendTab()
+                                }
+                            },
+                            onEnterClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendEnter()
+                                }
+                            },
+                            onUpClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendUp()
+                                }
+                            },
+                            onDownClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendDown()
+                                }
+                            },
+                            onLeftClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendLeft()
+                                }
+                            },
+                            onRightClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendRight()
+                                }
+                            },
+                            onBackspaceClick = {
+                                runIfHandlerInitialized {
+                                    it.sender.sendBackspace()
+                                }
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -286,12 +343,19 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val isPressed = event.action == KeyEvent.ACTION_DOWN
+
         val code = AllSettings.physicalKeyImeCode.state
-        if (code != null && event.keyCode == code) {
+        if (isPressed && code != null && event.keyCode == code) {
             //用户按下了绑定呼出输入法的按键
-            //向Compose端发送事件，调出输入法
-            eventViewModel.sendEvent(EventViewModel.Event.Game.ShowIme)
+            //开启或关闭输入法
+            textInputMode = textInputMode.switch()
             return true
+        }
+        if (textInputMode == TextInputMode.ENABLE) {
+            //在输入文本的时候，应该避免继续处理按键事件
+            //否则输入法的一些功能键会失效
+            return super.dispatchKeyEvent(event)
         }
         event.device?.let {
             val source = event.source
@@ -300,7 +364,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
                 if (event.keyCode == KeyEvent.KEYCODE_BACK) {
                     //一些系统会将鼠标右键当成KEYCODE_BACK来处理，需要在这里进行拦截
-                    val isPressed = event.action == KeyEvent.ACTION_DOWN
                     //然后发送真实的鼠标右键
                     runIfHandlerInitialized { it.sendMouseRight(isPressed) }
                     return false
@@ -350,12 +413,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
     }
 
-    /**
-     * @param surfaceOffset Surface整体偏移
-     */
     @Composable
     private fun Screen(
-        surfaceOffset: Offset = Offset.Zero,
         content: @Composable () -> Unit = {}
     ) {
         if (this::handler.isInitialized) {
@@ -374,8 +433,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                                 val bottomDistance = CallbackBridge.windowHeight - area.bottom
                                 val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
                                 IntOffset(0, -bottomPadding)
-                            }
-                            .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
+                            },
                         factory = { context ->
                             TextureView(context).apply {
                                 isOpaque = true

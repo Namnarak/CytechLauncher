@@ -18,23 +18,18 @@
 
 package com.movtery.zalithlauncher.ui.screens.game
 
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -44,27 +39,19 @@ import com.movtery.zalithlauncher.bridge.ZLNativeInvoker
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
 import com.movtery.zalithlauncher.ui.components.TouchableButton
-import com.movtery.zalithlauncher.ui.control.input.TextInputMode
-import com.movtery.zalithlauncher.ui.control.input.TopOverlayAboveIme
-import com.movtery.zalithlauncher.ui.control.input.textInputHandler
 import com.movtery.zalithlauncher.ui.control.mouse.VirtualPointerLayout
 import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
-import kotlinx.coroutines.flow.filterIsInstance
 
 @Composable
 fun JVMScreen(
     logState: LogState,
     onLogStateChange: (LogState) -> Unit,
-    surfaceOffset: Offset,
-    incrementScreenOffset: (Offset) -> Unit,
-    resetScreenOffset: () -> Unit,
     eventViewModel: EventViewModel
 ) {
     var forceCloseState by remember { mutableStateOf<ForceCloseOperation>(ForceCloseOperation.None) }
-    var textInputMode by remember { mutableStateOf(TextInputMode.DISABLE) }
 
     ForceCloseOperation(
         operation = forceCloseState,
@@ -76,41 +63,17 @@ fun JVMScreen(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val transformableState = rememberTransformableState { _, offsetChange, _ ->
-            incrementScreenOffset(offsetChange.copy(x = 0f)) //固定X坐标，只允许移动Y坐标
-        }
-
-        TopOverlayAboveIme(
-            content = {
-                SimpleMouseControlLayout(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .absoluteOffset(x = 0.dp, y = surfaceOffset.y.dp),
-                    textInputMode = textInputMode,
-                    onCloseInputMethod = { textInputMode = TextInputMode.DISABLE },
-                    sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
-                    sendMouseCodePress = { code, pressed ->
-                        ZLBridge.sendMousePress(code, pressed)
-                    },
-                    sendMouseLongPress = { isPressed ->
-                        ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
-                    },
-                    placeMouse = { mouseX, mouseY ->
-                        ZLBridge.sendMousePos((mouseX * 0.8).toInt(), (mouseY * 0.8).toInt())
-                    }
-                )
+        SimpleMouseControlLayout(
+            modifier = Modifier.fillMaxSize(),
+            sendMousePress = { ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK) },
+            sendMouseCodePress = { code, pressed ->
+                ZLBridge.sendMousePress(code, pressed)
             },
-            emptyAreaContent = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .transformable(state = transformableState)
-                )
+            sendMouseLongPress = { isPressed ->
+                ZLBridge.sendMousePress(AWTInputEvent.BUTTON1_DOWN_MASK, isPressed)
             },
-            onAreaChanged = { show ->
-                if (!show) {
-                    resetScreenOffset()
-                }
+            placeMouse = { mouseX, mouseY ->
+                ZLBridge.sendMousePos((mouseX * 0.8).toInt(), (mouseY * 0.8).toInt())
             }
         )
 
@@ -125,7 +88,7 @@ fun JVMScreen(
                 .fillMaxSize()
                 .padding(8.dp),
             changeKeyboard = {
-                textInputMode = textInputMode.switch()
+                eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(null))
             },
             forceCloseClick = {
                 forceCloseState = ForceCloseOperation.Show
@@ -135,33 +98,18 @@ fun JVMScreen(
             }
         )
     }
-
-    LaunchedEffect(Unit) {
-        eventViewModel.events
-            .filterIsInstance<EventViewModel.Event.Game.ShowIme>()
-            .collect {
-                textInputMode = TextInputMode.ENABLE
-            }
-    }
 }
 
 @Composable
 private fun SimpleMouseControlLayout(
     modifier: Modifier = Modifier,
-    textInputMode: TextInputMode,
-    onCloseInputMethod: () -> Unit,
     sendMousePress: () -> Unit,
     sendMouseCodePress: (Int, Boolean) -> Unit,
     sendMouseLongPress: (Boolean) -> Unit,
     placeMouse: (mouseX: Float, mouseY: Float) -> Unit
 ) {
     VirtualPointerLayout(
-        modifier = modifier
-            .textInputHandler(
-                mode = textInputMode,
-                sender = AWTCharSender,
-                onCloseInputMethod = onCloseInputMethod
-            ),
+        modifier = modifier,
         onTap = { sendMousePress() },
         onPointerMove = { placeMouse(it.x, it.y) },
         onLongPress = { sendMouseLongPress(true) },
