@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -56,6 +57,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
@@ -93,6 +95,9 @@ import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
 import java.io.IOException
@@ -116,42 +121,63 @@ class VMViewModel : ViewModel() {
      */
     var textInputMode by mutableStateOf(TextInputMode.DISABLE)
 
+    fun disableInputMode() {
+        if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
+    }
+
     /**
      * 输入代理
      */
     val inputProxy = GameInputProxy(LWJGLCharSender)
     val inputTextFieldState = TextFieldState()
 
-    var lastInputText = ""
-        private set
-    var lastInputSelection = TextRange.Zero
-        private set
+    private var lastInputText = ""
+    private var lastInputSelection = TextRange.Zero
 
-    private var isCleaning = false
+    private var isInputCleaning = false
+
+    private val inputMutex = Mutex()
 
     fun handleInputText(text: String, selection: TextRange) {
-        if (!isCleaning && (text != lastInputText || selection != lastInputSelection)) {
-            inputProxy.handleTextChange(
-                oldText = lastInputText,
-                newText = text,
-                oldSelection = lastInputSelection,
-                newSelection = selection
-            )
+        viewModelScope.launch {
+            inputMutex.withLock {
+                if (!isInputCleaning && (text != lastInputText || selection != lastInputSelection)) {
+                    withContext(Dispatchers.Main) {
+                        inputProxy.handleTextChange(
+                            oldText = lastInputText,
+                            newText = text,
+                            oldSelection = lastInputSelection,
+                            newSelection = selection
+                        )
+                    }
 
-            lastInputText = text
-            lastInputSelection = selection
+                    lastInputText = text
+                    lastInputSelection = selection
+                }
+            }
         }
     }
 
+    /**
+     * 清空输入栏的状态
+     */
     fun clearInput() {
-        isCleaning = true
-        inputTextFieldState.edit {
-            replace(0, inputTextFieldState.text.length, "")
-            selection = TextRange.Zero
+        viewModelScope.launch {
+            inputMutex.withLock {
+                isInputCleaning = true
+
+                withContext(Dispatchers.Main) {
+                    inputTextFieldState.edit {
+                        replace(0, inputTextFieldState.text.length, "")
+                        selection = TextRange.Zero
+                    }
+                }
+
+                lastInputText = ""
+                lastInputSelection = TextRange.Zero
+                isInputCleaning = false
+            }
         }
-        lastInputText = ""
-        lastInputSelection = TextRange.Zero
-        isCleaning = false
     }
 
     fun runIfHandlerInitialized(
@@ -295,7 +321,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                             mode = mode,
                             textFieldState = vmViewModel.inputTextFieldState,
                             show = vmViewModel.textInputMode == TextInputMode.ENABLE,
-                            onClose = { vmViewModel.textInputMode = TextInputMode.DISABLE },
+                            onClose = { vmViewModel.disableInputMode() },
                             onHandle = { text, selection ->
                                 vmViewModel.handleInputText(text, selection)
                             },
@@ -337,6 +363,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                                 vmViewModel.inputProxy.sender.sendBackspace()
                             },
                         )
+                    }
+
+                    //鼠标抓获模式变更时，应该关闭输入框
+                    LaunchedEffect(ZLBridgeStates.cursorMode) {
+                        vmViewModel.disableInputMode()
                     }
                 }
             }
