@@ -464,7 +464,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 !vmViewModel.inputProxy.handleSpecialKey(event, vmViewModel.inputTextFieldState.text)
             ) {
                 //无特殊处理的情况
-                vmViewModel.inputProxy.handleSpecialKey(event)
+                vmViewModel.inputProxy.handleSpecialKey(event) {
+                    vmViewModel.clearInput()
+                }
             }
             //在输入文本的时候，应该避免继续处理按键事件
             //否则输入法的一些功能键会失效

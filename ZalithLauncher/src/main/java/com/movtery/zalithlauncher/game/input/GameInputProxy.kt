@@ -111,24 +111,29 @@ class GameInputProxy(
     /**
      * 处理特殊按键
      */
-    fun handleSpecialKey(keyEvent: KeyEvent) {
+    fun handleSpecialKey(
+        keyEvent: KeyEvent,
+        onClearState: () -> Unit
+    ) {
         when (keyEvent.keyCode) {
-            KeyEvent.KEYCODE_ENTER -> sender.sendEnter()
-            KeyEvent.KEYCODE_TAB -> sender.sendTab()
-
             KeyEvent.KEYCODE_DEL,
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
                 //已经在处理文本差异时尝试过发送按键了，但是可能需要考虑到这类情况
                 //文本框本身没有文本，但是游戏内的输入框还有文本
                 //所以应该继续发送退格键，但不应该在这里进行处理
+                return
             }
+
+            KeyEvent.KEYCODE_ENTER -> sender.sendEnter()
+            KeyEvent.KEYCODE_TAB -> sender.sendTab()
 
             KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
             KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
 
             else -> sender.sendOther(keyEvent)
         }
+        onClearState()
     }
 
     /**
