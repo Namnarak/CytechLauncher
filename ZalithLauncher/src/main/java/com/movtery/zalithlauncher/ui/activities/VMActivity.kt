@@ -468,6 +468,10 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     vmViewModel.clearInput()
                 }
             }
+            if (event.keyCode == KeyEvent.KEYCODE_TAB) {
+                //对于Tab键，为了避免选中其他的组件，这里应该直接拦截
+                return true
+            }
             //在输入文本的时候，应该避免继续处理按键事件
             //否则输入法的一些功能键会失效
             return super.dispatchKeyEvent(event)
