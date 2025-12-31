@@ -126,6 +126,11 @@ class VMViewModel : ViewModel() {
     }
 
     /**
+     * 是否允许VMActivity处理按键
+     */
+    var keyHandle = true
+
+    /**
      * 输入代理
      */
     val inputProxy = GameInputProxy(LWJGLCharSender)
@@ -304,6 +309,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     is EventViewModel.Event.Game.SwitchIme -> {
                         vmViewModel.textInputMode = event.mode ?: vmViewModel.textInputMode.switch()
                     }
+                    is EventViewModel.Event.Game.KeyHandle -> {
+                        vmViewModel.keyHandle = event.handle
+                    }
                     else -> { /* Ignore */ }
                 }
             }
@@ -418,6 +426,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!vmViewModel.keyHandle) return super.dispatchKeyEvent(event)
+
         val isPressed = event.action == KeyEvent.ACTION_DOWN
 
         val code = AllSettings.physicalKeyImeCode.state

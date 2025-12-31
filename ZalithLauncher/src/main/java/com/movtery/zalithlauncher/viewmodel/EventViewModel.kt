@@ -49,6 +49,8 @@ class EventViewModel : ViewModel() {
             data class OnKeyDown(val key: KeyEvent) : Key
         }
         sealed interface Game : Event {
+            /** 禁用/启用VMActivity按键处理 */
+            data class KeyHandle(val handle: Boolean): Game
             /** 呼出IME */
             data class SwitchIme(val mode: TextInputMode?) : Game
             /** 刷新游戏画面分辨率 */

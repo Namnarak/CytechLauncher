@@ -506,6 +506,12 @@ fun GameScreen(
         getUserName = getAccountName
     )
 
+    LaunchedEffect(viewModel.isEditingLayout) {
+        val state = viewModel.isEditingLayout
+        //向VMActivity同步状态，编辑控制布局时，不会继续处理按键事件
+        eventViewModel.sendEvent(EventViewModel.Event.Game.KeyHandle(state.not()))
+    }
+
     SendKeycodeOperation(
         operation = viewModel.sendKeycodeState,
         onChange = { viewModel.sendKeycodeState = it },
