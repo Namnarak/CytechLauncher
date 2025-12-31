@@ -94,6 +94,9 @@ import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -135,6 +138,13 @@ class VMViewModel : ViewModel() {
      */
     val inputProxy = GameInputProxy(LWJGLCharSender)
     val inputTextFieldState = TextFieldState()
+
+    private val _enabledInputActionBar = MutableStateFlow(false)
+    val enabledInputActionBar = _enabledInputActionBar.asStateFlow()
+
+    fun updateInputActionBar(enabled: Boolean) {
+        _enabledInputActionBar.update { enabled }
+    }
 
     private var lastInputText = ""
     private var lastInputSelection = TextRange.Zero
@@ -324,11 +334,15 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
                     //输入栏控制区域
                     TextInputBarArea {innerModifier, mode ->
+                        val enabledActionBar by vmViewModel.enabledInputActionBar.collectAsStateWithLifecycle()
+
                         TextInputBar(
                             modifier = innerModifier,
                             mode = mode,
                             textFieldState = vmViewModel.inputTextFieldState,
                             show = vmViewModel.textInputMode == TextInputMode.ENABLE,
+                            enabledActionBar = enabledActionBar,
+                            onChangeActionBar = { vmViewModel.updateInputActionBar(it) },
                             onClose = { vmViewModel.disableInputMode() },
                             onHandle = { text, selection ->
                                 vmViewModel.handleInputText(text, selection)

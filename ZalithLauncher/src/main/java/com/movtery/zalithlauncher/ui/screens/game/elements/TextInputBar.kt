@@ -20,6 +20,8 @@ package com.movtery.zalithlauncher.ui.screens.game.elements
 
 import android.view.inputmethod.InputConnection
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -43,8 +45,10 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -148,6 +152,7 @@ fun TextInputBarArea(
  *
  * @param mode 控制输入条的显示模式，主要用于照顾全屏输入法（悬浮输入法或者关闭输入法时，可以使用 [InputBarMode.Floating]）
  * @param show 控制是否显示输入条，主要用于淡出淡入的动画效果
+ * @param enabledActionBar 是否启用操作栏
  */
 @Composable
 fun TextInputBar(
@@ -155,6 +160,8 @@ fun TextInputBar(
     mode: InputBarMode = InputBarMode.Floating,
     textFieldState: TextFieldState,
     show: Boolean,
+    enabledActionBar: Boolean = true,
+    onChangeActionBar: (Boolean) -> Unit = {},
     onClose: () -> Unit,
     onHandle: (text: String, selection: TextRange) -> Unit,
     onClear: () -> Unit,
@@ -207,14 +214,15 @@ fun TextInputBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(
-                        when (mode) {
-                            InputBarMode.Floating -> Modifier
+                        if (mode == InputBarMode.Floating && enabledActionBar) {
+                            Modifier
                                 //特调操作按钮栏底部边距
                                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 10.dp)
-                            InputBarMode.Filling -> Modifier
-                                .padding(all = 16.dp)
+                        } else {
+                            Modifier.padding(all = 16.dp)
                         }
-                    ),
+                    )
+                    .animateContentSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 //基础输入法功能栏
@@ -286,6 +294,32 @@ fun TextInputBar(
                             color = itemLayoutColorOnSurface(),
                             contentColor = MaterialTheme.colorScheme.onSurface
                         )
+
+                        if (mode == InputBarMode.Floating) {
+                            //操作栏切换按钮
+                            SurfaceButton(
+                                onClick = {
+                                    onChangeActionBar(!enabledActionBar)
+                                },
+                                color = itemLayoutColorOnSurface(),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                icon = {
+                                    Crossfade(
+                                        targetState = enabledActionBar
+                                    ) { enabled ->
+                                        Icon(
+                                            modifier = Modifier.size(18.dp),
+                                            imageVector = if (enabled) {
+                                                Icons.Default.ArrowDropUp
+                                            } else {
+                                                Icons.Default.MoreHoriz
+                                            },
+                                            contentDescription = stringResource(R.string.generic_more)
+                                        )
+                                    }
+                                },
+                            )
+                        }
 //
 //                        //发送按钮
 //                        SurfaceButton(
@@ -303,7 +337,7 @@ fun TextInputBar(
                     }
                 }
 
-                if (mode == InputBarMode.Floating) {
+                if (mode == InputBarMode.Floating && enabledActionBar) {
                     //在悬浮模式下，显示更多的操作项
                     val scrollState = rememberScrollState()
                     ActionBar(
@@ -446,6 +480,31 @@ private fun SurfaceButton(
     color: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = contentColorFor(color)
 ) {
+    SurfaceButton(
+        modifier = modifier,
+        icon = {
+            Icon(
+                modifier = Modifier.size(iconSize),
+                imageVector = icon,
+                contentDescription = contentDescription
+            )
+        },
+        onClick = onClick,
+        shape = shape,
+        color = color,
+        contentColor = contentColor
+    )
+}
+
+@Composable
+private fun SurfaceButton(
+    modifier: Modifier = Modifier,
+    icon: @Composable BoxScope.() -> Unit,
+    onClick: () -> Unit,
+    shape: Shape = IconButtonDefaults.standardShape,
+    color: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = contentColorFor(color)
+) {
     Surface(
         modifier = modifier,
         shape = shape,
@@ -457,11 +516,7 @@ private fun SurfaceButton(
             modifier = Modifier.padding(all = 12.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                modifier = Modifier.size(iconSize),
-                imageVector = icon,
-                contentDescription = contentDescription
-            )
+            icon()
         }
     }
 }
