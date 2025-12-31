@@ -47,6 +47,7 @@ class GameInputProxy(
         ) {
             is TextDifference.Insert -> handleInsert(diff)
             is TextDifference.Delete -> handleDelete(diff)
+            is TextDifference.Replace -> handleReplace(diff)
             //操作游戏内的指针，上面的插入与删除逻辑，都是建立在输入框的指针位置，与游戏内的指针位置一致的基础上实现的
             is TextDifference.MoveCursor -> handleCursorMove(diff)
         }
@@ -61,6 +62,18 @@ class GameInputProxy(
     private fun handleDelete(diff: TextDifference.Delete) {
         repeat(diff.deletedText.length) {
             sender.sendBackspace()
+        }
+    }
+
+    /**
+     * 处理替换操作，删除选区 + 插入新文本
+     */
+    private fun handleReplace(diff: TextDifference.Replace) {
+        repeat(diff.deletedText.length) {
+            sender.sendBackspace()
+        }
+        diff.insertedText.forEach { char ->
+            sender.sendChar(char)
         }
     }
 
@@ -139,7 +152,7 @@ class GameInputProxy(
 /**
  * 文本差异类型
  */
-sealed class TextDifference {
+private sealed class TextDifference {
     data class Insert(
         val insertedText: String
     ) : TextDifference()
@@ -152,12 +165,17 @@ sealed class TextDifference {
         val oldPosition: Int,
         val newPosition: Int
     ) : TextDifference()
+
+    data class Replace(
+        val deletedText: String,
+        val insertedText: String
+    ) : TextDifference()
 }
 
 /**
  * 计算文本差异
  */
-fun calculateTextDifference(
+private fun calculateTextDifference(
     oldText: String,
     newText: String,
     oldSelection: TextRange,
@@ -180,28 +198,45 @@ fun calculateTextDifference(
     val oldLength = oldText.length
     val newLength = newText.length
 
-    // 当有选区时，删除操作应该只删除选区内的文本
+    // 当有选区时，优先处理选区相关的变化
     if (hasSelection) {
         // 选区范围
         val selectionStart = oldSelection.min
         val selectionEnd = oldSelection.max
+        val selectionLength = selectionEnd - selectionStart
+        val selectedText = oldText.substring(selectionStart, selectionEnd)
 
-        // 检查是否是删除选区内容
-        if (newLength == oldLength - (selectionEnd - selectionStart)) {
-            // 构造删除选区后的预期文本
+        // 判断是否是删除选区内容
+        if (newLength == oldLength - selectionLength) {
             val expectedText = oldText.take(selectionStart) + oldText.substring(selectionEnd)
 
             if (newText == expectedText) {
                 return TextDifference.Delete(
-                    deletedText = oldText.substring(selectionStart, selectionEnd)
+                    deletedText = selectedText
                 )
             }
         }
+
+        // 选区内容被替换为了其他的文本
+        // 检查新文本是否以选区前的内容开头，以选区后的内容结尾
+        if (newText.startsWith(oldText.take(selectionStart)) &&
+            newText.endsWith(oldText.substring(selectionEnd))) {
+
+            // 计算新文本中替换了选区的内容
+            val insertedText = newText.substring(
+                selectionStart,
+                newLength - (oldLength - selectionEnd)
+            )
+
+            return TextDifference.Replace(
+                deletedText = selectedText,
+                insertedText = insertedText
+            )
+        }
     }
 
-    // 检查是否是在光标位置插入
-    if (newLength > oldLength) {
-        // 检查是否是在光标位置插入
+    // 检查是否是在光标位置插入（无选区时）
+    if (newLength > oldLength && !hasSelection) {
         val beforeCursor = oldText.take(oldPosition)
         val afterCursor = oldText.substring(oldPosition)
 
@@ -218,8 +253,8 @@ fun calculateTextDifference(
         }
     }
 
-    // 检查是否是在光标位置删除
-    if (newLength < oldLength) {
+    // 检查是否是在光标位置删除（无选区时）
+    if (newLength < oldLength && !hasSelection) {
         // 光标位置可能是删除的结束位置
         // 简单逻辑：如果新文本是旧文本的前缀，那么是从末尾删除
         if (newText == oldText.take(newLength)) {
@@ -240,8 +275,8 @@ fun calculateTextDifference(
         }
     }
 
-    // 如果光标位置没变，我们尝试分析差异
-    if (oldPosition == newPosition) {
+    // 如果光标位置没变且没有选区，尝试分析差异
+    if (oldPosition == newPosition && !hasSelection) {
         // 寻找第一个不同的字符
         val minLength = min(oldLength, newLength)
         var firstDiffIndex = -1
