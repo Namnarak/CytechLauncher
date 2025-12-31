@@ -31,6 +31,7 @@ import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -326,6 +327,19 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
+                    //那应该是想退出输入框了
+                    vmViewModel.disableInputMode()
+                    return
+                }
+                if (!vmViewModel.keyHandle) return
+
+                eventViewModel.sendEvent(EventViewModel.Event.Game.OnBack)
+            }
+        })
 
         setContent {
             ZalithLauncherTheme {

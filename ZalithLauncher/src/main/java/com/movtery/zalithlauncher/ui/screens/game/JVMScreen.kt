@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import com.movtery.zalithlauncher.ui.screens.game.elements.ForceCloseOperation
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogBox
 import com.movtery.zalithlauncher.ui.screens.game.elements.LogState
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import kotlinx.coroutines.flow.filterIsInstance
 
 @Composable
 fun JVMScreen(
@@ -61,6 +63,14 @@ fun JVMScreen(
         },
         text = stringResource(R.string.game_dialog_force_close_message)
     )
+
+    LaunchedEffect(Unit) {
+        eventViewModel.events
+            .filterIsInstance<EventViewModel.Event.Game.OnBack>()
+            .collect {
+                forceCloseState = ForceCloseOperation.Show
+            }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         SimpleMouseControlLayout(

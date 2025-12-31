@@ -141,6 +141,7 @@ class GameHandler(
     override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_UP && (event.flags and KeyEvent.FLAG_CANCELED) != 0) return false
 
+        //这一段可能用不到了，VMActivity已经在onBackPressedDispatcher绑定了一个监听器
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
             eventViewModel.sendEvent(EventViewModel.Event.Game.OnBack)
             return false
