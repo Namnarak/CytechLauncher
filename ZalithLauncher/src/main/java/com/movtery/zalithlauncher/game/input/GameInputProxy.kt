@@ -59,17 +59,8 @@ class GameInputProxy(
     }
 
     private fun handleDelete(diff: TextDifference.Delete) {
-        if (diff.isSelectAll) {
-            repeat(diff.deletedText.length) {
-                sender.sendRight()
-            }
-            repeat(diff.deletedText.length) {
-                sender.sendBackspace()
-            }
-        } else {
-            repeat(diff.deletedText.length) {
-                sender.sendBackspace()
-            }
+        repeat(diff.deletedText.length) {
+            sender.sendBackspace()
         }
     }
 
@@ -154,8 +145,7 @@ sealed class TextDifference {
     ) : TextDifference()
 
     data class Delete(
-        val deletedText: String,
-        val isSelectAll: Boolean = false
+        val deletedText: String
     ) : TextDifference()
 
     data class MoveCursor(
@@ -173,30 +163,25 @@ fun calculateTextDifference(
     oldSelection: TextRange,
     newSelection: TextRange
 ): TextDifference {
+    val oldPosition = oldSelection.max
+    val newPosition = newSelection.max
+
+    val hasSelection = !oldSelection.collapsed
+
     //如果文本相同，则判断只有光标移动
     //让游戏同步光标状态（发送左右方向键实现）
     if (oldText == newText) {
         return TextDifference.MoveCursor(
-            oldPosition = oldSelection.start,
-            newPosition = newSelection.start
+            oldPosition = oldPosition,
+            newPosition = newPosition
         )
     }
 
     val oldLength = oldText.length
     val newLength = newText.length
 
-    // 全选后删除所有文本
-    // 当旧文本有内容，新文本为空，且旧选区覆盖了整个文本
-    if (newText.isEmpty() && oldText.isNotEmpty() &&
-        !oldSelection.collapsed && oldSelection.min == 0 && oldSelection.max == oldLength) {
-        return TextDifference.Delete(
-            deletedText = oldText,
-            isSelectAll = true
-        )
-    }
-
     // 当有选区时，删除操作应该只删除选区内的文本
-    if (!oldSelection.collapsed) {
+    if (hasSelection) {
         // 选区范围
         val selectionStart = oldSelection.min
         val selectionEnd = oldSelection.max
@@ -208,8 +193,7 @@ fun calculateTextDifference(
 
             if (newText == expectedText) {
                 return TextDifference.Delete(
-                    deletedText = oldText.substring(selectionStart, selectionEnd),
-                    isSelectAll = (selectionStart == 0 && selectionEnd == oldLength)
+                    deletedText = oldText.substring(selectionStart, selectionEnd)
                 )
             }
         }
@@ -217,13 +201,9 @@ fun calculateTextDifference(
 
     // 检查是否是在光标位置插入
     if (newLength > oldLength) {
-        // 尝试找到插入的位置
-        // 最简单的情况：在光标位置插入
-        val cursorPos = oldSelection.start
-
         // 检查是否是在光标位置插入
-        val beforeCursor = oldText.take(cursorPos)
-        val afterCursor = oldText.substring(cursorPos)
+        val beforeCursor = oldText.take(oldPosition)
+        val afterCursor = oldText.substring(oldPosition)
 
         // 新文本应该以 beforeCursor 开头，以 afterCursor 结尾
         if (newText.startsWith(beforeCursor) && newText.endsWith(afterCursor)) {
@@ -240,32 +220,28 @@ fun calculateTextDifference(
 
     // 检查是否是在光标位置删除
     if (newLength < oldLength) {
-        val cursorPos = oldSelection.start
-
         // 光标位置可能是删除的结束位置
         // 简单逻辑：如果新文本是旧文本的前缀，那么是从末尾删除
         if (newText == oldText.take(newLength)) {
             return TextDifference.Delete(
-                deletedText = oldText.substring(newLength),
-                isSelectAll = false
+                deletedText = oldText.substring(newLength)
             )
         }
 
         // 检查是否删除光标前的字符
-        if (cursorPos in 1..oldLength) {
+        if (oldPosition in 1..oldLength) {
             // 尝试在光标前删除一个字符
-            val potentialDeleted = oldText.take(cursorPos - 1) + oldText.substring(cursorPos)
+            val potentialDeleted = oldText.take(oldPosition - 1) + oldText.substring(oldPosition)
             if (potentialDeleted == newText) {
                 return TextDifference.Delete(
-                    deletedText = oldText.substring(cursorPos - 1, cursorPos),
-                    isSelectAll = false
+                    deletedText = oldText.substring(oldPosition - 1, oldPosition)
                 )
             }
         }
     }
 
     // 如果光标位置没变，我们尝试分析差异
-    if (oldSelection.start == newSelection.start) {
+    if (oldPosition == newPosition) {
         // 寻找第一个不同的字符
         val minLength = min(oldLength, newLength)
         var firstDiffIndex = -1
@@ -278,8 +254,7 @@ fun calculateTextDifference(
 
         if (firstDiffIndex != -1) {
             return TextDifference.Delete(
-                deletedText = oldText.substring(firstDiffIndex),
-                isSelectAll = false
+                deletedText = oldText.substring(firstDiffIndex)
             )
         }
     }
