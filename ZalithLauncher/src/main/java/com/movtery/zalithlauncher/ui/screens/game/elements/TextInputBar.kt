@@ -276,10 +276,15 @@ fun TextInputBar(
                         shape = MaterialTheme.shapes.large
                     )
 
-                    //加载后即呼出输入法
-                    LaunchedEffect(Unit) {
-                        inputFocus.requestFocus()
-                        keyboardController?.show()
+                    //根据show来决定是否显示/隐藏输入法
+                    LaunchedEffect(show) {
+                        if (show) {
+                            inputFocus.requestFocus()
+                            keyboardController?.show()
+                        } else {
+                            focusManager.clearFocus(true)
+                            keyboardController?.hide()
+                        }
                     }
 
                     Row(
