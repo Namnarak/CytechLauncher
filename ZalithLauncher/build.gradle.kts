@@ -247,6 +247,7 @@ dependencies {
     implementation(project(":ColorPicker"))
     implementation(project(":NG-GL4ES"))
     implementation(project(":Terracotta"))
+    implementation(project(":LWJGL"))
     //Utils
     implementation(libs.bytehook)
     implementation(libs.gson)
