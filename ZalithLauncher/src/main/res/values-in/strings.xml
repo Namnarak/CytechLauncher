@@ -98,8 +98,8 @@
     <string name="unpack_screen_launcher">Komponen peluncur esensial</string>
     <string name="main_launch_game">Luncurkan</string>
     <string name="main_task_menu">Menu Tugas</string>
-    <string name="download_category_game">Game</string>
-    <string name="download_category_modpack">Modpack</string>
+    <string name="download_category_game">Gim</string>
+    <string name="download_category_modpack">Paket Mod</string>
     <string name="download_category_mod">Mod</string>
     <string name="download_category_resource_pack">Paket Sumber Daya</string>
     <string name="download_category_saves">Dunia</string>
@@ -154,7 +154,7 @@
     <string name="download_assets_filter_game_version">Versi Game</string>
     <string name="sort_by">Urutkan Berdasarkan</string>
     <string name="download_assets_filter_category">Kategori</string>
-    <string name="download_assets_filter_modloader">Mod Loader</string>
+    <string name="download_assets_filter_modloader">Pemuat Mod</string>
     <string name="download_assets_filter_none">Tidak Dipilih</string>
     <string name="download_assets_filter_sort_by_relevant">Relevan</string>
     <string name="download_assets_filter_sort_by_total_downloads">Total Unduhan</string>
@@ -221,7 +221,7 @@
     <string name="download_assets_category_game_mechanics">Mekanisme game</string>
     <string name="download_assets_category_optimization">Optimisasi</string>
     <string name="download_assets_category_multiplayer">Multiplayer</string>
-    <string name="download_assets_category_challenging">Hardcore</string>
+    <string name="download_assets_category_challenging">Menantang</string>
     <string name="download_assets_category_combat">Pertarungan</string>
     <string name="download_assets_category_quests">Misi</string>
     <string name="download_assets_category_exploration">Eksplorasi</string>
@@ -565,7 +565,7 @@
     <string name="resource_pack_manage_info">Informasi Paket Sumber Daya</string>
     <string name="resource_pack_manage_invalid">Format Paket Sumber Daya Tidak Valid</string>
     <string name="resource_pack_manage_type">Jenis Paket Sumber Daya: %s</string>
-    <string name="resource_pack_manage_type_folder">Folder</string>
+    <string name="resource_pack_manage_type_folder">berkas</string>
     <string name="resource_pack_manage_type_zip">Arsip ZIP</string>
     <string name="resource_pack_manage_formats">Versi Format: %s</string>
     <string name="resource_pack_manage_exists">Paket sumber daya dengan nama ini sudah ada</string>
@@ -586,8 +586,8 @@
     <string name="settings_element_selected">Dipilih: %s</string>
     <string name="settings_label_ignore_if_blank">Biarkan kosong untuk mengabaikan</string>
     <string name="settings_tab_renderer">Perender</string>
-    <string name="settings_tab_game">Game</string>
-    <string name="settings_tab_launcher">Launcher</string>
+    <string name="settings_tab_game">Gim</string>
+    <string name="settings_tab_launcher">Peluncur</string>
     <string name="settings_renderer_global_renderer_title">Perender Global</string>
     <string name="settings_renderer_shader_dump_title">Log Shader</string>
     <string name="settings_renderer_shader_dump_summary">Keluarkan kode shader yang dikonversi ke file log selama runtime game untuk memudahkan debugging dan menganalisa proses rendering grafis</string>
@@ -879,7 +879,7 @@
     <string name="download_assets_loading_page_data">Memulai data halaman</string>
     <string name="download_assets_loaded_chunk_page">Data halaman dimuat, chunk %1$d, page %2$d</string>
     <string name="cape_name_migrator">Migrator</string>
-    <string name="cape_name_mapmaker">MapMaker</string>
+    <string name="cape_name_mapmaker">Pembuat Peta</string>
     <string name="cape_name_moderator">Moderator</string>
     <string name="cape_name_translator_chinese">Terjemahan-China</string>
     <string name="cape_name_translator">Terjemahan</string>
@@ -1044,5 +1044,7 @@
     <string name="game_styles_joystick_deadzone">Rentang Deadzone Joystick</string>
     <string name="control_editor_special_joystick_style_tip_summary">Karena tingkat implementasinya cukup rumit, sistem layout kontrol belum bisa langsung mengintegrasikan komponen joystick. Untuk pakai joystick, kamu hanya bisa mengaktifkan joystick universal lewat menu di dalam game. Meski begitu, kamu tetap bisa menentukan tampilan joystick lewat layout kontrol supaya gayanya tetap konsisten.</string>
     <string name="upgrade_cloud_drive">Penyimpanan Cloud</string>
-    <string name="cape_name_zombie_horse">Zombie Horse</string>
+    <string name="cape_name_zombie_horse">Kuda Zombi</string>
+    <string name="control_editor_edit_text_size_custom">Ukuran Teks Kustom</string>
+    <string name="control_editor_special_joystick_style_tip_title">Tidak bisa membuat joystick?</string>
 </resources>
