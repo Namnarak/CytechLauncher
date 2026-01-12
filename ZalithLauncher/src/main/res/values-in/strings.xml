@@ -98,8 +98,8 @@
     <string name="unpack_screen_launcher">Komponen peluncur esensial</string>
     <string name="main_launch_game">Luncurkan</string>
     <string name="main_task_menu">Menu Tugas</string>
-    <string name="download_category_game">Gim</string>
-    <string name="download_category_modpack">Paket Mod</string>
+    <string name="download_category_game">Game</string>
+    <string name="download_category_modpack">Modpack</string>
     <string name="download_category_mod">Mod</string>
     <string name="download_category_resource_pack">Paket Sumber Daya</string>
     <string name="download_category_saves">Dunia</string>
@@ -221,7 +221,7 @@
     <string name="download_assets_category_game_mechanics">Mekanisme game</string>
     <string name="download_assets_category_optimization">Optimisasi</string>
     <string name="download_assets_category_multiplayer">Multiplayer</string>
-    <string name="download_assets_category_challenging">Menantang</string>
+    <string name="download_assets_category_challenging">Hardcore</string>
     <string name="download_assets_category_combat">Pertarungan</string>
     <string name="download_assets_category_quests">Misi</string>
     <string name="download_assets_category_exploration">Eksplorasi</string>
@@ -586,8 +586,8 @@
     <string name="settings_element_selected">Dipilih: %s</string>
     <string name="settings_label_ignore_if_blank">Biarkan kosong untuk mengabaikan</string>
     <string name="settings_tab_renderer">Perender</string>
-    <string name="settings_tab_game">Gim</string>
-    <string name="settings_tab_launcher">Peluncur</string>
+    <string name="settings_tab_game">Game</string>
+    <string name="settings_tab_launcher">Launcher</string>
     <string name="settings_renderer_global_renderer_title">Perender Global</string>
     <string name="settings_renderer_shader_dump_title">Log Shader</string>
     <string name="settings_renderer_shader_dump_summary">Keluarkan kode shader yang dikonversi ke file log selama runtime game untuk memudahkan debugging dan menganalisa proses rendering grafis</string>
