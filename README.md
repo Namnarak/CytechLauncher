@@ -7,7 +7,7 @@
 [简体中文](README_ZH_CN.md) | [繁體中文](README_ZH_TW.md)
 
 
-> [!WARNING]
+> [!IMPORTANT]
 > This project is **completely separate** from [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher).  
 
 **Zalith Launcher 2** is a newly designed launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). The project uses [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine and features a modern UI built with **Jetpack Compose** and **Material Design 3**.  
