@@ -23,9 +23,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.CallSuper
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 enum class WindowMode {
     DEFAULT,
@@ -35,16 +32,14 @@ enum class WindowMode {
 abstract class FullScreenComponentActivity : AbstractComponentActivity() {
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        applyFullscreen(getWindowMode())
         super.onCreate(savedInstanceState)
-        setWindowMode(getWindowMode())
-        setupSystemUiVisibilityListener()
     }
 
     @CallSuper
     override fun onPostResume() {
         super.onPostResume()
-        setWindowMode(getWindowMode())
+        applyFullscreen(getWindowMode())
     }
 
     @CallSuper
@@ -57,11 +52,6 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
 
     abstract fun getWindowMode(): WindowMode
 
-    fun setWindowMode(mode: WindowMode) {
-        applyFullscreen(mode)
-        window.decorView.requestApplyInsets()
-    }
-
     @Suppress("DEPRECATION")
     private val systemUIVisibility = (
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -73,41 +63,23 @@ abstract class FullScreenComponentActivity : AbstractComponentActivity() {
             )
 
     @Suppress("DEPRECATION")
-    private fun setupSystemUiVisibilityListener() {
-        val decorView = window.decorView
-        val listener = View.OnSystemUiVisibilityChangeListener { visibility ->
-            if ((visibility and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                decorView.systemUiVisibility = systemUIVisibility
-            }
-        }
-        decorView.setOnSystemUiVisibilityChangeListener(listener)
-        listener.onSystemUiVisibilityChange(decorView.systemUiVisibility)
-    }
-
     private fun applyFullscreen(mode: WindowMode) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes = window.attributes.apply {
-                layoutInDisplayCutoutMode = when (mode) {
-                    WindowMode.DEFAULT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
-                    WindowMode.FULL_IMMERSIVE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        if (window != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val params = window.attributes.apply {
+                    this.layoutInDisplayCutoutMode = when (mode) {
+                        WindowMode.DEFAULT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+                        WindowMode.FULL_IMMERSIVE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    }
                 }
+                window.attributes = params
             }
-        }
-
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.systemBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION")
+            window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
             window.decorView.systemUiVisibility = systemUIVisibility
         }
     }
 
     protected fun refreshWindow() {
-        setWindowMode(getWindowMode())
+        applyFullscreen(getWindowMode())
     }
 }

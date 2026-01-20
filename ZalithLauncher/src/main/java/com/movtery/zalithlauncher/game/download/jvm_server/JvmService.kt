@@ -120,9 +120,7 @@ class JvmService : Service() {
 
         val launcher = JvmLauncher(
             context = applicationContext,
-            getWindowSize = {
-                IntSize(1920, 1080) //fake
-            },
+            windowSize = IntSize(1920, 1080), //fake
             jvmLaunchInfo = jvmLaunchInfo,
             onExit = onExit
         )

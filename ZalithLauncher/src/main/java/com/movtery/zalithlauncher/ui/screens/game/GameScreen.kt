@@ -92,6 +92,7 @@ import com.movtery.zalithlauncher.setting.enums.toAction
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
+import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.MinecraftHotbar
 import com.movtery.zalithlauncher.ui.control.event.KeyEventHandler
 import com.movtery.zalithlauncher.ui.control.event.launcherEvent
@@ -569,15 +570,7 @@ fun GameScreen(
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
-        val density = LocalDensity.current
-        val screenSize = remember(maxWidth, maxHeight) {
-            with(density) {
-                IntSize(
-                    width = maxWidth.roundToPx(),
-                    height = maxHeight.roundToPx()
-                )
-            }
-        }
+        val screenSize = rememberBoxSize()
 
         GameInfoBox(
             modifier = Modifier
@@ -919,8 +912,11 @@ private fun MouseControlLayout(
             .then(
                 if (isTouchProxyEnabled) {
                     Modifier
-                        .touchControllerTouchModifier()
+                        .touchControllerTouchModifier(
+                            screenSize = screenSize
+                        )
                         .touchControllerInputModifier(
+                            screenSize = screenSize,
                             onInputAreaRectUpdated = onInputAreaRectUpdated,
                         )
                 } else Modifier

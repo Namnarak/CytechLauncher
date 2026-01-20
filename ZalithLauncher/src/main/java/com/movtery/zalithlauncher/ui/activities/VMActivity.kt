@@ -35,6 +35,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,7 +48,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -81,6 +81,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.base.WindowMode
+import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
 import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBar
 import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBarArea
@@ -88,13 +89,10 @@ import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
-import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -216,7 +214,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     private val vmViewModel: VMViewModel by viewModels()
 
-    var mTextureView: TextureView? = null
+    private var mTextureView: TextureView? = null
+    private var mTextureWidth: Int = 0
+    private var mTextureHeight: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -234,18 +234,16 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             }
         }
 
-        val getWindowSize = {
-            val displayMetrics = getDisplayMetrics()
-            IntSize(displayMetrics.widthPixels, displayMetrics.heightPixels)
-        }
-
         vmViewModel.launcher = if (bundle.getBoolean(INTENT_RUN_GAME, false)) {
             val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                 ?: throw IllegalStateException("No launch version has been set.")
+            val windowSize = getPhysicalWindowSize(
+                AllSettings.resolutionRatio.state / 100f
+            )
             GameLauncher(
                 activity = this,
                 version = version,
-                getWindowSize = getWindowSize,
+                windowSize = windowSize,
                 onExit = exitListener
             ).also { launcher ->
                 vmViewModel.handler = GameHandler(
@@ -254,7 +252,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     errorViewModel = errorViewModel,
                     eventViewModel = eventViewModel,
                     gamepadViewModel = gamepadViewModel,
-                    getWindowSize = getWindowSize,
+                    windowSize = windowSize,
                     gameLauncher = launcher
                 ) { code ->
                     exitListener(code, false)
@@ -264,9 +262,10 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         } else if (bundle.getBoolean(INTENT_RUN_JAR, false)) {
             val jvmLaunchInfo: JvmLaunchInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JvmLaunchInfo::class.java)
                 ?: throw IllegalStateException("No launch jar info has been set.")
+            val windowSize = getPhysicalWindowSize(0.8f)
             JvmLauncher(
                 context = this,
-                getWindowSize = getWindowSize,
+                windowSize = windowSize,
                 jvmLaunchInfo = jvmLaunchInfo,
                 onExit = exitListener
             ).also { launcher ->
@@ -274,7 +273,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     jvmLauncher = launcher,
                     errorViewModel = errorViewModel,
                     eventViewModel = eventViewModel,
-                    getWindowSize = getWindowSize
+                    windowSize = windowSize
                 ) { code ->
                     exitListener(code, false)
                 }
@@ -284,8 +283,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             throw IllegalStateException("Unknown VM launch mode, or the launch mode was not set at all!")
         }
 
-        refreshWindowSize()
-
         window?.apply {
             setBackgroundDrawable(NativeColor.BLACK.toDrawable())
             if (AllSettings.sustainedPerformance.getValue()) {
@@ -294,6 +291,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) // 防止系统息屏
         }
 
+        CallbackBridge.windowHeight = 0 //fixme: 使用合理的方式加载lib
         val logFile = File(PathManager.DIR_FILES_EXTERNAL, "${vmViewModel.launcher.getLogName()}.log")
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
         LoggerBridge.start(logFile.absolutePath)
@@ -315,7 +313,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             eventViewModel.events.collect { event ->
                 when (event) {
                     is EventViewModel.Event.Game.RefreshSize -> {
-                        refreshSize()
+                        refreshWindowSize(null, mTextureWidth, mTextureHeight)
                     }
                     is EventViewModel.Event.Game.SwitchIme -> {
                         vmViewModel.textInputMode = event.mode ?: vmViewModel.textInputMode.switch()
@@ -434,16 +432,45 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        refreshDisplayMetrics()
-        refreshSize()
+        refreshTextureSize()
     }
 
     override fun onPostResume() {
         super.onPostResume()
-        refreshDisplayMetrics()
-        lifecycleScope.launch {
-            delay(500)
-            refreshSize()
+        refreshTextureSize()
+    }
+
+    private fun getPhysicalWindowSize(scaling: Float): IntSize {
+        val display = getDisplayMetrics()
+        val windowWidth = getDisplayFriendlyRes(display.widthPixels, scaling)
+        val windowHeight = getDisplayFriendlyRes(display.heightPixels, scaling)
+        return IntSize(windowWidth, windowHeight)
+    }
+    
+    private fun refreshTextureSize() {
+        val textureView = mTextureView ?: return
+        val surface = textureView.surfaceTexture ?: return
+        textureView.post {
+            this.mTextureWidth = textureView.width
+            this.mTextureHeight = textureView.height
+            refreshWindowSize(surface, textureView.width, textureView.height)
+        }
+    }
+
+    private fun refreshWindowSize(surface: SurfaceTexture?, width: Int, height: Int) {
+        vmViewModel.runIfHandlerInitialized { handler ->
+            fun getDisplayPixels(pixels: Int): Int {
+                return when (handler.type) {
+                    HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
+                    HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
+                }
+            }
+
+            val windowWidth = getDisplayPixels(width)
+            val windowHeight = getDisplayPixels(height)
+            surface?.setDefaultBufferSize(windowWidth, windowHeight)
+            ZLBridgeStates.onWindowChange()
+            CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
         }
     }
 
@@ -516,9 +543,11 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         }
         isRunning = true
 
-        vmViewModel.runIfHandlerInitialized { it.mIsSurfaceDestroyed = false }
-        refreshSize()
+        this.mTextureWidth = width
+        this.mTextureHeight = height
+        refreshWindowSize(surface, width, height)
         vmViewModel.runIfHandlerInitialized { handler ->
+            handler.mIsSurfaceDestroyed = false
             lifecycleScope.launch(Dispatchers.Default) {
                 handler.execute(Surface(surface), lifecycleScope)
             }
@@ -526,7 +555,9 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        refreshSize()
+        this.mTextureWidth = width
+        this.mTextureHeight = height
+        refreshWindowSize(surface, width, height)
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
@@ -553,80 +584,34 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
         val imeInsets = WindowInsets.ime
         val inputArea by vmViewModel.handler.inputArea.collectAsStateWithLifecycle()
 
-        Layout(
-            modifier = Modifier.fillMaxSize().background(Color.Black),
-            content = {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .absoluteOffset {
-                            val area = inputArea ?: return@absoluteOffset IntOffset.Zero
-                            val imeHeight = imeInsets.getBottom(this@absoluteOffset)
-                            val bottomDistance = CallbackBridge.windowHeight - area.bottom
-                            val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
-                            IntOffset(0, -bottomPadding)
-                        },
-                    factory = { context ->
-                        TextureView(context).apply {
-                            isOpaque = true
-                            alpha = 1.0f
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize().background(Color.Black)
+        ) {
+            val screenSize = rememberBoxSize()
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .absoluteOffset {
+                        val area = inputArea ?: return@absoluteOffset IntOffset.Zero
+                        val imeHeight = imeInsets.getBottom(this@absoluteOffset)
+                        val bottomDistance = screenSize.height - area.bottom
+                        val bottomPadding = (imeHeight - bottomDistance).coerceAtLeast(0)
+                        IntOffset(0, -bottomPadding)
+                    },
+                factory = { context ->
+                    TextureView(context).apply {
+                        isOpaque = true
+                        alpha = 1.0f
 
-                            surfaceTextureListener = this@VMActivity
-                        }.also { view ->
-                            mTextureView = view
-                        }
+                        surfaceTextureListener = this@VMActivity
+                    }.also { view ->
+                        mTextureView = view
                     }
-                )
-
-                content()
-            }
-        ) { measurables, constraints ->
-            val placeables = measurables.map { it.measure(constraints) }
-
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                placeables.forEach { it.place(0, 0) }
-            }
-        }
-    }
-
-    private fun refreshDisplayMetrics() {
-        val displayMetrics = getDisplayMetrics()
-        CallbackBridge.physicalWidth = displayMetrics.widthPixels
-        CallbackBridge.physicalHeight = displayMetrics.heightPixels
-    }
-
-    private fun refreshWindowSize() {
-        vmViewModel.runIfHandlerInitialized { handler ->
-            val displayMetrics = getDisplayMetrics()
-
-            fun getDisplayPixels(pixels: Int): Int {
-                return when (handler.type) {
-                    HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
-                    HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
                 }
-            }
+            )
 
-            val width = getDisplayPixels(displayMetrics.widthPixels)
-            val height = getDisplayPixels(displayMetrics.heightPixels)
-            if (width < 1 || height < 1) {
-                lError("Impossible resolution : $width x $height")
-                return@runIfHandlerInitialized
-            }
-            CallbackBridge.windowWidth = width
-            CallbackBridge.windowHeight = height
-            ZLBridgeStates.onWindowChange()
+            content()
         }
-    }
-
-    private fun refreshSize() {
-        refreshWindowSize()
-        mTextureView?.surfaceTexture?.apply {
-            setDefaultBufferSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
-        } ?: run {
-            lWarning("Attempt to refresh size on null surface")
-            return
-        }
-        CallbackBridge.sendUpdateWindowSize(CallbackBridge.windowWidth, CallbackBridge.windowHeight)
     }
 }
 

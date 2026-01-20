@@ -75,15 +75,13 @@ class GameHandler(
     errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
-    getWindowSize: () -> IntSize,
+    private val windowSize: IntSize,
     private val gameLauncher: GameLauncher,
     onExit: (code: Int) -> Unit
 ) : AbstractHandler(
     type = HandlerType.GAME,
     errorViewModel = errorViewModel,
     eventViewModel = eventViewModel,
-    getWindowSize = getWindowSize,
-    sender = LWJGLCharSender,
     launcher = gameLauncher,
     onExit = onExit
 ) {
@@ -105,8 +103,8 @@ class GameHandler(
 
         MCOptions.apply {
             set("fullscreen", "false")
-            set("overrideWidth", CallbackBridge.windowWidth.toString())
-            set("overrideHeight", CallbackBridge.windowHeight.toString())
+            set("overrideWidth", windowSize.width.toString())
+            set("overrideHeight", windowSize.height.toString())
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)
 //            localSkinResourcePack()
             save()

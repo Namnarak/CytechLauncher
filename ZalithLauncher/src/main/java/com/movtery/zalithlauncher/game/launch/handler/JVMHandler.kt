@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.withSave
 import com.movtery.zalithlauncher.bridge.ZLBridge
-import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.AWTInputEvent
 import com.movtery.zalithlauncher.game.launch.JvmLauncher
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
@@ -47,14 +46,12 @@ class JVMHandler(
     jvmLauncher: JvmLauncher,
     errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
-    getWindowSize: () -> IntSize,
+    private val windowSize: IntSize,
     onExit: (code: Int) -> Unit
 ) : AbstractHandler(
     type = HandlerType.JVM,
     errorViewModel = errorViewModel,
     eventViewModel = eventViewModel,
-    getWindowSize = getWindowSize,
-    sender = AWTCharSender,
     launcher = jvmLauncher,
     onExit = onExit
 ) {
@@ -65,10 +62,8 @@ class JVMHandler(
 
     override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
         surface?.run {
-            val windowSize = getWindowSize()
-
-            val canvasWidth = (windowSize.width * 0.8).toInt()
-            val canvasHeight = (windowSize.height * 0.8).toInt()
+            val canvasWidth = windowSize.width
+            val canvasHeight = windowSize.height
 
             scope.launch(Dispatchers.Default) {
                 var canvas: Canvas?
