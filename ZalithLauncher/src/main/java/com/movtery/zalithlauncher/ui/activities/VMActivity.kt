@@ -400,7 +400,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                     }
 
                     //鼠标抓获模式变更时，应该关闭输入框
-                    LaunchedEffect(ZLBridgeStates.cursorMode) {
+                    val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
+                    LaunchedEffect(cursorMode) {
                         vmViewModel.disableInputMode()
                     }
                 }

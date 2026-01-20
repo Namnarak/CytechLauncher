@@ -28,10 +28,10 @@ public class CallbackBridge {
     public static final Choreographer sChoreographer = Choreographer.getInstance();
     private static boolean isGrabbing = false;
     private static final Consumer<Boolean> grabListener = isGrabbing ->
-            ZLBridgeStates.setCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
+            ZLBridgeStates.changeCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
 
     private static int cursorShape = 0x36001;
-    private static final Consumer<CursorShape> cursorShapeListener = ZLBridgeStates::setCursorShape;
+    private static final Consumer<CursorShape> cursorShapeListener = ZLBridgeStates::changeCursorShape;
     
     public static final int CLIPBOARD_COPY = 2000;
     public static final int CLIPBOARD_PASTE = 2001;
