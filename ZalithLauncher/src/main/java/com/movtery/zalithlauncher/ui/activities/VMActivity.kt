@@ -291,7 +291,6 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) // 防止系统息屏
         }
 
-        CallbackBridge.windowHeight = 0 //fixme: 使用合理的方式加载lib
         val logFile = File(PathManager.DIR_FILES_EXTERNAL, "${vmViewModel.launcher.getLogName()}.log")
         if (!logFile.exists() && !logFile.createNewFile()) throw IOException("Failed to create a new log file")
         LoggerBridge.start(logFile.absolutePath)
