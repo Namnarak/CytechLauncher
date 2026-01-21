@@ -22,11 +22,10 @@ import com.google.gson.JsonParseException
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.download.assets.platform.curseForgeSearcher
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.fixedFileUrl
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getPlatformClassesOrNull
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.getSHA1
-import com.movtery.zalithlauncher.game.download.assets.platform.getProjectFromCurseForge
-import com.movtery.zalithlauncher.game.download.assets.platform.getVersionFromCurseForge
 import com.movtery.zalithlauncher.game.download.modpack.install.ModFile
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfo
 import com.movtery.zalithlauncher.game.download.modpack.install.ModPackInfoTask
@@ -66,7 +65,7 @@ class CurseForgePack(
                 ModFile(
                     getFile = {
                         runCatching {
-                            val version = getVersionFromCurseForge(
+                            val version = curseForgeSearcher.getVersion(
                                 projectID = manifestFile.projectID.toString(),
                                 fileID = manifestFile.fileID.toString()
                             ).data
@@ -74,7 +73,7 @@ class CurseForgePack(
                             val fileName = version.fileName ?: throw IOException("Can't get the file name")
 
                             //获取项目
-                            val project = getProjectFromCurseForge(
+                            val project = curseForgeSearcher.getProject(
                                 projectID = manifestFile.projectID.toString()
                             ).data
                             //通过项目类型指定目标下载目录
