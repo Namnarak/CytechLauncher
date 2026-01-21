@@ -12,9 +12,11 @@ import io.ktor.http.Parameters
 import java.io.File
 
 class ModrinthSearcher(
-    val api: String = MODRINTH_API
+    val api: String = MODRINTH_API,
+    source: String = "Official Modrinth"
 ): AbstractPlatformSearcher(
-    platform = Platform.MODRINTH
+    platform = Platform.MODRINTH,
+    source = source
 ) {
     override suspend fun searchAssets(
         query: String,

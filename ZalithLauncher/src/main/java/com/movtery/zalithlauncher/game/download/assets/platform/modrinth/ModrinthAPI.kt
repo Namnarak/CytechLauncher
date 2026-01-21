@@ -16,7 +16,7 @@ const val MODRINTH_API = "https://api.modrinth.com/v2"
  * MCIM 镜像：Modrinth 平台的 API 链接
  * [MCIM Modrinth API](https://github.com/mcmod-info-mirror/mcim-rust-api?tab=readme-ov-file#modrinth)
  */
-const val MCIM_MODRINTH_API = "https://api.modrinth.com/v2"
+const val MCIM_MODRINTH_API = "https://mod.mcimirror.top/modrinth/v2"
 
 fun PlatformSearchFilter.toModrinthRequest(
     query: String,

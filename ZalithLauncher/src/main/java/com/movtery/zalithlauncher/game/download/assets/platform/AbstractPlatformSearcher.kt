@@ -5,9 +5,11 @@ import java.io.File
 /**
  * 平台资源搜索抽象类
  * @param platform 目标平台类型（仅作标识）
+ * @param source 源（区分官方源、镜像源）名称，仅日志需要
  */
 abstract class AbstractPlatformSearcher(
-    val platform: Platform
+    val platform: Platform,
+    val source: String
 ) {
     /**
      * 搜索资源结果列表

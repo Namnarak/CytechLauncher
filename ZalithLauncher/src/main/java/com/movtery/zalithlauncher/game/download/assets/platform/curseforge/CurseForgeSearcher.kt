@@ -22,9 +22,11 @@ import java.io.File
 
 class CurseForgeSearcher(
     val api: String = CURSEFORGE_API,
-    val apiKey: String? = InfoDistributor.CURSEFORGE_API
+    val apiKey: String? = InfoDistributor.CURSEFORGE_API,
+    source: String = "Official CurseForge"
 ): AbstractPlatformSearcher(
-    platform = Platform.CURSEFORGE
+    platform = Platform.CURSEFORGE,
+    source = source
 ) {
     override suspend fun searchAssets(
         query: String,
