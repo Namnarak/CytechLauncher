@@ -37,4 +37,5 @@
     <string name="terracotta_status_waiting_guest_prompt_scaffolding">Código de convite para andaimes</string>
     <string name="terracotta_status_host_scanning">Escaneado mundos em LAN</string>
     <string name="terracotta_status_host_scanning_desc">Por favor, abra o mundo, em seguida aperte ESC e selecione Abrir para LAN, e em seguida selecione em, abrir o mundo para LAN</string>
+    <string name="terracotta_status_host_scanning_back">Isso também vai parar de escanear mundos LAN.</string>
 </resources>
