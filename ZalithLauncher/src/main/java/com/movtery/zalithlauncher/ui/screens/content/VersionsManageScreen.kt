@@ -86,7 +86,9 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.VersionsOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
+import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -188,7 +190,11 @@ private class VersionsScreenViewModel() : ViewModel() {
     /** 游戏无用资源清理者 */
     var cleaner by mutableStateOf<GameAssetCleaner?>(null)
 
-    fun cleanUnusedFiles(context: Context) {
+    fun cleanUnusedFiles(
+        context: Context,
+        onStart: () -> Unit = {},
+        onStop: () -> Unit = {}
+    ) {
         cleaner = GameAssetCleaner(
             context = context,
             scope = viewModelScope
@@ -198,13 +204,16 @@ private class VersionsScreenViewModel() : ViewModel() {
                 onEnd = { count, size ->
                     cleaner = null
                     cleanupOperation = CleanupOperation.Success(count, size)
+                    onStop()
                 },
                 onThrowable = { th ->
                     cleaner = null
                     cleanupOperation = CleanupOperation.Error(th)
+                    onStop()
                 }
             )
         }
+        onStart()
     }
 
     fun cancelCleaner() {
@@ -246,6 +255,7 @@ private fun rememberVersionViewModel() : VersionsScreenViewModel {
 fun VersionsManageScreen(
     backScreenViewModel: ScreenBackStackViewModel,
     navigateToVersions: (Version) -> Unit,
+    eventViewModel: EventViewModel,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberVersionViewModel()
@@ -314,10 +324,19 @@ fun VersionsManageScreen(
                 changeOperation = { viewModel.cleanupOperation = it },
                 cleaner = viewModel.cleaner,
                 onClean = {
-                    viewModel.cleanUnusedFiles(context)
+                    viewModel.cleanUnusedFiles(
+                        context = context,
+                        onStart = {
+                            eventViewModel.sendKeepScreen(true)
+                        },
+                        onStop = {
+                            eventViewModel.sendKeepScreen(false)
+                        }
+                    )
                 },
                 onCancel = {
                     viewModel.cancelCleaner()
+                    eventViewModel.sendKeepScreen(false)
                 },
                 submitError = submitError
             )
