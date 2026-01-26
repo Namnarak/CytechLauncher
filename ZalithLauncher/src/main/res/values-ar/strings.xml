@@ -355,4 +355,10 @@
     <string name="game_menu_option_replacement_control">استبدال تخطيط التحكم</string>
     <string name="game_menu_option_hotbar_rule">قاعدة تحديد موضع شريط الأدوات السريعة</string>
     <string name="game_menu_option_hotbar_rule_auto">تكيفي (قد يكون غير دقيق)</string>
+    <string name="game_menu_option_hotbar_rule_custom">مخصص</string>
+    <string name="game_menu_option_hotbar_width">عرض شريط الأدوات السريعة</string>
+    <string name="game_menu_option_hotbar_height">ارتفاع شريط الأدوات السريعة</string>
+    <string name="game_menu_option_show_menu">تمكين تراكب القائمة</string>
+    <string name="game_menu_option_show_menu_hided">تم تعطيل تراكب قائمة اللعبة. يمكنك فتح قائمة اللعبة باستخدام زر الرجوع في النظام.</string>
+    <string name="game_menu_option_controls_opacity">تحكم في شفافية التخطيط</string>
 </resources>
