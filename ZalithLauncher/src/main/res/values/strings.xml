@@ -53,6 +53,7 @@
     <string name="generic_share">Share</string>
     <string name="generic_copied">Copied</string>
     <string name="generic_no_matching_items">No matching items</string>
+    <string name="generic_follow_system">Follow System</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
@@ -84,7 +85,6 @@
     <string name="theme_color_picker_title">Color Picker</string>
     <string name="theme_color_picker_edit_hex">Edit Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">Invalid Hex</string>
-    <string name="theme_dark_mode_follow_system">Follow System</string>
     <!-- Animations -->
     <string name="animate_type_bounce">Bounce</string>
     <string name="animate_type_jelly_bounce">Jelly Bounce</string>

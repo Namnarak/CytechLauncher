@@ -983,7 +983,7 @@
     <string name="generic_enabled">Aktifkan</string>
     <string name="generic_disabled">Matikan</string>
     <string name="generic_no_matching_items">Tidak ada item yang cocok</string>
-    <string name="theme_dark_mode_follow_system">Ikuti sistem</string>
+    <string name="generic_follow_system">Ikuti sistem</string>
     <string name="notification_data_terracotta_message">Saat mode multiplayer, launcher akan memakai layanan foreground untuk menampilkan status koneksi saat ini, jadi membutuh izin notifikasi.</string>
     <string name="versions_update_loader">Perbarui Loader</string>
     <string name="versions_update_loader_waiting_for_others">Menunggu item lain selesai dimuat</string>

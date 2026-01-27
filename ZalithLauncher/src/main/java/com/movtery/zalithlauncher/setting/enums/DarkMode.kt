@@ -34,7 +34,7 @@ enum class DarkMode(val textRes: Int) {
     /**
      * 跟随系统变化
      */
-    FollowSystem(R.string.theme_dark_mode_follow_system)
+    FollowSystem(R.string.generic_follow_system)
 }
 
 /**

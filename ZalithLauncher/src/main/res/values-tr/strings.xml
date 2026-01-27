@@ -698,7 +698,7 @@
     <string name="sort_by_file_name">Dosya ismine göre sırala</string>
     <string name="sort_by_last_modified">Son değiştirilmeye göre sürala</string>
     <string name="sort_by_last_played">Son oynatılmaya göre sırala</string>
-    <string name="theme_dark_mode_follow_system">Sistemi takipet</string>
+    <string name="generic_follow_system">Sistemi takipet</string>
     <string name="notification_data_terracotta_message">Çok oyunculu oturumlar sırasında, başlatıcı mevcut bağlantı durumunu görüntülemek için ön planda çalışan bir hizmet kullanır, bu nedenle bildirim izni gereklidir.</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Sevgi ve Kucaklama Güncellemesi, dünyayı barış ve gökkuşağıyla dolduruyor.</string>
     <string name="version_summary_fools_trendy_update">Gelecek burada! Minecraft\'a modern teknolojiyi ekledik!</string>

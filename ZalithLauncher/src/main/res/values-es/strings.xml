@@ -339,7 +339,7 @@
     <string name="sort_by_name">Ordenar por nombre</string>
     <string name="sort_by_file_name">Ordenar por nombre de archivo</string>
     <string name="sort_by_last_modified">Ordenar por última modificación</string>
-    <string name="theme_dark_mode_follow_system">Seguir al sistema</string>
+    <string name="generic_follow_system">Seguir al sistema</string>
     <string name="notification_data_terracotta_message">Durante las sesiones multijugador, el launcher utiliza un servicio en primer plano para mostrar el estado de la conexión, por lo que se requiere permiso de notificación.</string>
     <string name="generic_no_matching_items">No se encontraron elementos</string>
     <string name="generic_saved">Guardado</string>

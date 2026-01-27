@@ -1003,7 +1003,7 @@
     <string name="generic_enabled">Включено</string>
     <string name="generic_disabled">Отключено</string>
     <string name="generic_no_matching_items">Нет подходящих элементов</string>
-    <string name="theme_dark_mode_follow_system">Как в системе</string>
+    <string name="generic_follow_system">Как в системе</string>
     <string name="game_menu_option_menu_ball_opacity">Прозрачность меню-наложения</string>
     <string name="settings_launcher_dark_mode_title">Тёмный режим</string>
     <string name="notification_data_terracotta_message">Во время мультиплеера лаунчер использует службу переднего плана для отображения текущего статуса соединения, поэтому требуется разрешение на отправку уведомлений.</string>
