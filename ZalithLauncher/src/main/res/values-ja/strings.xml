@@ -1053,4 +1053,6 @@
     <string name="game_input_proxy_mode_default">リアルタイムモード</string>
     <string name="game_input_proxy_mode_simple">シンプルモード</string>
     <string name="game_input_proxy_mode_send">送信モード</string>
+    <string name="settings_launcher_language">言語</string>
+    <string name="control_editor_layers_attribute_hide_when_joystick">ジョイスティックが有効な時は常に表示</string>
 </resources>
