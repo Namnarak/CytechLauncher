@@ -987,7 +987,7 @@
     <string name="sort_by_file_name">Sắp xếp theo tên tệp</string>
     <string name="sort_by_last_modified">Sắp xếp theo lần sửa đổi cuối cùng</string>
     <string name="sort_by_last_played">Sắp xếp theo lần chơi cuối cùng</string>
-    <string name="theme_dark_mode_follow_system">Theo Hệ Thống</string>
+    <string name="generic_follow_system">Theo Hệ Thống</string>
     <string name="notification_data_terracotta_message">Trong các phiên chơi nhiều người, trình khởi chạy sử dụng một dịch vụ nền trước để hiển thị trạng thái kết nối hiện tại, do đó cần có quyền thông báo.</string>
     <string name="game_menu_option_menu_ball_opacity">Độ mờ của lớp phủ Menu</string>
     <string name="versions_manage_pin">Ghim</string>

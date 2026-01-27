@@ -53,6 +53,7 @@
     <string name="generic_share">分享</string>
     <string name="generic_copied">已复制</string>
     <string name="generic_no_matching_items">没有符合条件的项目</string>
+    <string name="generic_follow_system">跟随系统</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy \'年\' MM \'月\' dd \'日\' HH:mm:ss</string>
@@ -83,7 +84,6 @@
     <string name="theme_color_picker_title">颜色选择器</string>
     <string name="theme_color_picker_edit_hex">编辑 Hex</string>
     <string name="theme_color_picker_edit_hex_invalid">无效 Hex</string>
-    <string name="theme_dark_mode_follow_system">跟随系统</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
     <string name="animate_type_jelly_bounce">回弹</string>

@@ -983,7 +983,7 @@
     <string name="generic_enabled">有効</string>
     <string name="generic_disabled">無効</string>
     <string name="generic_no_matching_items">一致する項目はありません</string>
-    <string name="theme_dark_mode_follow_system">システムに従う</string>
+    <string name="generic_follow_system">システムに従う</string>
     <string name="game_menu_option_menu_ball_opacity">メニューオーバーレイの不透明度</string>
     <string name="settings_launcher_dark_mode_title">ダークモード</string>
     <string name="versions_update_loader">ローダーをアップデート</string>
