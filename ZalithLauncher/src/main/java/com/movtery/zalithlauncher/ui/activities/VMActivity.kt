@@ -95,6 +95,7 @@ import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -509,7 +510,10 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
 
     override fun onPostResume() {
         super.onPostResume()
-        refreshTextureSize()
+        lifecycleScope.launch {
+            delay(500)
+            refreshTextureSize()
+        }
     }
 
     private fun getPhysicalWindowSize(scaling: Float): IntSize {
@@ -525,7 +529,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         textureView.post {
             this.mTextureWidth = textureView.width
             this.mTextureHeight = textureView.height
-            refreshWindowSize(surface, textureView.width, textureView.height)
+            refreshWindowSize(surface, mTextureWidth, mTextureHeight)
         }
     }
 
@@ -635,8 +639,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
 
         this.mTextureWidth = width
         this.mTextureHeight = height
-        refreshWindowSize(surface, width, height)
         withHandler { mIsSurfaceDestroyed = false }
+        refreshWindowSize(surface, width, height)
         lifecycleScope.launch(Dispatchers.Default) {
             withHandler { execute(Surface(surface), lifecycleScope) }
         }
