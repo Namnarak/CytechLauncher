@@ -377,7 +377,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             eventViewModel.events.collect { event ->
                 when (event) {
                     is EventViewModel.Event.Game.RefreshSize -> {
-                        refreshWindowSize(null, mTextureWidth, mTextureHeight)
+                        refreshWindowSize(mTextureView?.surfaceTexture, mTextureWidth, mTextureHeight)
                     }
                     is EventViewModel.Event.Game.SwitchIme -> {
                         vmViewModel.textInputMode = event.mode ?: vmViewModel.textInputMode.switch()
