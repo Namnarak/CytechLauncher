@@ -1055,4 +1055,10 @@
     <string name="game_input_proxy_mode_send">送信モード</string>
     <string name="settings_launcher_language">言語</string>
     <string name="control_editor_layers_attribute_hide_when_joystick">ジョイスティックが有効な時は常に表示</string>
+    <string name="generic_copied">コピー済み</string>
+    <string name="crash_link_share_button">リンクを共有</string>
+    <string name="crash_link_share_tip">ランチャーはゲームのログを公開プラットフォームにアップロードします。診断のために他のユーザーと簡単に共有できるリンクが送信されます。</string>
+    <string name="crash_link_share_uploading">ログを %s にアップロードしています</string>
+    <string name="crash_link_share_failed">アップロード失敗</string>
+    <string name="crash_link_share_failed_link_not_found">利用可能なリンクが見つかりません。後でもう一度お試しください。</string>
 </resources>
