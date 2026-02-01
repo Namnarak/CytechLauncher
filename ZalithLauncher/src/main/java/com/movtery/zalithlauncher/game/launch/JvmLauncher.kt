@@ -42,7 +42,6 @@ import java.io.IOException
 
 open class JvmLauncher(
     private val context: Context,
-    private val windowSize: IntSize,
     private val jvmLaunchInfo: JvmLaunchInfo,
     onExit: (code: Int, isSignal: Boolean) -> Unit
 ) : Launcher(onExit) {
@@ -50,9 +49,9 @@ open class JvmLauncher(
 
     }
 
-    override suspend fun launch(): Int {
+    override suspend fun launch(screenSize: IntSize): Int {
         generateLauncherProfiles(jvmLaunchInfo.userHome)
-        val (runtime, argList) = getStartupNeeded()
+        val (runtime, argList) = getStartupNeeded(screenSize)
 
         this.runtime = runtime
 
@@ -61,7 +60,7 @@ open class JvmLauncher(
             jvmArgs = argList,
             userHome = jvmLaunchInfo.userHome,
             userArgs = AllSettings.jvmArgs.getValue(),
-            windowSize = windowSize
+            screenSize = screenSize
         )
     }
 
@@ -71,7 +70,9 @@ open class JvmLauncher(
 
     override fun getLogName(): String = LogName.JVM.fileName
 
-    private fun getStartupNeeded(): Pair<Runtime, List<String>> {
+    private fun getStartupNeeded(
+        screenSize: IntSize
+    ): Pair<Runtime, List<String>> {
         val args = jvmLaunchInfo.jvmArgs.splitPreservingQuotes()
 
         val runtime = jvmLaunchInfo.jreName?.let { jreName ->
@@ -81,7 +82,7 @@ open class JvmLauncher(
         }
 
         val argList: MutableList<String> = ArrayList(
-            getCacioJavaArgs(windowSize, runtime.javaVersion == 8)
+            getCacioJavaArgs(screenSize, runtime.javaVersion == 8)
         ).apply {
             addAll(args)
         }

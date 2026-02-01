@@ -18,11 +18,7 @@
 
 package com.movtery.zalithlauncher.ui.base
 
-import android.content.res.Configuration
-import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import androidx.annotation.CallSuper
 import com.movtery.zalithlauncher.context.refreshContext
 import com.movtery.zalithlauncher.game.account.AccountsManager
@@ -32,14 +28,11 @@ import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.loadAllSettings
 import com.movtery.zalithlauncher.utils.checkStoragePermissionsForInit
-import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
-import kotlin.math.min
 
 open class BaseAppCompatActivity(
     /** 是否刷新数据 */
     private val refreshData: Boolean = true
 ) : FullScreenAppCompatActivity() {
-    private var notchSize = -1
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,10 +58,6 @@ open class BaseAppCompatActivity(
         checkStoragePermissions()
     }
 
-    override fun onAttachedToWindow() {
-        computeNotchSize()
-    }
-
     override fun getWindowMode(): WindowMode {
         runCatching {
             return if (AllSettings.launcherFullScreen.getValue()) {
@@ -92,70 +81,6 @@ open class BaseAppCompatActivity(
     private fun checkStoragePermissions() {
         //检查所有文件管理权限
         checkStoragePermissionsForInit(this)
-    }
-
-    /**
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L598-L620)
-     */
-    @Suppress("DEPRECATION")
-    fun getDisplayMetrics(): DisplayMetrics {
-        var displayMetrics = DisplayMetrics()
-        if (isInMultiWindowMode || isInPictureInPictureMode) {
-            displayMetrics = resources.displayMetrics
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                display.getRealMetrics(displayMetrics)
-            } else {
-                windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-            }
-            if (getWindowMode() == WindowMode.DEFAULT) {
-                if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) displayMetrics.heightPixels -= notchSize
-                else displayMetrics.widthPixels -= notchSize
-            }
-        }
-        return displayMetrics
-    }
-
-    /**
-     * Compute the notch size to avoid being out of bounds
-     * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/5de6822/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/prefs/LauncherPreferences.java#L196-L219)
-     */
-    private fun computeNotchSize() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            notchSize = -1
-            return
-        }
-
-        runCatching {
-            val displayCutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                windowManager.currentWindowMetrics.windowInsets.displayCutout
-            } else {
-                window.decorView.rootWindowInsets.displayCutout
-            }
-
-            if (displayCutout == null || displayCutout.boundingRects.isEmpty()) {
-                notchSize = -1
-                return@runCatching
-            }
-
-            var cutout = Rect()
-            for (rect in displayCutout.boundingRects) {
-                if (rect.width() * rect.height() > cutout.width() * cutout.height()) {
-                    cutout = rect
-                }
-            }
-
-            // Notch values are rotation sensitive, handle all cases
-            val orientation: Int = resources.configuration.orientation
-            notchSize = when (orientation) {
-                Configuration.ORIENTATION_PORTRAIT -> cutout.height()
-                Configuration.ORIENTATION_LANDSCAPE -> cutout.width()
-                else -> min(cutout.width(), cutout.height())
-            }
-        }.onFailure {
-            lInfo("No notch detected, or the device if in split screen mode")
-            notchSize = -1
-        }
     }
 
     protected fun runFinish() = run { finish() }

@@ -46,7 +46,6 @@ class JVMHandler(
     jvmLauncher: JvmLauncher,
     errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
-    private val windowSize: IntSize,
     onExit: (code: Int) -> Unit
 ) : AbstractHandler(
     type = HandlerType.JVM,
@@ -60,10 +59,14 @@ class JVMHandler(
      */
     private var logState by mutableStateOf(LogState.CLOSE)
 
-    override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
+    override suspend fun execute(
+        surface: Surface?,
+        screenSize: IntSize,
+        scope: CoroutineScope
+    ) {
         surface?.run {
-            val canvasWidth = windowSize.width
-            val canvasHeight = windowSize.height
+            val canvasWidth = screenSize.width
+            val canvasHeight = screenSize.height
 
             scope.launch(Dispatchers.Default) {
                 var canvas: Canvas?
@@ -100,7 +103,7 @@ class JVMHandler(
                 }
             }
         }
-        super.execute(surface, scope)
+        super.execute(surface, screenSize, scope)
     }
 
     override fun onPause() {
