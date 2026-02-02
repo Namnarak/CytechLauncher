@@ -95,6 +95,9 @@ import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
+import com.movtery.zalithlauncher.game.version.saves.SaveData
+import com.movtery.zalithlauncher.game.version.saves.isCompatible
+import com.movtery.zalithlauncher.game.version.saves.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
@@ -118,12 +121,9 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUr
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SaveData
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSaves
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState

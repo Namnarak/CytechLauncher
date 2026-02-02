@@ -96,6 +96,8 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
+import com.movtery.zalithlauncher.game.version.resource_pack.ResourcePackInfo
+import com.movtery.zalithlauncher.game.version.resource_pack.parseResourcePack
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
@@ -121,10 +123,8 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameI
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackFilter
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackInfo
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ResourcePackOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterPacks
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseResourcePack
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
