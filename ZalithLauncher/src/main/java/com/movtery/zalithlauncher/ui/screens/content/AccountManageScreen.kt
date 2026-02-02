@@ -115,6 +115,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDia
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -629,11 +630,11 @@ private fun LocalLoginOperation(
         is LocalLoginOperation.Edit -> {
             LocalLoginDialog(
                 onDismissRequest = { updateOperation(LocalLoginOperation.None) },
-                onConfirm = { isUserNameInvalid, userName ->
+                onConfirm = { isUserNameInvalid, userName, userUUID ->
                     val operation = if (isUserNameInvalid) {
-                        LocalLoginOperation.Alert(userName)
+                        LocalLoginOperation.Alert(userName, userUUID)
                     } else {
-                        LocalLoginOperation.Create(userName)
+                        LocalLoginOperation.Create(userName, userUUID)
                     }
                     updateOperation(operation)
                 },
@@ -641,7 +642,10 @@ private fun LocalLoginOperation(
             )
         }
         is LocalLoginOperation.Create -> {
-            localLogin(userName = localLoginOperation.userName)
+            localLogin(
+                userName = localLoginOperation.userName,
+                userUUID = localLoginOperation.userUUID
+            )
             //复位
             updateOperation(LocalLoginOperation.None)
         }
@@ -666,7 +670,7 @@ private fun LocalLoginOperation(
                 },
                 confirmText = stringResource(R.string.account_supporting_username_invalid_still_use),
                 onConfirm = {
-                    updateOperation(LocalLoginOperation.Create(localLoginOperation.userName))
+                    updateOperation(LocalLoginOperation.Create(localLoginOperation.userName, localLoginOperation.userUUID))
                 },
                 onCancel = {
                     updateOperation(LocalLoginOperation.None)
@@ -910,6 +914,19 @@ private fun AccountsLayout(
                                     accountOperation = AccountOperation.OnFailed(th)
                                 }
                             )
+                        },
+                        onCopyUUID = {
+                            copyText(
+                                label = "uuid",
+                                text = account.profileId,
+                                context = context
+                            )
+                            //弹出提示
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.account_local_uuid_copied, account.username),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         },
                         onDeleteClick = { accountOperation = AccountOperation.Delete(account) }
                     )

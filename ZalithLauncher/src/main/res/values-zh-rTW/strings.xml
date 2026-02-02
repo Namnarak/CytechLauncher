@@ -443,7 +443,15 @@
     <string name="account_microsoft_verify_game_ownership">驗證是否擁有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">獲取玩家帳號資訊</string>
     <string name="account_microsoft_exit_by_user">您離開了網頁畫面，已為您取消了微軟登入流程</string>
+    <string name="account_advanced">進階設定</string>
     <string name="account_local_create_account">建立離線帳號</string>
+    <string name="account_local_uuid_tip_1">UUID 是 Minecraft 玩家的唯一身分識別碼。</string>
+    <string name="account_local_uuid_tip_2">不同的啟動器可能會產生不同的 UUID。</string>
+    <string name="account_local_uuid_tip_3">在切換啟動器時保持 UUID 不變，遊戲即可持續識別你的角色，並保留背包物品等資料。</string>
+    <string name="account_local_uuid_tip_4">此選項適用於進階使用者，一般情況下無需調整。</string>
+    <string name="account_local_uuid_invalid">無效的 UUID 格式</string>
+    <string name="account_local_uuid_copy">複製 UUID</string>
+    <string name="account_local_uuid_copied">已複製帳號 %s 的 UUID</string>
     <string name="account_other_login_baseurl_not_set">未設定基礎 URL</string>
     <string name="account_other_login_getting_full_url">嘗試解析完整 URL 中</string>
     <string name="account_other_login_getting_server_info">獲取伺服器資訊中</string>

@@ -40,11 +40,11 @@ private fun getLocalUuid(name: String): String {
     val hashPart = legacyStrFill(hashHex, '0', 16) //确保最长16位
 
     return buildString(34) {
-        append(lengthPart.substring(0, 12))
+        append(lengthPart.take(12))
         append('3')
         append(lengthPart.substring(13, 16))
         append('9')
-        append(hashPart.substring(0, 15))
+        append(hashPart.take(15))
     }
 }
 
@@ -55,7 +55,7 @@ fun getLocalUUIDWithSkinModel(userName: String, skinModelType: SkinModelType): S
     val baseUuid = getLocalUuid(userName)
     if (skinModelType == SkinModelType.NONE) return baseUuid
 
-    val prefix = baseUuid.substring(0, 27)
+    val prefix = baseUuid.take(27)
     val a = baseUuid[7].digitToInt(16)
     val b = baseUuid[15].digitToInt(16)
     val c = baseUuid[23].digitToInt(16)
