@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -225,7 +226,9 @@ fun VersionOverviewItem(
                 style = MaterialTheme.typography.labelLarge
             )
             Text(
-                modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
+                modifier = Modifier
+                    .alpha(0.7f)
+                    .basicMarquee(iterations = Int.MAX_VALUE),
                 maxLines = 1,
                 text = versionSummary,
                 style = MaterialTheme.typography.labelMedium

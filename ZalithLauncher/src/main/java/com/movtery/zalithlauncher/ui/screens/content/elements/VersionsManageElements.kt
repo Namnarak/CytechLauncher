@@ -60,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -818,6 +819,12 @@ fun CommonVersionInfoLayout(
     modifier: Modifier = Modifier,
     version: Version
 ) {
+    val isValid = remember(version) { version.isValid() }
+    val versionName = remember(version) { version.getVersionName() }
+    val versionSummary = remember(version) { version.getVersionSummary() }
+    val isSummaryValid = remember(version) { version.isSummaryValid() }
+    val versionInfo = remember(version) { version.getVersionInfo() }
+
     Row(modifier = modifier) {
         VersionIconImage(
             modifier = Modifier
@@ -833,23 +840,24 @@ fun CommonVersionInfoLayout(
             Text(
                 modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                 maxLines = 1,
-                text = version.getVersionName(),
+                text = versionName,
                 style = MaterialTheme.typography.labelLarge
             )
             //版本描述
-            if (version.isValid() && version.isSummaryValid()) {
+            if (isValid && isSummaryValid) {
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     maxLines = 1,
-                    text = version.getVersionSummary(),
-                    style = MaterialTheme.typography.labelLarge
+                    text = versionSummary,
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
             //版本详细信息
             FlowRow(
+                modifier = Modifier.alpha(0.7f),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (!version.isValid()) {
+                if (!isValid) {
                     LittleTextLabel(
                         text = stringResource(R.string.versions_manage_invalid),
                         color = MaterialTheme.colorScheme.errorContainer,
@@ -857,7 +865,7 @@ fun CommonVersionInfoLayout(
                         textStyle = MaterialTheme.typography.labelSmall
                     )
                 } else {
-                    version.getVersionInfo()?.let { versionInfo ->
+                    versionInfo?.let { versionInfo ->
                         Text(
                             text = versionInfo.minecraftVersion,
                             style = MaterialTheme.typography.labelSmall,
