@@ -99,13 +99,19 @@ class LaunchArgs(
                         lWarning(msg, it)
                     }.getOrNull()?.let { parsed ->
                         argsList += if (info.quickPlay.isQuickPlayMultiplayer) {
+                            val port = if (parsed.port < 0) {
+                                ServerAddress.DEFAULT_PORT
+                            } else {
+                                parsed.port
+                            }
+
                             listOf(
                                 "--quickPlayMultiplayer",
-                                if (parsed.port < 0) "$address:25565" else address
+                                "${parsed.getASCIIHost()}:$port"
                             )
                         } else {
-                            val port = parsed.port.takeIf { it >= 0 } ?: 25565
-                            listOf("--server", parsed.host, "--port", port.toString())
+                            val port = parsed.port.takeIf { it >= 0 } ?: ServerAddress.DEFAULT_PORT
+                            listOf("--server", parsed.getASCIIHost(), "--port", port.toString())
                         }
                     }
                 }
