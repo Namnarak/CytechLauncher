@@ -821,7 +821,6 @@ fun CommonVersionInfoLayout(
 ) {
     val isValid = remember(version) { version.isValid() }
     val versionName = remember(version) { version.getVersionName() }
-    val versionSummary = remember(version) { version.getVersionSummary() }
     val isSummaryValid = remember(version) { version.isSummaryValid() }
     val versionInfo = remember(version) { version.getVersionInfo() }
 
@@ -845,6 +844,10 @@ fun CommonVersionInfoLayout(
             )
             //版本描述
             if (isValid && isSummaryValid) {
+                val versionSummary = remember(version) {
+                    version.getVersionSummary()
+                }
+
                 Text(
                     modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     maxLines = 1,
