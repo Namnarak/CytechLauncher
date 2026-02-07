@@ -26,7 +26,6 @@ import com.movtery.zalithlauncher.game.launch.LaunchGame
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.QuickPlay
-import com.movtery.zalithlauncher.utils.network.ServerAddress
 
 class LaunchGameViewModel : ViewModel() {
     /**
@@ -68,7 +67,7 @@ class LaunchGameViewModel : ViewModel() {
      */
     fun quickPlayServer(
         version: Version,
-        address: ServerAddress
+        address: String
     ) {
         if (launchGameOperation == LaunchGameOperation.None && !LaunchGame.isLaunching) {
             launchGameOperation = LaunchGameOperation.TryLaunch(

@@ -99,25 +99,17 @@ class LaunchArgs(
                     }
                     is QuickPlay.Server -> {
                         argsList.addQuickPlayServer(
-                            serverAddress = quickPlay.serverAddress,
+                            address = quickPlay.serverAddress,
                             quickPlay = info.quickPlay
                         )
                     }
                 }
             } else {
                 version.getServerIp()?.let { address ->
-                    runCatching {
-                        ServerAddress.parse(address)
-                    }.onFailure {
-                        val msg = "Unable to resolve the server address: $address. The automatic server join feature is unavailable."
-                        LoggerBridge.append(msg)
-                        lWarning(msg, it)
-                    }.getOrNull()?.let { parsed ->
-                        argsList.addQuickPlayServer(
-                            serverAddress = parsed,
-                            quickPlay = info.quickPlay
-                        )
-                    }
+                    argsList.addQuickPlayServer(
+                        address = address,
+                        quickPlay = info.quickPlay
+                    )
                 }
             }
         }
@@ -126,26 +118,34 @@ class LaunchArgs(
     }
 
     private fun MutableList<String>.addQuickPlayServer(
-        serverAddress: ServerAddress,
+        address: String,
         quickPlay: VersionInfo.QuickPlay
     ) {
-        val args = if (quickPlay.isQuickPlayMultiplayer) {
-            val port = if (serverAddress.port < 0) {
-                ServerAddress.DEFAULT_PORT
+        runCatching {
+            ServerAddress.parse(address)
+        }.onFailure {
+            val msg = "Unable to resolve the server address: $address. The automatic server join feature is unavailable."
+            LoggerBridge.append(msg)
+            lWarning(msg, it)
+        }.getOrNull()?.let { parsed ->
+            val args = if (quickPlay.isQuickPlayMultiplayer) {
+                val port = if (parsed.port < 0) {
+                    ServerAddress.DEFAULT_PORT
+                } else {
+                    parsed.port
+                }
+
+                listOf(
+                    "--quickPlayMultiplayer",
+                    "${parsed.getASCIIHost()}:$port"
+                )
             } else {
-                serverAddress.port
+                val port = parsed.port.takeIf { it >= 0 } ?: ServerAddress.DEFAULT_PORT
+                listOf("--server", parsed.getASCIIHost(), "--port", port.toString())
             }
 
-            listOf(
-                "--quickPlayMultiplayer",
-                "${serverAddress.getASCIIHost()}:$port"
-            )
-        } else {
-            val port = serverAddress.port.takeIf { it >= 0 } ?: ServerAddress.DEFAULT_PORT
-            listOf("--server", serverAddress.getASCIIHost(), "--port", port.toString())
+            addAll(args)
         }
-
-        addAll(args)
     }
 
     private fun getLWJGL3ClassPath(): String =

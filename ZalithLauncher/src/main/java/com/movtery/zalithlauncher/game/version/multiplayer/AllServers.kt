@@ -1,17 +1,20 @@
 package com.movtery.zalithlauncher.game.version.multiplayer
 
 import com.github.steveice10.opennbt.NBTIO
+import com.github.steveice10.opennbt.tag.builtin.ByteTag
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
+import com.github.steveice10.opennbt.tag.builtin.ListTag
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.nbt.asBoolean
 import com.movtery.zalithlauncher.utils.nbt.asBooleanNotNull
 import com.movtery.zalithlauncher.utils.nbt.asList
 import com.movtery.zalithlauncher.utils.nbt.asString
 import com.movtery.zalithlauncher.utils.nbt.asStringNotNull
-import com.movtery.zalithlauncher.utils.network.ServerAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.apache.commons.io.FileUtils
 import java.io.File
+import java.nio.file.Files
 import java.util.Base64
 
 class AllServers {
@@ -70,22 +73,69 @@ class AllServers {
         }
     }
 
+    fun removeServer(data: ServerData) {
+        if (!_serverList.remove(data)) {
+            hiddenServerList.remove(data)
+        }
+    }
+
+    /**
+     * 保存服务器列表
+     * @param savePath 生成的 servers.dat 文件会保存在什么目录下
+     */
+    suspend fun save(savePath: File) {
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val tag = CompoundTag("")
+                val serverTags = ListTag("servers")
+
+                serverTags.addServers(_serverList, false)
+                serverTags.addServers(hiddenServerList, true)
+
+                tag.put(serverTags)
+
+                //开始将数据写入文件，和原版 Minecraft 差不多的逻辑
+                val currentPath = savePath.toPath()
+                val newFile = Files.createTempFile(currentPath, "servers", ".dat").toFile()
+                NBTIO.writeFile(tag, newFile, false, false)
+
+                val currentDataFile = currentPath.resolve("servers.dat").toFile()
+                val oldDataFile = currentPath.resolve("servers.dat_old").toFile()
+
+                //先尝试存档当前的服务器数据文件
+                FileUtils.deleteQuietly(oldDataFile)
+                if (currentDataFile.exists()) {
+                    currentDataFile.copyTo(oldDataFile, true)
+                    FileUtils.deleteQuietly(currentDataFile)
+                }
+
+                //然后复制缓存的新的数据文件
+                newFile.copyTo(currentDataFile, true)
+                FileUtils.deleteQuietly(newFile)
+            }.onFailure {
+                it.printStackTrace()
+                println("Couldn't save server list")
+            }
+        }
+    }
+
+    private fun ListTag.addServers(
+        list: List<ServerData>,
+        hidden: Boolean
+    ) {
+        list.forEach { data ->
+            val serverTag = data.save()
+            serverTag.put(ByteTag("hidden", (if (hidden) 1 else 0).toByte()))
+            add(serverTag)
+        }
+    }
+
     /**
      * [参考 WIKI](https://zh.minecraft.wiki/w/%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%97%E8%A1%A8%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F#%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F)
      */
     private fun CompoundTag.parseServerData(): ServerData? {
         val name = asStringNotNull("name", "")
-
-        //尝试解析服务器的ip
-        val (ip, origin) = asStringNotNull("ip", "").let { ip ->
-            val address = runCatching {
-                ServerAddress.parse(ip)
-            }.onFailure {
-                lWarning("Unable to parse server $name's IP address, original string: $ip")
-            }.getOrNull() ?: return null
-
-            address to ip
-        }
+        val origin = asStringNotNull("ip", "")
 
         //尝试解析icon作为placeholder
         val icon = asString("icon", null)?.let { base64 ->
@@ -108,7 +158,6 @@ class AllServers {
 
         return ServerData(
             name = name,
-            ip = ip,
             originIp = origin,
             texturePackStatus = texturesStatus,
             acceptedCodeOfConduct = acceptedCodeOfConduct,

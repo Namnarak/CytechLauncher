@@ -52,7 +52,6 @@ import com.movtery.zalithlauncher.ui.components.VideoPlayer
 import com.movtery.zalithlauncher.utils.checkStoragePermissions
 import com.movtery.zalithlauncher.utils.file.InvalidFilenameException
 import com.movtery.zalithlauncher.utils.file.checkFilenameValidity
-import com.movtery.zalithlauncher.utils.network.ServerAddress
 import com.movtery.zalithlauncher.utils.string.isBiggerTo
 import com.movtery.zalithlauncher.utils.string.isLowerTo
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
@@ -70,7 +69,7 @@ sealed interface QuickPlay : Parcelable {
 
     /** 快速启动游玩服务器 */
     @Parcelize
-    data class Server(val serverAddress: ServerAddress): QuickPlay
+    data class Server(val serverAddress: String): QuickPlay
 }
 
 sealed interface LaunchGameOperation {

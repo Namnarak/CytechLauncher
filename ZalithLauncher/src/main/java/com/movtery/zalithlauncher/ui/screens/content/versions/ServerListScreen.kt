@@ -15,28 +15,43 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,6 +80,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -85,8 +101,11 @@ import com.movtery.zalithlauncher.game.version.multiplayer.description.StringDes
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
+import com.movtery.zalithlauncher.ui.components.IconTextButton
+import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -100,7 +119,9 @@ import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChu
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.copyText
-import com.movtery.zalithlauncher.utils.network.ServerAddress
+import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.stripColorCodes
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
@@ -118,11 +139,21 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.LinkedList
 
-sealed interface ServerListOperation {
+private sealed interface ServerListOperation {
     /** 服务器列表刷新中 */
     data object Loading : ServerListOperation
     /** 已加载服务器数据 */
     data object LoadedData : ServerListOperation
+}
+
+private sealed interface ServerDataOperation {
+    data object None: ServerDataOperation
+    /** 添加一个服务器 */
+    data object AddServer : ServerDataOperation
+    /** 删除一个服务器 */
+    data class DeleteServer(val data: ServerData) : ServerDataOperation
+    /** 编辑一个服务器 */
+    data class EditServer(val data: ServerData) : ServerDataOperation
 }
 
 private class ServerListViewModel(
@@ -149,6 +180,9 @@ private class ServerListViewModel(
     private val queueMutex = Mutex()
 
     private var refreshJob: Job? = null
+    private var saveJob: Job? = null
+    private val dataMutex = Mutex()
+
     private var searchJob: Job? = null
 
     /**
@@ -157,24 +191,93 @@ private class ServerListViewModel(
     fun loadServer() {
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch(Dispatchers.IO) {
-            internalServers.clear()
-
-            withContext(Dispatchers.Main) {
-                operation = ServerListOperation.Loading
-                _servers.update { emptyList() }
+            dataMutex.withLock {
+                loadServerSuspend()
             }
+        }
+    }
 
-            allServers.loadServers(serverData)
+    private suspend fun loadServerSuspend() {
+        internalServers.clear()
 
-            withContext(Dispatchers.Main) {
-                operation = ServerListOperation.LoadedData
-                _servers.update {
-                    if (allServers.serverList.isEmpty()) {
-                        null
-                    } else {
-                        filteredServers()
-                    }
+        withContext(Dispatchers.Main) {
+            operation = ServerListOperation.Loading
+            _servers.update { emptyList() }
+        }
+
+        allServers.loadServers(serverData)
+
+        withContext(Dispatchers.Main) {
+            operation = ServerListOperation.LoadedData
+            _servers.update {
+                if (allServers.serverList.isEmpty()) {
+                    null
+                } else {
+                    filteredServers()
                 }
+            }
+        }
+    }
+
+    /**
+     * 是否正在保存服务器列表
+     */
+    var saving by mutableStateOf(false)
+        private set
+    /**
+     * 对服务器的各种操作流程
+     */
+    var dataOperation by mutableStateOf<ServerDataOperation>(ServerDataOperation.None)
+
+    /**
+     * 添加一个新的服务器
+     * @param serverName 服务器名称
+     * @param serverAddress 服务器地址
+     */
+    fun addServer(
+        gamePath: File,
+        serverName: String,
+        serverAddress: String
+    ) {
+        saveServers(
+            gamePath = gamePath
+        ) {
+            val data = ServerData(name = serverName, originIp = serverAddress)
+            allServers.addServer(data)
+        }
+    }
+
+    /**
+     * 删除一个服务器
+     */
+    fun deleteServer(
+        gamePath: File,
+        data: ServerData
+    ) {
+        saveServers(
+            gamePath = gamePath
+        ) {
+            allServers.removeServer(data)
+        }
+    }
+
+    /**
+     * 保存服务器列表
+     * @param gamePath 指定 servers.dat 文件的保存目录
+     * @param beforeSave 在保存前可以进行的操作
+     */
+    fun saveServers(
+        gamePath: File,
+        beforeSave: suspend () -> Unit = {}
+    ) {
+        saveJob?.cancel()
+        saveJob = viewModelScope.launch(Dispatchers.IO) {
+            dataMutex.withLock {
+                withContext(Dispatchers.Main) { saving = true }
+                beforeSave()
+                allServers.save(gamePath)
+                loadServerSuspend()
+                withContext(Dispatchers.Main) { saving = false }
             }
         }
     }
@@ -302,6 +405,63 @@ private fun rememberServerListViewModel(
 }
 
 @Composable
+private fun ServerDataOperation(
+    operation: ServerDataOperation,
+    onChange: (ServerDataOperation) -> Unit,
+    onAddServer: (name: String, ip: String) -> Unit,
+    onEditedServer: () -> Unit,
+    onDeleteServer: (ServerData) -> Unit
+) {
+    when (operation) {
+        is ServerDataOperation.None -> {}
+        is ServerDataOperation.AddServer -> {
+            ServerEditDialog(
+                title = stringResource(R.string.servers_list_add_server),
+                name = null,
+                address = "",
+                onDismissRequest = {
+                    onChange(ServerDataOperation.None)
+                },
+                onApply = onAddServer
+            )
+        }
+        is ServerDataOperation.DeleteServer -> {
+            val serverName = remember(operation) {
+                operation.data.name.stripColorCodes()
+            }
+
+            SimpleAlertDialog(
+                title = stringResource(R.string.servers_list_delete_server),
+                text = stringResource(R.string.servers_list_delete_server_text, serverName),
+                onDismiss = {
+                    onChange(ServerDataOperation.None)
+                },
+                onConfirm = {
+                    onDeleteServer(operation.data)
+                    onChange(ServerDataOperation.None)
+                }
+            )
+        }
+        is ServerDataOperation.EditServer -> {
+            val data = operation.data
+            ServerEditDialog(
+                title = stringResource(R.string.servers_list_edit_server),
+                name = data.name,
+                address = data.originIp,
+                onDismissRequest = {
+                    onChange(ServerDataOperation.None)
+                },
+                onApply = { name, ip ->
+                    data.name = name
+                    data.originIp = ip
+                    onEditedServer()
+                }
+            )
+        }
+    }
+}
+
+@Composable
 fun ServerListScreen(
     mainScreenKey: NavKey?,
     versionsScreenKey: NavKey?,
@@ -337,6 +497,29 @@ fun ServerListScreen(
             swapIn = isVisible
         )
 
+        ServerDataOperation(
+            operation = viewModel.dataOperation,
+            onChange = { viewModel.dataOperation = it },
+            onAddServer = { name, ip ->
+                viewModel.addServer(
+                    gamePath = version.getGameDir(),
+                    serverName = name,
+                    serverAddress = ip
+                )
+            },
+            onEditedServer = {
+                viewModel.saveServers(
+                    gamePath = version.getGameDir()
+                )
+            },
+            onDeleteServer = { server ->
+                viewModel.deleteServer(
+                    gamePath = version.getGameDir(),
+                    data = server
+                )
+            }
+        )
+
         VersionChunkBackground(
             modifier = Modifier
                 .fillMaxSize()
@@ -362,6 +545,9 @@ fun ServerListScreen(
                                 viewModel.searchName = it
                                 viewModel.filterServers()
                             },
+                            onAddServer = {
+                                viewModel.dataOperation = ServerDataOperation.AddServer
+                            },
                             refreshServers = {
                                 viewModel.loadServer()
                             }
@@ -373,11 +559,18 @@ fun ServerListScreen(
                                 .fillMaxWidth()
                                 .weight(1f),
                             servers = servers,
+                            isSavingServer = viewModel.saving,
                             onLoad = { viewModel.loadServer(it) },
                             onRefresh = { viewModel.loadServer(it, true) },
                             onCopy = { viewModel.copy(context, it, copiedText) },
                             onPlay = { address ->
                                 launchGameViewModel.quickPlayServer(version, address)
+                            },
+                            onEdit = { data ->
+                                viewModel.dataOperation = ServerDataOperation.EditServer(data)
+                            },
+                            onDelete = { data ->
+                                viewModel.dataOperation = ServerDataOperation.DeleteServer(data)
                             }
                         )
                     }
@@ -391,6 +584,7 @@ fun ServerListScreen(
 private fun ServerListHeader(
     searchName: String,
     onSearchNameChange: (String) -> Unit,
+    onAddServer: () -> Unit,
     refreshServers: () -> Unit,
     modifier: Modifier = Modifier,
     inputFieldColor: Color = itemLayoutColor(),
@@ -436,6 +630,15 @@ private fun ServerListHeader(
                         .horizontalScroll(scrollState),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    //添加服务器
+                    IconTextButton(
+                        onClick = onAddServer,
+                        imageVector = Icons.Default.Add,
+                        text = stringResource(R.string.servers_list_add_server)
+                    )
+
                     IconButton(
                         onClick = refreshServers
                     ) {
@@ -453,10 +656,13 @@ private fun ServerListHeader(
 @Composable
 private fun ServerListBody(
     servers: List<ServerData>?,
+    isSavingServer: Boolean,
     onLoad: (ServerData) -> Unit,
     onRefresh: (ServerData) -> Unit,
     onCopy: (String) -> Unit,
-    onPlay: (ServerAddress) -> Unit,
+    onPlay: (String) -> Unit,
+    onEdit: (ServerData) -> Unit,
+    onDelete: (ServerData) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     servers?.let { list ->
@@ -470,10 +676,13 @@ private fun ServerListBody(
                     ServerItem(
                         modifier = Modifier.fillMaxWidth(),
                         item = server,
+                        isSavingServer = isSavingServer,
                         onLoad = { onLoad(server) },
                         onRefresh = { onRefresh(server) },
                         onCopy = { onCopy(server.originIp) },
-                        onPlay = { onPlay(server.ip) }
+                        onPlay = { onPlay(server.originIp) },
+                        onEdit = { onEdit(server) },
+                        onDelete = { onDelete(server) }
                     )
                 }
             }
@@ -501,10 +710,13 @@ private fun ServerListBody(
 @Composable
 private fun ServerItem(
     item: ServerData,
+    isSavingServer: Boolean,
     onLoad: () -> Unit,
     onRefresh: () -> Unit,
     onCopy: () -> Unit,
     onPlay: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     shape: Shape = MaterialTheme.shapes.large,
@@ -689,26 +901,93 @@ private fun ServerItem(
                     )
                 }
 
-                //复制服务器ip
-                IconButton(
-                    onClick = onCopy,
-                ) {
-                    Icon(
-                        modifier = Modifier.size(18.dp),
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(R.string.generic_copy)
-                    )
-                }
+                Box {
+                    var expanded by remember { mutableStateOf(false) }
 
-                //刷新服务器按钮
-                IconButton(
-                    onClick = onRefresh,
-                    enabled = ot !is ServerData.Operation.Loading
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = stringResource(R.string.generic_refresh)
-                    )
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(
+                            modifier = Modifier.size(24.dp),
+                            imageVector = Icons.Default.MoreHoriz,
+                            contentDescription = stringResource(R.string.generic_more)
+                        )
+                    }
+
+                    //当前服务器是否正在加载中
+                    val isLoading = ot is ServerData.Operation.Loading
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        shape = MaterialTheme.shapes.large,
+                        shadowElevation = 3.dp,
+                        onDismissRequest = { expanded = false },
+                    ) {
+                        //刷新服务器
+                        DropdownMenuItem(
+                            enabled = !isLoading,
+                            text = { Text(text = stringResource(R.string.generic_refresh)) },
+                            leadingIcon = {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = stringResource(R.string.generic_refresh)
+                                )
+                            },
+                            onClick = {
+                                onRefresh()
+                                expanded = false
+                            }
+                        )
+
+                        //复制服务器ip
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.servers_list_copy_server_address)) },
+                            leadingIcon = {
+                                Icon(
+                                    modifier = Modifier.size(18.dp),
+                                    imageVector = Icons.Default.ContentCopy,
+                                    contentDescription = stringResource(R.string.servers_list_copy_server_address)
+                                )
+                            },
+                            onClick = {
+                                onCopy()
+                                expanded = false
+                            }
+                        )
+
+                        //编辑服务器
+                        DropdownMenuItem(
+                            enabled = !isSavingServer,
+                            text = { Text(text = stringResource(R.string.servers_list_edit_server)) },
+                            leadingIcon = {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = stringResource(R.string.servers_list_edit_server)
+                                )
+                            },
+                            onClick = {
+                                onEdit()
+                                expanded = false
+                            }
+                        )
+
+                        //删除服务器
+                        DropdownMenuItem(
+                            enabled = !isSavingServer,
+                            text = { Text(text = stringResource(R.string.servers_list_delete_server)) },
+                            leadingIcon = {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.servers_list_delete_server)
+                                )
+                            },
+                            onClick = {
+                                onDelete()
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -843,6 +1122,124 @@ private fun DescriptionTextRender(
                 fontSize = fontSize,
                 maxLines = maxLines
             )
+        }
+    }
+}
+
+/**
+ * 编辑服务器信息对话框
+ */
+@Composable
+private fun ServerEditDialog(
+    title: String,
+    onDismissRequest: () -> Unit,
+    onApply: (name: String, ip: String) -> Unit,
+    name: String? = null,
+    address: String = "",
+) {
+    //默认的服务器名称，不填时使用它
+    val defaultName = stringResource(R.string.servers_list_add_server_default_name)
+    var name by remember {
+        mutableStateOf(
+            name?.takeIf { it.isNotEmptyOrBlank() } ?: defaultName
+        )
+    }
+    var ip by remember { mutableStateOf(address) }
+
+    //仅检查服务器地址栏是否为空
+    val isIpEmpty = remember(ip) {
+        ip.isEmptyOrBlank()
+    }
+
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxHeight(),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .padding(all = 6.dp)
+                    .heightIn(max = maxHeight - 12.dp)
+                    .wrapContentHeight(),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .fadeEdge(state = scrollState)
+                            .weight(1f, fill = false)
+                            .verticalScroll(state = scrollState)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text(text = stringResource(R.string.servers_list_add_server_name)) },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = ip,
+                            onValueChange = { ip = it },
+                            isError = isIpEmpty,
+                            label = { Text(text = stringResource(R.string.servers_list_add_server_ip)) },
+                            supportingText = {
+                                if (isIpEmpty) {
+                                    Text(text = stringResource(R.string.generic_cannot_empty))
+                                }
+                            },
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.large
+                        )
+                    }
+                    Spacer(modifier = Modifier.size(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        FilledTonalButton(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDismissRequest
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_cancel))
+                        }
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                if (!isIpEmpty) {
+                                    val name0 = if (name.isEmptyOrBlank()) defaultName
+                                    else name
+
+                                    onApply(name0, ip)
+                                    onDismissRequest()
+                                }
+                            }
+                        ) {
+                            MarqueeText(text = stringResource(R.string.generic_confirm))
+                        }
+                    }
+                }
+            }
         }
     }
 }
