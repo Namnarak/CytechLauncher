@@ -122,7 +122,6 @@ import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
-import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -468,7 +467,6 @@ fun ServerListScreen(
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
     backToMainScreen: () -> Unit,
-    submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     if (!version.isValid()) {
         backToMainScreen()

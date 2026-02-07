@@ -481,7 +481,6 @@ private fun NavigationUI(
                         launchGameViewModel = launchGameViewModel,
                         version = version,
                         backToMainScreen = backToMainScreen,
-                        submitError = submitError
                     )
                 }
             }
