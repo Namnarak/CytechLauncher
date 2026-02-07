@@ -727,6 +727,19 @@
     <string name="shader_pack_manage_name">光影包名称</string>
     <string name="shader_pack_manage_delete_warning">您确定要删除光影包 %s 吗？该操作不可撤销！</string>
     <string name="shader_pack_manage_no_packs">当前版本还没有光影包</string>
+    <string name="servers_list">服务器</string>
+    <string name="servers_list_no_servers">当前版本还未添加服务器</string>
+    <string name="servers_list_failed_to_connect">无法连接至服务器</string>
+    <string name="servers_list_undefined">未定义</string>
+    <string name="servers_list_players_full">已满员</string>
+    <string name="servers_list_add_server">添加服务器</string>
+    <string name="servers_list_add_server_name">服务器名称</string>
+    <string name="servers_list_add_server_default_name">Minecraft服务器</string>
+    <string name="servers_list_add_server_ip">服务器地址</string>
+    <string name="servers_list_delete_server">删除服务器</string>
+    <string name="servers_list_delete_server_text">你确定要删除服务器 %s 吗？</string>
+    <string name="servers_list_edit_server">编辑服务器</string>
+    <string name="servers_list_copy_server_address">复制服务器地址</string>
     <!--  游戏  -->
     <string name="minecraft_download_stat_download_task">统计下载任务</string>
     <string name="minecraft_download_stat_verify_task">统计验证任务</string>
