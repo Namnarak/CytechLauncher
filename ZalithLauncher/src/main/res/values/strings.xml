@@ -492,7 +492,16 @@
     <string name="account_microsoft_verify_game_ownership">Checking game ownership</string>
     <string name="account_microsoft_getting_player_profile">Fetching profile</string>
     <string name="account_microsoft_exit_by_user">You left the webpage, so the Microsoft login process has been canceled for you.</string>
+    <string name="account_advanced">Advanced Settings</string>
     <string name="account_local_create_account">Create Offline Account</string>
+    <string name="account_local_uuid" translatable="false">UUID</string>
+    <string name="account_local_uuid_tip_1">UUID is the unique identifier of a Minecraft player.</string>
+    <string name="account_local_uuid_tip_2">Different launchers may generate different UUIDs.</string>
+    <string name="account_local_uuid_tip_3">Keeping the UUID unchanged when switching launchers allows the game to continue recognizing your character and retain inventory data.</string>
+    <string name="account_local_uuid_tip_4">This option is intended for advanced users and usually does not need to be adjusted.</string>
+    <string name="account_local_uuid_invalid">Invalid UUID Format</string>
+    <string name="account_local_uuid_copy">Copy UUID</string>
+    <string name="account_local_uuid_copied">Copied UUID of Account %s</string>
     <string name="account_other_login_baseurl_not_set">Base URL not set</string>
     <string name="account_other_login_getting_full_url">Resolving URL</string>
     <string name="account_other_login_getting_server_info">Fetching server info</string>
@@ -720,6 +729,19 @@
     <string name="shader_pack_manage_name">Shader Pack Name</string>
     <string name="shader_pack_manage_delete_warning">Are you sure you want to delete the shader pack %s? This action cannot be undone!</string>
     <string name="shader_pack_manage_no_packs">No shader packs for this version</string>
+    <string name="servers_list">Servers</string>
+    <string name="servers_list_no_servers">No servers have been added for this version</string>
+    <string name="servers_list_failed_to_connect">Unable to Connect to Server</string>
+    <string name="servers_list_undefined">Undefined</string>
+    <string name="servers_list_players_full">Full</string>
+    <string name="servers_list_add_server">Add Server</string>
+    <string name="servers_list_add_server_name">Server Name</string>
+    <string name="servers_list_add_server_default_name">Minecraft Server</string>
+    <string name="servers_list_add_server_ip">Server Address</string>
+    <string name="servers_list_delete_server">Delete Server</string>
+    <string name="servers_list_delete_server_text">Are you sure you want to delete server %s?</string>
+    <string name="servers_list_edit_server">Edit Server</string>
+    <string name="servers_list_copy_server_address">Copy Address</string>
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>

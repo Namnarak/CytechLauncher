@@ -64,7 +64,6 @@ import javax.microedition.khronos.egl.EGLContext
 class GameLauncher(
     private val activity: Activity,
     private val version: Version,
-    private val windowSize: IntSize,
     onExit: (code: Int, isSignal: Boolean) -> Unit
 ) : Launcher(onExit) {
     private lateinit var gameManifest: GameManifest
@@ -74,7 +73,7 @@ class GameLauncher(
         offlineServer.stop()
     }
 
-    override suspend fun launch(): Int {
+    override suspend fun launch(screenSize: IntSize): Int {
         if (!Renderers.isCurrentRendererValid()) {
             Renderers.setCurrentRenderer(activity, version.getRenderer())
         }
@@ -101,6 +100,7 @@ class GameLauncher(
         )
 
         return launchGame(
+            screenSize = screenSize,
             account = account,
             javaRuntime = javaRuntime,
             customArgs = customArgs
@@ -137,8 +137,8 @@ class GameLauncher(
 
     override fun getLogName(): String = LogName.GAME.fileName
 
-    override fun initEnv(windowSize: IntSize): MutableMap<String, String> {
-        val envMap = super.initEnv(windowSize)
+    override fun initEnv(screenSize: IntSize): MutableMap<String, String> {
+        val envMap = super.initEnv(screenSize)
 
         DriverPluginManager.setDriverById(version.getDriver())
         envMap["DRIVER_PATH"] = DriverPluginManager.getDriver().path
@@ -177,6 +177,7 @@ class GameLauncher(
     }
 
     private suspend fun launchGame(
+        screenSize: IntSize,
         account: Account,
         javaRuntime: String,
         customArgs: String
@@ -201,7 +202,7 @@ class GameLauncher(
             runtime = runtime,
             readAssetsFile = { path -> activity.readAssetFile(path) },
             getCacioJavaArgs = { isJava8 ->
-                getCacioJavaArgs(windowSize, isJava8)
+                getCacioJavaArgs(screenSize, isJava8)
             }
         ).getAllArgs()
 
@@ -211,7 +212,7 @@ class GameLauncher(
             context = activity,
             jvmArgs = launchArgs,
             userArgs = customArgs,
-            windowSize = windowSize
+            screenSize = screenSize
         )
     }
 

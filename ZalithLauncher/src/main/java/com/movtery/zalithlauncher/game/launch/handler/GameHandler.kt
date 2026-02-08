@@ -58,8 +58,7 @@ class GameHandler(
     errorViewModel: ErrorViewModel,
     eventViewModel: EventViewModel,
     private val gamepadViewModel: GamepadViewModel,
-    private val windowSize: IntSize,
-    private val gameLauncher: GameLauncher,
+    gameLauncher: GameLauncher,
     onExit: (code: Int) -> Unit
 ) : AbstractHandler(
     type = HandlerType.GAME,
@@ -79,20 +78,24 @@ class GameHandler(
      */
     private var logState by mutableStateOfLog()
 
-    override suspend fun execute(surface: Surface?, scope: CoroutineScope) {
+    override suspend fun execute(
+        surface: Surface?,
+        screenSize: IntSize,
+        scope: CoroutineScope
+    ) {
         ZLBridge.setupBridgeWindow(surface)
 
         MCOptions.setup(activity, version)
 
         MCOptions.apply {
             set("fullscreen", "false")
-            set("overrideWidth", windowSize.width.toString())
-            set("overrideHeight", windowSize.height.toString())
+            set("overrideWidth", screenSize.width.toString())
+            set("overrideHeight", screenSize.height.toString())
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)
             save()
         }
 
-        super.execute(surface, scope)
+        super.execute(surface, screenSize, scope)
     }
 
     override fun onPause() {

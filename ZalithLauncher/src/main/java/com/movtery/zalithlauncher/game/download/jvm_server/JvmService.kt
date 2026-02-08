@@ -121,7 +121,6 @@ class JvmService : Service() {
 
         val launcher = JvmLauncher(
             context = applicationContext,
-            windowSize = IntSize(1920, 1080), //fake
             jvmLaunchInfo = jvmLaunchInfo,
             onExit = onExit
         )
@@ -146,7 +145,9 @@ class JvmService : Service() {
         lInfo("start jvm!")
 
         val code = runCatching {
-            launcher.launch()
+            launcher.launch(
+                screenSize = IntSize(1920, 1080) //fake
+            )
         }.onFailure { e ->
             lWarning("jvm crashed!", e)
         }.getOrElse { 1 }

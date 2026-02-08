@@ -146,7 +146,6 @@ class VMViewModel : ViewModel() {
         errorViewModel: ErrorViewModel,
         eventViewModel: EventViewModel,
         gamepadViewModel: GamepadViewModel,
-        createWindowSize: (scaling: Float) -> IntSize,
         exitListener: (Int, Boolean) -> Unit
     ) {
         if (_session != null) return
@@ -155,14 +154,10 @@ class VMViewModel : ViewModel() {
             bundle.getBoolean(INTENT_RUN_GAME) -> {
                 val version: Version = bundle.getParcelableSafely(INTENT_VERSION, Version::class.java)
                     ?: throw IllegalStateException("No launch version has been set.")
-                val windowSize = createWindowSize(
-                    AllSettings.resolutionRatio.getValue().toFloat() / 100f
-                )
 
                 val launcher = GameLauncher(
                     activity = activity,
                     version = version,
-                    windowSize = windowSize,
                     onExit = exitListener
                 )
 
@@ -176,7 +171,6 @@ class VMViewModel : ViewModel() {
                         errorViewModel = errorViewModel,
                         eventViewModel = eventViewModel,
                         gamepadViewModel = gamepadViewModel,
-                        windowSize = windowSize,
                         gameLauncher = launcher
                     ) { code ->
                         exitListener(code, false)
@@ -187,11 +181,9 @@ class VMViewModel : ViewModel() {
             bundle.getBoolean(INTENT_RUN_JAR) -> {
                 val jvmLaunchInfo: JvmLaunchInfo = bundle.getParcelableSafely(INTENT_JAR_INFO, JvmLaunchInfo::class.java)
                     ?: throw IllegalStateException("No launch jar info has been set.")
-                val windowSize = createWindowSize(0.8f)
 
                 val launcher = JvmLauncher(
                     context = activity,
-                    windowSize = windowSize,
                     jvmLaunchInfo = jvmLaunchInfo,
                     onExit = exitListener
                 )
@@ -204,7 +196,6 @@ class VMViewModel : ViewModel() {
                         jvmLauncher = launcher,
                         errorViewModel = errorViewModel,
                         eventViewModel = eventViewModel,
-                        windowSize = windowSize
                     ) { code ->
                         exitListener(code, false)
                     },
@@ -335,9 +326,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             errorViewModel = errorViewModel,
             eventViewModel = eventViewModel,
             gamepadViewModel = gamepadViewModel,
-            createWindowSize = { scaling ->
-                getPhysicalWindowSize(scaling)
-            },
             exitListener = { exitCode: Int, isSignal: Boolean ->
                 if (exitCode != 0) {
                     showExitMessage(this, exitCode, isSignal)
@@ -514,13 +502,6 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             refreshScreenSize()
         }
     }
-
-    private fun getPhysicalWindowSize(scaling: Float): IntSize {
-        val display = getDisplayMetrics()
-        val windowWidth = getDisplayFriendlyRes(display.widthPixels, scaling)
-        val windowHeight = getDisplayFriendlyRes(display.heightPixels, scaling)
-        return IntSize(windowWidth, windowHeight)
-    }
     
     private fun refreshScreenSize() {
         val textureView = mTextureView ?: return
@@ -530,11 +511,11 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         }
     }
 
-    private fun refreshWindowSize(surface: SurfaceTexture?, screenSize: IntSize) {
+    private fun refreshWindowSize(surface: SurfaceTexture?, screenSize: IntSize): IntSize {
         fun getDisplayPixels(pixels: Int): Int {
             return withHandler {
                 when (type) {
-                    HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.state / 100f)
+                    HandlerType.GAME -> getDisplayFriendlyRes(pixels, AllSettings.resolutionRatio.getValue().toFloat() / 100f)
                     HandlerType.JVM -> getDisplayFriendlyRes(pixels, 0.8f)
                 }
             }
@@ -545,6 +526,8 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         surface?.setDefaultBufferSize(windowWidth, windowHeight)
         ZLBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
+
+        return IntSize(windowWidth, windowHeight)
     }
 
     override fun onDestroy() {
@@ -635,9 +618,15 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         vmViewModel.isRunning = true
 
         withHandler { mIsSurfaceDestroyed = false }
-        refreshWindowSize(surface, IntSize(width, height))
+        val currentSize = refreshWindowSize(surface, IntSize(width, height))
         lifecycleScope.launch(Dispatchers.Default) {
-            withHandler { execute(Surface(surface), lifecycleScope) }
+            withHandler {
+                execute(
+                    surface = Surface(surface),
+                    screenSize = currentSize,
+                    scope = lifecycleScope
+                )
+            }
         }
     }
 

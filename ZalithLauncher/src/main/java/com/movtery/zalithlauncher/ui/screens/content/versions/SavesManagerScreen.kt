@@ -75,6 +75,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -95,6 +96,9 @@ import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
+import com.movtery.zalithlauncher.game.version.saves.SaveData
+import com.movtery.zalithlauncher.game.version.saves.isCompatible
+import com.movtery.zalithlauncher.game.version.saves.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
@@ -118,12 +122,9 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.rememberMultipleUr
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.FileNameInputDialog
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.LoadingState
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SaveData
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesFilter
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.SavesOperation
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.filterSaves
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.isCompatible
-import com.movtery.zalithlauncher.ui.screens.content.versions.elements.parseLevelDatFile
 import com.movtery.zalithlauncher.ui.screens.content.versions.layouts.VersionChunkBackground
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -319,7 +320,7 @@ fun SavesManagerScreen(
                         savesDir = savesDir,
                         updateOperation = { savesOperation = it },
                         quickPlay = { saveName ->
-                            launchGameViewModel.quickLaunch(
+                            launchGameViewModel.quickPlaySave(
                                 version = version,
                                 saveName = saveName
                             )
@@ -523,13 +524,12 @@ private fun SavesList(
         if (list.isNotEmpty()) {
             LazyColumn(
                 modifier = modifier,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(all = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(list) { saveData ->
                     SaveItemLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         saveData = saveData,
                         quickPlay = quickPlay,
                         minecraftVersion = minecraftVersion,
@@ -571,6 +571,7 @@ private fun SaveItemLayout(
     minecraftVersion: String,
     onClick: () -> Unit = {},
     updateOperation: (SavesOperation) -> Unit = {},
+    shape: Shape = MaterialTheme.shapes.large,
     itemColor: Color = itemLayoutColor(),
     itemContentColor: Color = MaterialTheme.colorScheme.onSurface,
     shadowElevation: Dp = itemLayoutShadowElevation()
@@ -588,7 +589,7 @@ private fun SaveItemLayout(
     Surface(
         modifier = modifier.graphicsLayer(scaleY = scale.value, scaleX = scale.value),
         onClick = onClick,
-        shape = MaterialTheme.shapes.large,
+        shape = shape,
         color = itemColor,
         contentColor = itemContentColor,
         shadowElevation = shadowElevation

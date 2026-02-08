@@ -491,7 +491,15 @@
     <string name="account_microsoft_verify_game_ownership">验证是否拥有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">获取玩家账户信息</string>
     <string name="account_microsoft_exit_by_user">您离开了网页屏幕，已为您取消了微软登录流程。</string>
+    <string name="account_advanced">高级设置</string>
     <string name="account_local_create_account">创建离线账号</string>
+    <string name="account_local_uuid_tip_1">UUID 是 Minecraft 玩家的唯一身份标识。</string>
+    <string name="account_local_uuid_tip_2">不同启动器可能生成不同的 UUID。</string>
+    <string name="account_local_uuid_tip_3">如果切换启动器时保持 UUID 不变，游戏就能继续识别你的角色，保留背包物品等数据。</string>
+    <string name="account_local_uuid_tip_4">此选项适用于高级用户，一般情况下无需调整。</string>
+    <string name="account_local_uuid_invalid">无效 UUID 格式</string>
+    <string name="account_local_uuid_copy">复制 UUID</string>
+    <string name="account_local_uuid_copied">已复制账号 %s 的 UUID</string>
     <string name="account_other_login_baseurl_not_set">未设置基础 URL</string>
     <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
     <string name="account_other_login_getting_server_info">获取服务器信息中</string>
@@ -719,6 +727,19 @@
     <string name="shader_pack_manage_name">光影包名称</string>
     <string name="shader_pack_manage_delete_warning">您确定要删除光影包 %s 吗？该操作不可撤销！</string>
     <string name="shader_pack_manage_no_packs">当前版本还没有光影包</string>
+    <string name="servers_list">服务器</string>
+    <string name="servers_list_no_servers">当前版本还未添加服务器</string>
+    <string name="servers_list_failed_to_connect">无法连接至服务器</string>
+    <string name="servers_list_undefined">未定义</string>
+    <string name="servers_list_players_full">已满员</string>
+    <string name="servers_list_add_server">添加服务器</string>
+    <string name="servers_list_add_server_name">服务器名称</string>
+    <string name="servers_list_add_server_default_name">Minecraft服务器</string>
+    <string name="servers_list_add_server_ip">服务器地址</string>
+    <string name="servers_list_delete_server">删除服务器</string>
+    <string name="servers_list_delete_server_text">你确定要删除服务器 %s 吗？</string>
+    <string name="servers_list_edit_server">编辑服务器</string>
+    <string name="servers_list_copy_server_address">复制服务器地址</string>
     <!--  游戏  -->
     <string name="minecraft_download_stat_download_task">统计下载任务</string>
     <string name="minecraft_download_stat_verify_task">统计验证任务</string>

@@ -20,6 +20,8 @@ package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
@@ -54,6 +56,7 @@ import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
 import java.util.Locale
 import java.util.Objects
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
 fun Account.isAuthServerAccount(): Boolean {
@@ -265,12 +268,45 @@ fun otherLogin(
 /**
  * 离线账号登陆
  */
-fun localLogin(userName: String) {
-    val account = Account(
-        username = userName,
-        accountType = AccountType.LOCAL.tag
-    )
+fun localLogin(userName: String, userUUID: String?) {
+    val account = if (userUUID != null) {
+        Account(
+            username = userName,
+            profileId = userUUID,
+            accountType = AccountType.LOCAL.tag
+        )
+    } else {
+        //如果不填，则使用默认生成的 uuid
+        Account(
+            username = userName,
+            accountType = AccountType.LOCAL.tag
+        )
+    }
     AccountsManager.saveAccount(account)
+}
+
+/**
+ * [From HMCL](https://github.com/HMCL-dev/HMCL/blob/5c2bb1cc251901dd471a8aa8048d90c22bb56916/HMCLCore/src/main/java/org/jackhuang/hmcl/util/gson/UUIDTypeAdapter.java#L55)
+ */
+private val regex = Regex("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})")
+
+/**
+ * [From HMCL](https://github.com/HMCL-dev/HMCL/blob/5c2bb1cc251901dd471a8aa8048d90c22bb56916/HMCLCore/src/main/java/org/jackhuang/hmcl/util/gson/UUIDTypeAdapter.java#L57-L59)
+ */
+fun accountUUID(input: String): UUID {
+    val formatted = regex.replace(input, "$1-$2-$3-$4-$5")
+    return UUID.fromString(formatted)
+}
+
+fun accountUUID(input: UUID): String {
+    return input.toString().replace("-", "")
+}
+
+/**
+ * [From HMCL](https://github.com/HMCL-dev/HMCL/blob/5c2bb1cc251901dd471a8aa8048d90c22bb56916/HMCLCore/src/main/java/org/jackhuang/hmcl/auth/offline/OfflineAccountFactory.java#L79-L81)
+ */
+fun getUUIDFromUserName(username: String): UUID {
+    return UUID.nameUUIDFromBytes(("OfflinePlayer:$username").toByteArray(Charsets.UTF_8))
 }
 
 fun addOtherServer(
@@ -317,13 +353,14 @@ fun addOtherServer(
 /**
  * 获取账号类型名称
  */
-fun getAccountTypeName(context: Context, account: Account): String {
+@Composable
+fun getAccountTypeName(account: Account): String {
     return if (account.isMicrosoftAccount()) {
-        context.getString(R.string.account_type_microsoft)
+        stringResource(R.string.account_type_microsoft)
     } else if (account.isAuthServerAccount()) {
         account.accountType ?: "Unknown"
     } else {
-        context.getString(R.string.account_type_local)
+        stringResource(R.string.account_type_local)
     }
 }
 

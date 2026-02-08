@@ -191,7 +191,7 @@ fun IconTextButton(
 }
 
 @Composable
-private fun BaseIconTextButton(
+fun BaseIconTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.large,
