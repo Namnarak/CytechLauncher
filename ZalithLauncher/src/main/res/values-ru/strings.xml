@@ -342,17 +342,17 @@
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Подготовка загрузок</string>
     <string name="minecraft_download_stat_verify_task">Подготовка проверок</string>
-    <string name="minecraft_download_downloading_game_files">Загрузка файлов \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_downloading_game_files">Загрузка файлов: \n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_verifying_and_repairing_files">Проверка файлов \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_progress_retry_downloading_files">Повторная попытка загрузки \n(%1$d/%2$d, %3$s/%4$s)</string>
-    <string name="minecraft_download_progress_retry_verifying_files">Повторная попытка проверки \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_downloading_files">Пробуем снова \n(%1$d/%2$d, %3$s/%4$s)</string>
+    <string name="minecraft_download_progress_retry_verifying_files">Повторная проверка\n(%1$d/%2$d, %3$s/%4$s)</string>
     <string name="minecraft_download_failed">Произошла ошибка при загрузке Minecraft</string>
     <string name="minecraft_download_failed_retried">До этого лаунчер уже пытался выполнить повторную попытку, но некоторые задачи всё же не удалось загрузить</string>
-    <string name="minecraft_download_failed_notfound">Некоторые зависимые файлы не удалось скачать. Если проблема сохраняется после нескольких попыток, возможно, в игре отсутствуют необходимые библиотечные файлы. Рекомендуется переустановить игру.</string>
+    <string name="minecraft_download_failed_notfound">Некоторые зависимые файлы не удалось скачать. Если проблема сохраняется после нескольких попыток, возможно, в игре отсутствуют необходимые файлы библиотек. Попробуйте переустановить игру.</string>
     <!-- Settings -->
     <string name="settings_element_selected">Выбрано: %s</string>
-    <string name="settings_label_ignore_if_blank">Оставьте пустым для игнорирования</string>
-    <string name="settings_tab_renderer">Изображение</string>
+    <string name="settings_label_ignore_if_blank">Оставьте пустым чтобы пропустить</string>
+    <string name="settings_tab_renderer">Рендер</string>
     <string name="settings_tab_game">Игра</string>
     <string name="settings_tab_control">Управление</string>
     <string name="settings_tab_launcher">Лаунчер</string>
@@ -368,16 +368,16 @@
     <string name="settings_renderer_full_screen_title">Игнорирование выреза</string>
     <string name="settings_renderer_full_screen_summary">Игнорирует вырез под фронтальную камеру и даёт дополнительное место для изображение под ней</string>
     <string name="settings_renderer_sustained_performance_title">Режим стабильной производительности</string>
-    <string name="settings_renderer_sustained_performance_summary">При включении снижает производительность устройства для предотвращения тротлинга, подходит для длительных игровых сессий</string>
+    <string name="settings_renderer_sustained_performance_summary">При включении снижает производительность устройства для предотвращения тротлинга, подходит для длительных длительный мучений телефона</string>
     <string name="settings_renderer_shader_dump_title">Логирование шейдеров</string>
     <string name="settings_renderer_shader_dump_summary">Выводить преобразованный код шейдеров во время работы игры в лог-файл для упрощения отладки и анализа рендеринга графики</string>
     <string name="settings_renderer_vulkan_driver_system_title">Использовать системный драйвер Vulkan</string>
     <string name="settings_renderer_vulkan_driver_system_summary">При включении лаунчер будет использовать встроенный системный драйвер Vulkan (для GPU Adreno) вместо драйвера Turnip по умолчанию. Эта настройка влияет только на бэкенд Zink и связанные моды, использующие рендеринг Vulkan</string>
     <string name="settings_renderer_zink_driver_adreno">Лаунчер обнаружил, что ваше устройство имеет GPU Adreno. Включение этой опции может привести к сбоям в работе визуализатора Zink. Вы уверены, что хотите включить её?</string>
-    <string name="settings_renderer_vsync_in_zink_title">Вертикальная синхронизация Zink</string>
+    <string name="settings_renderer_vsync_in_zink_title"> Вертикальная синхронизация Zink</string>
     <string name="settings_renderer_vsync_in_zink_summary">Включить вертикальную синхронизацию для визуализатора Zink</string>
     <string name="settings_renderer_force_big_core_title">Принудительное использование мощных ядер</string>
-    <string name="settings_renderer_force_big_core_summary">Заставляет использовать наиболее мощные ядра при работе процессора</string>
+    <string name="settings_renderer_force_big_core_summary">Заставляет использовать самые мощные ядра при работе процессора</string>
     <string name="settings_game_version_isolation_title">Изоляция версий</string>
     <string name="settings_game_version_isolation_summary">Изолировать все версии, чтобы их данные не пересекались друг с другом</string>
     <string name="settings_game_skip_game_integrity_check_title">Пропустить проверку целостности</string>
@@ -1082,4 +1082,11 @@
     <string name="settings_launcher_mirror_assets_download_title">Источник загрузки платформы ресурсов</string>
     <string name="control_editor_layers_attribute_hide_when_joystick">Отображать при включенном джойстике</string>
     <string name="about_acknowledgements_mcim_text">использует зеркальный источник MCIM</string>
+    <string name="servers_list_add_server_name">Имя сервера</string>
+    <string name="servers_list_add_server_default_name">Майнкрафт сервер</string>
+    <string name="servers_list_add_server_ip">Адрес сервера</string>
+    <string name="servers_list_delete_server">Удалить сервер</string>
+    <string name="servers_list_delete_server_text">Уверены что хотите удалить сервер?</string>
+    <string name="servers_list_edit_server">Редактировать сервер</string>
+    <string name="servers_list_copy_server_address">Копировать адрес</string>
 </resources>
