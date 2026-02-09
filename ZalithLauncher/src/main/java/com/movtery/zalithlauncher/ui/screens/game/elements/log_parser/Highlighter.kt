@@ -18,6 +18,7 @@ class LogHighlighter(
     val timeColor: Color = Color(0xFF6E7C83),
     val stringColor: Color = Color(0xFF6AAB73),
     val numberColor: Color = Color(0xFFC67CBA),
+    val packageColor: Color = Color(0xFFC67CBA)
 ) {
     fun highlight(logText: String): AnnotatedString {
         return runCatching {
@@ -105,25 +106,30 @@ class LogHighlighter(
                 }
             }
 
-            //数字/版本号
-            if (isDigit(logText[i]) && isIndependentNumber(logText, i)) {
+            //数字
+            if (isDigit(logText[i])) {
                 val segment = scanNumericSegment(logText, i)
                 if (segment != null) {
-                    val (text, dotCount) = segment
-                    if (dotCount <= 1) {
+                    if (isIndependentNumber(logText, i, segment.length)) {
                         withStyle(SpanStyle(color = numberColor)) {
-                            append(text)
+                            append(segment)
                         }
                     } else {
-                        text.forEach {
-                            if (isDigit(it)) {
-                                withStyle(SpanStyle(color = numberColor)) { append(it) }
-                            } else append(it)
-                        }
+                        append(segment)
                     }
-                    i += text.length
+                    i += segment.length
                     continue
                 }
+            }
+
+            //包名
+            val packageName = scanPackageName(logText, i)
+            if (packageName != null) {
+                withStyle(SpanStyle(color = packageColor)) {
+                    append(packageName)
+                }
+                i += packageName.length
+                continue
             }
 
             append(logText[i])
@@ -214,30 +220,62 @@ class LogHighlighter(
         }
 
 
-    private fun scanNumericSegment(text: String, start: Int): Pair<String, Int>? {
+    private fun scanNumericSegment(text: String, start: Int): String? {
         var i = start
-        var dotCount = 0
-
-        if (text[i] == '-' || text[i] == '+') i++
-        while (i < text.length) {
-            when {
-                isDigit(text[i]) -> i++
-                text[i] == '.' -> { dotCount++; i++ }
-                else -> break
-            }
-        }
+        while (i < text.length && isDigit(text[i])) i++
         if (i == start) return null
-        return text.substring(start, i) to dotCount
+        return text.substring(start, i)
     }
 
-    private fun isIndependentNumber(text: String, start: Int): Boolean {
-        if (start > 0 && (text[start - 1].isLetter() || text[start - 1] == '_')) return false
-        var i = start
-        while (i < text.length && (isDigit(text[i]) || text[i] in ".+-")) i++
-        return !(i < text.length && (text[i].isLetter() || text[i] == '_'))
+    private fun isIndependentNumber(text: String, start: Int, length: Int): Boolean {
+        val end = start + length
+        val before = if (start == 0) ' ' else text[start - 1]
+        val after = if (end >= text.length) ' ' else text[end]
+
+        //只有首尾是标点符号或空格才应该被高亮
+        return !before.isLetterOrDigit() && !after.isLetterOrDigit()
     }
 
     private fun isWordBoundary(c: Char): Boolean = !(c.isLetterOrDigit() || c == '_')
 
     private fun isDigit(c: Char): Boolean = c in '0'..'9'
+
+
+    private fun scanPackageName(text: String, start: Int): String? {
+        val n = text.length
+        var i = start
+
+        //前边界必须是空格或行首
+        val before = if (start == 0) ' ' else text[start - 1]
+        if (before != ' ') return null
+
+        if (i >= n || !text[i].isLetter()) return null
+
+        var lastDotIndex = -1
+        var dotCount = 0
+
+        while (i < n) {
+            val c = text[i]
+            when {
+                c.isLetterOrDigit() -> i++
+                c == '.' -> {
+                    if (lastDotIndex == i - 1) return null
+                    dotCount++
+                    lastDotIndex = i
+                    i++
+                    if (i >= n || !text[i].isLetter()) return null
+                }
+                else -> break
+            }
+        }
+
+        if (dotCount == 0) return null
+
+        val end = i
+        //后边界也必须是空格或行尾
+        val after = if (end >= n) ' ' else text[end]
+        if (after != ' ') return null
+
+        return text.substring(start, end)
+    }
 }
