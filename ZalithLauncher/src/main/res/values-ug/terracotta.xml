@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="terracotta_metadata_ver">تاۋ ۋا نۇسخىسى</string>
+    <string name="terracotta_metadata_easytier_ver">EasyTierنۇسخىسى: %s</string>
+    <string name="terracotta_easytier">EasyTierغا توغۇرلۇق</string>
+    <string name="terracotta_terracotta">تاۋۋا بىرلەشمە ئويۇن | Terracotta</string>
+    <string name="terracotta_back">چېىكىنىش</string>
+    <string name="terracotta_enable">بىرلەشمە ئويۇننى قوزغىتىش</string>
+    <string name="terracotta_feedback_title">ئىنكاس جەدۋىلىنى تولدۇرۇش</string>
+    <string name="terracotta_difficulty_easiest">ھازىر تور ھالىتى ئىنتايىن ياخشى: سەل ساقلاپ تۇرسىڭىزلا مۇۋەپپەقىيەت قازىنالايسىز!</string>
+    <string name="terracotta_difficulty_simple">ھازىر تور ھالىتى بىر قەدەر ياخشى: ئۇلىشىشقا بىر مەزگىل ۋاقىت كېتىدۇ …</string>
+    <string name="terracotta_difficulty_medium">ھازىر تور ھالىتى ئوتتۇرا دەرىجىلىك: كاشىلا تاقابىل تۇرۇش زاپاس لىنىيەسى ئىشقا كىرىشتۈرۈلدى، ئۇلىنىش مەغلۇپ بولۇشى مۇمكىن</string>
+    <string name="terracotta_difficulty_tough">ھازىر تور ھالىتى ئىنتايىن ناچار: كاشىلا توسۇش زاپاس لىنىيەسى ئىشقا كىرىشتۈرۈلدى، ئۇلىنىش مەغلۇپ بولۇشى مۇمكىن</string>
+    <string name="terracotta_difficulty_estimate_only">ئۇلىنىش مۇۋەپپەقىيەت نىسبىتى ئۆي ئىگىسى بىلەن مېھماننىڭ NAT تىپنى ھېسابلاش ئارقىلىق ئېرىشكەن بولۇپ، پەقەت پايدىلىنىش ئۈچۈنلا.</string>
+    <string name="terracotta_log">خاتىرىسىنى تەكشۈرۈش</string>
+    <string name="terracotta_log_exit">خاتىرىنى تاقاش ھەمدە ئىقتىدار بېتىگە قايتىش.</string>
+    <string name="terracotta_export_log">قوزغاتقۇچتىكى بىرلەشمە ئويۇن بېتىدە خاتىرىنى ھەمبەھرىلەپ، خاتالىقنى تەھلىل قىلىش ئۈچۈن تېخىمۇ كۆپ ئۇچۇر بىلەن تەمىنلەيسىز</string>
+    <string name="terracotta_export_log_share">بىرلەشمە ئويۇمنىڭ مەركىزى خاتىرىسنى ھەمبەھرلەش</string>
+    <string name="terracotta_export_log_share_null">بىرلەشمە ئويۇننىڭ مەركىزى خاتىرە تېپىلمىدى</string>
+    <string name="terracotta_status_uninitialized_desc">سىز بىرلەشمە ئويۇننى ئويناش جەريانىدا، ئۆزىڭىز تۇرۇشلۇق دۆلەت ياكى رايوننىڭ بارلىق قانۇن-نىزاملىرىغا قاتتىق رىئايە قىلىدىغانلىقىڭىزغا ۋەدە بېرىسىز.</string>
+    <string name="terracotta_confirm_title">ئابۇنىچىلارغا ئۇقتۇرۇش</string>
+    <string name="terracotta_confirm_software">تاۋۋا بىرلەشمە ئويۇنى ئۈچىنچى تەرەپ مەنبەسى ئەركىن يۇمشاق دېتال، سىز ئىشلىتىش جەريانىدا يولۇققان مەسىلىلەرنى ئالاقىدار يوللار ئارقىلىق ئىنكاس قىلىڭ.</string>
+    <string name="terracotta_confirm_p2p">تاۋا بىرلەشمە ئويۇننى ئىشلىتىش P2P تېخنىكىسى قشلېتىدۇ، بىرلەشمە ئويۇن مۇۋەپپەقىيەتلىك بولغاندىن كېيىن ئۆي ئىچىدىكى ئابۇنىچىلار بىۋاسىتە ئۇلاشقا ئىگە بولىدۇ، 3-تەرەپ مۇلازىمەت ئۈسكۈنىسى ئارقىلىق سىزنىڭ ئېقىم مىقدارىڭىزنى يوللاپ بەرمەيدۇ. ئەڭ ئاخىرىدا بىرلەشمە ئويۇن تەسىراتى ۋە بىرلەشمە ئويۇنغا قاتناشقۇچىلارنىڭ تور ئەھۋالى بىلەن بىر قەدەر چوڭ مۇناسىۋىتى بولىدۇ.</string>
+    <string name="terracotta_confirm_law">بىرلەشمە ئويۇننى ئويناۋاتقاندا، سىز چوقۇم ئۆزىڭىز تۇرۇۋاتقان دۆلەت ۋە رايوننىڭ بارلىق قانۇن-نىزاملىرىغا قاتتىق رىئايە قىلىشىڭىز كېرەك.</string>
+    <string name="terracotta_menu">بىرلەشمە ئويۇن تىزىملىكى</string>
+    <string name="terracotta_notification_title">Terracotta | تاۋۋا بىرلەشمە ئويۇنى ھازىر مۇلازىمەت قىلىۋاتىدۇ</string>
+    <string name="terracotta_notification_desc">سالاھىيىتى: %s ھالەت: %s</string>
+    <string name="terracotta_status_waiting_host_title">مەن ئۆي ئىگىسى بولىمەن</string>
+    <string name="terracotta_status_waiting_host_desc">ئۆي ئاچىمىز ھەمدە تەكلىپ نومۇرى ھاسىل قىلىمىز، دوستلىرىڭىز بىلەن بىللە خۇشال-خۇرام ئوينايمىز</string>
+    <string name="terracotta_status_waiting_guest_title">مەن مېھمان بولىمەن</string>
+    <string name="terracotta_status_waiting_guest_desc">ئۆي ئىگىسى تەمىنلىگەن تەكلىپ نومۇرىنى كىرگۈزۈپ، ئويۇن دۇنياسىغا قاتنىشىڭ</string>
+</resources>
