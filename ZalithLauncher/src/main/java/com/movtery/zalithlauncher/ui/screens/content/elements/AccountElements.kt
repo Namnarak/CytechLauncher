@@ -132,11 +132,13 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -697,10 +699,17 @@ fun LocalLoginDialog(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        SingleLineTextCheck(
+                            text = userName,
+                            onSingleLined = { userName = it }
+                        )
+
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = userName,
-                            onValueChange = { userName = it },
+                            onValueChange = {
+                                userName = it.toSingleLine()
+                            },
                             isError = isUserNameInvalid,
                             label = { Text(text = stringResource(R.string.account_label_username)) },
                             supportingText = {
@@ -767,11 +776,16 @@ fun LocalLoginDialog(
                             ) {
                                 Spacer(modifier = Modifier.size(8.dp))
 
+                                SingleLineTextCheck(
+                                    text = userUUID,
+                                    onSingleLined = { userUUID = it }
+                                )
+
                                 OutlinedTextField(
                                     modifier = Modifier.fillMaxWidth(),
                                     value = userUUID,
                                     onValueChange = {
-                                        userUUID = it
+                                        userUUID = it.replace("\n", "")
                                         userEditedUUID = true
                                     },
                                     isError = isUserUUIDInvalid,
@@ -894,10 +908,17 @@ fun OtherServerLoginDialog(
                         val passwordFocus = remember { FocusRequester() }
                         val focusManager = LocalFocusManager.current
 
+                        SingleLineTextCheck(
+                            text = email,
+                            onSingleLined = { email = it }
+                        )
+
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = email,
-                            onValueChange = { email = it },
+                            onValueChange = {
+                                email = it.replace("\n", "")
+                            },
                             isError = email.isEmpty(),
                             label = { Text(text = stringResource(R.string.account_label_email)) },
                             supportingText = {
@@ -917,15 +938,24 @@ fun OtherServerLoginDialog(
                             singleLine = true,
                             shape = MaterialTheme.shapes.large
                         )
+
                         Spacer(modifier = Modifier.size(8.dp))
                         /** 是否显示密码 */
                         var showPassword by rememberSaveable { mutableStateOf(false) }
+
+                        SingleLineTextCheck(
+                            text = password,
+                            onSingleLined = { password = it }
+                        )
+
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(passwordFocus),
                             value = password,
-                            onValueChange = { password = it },
+                            onValueChange = {
+                                password = it.replace("\n", "")
+                            },
                             isError = password.isEmpty(),
                             label = { Text(text = stringResource(R.string.account_label_password)) },
                             visualTransformation = if (showPassword) {

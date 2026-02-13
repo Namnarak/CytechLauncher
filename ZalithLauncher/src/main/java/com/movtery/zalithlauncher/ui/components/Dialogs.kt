@@ -64,6 +64,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -371,10 +372,23 @@ private fun simpleEditDialogBody(
 
         val focusManager = LocalFocusManager.current
 
+        if (singleLine) {
+            SingleLineTextCheck(
+                text = value,
+                onSingleLined = onValueChange
+            )
+        }
+
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = value,
-            onValueChange = { onValueChange(it) },
+            onValueChange = { string ->
+                if (singleLine) {
+                    onValueChange(string.toSingleLine())
+                } else {
+                    onValueChange(string)
+                }
+            },
             label = label,
             isError = isError,
             supportingText = supportingText,

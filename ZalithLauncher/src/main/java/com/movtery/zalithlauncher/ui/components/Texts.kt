@@ -23,6 +23,11 @@ import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -35,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun AutoSizeText(
@@ -81,4 +87,22 @@ fun AutoSizeText(
         minLines,
         autoSize = autoSize
     )
+}
+
+
+@Composable
+fun SingleLineTextCheck(
+    text: String,
+    onSingleLined: (String) -> Unit,
+    replace: String = " "
+) {
+    var checked by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (!checked) {
+            val singleLined = text.toSingleLine(replace = replace)
+            if (text != singleLined) onSingleLined(singleLined)
+            checked = true
+        }
+    }
 }

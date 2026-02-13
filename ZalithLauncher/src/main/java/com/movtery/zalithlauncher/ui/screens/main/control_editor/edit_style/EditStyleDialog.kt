@@ -70,11 +70,13 @@ import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableStyleConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutColorItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.rememberSwapTween
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 private data class TabItem(val titleRes: Int)
 
@@ -152,11 +154,19 @@ fun EditButtonStyleDialog(
                                 isDarkTheme = selectedTabIndex == 1,
                                 modifier = Modifier.weight(1f)
                             )
+
+                            SingleLineTextCheck(
+                                text = style.name,
+                                onSingleLined = { style.name = it }
+                            )
+
                             //控件外观名称
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = style.name,
-                                onValueChange = { style.name = it },
+                                onValueChange = {
+                                    style.name = it.toSingleLine()
+                                },
                                 singleLine = true,
                                 label = {
                                     Text(text = stringResource(R.string.control_editor_edit_style_config_name))

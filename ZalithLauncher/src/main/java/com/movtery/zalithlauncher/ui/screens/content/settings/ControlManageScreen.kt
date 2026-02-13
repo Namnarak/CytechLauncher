@@ -115,6 +115,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
@@ -126,6 +127,7 @@ import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -936,11 +938,18 @@ private fun CreateNewLayoutDialog(
                         val authorFocus = remember { FocusRequester() }
                         val versionNameFocus = remember { FocusRequester() }
 
+                        SingleLineTextCheck(
+                            text = name,
+                            onSingleLined = { name = it }
+                        )
+
                         //名称
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
-                            onValueChange = { name = it },
+                            onValueChange = {
+                                name = it.toSingleLine()
+                            },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_name))
                             },
@@ -962,13 +971,20 @@ private fun CreateNewLayoutDialog(
                             shape = MaterialTheme.shapes.large
                         )
 
+                        SingleLineTextCheck(
+                            text = author,
+                            onSingleLined = { author = it }
+                        )
+
                         //作者
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(authorFocus),
                             value = author,
-                            onValueChange = { author = it },
+                            onValueChange = {
+                                author = it.toSingleLine()
+                            },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_author))
                             },
@@ -990,13 +1006,20 @@ private fun CreateNewLayoutDialog(
                             shape = MaterialTheme.shapes.large
                         )
 
+                        SingleLineTextCheck(
+                            text = versionName,
+                            onSingleLined = { versionName = it }
+                        )
+
                         //版本
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(versionNameFocus),
                             value = versionName,
-                            onValueChange = { versionName = it },
+                            onValueChange = {
+                                versionName = it.toSingleLine()
+                            },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_version_name))
                             },

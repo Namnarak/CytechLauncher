@@ -52,11 +52,13 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun EditControlLayerDialog(
@@ -104,11 +106,18 @@ fun EditControlLayerDialog(
                     ) {
                         val focusManager = LocalFocusManager.current
 
+                        SingleLineTextCheck(
+                            text = layer.name,
+                            onSingleLined = { layer.name = it }
+                        )
+
                         //控件层名称
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = layer.name,
-                            onValueChange = { layer.name = it },
+                            onValueChange = {
+                                layer.name = it.toSingleLine()
+                            },
                             label = {
                                 Text(stringResource(R.string.control_editor_layers_attribute_name))
                             },

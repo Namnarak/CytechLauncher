@@ -74,9 +74,11 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortFiel
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.backgroundLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 /**
  * 搜索资源过滤器UI
@@ -121,10 +123,17 @@ fun SearchFilter(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
+            SingleLineTextCheck(
+                text = searchName,
+                onSingleLined = onSearchNameChange
+            )
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = searchName,
-                onValueChange = onSearchNameChange,
+                onValueChange = { string ->
+                    onSearchNameChange(string.toSingleLine())
+                },
                 shape = MaterialTheme.shapes.large,
                 label = {
                     Text(text = stringResource(R.string.download_assets_filter_search_name))

@@ -65,9 +65,11 @@ import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.utils.toSimpleLangTag
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 /**
  * 编辑可翻译文本
@@ -140,11 +142,25 @@ fun EditTranslatableTextDialog(
                     contentPadding = PaddingValues(vertical = 12.dp)
                 ) {
                     item {
+                        if (singleLine) {
+                            SingleLineTextCheck(
+                                text = text.default,
+                                onSingleLined = { text.default = it }
+                            )
+                        }
+
                         //默认文本
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = text.default,
-                            onValueChange = { text.default = take.take(it) },
+                            onValueChange = { string ->
+                                val new = take.take(string)
+                                text.default = if (singleLine) {
+                                    new.toSingleLine()
+                                } else {
+                                    new
+                                }
+                            },
                             label = {
                                 Text(stringResource(R.string.control_editor_edit_translatable_default))
                             },
@@ -308,10 +324,24 @@ private fun SimpleEditBox(
         fieldError != null
     }
 
+    if (singleLine) {
+        SingleLineTextCheck(
+            text = value,
+            onSingleLined = onValueChange
+        )
+    }
+
     OutlinedTextField(
         modifier = modifier,
         value = value,
-        onValueChange = { onValueChange(take.take(it)) },
+        onValueChange = { string ->
+            val new = take.take(string)
+            if (singleLine) {
+                onValueChange(new.toSingleLine())
+            } else {
+                onValueChange(new)
+            }
+        },
         label = {
             Text(text = label)
         },

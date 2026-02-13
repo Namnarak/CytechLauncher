@@ -95,6 +95,8 @@ fun String.getLine(line: Int): String? {
     return if (line in 1..lines.size) lines[line - 1] else null
 }
 
+fun String.toSingleLine(replace: String = " "): String = this.replace("\n", replace)
+
 fun insertJSONValueList(args: Array<String>, keyValueMap: Map<String, String>) =
     args.map {
         keyValueMap.entries.fold(it) { acc, (k, v) ->

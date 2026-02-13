@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun TextInputSettingsCard(
@@ -69,11 +71,23 @@ fun TextInputSettingsCard(
                 titleStyle = titleStyle,
                 summaryStyle = summaryStyle
             )
+
+            SingleLineTextCheck(
+                text = value,
+                onSingleLined = onValueChange
+            )
+
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = value,
                 textStyle = MaterialTheme.typography.labelMedium,
-                onValueChange = onValueChange,
+                onValueChange = { string ->
+                    if (singleLine) {
+                        onValueChange(string.toSingleLine())
+                    } else {
+                        onValueChange(string)
+                    }
+                },
                 label = label,
                 supportingText = supportingText,
                 singleLine = singleLine,

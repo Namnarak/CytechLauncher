@@ -107,6 +107,7 @@ import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
+import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
@@ -123,6 +124,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
+import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1176,7 +1178,9 @@ private fun ServerEditDialog(
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
-                            onValueChange = { name = it },
+                            onValueChange = {
+                                name = it.toSingleLine()
+                            },
                             label = { Text(text = stringResource(R.string.servers_list_add_server_name)) },
                             singleLine = true,
                             shape = MaterialTheme.shapes.large
@@ -1184,10 +1188,17 @@ private fun ServerEditDialog(
 
                         Spacer(modifier = Modifier.size(8.dp))
 
+                        SingleLineTextCheck(
+                            text = ip,
+                            onSingleLined = { ip = it }
+                        )
+
                         OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = ip,
-                            onValueChange = { ip = it },
+                            onValueChange = {
+                                ip = it.toSingleLine()
+                            },
                             isError = isIpEmpty,
                             label = { Text(text = stringResource(R.string.servers_list_add_server_ip)) },
                             supportingText = {
