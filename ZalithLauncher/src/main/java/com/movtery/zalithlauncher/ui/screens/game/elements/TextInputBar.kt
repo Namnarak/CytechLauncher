@@ -334,7 +334,8 @@ fun TextInputBar(
                 cursorBrush = SolidColor(Color.Transparent),
                 decorator = {
                     //不显示任何内容
-                }
+                },
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
 
             //根据show来决定是否显示/隐藏输入法
