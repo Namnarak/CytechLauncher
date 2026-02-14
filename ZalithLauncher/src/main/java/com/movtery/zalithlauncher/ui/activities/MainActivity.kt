@@ -53,6 +53,7 @@ import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import com.movtery.zalithlauncher.viewmodel.LauncherUpgradeOperation
 import com.movtery.zalithlauncher.viewmodel.LauncherUpgradeViewModel
+import com.movtery.zalithlauncher.viewmodel.ModpackConfirmUseMobileDataOperation
 import com.movtery.zalithlauncher.viewmodel.ModpackImportOperation
 import com.movtery.zalithlauncher.viewmodel.ModpackImportViewModel
 import com.movtery.zalithlauncher.viewmodel.ModpackVersionNameOperation
@@ -250,6 +251,14 @@ class MainActivity : BaseAppCompatActivity() {
                     operation = modpackImportViewModel.versionNameOperation,
                     onConfirmVersionName = { name ->
                         modpackImportViewModel.confirmVersionName(name)
+                    }
+                )
+
+                //用户确认使用移动网络 操作流程
+                ModpackConfirmUseMobileDataOperation(
+                    operation = modpackImportViewModel.confirmMobileDataOperation,
+                    onConfirmUse = { use ->
+                        modpackImportViewModel.confirmUseMobileData(use)
                     }
                 )
 

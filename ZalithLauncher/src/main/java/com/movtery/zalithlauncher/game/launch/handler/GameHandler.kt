@@ -124,11 +124,23 @@ class GameHandler(
     override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_UP && (event.flags and KeyEvent.FLAG_CANCELED) != 0) return false
 
-        //这一段可能用不到了，VMActivity已经在onBackPressedDispatcher绑定了一个监听器
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
-            eventViewModel.sendEvent(EventViewModel.Event.Game.OnBack)
-            return false
+        if (event.isGamepadKeyEvent()) {
+            return if (AllSettings.gamepadControl.state) {
+                //开启时，提前发送事件，在UI层处理（或重映射）
+                gamepadViewModel.sendKeyEvent(event)
+                false
+            } else {
+                //已禁用手柄控制，避免继续向下被当作键盘事件进行处理
+                if (AllSettings.showMenuBall.state) {
+                    //开启游戏菜单悬浮窗时，完全无响应
+                    false
+                } else {
+                    true
+                }
+            }
         }
+        //已在VMActivity绑定onBackPressedDispatcher，这里不应该继续向下处理
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) return true
 
         if ((event.flags and KeyEvent.FLAG_SOFT_KEYBOARD) == KeyEvent.FLAG_SOFT_KEYBOARD) {
             if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -136,8 +148,6 @@ class GameHandler(
                 return false
             }
         }
-
-        if (AllSettings.gamepadControl.state && event.isGamepadKeyEvent()) return true
 
         EfficientAndroidLWJGLKeycode.getIndexByKey(event.keyCode).takeIf { it >= 0 }?.let { index ->
             EfficientAndroidLWJGLKeycode.execKey(event, index)

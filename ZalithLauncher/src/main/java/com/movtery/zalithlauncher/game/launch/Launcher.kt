@@ -272,7 +272,7 @@ abstract class Launcher(
         val architecture = runtime.arch?.let { arch ->
             if (Architecture.archAsInt(arch) == ARCH_X86) "i386/i486/i586"
             else arch
-        } ?: throw IOException("Unsupported runtime environment: ${runtime.name}, incompatible architecture: ${runtime.arch}")
+        } ?: throw IOException("Unsupported runtime environment: ${runtime.name}, arch is null!")
 
         var libDir = "/lib"
         architecture.split("/").forEach { arch ->

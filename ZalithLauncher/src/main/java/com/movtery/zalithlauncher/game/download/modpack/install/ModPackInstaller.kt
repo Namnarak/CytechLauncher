@@ -42,6 +42,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
+import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -55,13 +56,15 @@ import java.io.File
  * @param iconUrl 整合包的图标链接
  * @param scope 在有生命周期管理的scope中执行安装任务
  * @param waitForVersionName 等待用户输入版本名称
+ * @param waitForConfirmMobileData 等待用户确认使用移动网络
  */
 class ModPackInstaller(
     private val context: Context,
     private val version: PlatformVersion,
     private val iconUrl: String?,
     private val scope: CoroutineScope,
-    private val waitForVersionName: suspend (ModPackInfo) -> String
+    private val waitForVersionName: suspend (ModPackInfo) -> String,
+    private val waitForConfirmMobileData: suspend () -> Boolean,
 ) {
     private val taskExecutor = TaskFlowExecutor(scope)
     val tasksFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
@@ -85,11 +88,13 @@ class ModPackInstaller(
      * 开始安装整合包
      * @param isRunning 正在运行中，拒绝这次安装时
      * @param onInstalled 完成安装时
+     * @param onCancelled 内部取消时
      * @param onError 安装时遇到异常
      */
     fun installModPack(
         isRunning: () -> Unit = {},
         onInstalled: (version: String) -> Unit,
+        onCancelled: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
@@ -106,7 +111,14 @@ class ModPackInstaller(
             onComplete = {
                 onInstalled(targetVersionName)
             },
-            onError = onError
+            onError = { e ->
+                if (e is UsingMobileDataException) {
+                    //用户不希望使用移动网络
+                    onCancelled()
+                    return@executePhasesAsync
+                }
+                onError(e)
+            }
         )
     }
 
@@ -132,6 +144,15 @@ class ModPackInstaller(
                     tempModPackDir.createDirAndLog()
                     tempVersionsDir.createDirAndLog()
                     File(tempVersionsDir, VersionFolders.MOD.folderName).createDirAndLog() //创建临时模组目录
+
+                    //在这个阶段开始检查是否使用移动网络
+                    if (isUsingMobileData(context)) {
+                        val use = waitForConfirmMobileData()
+                        if (!use) {
+                            //用户不决定使用移动网络安装，取消导入
+                            throw UsingMobileDataException()
+                        }
+                    }
                 }
 
                 //下载整合包安装包

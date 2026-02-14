@@ -179,6 +179,7 @@
     <string name="download_install_clear_temp">清理快取檔案</string>
     <string name="download_install_input_version_name">等待使用者輸入版本名稱</string>
     <string name="download_install_input_version_name_title">輸入預先安裝的版本名稱</string>
+    <string name="download_install_warning_mobile_data">您正在使用行動數據網路，繼續下載將消耗流量。</string>
     <string name="download_assets_filter_search_name">搜尋名稱</string>
     <string name="download_assets_filter_search_platform">目標平台</string>
     <string name="download_assets_filter_game_version">遊戲版本</string>
@@ -358,6 +359,7 @@
     <string name="game_styles_joystick_edit">編輯搖桿樣式</string>
     <string name="game_styles_joystick_edit_use_control_layout">使用控制佈局提供的樣式</string>
     <string name="game_styles_joystick_deadzone">搖桿死區範圍</string>
+    <string name="game_styles_joystick_lock_threshold">搖桿前進鎖定判定範圍</string>
     <string name="game_styles_joystick_can_lock">前進鎖定</string>
     <string name="game_styles_joystick_lock_sprint">鎖定時強制疾跑</string>
     <string name="game_styles_joystick_hide_when_mouse">使用實體滑鼠時隱藏</string>

@@ -55,14 +55,22 @@ import java.net.URL
  * @return 当前网络是否可用
  */
 fun isNetworkAvailable(context: Context): Boolean {
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val activeNetwork = connectivityManager.activeNetwork
-    val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
-    return activeNetwork != null && (
-            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false ||
-                    capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false ||
-                    capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ?: false
-            )
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+    val activeNetwork = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+    return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+}
+
+/**
+ * @return 当前是否正在使用移动网络
+ */
+fun isUsingMobileData(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+    val activeNetwork = connectivityManager.activeNetwork ?: return false
+    val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+    return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
 }
 
 /**

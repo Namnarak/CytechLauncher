@@ -195,6 +195,7 @@
     <string name="download_install_clear_temp">Clear cache files</string>
     <string name="download_install_input_version_name">Waiting for user to enter version name</string>
     <string name="download_install_input_version_name_title">Enter the pre-installed version name</string>
+    <string name="download_install_warning_mobile_data">You are using mobile data. Continuing the download will consume data.</string>
     <string name="download_assets_filter_search_name">Search Name</string>
     <string name="download_assets_filter_search_platform">Target Platform</string>
     <string name="download_assets_filter_game_version">Game Version</string>
@@ -396,6 +397,7 @@
     <string name="game_styles_joystick_edit">Edit Joystick Style</string>
     <string name="game_styles_joystick_edit_use_control_layout">Use Style Provided by Control Layout</string>
     <string name="game_styles_joystick_deadzone">Joystick Deadzone Range</string>
+    <string name="game_styles_joystick_lock_threshold">Joystick Forward Lock Threshold</string>
     <string name="game_styles_joystick_can_lock">Forward Lock</string>
     <string name="game_styles_joystick_lock_sprint">Force Sprint When Locked</string>
     <string name="game_styles_joystick_hide_when_mouse">Hide When Using Physical Mouse</string>
@@ -1131,4 +1133,5 @@
     <string name="language_german" translatable="false">Deutsch</string>
     <string name="language_hungarian" translatable="false">magyar</string>
     <string name="language_brazilian_portuguese" translatable="false">Português brasileiro</string>
+    <string name="language_uyghur" translatable="false">ۋىغرۇچە</string>
 </resources>
