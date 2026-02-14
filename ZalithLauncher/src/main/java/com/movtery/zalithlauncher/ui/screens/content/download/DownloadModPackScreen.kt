@@ -75,7 +75,9 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.viewmodel.ConfirmMobileDataOperation
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
+import com.movtery.zalithlauncher.viewmodel.ModpackConfirmUseMobileDataOperation
 import com.movtery.zalithlauncher.viewmodel.ModpackImportViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -113,6 +115,7 @@ private sealed interface VersionNameOperation {
 private class ModPackViewModel: ViewModel() {
     var installOperation by mutableStateOf<ModPackInstallOperation>(ModPackInstallOperation.None)
     var versionNameOperation by mutableStateOf<VersionNameOperation>(VersionNameOperation.None)
+    var confirmMobileDataOperation by mutableStateOf<ConfirmMobileDataOperation>(ConfirmMobileDataOperation.None)
 
     //等待用户输入版本名称相关
     private var versionNameContinuation: (Continuation<String>)? = null
@@ -133,6 +136,26 @@ private class ModPackViewModel: ViewModel() {
         versionNameOperation = VersionNameOperation.None
     }
 
+
+    //警告使用移动网络相关
+    private var confirmMobileData : (Continuation<Boolean>)? = null
+    suspend fun waitForConfirmMobileData(): Boolean {
+        return suspendCancellableCoroutine { cont ->
+            confirmMobileData = cont
+            confirmMobileDataOperation = ConfirmMobileDataOperation.Waiting
+        }
+    }
+
+    /**
+     * 用户是否确认使用移动网络
+     */
+    fun confirmUseMobileData(use: Boolean) {
+        //恢复continuation
+        confirmMobileData?.resume(use)
+        confirmMobileData = null
+        confirmMobileDataOperation = ConfirmMobileDataOperation.None
+    }
+
     /**
      * 整合包安装器
      */
@@ -151,13 +174,19 @@ private class ModPackViewModel: ViewModel() {
             version = version,
             iconUrl = iconUrl,
             scope = viewModelScope,
-            waitForVersionName = ::waitForVersionName
+            waitForVersionName = ::waitForVersionName,
+            waitForConfirmMobileData = ::waitForConfirmMobileData
         ).also {
             it.installModPack(
                 onInstalled = { version ->
                     installer = null
                     VersionsManager.refresh("[Modpack] ModPackInstaller.onInstalled", version)
                     installOperation = ModPackInstallOperation.Success
+                    onStop()
+                },
+                onCancelled = {
+                    installer = null
+                    installOperation = ModPackInstallOperation.None
                     onStop()
                 },
                 onError = { th ->
@@ -239,6 +268,14 @@ fun DownloadModPackScreen(
         operation = viewModel.versionNameOperation,
         onConfirmVersionName = { name ->
             viewModel.confirmVersionName(name)
+        }
+    )
+
+    //用户确认使用移动网络 操作流程
+    ModpackConfirmUseMobileDataOperation(
+        operation = viewModel.confirmMobileDataOperation,
+        onConfirmUse = { use ->
+            viewModel.confirmUseMobileData(use)
         }
     )
 

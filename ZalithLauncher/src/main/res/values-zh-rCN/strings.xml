@@ -194,6 +194,7 @@
     <string name="download_install_clear_temp">清理缓存文件</string>
     <string name="download_install_input_version_name">等待用户输入版本名称</string>
     <string name="download_install_input_version_name_title">输入预安装的版本名称</string>
+    <string name="download_install_warning_mobile_data">您正在使用移动数据网络，继续下载将消耗流量。</string>
     <string name="download_assets_filter_search_name">搜索名称</string>
     <string name="download_assets_filter_search_platform">目标平台</string>
     <string name="download_assets_filter_game_version">游戏版本</string>

@@ -41,6 +41,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,12 +58,14 @@ import java.util.zip.ZipFile as JDKZipFile
  * @param uri 本地选择的文件链接
  * @param scope 在有生命周期管理的scope中执行安装任务
  * @param waitForVersionName 等待用户输入预期的版本名
+ * @param waitForConfirmMobileData 等待用户确认使用移动网络
  */
 class ModpackImporter(
     private val context: Context,
     private val uri: Uri,
     private val scope: CoroutineScope,
-    private val waitForVersionName: suspend (String) -> String
+    private val waitForVersionName: suspend (String) -> String,
+    private val waitForConfirmMobileData: suspend () -> Boolean,
 ) {
     private val taskExecutor = TaskFlowExecutor(scope)
     val taskFlow: StateFlow<List<TitledTask>> = taskExecutor.tasksFlow
@@ -76,11 +79,13 @@ class ModpackImporter(
      * 开始导入整合包
      * @param isRunning 正在运行中，被拒绝导入时
      * @param onFinished 导入完成时
+     * @param onCancelled 内部取消时
      * @param onError 导入过程中出现异常
      */
     fun startImport(
         isRunning: () -> Unit = {},
         onFinished: (version: String) -> Unit,
+        onCancelled: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
         if (taskExecutor.isRunning()) {
@@ -96,7 +101,14 @@ class ModpackImporter(
             onComplete = {
                 onFinished(modpack.getFinalClientName())
             },
-            onError = onError
+            onError = { e ->
+                if (e is UsingMobileDataException) {
+                    //用户不希望使用移动网络
+                    onCancelled()
+                    return@executePhasesAsync
+                }
+                onError(e)
+            }
         )
     }
 
@@ -158,6 +170,15 @@ class ModpackImporter(
                             throw PackNotSupportedException(
                                 reason = UnsupportedPackReason.CorruptedArchive
                             )
+                        }
+                    }
+
+                    //在这个阶段开始检查是否使用移动网络
+                    if (isUsingMobileData(context)) {
+                        val use = waitForConfirmMobileData()
+                        if (!use) {
+                            //用户不决定使用移动网络安装，取消导入
+                            throw UsingMobileDataException()
                         }
                     }
                 }

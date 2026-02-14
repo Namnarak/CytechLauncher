@@ -68,6 +68,7 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.network.isUsingMobileData
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -84,6 +85,8 @@ private sealed interface GameInstallOperation {
     data object Install : GameInstallOperation
     /** 警告通知权限，可以无视，并直接开始安装 */
     data class WarningForNotification(val info: GameDownloadInfo) : GameInstallOperation
+    /** 警告正在使用流量 */
+    data class WarningForMobileData(val info: GameDownloadInfo) : GameInstallOperation
     /** 游戏安装出现异常 */
     data class Error(val th: Throwable) : GameInstallOperation
     /** 游戏已成功安装 */
@@ -250,16 +253,21 @@ fun DownloadGameScreen(
                             //警告通知权限
                             viewModel.installOperation = GameInstallOperation.WarningForNotification(info)
                         } else {
-                            viewModel.install(
-                                context = context,
-                                info = info,
-                                onStart = {
-                                    eventViewModel.sendKeepScreen(true)
-                                },
-                                onStop = {
-                                    eventViewModel.sendKeepScreen(false)
-                                }
-                            )
+                            if (isUsingMobileData(context)) {
+                                //警告正在使用流量
+                                viewModel.installOperation = GameInstallOperation.WarningForMobileData(info)
+                            } else {
+                                viewModel.install(
+                                    context = context,
+                                    info = info,
+                                    onStart = {
+                                        eventViewModel.sendKeepScreen(true)
+                                    },
+                                    onStop = {
+                                        eventViewModel.sendKeepScreen(false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -293,6 +301,20 @@ private fun GameInstallOperation(
                 },
                 onDismiss = {
                     updateOperation(GameInstallOperation.None)
+                }
+            )
+        }
+        is GameInstallOperation.WarningForMobileData -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_warning),
+                text = stringResource(R.string.download_install_warning_mobile_data),
+                confirmText = stringResource(R.string.generic_anyway),
+                onDismiss = {
+                    updateOperation(GameInstallOperation.None)
+                },
+                onConfirm = {
+                    //用户坚持使用移动网络
+                    onInstall(gameInstallOperation.info)
                 }
             )
         }

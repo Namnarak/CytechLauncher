@@ -195,6 +195,7 @@
     <string name="download_install_clear_temp">Clear cache files</string>
     <string name="download_install_input_version_name">Waiting for user to enter version name</string>
     <string name="download_install_input_version_name_title">Enter the pre-installed version name</string>
+    <string name="download_install_warning_mobile_data">You are using mobile data. Continuing the download will consume data.</string>
     <string name="download_assets_filter_search_name">Search Name</string>
     <string name="download_assets_filter_search_platform">Target Platform</string>
     <string name="download_assets_filter_game_version">Game Version</string>

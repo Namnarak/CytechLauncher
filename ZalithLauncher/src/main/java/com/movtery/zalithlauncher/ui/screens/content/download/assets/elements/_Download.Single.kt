@@ -77,6 +77,12 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.CommonVersionInfoL
  */
 sealed interface DownloadSingleOperation {
     data object None : DownloadSingleOperation
+    /** 警告用户正在使用移动网络 */
+    data class WarningForMobileData(
+        val classes: PlatformClasses,
+        val version: PlatformVersion,
+        val dependencyProjects: List<Pair<PlatformVersion.PlatformDependency, PlatformProject>>
+    ) : DownloadSingleOperation
     /** 选择版本 */
     data class SelectVersion(
         val classes: PlatformClasses,
@@ -100,6 +106,26 @@ fun DownloadSingleOperation(
 ) {
     when (operation) {
         DownloadSingleOperation.None -> {}
+        is DownloadSingleOperation.WarningForMobileData -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_warning),
+                text = stringResource(R.string.download_install_warning_mobile_data),
+                confirmText = stringResource(R.string.generic_anyway),
+                onDismiss = {
+                    changeOperation(DownloadSingleOperation.None)
+                },
+                onConfirm = {
+                    //用户坚持使用移动网络
+                    changeOperation(
+                        DownloadSingleOperation.SelectVersion(
+                            classes = operation.classes,
+                            version = operation.version,
+                            dependencyProjects = operation.dependencyProjects
+                        )
+                    )
+                }
+            )
+        }
         is DownloadSingleOperation.SelectVersion -> {
             val dependencyProjects = operation.dependencyProjects
             val classes = operation.classes
