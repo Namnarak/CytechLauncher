@@ -365,6 +365,7 @@
     <string name="game_styles_joystick_hide_when_mouse">使用實體滑鼠時隱藏</string>
     <string name="game_styles_joystick_hide_when_gamepad">使用手把時隱藏</string>
     <string name="game_styles_save_failed">儲存樣式失敗</string>
+    <string name="game_saponsorship_finished_game">啟動器已成功執行遊戲 %s 次！如果您覺得好用，可以考慮贊助支持作者喔！qwq</string>
     <!--  渲染器  -->
     <string name="renderer_version_support">MC 版本支援：</string>
     <string name="renderer_version_unsupported_warning">目前渲染器 %s 不支援此遊戲版本，繼續使用可能導致渲染錯誤或遊戲崩潰！您確定要忽略風險並繼續嗎？</string>

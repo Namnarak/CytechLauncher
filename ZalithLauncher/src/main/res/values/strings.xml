@@ -403,6 +403,7 @@
     <string name="game_styles_joystick_hide_when_mouse">Hide When Using Physical Mouse</string>
     <string name="game_styles_joystick_hide_when_gamepad">Hide When Using Gamepad</string>
     <string name="game_styles_save_failed">Failed to Save Style</string>
+    <string name="game_saponsorship_finished_game">The launcher has successfully run the game %s times! If you find it useful, please consider supporting the developer! :)</string>
     <!-- Renderers -->
     <string name="renderer_version_support">MC Version Support:</string>
     <string name="renderer_version_unsupported_warning">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or crashes! Are you sure you want to proceed?</string>
