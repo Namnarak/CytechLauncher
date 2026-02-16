@@ -680,6 +680,7 @@
     <string name="mods_update_task_show">将要更新如下模组</string>
     <string name="mods_update_task_download">下载新版本模组</string>
     <string name="mods_update_task_replace">替换模组文件</string>
+    <string name="mods_update_task_loading">同步模组数据：%s</string>
     <string name="mods_update_no_mods_update">所有模组都是最新版本，无需更新</string>
     <string name="mods_update_updating">更新所有模组 (%1$d/%2$d, %3$s)</string>
     <string name="mods_update_updating_retry">重试更新所有模组 (%1$d/%2$d, %3$s)</string>

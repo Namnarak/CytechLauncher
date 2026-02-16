@@ -682,6 +682,7 @@
     <string name="mods_update_task_show">The following mods will be updated</string>
     <string name="mods_update_task_download">Download new mod versions</string>
     <string name="mods_update_task_replace">Replace mod files</string>
+    <string name="mods_update_task_loading">Syncing mod data: %s</string>
     <string name="mods_update_no_mods_update">All mods are already up to date, no update needed</string>
     <string name="mods_update_updating">Updating all mods (%1$d/%2$d, %3$s)</string>
     <string name="mods_update_updating_retry">Retrying to update all mods (%1$d/%2$d, %3$s)</string>

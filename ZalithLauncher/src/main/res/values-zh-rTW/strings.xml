@@ -632,6 +632,7 @@
     <string name="mods_update_task_show">將要更新以下模組</string>
     <string name="mods_update_task_download">下載新版本模組</string>
     <string name="mods_update_task_replace">替換模組檔案</string>
+    <string name="mods_update_task_loading">同步模組資料：%s</string>
     <string name="mods_update_no_mods_update">所有模組都是最新版本，無需更新</string>
     <string name="mods_update_updating">正在更新所有模組 (%1$d/%2$d, %3$s)</string>
     <string name="mods_update_updating_retry">重試更新所有模組 (%1$d/%2$d, %3$s)</string>
