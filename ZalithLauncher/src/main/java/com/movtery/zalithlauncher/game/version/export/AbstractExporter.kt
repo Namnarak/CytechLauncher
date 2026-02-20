@@ -38,6 +38,8 @@ abstract class AbstractExporter(
         file: File,
         rootPath: String
     ): String {
-        return file.absolutePath.removePrefix(rootPath)
+        return file.absolutePath
+            .removePrefix(rootPath)
+            .removePrefix("/")
     }
 }
