@@ -2,6 +2,7 @@ package com.movtery.zalithlauncher.game.version.export
 
 import android.content.Context
 import com.movtery.zalithlauncher.coroutine.TitledTask
+import com.movtery.zalithlauncher.game.version.installed.Version
 import java.io.File
 
 abstract class AbstractExporter(
@@ -12,6 +13,7 @@ abstract class AbstractExporter(
      */
     abstract fun MutableList<TitledTask>.buildTasks(
         context: Context,
+        version: Version,
         info: ExportInfo,
         tempPath: File
     )

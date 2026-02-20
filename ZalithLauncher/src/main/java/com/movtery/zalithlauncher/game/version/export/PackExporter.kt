@@ -14,6 +14,7 @@ import com.movtery.zalithlauncher.coroutine.buildPhase
 import com.movtery.zalithlauncher.game.version.export.platform.MCBBSPackExporter
 import com.movtery.zalithlauncher.game.version.export.platform.ModrinthPackExporter
 import com.movtery.zalithlauncher.game.version.export.platform.MultiMCPackExporter
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.zipDirectory
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
@@ -49,6 +50,7 @@ class PackExporter(
      */
     fun startExport(
         outputUri: Uri,
+        version: Version,
         isRunning: () -> Unit = {},
         onFinished: () -> Unit,
         onError: (Throwable) -> Unit
@@ -60,7 +62,7 @@ class PackExporter(
 
         taskExecutor.executePhasesAsync(
             onStart = {
-                val tasks = getTaskPhases(outputUri)
+                val tasks = getTaskPhases(outputUri, version)
                 taskExecutor.addPhases(tasks)
             },
             onComplete = {
@@ -73,7 +75,8 @@ class PackExporter(
     }
 
     private suspend fun getTaskPhases(
-        outputUri: Uri
+        outputUri: Uri,
+        version: Version
     ) = withContext(Dispatchers.IO) {
         val exportCachePath = PathManager.DIR_CACHE_MODPACK_EXPORTER
         val tempPath = File(exportCachePath, "temp")
@@ -94,6 +97,7 @@ class PackExporter(
                 with(exporter) {
                     buildTasks(
                         context = context,
+                        version = version,
                         info = exportInfo,
                         tempPath = tempPath
                     )

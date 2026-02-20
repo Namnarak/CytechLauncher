@@ -17,6 +17,7 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.modrinth.Modrin
 import com.movtery.zalithlauncher.game.version.export.AbstractExporter
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackType
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ class ModrinthPackExporter: AbstractExporter(
 
     override fun MutableList<TitledTask>.buildTasks(
         context: Context,
+        version: Version,
         info: ExportInfo,
         tempPath: File
     ) {

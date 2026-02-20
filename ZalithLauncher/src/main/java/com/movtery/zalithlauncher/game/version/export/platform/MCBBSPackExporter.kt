@@ -12,8 +12,7 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.mcbbs.MCBBSMani
 import com.movtery.zalithlauncher.game.version.export.AbstractExporter
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackType
-import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.unit.getOrMin
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.string.tokenize
 import org.jackhuang.hmcl.util.DigestUtils
@@ -27,6 +26,7 @@ class MCBBSPackExporter: AbstractExporter(
 ) {
     override fun MutableList<TitledTask>.buildTasks(
         context: Context,
+        version: Version,
         info: ExportInfo,
         tempPath: File
     ) {
@@ -80,7 +80,7 @@ class MCBBSPackExporter: AbstractExporter(
 
             val settings = MCBBSManifest.Settings(installMods = true, installResourcepack = true)
             val launchInfo = MCBBSManifest.LaunchInfo(
-                minMemory = info.minMemory.takeIf { it > 0 } ?: AllSettings.ramAllocation.getOrMin(),
+                minMemory = info.minMemory.takeIf { it > 0 } ?: version.getRamAllocation(context),
                 supportJava = null,
                 launchArguments = tokenize(info.jvmArgs),
                 javaArguments = tokenize(info.javaArgs)

@@ -172,6 +172,7 @@ private class ExportModpackViewModel(
 
     private val startMutex = Mutex()
     fun startExport(
+        version: Version,
         context: Context,
         outputUri: Uri,
         onStart: () -> Unit = {},
@@ -196,6 +197,7 @@ private class ExportModpackViewModel(
                 ).also {
                     it.startExport(
                         outputUri = outputUri,
+                        version = version,
                         onFinished = {
                             _packExporter.update { null }
                             _packExportOperation.update { PackExportOperation.Finished }
@@ -501,6 +503,7 @@ private fun NavigationUI(
                             viewModel.startExport(
                                 context = context,
                                 outputUri = uri,
+                                version = version,
                                 onStart = {
                                     eventViewModel.sendKeepScreen(true)
                                 },

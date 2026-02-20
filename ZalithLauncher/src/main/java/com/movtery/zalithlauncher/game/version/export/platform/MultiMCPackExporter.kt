@@ -18,9 +18,8 @@ import com.movtery.zalithlauncher.game.download.modpack.platform.multimc.UID_QUI
 import com.movtery.zalithlauncher.game.version.export.AbstractExporter
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackType
+import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.info.InfoDistributor
-import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.setting.unit.getOrMin
 import com.movtery.zalithlauncher.utils.GSON
 import java.io.File
 import java.io.StringWriter
@@ -33,6 +32,7 @@ class MultiMCPackExporter: AbstractExporter(
 ) {
     override fun MutableList<TitledTask>.buildTasks(
         context: Context,
+        version: Version,
         info: ExportInfo,
         tempPath: File
     ) {
@@ -122,8 +122,8 @@ class MultiMCPackExporter: AbstractExporter(
                 isFullscreen = false,
                 width = null,
                 height = null,
-                maxMemory = info.maxMemory.takeIf { it > 0 } ?: AllSettings.ramAllocation.getOrMin(),
-                minMemory = info.minMemory.takeIf { it > 0 } ?: AllSettings.ramAllocation.getOrMin(),
+                maxMemory = info.maxMemory.takeIf { it > 0 } ?: version.getRamAllocation(context),
+                minMemory = info.minMemory.takeIf { it > 0 } ?: version.getRamAllocation(context),
                 joinServerOnLaunch = null,
                 isShowConsole = false,
                 isShowConsoleOnError = true,
