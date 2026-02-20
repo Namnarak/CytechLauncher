@@ -19,6 +19,8 @@ import com.movtery.zalithlauncher.game.version.export.AbstractExporter
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackType
 import com.movtery.zalithlauncher.info.InfoDistributor
+import com.movtery.zalithlauncher.setting.AllSettings
+import com.movtery.zalithlauncher.setting.unit.getOrMin
 import com.movtery.zalithlauncher.utils.GSON
 import java.io.File
 import java.io.StringWriter
@@ -120,8 +122,8 @@ class MultiMCPackExporter: AbstractExporter(
                 isFullscreen = false,
                 width = null,
                 height = null,
-                maxMemory = info.memory,
-                minMemory = info.memory,
+                maxMemory = info.maxMemory.takeIf { it > 0 } ?: AllSettings.ramAllocation.getOrMin(),
+                minMemory = info.minMemory.takeIf { it > 0 } ?: AllSettings.ramAllocation.getOrMin(),
                 joinServerOnLaunch = null,
                 isShowConsole = false,
                 isShowConsoleOnError = true,

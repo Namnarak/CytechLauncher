@@ -222,7 +222,7 @@ fun ExportInfoScreen(
 
                     //最小内存
                     animatedItem(scope) { yOffset ->
-                        var memory by remember(info) { mutableFloatStateOf(info.memory.toFloat()) }
+                        var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
 
                         InfoLayoutSliderItem(
                             modifier = Modifier
@@ -234,7 +234,7 @@ fun ExportInfoScreen(
                                 memory = it
                             },
                             onValueChangeFinished = {
-                                onInfoEdited(info.copy(memory = memory.toInt()))
+                                onInfoEdited(info.copy(minMemory = memory.toInt()))
                             },
                             valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
                             decimalFormat = "#0",
@@ -277,7 +277,7 @@ fun ExportInfoScreen(
                 PackType.MultiMC -> {
                     //最小内存
                     animatedItem(scope) { yOffset ->
-                        var memory by remember(info) { mutableFloatStateOf(info.memory.toFloat()) }
+                        var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
 
                         InfoLayoutSliderItem(
                             modifier = Modifier
@@ -289,7 +289,30 @@ fun ExportInfoScreen(
                                 memory = it
                             },
                             onValueChangeFinished = {
-                                onInfoEdited(info.copy(memory = memory.toInt()))
+                                onInfoEdited(info.copy(minMemory = memory.toInt()))
+                            },
+                            valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
+                            decimalFormat = "#0",
+                            fineTuningStep = 1.0f,
+                            suffix = "MB"
+                        )
+                    }
+
+                    //最大内存
+                    animatedItem(scope) { yOffset ->
+                        var memory by remember(info) { mutableFloatStateOf(info.maxMemory.toFloat()) }
+
+                        InfoLayoutSliderItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                            title = stringResource(R.string.versions_export_pack_max_memory),
+                            value = memory,
+                            onValueChange = {
+                                memory = it
+                            },
+                            onValueChangeFinished = {
+                                onInfoEdited(info.copy(maxMemory = memory.toInt()))
                             },
                             valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
                             decimalFormat = "#0",

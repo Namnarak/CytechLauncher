@@ -681,6 +681,7 @@
     <string name="versions_export_pack_java_args">Java 虚拟机参数</string>
     <string name="versions_export_pack_website">整合包官方网站</string>
     <string name="versions_export_pack_min_memory">最小分配内存</string>
+    <string name="versions_export_pack_max_memory">最大分配内存</string>
     <string name="versions_export_pack_pack_remote">从 Modrinth 下载关键资源</string>
     <string name="versions_export_pack_pack_curseforge">一并打包 CurseForge 的远程资源</string>
     <string name="versions_export_pack_select_files">选择文件</string>

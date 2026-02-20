@@ -12,7 +12,8 @@ import java.io.File
  * @param mcVersion Minecraft 版本
  * @param loader 该版本所加载的模组加载器
  * @param selectedFiles 用户选定的要导出的文件
- * @param memory 用户指定的整合包最小内存大小
+ * @param minMemory 用户指定的整合包最小内存大小
+ * @param maxMemory 用户指定的整合包最大内存大小
  * @param jvmArgs 游戏参数
  * @param javaArgs Java虚拟机参数
  * @param fileApi 整合包下载链接前缀
@@ -31,7 +32,8 @@ data class ExportInfo(
     val mcVersion: String = "",
     val loader: LoaderVersion? = null,
     val selectedFiles: List<File> = emptyList(),
-    val memory: Int = 0,
+    val minMemory: Int = 0,
+    val maxMemory: Int = 0,
     val jvmArgs: String = "",
     val javaArgs: String = "",
     val fileApi: String? = null,

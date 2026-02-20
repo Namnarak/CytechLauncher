@@ -633,6 +633,7 @@
     <string name="versions_export_pack_java_args">Java 虛擬機參數</string>
     <string name="versions_export_pack_website">模組包官方網站</string>
     <string name="versions_export_pack_min_memory">最小分配記憶體</string>
+    <string name="versions_export_pack_max_memory">最大分配記憶體</string>
     <string name="versions_export_pack_pack_remote">從 Modrinth 下載關鍵資源</string>
     <string name="versions_export_pack_pack_curseforge">一併打包 CurseForge 的遠端資源</string>
     <string name="versions_export_pack_select_files">選擇檔案</string>

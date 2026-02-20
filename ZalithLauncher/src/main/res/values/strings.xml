@@ -683,6 +683,7 @@
     <string name="versions_export_pack_java_args">Java Virtual Machine Arguments</string>
     <string name="versions_export_pack_website">Modpack Website</string>
     <string name="versions_export_pack_min_memory">Minimum Allocated Memory</string>
+    <string name="versions_export_pack_max_memory">Maximum Allocated Memory</string>
     <string name="versions_export_pack_pack_remote">Download key resources from Modrinth</string>
     <string name="versions_export_pack_pack_curseforge">Include CurseForge remote resources in the package</string>
     <string name="versions_export_pack_select_files">Select Files</string>
