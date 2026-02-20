@@ -30,4 +30,14 @@
     <string name="generic_input_failed_to_number">كىرگۈزگەن مەزمۇنلارنى رەقەمگە ئايرىشقا بولمايدۇ</string>
     <string name="generic_input_too_small">"كىرگۈزگەن سان  %sدىن كىچىك بولماسلىقى كېرەك"</string>
     <string name="generic_input_too_large">كىرگۈزگەن %s ئېشىپ كەتمەسلىكى كېرەك</string>
+    <string name="generic_input_length">%1$d/%2$d :تېكىست بوشلۇقىدىكى خەت سانى</string>
+    <string name="generic_unpacking">ھازىر بېسىمنى تۆۋەنلىتىۋاتىدۇ%s</string>
+    <string name="generic_unknown">نامەلۇم</string>
+    <string name="generic_follow_global">پۈتۈن ئەگىشىش</string>
+    <string name="generic_custom">ئۆزى بەلگىلەش</string>
+    <string name="generic_search">ئىزدەش</string>
+    <string name="generic_loading">كىرگۈزىۋاتىدۇ</string>
+    <string name="generic_in_progress">ئىجارە قىلىنىۋاتىدۇ</string>
+    <string name="generic_anyway">چۇقۇم ئىشلىتىش</string>
+    <string name="generic_got_it">مەن چۈشەندىم</string>
 </resources>
