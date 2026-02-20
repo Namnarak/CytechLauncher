@@ -140,7 +140,7 @@ fun EditWidgetDialog(
                         .clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() },
-                            onClick = {}
+                            onClick = onDismissRequest
                         )
                 )
             }
