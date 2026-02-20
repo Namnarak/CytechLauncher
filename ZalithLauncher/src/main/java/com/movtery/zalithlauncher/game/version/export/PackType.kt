@@ -13,4 +13,9 @@ enum class PackType {
      * Modrinth 标准导出格式
      */
     Modrinth,
+
+    /**
+     * MultiMC 导出格式
+     */
+    MultiMC,
 }

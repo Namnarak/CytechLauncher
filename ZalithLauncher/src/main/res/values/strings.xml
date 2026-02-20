@@ -665,6 +665,8 @@
     <string name="versions_export_type_mcbbs_summary">Can be imported by %s, HMCL, and other launchers</string>
     <string name="versions_export_type_modrinth">Modrinth Modpack</string>
     <string name="versions_export_type_modrinth_summary">Can be imported by common third-party launchers</string>
+    <string name="versions_export_type_multimc">MultiMC Modpack</string>
+    <string name="versions_export_type_multimc_summary">Can be imported by %s, MultiMC, and other launchers</string>
     <string name="versions_export_alias_options">Game Settings</string>
     <string name="versions_export_alias_resource_packs">Resource Packs Folder</string>
     <string name="versions_export_alias_mods">Mods Folder</string>

@@ -79,6 +79,18 @@ fun ExportTypeSelectScreen(
                     onClick = { onTypeSelect(PackType.Modrinth) }
                 )
             }
+
+            //MultiMC
+            animatedItem(scope) { yOffset ->
+                TypeItem(
+                    modifier = Modifier
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    title = stringResource(R.string.versions_export_type_multimc),
+                    summary = stringResource(R.string.versions_export_type_multimc_summary),
+                    icon = painterResource(R.drawable.img_platform_multimc),
+                    onClick = { onTypeSelect(PackType.MultiMC) }
+                )
+            }
         }
     }
 }

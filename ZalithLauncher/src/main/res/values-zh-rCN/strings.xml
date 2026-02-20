@@ -663,6 +663,8 @@
     <string name="versions_export_type_mcbbs_summary">可被 %s，HMCL 等启动器导入</string>
     <string name="versions_export_type_modrinth">Modrinth 整合包</string>
     <string name="versions_export_type_modrinth_summary">可被常见第三方启动器导入</string>
+    <string name="versions_export_type_multimc">MultiMC 整合包</string>
+    <string name="versions_export_type_multimc_summary">可被 %s，MultiMC 等启动器导入</string>
     <string name="versions_export_alias_options">游戏设置</string>
     <string name="versions_export_alias_resource_packs">资源包目录</string>
     <string name="versions_export_alias_mods">模组目录</string>

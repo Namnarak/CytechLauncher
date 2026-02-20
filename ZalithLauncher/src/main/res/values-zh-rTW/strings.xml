@@ -615,6 +615,8 @@
     <string name="versions_export_type_mcbbs_summary">可被 %s、HMCL 等啟動器匯入</string>
     <string name="versions_export_type_modrinth">Modrinth 模組包</string>
     <string name="versions_export_type_modrinth_summary">可被常見的第三方啟動器匯入</string>
+    <string name="versions_export_type_multimc">MultiMC 模組包</string>
+    <string name="versions_export_type_multimc_summary">可被 %s、MultiMC 等啟動器匯入</string>
     <string name="versions_export_alias_options">遊戲設定</string>
     <string name="versions_export_alias_resource_packs">資源包目錄</string>
     <string name="versions_export_alias_mods">模組目錄</string>

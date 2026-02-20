@@ -273,6 +273,31 @@ fun ExportInfoScreen(
                         )
                     }
                 }
+
+                PackType.MultiMC -> {
+                    //最小内存
+                    animatedItem(scope) { yOffset ->
+                        var memory by remember(info) { mutableFloatStateOf(info.memory.toFloat()) }
+
+                        InfoLayoutSliderItem(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                            title = stringResource(R.string.versions_export_pack_min_memory),
+                            value = memory,
+                            onValueChange = {
+                                memory = it
+                            },
+                            onValueChangeFinished = {
+                                onInfoEdited(info.copy(memory = memory.toInt()))
+                            },
+                            valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
+                            decimalFormat = "#0",
+                            fineTuningStep = 1.0f,
+                            suffix = "MB"
+                        )
+                    }
+                }
             }
 
             //导出按钮
