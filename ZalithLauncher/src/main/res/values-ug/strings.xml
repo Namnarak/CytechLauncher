@@ -40,4 +40,20 @@
     <string name="generic_in_progress">ئىجارە قىلىنىۋاتىدۇ</string>
     <string name="generic_anyway">چۇقۇم ئىشلىتىش</string>
     <string name="generic_got_it">مەن چۈشەندىم</string>
+    <string name="generic_ignore">سەل قاراش</string>
+    <string name="generic_authorization">ھوقۇق بېرىش</string>
+    <string name="generic_file_name">ھۆججەت نامى: %s</string>
+    <string name="generic_file_size">ھۆججەت چوڭ-كىچىكلىكى: %s</string>
+    <string name="generic_all">ھەممىسى</string>
+    <string name="generic_enabled">قوزغىتىقلىق</string>
+    <string name="generic_disabled">ئېتىفلىك</string>
+    <string name="generic_unspecified">بەلگىلەنمىگەن</string>
+    <string name="generic_save">ساقلاش</string>
+    <string name="generic_saved">ساقلاندى</string>
+    <string name="generic_share">ھەمبەھرلەش</string>
+    <string name="generic_copied">كۆپەيتىلدى</string>
+    <string name="generic_no_matching_items">شەرتكە ئۇيغۇن كېلىدىغان تۈر يوق</string>
+    <string name="generic_follow_system">سىستېمىغا ئەگىشىش</string>
+    <string name="unit_day">كۆن</string>
+    <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
 </resources>
