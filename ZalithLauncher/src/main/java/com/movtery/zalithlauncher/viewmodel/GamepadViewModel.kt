@@ -25,12 +25,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.control.gamepad.DpadDirection
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMap
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMapping
+import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMappingList
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadRemap
 import com.movtery.zalithlauncher.ui.control.gamepad.Joystick
 import com.movtery.zalithlauncher.ui.control.gamepad.JoystickType
+import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingListMMKV
 import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
 import com.movtery.zalithlauncher.ui.control.joystick.JoystickDirection
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,6 +41,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 private const val BUTTON_PRESS_THRESHOLD = 0.85f
+const val GAMEPAD_CONFIG_NAME_LENGTH = 16
 
 class GamepadViewModel : ViewModel() {
     private val _keyEvents = MutableSharedFlow<KeyEvent>()
@@ -54,11 +58,12 @@ class GamepadViewModel : ViewModel() {
 
     private val listeners = mutableListOf<(Event) -> Unit>()
 
-    /**
-     * 手柄与键盘按键映射绑定
-     */
-    private val allKeyMappings = mutableMapOf<Int, TargetKeys>()
-    private val allDpadMappings = mutableMapOf<DpadDirection, TargetKeys>()
+    private val listMMKV = keyMappingListMMKV()
+    private val oldMMKV = keyMappingMMKV()
+
+    private val mappingLists = mutableListOf<GamepadMappingList>()
+    var currentMapping: GamepadMappingList? = null
+        private set
 
     /** 左摇杆状态 */
     private val leftJoystick = Joystick(JoystickType.Left)
@@ -114,98 +119,121 @@ class GamepadViewModel : ViewModel() {
     }
 
     fun reloadAllMappings() {
-        allKeyMappings.clear()
-        allDpadMappings.clear()
+        mappingLists.clear()
 
-        val mmkv = keyMappingMMKV()
+        var movedOldData = false
+        val movedName = "default"
+
+        if (oldMMKV.count() > 0) {
+            val defaultMappings = mutableListOf<GamepadMapping>()
+            GamepadMap.entries.forEach { entry ->
+                val mapping = oldMMKV.decodeParcelable(entry.identifier, GamepadMapping::class.java)
+                    ?: GamepadMapping(
+                        key = entry.gamepad,
+                        dpadDirection = entry.dpadDirection,
+                        targetsInGame = entry.defaultKeysInGame,
+                        targetsInMenu = entry.defaultKeysInMenu
+                    )
+                defaultMappings.add(mapping)
+            }
+            val list = GamepadMappingList(
+                name = movedName,
+                list = defaultMappings
+            )
+            oldMMKV.clear()
+            listMMKV.encode(movedName, list)
+
+            mappingLists.add(list)
+            movedOldData = true
+            AllSettings.gamepadMappingConfig.save(movedName)
+        }
+
+        listMMKV.allKeys()?.forEach { key ->
+            if (movedOldData && movedName == key) return@forEach
+            listMMKV.decodeParcelable(key, GamepadMappingList::class.java)?.let {
+                mappingLists.add(it)
+            }
+        }
+
+        refreshLists()
+    }
+
+    private fun refreshLists() {
+        mappingLists.forEach { list ->
+            list.load()
+        }
+        currentMapping = loadCurrentConfig()
+    }
+
+    private fun loadCurrentConfig(): GamepadMappingList? {
+        val config = AllSettings.gamepadMappingConfig.getValue()
+        return mappingLists.find {
+            it.name == config
+        } ?: mappingLists.firstOrNull()?.also { config ->
+            AllSettings.gamepadMappingConfig.save(config.name)
+        }
+    }
+
+    /**
+     * 获取所有的手柄映射配置名称
+     */
+    fun getAllConfigKeys(): List<String> {
+        return mappingLists.map { it.name }
+    }
+
+    /**
+     * 该名称是否已被保存的配置使用
+     */
+    fun containsConfig(name: String): Boolean = listMMKV.containsKey(name)
+
+    /**
+     * 创建新的手柄映射配置
+     */
+    fun createNewConfig(
+        name: String,
+        onContainsConfig: () -> Unit,
+        onFinished: () -> Unit = {}
+    ) {
+        val name0 = name.take(GAMEPAD_CONFIG_NAME_LENGTH)
+        if (containsConfig(name0)) onContainsConfig()
+
+        val defaultMappings = mutableListOf<GamepadMapping>()
         GamepadMap.entries.forEach { entry ->
-            val mapping = mmkv.decodeParcelable(entry.identifier, GamepadMapping::class.java)
-                ?: GamepadMapping(
+            defaultMappings.add(
+                GamepadMapping(
                     key = entry.gamepad,
                     dpadDirection = entry.dpadDirection,
                     targetsInGame = entry.defaultKeysInGame,
                     targetsInMenu = entry.defaultKeysInMenu
                 )
-            addInMappingsMap(mapping)
+            )
         }
+        val list = GamepadMappingList(
+            name = name0,
+            list = defaultMappings
+        )
+
+
+        mappingLists.add(list)
+        listMMKV.encode(name0, list)
+        refreshLists()
+
+        onFinished()
     }
 
-    private fun addInMappingsMap(mapping: GamepadMapping) {
-        val target = TargetKeys(mapping.targetsInGame, mapping.targetsInMenu)
-        mapping.dpadDirection?.let { allDpadMappings[it] = target } ?: run {
-            allKeyMappings[mapping.key] = target
-        }
-    }
-
     /**
-     * 重置手柄与键盘按键映射绑定
+     * 删除一个手柄映射配置
      */
-    fun resetMapping(gamepadMap: GamepadMap, inGame: Boolean) =
-        applyMapping(gamepadMap, inGame, useDefault = true)
-
-    /**
-     * 为指定手柄映射设置目标键盘映射
-     */
-    fun saveMapping(gamepadMap: GamepadMap, targets: Set<String>, inGame: Boolean) =
-        applyMapping(gamepadMap, inGame, customTargets = targets)
-
-    /**
-     * 保存或重置手柄与键盘按键映射绑定
-     * @param gamepadMap 手柄映射对象
-     * @param inGame 是否为游戏内映射（true 为游戏内，false 为菜单内）
-     * @param customTargets 自定义目标键
-     * @param useDefault 是否使用默认按键
-     */
-    private fun applyMapping(
-        gamepadMap: GamepadMap,
-        inGame: Boolean,
-        customTargets: Set<String>? = null,
-        useDefault: Boolean = false
+    fun deleteConfig(
+        name: String,
+        onFinished: () -> Unit = {}
     ) {
-        val dpad = gamepadMap.dpadDirection
-        val existing = if (dpad != null) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
+        mappingLists.removeIf { it.name == name }
+        listMMKV.remove(name)
+        refreshLists()
 
-        val (targetsInGame, targetsInMenu) = if (inGame) {
-            val newTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
-            newTargets to (existing?.inMenu ?: emptySet())
-        } else {
-            (existing?.inGame ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
-        }
-
-        GamepadMapping(
-            key = gamepadMap.gamepad,
-            dpadDirection = dpad,
-            targetsInGame = targetsInGame,
-            targetsInMenu = targetsInMenu
-        ).also { it.save(gamepadMap.identifier) }
+        onFinished()
     }
-
-    private fun GamepadMapping.save(identifier: String) {
-        addInMappingsMap(this)
-        keyMappingMMKV().encode(identifier, this)
-    }
-
-    /**
-     * 根据手柄按键键值获取对应的键盘映射代码
-     * @return 若未找到，则返回null
-     */
-    fun findByCode(key: Int, inGame: Boolean) =
-        allKeyMappings[key]?.getKeys(inGame)
-
-    /**
-     * 根据手柄方向键获取对应的键盘映射代码
-     * @return 若未找到，则返回null
-     */
-    fun findByDpad(dir: DpadDirection, inGame: Boolean) =
-        allDpadMappings[dir]?.getKeys(inGame)
-
-    /**
-     * 根据手柄映射获取对应的键盘映射代码
-     * @return 若未找到，则返回null
-     */
-    fun findByMap(map: GamepadMap, inGame: Boolean) =
-        (map.dpadDirection?.let { allDpadMappings[it] } ?: allKeyMappings[map.gamepad])
-            ?.getKeys(inGame)
 
     fun updateButton(code: Int, pressed: Boolean) {
         onActive()
@@ -282,16 +310,6 @@ class GamepadViewModel : ViewModel() {
      */
     fun removeListener(listener: (Event) -> Unit) {
         listeners.remove(listener)
-    }
-
-    /**
-     * 便于记录目标键盘映射的数据类
-     */
-    private data class TargetKeys(
-        val inGame: Set<String>,
-        val inMenu: Set<String>
-    ) {
-        fun getKeys(isInGame: Boolean) = if (isInGame) inGame else inMenu
     }
 
     sealed interface Event {
