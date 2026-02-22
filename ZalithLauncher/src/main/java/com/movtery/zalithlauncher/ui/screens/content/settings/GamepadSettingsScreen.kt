@@ -501,7 +501,7 @@ private fun CreateNewConfigOperation(
         is CreateNewConfigOperation.Create -> {
             var name by remember { mutableStateOf("") }
             val isContains = remember(name) {
-                if (name.isEmptyOrBlank()) {
+                if (!name.isEmptyOrBlank()) {
                     checkContains(name)
                 } else {
                     false
@@ -531,8 +531,10 @@ private fun CreateNewConfigOperation(
                 },
                 singleLine = true,
                 onConfirm = {
-                    onCreateConfig(name)
-                    onChange(CreateNewConfigOperation.None)
+                    if (!isContains && !isNameEmpty) {
+                        onCreateConfig(name)
+                        onChange(CreateNewConfigOperation.None)
+                    }
                 },
                 onDismissRequest = {
                     onChange(CreateNewConfigOperation.None)
