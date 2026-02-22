@@ -581,6 +581,7 @@
     <string name="versions_overview_screenshot_folder">螢幕擷圖資料夾</string>
     <string name="versions_overview_logs_folder">日誌資料夾</string>
     <string name="versions_overview_crash_report_folder">崩潰報告資料夾</string>
+    <string name="versions_overview_cant_share_folder_message">目前裝置上沒有可開啟此資料夾的第三方應用程式！</string>
     <string name="versions_config_version_settings">版本獨立設定</string>
     <string name="versions_config_game_settings">遊戲獨立設定</string>
     <string name="versions_config_support_settings">額外支援設定</string>

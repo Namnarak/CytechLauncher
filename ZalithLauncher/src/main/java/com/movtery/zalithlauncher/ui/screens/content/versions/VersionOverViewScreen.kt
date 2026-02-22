@@ -166,7 +166,11 @@ fun VersionOverViewScreen(
                 VersionQuickActions(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     accessFolder = { path ->
-                        val folder = File(version.getGameDir(), path)
+                        val folder = if (path.isEmpty()) {
+                            version.getGameDir()
+                        } else {
+                            File(version.getGameDir(), path)
+                        }
                         runCatching {
                             folder.ensureDirectory()
                         }.onFailure { e ->
@@ -178,7 +182,14 @@ fun VersionOverViewScreen(
                             )
                             return@VersionQuickActions
                         }
-                        shareFile(context, folder)
+                        shareFile(context, folder) {
+                            submitError(
+                                ErrorViewModel.ThrowableMessage(
+                                    title = context.getString(R.string.generic_error),
+                                    message = context.getString(R.string.versions_overview_cant_share_folder_message)
+                                )
+                            )
+                        }
                     }
                 )
             }
