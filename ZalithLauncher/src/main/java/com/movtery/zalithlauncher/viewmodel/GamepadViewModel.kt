@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.ui.control.gamepad.JoystickType
 import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingListMMKV
 import com.movtery.zalithlauncher.ui.control.gamepad.keyMappingMMKV
 import com.movtery.zalithlauncher.ui.control.joystick.JoystickDirection
+import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -61,7 +62,7 @@ class GamepadViewModel : ViewModel() {
     private val listMMKV = keyMappingListMMKV()
     private val oldMMKV = keyMappingMMKV()
 
-    private val mappingLists = mutableListOf<GamepadMappingList>()
+    private val mappingLists = ConcurrentSet<GamepadMappingList>()
     var currentMapping: GamepadMappingList? = null
         private set
 
@@ -140,7 +141,7 @@ class GamepadViewModel : ViewModel() {
                 name = movedName,
                 list = defaultMappings
             )
-            oldMMKV.clear()
+            oldMMKV.clearAll()
             listMMKV.encode(movedName, list)
 
             mappingLists.add(list)
@@ -213,9 +214,10 @@ class GamepadViewModel : ViewModel() {
             list = defaultMappings
         )
 
-
         mappingLists.add(list)
         listMMKV.encode(name0, list)
+
+        AllSettings.gamepadMappingConfig.save(name0)
         refreshLists()
 
         onFinished()
