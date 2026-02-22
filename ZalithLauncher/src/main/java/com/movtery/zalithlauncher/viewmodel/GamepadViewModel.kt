@@ -123,7 +123,7 @@ class GamepadViewModel : ViewModel() {
         mappingLists.clear()
 
         var movedOldData = false
-        val movedName = "default"
+        val defaultName = "default"
 
         if (oldMMKV.count() > 0) {
             val defaultMappings = mutableListOf<GamepadMapping>()
@@ -138,21 +138,29 @@ class GamepadViewModel : ViewModel() {
                 defaultMappings.add(mapping)
             }
             val list = GamepadMappingList(
-                name = movedName,
+                name = defaultName,
                 list = defaultMappings
             )
             oldMMKV.clearAll()
-            listMMKV.encode(movedName, list)
+            listMMKV.encode(defaultName, list)
 
             mappingLists.add(list)
             movedOldData = true
-            AllSettings.gamepadMappingConfig.save(movedName)
+            AllSettings.gamepadMappingConfig.save(defaultName)
         }
 
-        listMMKV.allKeys()?.forEach { key ->
-            if (movedOldData && movedName == key) return@forEach
-            listMMKV.decodeParcelable(key, GamepadMappingList::class.java)?.let {
-                mappingLists.add(it)
+        if (!movedOldData && listMMKV.count() == 0L) {
+            //当前没有任何的配置
+            val list = createDefaultMapping(defaultName)
+            AllSettings.gamepadMappingConfig.save(defaultName)
+            listMMKV.encode(defaultName, list)
+            mappingLists.add(list)
+        } else {
+            listMMKV.allKeys()?.forEach { key ->
+                if (movedOldData && defaultName == key) return@forEach
+                listMMKV.decodeParcelable(key, GamepadMappingList::class.java)?.let {
+                    mappingLists.add(it)
+                }
             }
         }
 
@@ -198,6 +206,21 @@ class GamepadViewModel : ViewModel() {
         val name0 = name.take(GAMEPAD_CONFIG_NAME_LENGTH)
         if (containsConfig(name0)) onContainsConfig()
 
+        val list = createDefaultMapping(name0)
+
+        mappingLists.add(list)
+        listMMKV.encode(name0, list)
+
+        AllSettings.gamepadMappingConfig.save(name0)
+        refreshLists()
+
+        onFinished()
+    }
+
+    /**
+     * 创建一个默认的映射配置
+     */
+    private fun createDefaultMapping(name: String): GamepadMappingList {
         val defaultMappings = mutableListOf<GamepadMapping>()
         GamepadMap.entries.forEach { entry ->
             defaultMappings.add(
@@ -209,18 +232,10 @@ class GamepadViewModel : ViewModel() {
                 )
             )
         }
-        val list = GamepadMappingList(
-            name = name0,
+        return GamepadMappingList(
+            name = name,
             list = defaultMappings
         )
-
-        mappingLists.add(list)
-        listMMKV.encode(name0, list)
-
-        AllSettings.gamepadMappingConfig.save(name0)
-        refreshLists()
-
-        onFinished()
     }
 
     /**
