@@ -605,6 +605,7 @@ fun MenuSliderLayout(
     shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    var showInputDialog by remember { mutableStateOf(false) }
 
     MenuButtonLayout(
         modifier = modifier,
@@ -612,7 +613,10 @@ fun MenuSliderLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation
+        shadowElevation = shadowElevation,
+        onClick = {
+            showInputDialog = true
+        }
     ) {
         Column(
             modifier = Modifier
@@ -632,6 +636,9 @@ fun MenuSliderLayout(
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
+                    modifier = Modifier.clickable(enabled = enabled) {
+                        showInputDialog = true
+                    },
                     text = "$value${suffix ?: ""}",
                     style = MaterialTheme.typography.titleSmall
                 )
@@ -647,6 +654,17 @@ fun MenuSliderLayout(
                 enabled = enabled
             )
         }
+    }
+
+    if (showInputDialog) {
+        SliderValueEditDialog(
+            onDismissRequest = { showInputDialog = false },
+            title = title,
+            valueRange = valueRange,
+            value = value.toFloat(),
+            onValueChange = { onValueChangeFinished(it.toInt()) },
+            intCheck = true
+        )
     }
 }
 
@@ -672,6 +690,7 @@ fun MenuSliderLayout(
     fun getTextString(value: Float) = formatter.format(value) + (suffix ?: "")
 
     val interactionSource = remember { MutableInteractionSource() }
+    var showInputDialog by remember { mutableStateOf(false) }
 
     MenuButtonLayout(
         modifier = modifier,
@@ -679,7 +698,10 @@ fun MenuSliderLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation
+        shadowElevation = shadowElevation,
+        onClick = {
+            showInputDialog = true
+        }
     ) {
         Column(
             modifier = Modifier
@@ -699,6 +721,9 @@ fun MenuSliderLayout(
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
+                    modifier = Modifier.clickable(enabled = enabled) {
+                        showInputDialog = true
+                    },
                     text = getTextString(value),
                     style = MaterialTheme.typography.titleSmall
                 )
@@ -714,6 +739,16 @@ fun MenuSliderLayout(
                 enabled = enabled
             )
         }
+    }
+
+    if (showInputDialog) {
+        SliderValueEditDialog(
+            onDismissRequest = { showInputDialog = false },
+            title = title,
+            valueRange = valueRange,
+            value = value,
+            onValueChange = { onValueChangeFinished(it) },
+        )
     }
 }
 
