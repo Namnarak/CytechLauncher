@@ -15,92 +15,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
+package com.movtery.zalithlauncher.game.versioninfo.models
 
-package com.movtery.zalithlauncher.game.versioninfo.models;
+import com.google.gson.annotations.SerializedName
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
-
-public class VersionManifest {
+data class VersionManifest(
     @SerializedName("latest")
-    private Latest latest;
-
+    val latest: Latest,
     @SerializedName("versions")
-    private List<Version> versions;
-
-    public Latest getLatest() {
-        return latest;
-    }
-
-    public List<Version> getVersions() {
-        return versions;
-    }
-
-    public static class Latest {
+    val versions: List<Version>
+) {
+    data class Latest(
         @SerializedName("release")
-        private String release;
-
+        val release: String,
         @SerializedName("snapshot")
-        private String snapshot;
+        val snapshot: String
+    )
 
-        public String getRelease() {
-            return release;
-        }
-
-        public String getSnapshot() {
-            return snapshot;
-        }
-    }
-
-    public static class Version {
+    data class Version(
         @SerializedName("id")
-        private String id;
-
+        val id: String,
         @SerializedName("type")
-        private String type;
-
+        val type: String,
         @SerializedName("url")
-        private String url;
-
+        val url: String,
         @SerializedName("time")
-        private String time;
-
+        val time: String,
         @SerializedName("releaseTime")
-        private String releaseTime;
-
+        val releaseTime: String,
         @SerializedName("sha1")
-        private String sha1;
-
+        val sha1: String? = null,
         @SerializedName("complianceLevel")
-        private int complianceLevel;
-
-        public String getId() {
-            return id;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public String getReleaseTime() {
-            return releaseTime;
-        }
-
-        public String getSha1() {
-            return sha1;
-        }
-
-        public int getComplianceLevel() {
-            return complianceLevel;
-        }
-    }
+        val complianceLevel: Int? = null
+    )
 }
