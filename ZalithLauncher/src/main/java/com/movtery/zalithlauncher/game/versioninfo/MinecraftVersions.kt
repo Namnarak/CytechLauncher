@@ -18,12 +18,14 @@
 
 package com.movtery.zalithlauncher.game.versioninfo
 
+import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.game.addons.mirror.mapBMCLMirrorUrls
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
 import com.movtery.zalithlauncher.game.versioninfo.models.filterType
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_MINECRAFT_VERSION_REPOS
 import com.movtery.zalithlauncher.utils.GSON
+import com.movtery.zalithlauncher.utils.file.readString
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.fetchStringFromUrls
 import com.movtery.zalithlauncher.utils.network.withRetry
@@ -84,7 +86,8 @@ object MinecraftVersions {
                 }
             }
 
-            newManifest ?: throw IllegalStateException("Version manifest is null after all attempts")
+            val newManifest0 = newManifest ?: throw IllegalStateException("Version manifest is null after all attempts")
+            mergeUnlistVersions(newManifest0) ?: newManifest0
         }.also { newManifest ->
             manifest = newManifest
         }
@@ -114,6 +117,34 @@ object MinecraftVersions {
                 val versionManifest = GSON.fromJson(rawJson, VersionManifest::class.java)
                 PathManager.FILE_MINECRAFT_VERSIONS.writeText(rawJson)
                 versionManifest
+            }
+        }
+    }
+
+    /**
+     * 尝试从本地合并官方隐藏的版本
+     */
+    private suspend fun mergeUnlistVersions(
+        currentManifest: VersionManifest
+    ): VersionManifest? {
+        return withContext(Dispatchers.IO) {
+            MinecraftVersions::class.java.getResourceAsStream("/assets/game/unlist_versions.json")?.use { input ->
+                input.readString()
+            }?.let { unlistVersionJson ->
+                GSON.fromJson<List<VersionManifest.Version>>(
+                    unlistVersionJson,
+                    object : TypeToken<List<VersionManifest.Version>>() {}.type
+                )
+            }?.let { unlistVersions ->
+                val versions = currentManifest.versions.toMutableList()
+                versions.addAll(unlistVersions)
+                versions.sortWith { version, other ->
+                    other.releaseTime.compareTo(version.releaseTime)
+                }
+
+                currentManifest.copy(
+                    versions = versions.toList()
+                )
             }
         }
     }

@@ -310,6 +310,7 @@
     <string name="import_modpack_failed_title">匯入失敗</string>
     <string name="import_modpack_failed_text">安裝模組包時發生錯誤：</string>
     <!--  版本描述  -->
+    <string name="version_summary_fools_2_0">我們不會更新它們！如果你發現漏洞，那就算你倒楣了！XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">愛與擁抱更新，讓世界充滿和平與彩虹。</string>
     <string name="version_summary_fools_trendy_update">未來已來！我們為 Minecraft 加入了現代科技！</string>
     <string name="version_summary_fools_3d_shareware">我們從地下室深處挖出了這款「1994 年 DOS 版」Minecraft！</string>

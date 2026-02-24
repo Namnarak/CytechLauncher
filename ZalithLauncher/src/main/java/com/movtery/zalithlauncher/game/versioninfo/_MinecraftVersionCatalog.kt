@@ -53,7 +53,8 @@ val allGameVersions = listOf(
  * 愚人节版本类型
  */
 enum class AprilFoolsType(
-    val summary: Int? = null
+    val summary: Int? = null,
+    val urlSuffix: String? = null
 ) {
     /**
      * [Wiki](https://zh.minecraft.wiki/w/25w14craftmine)
@@ -86,7 +87,11 @@ enum class AprilFoolsType(
     /**
      * [Wiki](https://zh.minecraft.wiki/w/15w14a)
      */
-    TheLoveAndHugsUpdate(R.string.version_summary_fools_the_love_and_hugs_update)
+    TheLoveAndHugsUpdate(R.string.version_summary_fools_the_love_and_hugs_update),
+    /**
+     * [Wiki](https://zh.minecraft.wiki/w/Java%E7%89%882.0)
+     */
+    `2_0`(R.string.version_summary_fools_2_0, "2.0")
 }
 
 /**
@@ -109,7 +114,10 @@ val allAprilFools = listOf(
     AprilFoolsVersion("20w14∞", AprilFoolsType.Infinite),
     AprilFoolsVersion("3D Shareware v1.34", AprilFoolsType.Minecraft3DShareware),
     AprilFoolsVersion("1.RV-Pre1", AprilFoolsType.TrendyUpdate),
-    AprilFoolsVersion("15w14a", AprilFoolsType.TheLoveAndHugsUpdate)
+    AprilFoolsVersion("15w14a", AprilFoolsType.TheLoveAndHugsUpdate),
+    AprilFoolsVersion("2.0_blue", AprilFoolsType.`2_0`),
+    AprilFoolsVersion("2.0_red", AprilFoolsType.`2_0`),
+    AprilFoolsVersion("2.0_purple", AprilFoolsType.`2_0`),
 )
 
 /**

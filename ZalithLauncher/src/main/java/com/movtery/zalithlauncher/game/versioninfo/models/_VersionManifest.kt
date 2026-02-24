@@ -51,13 +51,14 @@ fun List<VersionManifest.Version>.mapVersion(): List<MinecraftVersion> {
             } else {
                 when (version.type) {
                     "release" -> MinecraftVersion.Type.Release
-                    "snapshot", "pending" -> MinecraftVersion.Type.Snapshot
+                    "snapshot", "pending", "unobfuscated" -> MinecraftVersion.Type.Snapshot
                     "old_beta" -> MinecraftVersion.Type.OldBeta
                     "old_alpha" -> MinecraftVersion.Type.OldAlpha
                     else -> MinecraftVersion.Type.Unknown
                 }
             },
-            summary = aprilFoolsVersion?.type?.summary //暂时仅为愚人节版提供描述
+            summary = aprilFoolsVersion?.type?.summary, //暂时仅为愚人节版提供描述
+            urlSuffix = aprilFoolsVersion?.type?.urlSuffix
         )
     }
 }

@@ -348,6 +348,7 @@
     <string name="import_modpack_failed_title">Import Failed</string>
     <string name="import_modpack_failed_text">An error occurred while installing the modpack:</string>
     <!--  Version Summary  -->
+    <string name="version_summary_fools_2_0">We won\'t update them! If you find a bug, you\'re just out of luck! XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
     <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>
     <string name="version_summary_fools_3d_shareware">We\'ve dug up this "1994 DOS version" of Minecraft from the basement!</string>
