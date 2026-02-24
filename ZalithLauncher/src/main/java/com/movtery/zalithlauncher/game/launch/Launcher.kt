@@ -74,7 +74,8 @@ abstract class Launcher(
         jvmArgs: List<String>,
         userHome: String? = null,
         userArgs: String,
-        screenSize: IntSize
+        screenSize: IntSize,
+        useLocalLanguage: Boolean = true
     ): Int {
         ZLNativeInvoker.staticLauncher = this
 
@@ -93,7 +94,8 @@ abstract class Launcher(
             jvmArgs = jvmArgs,
             userHome = userHome,
             userArgs = userArgs,
-            screenSize = screenSize
+            screenSize = screenSize,
+            useLocalLanguage = useLocalLanguage
         )
     }
 
@@ -101,11 +103,17 @@ abstract class Launcher(
     private suspend fun launchJavaVM(
         context: Context,
         jvmArgs: List<String>,
-        userHome: String? = null,
+        userHome: String?,
         userArgs: String,
-        screenSize: IntSize
+        screenSize: IntSize,
+        useLocalLanguage: Boolean
     ): Int {
-        val args = getJavaArgs(userHome, userArgs, screenSize).toMutableList()
+        val args = getJavaArgs(
+            userHome = userHome,
+            userArgumentsString = userArgs,
+            screenSize = screenSize,
+            useLocalLanguage = useLocalLanguage
+        ).toMutableList()
         progressFinalUserArgs(args)
 
         args.addAll(jvmArgs)
@@ -141,7 +149,8 @@ abstract class Launcher(
     private fun getJavaArgs(
         userHome: String? = null,
         userArgumentsString: String,
-        screenSize: IntSize
+        screenSize: IntSize,
+        useLocalLanguage: Boolean
     ): List<String> {
         val userArguments = parseJavaArguments(userArgumentsString).toMutableList()
         val resolvFile = ensureDNSConfig()
@@ -151,7 +160,9 @@ abstract class Launcher(
             put("java.io.tmpdir", PathManager.DIR_CACHE.absolutePath)
             put("jna.boot.library.path", PathManager.DIR_NATIVE_LIB)
             put("user.home", userHome ?: GamePathManager.getUserHome())
-            put("user.language", System.getProperty("user.language"))
+            if (useLocalLanguage) {
+                put("user.language", System.getProperty("user.language"))
+            }
             put("user.country", Locale.getDefault().country)
             put("user.timezone", TimeZone.getDefault().id)
             put("os.name", "Linux")
