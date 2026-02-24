@@ -144,10 +144,39 @@ class SplashActivity : BaseAppCompatActivity(refreshData = false) {
     }
 
     private fun checkAllTask() {
+        //检查应用 assets 目录
+        listAssetsPath("runtimes").forEach { filePath ->
+            lInfo("The launcher contains the runtime environment: $filePath")
+        }
+
         unpackItems.forEach { item ->
             if (!item.task.isNeedUnpack()) {
                 item.isFinished = true
                 finishedTaskCount.incrementAndGet()
+            }
+        }
+    }
+
+    private fun listAssetsPath(root: String): List<String> {
+        return buildList {
+            val rootFiles = runCatching {
+                assets.list(root)?.takeIf { it.isNotEmpty() }
+            }.getOrNull()
+            if (rootFiles != null) {
+                rootFiles.forEach { child ->
+                    val childPath = "$root/$child"
+                    val childFiles = runCatching {
+                        assets.list(childPath)?.takeIf { it.isNotEmpty() }
+                    }.getOrNull()
+
+                    if (childFiles != null) {
+                        addAll(listAssetsPath(childPath))
+                    } else {
+                        add(childPath)
+                    }
+                }
+            } else {
+                add(root)
             }
         }
     }

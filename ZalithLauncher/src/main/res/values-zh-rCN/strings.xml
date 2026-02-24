@@ -347,6 +347,7 @@
     <string name="import_modpack_failed_title">导入失败</string>
     <string name="import_modpack_failed_text">在安装整合包的过程中遇到了异常：</string>
     <!--  版本描述  -->
+    <string name="version_summary_fools_2_0">我们不会更新它们！如果您发现漏洞，那您就倒霉了！XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">爱与拥抱更新，让世界充满和平与彩虹。</string>
     <string name="version_summary_fools_trendy_update">未来已来！我们为 Minecraft 加入了现代科技！</string>
     <string name="version_summary_fools_3d_shareware">我们从地下室深处挖出了这款“1994 年 DOS 版”Minecraft！</string>
@@ -629,6 +630,7 @@
     <string name="versions_overview_screenshot_folder">屏幕截图文件夹</string>
     <string name="versions_overview_logs_folder">日志文件夹</string>
     <string name="versions_overview_crash_report_folder">崩溃报告文件夹</string>
+    <string name="versions_overview_cant_share_folder_message">当前设备没有第三方应用可以打开该目录！</string>
     <string name="versions_config_version_settings">版本独立设置</string>
     <string name="versions_config_game_settings">游戏独立设置</string>
     <string name="versions_config_support_settings">额外支持设置</string>

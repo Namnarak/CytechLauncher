@@ -348,6 +348,7 @@
     <string name="import_modpack_failed_title">Import Failed</string>
     <string name="import_modpack_failed_text">An error occurred while installing the modpack:</string>
     <!--  Version Summary  -->
+    <string name="version_summary_fools_2_0">We won\'t update them! If you find a bug, you\'re just out of luck! XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
     <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>
     <string name="version_summary_fools_3d_shareware">We\'ve dug up this "1994 DOS version" of Minecraft from the basement!</string>
@@ -631,6 +632,7 @@
     <string name="versions_overview_screenshot_folder">Screenshot Folder</string>
     <string name="versions_overview_logs_folder">Log Folder</string>
     <string name="versions_overview_crash_report_folder">Crash Report Folder</string>
+    <string name="versions_overview_cant_share_folder_message">No third-party app is available on this device to open this folder!</string>
     <string name="versions_config_version_settings">Version-Specific Settings</string>
     <string name="versions_config_game_settings">Game-Specific Settings</string>
     <string name="versions_config_support_settings">Additional Support Settings</string>
