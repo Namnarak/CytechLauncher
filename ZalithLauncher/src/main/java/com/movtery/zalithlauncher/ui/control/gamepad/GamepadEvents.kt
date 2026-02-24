@@ -213,7 +213,7 @@ fun GamepadKeyListener(
                             lastPressKey.remove(event.code)
                         }
                     } else {
-                        gamepadViewModel.findByCode(event.code, inGame)?.let { targets ->
+                        gamepadViewModel.currentMapping?.findByCode(event.code, inGame)?.let { targets ->
                             val currentEvents = targets.map { guessEvent(it) }
                             lastPressKey[event.code] = currentEvents
                             currentOnKeyEvent(currentEvents, true)
@@ -227,7 +227,7 @@ fun GamepadKeyListener(
                             lastPressDpad.remove(event.direction)
                         }
                     } else {
-                        gamepadViewModel.findByDpad(event.direction, inGame)?.let { targets ->
+                        gamepadViewModel.currentMapping?.findByDpad(event.direction, inGame)?.let { targets ->
                             val currentEvents = targets.map { guessEvent(it) }
                             lastPressDpad[event.direction] = currentEvents
                             currentOnKeyEvent(currentEvents, true)

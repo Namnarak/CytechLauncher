@@ -950,6 +950,14 @@
     <string name="settings_gamepad_remapping_finished_title">Binding Completed</string>
     <string name="settings_gamepad_remapping_finished_saving">Please wait, the launcher is saving and applying the settings.</string>
     <string name="settings_gamepad_remapping_finished_saved">Gamepad mapping saved successfully. You can now close this dialog!</string>
+    <string name="settings_gamepad_config_title">Gamepad Mapping Configuration</string>
+    <string name="settings_gamepad_config_summary">Select the gamepad mapping configuration to use</string>
+    <string name="settings_gamepad_config_delete">Delete Current Configuration</string>
+    <string name="settings_gamepad_config_delete_message">Are you sure you want to delete this configuration?</string>
+    <string name="settings_gamepad_config_create">Create Gamepad Mapping Configuration</string>
+    <string name="settings_gamepad_config_create_name">Configuration Name</string>
+    <string name="settings_gamepad_config_create_contains">A configuration with the same name already exists</string>
+    <string name="settings_gamepad_config_no_items">No configurations created, unable to switch</string>
     <string name="settings_launcher_color_theme_title">Color Theme</string>
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
     <string name="settings_launcher_dark_mode_title">Dark Mode</string>

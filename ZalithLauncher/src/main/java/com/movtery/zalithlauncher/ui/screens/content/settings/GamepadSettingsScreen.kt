@@ -60,6 +60,8 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
+import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
+import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.control.GamepadBindingKeyboard
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadMap
 import com.movtery.zalithlauncher.ui.control.gamepad.JoystickMode
@@ -73,6 +75,9 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.ListSettin
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCardColumn
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
+import com.movtery.zalithlauncher.viewmodel.GAMEPAD_CONFIG_NAME_LENGTH
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -84,6 +89,14 @@ private sealed interface BindKeyOperation {
     data class OnBind(val map: GamepadMap) : BindKeyOperation
 }
 
+private sealed interface CreateNewConfigOperation {
+    data object None : CreateNewConfigOperation
+    /** 创建新的映射配置 */
+    data object Create : CreateNewConfigOperation
+    /** 删除当前映射配置 */
+    data object Delete : CreateNewConfigOperation
+}
+
 @Composable
 fun GamepadSettingsScreen(
     key: NestedNavKey.Settings,
@@ -92,7 +105,10 @@ fun GamepadSettingsScreen(
 ) {
     val viewModel: GamepadViewModel = viewModel()
 
-    var operation by remember { mutableStateOf<BindKeyOperation>(BindKeyOperation.None) }
+    var bindKeyOperation by remember { mutableStateOf<BindKeyOperation>(BindKeyOperation.None) }
+    var createConfigOperation by remember {
+        mutableStateOf<CreateNewConfigOperation>(CreateNewConfigOperation.None)
+    }
 
     /**
      * 编辑手柄按键绑定：true为游戏内，false为菜单内
@@ -104,12 +120,51 @@ fun GamepadSettingsScreen(
      */
     var refreshed by remember { mutableStateOf(false) }
 
+    val currentMapping = remember(refreshed) {
+        viewModel.currentMapping
+    }
+    /**
+     * 根据当前是否拥有配置，决定是否可以展示绑定页
+     */
+    val canShowBind = remember(currentMapping) {
+        currentMapping != null
+    }
+
     BindKeyOperation(
-        operation = operation,
-        changeOperation = { operation = it },
+        operation = bindKeyOperation,
+        changeOperation = { bindKeyOperation = it },
         viewModel = viewModel,
         editKeyInGame = editKeyInGame,
         onRefresh = { refreshed = refreshed.not() }
+    )
+
+    CreateNewConfigOperation(
+        operation = createConfigOperation,
+        onChange = { createConfigOperation = it },
+        checkContains = { name ->
+            viewModel.containsConfig(name)
+        },
+        onCreateConfig = { name ->
+            viewModel.createNewConfig(
+                name = name,
+                onContainsConfig = {
+                    lWarning("There is already a configuration with the same name")
+                },
+                onFinished = {
+                    refreshed = refreshed.not()
+                }
+            )
+        },
+        onDeleteCurrent = {
+            if (currentMapping != null) {
+                viewModel.deleteConfig(
+                    name = currentMapping.name,
+                    onFinished = {
+                        refreshed = refreshed.not()
+                    }
+                )
+            }
+        }
     )
 
     BaseScreen(
@@ -217,119 +272,176 @@ fun GamepadSettingsScreen(
             }
 
             animatedItem(scope) { yOffset ->
-                Row(
+                SettingsCardColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    //游戏内
-                    CheckChip(
-                        selected = editKeyInGame,
-                        label = {
-                            Text(text = stringResource(R.string.settings_gamepad_mapping_in_game))
-                        },
-                        onClick = {
-                            editKeyInGame = true
-                        }
-                    )
+                    val list = remember(refreshed) {
+                        viewModel.getAllConfigKeys()
+                    }
+                    val isCreateOnly = remember(list, currentMapping) {
+                        list.isEmpty() && currentMapping == null
+                    }
 
-                    //菜单内
-                    CheckChip(
-                        selected = editKeyInGame.not(),
-                        label = {
-                            Text(text = stringResource(R.string.settings_gamepad_mapping_in_menu))
-                        },
+                    if (list.isNotEmpty()) {
+                        ListSettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Top,
+                            unit = AllSettings.gamepadMappingConfig,
+                            items = list,
+                            getItemText = { it },
+                            getItemId = { it },
+                            title = stringResource(R.string.settings_gamepad_config_title),
+                            summary = stringResource(R.string.settings_gamepad_config_summary),
+                            enabled = AllSettings.gamepadControl.state,
+                            onValueChange = {
+                                viewModel.reloadAllMappings()
+                                refreshed = refreshed.not()
+                            }
+                        )
+                    }
+
+                    if (currentMapping != null) {
+                        SettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            title = stringResource(R.string.settings_gamepad_config_delete),
+                            innerPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+                            onClick = {
+                                createConfigOperation = CreateNewConfigOperation.Delete
+                            }
+                        )
+                    }
+
+                    SettingsCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = if (isCreateOnly) CardPosition.Single else CardPosition.Bottom,
+                        title = stringResource(R.string.settings_gamepad_config_create),
+                        innerPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
                         onClick = {
-                            editKeyInGame = false
+                            createConfigOperation = CreateNewConfigOperation.Create
                         }
                     )
                 }
             }
 
-            animatedItems(
-                lazyListScope = scope,
-                items = GamepadMap.entries,
-                key = { it.identifier }
-            ) { _, item, yOffset ->
-                SettingsCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    position = CardPosition.Single,
-                    onClick = {
-                        operation = BindKeyOperation.OnBind(item)
-                    }
-                ) {
+            if (canShowBind) {
+                animatedItem(scope) { yOffset ->
                     Row(
                         modifier = Modifier
-                            .padding(all = 16.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Image(
-                            modifier = Modifier
-                                .padding(all = 6.dp)
-                                .size(32.dp),
-                            painter = painterResource(item.getIconRes()),
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit
+                        //游戏内
+                        CheckChip(
+                            selected = editKeyInGame,
+                            label = {
+                                Text(text = stringResource(R.string.settings_gamepad_mapping_in_game))
+                            },
+                            onClick = {
+                                editKeyInGame = true
+                            }
                         )
 
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val codes = remember(item, editKeyInGame, refreshed) {
-                                viewModel.findByMap(item, inGame = editKeyInGame)?.toList() ?: emptyList()
+                        //菜单内
+                        CheckChip(
+                            selected = editKeyInGame.not(),
+                            label = {
+                                Text(text = stringResource(R.string.settings_gamepad_mapping_in_menu))
+                            },
+                            onClick = {
+                                editKeyInGame = false
                             }
+                        )
+                    }
+                }
 
-                            Text(
-                                text = if (codes.isNotEmpty()) {
-                                    stringResource(R.string.settings_gamepad_mapping_bound)
-                                } else {
-                                    stringResource(R.string.settings_gamepad_mapping_unbound)
-                                },
-                                style = MaterialTheme.typography.titleSmall
+                animatedItems(
+                    lazyListScope = scope,
+                    items = GamepadMap.entries,
+                    key = { it.identifier }
+                ) { _, item, yOffset ->
+                    SettingsCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Single,
+                        onClick = {
+                            bindKeyOperation = BindKeyOperation.OnBind(item)
+                        }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(all = 16.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .padding(all = 6.dp)
+                                    .size(32.dp),
+                                painter = painterResource(item.getIconRes()),
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit
                             )
 
                             Row(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .basicMarquee(Int.MAX_VALUE),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                codes.forEach { code ->
-                                    LittleTextLabel(
-                                        text = getNameByGamepadEvent(code)
+                                val codes = remember(item, editKeyInGame, refreshed) {
+                                    viewModel.currentMapping?.findByMap(item, inGame = editKeyInGame)?.toList() ?: emptyList()
+                                }
+
+                                Text(
+                                    text = if (codes.isNotEmpty()) {
+                                        stringResource(R.string.settings_gamepad_mapping_bound)
+                                    } else {
+                                        stringResource(R.string.settings_gamepad_mapping_unbound)
+                                    },
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .basicMarquee(Int.MAX_VALUE),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    codes.forEach { code ->
+                                        LittleTextLabel(
+                                            text = getNameByGamepadEvent(code)
+                                        )
+                                    }
+                                }
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.currentMapping?.resetMapping(item, editKeyInGame)
+                                        refreshed = refreshed.not()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.RestartAlt,
+                                        contentDescription = stringResource(R.string.generic_reset)
                                     )
                                 }
-                            }
-                        }
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetMapping(item, editKeyInGame)
-                                    refreshed = refreshed.not()
-                                }
-                            ) {
                                 Icon(
-                                    imageVector = Icons.Default.RestartAlt,
-                                    contentDescription = stringResource(R.string.generic_reset)
+                                    modifier = Modifier.size(28.dp),
+                                    imageVector = Icons.AutoMirrored.Rounded.ArrowRight,
+                                    contentDescription = null
                                 )
                             }
-
-                            Icon(
-                                modifier = Modifier.size(28.dp),
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowRight,
-                                contentDescription = null
-                            )
                         }
                     }
                 }
@@ -352,7 +464,7 @@ private fun BindKeyOperation(
             val gamepad = operation.map
 
             val selectedKeys = remember(gamepad, editKeyInGame) {
-                val mapList = viewModel.findByMap(gamepad, inGame = editKeyInGame)?.toList() ?: emptyList()
+                val mapList = viewModel.currentMapping?.findByMap(gamepad, inGame = editKeyInGame)?.toList() ?: emptyList()
                 mapList.toMutableList()
             }
 
@@ -360,16 +472,85 @@ private fun BindKeyOperation(
                 selectedKeys = selectedKeys,
                 onKeyAdd = { key ->
                     selectedKeys.add(key)
-                    viewModel.saveMapping(gamepad, selectedKeys.toSet(), editKeyInGame)
+                    viewModel.currentMapping?.saveMapping(gamepad, selectedKeys.toSet(), editKeyInGame)
                     onRefresh()
                 },
                 onKeyRemove = { key ->
                     selectedKeys.remove(key)
-                    viewModel.saveMapping(gamepad, selectedKeys.toSet(), editKeyInGame)
+                    viewModel.currentMapping?.saveMapping(gamepad, selectedKeys.toSet(), editKeyInGame)
                     onRefresh()
                 },
                 onDismissRequest = {
                     changeOperation(BindKeyOperation.None)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun CreateNewConfigOperation(
+    operation: CreateNewConfigOperation,
+    onChange: (CreateNewConfigOperation) -> Unit,
+    checkContains: (name: String) -> Boolean,
+    onCreateConfig: (name: String) -> Unit,
+    onDeleteCurrent: () -> Unit
+) {
+    when (operation) {
+        is CreateNewConfigOperation.None -> {}
+        is CreateNewConfigOperation.Create -> {
+            var name by remember { mutableStateOf("") }
+            val isContains = remember(name) {
+                if (!name.isEmptyOrBlank()) {
+                    checkContains(name)
+                } else {
+                    false
+                }
+            }
+            val isNameEmpty = remember(name) {
+                name.isEmptyOrBlank()
+            }
+
+            SimpleEditDialog(
+                title = stringResource(R.string.settings_gamepad_config_create),
+                value = name,
+                onValueChange = { name = it.take(GAMEPAD_CONFIG_NAME_LENGTH) },
+                label = {
+                    val text = stringResource(R.string.settings_gamepad_config_create_name)
+                    Text(
+                        text = "$text (${name.length}/$GAMEPAD_CONFIG_NAME_LENGTH)"
+                    )
+                },
+                isError = isContains || isNameEmpty,
+                supportingText = {
+                    if (isContains) {
+                        Text(stringResource(R.string.settings_gamepad_config_create_contains))
+                    } else if (isNameEmpty) {
+                        Text(stringResource(R.string.generic_cannot_empty))
+                    }
+                },
+                singleLine = true,
+                onConfirm = {
+                    if (!isContains && !isNameEmpty) {
+                        onCreateConfig(name)
+                        onChange(CreateNewConfigOperation.None)
+                    }
+                },
+                onDismissRequest = {
+                    onChange(CreateNewConfigOperation.None)
+                }
+            )
+        }
+        is CreateNewConfigOperation.Delete -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.settings_gamepad_config_delete),
+                text = stringResource(R.string.settings_gamepad_config_delete_message),
+                onDismiss = {
+                    onChange(CreateNewConfigOperation.None)
+                },
+                onConfirm = {
+                    onDeleteCurrent()
+                    onChange(CreateNewConfigOperation.None)
                 }
             )
         }

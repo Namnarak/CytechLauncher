@@ -30,4 +30,9 @@ fun remapperMMKV(): MMKV = MMKV.mmkvWithID("GamepadRemapper", MMKV.MULTI_PROCESS
  */
 fun keyMappingMMKV(): MMKV = MMKV.mmkvWithID("GamepadKeyMapping", MMKV.MULTI_PROCESS_MODE)
 
+/**
+ * 手柄按键映射配置列表保存 MMKV
+ */
+fun keyMappingListMMKV(): MMKV = MMKV.mmkvWithID("GamepadKeyMappingList", MMKV.MULTI_PROCESS_MODE)
+
 

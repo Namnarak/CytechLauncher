@@ -83,7 +83,7 @@ fun <E> ListSettingsCard(
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
-    var selectedItem by remember {
+    var selectedItem by remember(currentId) {
         mutableStateOf(
             items.firstOrNull { getItemId(it) == currentId }
                 ?: items.firstOrNull { getItemId(it) == defaultId }

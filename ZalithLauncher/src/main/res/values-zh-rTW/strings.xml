@@ -871,6 +871,14 @@
     <string name="settings_gamepad_remapping_finished_title">綁定完成</string>
     <string name="settings_gamepad_remapping_finished_saving">請稍候，啟動器正在儲存並套用設定。</string>
     <string name="settings_gamepad_remapping_finished_saved">已成功儲存手把映射，您可以關閉此對話框了！</string>
+    <string name="settings_gamepad_config_title">手把映射設定</string>
+    <string name="settings_gamepad_config_summary">選擇要使用的手把映射設定</string>
+    <string name="settings_gamepad_config_delete">刪除目前設定</string>
+    <string name="settings_gamepad_config_delete_message">您確定要刪除此設定嗎？</string>
+    <string name="settings_gamepad_config_create">建立手把映射設定</string>
+    <string name="settings_gamepad_config_create_name">設定名稱</string>
+    <string name="settings_gamepad_config_create_contains">已存在相同名稱的設定</string>
+    <string name="settings_gamepad_config_no_items">尚未建立任何設定，無法切換</string>
     <string name="settings_launcher_color_theme_title">顏色主題</string>
     <string name="settings_launcher_color_theme_summary">變更啟動器的整體顏色主題</string>
     <string name="settings_launcher_dark_mode_title">深色模式</string>
