@@ -1125,4 +1125,6 @@
     <string name="versions_export_task_error_title">エクスポートに失敗しました</string>
     <string name="versions_export_task_error_message">モッドパックのエクスポート中にエラーが発生しました:</string>
     <string name="versions_export_task_finished">モッドパックが正常にエクスポートされました！</string>
+    <string name="version_summary_fools_2_0">アップデートはしません！バグを見つけたら、運が悪いだけです！XD</string>
+    <string name="versions_overview_cant_share_folder_message">このデバイスではこのフォルダを開くためのサードパーティ製アプリは利用できません！</string>
 </resources>
