@@ -64,6 +64,7 @@ import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.control.HotbarRule
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
+import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 
 private sealed interface IconTab {
     data class ImageVectorTab(val icon: ImageVector, val iconSize: Dp = 18.dp): IconTab
@@ -88,6 +89,7 @@ fun GameMenuSubscreen(
     state: MenuState,
     controlMenuTabIndex: Int,
     onControlMenuTabChange: (Int) -> Unit,
+    gamepadViewModel: GamepadViewModel,
     closeScreen: () -> Unit,
     onForceClose: () -> Unit,
     onSwitchLog: () -> Unit,
@@ -168,7 +170,10 @@ fun GameMenuSubscreen(
                             )
                         }
                         1 -> ControlMouse(modifier = Modifier.fillMaxSize())
-                        2 -> ControlGamepad(modifier = Modifier.fillMaxSize())
+                        2 -> ControlGamepad(
+                            modifier = Modifier.fillMaxSize(),
+                            gamepadViewModel = gamepadViewModel
+                        )
                         3 -> ControlGesture(modifier = Modifier.fillMaxSize())
                         4 -> ControlGyroscope(modifier = Modifier.fillMaxSize())
                     }
@@ -534,7 +539,8 @@ private fun ControlMouse(
 
 @Composable
 private fun ControlGamepad(
-    modifier: Modifier = Modifier
+    gamepadViewModel: GamepadViewModel,
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -591,6 +597,35 @@ private fun ControlGamepad(
                 onValueChangeFinished = { AllSettings.gamepadCameraSensitivity.save(it) },
                 suffix = "%"
             )
+        }
+
+        //手柄映射配置切换
+        item {
+            val list = remember(gamepadViewModel) {
+                gamepadViewModel.getAllConfigKeys()
+            }
+
+            if (list.isNotEmpty()) {
+                MenuListLayout(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = stringResource(R.string.settings_gamepad_config_title),
+                    items = list,
+                    currentItem = AllSettings.gamepadMappingConfig.state,
+                    onItemChange = { name ->
+                        AllSettings.gamepadMappingConfig.save(name)
+                        gamepadViewModel.reloadAllMappings()
+                    },
+                    getItemText = { it },
+                    enabled = AllSettings.gamepadControl.state,
+                )
+            } else {
+                MenuTextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.settings_gamepad_config_no_items),
+                    onClick = {},
+                    enabled = false
+                )
+            }
         }
     }
 }

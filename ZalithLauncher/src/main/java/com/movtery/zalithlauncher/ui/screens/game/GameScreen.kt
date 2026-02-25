@@ -707,6 +707,7 @@ fun GameScreen(
             state = viewModel.gameMenuState,
             controlMenuTabIndex = viewModel.controlMenuTabIndex,
             onControlMenuTabChange = { viewModel.controlMenuTabIndex = it },
+            gamepadViewModel = gamepadViewModel,
             closeScreen = { viewModel.gameMenuState = MenuState.HIDE },
             onForceClose = { viewModel.forceCloseState = ForceCloseOperation.Show },
             onSwitchLog = { onLogStateChange(logState.next()) },

@@ -60,7 +60,8 @@ open class JvmLauncher(
             jvmArgs = argList,
             userHome = jvmLaunchInfo.userHome,
             userArgs = AllSettings.jvmArgs.getValue(),
-            screenSize = screenSize
+            screenSize = screenSize,
+            useLocalLanguage = false
         )
     }
 
