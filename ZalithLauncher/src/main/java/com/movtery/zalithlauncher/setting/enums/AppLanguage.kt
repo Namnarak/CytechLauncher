@@ -30,8 +30,6 @@ enum class AppLanguage(
     //按语言代码字母顺序排序
     FOLLOW_SYSTEM("", R.string.generic_follow_system),
     ENGLISH("en", R.string.language_english),
-    GERMAN("de", R.string.language_german),
-    HUNGARIAN("hu", R.string.language_hungarian),
     INDONESIAN("id", R.string.language_indonesian),
     ITALIAN("it", R.string.language_italian),
     JAPANESE("ja", R.string.language_japanese),

@@ -1182,8 +1182,6 @@
     <string name="language_portuguese" translatable="false">Português</string>
     <string name="language_arabic" translatable="false">اَلْعَرَبِيَّةُ</string>
     <string name="language_italian" translatable="false">Italiano</string>
-    <string name="language_german" translatable="false">Deutsch</string>
-    <string name="language_hungarian" translatable="false">magyar</string>
     <string name="language_brazilian_portuguese" translatable="false">Português brasileiro</string>
     <string name="language_uyghur" translatable="false">ۋىغرۇچە</string>
 </resources>

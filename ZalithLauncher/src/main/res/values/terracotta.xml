@@ -8,7 +8,6 @@
     <string name="terracotta_terracotta">Terracotta | Multiplayer</string>
     <string name="terracotta_back">Exit</string>
     <string name="terracotta_enable">Enable Multiplayer</string>
-    <string name="terracotta_feedback_title">Fill Out Feedback Form</string>
     <string name="terracotta_difficulty_easiest">Excellent network: almost connected!</string>
     <string name="terracotta_difficulty_simple">Good network: connection may take some time</string>
     <string name="terracotta_difficulty_medium">Average network: enabling fallback routes, though connection may fail</string>
@@ -86,5 +85,4 @@
     <string name="terracotta_tutorial_guest_step_join_room">- After it shows that you have joined the room, select Multiplayer, and double-click Terracotta Lobby.</string>
     <string name="terracotta_tutorial_guest_step_alternate_server">- When joining the game using the backup server address, offline accounts are not supported. Please solve this problem yourself.</string>
     <string name="terracotta_tutorial_note_title">Notes:</string>
-    <string name="terracotta_warning_region">Multiplayer is currently only supported in China. Other regions are not yet supported. We are not responsible for any issues that may arise if you use this feature outside of China.</string>
 </resources>

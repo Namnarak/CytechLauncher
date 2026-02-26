@@ -7,7 +7,6 @@
     <string name="terracotta_terracotta">Terracotta | 陶瓦联机</string>
     <string name="terracotta_back">退出</string>
     <string name="terracotta_enable">启用多人联机</string>
-    <string name="terracotta_feedback_title">填写反馈表</string>
     <string name="terracotta_difficulty_easiest">当前网络状态极好：稍等一下就成功！</string>
     <string name="terracotta_difficulty_simple">当前网络状态较好：建立连接需要一段时间……</string>
     <string name="terracotta_difficulty_medium">当前网络状态中等：已启用抗干扰备用线路，连接可能失败</string>
@@ -85,5 +84,4 @@
     <string name="terracotta_tutorial_guest_step_join_room">- 显示已加入房间后，在游戏主界面选择多人游戏并刷新，双击进入陶瓦联机大厅</string>
     <string name="terracotta_tutorial_guest_step_alternate_server">- 使用备用服务器地址加入游戏时，不支持离线账户，自行解决</string>
     <string name="terracotta_tutorial_note_title">注意事项：</string>
-    <string name="terracotta_warning_region">多人联机目前仅支持中国地区联机，其他地区暂时不支持，若您在中国以外的地区使用此功能，出现任何问题我们均不负责。</string>
 </resources>

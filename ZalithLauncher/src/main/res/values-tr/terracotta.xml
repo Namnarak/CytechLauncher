@@ -7,7 +7,6 @@
     <string name="terracotta_terracotta">Terracotta | Çok Oyunculu</string>
     <string name="terracotta_back">Çıkış</string>
     <string name="terracotta_enable">Çok oyunculu modu etkinleştirin</string>
-    <string name="terracotta_feedback_title">Geri Bildirim Formunu Doldurun</string>
     <string name="terracotta_difficulty_easiest">Mükemmel ağ bağlantısı: neredeyse bağlantı kuruldu!</string>
     <string name="terracotta_difficulty_simple">İyi ağ bağlantısı: bağlantı biraz zaman alabilir</string>
     <string name="terracotta_difficulty_medium">Ortalama ağ: Yedek yönlendirme yolları etkinleştiriliyor, ancak bağlantı başarısız olabilir</string>
@@ -84,6 +83,5 @@
     <string name="terracotta_tutorial_guest_step_alternate_server">- Yedek sunucu adresini kullanarak oyuna katılırken çevrimdışı hesaplar desteklenmemektedir. Lütfen bu sorunu kendiniz çözün.</string>
     <string name="terracotta_tutorial_guest_step_become_guest">- \"Oturuma katılmak istiyorum\" seçeneğine tıklayın, ev sahibi tarafından verilen davet kodunu giriş kutusuna girin ve sabırla bekleyin.</string>
     <string name="terracotta_tutorial_host_step_copy_invite">- Bir süre bekleyin, davet kodu otomatik olarak kopyalanacaktır. Otomatik olarak kopyalanmazsa, çok oyunculu menüsünden manuel olarak da kopyalayabilirsiniz.</string>
-    <string name="terracotta_warning_region">Çok oyunculu mod şu anda yalnızca Çin\'de desteklenmektedir. Diğer bölgeler henüz desteklenmemektedir. Bu özelliği Çin dışında kullanmanız durumunda ortaya çıkabilecek sorunlardan sorumlu değiliz.</string>
     <string name="terracotta_status_exception">Bağlantı kesildi</string>
 </resources>
