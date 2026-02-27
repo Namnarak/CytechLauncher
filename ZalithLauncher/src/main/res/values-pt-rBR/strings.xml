@@ -355,7 +355,7 @@
     <string name="versions_config_control">Layout de controle</string>
     <string name="control_manage_create_new_title">Novo Layout de Controle</string>
     <string name="control_manage_create_new_name">Nome Do Layout</string>
-    <string name="control_manage_create_new_author">Autor Do Layout</string>
+    <string name="control_manage_create_new_author">Criador Do Layout</string>
     <string name="control_manage_create_new_version_name">Versão do Layout</string>
     <string name="control_manage_delete_message">Tem certeza de que deseja excluir o layout de controle %s?</string>
     <string name="control_manage_saving">Layout de controle de salvamento</string>
@@ -656,7 +656,7 @@
     <string name="manage_delete_all_success">Arquivos de recursos selecionados excluídos com sucesso!</string>
     <string name="mods_manage">mods</string>
     <string name="mods_manage_info">Informações do Mod</string>
-    <string name="mods_manage_authors">Autor do Mod:</string>
+    <string name="mods_manage_authors">Autores do Mod:</string>
     <string name="mods_manage_description">Descrição do Mod:</string>
     <string name="mods_manage_version">Versão do Mod: %s</string>
     <string name="mods_manage_delete_warning">Tem certeza de que deseja excluir o mod %s? Esta ação não pode ser desfeita!</string>
@@ -748,8 +748,8 @@
     <string name="settings_label_ignore_if_blank">Deixe em branco para ignorar</string>
     <string name="settings_tab_renderer">Renderizador</string>
     <string name="settings_tab_game">Jogo</string>
-    <string name="settings_tab_control">Controle</string>
-    <string name="settings_tab_gamepad">Controle</string>
+    <string name="settings_tab_control">Controles</string>
+    <string name="settings_tab_gamepad">Controle Físico</string>
     <string name="settings_tab_launcher">Launcher</string>
     <string name="settings_tab_java_manage">Java</string>
     <string name="settings_tab_control_manage">Lista de controles</string>
@@ -1105,7 +1105,7 @@
     <string name="versions_export_alias_launcher">Pasta de Configuração da Versão do Launcher</string>
     <string name="versions_export_pack_name">Nome do Modpack</string>
     <string name="versions_export_pack_version">Versão do Modpack</string>
-    <string name="versions_export_pack_author">Autor do Modpack</string>
+    <string name="versions_export_pack_author">Criador do Modpack</string>
     <string name="versions_export_pack_summary">Descrição do Modpack</string>
     <string name="versions_export_pack_summary_hint">Descreva seu ModPack ou escreva registros de alterações (Markdown suportado)</string>
     <string name="versions_export_pack_jvm_args">Argumentos do jogo</string>
