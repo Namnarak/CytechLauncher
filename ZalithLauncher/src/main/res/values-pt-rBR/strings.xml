@@ -424,8 +424,8 @@
     <string name="account_logging_blocked_ip">O endereço IP atual foi bloqueado para login.</string>
     <string name="account_logging_profile_not_exists">Crie um perfil de jogador do Minecraft primeiro e tente fazer login novamente!</string>
     <string name="account_logging_not_purchased_minecraft">Propriedade do Minecraft não verificada. Compre no site oficial da Mojang.</string>
-    <string name="account_type_microsoft">Conta Microsoft (Requer Java Original)</string>
-    <string name="account_type_local">Criar Nickname Offline</string>
+    <string name="account_type_microsoft">Conta Microsoft (Requer a licença do Minecraft)</string>
+    <string name="account_type_local">Criar conta pirata</string>
     <string name="account_add_new_server">Adicionar servidor de autenticação</string>
     <string name="account_add_new_server_button">Adicionar Autenticação</string>
     <string name="account_add_new_account">Adicionar Conta</string>
@@ -469,8 +469,8 @@
     <string name="account_supporting_password_invalid_empty">Senha obrigatória</string>
     <string name="account_supporting_microsoft_tip_title">Adicionar conta da Microsoft</string>
     <string name="account_supporting_microsoft_tip_link_text">Atalhos que você pode precisar:</string>
-    <string name="account_supporting_microsoft_tip_link_purchase">Comprar o Minecraft</string>
-    <string name="account_supporting_microsoft_tip_link_make_gameid">Criar Perfil / Editar Nome do Perfil</string>
+    <string name="account_supporting_microsoft_tip_link_purchase">Compre o Minecraft</string>
+    <string name="account_supporting_microsoft_tip_link_make_gameid">Criar novo Perfil / Editar nome do Perfil</string>
     <string name="account_supporting_microsoft_tip_hint_t1">Siga os passos abaixo para adicionar sua conta:</string>
     <string name="account_supporting_microsoft_tip_hint_t2">1. Clique no botão Login - o launcher tentará recuperar um código de verificação;\n</string>
     <string name="account_supporting_microsoft_tip_hint_t3">2. Digite o código fornecido por %s na página pop-up e clique em Permitir acesso;\n</string>
@@ -478,7 +478,7 @@
     <string name="account_supporting_microsoft_tip_hint_t5">4. Quando solicitado com \"Permitir que este aplicativo acesse suas informações?\", clique em Aceitar;\n</string>
     <string name="account_supporting_microsoft_tip_hint_t6">5. Quando a página exibir \"Concluído!\", a conta será adicionada automaticamente. Aguarde um momento.</string>
     <string name="account_supporting_microsoft_tip_hint_t7">Se a página da web exibir uma mensagem de erro ou a conta não puder ser adicionada, tente novamente as etapas acima.\n</string>
-    <string name="account_supporting_microsoft_tip_hint_t8">Dica: Se sua conexão de rede for ruim, a página da web pode carregar lentamente ou não abrir. Tente usar um proxy de rede e tente novamente.</string>
+    <string name="account_supporting_microsoft_tip_hint_t8">Dica: Se sua conexão for ruim, a página pode demorar para carregar ou não abrir. Tente usar um proxy de rede e tente novamente.</string>
     <string name="account_delete_title">Excluir conta</string>
     <string name="account_delete_message">Excluir a conta %s do launcher?</string>
     <string name="account_microsoft_fetch_device_code">Obter código do dispositivo</string>
@@ -490,7 +490,7 @@
     <string name="account_microsoft_authenticate_minecraft">Verificando o Minecraft</string>
     <string name="account_microsoft_verify_game_ownership">Verificando a propriedade do jogo</string>
     <string name="account_microsoft_getting_player_profile">Buscando perfil</string>
-    <string name="account_microsoft_exit_by_user">Você saiu da página da web, portanto, o processo de login da Microsoft foi cancelado para você.</string>
+    <string name="account_microsoft_exit_by_user">Você saiu da página, portanto, o processo de logar com a conta da Microsoft foi cancelado.</string>
     <string name="account_advanced">Configurações Avançadas</string>
     <string name="account_local_create_account">Criar conta offline</string>
     <string name="account_local_uuid_tip_1">UUID é o identificador único de um jogador de Minecraft.</string>
@@ -1067,10 +1067,10 @@
     <string name="about_acknowledgements_mcim_text">%s usa a fonte espelho MCIM</string>
     <string name="about_acknowledgements_github_community">Comunidade no GitHub</string>
     <string name="about_acknowledgements_github_community_text">Todos os autores de relatórios de problemas e colaboradores da comunidade GitHub</string>
-    <string name="about_acknowledgements_weblate_community">Comunidade Weblate</string>
-    <string name="about_acknowledgements_weblate_community_text">Todos os tradutores que participaram da localização de idiomas da comunidade</string>
+    <string name="about_acknowledgements_weblate_community">Comunidade do Weblate</string>
+    <string name="about_acknowledgements_weblate_community_text">Todos os tradutores que participaram da tradução de idiomas da comunidade</string>
     <string name="about_plugin_title">Plugins carregados</string>
-    <string name="about_library_title">Bibliotecas de Terceiros</string>
+    <string name="about_library_title">Bibliotecas externas</string>
     <string name="upgrade_title">Verificar atualizações</string>
     <string name="upgrade_new">Nova versão encontrada</string>
     <string name="upgrade_more">Visualizar</string>
@@ -1082,7 +1082,7 @@
     <string name="upgrade_get_remote_failed">Falha ao verificar atualizações. Tente novamente mais tarde.</string>
     <string name="upgrade_is_latest">Você já está na versão mais recente</string>
     <string name="upgrade_cloud_drive">Espaço em nuvem</string>
-    <string name="url_wiki_minecraft_game_release">https://minecraft.wiki/w/Java_Edition_%s</string>
+    <string name="url_wiki_minecraft_game_release">https://pt.minecraft.wiki/w/Edição_Java_%s</string>
     <string name="download_install_warning_mobile_data">Você está usando dados móveis. Continuar o download consumirá os seus dados.</string>
     <string name="game_styles_joystick_lock_threshold">Limiar de bloqueio frontal do joystick</string>
     <string name="game_saponsorship_finished_game">O inicializador executou o jogo com sucesso %s vezes! Se você o achar útil, considere apoiar o desenvolvedor! :)</string>
