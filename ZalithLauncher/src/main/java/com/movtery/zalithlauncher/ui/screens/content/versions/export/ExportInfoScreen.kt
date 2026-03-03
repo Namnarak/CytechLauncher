@@ -113,27 +113,29 @@ fun ExportInfoScreen(
                 }
             }
 
-            animatedItem(scope) { yOffset ->
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    value = info.author,
-                    onValueChange = {
-                        onInfoEdited(info.copy(author = it.toSingleLine()))
-                    },
-                    isError = isAuthorEmpty,
-                    label = {
-                        Text(text = stringResource(R.string.versions_export_pack_author))
-                    },
-                    supportingText = {
-                        if (isAuthorEmpty) {
-                            Text(text = stringResource(R.string.generic_cannot_empty))
-                        }
-                    },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.large
-                )
+            if (info.packType != PackType.Modrinth) {
+                animatedItem(scope) { yOffset ->
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        value = info.author,
+                        onValueChange = {
+                            onInfoEdited(info.copy(author = it.toSingleLine()))
+                        },
+                        isError = isAuthorEmpty,
+                        label = {
+                            Text(text = stringResource(R.string.versions_export_pack_author))
+                        },
+                        supportingText = {
+                            if (isAuthorEmpty) {
+                                Text(text = stringResource(R.string.generic_cannot_empty))
+                            }
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
+                    )
+                }
             }
 
             animatedItem(scope) { yOffset ->
