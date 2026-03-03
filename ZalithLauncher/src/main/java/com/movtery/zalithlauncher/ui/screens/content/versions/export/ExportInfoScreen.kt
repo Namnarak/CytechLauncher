@@ -208,7 +208,7 @@ fun ExportInfoScreen(
                     value = info.summary ?: "",
                     onValueChange = { new ->
                         onInfoEdited(
-                            info.copy(summary = new.takeIf { it.isNotEmptyOrBlank() }?.toSingleLine())
+                            info.copy(summary = new.takeIf { it.isNotEmptyOrBlank() })
                         )
                     },
                     supportingText = {
