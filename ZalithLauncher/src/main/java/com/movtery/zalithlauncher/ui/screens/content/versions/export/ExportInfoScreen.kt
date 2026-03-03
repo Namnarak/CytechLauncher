@@ -19,20 +19,21 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions.export
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,16 +45,57 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
+import com.movtery.zalithlauncher.game.version.export.PackEditOptions
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
-import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
-import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.TextInputSettingsCard
 import com.movtery.zalithlauncher.utils.platform.getMaxMemoryForSettings
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.toSingleLine
+
+private const val OPTIONAL_AUTHOR = "requireAuthor"
+private const val OPTION_DESCRIPTION = "requireDescription"
+private const val OPTIONAL_JVM_ARGS = "requireJvmArgs"
+private const val OPTIONAL_JAVA_ARGS = "requireJavaArgs"
+private const val OPTIONAL_WEBSITE_URL = "requireWebsiteUrl"
+private const val OPTIONAL_MIN_MEMORY = "requireMinMemory"
+private const val OPTIONAL_MAX_MEMORY = "requireMaxMemory"
+private const val OPTIONAL_PACK_REMOTE = "requirePackRemote"
+
+@Composable
+private fun rememberOptionalItemIDList(
+    options: PackEditOptions
+): List<String> {
+    return remember(options) {
+        buildList {
+            if (options.requireAuthor) add(OPTIONAL_AUTHOR)
+            add(OPTION_DESCRIPTION)
+            if (options.requireJvmArgs) add(OPTIONAL_JVM_ARGS)
+            if (options.requireJavaArgs) add(OPTIONAL_JAVA_ARGS)
+            if (options.requireWebsiteUrl) add(OPTIONAL_WEBSITE_URL)
+            if (options.requireMinMemory) add(OPTIONAL_MIN_MEMORY)
+            if (options.requireMaxMemory) add(OPTIONAL_MAX_MEMORY)
+            if (options.requirePackRemote) add(OPTIONAL_PACK_REMOTE)
+        }
+    }
+}
+
+@Composable
+private fun List<String>.rememberCardPosition(
+    id: String,
+    center: CardPosition = CardPosition.Middle,
+    bottom: CardPosition = CardPosition.Bottom
+): CardPosition {
+    return remember(this) {
+        if (this.lastOrNull() == id) bottom else center
+    }
+}
 
 /**
  * 填写整合包配置信息
@@ -77,124 +119,122 @@ fun ExportInfoScreen(
         val isVersionEmpty = remember(info) { info.version.isEmptyOrBlank() }
         val isAuthorEmpty = remember(info) { info.author.isEmptyOrBlank() }
 
+        val optionalItemIDs = rememberOptionalItemIDList(info.packType.options)
+
         AnimatedLazyColumn(
             isVisible = isVisible,
             contentPadding = PaddingValues(all = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) { scope ->
             //整合包名称/版本编辑
             animatedItem(scope) { yOffset ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    OutlinedTextField(
-                        modifier = Modifier.weight(0.7f),
+                    TextInputSettingsCard(
+                        modifier = Modifier
+                            .weight(0.6f)
+                            .fillMaxHeight(),
+                        position = CardPosition.TopStart,
+                        title = stringResource(R.string.versions_export_pack_name),
                         value = info.name,
                         onValueChange = {
                             onInfoEdited(info.copy(name = it.toSingleLine()))
                         },
                         isError = isNameEmpty,
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_name))
-                        },
-                        supportingText = {
-                            if (isNameEmpty) {
+                        supportingText = if (isNameEmpty) {
+                            @Composable {
                                 Text(text = stringResource(R.string.generic_cannot_empty))
                             }
-                        },
+                        } else null,
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
 
-                    OutlinedTextField(
-                        modifier = Modifier.weight(0.7f),
+                    TextInputSettingsCard(
+                        modifier = Modifier
+                            .weight(0.4f)
+                            .fillMaxHeight(),
+                        position = CardPosition.TopEnd,
+                        title = stringResource(R.string.versions_export_pack_version),
                         value = info.version,
                         onValueChange = {
                             onInfoEdited(info.copy(version = it.toSingleLine()))
                         },
                         isError = isVersionEmpty,
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_version))
-                        },
-                        supportingText = {
-                            if (isVersionEmpty) {
+                        supportingText = if (isVersionEmpty) {
+                            @Composable {
                                 Text(text = stringResource(R.string.generic_cannot_empty))
                             }
-                        },
+                        } else null,
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
                 }
             }
 
             if (info.packType.options.requireAuthor) {
                 animatedItem(scope) { yOffset ->
-                    OutlinedTextField(
+                    TextInputSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Middle,
+                        title = stringResource(R.string.versions_export_pack_author),
                         value = info.author,
                         onValueChange = {
                             onInfoEdited(info.copy(author = it.toSingleLine()))
                         },
                         isError = isAuthorEmpty,
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_author))
-                        },
-                        supportingText = {
-                            if (isAuthorEmpty) {
+                        supportingText = if (isAuthorEmpty) {
+                            @Composable {
                                 Text(text = stringResource(R.string.generic_cannot_empty))
                             }
-                        },
+                        } else null,
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
                 }
             }
 
             animatedItem(scope) { yOffset ->
-                OutlinedTextField(
+                TextInputSettingsCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    position = optionalItemIDs.rememberCardPosition(OPTION_DESCRIPTION),
+                    title = stringResource(R.string.versions_export_pack_summary),
                     value = info.summary ?: "",
                     onValueChange = { new ->
                         onInfoEdited(
                             info.copy(summary = new.takeIf { it.isNotEmptyOrBlank() }?.toSingleLine())
                         )
                     },
-                    label = {
-                        Text(text = stringResource(R.string.versions_export_pack_summary))
-                    },
                     supportingText = {
                         Text(text = stringResource(R.string.versions_export_pack_summary_hint))
                     },
                     minLines = 3,
-                    shape = MaterialTheme.shapes.large
+                    singleLine = false
                 )
             }
 
             if (info.packType.options.requireJvmArgs) {
                 //游戏参数
                 animatedItem(scope) { yOffset ->
-                    OutlinedTextField(
+                    TextInputSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_JVM_ARGS),
+                        title = stringResource(R.string.versions_export_pack_jvm_args),
                         value = info.jvmArgs,
                         onValueChange = { new ->
                             onInfoEdited(
                                 info.copy(jvmArgs = new.toSingleLine())
                             )
                         },
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_jvm_args))
-                        },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
                 }
             }
@@ -202,21 +242,19 @@ fun ExportInfoScreen(
             if (info.packType.options.requireJavaArgs) {
                 //Java虚拟机参数
                 animatedItem(scope) { yOffset ->
-                    OutlinedTextField(
+                    TextInputSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_JAVA_ARGS),
+                        title = stringResource(R.string.versions_export_pack_java_args),
                         value = info.javaArgs,
                         onValueChange = { new ->
                             onInfoEdited(
                                 info.copy(javaArgs = new.toSingleLine())
                             )
                         },
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_java_args))
-                        },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
                 }
             }
@@ -224,21 +262,19 @@ fun ExportInfoScreen(
             if (info.packType.options.requireWebsiteUrl) {
                 //整合包官方网站
                 animatedItem(scope) { yOffset ->
-                    OutlinedTextField(
+                    TextInputSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_WEBSITE_URL),
+                        title = stringResource(R.string.versions_export_pack_website),
                         value = info.url,
                         onValueChange = { new ->
                             onInfoEdited(
                                 info.copy(url = new.toSingleLine())
                             )
                         },
-                        label = {
-                            Text(text = stringResource(R.string.versions_export_pack_website))
-                        },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large
                     )
                 }
             }
@@ -246,23 +282,22 @@ fun ExportInfoScreen(
             if (info.packType.options.requireMinMemory) {
                 //最小内存
                 animatedItem(scope) { yOffset ->
-                    var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
+                    var memory by remember(info) { mutableIntStateOf(info.minMemory) }
 
-                    InfoLayoutSliderItem(
+                    IntSliderSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_MIN_MEMORY),
                         title = stringResource(R.string.versions_export_pack_min_memory),
                         value = memory,
                         onValueChange = {
                             memory = it
                         },
                         onValueChangeFinished = {
-                            onInfoEdited(info.copy(minMemory = memory.toInt()))
+                            onInfoEdited(info.copy(minMemory = memory))
                         },
                         valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                        decimalFormat = "#0",
-                        fineTuningStep = 1.0f,
                         suffix = "MB"
                     )
                 }
@@ -271,23 +306,22 @@ fun ExportInfoScreen(
             if (info.packType.options.requireMaxMemory) {
                 //最大内存
                 animatedItem(scope) { yOffset ->
-                    var memory by remember(info) { mutableFloatStateOf(info.maxMemory.toFloat()) }
+                    var memory by remember(info) { mutableIntStateOf(info.maxMemory) }
 
-                    InfoLayoutSliderItem(
+                    IntSliderSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = optionalItemIDs.rememberCardPosition(OPTIONAL_MAX_MEMORY),
                         title = stringResource(R.string.versions_export_pack_max_memory),
                         value = memory,
                         onValueChange = {
                             memory = it
                         },
                         onValueChangeFinished = {
-                            onInfoEdited(info.copy(maxMemory = memory.toInt()))
+                            onInfoEdited(info.copy(maxMemory = memory))
                         },
                         valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                        decimalFormat = "#0",
-                        fineTuningStep = 1.0f,
                         suffix = "MB"
                     )
                 }
@@ -296,13 +330,14 @@ fun ExportInfoScreen(
             if (info.packType.options.requirePackRemote) {
                 //是否打包远程资源
                 animatedItem(scope) { yOffset ->
-                    InfoLayoutSwitchItem(
+                    SwitchSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Middle,
                         title = stringResource(R.string.versions_export_pack_pack_remote),
-                        value = info.packRemote,
-                        onValueChange = {
+                        checked = info.packRemote,
+                        onCheckedChange = {
                             onInfoEdited(info.copy(packRemote = it))
                         }
                     )
@@ -310,13 +345,14 @@ fun ExportInfoScreen(
 
                 //是否打包 CurseForge 的远程资源
                 animatedItem(scope) { yOffset ->
-                    InfoLayoutSwitchItem(
+                    SwitchSettingsCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Bottom,
                         title = stringResource(R.string.versions_export_pack_pack_curseforge),
-                        value = info.packCurseForge,
-                        onValueChange = {
+                        checked = info.packCurseForge,
+                        onCheckedChange = {
                             onInfoEdited(info.copy(packCurseForge = it))
                         },
                         enabled = info.packRemote

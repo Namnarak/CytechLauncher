@@ -42,25 +42,105 @@ import com.movtery.zalithlauncher.ui.components.TitleAndSummary
 enum class CardPosition {
     /**
      * 位于 UI 组的顶部
-     * 左上角和右上角为外部形状，左下角和右下角为内部形状
+     * ``` txt
+     *   _______
+     *  +       +
+     * |         |
+     * |         |
+     * |         |
+     *  ---------
+     * ```
      */
     Top,
 
     /**
+     * 位于 UI 组的顶部左侧
+     * ``` txt
+     *   ________
+     *  +        |
+     * |         |
+     * |         |
+     * |         |
+     *  ---------
+     * ```
+     */
+    TopStart,
+
+    /**
+     * 位于 UI 组的顶部右侧
+     * ``` txt
+     *  ________
+     * |        +
+     * |         |
+     * |         |
+     * |         |
+     *  ---------
+     * ```
+     */
+    TopEnd,
+
+    /**
      * 位于 UI 组的中部
-     * 四个角都为内部形状
+     * ``` txt
+     *  _________
+     * |         |
+     * |         |
+     * |         |
+     * |         |
+     *  ---------
+     * ```
      */
     Middle,
 
     /**
      * 位于 UI 组的底部
-     * 左上角和右上角为内部形状，左下角和右下角为外部形状
+     * ``` txt
+     *  _________
+     * |         |
+     * |         |
+     * |         |
+     *  +       +
+     *   -------
+     * ```
      */
     Bottom,
 
     /**
+     * 位于 UI 组的底部左侧
+     * ``` txt
+     *  _________
+     * |         |
+     * |         |
+     * |         |
+     *  +        |
+     *   --------
+     * ```
+     */
+    BottomStart,
+
+    /**
+     * 位于 UI 组的底部右侧
+     * ``` txt
+     *  _________
+     * |         |
+     * |         |
+     * |         |
+     * |        +
+     *  --------
+     * ```
+     */
+    BottomEnd,
+
+    /**
      * 单个 UI 组件
-     * 四个角都为外部形状
+     * ``` txt
+     *   _______
+     *  +       +
+     * |         |
+     * |         |
+     *  +       +
+     *   -------
+     * ```
      */
     Single
 }
@@ -82,11 +162,35 @@ fun rememberSettingsCardShape(
                 bottomStart = innerShape,
                 bottomEnd = innerShape
             )
+            CardPosition.TopStart -> RoundedCornerShape(
+                topStart = outerShape,
+                topEnd = innerShape,
+                bottomStart = innerShape,
+                bottomEnd = innerShape
+            )
+            CardPosition.TopEnd -> RoundedCornerShape(
+                topStart = innerShape,
+                topEnd = outerShape,
+                bottomStart = innerShape,
+                bottomEnd = innerShape
+            )
             CardPosition.Middle -> RoundedCornerShape(innerShape)
             CardPosition.Bottom -> RoundedCornerShape(
                 topStart = innerShape,
                 topEnd = innerShape,
                 bottomStart = outerShape,
+                bottomEnd = outerShape
+            )
+            CardPosition.BottomStart -> RoundedCornerShape(
+                topStart = innerShape,
+                topEnd = innerShape,
+                bottomStart = outerShape,
+                bottomEnd = innerShape
+            )
+            CardPosition.BottomEnd -> RoundedCornerShape(
+                topStart = innerShape,
+                topEnd = innerShape,
+                bottomStart = innerShape,
                 bottomEnd = outerShape
             )
             CardPosition.Single -> RoundedCornerShape(outerShape)

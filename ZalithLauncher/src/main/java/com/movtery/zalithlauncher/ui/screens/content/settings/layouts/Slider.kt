@@ -73,7 +73,7 @@ fun IntSliderSettingsCard(
         var showValueEditDialog by remember { mutableStateOf(false) }
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)

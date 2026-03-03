@@ -103,7 +103,7 @@ fun <E> ListSettingsCard(
         innerShape = innerShape
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .alpha(alpha = if (enabled) 1f else DisabledAlpha)
         ) {
