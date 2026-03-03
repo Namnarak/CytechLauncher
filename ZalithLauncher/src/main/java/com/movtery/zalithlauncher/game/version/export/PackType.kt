@@ -21,19 +21,47 @@ package com.movtery.zalithlauncher.game.version.export
 /**
  * 打包的类型
  */
-enum class PackType {
+enum class PackType(val options: PackEditOptions) {
     /**
      * MCBBS 导出格式
      */
-    MCBBS,
+    MCBBS(
+        PackEditOptions(
+            requireAuthor = true,
+            requireJvmArgs = true,
+            requireJavaArgs = true,
+            requireWebsiteUrl = true,
+            requireMinMemory = true,
+        )
+    ),
 
     /**
      * Modrinth 标准导出格式
      */
-    Modrinth,
+    Modrinth(
+        PackEditOptions(
+            requirePackRemote = true,
+        )
+    ),
 
     /**
      * MultiMC 导出格式
      */
-    MultiMC,
+    MultiMC(
+        PackEditOptions(
+            requireAuthor = true,
+            requireMinMemory = true,
+            requireMaxMemory = true,
+        )
+    ),
 }
+
+data class PackEditOptions(
+    val requireAuthor: Boolean = false,
+    val requireJvmArgs: Boolean = false,
+    val requireJavaArgs: Boolean = false,
+    val requireWebsiteUrl: Boolean = false,
+    val requireMinMemory: Boolean = false,
+    val requireMaxMemory: Boolean = false,
+    val requirePackRemote: Boolean = false
+)

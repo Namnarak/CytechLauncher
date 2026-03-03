@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
-import com.movtery.zalithlauncher.game.version.export.PackType
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -131,7 +130,7 @@ fun ExportInfoScreen(
                 }
             }
 
-            if (info.packType != PackType.Modrinth) {
+            if (info.packType.options.requireAuthor) {
                 animatedItem(scope) { yOffset ->
                     OutlinedTextField(
                         modifier = Modifier
@@ -178,168 +177,150 @@ fun ExportInfoScreen(
                 )
             }
 
-            when (info.packType) {
-                PackType.MCBBS -> {
-                    //游戏参数
-                    animatedItem(scope) { yOffset ->
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            value = info.jvmArgs,
-                            onValueChange = { new ->
-                                onInfoEdited(
-                                    info.copy(jvmArgs = new.toSingleLine())
-                                )
-                            },
-                            label = {
-                                Text(text = stringResource(R.string.versions_export_pack_jvm_args))
-                            },
-                            singleLine = true,
-                            shape = MaterialTheme.shapes.large
-                        )
-                    }
-
-                    //Java虚拟机参数
-                    animatedItem(scope) { yOffset ->
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            value = info.javaArgs,
-                            onValueChange = { new ->
-                                onInfoEdited(
-                                    info.copy(javaArgs = new.toSingleLine())
-                                )
-                            },
-                            label = {
-                                Text(text = stringResource(R.string.versions_export_pack_java_args))
-                            },
-                            singleLine = true,
-                            shape = MaterialTheme.shapes.large
-                        )
-                    }
-
-                    //整合包官方网站
-                    animatedItem(scope) { yOffset ->
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            value = info.url,
-                            onValueChange = { new ->
-                                onInfoEdited(
-                                    info.copy(url = new.toSingleLine())
-                                )
-                            },
-                            label = {
-                                Text(text = stringResource(R.string.versions_export_pack_website))
-                            },
-                            singleLine = true,
-                            shape = MaterialTheme.shapes.large
-                        )
-                    }
-
-                    //最小内存
-                    animatedItem(scope) { yOffset ->
-                        var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
-
-                        InfoLayoutSliderItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            title = stringResource(R.string.versions_export_pack_min_memory),
-                            value = memory,
-                            onValueChange = {
-                                memory = it
-                            },
-                            onValueChangeFinished = {
-                                onInfoEdited(info.copy(minMemory = memory.toInt()))
-                            },
-                            valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                            decimalFormat = "#0",
-                            fineTuningStep = 1.0f,
-                            suffix = "MB"
-                        )
-                    }
+            if (info.packType.options.requireJvmArgs) {
+                //游戏参数
+                animatedItem(scope) { yOffset ->
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        value = info.jvmArgs,
+                        onValueChange = { new ->
+                            onInfoEdited(
+                                info.copy(jvmArgs = new.toSingleLine())
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(R.string.versions_export_pack_jvm_args))
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
+                    )
                 }
-                PackType.Modrinth -> {
-                    //是否打包远程资源
-                    animatedItem(scope) { yOffset ->
-                        InfoLayoutSwitchItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            title = stringResource(R.string.versions_export_pack_pack_remote),
-                            value = info.packRemote,
-                            onValueChange = {
-                                onInfoEdited(info.copy(packRemote = it))
-                            }
-                        )
-                    }
+            }
 
-                    //是否打包 CurseForge 的远程资源
-                    animatedItem(scope) { yOffset ->
-                        InfoLayoutSwitchItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            title = stringResource(R.string.versions_export_pack_pack_curseforge),
-                            value = info.packCurseForge,
-                            onValueChange = {
-                                onInfoEdited(info.copy(packCurseForge = it))
-                            },
-                            enabled = info.packRemote
-                        )
-                    }
+            if (info.packType.options.requireJavaArgs) {
+                //Java虚拟机参数
+                animatedItem(scope) { yOffset ->
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        value = info.javaArgs,
+                        onValueChange = { new ->
+                            onInfoEdited(
+                                info.copy(javaArgs = new.toSingleLine())
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(R.string.versions_export_pack_java_args))
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
+                    )
+                }
+            }
+
+            if (info.packType.options.requireWebsiteUrl) {
+                //整合包官方网站
+                animatedItem(scope) { yOffset ->
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        value = info.url,
+                        onValueChange = { new ->
+                            onInfoEdited(
+                                info.copy(url = new.toSingleLine())
+                            )
+                        },
+                        label = {
+                            Text(text = stringResource(R.string.versions_export_pack_website))
+                        },
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.large
+                    )
+                }
+            }
+
+            if (info.packType.options.requireMinMemory) {
+                //最小内存
+                animatedItem(scope) { yOffset ->
+                    var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
+
+                    InfoLayoutSliderItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.versions_export_pack_min_memory),
+                        value = memory,
+                        onValueChange = {
+                            memory = it
+                        },
+                        onValueChangeFinished = {
+                            onInfoEdited(info.copy(minMemory = memory.toInt()))
+                        },
+                        valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
+                        decimalFormat = "#0",
+                        fineTuningStep = 1.0f,
+                        suffix = "MB"
+                    )
+                }
+            }
+
+            if (info.packType.options.requireMaxMemory) {
+                //最大内存
+                animatedItem(scope) { yOffset ->
+                    var memory by remember(info) { mutableFloatStateOf(info.maxMemory.toFloat()) }
+
+                    InfoLayoutSliderItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.versions_export_pack_max_memory),
+                        value = memory,
+                        onValueChange = {
+                            memory = it
+                        },
+                        onValueChangeFinished = {
+                            onInfoEdited(info.copy(maxMemory = memory.toInt()))
+                        },
+                        valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
+                        decimalFormat = "#0",
+                        fineTuningStep = 1.0f,
+                        suffix = "MB"
+                    )
+                }
+            }
+
+            if (info.packType.options.requirePackRemote) {
+                //是否打包远程资源
+                animatedItem(scope) { yOffset ->
+                    InfoLayoutSwitchItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.versions_export_pack_pack_remote),
+                        value = info.packRemote,
+                        onValueChange = {
+                            onInfoEdited(info.copy(packRemote = it))
+                        }
+                    )
                 }
 
-                PackType.MultiMC -> {
-                    //最小内存
-                    animatedItem(scope) { yOffset ->
-                        var memory by remember(info) { mutableFloatStateOf(info.minMemory.toFloat()) }
-
-                        InfoLayoutSliderItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            title = stringResource(R.string.versions_export_pack_min_memory),
-                            value = memory,
-                            onValueChange = {
-                                memory = it
-                            },
-                            onValueChangeFinished = {
-                                onInfoEdited(info.copy(minMemory = memory.toInt()))
-                            },
-                            valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                            decimalFormat = "#0",
-                            fineTuningStep = 1.0f,
-                            suffix = "MB"
-                        )
-                    }
-
-                    //最大内存
-                    animatedItem(scope) { yOffset ->
-                        var memory by remember(info) { mutableFloatStateOf(info.maxMemory.toFloat()) }
-
-                        InfoLayoutSliderItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                            title = stringResource(R.string.versions_export_pack_max_memory),
-                            value = memory,
-                            onValueChange = {
-                                memory = it
-                            },
-                            onValueChangeFinished = {
-                                onInfoEdited(info.copy(maxMemory = memory.toInt()))
-                            },
-                            valueRange = 0f..getMaxMemoryForSettings(LocalContext.current).toFloat(),
-                            decimalFormat = "#0",
-                            fineTuningStep = 1.0f,
-                            suffix = "MB"
-                        )
-                    }
+                //是否打包 CurseForge 的远程资源
+                animatedItem(scope) { yOffset ->
+                    InfoLayoutSwitchItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        title = stringResource(R.string.versions_export_pack_pack_curseforge),
+                        value = info.packCurseForge,
+                        onValueChange = {
+                            onInfoEdited(info.copy(packCurseForge = it))
+                        },
+                        enabled = info.packRemote
+                    )
                 }
             }
 
