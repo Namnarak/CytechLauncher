@@ -18,18 +18,23 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.versions.export
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,10 +49,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackEditOptions
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
+import com.movtery.zalithlauncher.ui.components.WarningCard
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
@@ -362,27 +369,76 @@ fun ExportInfoScreen(
 
             //导出按钮
             animatedItem(scope) { yOffset ->
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    horizontalArrangement = Arrangement.Center
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    Button(
-                        onClick = onFinishClick,
-                        enabled = !isNameEmpty && !isVersionEmpty && !isAuthorEmpty
+                    Spacer(Modifier.height(8.dp))
+
+                    //对于打包远端资源的提示
+                    AnimatedVisibility(
+                        visible = info.packRemote
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            val text = stringResource(R.string.versions_export_pack_select_files)
-                            Icon(
-                                imageVector = Icons.Default.SelectAll,
-                                contentDescription = text
+                            WarningCard(
+                                modifier = Modifier
+                                    .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                                title = stringResource(R.string.generic_tip),
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Lightbulb,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = {
+                                    val platformText = remember(info) {
+                                        val currentPlatform = info.packType.name
+                                        if (info.packCurseForge) {
+                                            "$currentPlatform ${Platform.CURSEFORGE.displayName}"
+                                        } else {
+                                            currentPlatform
+                                        }
+                                    }
+
+                                    Text(
+                                        text = stringResource(R.string.versions_export_tip_remote_1, platformText),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+
+                                    Text(
+                                        text = stringResource(R.string.versions_export_tip_remote_2),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             )
 
-                            Text(text = text)
+                            Spacer(Modifier.height(12.dp))
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(
+                            onClick = onFinishClick,
+                            enabled = !isNameEmpty && !isVersionEmpty && (!info.packType.options.requireAuthor || !isAuthorEmpty)
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val text = stringResource(R.string.versions_export_pack_select_files)
+                                Icon(
+                                    imageVector = Icons.Default.SelectAll,
+                                    contentDescription = text
+                                )
+
+                                Text(text = text)
+                            }
                         }
                     }
                 }

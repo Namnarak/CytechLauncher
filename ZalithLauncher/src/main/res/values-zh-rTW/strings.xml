@@ -650,6 +650,13 @@
     <string name="versions_export_task_error_title">匯出失敗</string>
     <string name="versions_export_task_error_message">匯出模組包時發生錯誤：</string>
     <string name="versions_export_task_finished">您的模組包已成功匯出！</string>
+    <string name="versions_export_tip_1">在開始匯出整合包前，請確保您的版本可以正常啟動，</string>
+    <string name="versions_export_tip_2">並確保您的 Minecraft 為正式版（可包含模組載入器），而非快照版或第三方客戶端，</string>
+    <string name="versions_export_tip_3">且不應包含不允許透過非官方途徑散布的模組、資源包等資源，</string>
+    <string name="versions_export_tip_4">更不應包含違反 EULA 協議的模組、資源包等資源，</string>
+    <string name="versions_export_tip_5">整合包將匯出至您所選擇的目錄，並以您填寫的整合包名稱作為最終檔名。</string>
+    <string name="versions_export_tip_remote_1">在匯出過程中，啟動器會嘗試在 %s 平台上比對遠端資源，嵌入連結以取代打包模組、資源包與光影包，從而縮減整合包體積。</string>
+    <string name="versions_export_tip_remote_2">同時，已停用的模組將作為可選項目包含在內。</string>
     
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部刪除</string>

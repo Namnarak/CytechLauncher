@@ -698,6 +698,13 @@
     <string name="versions_export_task_error_title">导出失败</string>
     <string name="versions_export_task_error_message">导出整合包时遇到问题：</string>
     <string name="versions_export_task_finished">您的整合包已经成功导出！</string>
+    <string name="versions_export_tip_1">在开始导出整合包前，请确保您的版本可以正常启动，</string>
+    <string name="versions_export_tip_2">保证您的 Minecraft 为正式版（可包括模组加载器），而不是快照版、第三方客户端，</string>
+    <string name="versions_export_tip_3">且不应当包含不允许非官方途径传播的模组、资源包等资源，</string>
+    <string name="versions_export_tip_4">更不应该包含违反 Eula 协议的模组、资源包等资源，</string>
+    <string name="versions_export_tip_5">整合包会导出到您选择的目录中，以您填写的整合包名称作为最终文件。</string>
+    <string name="versions_export_tip_remote_1">导出过程中，启动器会尝试在 %s 平台上匹配远端资源，嵌入链接以代替打包模组、资源包、光影包，这样可以缩减整合包体积。</string>
+    <string name="versions_export_tip_remote_2">同时，启动器会将被禁用的模组作为可选项</string>
 
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部删除</string>

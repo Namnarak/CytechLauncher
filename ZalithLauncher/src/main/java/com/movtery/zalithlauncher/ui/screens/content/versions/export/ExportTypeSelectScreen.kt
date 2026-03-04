@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,8 +51,11 @@ import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
+import com.movtery.zalithlauncher.ui.components.WarningCard
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
+import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.rememberSettingsCardShape
 
 /**
  * 整合包导出类型选择页
@@ -71,43 +75,84 @@ fun ExportTypeSelectScreen(
         AnimatedLazyColumn(
             isVisible = isVisible,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(all = 34.dp),
+            contentPadding = PaddingValues(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) { scope ->
-            //MCBBS
             animatedItem(scope) { yOffset ->
-                TypeItem(
+                WarningCard(
                     modifier = Modifier
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    title = stringResource(R.string.versions_export_type_mcbbs),
-                    summary = stringResource(R.string.versions_export_type_mcbbs_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
-                    icon = painterResource(R.drawable.img_chest),
-                    onClick = { onTypeSelect(PackType.MCBBS) }
+                    title = stringResource(R.string.generic_tip),
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Lightbulb,
+                            contentDescription = null
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.versions_export_tip_1),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = stringResource(R.string.versions_export_tip_2),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = stringResource(R.string.versions_export_tip_3),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = stringResource(R.string.versions_export_tip_4),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = stringResource(R.string.versions_export_tip_5),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 )
             }
 
-            //Modrinth
             animatedItem(scope) { yOffset ->
-                TypeItem(
+                Column(
                     modifier = Modifier
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    title = stringResource(R.string.versions_export_type_modrinth),
-                    summary = stringResource(R.string.versions_export_type_modrinth_summary),
-                    icon = painterResource(R.drawable.img_platform_modrinth),
-                    onClick = { onTypeSelect(PackType.Modrinth) }
-                )
-            }
+                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    //MCBBS
+                    TypeItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        position = CardPosition.Top,
+                        title = stringResource(R.string.versions_export_type_mcbbs),
+                        summary = stringResource(R.string.versions_export_type_mcbbs_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
+                        icon = painterResource(R.drawable.img_chest),
+                        onClick = { onTypeSelect(PackType.MCBBS) }
+                    )
 
-            //MultiMC
-            animatedItem(scope) { yOffset ->
-                TypeItem(
-                    modifier = Modifier
-                        .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
-                    title = stringResource(R.string.versions_export_type_multimc),
-                    summary = stringResource(R.string.versions_export_type_multimc_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
-                    icon = painterResource(R.drawable.img_platform_multimc),
-                    onClick = { onTypeSelect(PackType.MultiMC) }
-                )
+                    //Modrinth
+                    TypeItem(
+                        modifier = Modifier
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Middle,
+                        title = stringResource(R.string.versions_export_type_modrinth),
+                        summary = stringResource(R.string.versions_export_type_modrinth_summary),
+                        icon = painterResource(R.drawable.img_platform_modrinth),
+                        onClick = { onTypeSelect(PackType.Modrinth) }
+                    )
+
+                    //MultiMC
+                    TypeItem(
+                        modifier = Modifier
+                            .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        position = CardPosition.Bottom,
+                        title = stringResource(R.string.versions_export_type_multimc),
+                        summary = stringResource(R.string.versions_export_type_multimc_summary, InfoDistributor.LAUNCHER_SHORT_NAME),
+                        icon = painterResource(R.drawable.img_platform_multimc),
+                        onClick = { onTypeSelect(PackType.MultiMC) }
+                    )
+                }
             }
         }
     }
@@ -122,12 +167,16 @@ private fun TypeItem(
     title: String,
     summary: String,
     icon: Painter,
+    position: CardPosition,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val shape = rememberSettingsCardShape(position = position)
+
     BackgroundCard(
         modifier = modifier,
-        onClick = onClick
+        onClick = onClick,
+        shape = shape
     ) {
         Row(
             modifier = Modifier
@@ -138,7 +187,7 @@ private fun TypeItem(
         ) {
             //图标
             Image(
-                modifier = Modifier.size(34.dp),
+                modifier = Modifier.size(32.dp),
                 painter = icon,
                 contentDescription = title,
                 contentScale = ContentScale.FillBounds
@@ -155,7 +204,7 @@ private fun TypeItem(
                 Text(
                     modifier = Modifier.alpha(0.7f),
                     text = summary,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
 
