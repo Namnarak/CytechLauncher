@@ -172,7 +172,7 @@
     <string name="download_game_install_forgelike_preparing_mapping_file">Preparando o arquivo de mapeamento %s</string>
     <string name="download_game_install_game_files_progress">Instalar arquivos do jogo</string>
     <string name="download_install">Instalar</string>
-    <string name="download_install_error_title">Vish... Deu errado mano :(</string>
+    <string name="download_install_error_title">Falha na instalação</string>
     <string name="download_install_error_message">Ocorreu uma exceção durante a instalação do seu jogo:</string>
     <string name="download_install_error_cant_fetch_optifine_download_url">Não foi possível recuperar o link de download para o arquivo principal do OptiFine</string>
     <string name="download_install_error_jvm_crash">Ocorreu uma exceção durante a instalação, código de saída: %s</string>

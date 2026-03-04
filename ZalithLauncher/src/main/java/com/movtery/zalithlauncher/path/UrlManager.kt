@@ -25,7 +25,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -34,7 +33,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import java.util.concurrent.TimeUnit
 
-const val URL_USER_AGENT: String = "${InfoDistributor.LAUNCHER_SHORT_NAME}/${BuildConfig.VERSION_NAME}"
+const val URL_USER_AGENT: String = "${InfoDistributor.LAUNCHER_SHORT_NAME}/Android_${BuildConfig.VERSION_NAME}"
 val TIME_OUT = Pair(10000, TimeUnit.MILLISECONDS)
 const val URL_MCMOD: String = "https://www.mcmod.cn/"
 const val URL_MINECRAFT_VERSION_REPOS: String = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"

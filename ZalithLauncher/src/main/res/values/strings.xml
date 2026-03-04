@@ -700,6 +700,13 @@
     <string name="versions_export_task_error_title">Export Failed</string>
     <string name="versions_export_task_error_message">An error occurred while exporting the modpack:</string>
     <string name="versions_export_task_finished">Your modpack has been successfully exported!</string>
+    <string name="versions_export_tip_1">Before exporting the modpack, please ensure that your version can launch properly,</string>
+    <string name="versions_export_tip_2">make sure your Minecraft is a release version (mod loaders allowed), not a snapshot or third-party client,</string>
+    <string name="versions_export_tip_3">and that it does not include mods, resource packs, or other assets that are not permitted to be distributed through unofficial channels,</string>
+    <string name="versions_export_tip_4">nor should it contain mods, resource packs, or other assets that violate the EULA,</string>
+    <string name="versions_export_tip_5">The modpack will be exported to the directory you selected, using the modpack name you provided as the final file name.</string>
+    <string name="versions_export_tip_remote_1">During export, the launcher will attempt to match remote resources on the %s platform and embed links instead of packaging mods, resource packs, and shader packs, which helps reduce the modpack size.</string>
+    <string name="versions_export_tip_remote_2">At the same time, disabled mods will be included as optional components.</string>
 
     <string name="manage_only_show_valid">Available</string>
     <string name="manage_delete_all">Delete All</string>
@@ -1182,8 +1189,6 @@
     <string name="language_portuguese" translatable="false">Português</string>
     <string name="language_arabic" translatable="false">اَلْعَرَبِيَّةُ</string>
     <string name="language_italian" translatable="false">Italiano</string>
-    <string name="language_german" translatable="false">Deutsch</string>
-    <string name="language_hungarian" translatable="false">magyar</string>
     <string name="language_brazilian_portuguese" translatable="false">Português brasileiro</string>
     <string name="language_uyghur" translatable="false">ۋىغرۇچە</string>
 </resources>

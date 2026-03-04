@@ -66,7 +66,7 @@ fun <E: Enum<E>> EnumSettingsCard(
         innerShape = innerShape
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)

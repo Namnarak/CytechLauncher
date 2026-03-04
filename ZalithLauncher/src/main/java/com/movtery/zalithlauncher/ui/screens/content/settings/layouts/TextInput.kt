@@ -47,9 +47,13 @@ fun TextInputSettingsCard(
     innerShape: Dp = 4.dp,
     summary: String? = null,
     onValueChange: (String) -> Unit = {},
+    isError: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
+    minLines: Int = 1,
     titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
     summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
@@ -60,7 +64,7 @@ fun TextInputSettingsCard(
         innerShape = innerShape
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -88,9 +92,13 @@ fun TextInputSettingsCard(
                         onValueChange(string)
                     }
                 },
+                isError = isError,
                 label = label,
                 supportingText = supportingText,
+                prefix = prefix,
+                suffix = suffix,
                 singleLine = singleLine,
+                minLines = minLines,
                 shape = MaterialTheme.shapes.large
             )
         }
@@ -108,8 +116,12 @@ fun TextInputSettingsCard(
     summary: String? = null,
     label: String? = null,
     onValueChange: (String) -> Unit = {},
+    isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
+    minLines: Int = 1,
     titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
     summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
@@ -125,11 +137,15 @@ fun TextInputSettingsCard(
             unit.save(value)
             onValueChange(value)
         },
+        isError = isError,
         label = {
             Text(text = label ?: stringResource(R.string.settings_label_ignore_if_blank))
         },
         supportingText = supportingText,
+        prefix = prefix,
+        suffix = suffix,
         singleLine = singleLine,
+        minLines = minLines,
         titleStyle = titleStyle,
         summaryStyle = summaryStyle
     )
