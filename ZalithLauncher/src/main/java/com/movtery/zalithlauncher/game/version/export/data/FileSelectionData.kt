@@ -88,22 +88,20 @@ class FileSelectionData(
     /**
      * 展开/收起当前节点，收起时同时应用到子节点
      */
-    suspend fun expandDirs(state: Boolean) {
-        withContext(Dispatchers.Default) {
-            //更新当前节点
-            _expand.update { state }
+    fun expandDirs(state: Boolean) {
+        //更新当前节点
+        _expand.update { state }
 
-            if (!state && child != null) {
-                val stack = ArrayDeque<FileSelectionData>()
-                child.let { stack.addAll(it) }
+        if (!state && child != null) {
+            val stack = ArrayDeque<FileSelectionData>()
+            child.let { stack.addAll(it) }
 
-                while (stack.isNotEmpty()) {
-                    val node = stack.removeLast()
+            while (stack.isNotEmpty()) {
+                val node = stack.removeLast()
 
-                    node._expand.update { false }
-                    node.child?.let { children ->
-                        stack.addAll(children)
-                    }
+                node._expand.update { false }
+                node.child?.let { children ->
+                    stack.addAll(children)
                 }
             }
         }

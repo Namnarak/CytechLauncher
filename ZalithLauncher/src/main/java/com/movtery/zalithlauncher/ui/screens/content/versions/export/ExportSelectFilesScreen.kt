@@ -50,7 +50,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,9 +69,6 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /**
  * 选择要导出的文件
@@ -95,8 +91,6 @@ fun ExportSelectFilesScreen(
         backToMainScreen()
         return
     }
-
-    val loadScope = rememberCoroutineScope()
 
     BaseScreen(
         levels1 = listOf(
@@ -128,7 +122,6 @@ fun ExportSelectFilesScreen(
                     data.updateSelectState(Selected.Selected)
                     onRefreshRootSelect()
                 },
-                loadScope = loadScope
             )
 
             Button(
@@ -159,7 +152,6 @@ private fun FileSelectorList(
     isRefreshingFiles: Boolean,
     onUnselectedAll: (FileSelectionData) -> Unit,
     onSelectedAll: (FileSelectionData) -> Unit,
-    loadScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
     var refreshExpand by remember { mutableStateOf(false) }
@@ -206,7 +198,6 @@ private fun FileSelectorList(
                     onRefreshExpand = {
                         refreshExpand = !refreshExpand
                     },
-                    loadScope = loadScope
                 )
             }
         }
@@ -219,7 +210,6 @@ private fun FileNodeItem(
     onUnselectedAll: (FileSelectionData) -> Unit,
     onSelectedAll: (FileSelectionData) -> Unit,
     onRefreshExpand: () -> Unit,
-    loadScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -246,37 +236,23 @@ private fun FileNodeItem(
                     val child = remember(data) { data.child }
 
                     if (child != null) {
-                        var loadingChild by remember { mutableStateOf(false) }
-
-                        val expandClick: () -> Unit = {
-                            loadScope.launch(Dispatchers.Default) {
-                                loadingChild = true
+                        val expand by data.expand.collectAsStateWithLifecycle()
+                        IconButton(
+                            modifier = Modifier.size(48.dp),
+                            onClick = {
                                 data.expandDirs(!data.expand.value)
                                 onRefreshExpand()
-                                loadingChild = false
                             }
-                        }
-
-                        if (loadingChild) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(48.dp)
+                        ) {
+                            val rotation by animateFloatAsState(
+                                if (expand) 90f else 0f
                             )
-                        } else {
-                            val expand by data.expand.collectAsStateWithLifecycle()
-                            IconButton(
-                                modifier = Modifier.size(48.dp),
-                                onClick = expandClick
-                            ) {
-                                val rotation by animateFloatAsState(
-                                    if (expand) 90f else 0f
-                                )
 
-                                Icon(
-                                    modifier = Modifier.rotate(rotation),
-                                    imageVector = Icons.AutoMirrored.Default.ArrowRight,
-                                    contentDescription = null
-                                )
-                            }
+                            Icon(
+                                modifier = Modifier.rotate(rotation),
+                                imageVector = Icons.AutoMirrored.Default.ArrowRight,
+                                contentDescription = null
+                            )
                         }
                     } else {
                         //仅用于视觉上的对齐
