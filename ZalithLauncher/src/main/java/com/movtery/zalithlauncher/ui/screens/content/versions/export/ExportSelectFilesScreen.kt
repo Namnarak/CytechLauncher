@@ -38,6 +38,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Output
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -47,7 +48,10 @@ import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -66,6 +70,9 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * 选择要导出的文件
@@ -77,6 +84,7 @@ fun ExportSelectFilesScreen(
     selectedFiles: Boolean,
     onRefreshRootSelect: () -> Unit,
     isSelectingFolder: Boolean,
+    isRefreshingFiles: Boolean,
     mainScreenKey: NavKey?,
     exportScreenKey: NavKey?,
     version: Version,
@@ -87,6 +95,8 @@ fun ExportSelectFilesScreen(
         backToMainScreen()
         return
     }
+
+    val loadScope = rememberCoroutineScope()
 
     BaseScreen(
         levels1 = listOf(
@@ -109,6 +119,7 @@ fun ExportSelectFilesScreen(
             FileSelectorList(
                 modifier = Modifier.fillMaxSize(),
                 list = allFiles,
+                isRefreshingFiles = isRefreshingFiles,
                 onUnselectedAll = { data ->
                     data.updateSelectState(Selected.Unselected)
                     onRefreshRootSelect()
@@ -116,7 +127,8 @@ fun ExportSelectFilesScreen(
                 onSelectedAll = { data ->
                     data.updateSelectState(Selected.Selected)
                     onRefreshRootSelect()
-                }
+                },
+                loadScope = loadScope
             )
 
             Button(
@@ -144,12 +156,15 @@ fun ExportSelectFilesScreen(
 @Composable
 private fun FileSelectorList(
     list: List<FileSelectionData>,
+    isRefreshingFiles: Boolean,
     onUnselectedAll: (FileSelectionData) -> Unit,
     onSelectedAll: (FileSelectionData) -> Unit,
+    loadScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
+    var refreshExpand by remember { mutableStateOf(false) }
     //实际文件选择区域
-    val visibleNodes = rememberVisibleNodes(list)
+    val visibleNodes = rememberVisibleNodes(list, refreshExpand)
 
     CompositionLocalProvider(
         LocalContentColor provides MaterialTheme.colorScheme.onSurface
@@ -160,11 +175,23 @@ private fun FileSelectorList(
             contentPadding = PaddingValues(all = 12.dp),
         ) {
             item {
-                Text(
+                Row(
                     modifier = Modifier.padding(bottom = 16.dp),
-                    text = stringResource(R.string.versions_export_pack_files),
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.versions_export_pack_files),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    if (isRefreshingFiles) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
             }
 
             items(
@@ -175,7 +202,11 @@ private fun FileSelectorList(
                     modifier = Modifier.animateItem(),
                     node = node,
                     onUnselectedAll = onUnselectedAll,
-                    onSelectedAll = onSelectedAll
+                    onSelectedAll = onSelectedAll,
+                    onRefreshExpand = {
+                        refreshExpand = !refreshExpand
+                    },
+                    loadScope = loadScope
                 )
             }
         }
@@ -187,6 +218,8 @@ private fun FileNodeItem(
     node: VisibleNode,
     onUnselectedAll: (FileSelectionData) -> Unit,
     onSelectedAll: (FileSelectionData) -> Unit,
+    onRefreshExpand: () -> Unit,
+    loadScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -213,21 +246,37 @@ private fun FileNodeItem(
                     val child = remember(data) { data.child }
 
                     if (child != null) {
-                        val expand by data.expand.collectAsStateWithLifecycle()
+                        var loadingChild by remember { mutableStateOf(false) }
 
-                        IconButton(
-                            modifier = Modifier.size(48.dp),
-                            onClick = { data.expandDirs(!expand) }
-                        ) {
-                            val rotation by animateFloatAsState(
-                                if (expand) 90f else 0f
-                            )
+                        val expandClick: () -> Unit = {
+                            loadScope.launch(Dispatchers.Default) {
+                                loadingChild = true
+                                data.expandDirs(!data.expand.value)
+                                onRefreshExpand()
+                                loadingChild = false
+                            }
+                        }
 
-                            Icon(
-                                modifier = Modifier.rotate(rotation),
-                                imageVector = Icons.AutoMirrored.Default.ArrowRight,
-                                contentDescription = null
+                        if (loadingChild) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(48.dp)
                             )
+                        } else {
+                            val expand by data.expand.collectAsStateWithLifecycle()
+                            IconButton(
+                                modifier = Modifier.size(48.dp),
+                                onClick = expandClick
+                            ) {
+                                val rotation by animateFloatAsState(
+                                    if (expand) 90f else 0f
+                                )
+
+                                Icon(
+                                    modifier = Modifier.rotate(rotation),
+                                    imageVector = Icons.AutoMirrored.Default.ArrowRight,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     } else {
                         //仅用于视觉上的对齐

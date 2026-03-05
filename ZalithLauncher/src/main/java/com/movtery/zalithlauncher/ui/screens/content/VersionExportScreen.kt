@@ -82,6 +82,7 @@ import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -148,6 +149,10 @@ private class ExportModpackViewModel(
     private val _selectedFiles = MutableStateFlow(false)
     /** 当前是否选则了文件 */
     val selectedFiles = _selectedFiles.asStateFlow()
+
+    private val _isRefreshingFiles = MutableStateFlow(false)
+    /** 当前是否正在刷新文件列表 */
+    val isRefreshingFiles = _isRefreshingFiles.asStateFlow()
 
     private val _exportInfo = MutableStateFlow(defaultInfo())
     val exportInfo = _exportInfo.asStateFlow()
@@ -255,8 +260,10 @@ private class ExportModpackViewModel(
         currentRefreshJob = viewModelScope.launch(Dispatchers.Default) {
             withContext(Dispatchers.Main) {
                 _allFiles.update { emptyList() }
+                _selectedFiles.update { false }
+                _isRefreshingFiles.update { true }
             }
-            val temp = packFiles(gamePath, 1)
+            val temp = packFiles(gamePath)
 
             if (isInit) {
                 //如果是初始化，则预先选择部分文件
@@ -271,6 +278,7 @@ private class ExportModpackViewModel(
 
             withContext(Dispatchers.Main) {
                 _allFiles.update { temp }
+                _isRefreshingFiles.update { false }
             }
 
             refreshRootSelectSuspend()
@@ -278,33 +286,23 @@ private class ExportModpackViewModel(
     }
 
 
+    private var refreshRootJob: Job? = null
     fun refreshRootSelect() {
-        viewModelScope.launch(Dispatchers.Default) {
+        refreshRootJob?.cancel()
+        refreshRootJob = viewModelScope.launch(Dispatchers.Default) {
             refreshRootSelectSuspend()
         }
     }
 
-    private val refreshSelectMutex = Mutex()
     private suspend fun refreshRootSelectSuspend() {
-        refreshSelectMutex.withLock {
-            val count = refreshTreeSelect(_allFiles.value)
+        _selectedFiles.update { false }
+        try {
+            val count = FileSelectionData.refreshTreeSelect(_allFiles.value)
             //根据选中的文件数量来判断是否选择了文件
             _selectedFiles.update { count > 0 }
-        }
-    }
+        } catch (_: CancellationException) {
 
-    /**
-     * @return 选中了多少个文件
-     */
-    private suspend fun refreshTreeSelect(list: List<FileSelectionData>): Int {
-        var count = 0
-        list.forEach { node ->
-            count += node.refreshRootState()
-            node.child?.let {
-                count += refreshTreeSelect(it)
-            }
         }
-        return count
     }
 
     private val packBlackList = listOf(
@@ -312,42 +310,64 @@ private class ExportModpackViewModel(
         "$versionName.jar"
     )
 
-    /**
-     * 递归收集所有可选择的文件
-     */
-    private fun packFiles(root: File, depth: Int): List<FileSelectionData> {
+    data class StackNode(
+        val dir: File,
+        val depth: Int,
+        val container: MutableList<FileSelectionData>
+    )
+
+    private fun packFiles(root: File): List<FileSelectionData> {
         if (!root.isDirectory) return emptyList()
+        val result = mutableListOf<FileSelectionData>()
 
-        val files = root.listFiles() ?: return emptyList()
+        val stack = ArrayDeque<StackNode>()
+        stack.add(StackNode(root, 1, result))
 
-        return files.asSequence()
-            .filterNot { file ->
-                packBlackList.any { pattern -> file.name.contains(pattern) }
-            }
-            .mapNotNull { file ->
+        while (stack.isNotEmpty()) {
+            val (dir, currentDepth, container) = stack.removeLast()
+            val files = dir.listFiles() ?: continue
+
+            val tempList = ArrayList<FileSelectionData>(files.size)
+
+            for (file in files) {
+                if (packBlackList.any { pattern -> file.name.contains(pattern) }) continue
                 //只有根目录的文件才能设置别名
-                val alias = if (depth == 1) getAlias(file.name) else null
+                val alias = if (currentDepth == 1) getAlias(file.name) else null
 
-                when {
-                    file.isDirectory -> {
-                        val childFiles = packFiles(file, depth + 1)
-                        FileSelectionData(
-                            file = file,
-                            alias = alias,
-                            child = childFiles.sorted()
+                if (file.isDirectory) {
+                    val childList = mutableListOf<FileSelectionData>()
+
+                    val data = FileSelectionData(
+                        file = file,
+                        alias = alias,
+                        child = childList
+                    )
+
+                    tempList.add(data)
+
+                    stack.add(
+                        StackNode(
+                            dir = file,
+                            depth = currentDepth + 1,
+                            container = childList
                         )
-                    }
-                    else -> {
+                    )
+                } else {
+                    tempList.add(
                         FileSelectionData(
                             file = file,
                             alias = alias,
                             child = null
                         )
-                    }
+                    )
                 }
             }
-            .sorted()
-            .toList()
+
+            tempList.sort()
+            container.addAll(tempList)
+        }
+
+        return result
     }
 
     /**
@@ -369,6 +389,8 @@ private class ExportModpackViewModel(
     override fun onCleared() {
         currentRefreshJob?.cancel()
         currentRefreshJob = null
+        refreshRootJob?.cancel()
+        refreshRootJob = null
     }
 }
 
@@ -506,6 +528,7 @@ private fun NavigationUI(
                     val allFiles by viewModel.allFiles.collectAsStateWithLifecycle()
                     val selectedFiles by viewModel.selectedFiles.collectAsStateWithLifecycle()
                     val isSelectingFolder by viewModel.selectingFolder.collectAsStateWithLifecycle()
+                    val isRefreshingFiles by viewModel.isRefreshingFiles.collectAsStateWithLifecycle()
 
                     val context = LocalContext.current
 
@@ -566,6 +589,7 @@ private fun NavigationUI(
                         selectedFiles = selectedFiles,
                         onRefreshRootSelect = { viewModel.refreshRootSelect() },
                         isSelectingFolder = isSelectingFolder,
+                        isRefreshingFiles = isRefreshingFiles,
                         mainScreenKey = mainScreenKey,
                         exportScreenKey = exportScreenKey,
                         version = version,

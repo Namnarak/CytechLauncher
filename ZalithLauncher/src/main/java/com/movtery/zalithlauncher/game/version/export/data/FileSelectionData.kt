@@ -18,8 +18,8 @@
 
 package com.movtery.zalithlauncher.game.version.export.data
 
-import com.movtery.zalithlauncher.utils.string.compareChar
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -45,6 +45,9 @@ class FileSelectionData(
     /** 当前节点的展开状态（文件夹节点） */
     val expand = _expand.asStateFlow()
 
+    private var _cachedSelected: Int = 0
+    private var _cachedTotal: Int = 0
+
     /**
      * 更新这个节点的选中状态
      */
@@ -55,22 +58,29 @@ class FileSelectionData(
 
         if (child != null && child.isEmpty()) {
             //子节点为空时，不允许选择
-            recursionSelect(Selected.Unselected)
+            iterativeSelect(Selected.Unselected)
         } else {
-            recursionSelect(new)
+            iterativeSelect(new)
         }
     }
 
-    private fun recursionSelect(new: Selected) {
-        _selected.update { new }
+    private fun iterativeSelect(new: Selected) {
+        val stack = ArrayDeque<FileSelectionData>()
+        stack.add(this)
 
-        //更新子节点的选中状态
-        child?.forEach { childNode ->
-            if (childNode.child != null && childNode.child.isEmpty()) {
-                //子节点为空时，不允许选择
-                childNode.recursionSelect(Selected.Unselected)
-            } else {
-                childNode.recursionSelect(new)
+        while (stack.isNotEmpty()) {
+            val node = stack.removeLast()
+            node._selected.update { new }
+
+            val children = node.child ?: continue
+            //更新子节点的选中状态
+            for (childNode in children) {
+                if (childNode.child != null && childNode.child.isEmpty()) {
+                    //子节点为空时，不允许选择
+                    childNode._selected.update { Selected.Unselected }
+                } else {
+                    stack.add(childNode)
+                }
             }
         }
     }
@@ -78,74 +88,25 @@ class FileSelectionData(
     /**
      * 展开/收起当前节点，收起时同时应用到子节点
      */
-    fun expandDirs(state: Boolean) {
-        _expand.update { state }
-        if (!state && child != null) {
-            closeDirs(this)
-        }
-    }
+    suspend fun expandDirs(state: Boolean) {
+        withContext(Dispatchers.Default) {
+            //更新当前节点
+            _expand.update { state }
 
-    private fun closeDirs(node: FileSelectionData) {
-        node._expand.update { false }
-        node.child?.forEach { childNode ->
-            closeDirs(childNode)
-        }
-    }
+            if (!state && child != null) {
+                val stack = ArrayDeque<FileSelectionData>()
+                child.let { stack.addAll(it) }
 
-    /**
-     * 刷新文件夹根节点的选中状态
-     * @return 当前选中了多少个文件
-     */
-    suspend fun refreshRootState(): Int {
-        var count = if (_selected.value == Selected.Selected) 1 else 0
-        if (child != null) {
-            withContext(Dispatchers.Default) {
-                //是文件夹节点
-                val totalCount = collectCount { true }
-                val selectedCount = collectCount { it._selected.value == Selected.Selected }
+                while (stack.isNotEmpty()) {
+                    val node = stack.removeLast()
 
-                count += selectedCount
-
-                withContext(Dispatchers.Main) {
-                    if (totalCount == 0) {
-                        //子节点为空时，不允许选择
-                        _selected.update { Selected.Unselected }
-                    } else {
-                        _selected.update {
-                            if (selectedCount <= 0) {
-                                Selected.Unselected
-                            } else if (selectedCount in 1..<totalCount) {
-                                Selected.Indeterminate
-                            } else {
-                                Selected.Selected
-                            }
-                        }
+                    node._expand.update { false }
+                    node.child?.let { children ->
+                        stack.addAll(children)
                     }
                 }
             }
         }
-
-        return count
-    }
-
-    private fun collectCount(
-        rule: (FileSelectionData) -> Boolean
-    ): Int {
-        var count = 0
-        if (child == null) {
-            if (rule(this)) count++
-        } else {
-            child.forEach { node ->
-                if (node.child == null && rule(node)) {
-                    count++
-                } else node.child?.forEach { childNode ->
-                    val count0 = childNode.collectCount(rule)
-                    count += count0
-                }
-            }
-        }
-
-        return count
     }
 
     override fun compareTo(other: FileSelectionData): Int {
@@ -164,6 +125,74 @@ class FileSelectionData(
                     //如果文件名相同，用绝对路径作为最终依据
                     file.absolutePath.compareTo(other.file.absolutePath)
                 }
+            }
+        }
+    }
+
+    companion object {
+        /**
+         * 刷新文件夹根节点的选中状态
+         * @return 选中了多少个文件
+         */
+        suspend fun refreshTreeSelect(
+            list: List<FileSelectionData>
+        ): Int {
+            return withContext(Dispatchers.Default) {
+                ensureActive()
+
+                var selectedFiles = 0
+                val stack = ArrayDeque<Pair<FileSelectionData, Boolean>>()
+
+                list.forEach { stack.add(it to false) }
+
+                while (stack.isNotEmpty()) {
+                    ensureActive()
+                    val (node, visited) = stack.removeLast()
+
+                    if (!visited) {
+                        stack.add(node to true)
+                        node.child?.forEach {
+                            stack.add(it to false)
+                        }
+                    } else {
+                        val children = node.child
+
+                        if (children == null) {
+                            //文件节点
+                            if (node._selected.value == Selected.Selected) {
+                                selectedFiles++
+                                node._cachedSelected = 1
+                            } else {
+                                node._cachedSelected = 0
+                            }
+                            node._cachedTotal = 1
+                        } else {
+                            var total = 0
+                            var selected = 0
+
+                            for (child in children) {
+                                total += child._cachedTotal
+                                selected += child._cachedSelected
+                            }
+
+                            node._cachedTotal = total
+                            node._cachedSelected = selected
+
+                            node._selected.update {
+                                when {
+                                    total == 0 -> Selected.Unselected
+                                    selected <= 0 -> Selected.Unselected
+                                    selected < total -> Selected.Indeterminate
+                                    else -> Selected.Selected
+                                }
+                            }
+
+                            selectedFiles += selected
+                        }
+                    }
+                }
+
+                selectedFiles
             }
         }
     }
