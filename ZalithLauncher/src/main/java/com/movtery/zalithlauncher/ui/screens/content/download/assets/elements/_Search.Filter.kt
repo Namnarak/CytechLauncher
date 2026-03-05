@@ -45,7 +45,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -74,11 +73,11 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortFiel
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.backgroundLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 /**
  * 搜索资源过滤器UI
@@ -128,12 +127,10 @@ fun SearchFilter(
                 onSingleLined = onSearchNameChange
             )
 
-            OutlinedTextField(
+            OwnOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = searchName,
-                onValueChange = { string ->
-                    onSearchNameChange(string.toSingleLine())
-                },
+                onValueChange = onSearchNameChange,
                 shape = MaterialTheme.shapes.large,
                 label = {
                     Text(text = stringResource(R.string.download_assets_filter_search_name))

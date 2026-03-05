@@ -40,7 +40,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -70,13 +69,13 @@ import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableStyleConfig
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutColorItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSliderItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.rememberSwapTween
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 private data class TabItem(val titleRes: Int)
 
@@ -161,11 +160,11 @@ fun EditButtonStyleDialog(
                             )
 
                             //控件外观名称
-                            OutlinedTextField(
+                            OwnOutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = style.name,
                                 onValueChange = {
-                                    style.name = it.toSingleLine()
+                                    style.name = it
                                 },
                                 singleLine = true,
                                 label = {

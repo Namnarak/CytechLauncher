@@ -68,7 +68,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -121,6 +120,7 @@ import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -142,7 +142,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -1190,11 +1189,11 @@ private fun ServerEditDialog(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
                             onValueChange = {
-                                name = it.toSingleLine()
+                                name = it
                             },
                             label = { Text(text = stringResource(R.string.servers_list_add_server_name)) },
                             singleLine = true,
@@ -1208,11 +1207,11 @@ private fun ServerEditDialog(
                             onSingleLined = { ip = it }
                         )
 
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = ip,
                             onValueChange = {
-                                ip = it.toSingleLine()
+                                ip = it
                             },
                             isError = isIpEmpty,
                             label = { Text(text = stringResource(R.string.servers_list_add_server_ip)) },

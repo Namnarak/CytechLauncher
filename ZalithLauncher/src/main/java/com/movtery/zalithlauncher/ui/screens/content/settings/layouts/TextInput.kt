@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,9 +32,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun TextInputSettingsCard(
@@ -81,17 +80,11 @@ fun TextInputSettingsCard(
                 onSingleLined = onValueChange
             )
 
-            OutlinedTextField(
+            OwnOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = value,
                 textStyle = MaterialTheme.typography.labelMedium,
-                onValueChange = { string ->
-                    if (singleLine) {
-                        onValueChange(string.toSingleLine())
-                    } else {
-                        onValueChange(string)
-                    }
-                },
+                onValueChange = onValueChange,
                 isError = isError,
                 label = label,
                 supportingText = supportingText,

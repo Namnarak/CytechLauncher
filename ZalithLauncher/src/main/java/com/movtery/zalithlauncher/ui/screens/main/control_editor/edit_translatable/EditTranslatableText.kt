@@ -32,15 +32,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,9 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -65,11 +60,11 @@ import com.movtery.layer_controller.observable.ObservableTranslatableString
 import com.movtery.layer_controller.utils.toSimpleLangTag
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 /**
  * 编辑可翻译文本
@@ -130,8 +125,6 @@ fun EditTranslatableTextDialog(
                     textAlign = TextAlign.Center
                 )
 
-                val focusManager = LocalFocusManager.current
-
                 val scrollState = rememberLazyListState()
                 LazyColumn(
                     modifier = Modifier
@@ -150,16 +143,12 @@ fun EditTranslatableTextDialog(
                         }
 
                         //默认文本
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = text.default,
                             onValueChange = { string ->
                                 val new = take.take(string)
-                                text.default = if (singleLine) {
-                                    new.toSingleLine()
-                                } else {
-                                    new
-                                }
+                                text.default = new
                             },
                             label = {
                                 Text(stringResource(R.string.control_editor_edit_translatable_default))
@@ -173,18 +162,6 @@ fun EditTranslatableTextDialog(
                                 }
                             },
                             singleLine = singleLine,
-                            keyboardOptions = if (singleLine) {
-                                KeyboardOptions.Default.copy(
-                                    imeAction = ImeAction.Done
-                                )
-                            } else {
-                                KeyboardOptions.Default
-                            },
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    focusManager.clearFocus(true)
-                                }
-                            ),
                             shape = MaterialTheme.shapes.large
                         )
                     }
@@ -331,16 +308,12 @@ private fun SimpleEditBox(
         )
     }
 
-    OutlinedTextField(
+    OwnOutlinedTextField(
         modifier = modifier,
         value = value,
         onValueChange = { string ->
             val new = take.take(string)
-            if (singleLine) {
-                onValueChange(new.toSingleLine())
-            } else {
-                onValueChange(new)
-            }
+            onValueChange(new)
         },
         label = {
             Text(text = label)
