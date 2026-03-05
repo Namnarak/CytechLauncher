@@ -152,9 +152,20 @@ class FileSelectionData(
         val thisIsFile = isFile()
         val otherIsFile = other.isFile()
 
-        return if (!thisIsFile && otherIsFile) -1
-        else if (thisIsFile && !otherIsFile) 1
-        else compareChar(file.name, other.file.name)
+        return when {
+            thisIsFile != otherIsFile -> {
+                if (!thisIsFile) -1 else 1
+            }
+            else -> {
+                val nameCompare = file.name.compareTo(other.file.name)
+                if (nameCompare != 0) {
+                    nameCompare
+                } else {
+                    //如果文件名相同，用绝对路径作为最终依据
+                    file.absolutePath.compareTo(other.file.absolutePath)
+                }
+            }
+        }
     }
 }
 
