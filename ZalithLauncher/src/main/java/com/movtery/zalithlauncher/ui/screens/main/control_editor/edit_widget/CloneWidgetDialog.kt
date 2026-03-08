@@ -154,8 +154,10 @@ private fun ChoseLayersLayout(
             val listState = rememberLazyListState()
 
             LaunchedEffect(Unit) {
-                layers.indexOf(selectedLayers[0]).takeIf { it != -1 }?.let { index ->
-                    listState.animateScrollToItem(index)
+                val target = selectedLayers.firstOrNull() ?: return@LaunchedEffect
+                val index = layers.indexOf(target)
+                if (index >= 0) {
+                    listState.scrollToItem(index)
                 }
             }
 

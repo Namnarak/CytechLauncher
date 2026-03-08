@@ -270,8 +270,10 @@ private fun DownloadDialog(
                                 val listState = rememberLazyListState()
 
                                 LaunchedEffect(Unit) {
-                                    versions.indexOf(selectedVersions[0]).takeIf { it != -1 }?.let { index ->
-                                        listState.animateScrollToItem(index)
+                                    val target = selectedVersions.firstOrNull() ?: return@LaunchedEffect
+                                    val index = versions.indexOf(target)
+                                    if (index >= 0) {
+                                        listState.scrollToItem(index)
                                     }
                                 }
 
