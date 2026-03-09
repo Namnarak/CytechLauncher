@@ -456,9 +456,10 @@ private fun Versions(
 
                 LaunchedEffect(Unit) {
                     delay(100)
-                    versions.result.indexOfFirst { it.isAdapt }.takeIf { it != -1 }?.let { index ->
+                    val index = versions.result.indexOfFirst { it.isAdapt }
+                    if (index >= 0) {
                         //自动滚动到适配的资源版本
-                        scrollState.animateScrollToItem(index)
+                        scrollState.scrollToItem(index)
                     }
                 }
 

@@ -45,7 +45,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +63,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -379,16 +377,10 @@ private fun simpleEditDialogBody(
             )
         }
 
-        OutlinedTextField(
+        OwnOutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = value,
-            onValueChange = { string ->
-                if (singleLine) {
-                    onValueChange(string.toSingleLine())
-                } else {
-                    onValueChange(string)
-                }
-            },
+            onValueChange = onValueChange,
             label = label,
             isError = isError,
             supportingText = supportingText,
