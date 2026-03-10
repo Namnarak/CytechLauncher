@@ -178,6 +178,7 @@ abstract class ModPackInfoTask(
             //创建版本信息
             VersionConfig.createIsolation(targetClientDir).apply {
                 this.versionSummary = modpackInfo.summary ?: "" //整合包描述
+                this.ramAllocation = modpackInfo.ram ?: -1
             }.save()
 
             //清理临时整合包目录

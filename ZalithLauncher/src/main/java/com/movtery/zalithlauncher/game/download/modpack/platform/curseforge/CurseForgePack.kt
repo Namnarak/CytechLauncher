@@ -128,6 +128,7 @@ class CurseForgePack(
                 id.startsWith("forge-") -> ModLoader.FORGE to id.removePrefix("forge-")
                 id.startsWith("fabric-") -> ModLoader.FABRIC to id.removePrefix("fabric-")
                 id.startsWith("neoforge-") -> ModLoader.NEOFORGE to id.removePrefix("neoforge-")
+                id.startsWith("quilt-") -> ModLoader.QUILT to id.removePrefix("quilt-")
                 else -> null
             }
         }
@@ -138,6 +139,7 @@ class CurseForgePack(
 
         return ModPackInfo(
             name = manifest.name,
+            ram = manifest.minecraft.recommendedRam,
             files = files,
             loaders = loaders,
             gameVersion = manifest.minecraft.gameVersion
