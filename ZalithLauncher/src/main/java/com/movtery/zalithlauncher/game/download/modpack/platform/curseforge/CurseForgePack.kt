@@ -128,6 +128,7 @@ class CurseForgePack(
                 id.startsWith("forge-") -> ModLoader.FORGE to id.removePrefix("forge-")
                 id.startsWith("fabric-") -> ModLoader.FABRIC to id.removePrefix("fabric-")
                 id.startsWith("neoforge-") -> ModLoader.NEOFORGE to id.removePrefix("neoforge-")
+                id.startsWith("quilt-") -> ModLoader.QUILT to id.removePrefix("quilt-")
                 else -> null
             }
         }
