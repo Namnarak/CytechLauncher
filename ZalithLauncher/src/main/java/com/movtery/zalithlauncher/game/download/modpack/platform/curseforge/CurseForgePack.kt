@@ -139,6 +139,7 @@ class CurseForgePack(
 
         return ModPackInfo(
             name = manifest.name,
+            ram = manifest.minecraft.recommendedRam,
             files = files,
             loaders = loaders,
             gameVersion = manifest.minecraft.gameVersion
