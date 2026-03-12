@@ -22,7 +22,6 @@ import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.game.addons.mirror.mapBMCLMirrorUrls
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.ForgeLikeVersion
 import com.movtery.zalithlauncher.game.download.game.GameLibDownloader
 import com.movtery.zalithlauncher.game.download.game.copyVanillaFiles
 import com.movtery.zalithlauncher.game.download.game.getLibraryPath
@@ -56,11 +55,10 @@ const val FORGE_LIKE_ANALYSE_ID = "Analyse.ForgeLike"
 fun getForgeLikeAnalyseTask(
     downloader: BaseMinecraftDownloader,
     targetTempInstaller: File,
-    forgeLikeVersion: ForgeLikeVersion,
+    removeFromDownload: String,
     tempMinecraftFolder: File,
     sourceInherit: String,
     processedInherit: String,
-    loaderVersion: String
 ): Task {
     return Task.runTask(
         id = FORGE_LIKE_ANALYSE_ID,
@@ -80,11 +78,10 @@ fun getForgeLikeAnalyseTask(
             analyseNewForge(
                 task = task,
                 downloader = downloader,
-                forgeLikeVersion = forgeLikeVersion,
+                removeFromDownload = removeFromDownload,
                 installer = targetTempInstaller,
                 tempMinecraftFolder = tempMinecraftFolder,
                 inherit = processedInherit,
-                loaderVersion = loaderVersion
             )
         }
     )
@@ -97,11 +94,10 @@ fun getForgeLikeAnalyseTask(
 private suspend fun analyseNewForge(
     task: Task,
     downloader: BaseMinecraftDownloader,
-    forgeLikeVersion: ForgeLikeVersion,
+    removeFromDownload: String,
     installer: File,
     tempMinecraftFolder: File,
     inherit: String,
-    loaderVersion: String
 ) {
     task.updateProgress(-1f)
 
@@ -168,11 +164,9 @@ private suspend fun analyseNewForge(
     task.updateProgress(0.8f)
 
     libDownloader.apply {
-        val neoforgeVersionString = "${forgeLikeVersion.loaderName.lowercase()}-$inherit-$loaderVersion"
-        //去除其中的原始 ForgeLike
         removeDownload { lib ->
-            (lib.targetFile.name.endsWith("$neoforgeVersionString.jar") ||
-             lib.targetFile.name.endsWith("$neoforgeVersionString-client.jar")).also {
+            (lib.targetFile.name.endsWith("$removeFromDownload.jar") ||
+             lib.targetFile.name.endsWith("$removeFromDownload-client.jar")).also {
                 if (it) {
                     lInfo(
                         "The download task has been removed from the scheduled downloads: \n" +

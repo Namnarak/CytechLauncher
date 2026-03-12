@@ -61,6 +61,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltAPIVersions
@@ -152,6 +153,12 @@ private class AddonsViewModel(
         }
     )
 
+    fun reloadCleanroom() = launchAddonReload(
+        { currentAddon.cleanroomState = it },
+        { CleanroomVersions.fetchLoaderList(gameVersion) },
+        { addonList.cleanroomList = it }
+    )
+
     private fun <T> launchAddonReload(
         updateState: (AddonState) -> Unit,
         fetch: suspend () -> T?,
@@ -170,6 +177,7 @@ private class AddonsViewModel(
         reloadFabricAPI()
         reloadQuilt()
         reloadQuiltAPI()
+        reloadCleanroom()
     }
 
     override fun onCleared() {
@@ -237,7 +245,8 @@ fun DownloadGameWithAddonScreen(
                             fabric = viewModel.currentAddon.fabricVersion,
                             fabricAPI = viewModel.currentAddon.fabricAPIVersion,
                             quilt = viewModel.currentAddon.quiltVersion,
-                            quiltAPI = viewModel.currentAddon.quiltAPIVersion
+                            quiltAPI = viewModel.currentAddon.quiltAPIVersion,
+                            cleanroom = viewModel.currentAddon.cleanroomVersion
                         )
                     )
                 }
@@ -276,6 +285,15 @@ fun DownloadGameWithAddonScreen(
                         onValueChanged = { viewModel.refreshIcon() },
                         addonList = viewModel.addonList
                     ) { viewModel.reloadNeoForge() }
+                }
+
+                AnimatedItem(scope) { yOffset ->
+                    CleanroomList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        onValueChanged = { viewModel.refreshIcon() },
+                        addonList = viewModel.addonList
+                    ) { viewModel.reloadCleanroom() }
                 }
 
                 AnimatedItem(scope) { yOffset ->
@@ -502,6 +520,7 @@ private fun VersionIconPreview(
             currentAddon.neoforgeVersion != null -> R.drawable.img_loader_neoforge
             currentAddon.fabricVersion != null -> R.drawable.img_loader_fabric
             currentAddon.quiltVersion != null -> R.drawable.img_loader_quilt
+            currentAddon.cleanroomVersion != null -> R.drawable.img_loader_cleanroom
             else -> R.drawable.img_minecraft
         }
     }
@@ -532,7 +551,8 @@ private fun AutoChangeVersionName(
         currentAddon.forgeVersion,
         currentAddon.neoforgeVersion,
         currentAddon.fabricVersion,
-        currentAddon.quiltVersion
+        currentAddon.quiltVersion,
+        currentAddon.cleanroomVersion,
     ) {
         if (editedByUser) return@LaunchedEffect //用户已修改，阻止自动更改
 
@@ -548,6 +568,7 @@ private fun AutoChangeVersionName(
             currentAddon.neoforgeVersion != null -> "${ModLoader.NEOFORGE.displayName} ${currentAddon.neoforgeVersion!!.versionName}"
             currentAddon.fabricVersion != null -> "${ModLoader.FABRIC.displayName} ${currentAddon.fabricVersion!!.version}"
             currentAddon.quiltVersion != null -> "${ModLoader.QUILT.displayName} ${currentAddon.quiltVersion!!.version}"
+            currentAddon.cleanroomVersion != null -> "${ModLoader.CLEANROOM.displayName} ${currentAddon.cleanroomVersion!!.version}"
             else -> null
         }
 

@@ -37,6 +37,6 @@ enum class ModLoader(
     QUILT(displayName = "Quilt"),
     QUILT_API(displayName = "Quilted Fabric API", isLoader = false, autoDownloadable = false),
     LITE_LOADER(displayName = "LiteLoader", autoDownloadable = false),
-    CLEANROOM(displayName = "Cleanroom", autoDownloadable = false),
+    CLEANROOM(displayName = "Cleanroom"),
     PACK(displayName = "Pack", isLoader = false, autoDownloadable = false)
 }

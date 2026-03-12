@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModel
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
+import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
@@ -54,6 +55,7 @@ class AddonList {
     var fabricAPIList by mutableStateOf<List<ModVersion>?>(null)
     var quiltList by mutableStateOf<List<QuiltVersion>?>(null)
     var quiltAPIList by mutableStateOf<List<ModVersion>?>(null)
+    var cleanroomList by mutableStateOf<List<CleanroomVersion>?>(null)
 }
 
 class CurrentAddon {
@@ -65,6 +67,7 @@ class CurrentAddon {
     var fabricAPIVersion by mutableStateOf<ModVersion?>(null)
     var quiltVersion by mutableStateOf<QuiltVersion?>(null)
     var quiltAPIVersion by mutableStateOf<ModVersion?>(null)
+    var cleanroomVersion by mutableStateOf<CleanroomVersion?>(null)
 
     //加载状态
     var optifineState by mutableStateOf<AddonState>(AddonState.None)
@@ -74,6 +77,7 @@ class CurrentAddon {
     var fabricAPIState by mutableStateOf<AddonState>(AddonState.None)
     var quiltState by mutableStateOf<AddonState>(AddonState.None)
     var quiltAPIState by mutableStateOf<AddonState>(AddonState.None)
+    var cleanroomState by mutableStateOf<AddonState>(AddonState.None)
 
     //不兼容列表 利用Set集合不可重复
     var incompatibleWithOptiFine by mutableStateOf<Set<ModLoader>>(emptySet())
@@ -83,6 +87,7 @@ class CurrentAddon {
     var incompatibleWithFabricAPI by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithQuilt by mutableStateOf<Set<ModLoader>>(emptySet())
     var incompatibleWithQuiltAPI by mutableStateOf<Set<ModLoader>>(emptySet())
+    var incompatibleWithCleanroom by mutableStateOf<Set<ModLoader>>(emptySet())
 }
 
 /**
@@ -180,12 +185,16 @@ fun OptiFineList(
                 }
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
                 currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithNeoForge += ofType
                 currentAddon.incompatibleWithFabric += ofType
                 currentAddon.incompatibleWithFabricAPI += ofType
                 currentAddon.incompatibleWithQuilt += ofType
                 currentAddon.incompatibleWithQuiltAPI += ofType
+                currentAddon.incompatibleWithCleanroom += ofType
             } ?: run {
                 currentAddon.incompatibleWithForge -= ofType
                 currentAddon.incompatibleWithNeoForge -= ofType
@@ -193,6 +202,7 @@ fun OptiFineList(
                 currentAddon.incompatibleWithFabricAPI -= ofType
                 currentAddon.incompatibleWithQuilt -= ofType
                 currentAddon.incompatibleWithQuiltAPI -= ofType
+                currentAddon.incompatibleWithCleanroom -= ofType
             }
         },
         triggerCheckIncompatible = arrayOf(currentAddon.forgeState),
@@ -252,12 +262,16 @@ fun ForgeList(
                 }
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
                 currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithNeoForge += forgeType
                 currentAddon.incompatibleWithFabric += forgeType
                 currentAddon.incompatibleWithFabricAPI += forgeType
                 currentAddon.incompatibleWithQuilt += forgeType
                 currentAddon.incompatibleWithQuiltAPI += forgeType
+                currentAddon.incompatibleWithCleanroom += forgeType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= forgeType
                 currentAddon.incompatibleWithNeoForge -= forgeType
@@ -265,6 +279,7 @@ fun ForgeList(
                 currentAddon.incompatibleWithFabricAPI -= forgeType
                 currentAddon.incompatibleWithQuilt -= forgeType
                 currentAddon.incompatibleWithQuiltAPI -= forgeType
+                currentAddon.incompatibleWithCleanroom -= forgeType
             }
         },
         triggerCheckIncompatible = arrayOf(currentAddon.optifineState),
@@ -303,13 +318,17 @@ fun NeoForgeList(
                 currentAddon.optifineVersion = null
                 currentAddon.forgeVersion = null
                 currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
                 currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithOptiFine += neoforgeType
                 currentAddon.incompatibleWithForge += neoforgeType
                 currentAddon.incompatibleWithFabric += neoforgeType
                 currentAddon.incompatibleWithFabricAPI += neoforgeType
                 currentAddon.incompatibleWithQuilt += neoforgeType
                 currentAddon.incompatibleWithQuiltAPI += neoforgeType
+                currentAddon.incompatibleWithCleanroom += neoforgeType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= neoforgeType
                 currentAddon.incompatibleWithForge -= neoforgeType
@@ -317,6 +336,7 @@ fun NeoForgeList(
                 currentAddon.incompatibleWithFabricAPI -= neoforgeType
                 currentAddon.incompatibleWithQuilt -= neoforgeType
                 currentAddon.incompatibleWithQuiltAPI -= neoforgeType
+                currentAddon.incompatibleWithCleanroom -= neoforgeType
             }
         },
         getItemText = { it.versionName },
@@ -354,17 +374,21 @@ fun FabricList(
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
                 currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithOptiFine += fabricType
                 currentAddon.incompatibleWithForge += fabricType
                 currentAddon.incompatibleWithNeoForge += fabricType
                 currentAddon.incompatibleWithQuilt += fabricType
                 currentAddon.incompatibleWithQuiltAPI += fabricType
+                currentAddon.incompatibleWithCleanroom += fabricType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= fabricType
                 currentAddon.incompatibleWithForge -= fabricType
                 currentAddon.incompatibleWithNeoForge -= fabricType
                 currentAddon.incompatibleWithQuilt -= fabricType
                 currentAddon.incompatibleWithQuiltAPI -= fabricType
+                currentAddon.incompatibleWithCleanroom -= fabricType
             }
         },
         getItemText = { it.version },
@@ -412,17 +436,21 @@ fun FabricAPIList(
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
                 currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithOptiFine += fabricType
                 currentAddon.incompatibleWithForge += fabricType
                 currentAddon.incompatibleWithNeoForge += fabricType
                 currentAddon.incompatibleWithQuilt += fabricType
                 currentAddon.incompatibleWithQuiltAPI += fabricType
+                currentAddon.incompatibleWithCleanroom += fabricType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= fabricType
                 currentAddon.incompatibleWithForge -= fabricType
                 currentAddon.incompatibleWithNeoForge -= fabricType
                 currentAddon.incompatibleWithQuilt -= fabricType
                 currentAddon.incompatibleWithQuiltAPI -= fabricType
+                currentAddon.incompatibleWithCleanroom -= fabricType
             }
         },
         error = error ?: unSelectedFabric,
@@ -461,17 +489,21 @@ fun QuiltList(
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithOptiFine += quiltType
                 currentAddon.incompatibleWithForge += quiltType
                 currentAddon.incompatibleWithNeoForge += quiltType
                 currentAddon.incompatibleWithFabric += quiltType
                 currentAddon.incompatibleWithFabricAPI += quiltType
+                currentAddon.incompatibleWithCleanroom += quiltType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= quiltType
                 currentAddon.incompatibleWithForge -= quiltType
                 currentAddon.incompatibleWithNeoForge -= quiltType
                 currentAddon.incompatibleWithFabric -= quiltType
                 currentAddon.incompatibleWithFabricAPI -= quiltType
+                currentAddon.incompatibleWithCleanroom -= quiltType
             }
         },
         getItemText = { it.version },
@@ -519,17 +551,21 @@ fun QuiltAPIList(
                 currentAddon.forgeVersion = null
                 currentAddon.neoforgeVersion = null
                 currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
+                currentAddon.cleanroomVersion = null
                 currentAddon.incompatibleWithOptiFine += quiltType
                 currentAddon.incompatibleWithForge += quiltType
                 currentAddon.incompatibleWithNeoForge += quiltType
                 currentAddon.incompatibleWithFabric += quiltType
                 currentAddon.incompatibleWithFabricAPI += quiltType
+                currentAddon.incompatibleWithCleanroom += quiltType
             } ?: run {
                 currentAddon.incompatibleWithOptiFine -= quiltType
                 currentAddon.incompatibleWithForge -= quiltType
                 currentAddon.incompatibleWithNeoForge -= quiltType
                 currentAddon.incompatibleWithFabric -= quiltType
                 currentAddon.incompatibleWithFabricAPI -= quiltType
+                currentAddon.incompatibleWithCleanroom -= quiltType
             }
         },
         error = error ?: unSelectedQuilt,
@@ -538,6 +574,61 @@ fun QuiltAPIList(
         onValueChange =  { version ->
             currentAddon.quiltAPIVersion = version
             onValueChanged()
+        },
+        onReload = onReload
+    )
+}
+
+@Composable
+fun CleanroomList(
+    modifier: Modifier = Modifier,
+    currentAddon: CurrentAddon,
+    addonList: AddonList,
+    error: String? = null,
+    onValueChanged: (CleanroomVersion?) -> Unit = {},
+    onReload: () -> Unit = {}
+) {
+    AddonListLayout(
+        modifier = modifier,
+        state = currentAddon.cleanroomState,
+        title = ModLoader.CLEANROOM.displayName,
+        error = error,
+        iconPainter = painterResource(R.drawable.img_loader_cleanroom),
+        items = addonList.cleanroomList,
+        current = currentAddon.cleanroomVersion,
+        incompatibleSet = currentAddon.incompatibleWithCleanroom,
+        checkIncompatible = {
+            val cleanroomType = listOf(ModLoader.CLEANROOM)
+            currentAddon.cleanroomVersion?.let {
+                currentAddon.optifineVersion = null
+                currentAddon.forgeVersion = null
+                currentAddon.neoforgeVersion = null
+                currentAddon.fabricVersion = null
+                currentAddon.fabricAPIVersion = null
+                currentAddon.quiltVersion = null
+                currentAddon.quiltAPIVersion = null
+                currentAddon.incompatibleWithOptiFine += cleanroomType
+                currentAddon.incompatibleWithForge += cleanroomType
+                currentAddon.incompatibleWithNeoForge += cleanroomType
+                currentAddon.incompatibleWithFabric += cleanroomType
+                currentAddon.incompatibleWithFabricAPI += cleanroomType
+                currentAddon.incompatibleWithQuilt += cleanroomType
+                currentAddon.incompatibleWithQuiltAPI += cleanroomType
+            } ?: run {
+                currentAddon.incompatibleWithOptiFine -= cleanroomType
+                currentAddon.incompatibleWithForge -= cleanroomType
+                currentAddon.incompatibleWithNeoForge -= cleanroomType
+                currentAddon.incompatibleWithFabric -= cleanroomType
+                currentAddon.incompatibleWithFabricAPI -= cleanroomType
+                currentAddon.incompatibleWithQuilt -= cleanroomType
+                currentAddon.incompatibleWithQuiltAPI -= cleanroomType
+            }
+        },
+        getItemText = { it.version },
+        summary = { CleanroomSummary(it) },
+        onValueChange =  { version ->
+            currentAddon.cleanroomVersion = version
+            onValueChanged(version)
         },
         onReload = onReload
     )
