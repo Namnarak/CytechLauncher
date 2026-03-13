@@ -147,7 +147,7 @@
     <string name="download_game_type_old">Versões Antigas</string>
     <string name="download_game_type_old_alpha">Alpha</string>
     <string name="download_game_type_old_beta">Beta</string>
-    <string name="download_game_version_name">Nome da versão</string>
+    <string name="download_game_version_name">Número da versão</string>
     <string name="download_game_addon_list_load_error">Falha ao carregar a lista: %s</string>
     <string name="download_game_addon_available">Disponível</string>
     <string name="download_game_addon_unavailable">Indisponível</string>
