@@ -102,7 +102,7 @@ private suspend fun analyseNewForge(
     task.updateProgress(-1f)
 
     //解析 NeoForge 的支持库列表，并统一进行下载
-    val (installProfile, installProfileString, versionString) = withContext(Dispatchers.IO) {
+    val (installProfile, versionString) = withContext(Dispatchers.IO) {
         ZipFile(installer).use { zip ->
             task.updateProgress(0.2f)
 
@@ -131,7 +131,7 @@ private suspend fun analyseNewForge(
                 }
             }
 
-            Triple(installProfile, installProfileString, versionString)
+            installProfile to versionString
         }
     }
 
@@ -141,7 +141,7 @@ private suspend fun analyseNewForge(
     //计划下载 install_profile.json 内的所有支持库
     val libDownloader = GameLibDownloader(
         downloader = downloader,
-        gameJson = installProfileString
+        gameJson = installProfile.toString()
     )
     libDownloader.schedule(task, File(tempMinecraftFolder, "libraries").ensureDirectory(), false)
 
