@@ -42,8 +42,8 @@ class LibSortFix(
         libItem: GameManifest.Library,
         path: String
     ) {
+        val name = libItem.name
         if (isCleanroom) {
-            val name = libItem.name
             when {
                 name.startsWith(icu4jLib) -> {
                     insertBefore(libItem, path) { (key, _) ->
@@ -59,7 +59,27 @@ class LibSortFix(
                 }
             }
         }
+
+        if (name.startsWith("org.ow2.asm:asm:")) {
+            if (any { (key, _) -> key.name.startsWith("org.ow2.asm:asm-all:") }) {
+                return
+            }
+        } else if (name.startsWith("org.ow2.asm:asm-all:")) {
+            removeIf { (key, _) ->
+                key.name.startsWith("org.ow2.asm:asm:")
+            }
+        }
+
         this[libItem] = path
+    }
+
+    private fun <K, V> LinkedHashMap<K, V>.removeIf(predicate: (Map.Entry<K, V>) -> Boolean) {
+        val iterator = this.entries.iterator()
+        while (iterator.hasNext()) {
+            if (predicate(iterator.next())) {
+                iterator.remove()
+            }
+        }
     }
 
     private fun <K, V> LinkedHashMap<K, V>.insertBefore(
