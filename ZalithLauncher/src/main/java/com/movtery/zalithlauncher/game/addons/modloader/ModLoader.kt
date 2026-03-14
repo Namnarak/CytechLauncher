@@ -34,6 +34,8 @@ enum class ModLoader(
     NEOFORGE(displayName = "NeoForge"),
     FABRIC(displayName = "Fabric"),
     FABRIC_API(displayName = "Fabric API", isLoader = false, autoDownloadable = false),
+    LEGACY_FABRIC(displayName = "Legacy Fabric", autoDownloadable = false),
+    LEGACY_FABRIC_API(displayName = "Legacy Fabric API", isLoader = false, autoDownloadable = false),
     QUILT(displayName = "Quilt"),
     QUILT_API(displayName = "Quilted Fabric API", isLoader = false, autoDownloadable = false),
     LITE_LOADER(displayName = "LiteLoader", autoDownloadable = false),

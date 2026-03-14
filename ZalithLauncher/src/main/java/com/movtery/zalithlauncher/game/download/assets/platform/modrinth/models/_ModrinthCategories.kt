@@ -60,11 +60,11 @@ enum class ModrinthModLoaderCategory : ModrinthFacet, ModLoaderDisplayLabel {
 //    },
     LEGACY_FABRIC {
         override fun facetValue(): String = "legacy-fabric"
-        override fun getDisplayName(): String = "Legacy Fabric"
+        override fun getDisplayName(): String = ModLoader.LEGACY_FABRIC.displayName
     },
     LITELOADER {
         override fun facetValue(): String = "liteloader"
-        override fun getDisplayName(): String = "LiteLoader"
+        override fun getDisplayName(): String = ModLoader.LITE_LOADER.displayName
     },
     RISUGAMI_MODLOADER {
         override fun facetValue(): String = "modloader"
