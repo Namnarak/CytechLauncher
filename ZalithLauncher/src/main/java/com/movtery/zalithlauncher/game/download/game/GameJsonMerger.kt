@@ -42,6 +42,7 @@ fun mergeGameJson(
     forgeFolder: File? = null,
     neoForgeFolder: File? = null,
     fabricFolder: File? = null,
+    legacyFabricFolder: File? = null,
     quiltFolder: File? = null,
     cleanroomFolder: File? = null
 ) {
@@ -51,6 +52,7 @@ fun mergeGameJson(
                 (if (forgeFolder != null) "，${ModLoader.FORGE.displayName}: $forgeFolder" else "") +
                 (if (neoForgeFolder != null) "，${ModLoader.NEOFORGE.displayName}: $neoForgeFolder" else "") +
                 (if (fabricFolder != null) "，${ModLoader.FABRIC.displayName}: $fabricFolder" else "") +
+                (if (legacyFabricFolder != null) "，${ModLoader.LEGACY_FABRIC.displayName}: $legacyFabricFolder" else "") +
                 (if (quiltFolder != null) "，${ModLoader.QUILT.displayName}: $quiltFolder" else "") +
                 (if (cleanroomFolder != null) "，${ModLoader.CLEANROOM.displayName}: $cleanroomFolder" else "")
     )
@@ -67,6 +69,7 @@ fun mergeGameJson(
     val forgeJsonPath = forgeFolder.gameFileOrNull("json")
     val neoForgeJsonPath = neoForgeFolder.gameFileOrNull("json")
     val fabricJsonPath = fabricFolder.gameFileOrNull("json")
+    val legacyFabricJsonPath = legacyFabricFolder.gameFileOrNull("json")
     val quiltJsonPath = quiltFolder.gameFileOrNull("json")
     val cleanroomJsonPath = cleanroomFolder.gameFileOrNull("json")
 
@@ -77,6 +80,7 @@ fun mergeGameJson(
     val forgeJson = forgeJsonPath.getJsonOrNull(ModLoader.FORGE.displayName)
     val neoForgeJson = neoForgeJsonPath.getJsonOrNull(ModLoader.NEOFORGE.displayName)
     val fabricJson = fabricJsonPath.getJsonOrNull(ModLoader.FABRIC.displayName)
+    val legacyFabricJson = legacyFabricJsonPath.getJsonOrNull(ModLoader.LEGACY_FABRIC.displayName)
     val quiltJson = quiltJsonPath.getJsonOrNull(ModLoader.FABRIC.displayName)
     val cleanroomJson = cleanroomJsonPath.getJsonOrNull(ModLoader.CLEANROOM.displayName)
 
@@ -102,6 +106,7 @@ fun mergeGameJson(
         optiFineJson,
         forgeJson, neoForgeJson,
         fabricJson, quiltJson,
+        legacyFabricJson,
         cleanroomJson
     ).forEach { json ->
         json.remove("releaseTime")

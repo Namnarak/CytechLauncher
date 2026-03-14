@@ -42,6 +42,7 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric.LegacyFabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersions
@@ -57,6 +58,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.game.CleanroomList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.CurrentAddon
 import com.movtery.zalithlauncher.ui.screens.content.download.game.FabricList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.ForgeList
+import com.movtery.zalithlauncher.ui.screens.content.download.game.LegacyFabricList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.LoaderVerSupports
 import com.movtery.zalithlauncher.ui.screens.content.download.game.NeoForgeList
 import com.movtery.zalithlauncher.ui.screens.content.download.game.QuiltList
@@ -195,6 +197,9 @@ private class AddonsViewModel(
                 if (loaderSupports.isFabricSupports) {
                     add(addonList.fabricList)
                 }
+                if (loaderSupports.isLegacyFabricSupports) {
+                    add(addonList.legacyFabricList)
+                }
                 if (loaderSupports.isQuiltSupports) {
                     add(addonList.quiltList)
                 }
@@ -221,6 +226,9 @@ private class AddonsViewModel(
             }
             if (loaderSupports.isFabricSupports) {
                 add(addonList.fabricList)
+            }
+            if (loaderSupports.isLegacyFabricSupports) {
+                add(addonList.legacyFabricList)
             }
             if (loaderSupports.isQuiltSupports) {
                 add(addonList.quiltList)
@@ -309,6 +317,24 @@ private class AddonsViewModel(
         }
     }
 
+    fun reloadLegacyFabric() {
+        reloadSingleAndCheck {
+            reloadLegacyFabricAsync()
+        }
+    }
+
+    private suspend fun reloadLegacyFabricAsync() = runWithState(
+        { currentAddon.legacyFabricState = it },
+        { LegacyFabricVersions.fetchFabricLoaderList(gameVersion) }
+    ).also { versions ->
+        addonList.legacyFabricList = versions
+        if (loaderInfo.loader == ModLoader.LEGACY_FABRIC && currentAddon.legacyFabricVersion.value == null) {
+            currentAddon.legacyFabricVersion.value = versions?.find {
+                it.isVersion(loaderInfo.version)
+            }?.also { isLoaderVersionFound = true }
+        }
+    }
+
     fun reloadQuilt() {
         reloadSingleAndCheck {
             reloadQuiltAsync()
@@ -378,6 +404,12 @@ private class AddonsViewModel(
                 if (loaderSupports.isFabricSupports) {
                     add(async {
                         reloadFabricAsync()
+                        updateLoadedState()
+                    })
+                }
+                if (loaderSupports.isLegacyFabricSupports) {
+                    add(async {
+                        reloadLegacyFabricAsync()
                         updateLoadedState()
                     })
                 }
@@ -494,6 +526,19 @@ fun UpdateLoaderScreen(
                 }
             }
 
+            if (loaderSupports.isLegacyFabricSupports) {
+                animatedItem(scope) { yOffset ->
+                    LegacyFabricList(
+                        modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        currentAddon = viewModel.currentAddon,
+                        addonList = viewModel.addonList,
+                        error = unLoaded,
+                        onValueChanged = { viewModel.checkCanUpdate() },
+                        onReload = { viewModel.reloadLegacyFabric() }
+                    )
+                }
+            }
+
             if (loaderSupports.isQuiltSupports) {
                 animatedItem(scope) { yOffset ->
                     QuiltList(
@@ -527,6 +572,8 @@ fun UpdateLoaderScreen(
                                         .takeIf { loaderSupports.isNeoForgeSupports },
                                     fabric = viewModel.currentAddon.fabricVersion.value
                                         .takeIf { loaderSupports.isFabricSupports },
+                                    legacyFabric = viewModel.currentAddon.legacyFabricVersion.value
+                                        .takeIf { loaderSupports.isLegacyFabricSupports },
                                     quilt = viewModel.currentAddon.quiltVersion.value
                                         .takeIf { loaderSupports.isQuiltSupports },
                                     cleanroom = viewModel.currentAddon.cleanroomVersion.value

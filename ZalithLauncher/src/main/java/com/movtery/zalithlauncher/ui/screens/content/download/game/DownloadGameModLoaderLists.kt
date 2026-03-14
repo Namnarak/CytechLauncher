@@ -34,6 +34,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortException
 import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric.LegacyFabricVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
@@ -56,7 +57,7 @@ class AddonList {
     var neoforgeList by mutableStateOf<List<NeoForgeVersion>?>(null)
     var fabricList by mutableStateOf<List<FabricVersion>?>(null)
     var fabricAPIList by mutableStateOf<List<ModVersion>?>(null)
-    var legacyFabricList by mutableStateOf<List<FabricVersion>?>(null)
+    var legacyFabricList by mutableStateOf<List<LegacyFabricVersion>?>(null)
     var legacyFabricAPIList by mutableStateOf<List<ModVersion>?>(null)
     var quiltList by mutableStateOf<List<QuiltVersion>?>(null)
     var quiltAPIList by mutableStateOf<List<ModVersion>?>(null)
@@ -70,7 +71,7 @@ class CurrentAddon {
     var neoforgeVersion = mutableStateOf<NeoForgeVersion?>(null)
     var fabricVersion = mutableStateOf<FabricVersion?>(null)
     var fabricAPIVersion = mutableStateOf<ModVersion?>(null)
-    var legacyFabricVersion = mutableStateOf<FabricVersion?>(null)
+    var legacyFabricVersion = mutableStateOf<LegacyFabricVersion?>(null)
     var legacyFabricAPIVersion = mutableStateOf<ModVersion?>(null)
     var quiltVersion = mutableStateOf<QuiltVersion?>(null)
     var quiltAPIVersion = mutableStateOf<ModVersion?>(null)
@@ -251,6 +252,7 @@ data class LoaderVerSupports(
     val isFabricSupports: Boolean,
     val isQuiltSupports: Boolean,
     val isCleanroomSupports: Boolean,
+    val isLegacyFabricSupports: Boolean,
 )
 
 @Composable
@@ -260,7 +262,8 @@ fun rememberLoaderVerSupports(mcVer: String) = remember(mcVer) {
         isNeoForgeSupports = mcVer.isBiggerVer("1.20", "23w18a"),
         isFabricSupports = fabricLike,
         isQuiltSupports = fabricLike,
-        isCleanroomSupports = mcVer == "1.12.2"
+        isCleanroomSupports = mcVer == "1.12.2",
+        isLegacyFabricSupports = !fabricLike
     )
 }
 
@@ -518,7 +521,7 @@ fun LegacyFabricList(
     currentAddon: CurrentAddon,
     addonList: AddonList,
     error: String? = null,
-    onValueChanged: (FabricVersion?) -> Unit = {},
+    onValueChanged: (LegacyFabricVersion?) -> Unit = {},
     onReload: () -> Unit = {}
 ) {
     var version by currentAddon.legacyFabricVersion

@@ -18,24 +18,19 @@
 
 package com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric
 
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersions
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.models.FabricLikeLoader
+import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 
-object LegacyFabricVersions : FabricLikeVersions(
-    officialUrl = "https://meta.legacyfabric.net/v2"
+class LegacyFabricVersion(
+    inherit: String,
+    version: String,
+    stable: Boolean
+): FabricLikeVersion(
+    inherit = inherit,
+    loaderName = ModLoader.LEGACY_FABRIC_API.displayName,
+    version = version,
+    stable = stable
 ) {
-    /**
-     * 获取 Fabric 列表
-     */
-    suspend fun fetchFabricLoaderList(mcVersion: String, force: Boolean = false): List<LegacyFabricVersion>? {
-        val list: List<FabricLikeLoader> = fetchLoaderList(force, "LegacyFabricVersions", mcVersion) ?: return null
-
-        return list.map { loader ->
-            LegacyFabricVersion(
-                inherit = mcVersion,
-                version = loader.version,
-                stable = loader.stable
-            )
-        }
-    }
+    override val loaderUrl: String
+        get() = "${LegacyFabricVersions.officialUrl}/versions/loader"
 }

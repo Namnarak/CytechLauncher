@@ -186,6 +186,7 @@ class GameInstaller(
         val forgeDir: File?,
         val neoforgeDir: File?,
         val fabricDir: File?,
+        val legacyFabricDir: File?,
         val quiltDir: File?,
         val cleanroomDir: File?
     )
@@ -216,6 +217,7 @@ class GameInstaller(
         val forgeDir = info.forge?.let { File(tempGameVersionsDir, "forge-${it.versionName}") }
         val neoforgeDir = info.neoforge?.let { File(tempGameVersionsDir, "neoforge-${it.versionName}") }
         val fabricDir = info.fabric?.let { File(tempGameVersionsDir, "fabric-loader-${it.version}-${info.gameVersion}") }
+        val legacyFabricDir = info.legacyFabric?.let { File(tempGameVersionsDir, "legacy-fabric-loader-${it.version}-${info.gameVersion}") }
         val quiltDir = info.quilt?.let { File(tempGameVersionsDir, "quilt-loader-${it.version}-${info.gameVersion}") }
         val cleanroomDir = info.cleanroom?.let { File(tempGameVersionsDir, "cleanroom-${it.version}-${info.gameVersion}") }
 
@@ -233,6 +235,7 @@ class GameInstaller(
             forgeDir = forgeDir,
             neoforgeDir = neoforgeDir,
             fabricDir = fabricDir,
+            legacyFabricDir = legacyFabricDir,
             quiltDir = quiltDir,
             cleanroomDir = cleanroomDir
         )
@@ -263,6 +266,7 @@ class GameInstaller(
                     pathConfig.forgeDir?.createDirAndLog()
                     pathConfig.neoforgeDir?.createDirAndLog()
                     pathConfig.fabricDir?.createDirAndLog()
+                    pathConfig.legacyFabricDir?.createDirAndLog()
                     pathConfig.quiltDir?.createDirAndLog()
                     pathConfig.cleanroomDir?.createDirAndLog()
                     pathConfig.tempModsDir.createDirAndLog()
@@ -281,6 +285,7 @@ class GameInstaller(
                     forgeDir = pathConfig.forgeDir,
                     neoforgeDir = pathConfig.neoforgeDir,
                     fabricDir = pathConfig.fabricDir,
+                    legacyFabricDir = pathConfig.legacyFabricDir,
                     quiltDir = pathConfig.quiltDir,
                     cleanroomDir = pathConfig.cleanroomDir,
                     tempModsDir = pathConfig.tempModsDir
@@ -296,6 +301,7 @@ class GameInstaller(
                         pathConfig.forgeDir != null ||
                         pathConfig.neoforgeDir != null ||
                         pathConfig.fabricDir != null ||
+                        pathConfig.legacyFabricDir != null ||
                         pathConfig.quiltDir != null ||
                         pathConfig.cleanroomDir != null ||
                         pathConfig.tempModsDir.listFiles()?.isNotEmpty() == true
@@ -311,6 +317,7 @@ class GameInstaller(
                             forgeFolder = pathConfig.forgeDir,
                             neoForgeFolder = pathConfig.neoforgeDir,
                             fabricFolder = pathConfig.fabricDir,
+                            legacyFabricFolder = pathConfig.legacyFabricDir,
                             quiltFolder = pathConfig.quiltDir,
                             cleanroomFolder = pathConfig.cleanroomDir,
                             onComplete = {
@@ -356,6 +363,7 @@ class GameInstaller(
                     pathConfig.forgeDir?.createDirAndLog()
                     pathConfig.neoforgeDir?.createDirAndLog()
                     pathConfig.fabricDir?.createDirAndLog()
+                    pathConfig.legacyFabricDir?.createDirAndLog()
                     pathConfig.quiltDir?.createDirAndLog()
                     pathConfig.cleanroomDir?.createDirAndLog()
                     pathConfig.tempModsDir.createDirAndLog()
@@ -415,6 +423,7 @@ class GameInstaller(
                     forgeDir = pathConfig.forgeDir,
                     neoforgeDir = pathConfig.neoforgeDir,
                     fabricDir = pathConfig.fabricDir,
+                    legacyFabricDir = pathConfig.legacyFabricDir,
                     quiltDir = pathConfig.quiltDir,
                     cleanroomDir = pathConfig.cleanroomDir,
                     tempModsDir = pathConfig.tempModsDir
@@ -435,6 +444,7 @@ class GameInstaller(
                         forgeFolder = pathConfig.forgeDir,
                         neoForgeFolder = pathConfig.neoforgeDir,
                         fabricFolder = pathConfig.fabricDir,
+                        legacyFabricFolder = pathConfig.legacyFabricDir,
                         quiltFolder = pathConfig.quiltDir,
                         cleanroomFolder = pathConfig.cleanroomDir,
                         onComplete = {
@@ -453,6 +463,7 @@ class GameInstaller(
         forgeDir: File?,
         neoforgeDir: File?,
         fabricDir: File?,
+        legacyFabricDir: File?,
         quiltDir: File?,
         cleanroomDir: File?,
         tempModsDir: File
@@ -533,53 +544,70 @@ class GameInstaller(
             )
         }
 
-        // Fabric 安装
-        info.fabric?.let { fabricVersion ->
+        fun addFabricLike(
+            version: FabricLikeVersion,
+            dirName: String
+        ) {
             createFabricLikeTask(
-                fabricLikeVersion = fabricVersion,
+                fabricLikeVersion = version,
                 tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = fabricDir!!.name,
+                tempFolderName = dirName,
                 addTask = { title, icon, task ->
                     addTask(title = title, icon = icon, task = task)
                 }
             )
         }
-        info.fabricAPI?.let { apiVersion ->
+
+        fun addMod(
+            mod: ModVersion,
+            modName: String,
+            modVer: String,
+        ) {
             addTask(
                 title = context.getString(
                     R.string.download_game_install_base_download_file,
-                    ModLoader.FABRIC_API.displayName,
-                    info.fabricAPI.displayName
+                    modName, modVer
                 ),
                 task = createModLikeDownloadTask(
                     tempModsDir = tempModsDir,
-                    modVersion = apiVersion
+                    modVersion = mod
                 )
+            )
+        }
+
+        // Fabric 安装
+        info.fabric?.let { fabricVersion ->
+            addFabricLike(fabricVersion, fabricDir!!.name)
+        }
+        info.fabricAPI?.let { apiVersion ->
+            addMod(
+                mod = apiVersion,
+                modName = ModLoader.FABRIC_API.displayName,
+                modVer = apiVersion.displayName
+            )
+        }
+
+        // Legacy Fabric 安装
+        info.legacyFabric?.let { fabricVersion ->
+            addFabricLike(fabricVersion, legacyFabricDir!!.name)
+        }
+        info.legacyFabricAPI?.let { apiVersion ->
+            addMod(
+                mod = apiVersion,
+                modName = ModLoader.LEGACY_FABRIC_API.displayName,
+                modVer = apiVersion.displayName
             )
         }
 
         // Quilt 安装
         info.quilt?.let { quiltVersion ->
-            createFabricLikeTask(
-                fabricLikeVersion = quiltVersion,
-                tempMinecraftDir = tempMinecraftDir,
-                tempFolderName = quiltDir!!.name,
-                addTask = { title, icon, task ->
-                    addTask(title = title, icon = icon, task = task)
-                }
-            )
+            addFabricLike(quiltVersion, quiltDir!!.name)
         }
         info.quiltAPI?.let { apiVersion ->
-            addTask(
-                title = context.getString(
-                    R.string.download_game_install_base_download_file,
-                    ModLoader.QUILT_API.displayName,
-                    info.quiltAPI.displayName
-                ),
-                task = createModLikeDownloadTask(
-                    tempModsDir = tempModsDir,
-                    modVersion = apiVersion
-                )
+            addMod(
+                mod = apiVersion,
+                modName = ModLoader.QUILT_API.displayName,
+                modVer = apiVersion.displayName
             )
         }
 
@@ -849,6 +877,7 @@ class GameInstaller(
         forgeFolder: File? = null,
         neoForgeFolder: File? = null,
         fabricFolder: File? = null,
+        legacyFabricFolder: File? = null,
         quiltFolder: File? = null,
         cleanroomFolder: File? = null,
         onComplete: suspend () -> Unit = {}
@@ -866,6 +895,7 @@ class GameInstaller(
                 forgeFolder = forgeFolder,
                 neoForgeFolder = neoForgeFolder,
                 fabricFolder = fabricFolder,
+                legacyFabricFolder = legacyFabricFolder,
                 quiltFolder = quiltFolder,
                 cleanroomFolder = cleanroomFolder
             )

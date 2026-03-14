@@ -64,6 +64,8 @@ import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
 import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric.LegacyFabricAPIVersions
+import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.legacyfabric.LegacyFabricVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltAPIVersions
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
@@ -135,6 +137,25 @@ private class AddonsViewModel(
         }
     )
 
+    fun reloadLegacyFabric() = launchAddonReload(
+        { currentAddon.legacyFabricState = it },
+        { LegacyFabricVersions.fetchFabricLoaderList(gameVersion) },
+        { addonList.legacyFabricList = it }
+    )
+
+    fun reloadLegacyFabricAPI() = launchAddonReload(
+        { currentAddon.legacyFabricAPIState = it },
+        { LegacyFabricAPIVersions.fetchVersionList(gameVersion) },
+        {
+            addonList.legacyFabricAPIList = it
+            //检查用户是否已经选择了 Legacy Fabric
+            if (currentAddon.legacyFabricVersion.value != null) {
+                //如果已经选择，这里将会自动选择 Legacy Fabric API
+                currentAddon.legacyFabricAPIVersion.value = it?.firstOrNull()
+            }
+        }
+    )
+
     fun reloadQuilt() = launchAddonReload(
         { currentAddon.quiltState = it },
         { QuiltVersions.fetchQuiltLoaderList(gameVersion) },
@@ -179,6 +200,10 @@ private class AddonsViewModel(
         if (loaderSupports.isFabricSupports) {
             reloadFabric()
             reloadFabricAPI()
+        }
+        if (loaderSupports.isLegacyFabricSupports) {
+            reloadLegacyFabric()
+            reloadLegacyFabricAPI()
         }
         if (loaderSupports.isQuiltSupports) {
             reloadQuilt()
@@ -258,6 +283,10 @@ fun DownloadGameWithAddonScreen(
                                 .takeIf { loaderSupports.isFabricSupports },
                             fabricAPI = viewModel.currentAddon.fabricAPIVersion.value
                                 .takeIf { loaderSupports.isFabricSupports },
+                            legacyFabric = viewModel.currentAddon.legacyFabricVersion.value
+                                .takeIf { loaderSupports.isLegacyFabricSupports },
+                            legacyFabricAPI = viewModel.currentAddon.legacyFabricAPIVersion.value
+                                .takeIf { loaderSupports.isLegacyFabricSupports },
                             quilt = viewModel.currentAddon.quiltVersion.value
                                 .takeIf { loaderSupports.isQuiltSupports },
                             quiltAPI = viewModel.currentAddon.quiltAPIVersion.value
@@ -382,6 +411,64 @@ fun DownloadGameWithAddonScreen(
                             onValueChanged = { viewModel.refreshIcon() },
                             addonList = viewModel.addonList
                         ) { viewModel.reloadFabricAPI() }
+                    }
+                }
+
+                if (loaderSupports.isLegacyFabricSupports) {
+                    AnimatedItem(scope) { yOffset ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                        ) {
+                            val isFabricAPIWarning =
+                                viewModel.currentAddon.legacyFabricVersion.value != null &&
+                                        viewModel.currentAddon.legacyFabricAPIState == AddonState.None &&
+                                        !viewModel.addonList.legacyFabricAPIList.isNullOrEmpty() &&
+                                        viewModel.currentAddon.legacyFabricAPIVersion.value == null
+
+                            AnimatedVisibility(
+                                visible = isFabricAPIWarning
+                            ) {
+                                AddonWarningItem(
+                                    modifier = Modifier.padding(bottom = 12.dp),
+                                    text = stringResource(
+                                        R.string.download_game_addon_warning_api,
+                                        ModLoader.LEGACY_FABRIC_API.displayName
+                                    )
+                                )
+                            }
+
+                            LegacyFabricList(
+                                modifier = Modifier.fillMaxWidth(),
+                                currentAddon = viewModel.currentAddon,
+                                onValueChanged = { version ->
+                                    viewModel.refreshIcon()
+                                    //如果用户手动选择了 Legacy Fabric
+                                    if (version != null) {
+                                        //这里将会自动选择最新的 Legacy Fabric API
+                                        val lastAPIVersion =
+                                            viewModel.addonList.legacyFabricAPIList?.firstOrNull()
+                                        viewModel.currentAddon.legacyFabricAPIVersion.value = lastAPIVersion
+                                    }
+                                },
+                                addonList = viewModel.addonList
+                            ) { viewModel.reloadLegacyFabric() }
+                        }
+                    }
+
+                    AnimatedItem(scope) { yOffset ->
+                        LegacyFabricAPIList(
+                            modifier = Modifier.offset {
+                                IntOffset(
+                                    x = 0,
+                                    y = yOffset.roundToPx()
+                                )
+                            },
+                            currentAddon = viewModel.currentAddon,
+                            onValueChanged = { viewModel.refreshIcon() },
+                            addonList = viewModel.addonList
+                        ) { viewModel.reloadLegacyFabricAPI() }
                     }
                 }
 
@@ -572,6 +659,7 @@ private fun VersionIconPreview(
             currentAddon.forgeVersion.value != null -> R.drawable.img_anvil
             currentAddon.neoforgeVersion.value != null -> R.drawable.img_loader_neoforge
             currentAddon.fabricVersion.value != null -> R.drawable.img_loader_fabric
+            currentAddon.legacyFabricVersion.value != null -> R.drawable.img_loader_legacy_fabric
             currentAddon.quiltVersion.value != null -> R.drawable.img_loader_quilt
             currentAddon.cleanroomVersion.value != null -> R.drawable.img_loader_cleanroom
             else -> R.drawable.img_minecraft
@@ -596,35 +684,44 @@ private fun AutoChangeVersionName(
     editedByUser: Boolean,
     changeValue: (String) -> Unit = {}
 ) {
-    fun getOptiFine(optifine: OptiFineVersion) = "${ModLoader.OPTIFINE.displayName} ${optifine.realVersion}"
-    fun getForge(forge: ForgeVersion) = "${ModLoader.FORGE.displayName} ${forge.versionName}"
-
     LaunchedEffect(
-        currentAddon.optifineVersion,
-        currentAddon.forgeVersion,
-        currentAddon.neoforgeVersion,
-        currentAddon.fabricVersion,
-        currentAddon.quiltVersion,
-        currentAddon.cleanroomVersion,
+        currentAddon.optifineVersion.value,
+        currentAddon.forgeVersion.value,
+        currentAddon.neoforgeVersion.value,
+        currentAddon.fabricVersion.value,
+        currentAddon.legacyFabricVersion.value,
+        currentAddon.quiltVersion.value,
+        currentAddon.cleanroomVersion.value,
     ) {
-        if (editedByUser) return@LaunchedEffect //用户已修改，阻止自动更改
+        if (editedByUser) return@LaunchedEffect
 
-        val modloaderValue = when {
-            currentAddon.optifineVersion.value != null && currentAddon.forgeVersion.value != null -> {
-                //OptiFine & Forge 同时选择
-                val forge = getForge(currentAddon.forgeVersion.value!!)
-                val optifine = getOptiFine(currentAddon.optifineVersion.value!!)
-                "$forge-$optifine"
+        fun formatModloader(name: String, version: String) = "$name $version"
+        fun formatOptiFine(optifine: OptiFineVersion) = formatModloader(ModLoader.OPTIFINE.displayName, optifine.realVersion)
+        fun formatForge(forge: ForgeVersion) = formatModloader(ModLoader.FORGE.displayName, forge.versionName)
+
+        val modloaderValue = buildString {
+            with(currentAddon) {
+                when {
+                    optifineVersion.value != null && forgeVersion.value != null -> {
+                        append(formatForge(forgeVersion.value!!))
+                        append('-')
+                        append(formatOptiFine(optifineVersion.value!!))
+                    }
+                    optifineVersion.value != null -> append(formatOptiFine(optifineVersion.value!!))
+                    forgeVersion.value != null -> append(formatForge(forgeVersion.value!!))
+                    neoforgeVersion.value != null -> append(formatModloader(ModLoader.NEOFORGE.displayName, neoforgeVersion.value!!.versionName))
+                    fabricVersion.value != null -> append(formatModloader(ModLoader.FABRIC.displayName, fabricVersion.value!!.version))
+                    legacyFabricVersion.value != null -> append(formatModloader(ModLoader.LEGACY_FABRIC.displayName, legacyFabricVersion.value!!.version))
+                    quiltVersion.value != null -> append(formatModloader(ModLoader.QUILT.displayName, quiltVersion.value!!.version))
+                    cleanroomVersion.value != null -> append(formatModloader(ModLoader.CLEANROOM.displayName, cleanroomVersion.value!!.version))
+                    else -> {
+                        changeValue(gameVersion)
+                        return@LaunchedEffect
+                    }
+                }
             }
-            currentAddon.optifineVersion.value != null -> getOptiFine(currentAddon.optifineVersion.value!!)
-            currentAddon.forgeVersion.value != null -> getForge(currentAddon.forgeVersion.value!!)
-            currentAddon.neoforgeVersion.value != null -> "${ModLoader.NEOFORGE.displayName} ${currentAddon.neoforgeVersion.value!!.versionName}"
-            currentAddon.fabricVersion.value != null -> "${ModLoader.FABRIC.displayName} ${currentAddon.fabricVersion.value!!.version}"
-            currentAddon.quiltVersion.value != null -> "${ModLoader.QUILT.displayName} ${currentAddon.quiltVersion.value!!.version}"
-            currentAddon.cleanroomVersion.value != null -> "${ModLoader.CLEANROOM.displayName} ${currentAddon.cleanroomVersion.value!!.version}"
-            else -> null
         }
 
-        changeValue(modloaderValue?.let { "$gameVersion $it" } ?: gameVersion)
+        changeValue("$gameVersion $modloaderValue")
     }
 }
