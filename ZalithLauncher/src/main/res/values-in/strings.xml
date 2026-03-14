@@ -1145,4 +1145,5 @@
     <string name="versions_export_tip_remote_1">Selama proses ekspor, launcher akan mencoba mencocokkan resource online di platform %s dan menyematkan tautan alih-alih mengemas mod, resource pack, dan shader pack, sehingga ukuran modpack dapat diperkecil.</string>
     <string name="versions_export_tip_remote_2">Pada saat yang sama, mod yang dinonaktifkan akan disertakan sebagai komponen opsional.</string>
     <string name="settings_gamepad_config_create_contains">Konfigurasi dengan nama yang sama sudah ada</string>
+    <string name="versions_export_type_curseforge">CurseForge Modpack</string>
 </resources>
