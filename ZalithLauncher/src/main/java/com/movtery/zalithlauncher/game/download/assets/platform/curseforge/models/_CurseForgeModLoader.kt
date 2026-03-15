@@ -42,7 +42,7 @@ enum class CurseForgeModLoader(val code: Int) : ModLoaderDisplayLabel {
         override fun getDisplayName(): String = "Cauldron"
     },
     LITE_LOADER(3) {
-        override fun getDisplayName(): String = "LiteLoader"
+        override fun getDisplayName(): String = ModLoader.LITE_LOADER.displayName
     },
     FABRIC(4) {
         override fun getDisplayName(): String = ModLoader.FABRIC.displayName

@@ -55,6 +55,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,7 +70,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -90,6 +90,7 @@ import com.movtery.zalithlauncher.ui.components.NotificationCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryIcon
 import com.movtery.zalithlauncher.ui.screens.content.elements.CategoryItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
@@ -173,7 +174,9 @@ private class UpdateLoaderViewModel: ViewModel() {
     }
 
     fun cancel() {
-        installer?.cancelInstall()
+        installer?.cancelInstall(
+            clearTarget = false
+        )
         installer = null
         installOperation = UpdateLoaderOperation.None
     }
@@ -237,11 +240,15 @@ fun VersionSettingsScreen(
         currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
+            val loaderInfo = remember(key) {
+                key.version.getVersionInfo()?.loaderInfo
+            }
+
             TabMenu(
                 isVisible = isVisible,
                 backStack = key.backStack,
                 versionsScreenKey = key.currentKey,
-                canUpdateLoader = key.version.getVersionInfo()?.loaderInfo?.loader?.autoDownloadable == true,
+                isUpdateLoader = loaderInfo != null && loaderInfo.loader.autoDownloadable,
                 modifier = Modifier.fillMaxHeight()
             )
 
@@ -279,9 +286,9 @@ private val settingItems = listOf(
 @Composable
 private fun TabMenu(
     isVisible: Boolean,
-    backStack: NavBackStack<NavKey>,
-    versionsScreenKey: NavKey?,
-    canUpdateLoader: Boolean,
+    backStack: NavBackStack<TitledNavKey>,
+    versionsScreenKey: TitledNavKey?,
+    isUpdateLoader: Boolean,
     modifier: Modifier = Modifier
 ) {
     val xOffset by swapAnimateDpAsState(
@@ -302,11 +309,6 @@ private fun TabMenu(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         settingItems.forEach { item ->
-            if (!canUpdateLoader && item.key == NormalNavKey.Versions.UpdateLoader) {
-                //无法更新模组加载器，跳过这个选项
-                return@forEach
-            }
-
             if (item.division) {
                 HorizontalDivider(
                     modifier = Modifier
@@ -320,15 +322,33 @@ private fun TabMenu(
             NavigationRailItem(
                 selected = versionsScreenKey === item.key,
                 onClick = {
+                    if (item.key == NormalNavKey.Versions.UpdateLoader) {
+                        if (isUpdateLoader) {
+                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_update_loader
+                        } else {
+                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_install_loader
+                        }
+                    }
                     backStack.navigateOnce(item.key)
                 },
                 icon = {
                     item.icon()
                 },
                 label = {
+                    val text = if (item.key == NormalNavKey.Versions.UpdateLoader) {
+                        if (isUpdateLoader) {
+                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_update_loader
+                            stringResource(item.textRes)
+                        } else {
+                            NormalNavKey.Versions.UpdateLoader.title = R.string.versions_install_loader
+                            stringResource(R.string.versions_install_loader)
+                        }
+                    } else {
+                        stringResource(item.textRes)
+                    }
                     Text(
                         modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                        text = stringResource(item.textRes),
+                        text = text,
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )
@@ -346,8 +366,8 @@ private fun NavigationUI(
     key: NestedNavKey.VersionSettings,
     viewModel: UpdateLoaderViewModel,
     backScreenViewModel: ScreenBackStackViewModel,
-    versionsScreenKey: NavKey?,
-    onCurrentKeyChange: (NavKey?) -> Unit,
+    versionsScreenKey: TitledNavKey?,
+    onCurrentKeyChange: (TitledNavKey?) -> Unit,
     backToMainScreen: () -> Unit,
     onExport: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,

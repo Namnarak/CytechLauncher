@@ -289,13 +289,17 @@ class LaunchArgs(
      * [Modified from PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/blob/a6f3fc0/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/Tools.java#L871-L882)
      */
     private fun generateLibClasspath(gameManifest: GameManifest): Array<String> {
-        val libDir: MutableList<String> = ArrayList()
+        val libSortFix = LibSortFix(version.getVersionInfo())
+        val libs = LinkedHashMap<GameManifest.Library, String>()
+
         for (libItem in gameManifest.libraries) {
             if (!(GameManifest.Rule.checkRules(libItem.rules) && !libItem.isNative)) continue
-            val libArtifactPath: String = libItem.progressLibrary() ?: continue
-            libDir.add(getLibrariesHome() + "/" + libArtifactPath)
+            val path = libItem.progressLibrary() ?: continue
+            with(libSortFix) {
+                libs.insertLib(libItem, getLibrariesHome() + "/" + path)
+            }
         }
-        return libDir.toTypedArray<String>()
+        return libs.values.toTypedArray<String>()
     }
 
     /**

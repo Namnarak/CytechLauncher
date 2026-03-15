@@ -184,6 +184,11 @@ private fun extractMinecraftVersion(json: JsonObject): String {
  * @param versionJson 版本json对象
  */
 private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
+    var hasFabric = false
+    var hasLegacyFabric = false
+    var hasBabric = false
+    var fabricLoaderVer: String? = null
+
     versionJson.getAsJsonArray("libraries")?.forEach { libElement ->
         val lib = libElement.asJsonObject
         val (group, artifact, version) = lib.get("name").asString.split(":").let {
@@ -191,9 +196,21 @@ private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
         }
 
         when {
-            //Fabric
-            group == "net.fabricmc" && artifact == "fabric-loader" ->
-                return VersionInfo.LoaderInfo(ModLoader.FABRIC, version)
+            //Fabric Loader
+            group == "net.fabricmc" && artifact == "fabric-loader" -> {
+                hasFabric = true
+                fabricLoaderVer = version
+            }
+
+            //Legacy Fabric
+            group == "net.legacyfabric" && artifact == "intermediary" -> {
+                hasLegacyFabric = true
+            }
+
+            //Babric
+            group == "babric" && artifact == "intermediary-upstream" -> {
+                hasBabric = true
+            }
 
             //Forge
             group == "net.minecraftforge" && (artifact == "forge" || artifact == "fmlloader") -> {
@@ -239,6 +256,19 @@ private fun detectModLoader(versionJson: JsonObject): VersionInfo.LoaderInfo? {
             group == "com.cleanroommc" && artifact == "cleanroom" ->
                 return VersionInfo.LoaderInfo(ModLoader.CLEANROOM, version)
         }
+    }
+
+    //Fabric 全家桶
+    if (hasFabric && fabricLoaderVer != null) {
+        //包含Fabric加载器
+        val loader = if (hasLegacyFabric) {
+            ModLoader.LEGACY_FABRIC
+        } else if (hasBabric) {
+            ModLoader.BABRIC
+        } else {
+            ModLoader.FABRIC
+        }
+        return VersionInfo.LoaderInfo(loader, fabricLoaderVer)
     }
 
     return null

@@ -47,7 +47,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
@@ -58,6 +57,7 @@ import com.movtery.zalithlauncher.ui.components.AnimatedLazyColumn
 import com.movtery.zalithlauncher.ui.components.WarningCard
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.CardPosition
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.IntSliderSettingsCard
 import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSettingsCard
@@ -116,8 +116,8 @@ fun ExportInfoScreen(
     info: ExportInfo,
     onInfoEdited: (ExportInfo) -> Unit,
     onFinishClick: () -> Unit,
-    mainScreenKey: NavKey?,
-    exportScreenKey: NavKey?,
+    mainScreenKey: TitledNavKey?,
+    exportScreenKey: TitledNavKey?,
 ) {
     BaseScreen(
         levels1 = listOf(
@@ -420,8 +420,9 @@ fun ExportInfoScreen(
                                 modifier = Modifier
                                     .offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                                 title = stringResource(R.string.generic_tip),
-                                icon = {
+                                icon = { innerModifier ->
                                     Icon(
+                                        modifier = innerModifier,
                                         imageVector = Icons.Default.Lightbulb,
                                         contentDescription = null
                                     )

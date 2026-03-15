@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
+import com.movtery.zalithlauncher.game.addons.modloader.cleanroom.CleanroomVersion
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.FabricLikeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.forge.ForgeVersion
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
@@ -633,6 +634,33 @@ fun FabricLikeSummary(
             )
             Text(text = typeText, style = textStyle)
         }
+    }
+}
+
+@Composable
+fun CleanroomSummary(
+    version: CleanroomVersion,
+    iconSize: Dp = 14.dp,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall
+) {
+    //更新时间
+    Row(
+        modifier = Modifier.alpha(alpha = 0.7f),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier.size(iconSize),
+            imageVector = Icons.Outlined.Autorenew,
+            contentDescription = null
+        )
+        Text(
+            text = getTimeAgo(
+                context = LocalContext.current,
+                pastInstant = version.createdAt
+            ),
+            style = textStyle
+        )
     }
 }
 
