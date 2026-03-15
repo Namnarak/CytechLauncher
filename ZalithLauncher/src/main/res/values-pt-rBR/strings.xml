@@ -1146,4 +1146,9 @@
     <string name="files_importing">Importando Arquivos</string>
     <string name="files_delete_file">Tem certeza de que deseja excluir %s?</string>
     <string name="versions_export_type_curseforge">Modpack do Curseforge</string>
+    <string name="page_title_version_list">Lista de versões</string>
+    <string name="page_title_version_manage">­Gerenciar versões</string>
+    <string name="page_title_account_list">Lista de contas</string>
+    <string name="page_title_select_files">Selecionar Caminho</string>
+    <string name="versions_install_loader">Instalar Loader</string>
 </resources>
