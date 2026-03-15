@@ -35,51 +35,45 @@ class KeyEventHandler(
      * 按下按键
      */
     fun pressKey(key: String) {
-        val count = keyEvents[key] ?: 0
-        keyEvents[key] = count + 1
-        handle(key)
+        var shouldPress = false
+        keyEvents.compute(key) { _, old ->
+            val oldCount = old ?: 0
+            shouldPress = oldCount == 0
+            oldCount + 1
+        }
+        if (shouldPress) {
+            handle(key, true)
+        }
     }
 
     fun releaseKey(key: String) {
-        val count = keyEvents[key] ?: 0
-        keyEvents[key] = count - 1
-        handle(key)
-    }
-
-    /**
-     * 清除所有按键事件
-     */
-    fun clearEvent() {
-        keyEvents.replaceAll { _, _ -> 0 }
-        handle()
-    }
-
-    private fun handle(primaryKey: String? = null) {
-        val iterator = keyEvents.iterator()
-        while (iterator.hasNext()) {
-            val (key, count) = iterator.next()
-            val pressed = when (count) {
-                1 -> true
-                0 -> {
-                    iterator.remove()
-                    false
+        var shouldRelease = false
+        keyEvents.compute(key) { _, old ->
+            when {
+                old == null || old <= 0 -> {
+                    shouldRelease = false
+                    null
+                }
+                old == 1 -> {
+                    shouldRelease = true
+                    null
                 }
                 else -> {
-                    if (count < 0) {
-                        iterator.remove()
-                        false
-                    } else {
-                        continue
-                    }
+                    shouldRelease = false
+                    old - 1
                 }
             }
-            if (pressed) {
-                if (key == primaryKey) {
-                    handle(key, true)
-                }
-            } else {
-                handle(key, false)
-            }
+        }
+        if (shouldRelease) {
+            handle(key, false)
+        }
+    }
+
+    fun clearEvent() {
+        val allKeys = keyEvents.keys.toSet()
+        keyEvents.clear()
+        allKeys.forEach {
+            handle(it, false)
         }
     }
 }
