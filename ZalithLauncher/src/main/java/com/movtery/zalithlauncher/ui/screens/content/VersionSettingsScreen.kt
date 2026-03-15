@@ -173,7 +173,9 @@ private class UpdateLoaderViewModel: ViewModel() {
     }
 
     fun cancel() {
-        installer?.cancelInstall()
+        installer?.cancelInstall(
+            clearTarget = false
+        )
         installer = null
         installOperation = UpdateLoaderOperation.None
     }

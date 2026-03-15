@@ -625,10 +625,14 @@ class GameInstaller(
         }
     }
 
-    fun cancelInstall() {
+    fun cancelInstall(
+        clearTarget: Boolean = true
+    ) {
         taskExecutor.cancel()
 
-        clearTargetClient()
+        if (clearTarget) {
+            clearTargetClient()
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             //停止Jvm服务
