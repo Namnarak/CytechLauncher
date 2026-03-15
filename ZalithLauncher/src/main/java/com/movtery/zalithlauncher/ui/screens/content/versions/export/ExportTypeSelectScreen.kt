@@ -120,7 +120,7 @@ fun ExportTypeSelectScreen(
                     modifier = Modifier
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                         .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     //MCBBS
                     TypeItem(
