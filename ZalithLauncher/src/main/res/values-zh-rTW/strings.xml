@@ -607,6 +607,7 @@
     <string name="versions_config_failed_to_save">儲存版本組態時發生異常</string>
     <string name="versions_config_microphone_check_title">檢查麥克風</string>
     <string name="versions_config_microphone_check_summary">檢查系統麥克風是否可用，或確認啟動器是否已獲得麥克風權限。此檢查將確保您可以使用像 Simple Voice Chat 這樣需要使用麥克風的模組。</string>
+    <string name="versions_install_loader">安裝載入器</string>
     <string name="versions_update_loader">更新載入器</string>
     <string name="versions_update_loader_waiting_for_others">等待其他項目完成加載</string>
     <string name="versions_update_loader_diff_message">您確定要變更當前遊戲的載入器嗎？</string>

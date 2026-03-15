@@ -657,6 +657,7 @@
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
     <string name="versions_config_microphone_check_title">Check Microphone</string>
     <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
+    <string name="versions_install_loader">Install Loader</string>
     <string name="versions_update_loader">Update Loader</string>
     <string name="versions_update_loader_waiting_for_others">Waiting for other items to finish loading</string>
     <string name="versions_update_loader_diff_message">Are you sure you want to change the current game\'s loader?</string>

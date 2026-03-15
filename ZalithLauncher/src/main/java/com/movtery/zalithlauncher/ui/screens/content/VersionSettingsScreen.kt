@@ -55,6 +55,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -239,11 +240,15 @@ fun VersionSettingsScreen(
         currentKey = backScreenViewModel.mainScreen.currentKey
     ) { isVisible ->
         Row(modifier = Modifier.fillMaxSize()) {
+            val loaderInfo = remember(key) {
+                key.version.getVersionInfo()?.loaderInfo
+            }
+
             TabMenu(
                 isVisible = isVisible,
                 backStack = key.backStack,
                 versionsScreenKey = key.currentKey,
-                canUpdateLoader = key.version.getVersionInfo()?.loaderInfo?.loader?.autoDownloadable == true,
+                isUpdateLoader = loaderInfo != null && loaderInfo.loader.autoDownloadable,
                 modifier = Modifier.fillMaxHeight()
             )
 
@@ -283,7 +288,7 @@ private fun TabMenu(
     isVisible: Boolean,
     backStack: NavBackStack<NavKey>,
     versionsScreenKey: NavKey?,
-    canUpdateLoader: Boolean,
+    isUpdateLoader: Boolean,
     modifier: Modifier = Modifier
 ) {
     val xOffset by swapAnimateDpAsState(
@@ -304,11 +309,6 @@ private fun TabMenu(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         settingItems.forEach { item ->
-            if (!canUpdateLoader && item.key == NormalNavKey.Versions.UpdateLoader) {
-                //无法更新模组加载器，跳过这个选项
-                return@forEach
-            }
-
             if (item.division) {
                 HorizontalDivider(
                     modifier = Modifier
@@ -328,9 +328,18 @@ private fun TabMenu(
                     item.icon()
                 },
                 label = {
+                    val text = if (item.key == NormalNavKey.Versions.UpdateLoader) {
+                        if (isUpdateLoader) {
+                            stringResource(item.textRes)
+                        } else {
+                            stringResource(R.string.versions_install_loader)
+                        }
+                    } else {
+                        stringResource(item.textRes)
+                    }
                     Text(
                         modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
-                        text = stringResource(item.textRes),
+                        text = text,
                         maxLines = 1,
                         style = MaterialTheme.typography.labelMedium
                     )

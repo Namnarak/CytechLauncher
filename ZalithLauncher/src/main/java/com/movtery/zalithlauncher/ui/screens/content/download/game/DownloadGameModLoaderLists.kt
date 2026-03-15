@@ -553,7 +553,7 @@ fun LegacyFabricList(
 fun LegacyFabricAPIList(
     modifier: Modifier = Modifier,
     currentAddon: CurrentAddon,
-    requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.FABRIC.displayName),
+    requestString: String = stringResource(R.string.download_game_addon_request_addon, ModLoader.LEGACY_FABRIC.displayName),
     addonList: AddonList,
     error: String? = null,
     onValueChanged: () -> Unit = {},

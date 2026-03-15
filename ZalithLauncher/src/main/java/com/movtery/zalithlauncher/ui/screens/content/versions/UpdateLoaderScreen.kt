@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -117,26 +118,41 @@ data class AddonDiffs(
  * 生成模组加载器版本差异信息
  */
 private fun CurrentAddon.generateDiff(
-    loaderInfo: VersionInfo.LoaderInfo
+    loaderInfo: VersionInfo.LoaderInfo?
 ): AddonDiffs {
-    val currentLoader = loaderInfo.loader
-    val currentVersion = loaderInfo.version
+    val diffs = mutableListOf<AddonDiffs.Diff>()
 
     val loaderVersions = mapOf(
         ModLoader.FORGE to forgeVersion.value,
         ModLoader.NEOFORGE to neoforgeVersion.value,
         ModLoader.FABRIC to fabricVersion.value,
+        ModLoader.LEGACY_FABRIC to legacyFabricVersion.value,
         ModLoader.QUILT to quiltVersion.value,
         ModLoader.CLEANROOM to cleanroomVersion.value
     )
+
+    if (loaderInfo == null) {
+        loaderVersions.forEach { (loader, version) ->
+            if (version != null) {
+                diffs.add(
+                    AddonDiffs.NewLoadDiff(
+                        modloader = loader,
+                        version = version.getAddonVersion()
+                    )
+                )
+            }
+        }
+        return AddonDiffs(list = diffs.toList())
+    }
+
+    val currentLoader = loaderInfo.loader
+    val currentVersion = loaderInfo.version
 
     val currentAddonVersion = if (loaderVersions.containsKey(currentLoader)) {
         loaderVersions[currentLoader]
     } else {
         error("The launcher does not support automatically downloading this loader: ${currentLoader.displayName}")
     }
-
-    val diffs = mutableListOf<AddonDiffs.Diff>()
 
     //当前加载器的变更
     if (currentAddonVersion == null) {
@@ -152,23 +168,23 @@ private fun CurrentAddon.generateDiff(
     }
 
     //新载入加载器的变更情况
-    loaderVersions
-        .filter { (loader, version) -> loader != currentLoader && version != null }
-        .forEach { (loader, addonVersion) ->
+    loaderVersions.forEach { (loader, version) ->
+        if (loader != currentLoader && version != null) {
             diffs.add(
                 AddonDiffs.NewLoadDiff(
                     modloader = loader,
-                    version = addonVersion!!.getAddonVersion()
+                    version = version.getAddonVersion()
                 )
             )
         }
+    }
 
     return AddonDiffs(list = diffs.toList())
 }
 
 private class AddonsViewModel(
     private val gameVersion: String,
-    private val loaderInfo: VersionInfo.LoaderInfo,
+    private val loaderInfo: VersionInfo.LoaderInfo?,
     private val loaderSupports: LoaderVerSupports
 ) : ViewModel() {
     private val mutex = Mutex()
@@ -237,6 +253,13 @@ private class AddonsViewModel(
                 add(addonList.cleanroomList)
             }
         }.isEmpty()
+
+        if (loaderInfo == null) {
+            //如果当前版本没有加载器，则根据当前是否选择加载器决定
+            canUpdate = !unselectedLoader
+            return
+        }
+
         if (unselectedLoader) {
             //用户没有选择任何加载器
             canUpdate = false
@@ -247,6 +270,7 @@ private class AddonsViewModel(
             ModLoader.FORGE -> currentAddon.forgeVersion.value
             ModLoader.NEOFORGE -> currentAddon.neoforgeVersion.value
             ModLoader.FABRIC -> currentAddon.fabricVersion.value
+            ModLoader.LEGACY_FABRIC -> currentAddon.legacyFabricVersion.value
             ModLoader.QUILT -> currentAddon.quiltVersion.value
             ModLoader.CLEANROOM -> currentAddon.cleanroomVersion.value
             else -> null
@@ -274,6 +298,7 @@ private class AddonsViewModel(
         { ForgeVersions.fetchForgeList(gameVersion) }
     ).also { versions ->
         addonList.forgeList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.FORGE && currentAddon.forgeVersion.value == null) {
             currentAddon.forgeVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -292,6 +317,7 @@ private class AddonsViewModel(
         { NeoForgeVersions.fetchNeoForgeList(gameVersion = gameVersion) }
     ).also { versions ->
         addonList.neoforgeList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.NEOFORGE && currentAddon.neoforgeVersion.value == null) {
             currentAddon.neoforgeVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -310,6 +336,7 @@ private class AddonsViewModel(
         { FabricVersions.fetchFabricLoaderList(gameVersion) }
     ).also { versions ->
         addonList.fabricList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.FABRIC && currentAddon.fabricVersion.value == null) {
             currentAddon.fabricVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -328,6 +355,7 @@ private class AddonsViewModel(
         { LegacyFabricVersions.fetchFabricLoaderList(gameVersion) }
     ).also { versions ->
         addonList.legacyFabricList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.LEGACY_FABRIC && currentAddon.legacyFabricVersion.value == null) {
             currentAddon.legacyFabricVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -346,6 +374,7 @@ private class AddonsViewModel(
         { QuiltVersions.fetchQuiltLoaderList(gameVersion) }
     ).also { versions ->
         addonList.quiltList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.QUILT && currentAddon.quiltVersion.value == null) {
             currentAddon.quiltVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -365,6 +394,7 @@ private class AddonsViewModel(
         { CleanroomVersions.fetchLoaderList(gameVersion) }
     ).also { versions ->
         addonList.cleanroomList = versions
+        if (loaderInfo == null) return@also
         if (loaderInfo.loader == ModLoader.CLEANROOM && currentAddon.cleanroomVersion.value == null) {
             currentAddon.cleanroomVersion.value = versions?.find {
                 it.isVersion(loaderInfo.version)
@@ -448,8 +478,9 @@ fun UpdateLoaderScreen(
     version: Version,
     onInstall: (AddonDiffs, GameDownloadInfo) -> Unit
 ) {
-    val versionInfo = version.getVersionInfo() ?: error("Using the \"Loader Update Screen\" is not supported for versions with unspecified version information.")
-    val loaderInfo = versionInfo.loaderInfo ?: error("Using the \"Loader Update Screen\" is not supported for unspecified versions of the mod loader.")
+    val versionInfo = remember(version) {
+        version.getVersionInfo() ?: error("Using the \"Loader Update Screen\" is not supported for versions with unspecified version information.")
+    }
 
     val loaderSupports = rememberLoaderVerSupports(versionInfo.minecraftVersion)
 
@@ -458,7 +489,7 @@ fun UpdateLoaderScreen(
     ) {
         AddonsViewModel(
             gameVersion = versionInfo.minecraftVersion,
-            loaderInfo = loaderInfo,
+            loaderInfo = versionInfo.loaderInfo,
             loaderSupports = loaderSupports
         )
     }
@@ -563,7 +594,7 @@ fun UpdateLoaderScreen(
                         enabled = viewModel.canUpdate,
                         onClick = {
                             onInstall(
-                                viewModel.currentAddon.generateDiff(loaderInfo),
+                                viewModel.currentAddon.generateDiff(versionInfo.loaderInfo),
                                 GameDownloadInfo(
                                     gameVersion = versionInfo.minecraftVersion,
                                     customVersionName = version.getVersionName(),
