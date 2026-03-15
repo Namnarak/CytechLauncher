@@ -67,7 +67,7 @@ const val FORGE_LIKE_INSTALL_ID = "Install.ForgeLike"
 fun getForgeLikeInstallTask(
     isNew: Boolean,
     downloader: BaseMinecraftDownloader,
-    forgeLikeVersion: ForgeLikeVersion,
+    loaderName: String,
     tempFolderName: String,
     tempInstaller: File,
     tempGameFolder: File,
@@ -83,7 +83,7 @@ fun getForgeLikeInstallTask(
                 //以 HMCL 的方式手动安装
                 installNewForgeHMCLWay(
                     task = task,
-                    forgeLikeVersion = forgeLikeVersion,
+                    loaderName = loaderName,
                     tempInstaller = tempInstaller,
                     tempGameFolder = tempGameFolder,
                     tempMinecraftDir = tempMinecraftDir,
@@ -93,7 +93,7 @@ fun getForgeLikeInstallTask(
 
 //                installNewForgePCLWay(
 //                    task = task,
-//                    forgeLikeVersion = forgeLikeVersion,
+//                    loaderName = loaderName,
 //                    tempVersionJson = tempVersionJson,
 //                    tempInstaller = tempInstaller,
 //                    tempGameFolder = tempGameFolder,
@@ -122,7 +122,7 @@ fun getForgeLikeInstallTask(
  */
 private suspend fun installNewForgeHMCLWay(
     task: Task,
-    forgeLikeVersion: ForgeLikeVersion,
+    loaderName: String,
     tempInstaller: File,
     tempGameFolder: File,
     tempMinecraftDir: File,
@@ -139,7 +139,7 @@ private suspend fun installNewForgeHMCLWay(
         //解压版本Json
         zip.extractEntryToFile("version.json", tempVersionJson)
 
-        task.updateProgress(0.2f, R.string.download_game_install_forgelike_preparing_mapping_file, forgeLikeVersion.loaderName)
+        task.updateProgress(0.2f, R.string.download_game_install_forgelike_preparing_mapping_file, loaderName)
         installProfile["data"].asJsonObject?.let { data ->
             for ((key, value) in data.entrySet()) {
                 if (value.isJsonObject) {
@@ -171,7 +171,7 @@ private suspend fun installNewForgeHMCLWay(
         installProfile
     }
 
-    task.updateProgress(1f, R.string.download_game_install_forgelike_preparing_mapping_file, forgeLikeVersion.loaderName)
+    task.updateProgress(1f, R.string.download_game_install_forgelike_preparing_mapping_file, loaderName)
 
     vars["SIDE"] = "client"
     vars["MINECRAFT_JAR"] = tempVanillaJar.absolutePath
@@ -201,7 +201,7 @@ private suspend fun installNewForgeHMCLWay(
 @Suppress("unused")
 private suspend fun installNewForgePCLWay(
     task: Task,
-    forgeLikeVersion: ForgeLikeVersion,
+    loaderName: String,
     tempVersionJson: File,
     tempInstaller: File,
     tempGameFolder: File,
@@ -212,7 +212,7 @@ private suspend fun installNewForgePCLWay(
     val beforeLog = dirsBeforeInstall.joinToString(", ") { it.name }
     lInfo("All version folders before installation: $beforeLog")
 
-    task.updateProgress(-1f, R.string.download_game_install_base_installing, forgeLikeVersion.loaderName)
+    task.updateProgress(-1f, R.string.download_game_install_base_installing, loaderName)
 
     stopAllNonMainProcesses(GlobalContext)
     runJvmRetryRuntimes(
@@ -236,7 +236,7 @@ private suspend fun installNewForgePCLWay(
         userHome = tempGameFolder.absolutePath.trimEnd('\\')
     )
 
-    task.updateProgress(0.9f, R.string.download_game_install_base_installing, forgeLikeVersion.loaderName)
+    task.updateProgress(0.9f, R.string.download_game_install_base_installing, loaderName)
 
     //检测差异
     val currentArray = File(tempMinecraftDir, "versions").listFiles { file -> file.isDirectory } ?: emptyArray()

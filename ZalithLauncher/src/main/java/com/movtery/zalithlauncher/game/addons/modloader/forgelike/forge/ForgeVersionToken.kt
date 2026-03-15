@@ -40,7 +40,7 @@ data class ForgeVersionToken(
         @SerialName("format")
         val format: String,
         @SerialName("hash")
-        val hash: String
+        val hash: String? = null
     )
 }
 

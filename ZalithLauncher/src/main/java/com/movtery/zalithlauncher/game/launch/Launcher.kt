@@ -163,8 +163,8 @@ abstract class Launcher(
             put("user.home", userHome ?: GamePathManager.getUserHome())
             if (useLocalLanguage) {
                 put("user.language", System.getProperty("user.language"))
+                put("user.country", Locale.getDefault().country)
             }
-            put("user.country", Locale.getDefault().country)
             put("user.timezone", TimeZone.getDefault().id)
             put("os.name", "Linux")
             put("os.version", "Android-${Build.VERSION.RELEASE}")
