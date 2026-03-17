@@ -154,7 +154,7 @@
     <string name="download_assets_filter_game_version">Versi Game</string>
     <string name="sort_by">Urutkan Berdasarkan</string>
     <string name="download_assets_filter_category">Kategori</string>
-    <string name="download_assets_filter_modloader">Pemuat Mod</string>
+    <string name="download_assets_filter_modloader">Mod Loader</string>
     <string name="download_assets_filter_none">Tidak Dipilih</string>
     <string name="download_assets_filter_sort_by_relevant">Relevan</string>
     <string name="download_assets_filter_sort_by_total_downloads">Total Unduhan</string>
@@ -963,7 +963,7 @@
     <string name="control_editor_edit_event_launcher_send_text_summary">Saat komponen ini diklik, game akan mencoba mengirim teks berikut</string>
     <string name="control_editor_edit_event_launcher_send_text_hint">Biarkan kosong jika tidak ada aksi</string>
     <string name="generic_tip">Kiat</string>
-    <string name="import_modpack">Masukkan Modpack</string>
+    <string name="import_modpack">Impor Modpack</string>
     <string name="import_modpack_tip">kami dapat mengimpor berkas modpack lokal. Peluncur saat ini mendukung format berikut:</string>
     <string name="import_modpack_task_unpack">Impor dan buka paket file</string>
     <string name="import_modpack_task_parse">Memproses modpack</string>
