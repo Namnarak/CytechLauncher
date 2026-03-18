@@ -1135,4 +1135,15 @@
     <string name="settings_gamepad_config_create_name">設定名</string>
     <string name="settings_gamepad_config_create_contains">同じ名前の設定がすでに存在します</string>
     <string name="settings_gamepad_config_no_items">設定が作成されていないため、切り替えできません</string>
+    <string name="files_browse_folder">フォルダを参照</string>
+    <string name="files_importing">ファイルのインポート</string>
+    <string name="files_delete_file">%s を削除してもよろしいですか？</string>
+    <string name="versions_export_type_curseforge">CurseForge モッドパック</string>
+    <string name="versions_export_tip_1">モッドパックをエクスポートする前に、お使いのバージョンが正しく起動できることを確認してください、</string>
+    <string name="versions_export_tip_2">Minecraft がリリースバージョン（モッドローダーが許可されている）であり、スナップショットやサードパーティ製のクライアントではないことを確認してください、</string>
+    <string name="versions_export_tip_3">非公式チャネルでの配布が許可されていないモッド、リソースパック、その他のアセットが含まれていないことを確認してください、</string>
+    <string name="versions_export_tip_4">また、EULAに違反するモッド、リソースパック、その他のアセットを含めることはできません、</string>
+    <string name="versions_export_tip_5">モッドパックは指定したモッドパック名を最終ファイル名として、選択したディレクトリにエクスポートされます。</string>
+    <string name="versions_export_tip_remote_1">エクスポート中、ランチャーは %s プラットフォーム上のリモートリソースを照合し、モッド、リソースパック、シェーダーパックをパッケージ化する代わりにリンクを埋め込みます。これにより、モッドパックのサイズが削減されます。</string>
+    <string name="versions_export_tip_remote_2">同時に、無効化されたモッドはオプションとして利用できるようになります。</string>
 </resources>
