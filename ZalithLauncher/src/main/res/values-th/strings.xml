@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="generic_cancel">ยกเลิก</string>
+    <string name="generic_confirm">ตกลง</string>
+    <string name="generic_error">ข้อผิดพลาด</string>
+    <string name="generic_tip">เคล็ดลับ</string>
+    <string name="generic_warning">คำเตือน</string>
+    <string name="generic_back">กลับ</string>
 </resources>
