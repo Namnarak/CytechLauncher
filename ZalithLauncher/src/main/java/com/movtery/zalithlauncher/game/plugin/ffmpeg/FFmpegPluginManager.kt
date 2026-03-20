@@ -49,10 +49,15 @@ object FFmpegPluginManager {
     ) {
         val manager: PackageManager = context.packageManager
         runCatching {
-            val info = manager.getPackageInfo(
-                PLUGIN_PACKAGE_NAME,
-                PackageManager.GET_SHARED_LIBRARY_FILES
-            )
+            val info = try {
+                manager.getPackageInfo(
+                    PLUGIN_PACKAGE_NAME,
+                    PackageManager.GET_SHARED_LIBRARY_FILES
+                )
+            } catch (_: PackageManager.NameNotFoundException) {
+                //未安装
+                return
+            }
             val applicationInfo = info.applicationInfo!!
             libraryPath = applicationInfo.nativeLibraryDir
             val ffmpegExecutable = File(libraryPath, "libffmpeg.so")

@@ -36,14 +36,17 @@ import androidx.compose.ui.unit.TextUnitType
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.screens.game.elements.log_parser.LogHighlighter
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.util.Collections
 
 @Composable
@@ -79,17 +82,28 @@ fun LogBox(
             launch(Dispatchers.Default) {
                 val mutex = Mutex()
                 while (isActive) {
-                    delay(config.BUFFER_FLUSH_INTERVAL)
+                    try {
+                        ensureActive()
+                        delay(config.BUFFER_FLUSH_INTERVAL)
+                        val pending = mutableListOf<AnnotatedString>()
 
-                    mutex.withLock {
-                        synchronized(buffer) {
-                            if (buffer.isNotEmpty()) {
-                                logList.addAll(buffer)
-                                buffer.clear()
+                        mutex.withLock {
+                            synchronized(buffer) {
+                                if (buffer.isNotEmpty()) {
+                                    pending.addAll(buffer)
+                                    buffer.clear()
+                                }
+                            }
+                        }
+                        if (pending.isNotEmpty()) {
+                            withContext(Dispatchers.Main) {
+                                logList.addAll(pending)
                                 //尝试进行滚动
                                 scrollChannel.trySend(Unit)
                             }
                         }
+                    } catch (_: CancellationException) {
+                        break
                     }
                 }
             }
@@ -97,8 +111,11 @@ fun LogBox(
             //自动滚动部分
             launch(Dispatchers.Main) {
                 scrollChannel.consumeAsFlow().collect {
-                    if (logList.isNotEmpty()) {
-                        scrollState.animateScrollToItem(logList.lastIndex)
+                    runCatching {
+                        val targetIndex = logList.lastIndex
+                        if (targetIndex >= 0 && targetIndex < logList.size) {
+                            scrollState.animateScrollToItem(targetIndex)
+                        }
                     }
                 }
             }

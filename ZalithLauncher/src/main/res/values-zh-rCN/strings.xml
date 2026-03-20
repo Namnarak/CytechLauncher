@@ -54,6 +54,15 @@
     <string name="generic_copied">已复制</string>
     <string name="generic_no_matching_items">没有符合条件的项目</string>
     <string name="generic_follow_system">跟随系统</string>
+    <!--  页面标题  -->
+    <string name="page_title_version_list">版本列表</string>
+    <string name="page_title_version_manage">管理版本</string>
+    <string name="page_title_account_list">账号列表</string>
+    <string name="page_title_select_files">选择路径</string>
+    <!--  文件  -->
+    <string name="files_browse_folder">浏览目录</string>
+    <string name="files_importing">导入文件中</string>
+    <string name="files_delete_file">你确定要删除 %s 吗？</string>
     <!--  单位  -->
     <string name="unit_day">天</string>
     <string name="date_format">yyyy \'年\' MM \'月\' dd \'日\' HH:mm:ss</string>
@@ -348,6 +357,7 @@
     <string name="import_modpack_failed_title">导入失败</string>
     <string name="import_modpack_failed_text">在安装整合包的过程中遇到了异常：</string>
     <!--  版本描述  -->
+    <string name="version_summary_fools_2_0">我们不会更新它们！如果您发现漏洞，那您就倒霉了！XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">爱与拥抱更新，让世界充满和平与彩虹。</string>
     <string name="version_summary_fools_trendy_update">未来已来！我们为 Minecraft 加入了现代科技！</string>
     <string name="version_summary_fools_3d_shareware">我们从地下室深处挖出了这款“1994 年 DOS 版”Minecraft！</string>
@@ -630,6 +640,7 @@
     <string name="versions_overview_screenshot_folder">屏幕截图文件夹</string>
     <string name="versions_overview_logs_folder">日志文件夹</string>
     <string name="versions_overview_crash_report_folder">崩溃报告文件夹</string>
+    <string name="versions_overview_cant_share_folder_message">当前设备没有第三方应用可以打开该目录！</string>
     <string name="versions_config_version_settings">版本独立设置</string>
     <string name="versions_config_game_settings">游戏独立设置</string>
     <string name="versions_config_support_settings">额外支持设置</string>
@@ -650,6 +661,7 @@
     <string name="versions_config_failed_to_save">保存版本配置时出现异常</string>
     <string name="versions_config_microphone_check_title">检查麦克风</string>
     <string name="versions_config_microphone_check_summary">检查系统麦克风是否可用，或确认启动器是否已获得麦克风权限。这项检查将确保您可以使用像“简单的语音聊天”这样的需要使用麦克风的模组。</string>
+    <string name="versions_install_loader">安装加载器</string>
     <string name="versions_update_loader">更新加载器</string>
     <string name="versions_update_loader_waiting_for_others">等待其他项完成加载</string>
     <string name="versions_update_loader_diff_message">你确定要变更当前游戏的加载器吗？</string>
@@ -663,7 +675,8 @@
     <string name="versions_export_type_mcbbs">MCBBS 整合包</string>
     <string name="versions_export_type_mcbbs_summary">可被 %s，HMCL 等启动器导入</string>
     <string name="versions_export_type_modrinth">Modrinth 整合包</string>
-    <string name="versions_export_type_modrinth_summary">可被常见第三方启动器导入</string>
+    <string name="versions_export_type_summary_common">可被常见第三方启动器导入</string>
+    <string name="versions_export_type_curseforge">CurseForge 整合包</string>
     <string name="versions_export_type_multimc">MultiMC 整合包</string>
     <string name="versions_export_type_multimc_summary">可被 %s，MultiMC 等启动器导入</string>
     <string name="versions_export_alias_options">游戏设置</string>
@@ -683,8 +696,8 @@
     <string name="versions_export_pack_website">整合包官方网站</string>
     <string name="versions_export_pack_min_memory">最小分配内存</string>
     <string name="versions_export_pack_max_memory">最大分配内存</string>
-    <string name="versions_export_pack_pack_remote">从 Modrinth 下载关键资源</string>
-    <string name="versions_export_pack_pack_curseforge">一并打包 CurseForge 的远程资源</string>
+    <string name="versions_export_pack_pack_remote">从 %s 下载关键资源</string>
+    <string name="versions_export_pack_also_pack_curseforge">一并打包 CurseForge 的远程资源</string>
     <string name="versions_export_pack_select_files">选择文件</string>
     <string name="versions_export_pack_select_output">导出为</string>
     <string name="versions_export_pack_select_folder_title">选择导出目录</string>
@@ -697,6 +710,13 @@
     <string name="versions_export_task_error_title">导出失败</string>
     <string name="versions_export_task_error_message">导出整合包时遇到问题：</string>
     <string name="versions_export_task_finished">您的整合包已经成功导出！</string>
+    <string name="versions_export_tip_1">在开始导出整合包前，请确保您的版本可以正常启动，</string>
+    <string name="versions_export_tip_2">保证您的 Minecraft 为正式版（可包括模组加载器），而不是快照版、第三方客户端，</string>
+    <string name="versions_export_tip_3">且不应当包含不允许非官方途径传播的模组、资源包等资源，</string>
+    <string name="versions_export_tip_4">更不应该包含违反 Eula 协议的模组、资源包等资源，</string>
+    <string name="versions_export_tip_5">整合包会导出到您选择的目录中，以您填写的整合包名称作为最终文件。</string>
+    <string name="versions_export_tip_remote_1">导出过程中，启动器会尝试在 %s 平台上匹配远端资源，嵌入链接以代替打包模组、资源包、光影包，这样可以缩减整合包体积。</string>
+    <string name="versions_export_tip_remote_2">同时，启动器会将被禁用的模组作为可选项</string>
 
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部删除</string>
@@ -947,6 +967,14 @@
     <string name="settings_gamepad_remapping_finished_title">已完成绑定</string>
     <string name="settings_gamepad_remapping_finished_saving">稍候，启动器正在保存并应用。</string>
     <string name="settings_gamepad_remapping_finished_saved">已成功保存手柄映射，您可以关闭此对话框了！</string>
+    <string name="settings_gamepad_config_title">手柄映射配置</string>
+    <string name="settings_gamepad_config_summary">选择要使用的手柄映射配置</string>
+    <string name="settings_gamepad_config_delete">删除当前配置</string>
+    <string name="settings_gamepad_config_delete_message">您确定要删除这个配置吗？</string>
+    <string name="settings_gamepad_config_create">创建手柄映射配置</string>
+    <string name="settings_gamepad_config_create_name">配置名称</string>
+    <string name="settings_gamepad_config_create_contains">已有同名称的配置</string>
+    <string name="settings_gamepad_config_no_items">未创建配置，无法切换</string>
     <string name="settings_launcher_color_theme_title">颜色主题</string>
     <string name="settings_launcher_color_theme_summary">更改启动器的整体颜色主题</string>
     <string name="settings_launcher_dark_mode_title">深色模式</string>

@@ -30,4 +30,7 @@ class FabricVersion(
     loaderName = ModLoader.FABRIC.displayName,
     version = version,
     stable = stable
-)
+) {
+    override val loaderUrl: String
+        get() = "${FabricVersions.officialUrl}/versions/loader"
+}

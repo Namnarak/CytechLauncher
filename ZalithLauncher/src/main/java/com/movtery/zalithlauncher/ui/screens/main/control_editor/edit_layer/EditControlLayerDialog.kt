@@ -30,21 +30,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -52,13 +47,13 @@ import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutListItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutSwitchItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.getVisibilityText
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun EditControlLayerDialog(
@@ -104,32 +99,22 @@ fun EditControlLayerDialog(
                             .verticalScroll(state = scrollState),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        val focusManager = LocalFocusManager.current
-
                         SingleLineTextCheck(
                             text = layer.name,
                             onSingleLined = { layer.name = it }
                         )
 
                         //控件层名称
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = layer.name,
                             onValueChange = {
-                                layer.name = it.toSingleLine()
+                                layer.name = it
                             },
                             label = {
                                 Text(stringResource(R.string.control_editor_layers_attribute_name))
                             },
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Done
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    focusManager.clearFocus(true)
-                                }
-                            ),
                             shape = MaterialTheme.shapes.large
                         )
 

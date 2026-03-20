@@ -83,7 +83,7 @@ fun <E> ListSettingsCard(
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
-    var selectedItem by remember {
+    var selectedItem by remember(currentId) {
         mutableStateOf(
             items.firstOrNull { getItemId(it) == currentId }
                 ?: items.firstOrNull { getItemId(it) == defaultId }
@@ -103,7 +103,7 @@ fun <E> ListSettingsCard(
         innerShape = innerShape
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .alpha(alpha = if (enabled) 1f else DisabledAlpha)
         ) {

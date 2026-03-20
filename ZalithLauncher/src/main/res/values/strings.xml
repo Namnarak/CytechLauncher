@@ -54,6 +54,15 @@
     <string name="generic_copied">Copied</string>
     <string name="generic_no_matching_items">No matching items</string>
     <string name="generic_follow_system">Follow System</string>
+    <!-- Page Title -->
+    <string name="page_title_version_list">Version List</string>
+    <string name="page_title_version_manage">Manage Versions</string>
+    <string name="page_title_account_list">Account List</string>
+    <string name="page_title_select_files">Select Path</string>
+    <!-- Files -->
+    <string name="files_browse_folder">Browse Folder</string>
+    <string name="files_importing">Importing Files</string>
+    <string name="files_delete_file">Are you sure you want to delete %s?</string>
     <!-- Unit -->
     <string name="unit_day">day</string>
     <string name="date_format">MMM d, yyyy, h:mm:ss a</string>
@@ -349,6 +358,7 @@
     <string name="import_modpack_failed_title">Import Failed</string>
     <string name="import_modpack_failed_text">An error occurred while installing the modpack:</string>
     <!--  Version Summary  -->
+    <string name="version_summary_fools_2_0">We won\'t update them! If you find a bug, you\'re just out of luck! XD</string>
     <string name="version_summary_fools_the_love_and_hugs_update">Love &amp; Hugs Update, filling the world with peace and rainbows.</string>
     <string name="version_summary_fools_trendy_update">The future is here! We\'ve added modern technology to Minecraft!</string>
     <string name="version_summary_fools_3d_shareware">We\'ve dug up this "1994 DOS version" of Minecraft from the basement!</string>
@@ -632,6 +642,7 @@
     <string name="versions_overview_screenshot_folder">Screenshot Folder</string>
     <string name="versions_overview_logs_folder">Log Folder</string>
     <string name="versions_overview_crash_report_folder">Crash Report Folder</string>
+    <string name="versions_overview_cant_share_folder_message">No third-party app is available on this device to open this folder!</string>
     <string name="versions_config_version_settings">Version-Specific Settings</string>
     <string name="versions_config_game_settings">Game-Specific Settings</string>
     <string name="versions_config_support_settings">Additional Support Settings</string>
@@ -652,6 +663,7 @@
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
     <string name="versions_config_microphone_check_title">Check Microphone</string>
     <string name="versions_config_microphone_check_summary">Check whether the system microphone is available or confirm that the launcher has been granted microphone permission. This check ensures that you can use mods like Simple Voice Chat that require a microphone.</string>
+    <string name="versions_install_loader">Install Loader</string>
     <string name="versions_update_loader">Update Loader</string>
     <string name="versions_update_loader_waiting_for_others">Waiting for other items to finish loading</string>
     <string name="versions_update_loader_diff_message">Are you sure you want to change the current game\'s loader?</string>
@@ -665,7 +677,8 @@
     <string name="versions_export_type_mcbbs">MCBBS Modpack</string>
     <string name="versions_export_type_mcbbs_summary">Can be imported by %s, HMCL, and other launchers</string>
     <string name="versions_export_type_modrinth">Modrinth Modpack</string>
-    <string name="versions_export_type_modrinth_summary">Can be imported by common third-party launchers</string>
+    <string name="versions_export_type_summary_common">Can be imported by common third-party launchers</string>
+    <string name="versions_export_type_curseforge">CurseForge Modpack</string>
     <string name="versions_export_type_multimc">MultiMC Modpack</string>
     <string name="versions_export_type_multimc_summary">Can be imported by %s, MultiMC, and other launchers</string>
     <string name="versions_export_alias_options">Game Settings</string>
@@ -685,8 +698,8 @@
     <string name="versions_export_pack_website">Modpack Website</string>
     <string name="versions_export_pack_min_memory">Minimum Allocated Memory</string>
     <string name="versions_export_pack_max_memory">Maximum Allocated Memory</string>
-    <string name="versions_export_pack_pack_remote">Download key resources from Modrinth</string>
-    <string name="versions_export_pack_pack_curseforge">Include CurseForge remote resources in the package</string>
+    <string name="versions_export_pack_pack_remote">Download key resources from %s</string>
+    <string name="versions_export_pack_also_pack_curseforge">Include CurseForge remote resources in the package</string>
     <string name="versions_export_pack_select_files">Select Files</string>
     <string name="versions_export_pack_select_output">Export As</string>
     <string name="versions_export_pack_select_folder_title">Select Export Directory</string>
@@ -699,6 +712,13 @@
     <string name="versions_export_task_error_title">Export Failed</string>
     <string name="versions_export_task_error_message">An error occurred while exporting the modpack:</string>
     <string name="versions_export_task_finished">Your modpack has been successfully exported!</string>
+    <string name="versions_export_tip_1">Before exporting the modpack, please ensure that your version can launch properly,</string>
+    <string name="versions_export_tip_2">make sure your Minecraft is a release version (mod loaders allowed), not a snapshot or third-party client,</string>
+    <string name="versions_export_tip_3">and that it does not include mods, resource packs, or other assets that are not permitted to be distributed through unofficial channels,</string>
+    <string name="versions_export_tip_4">nor should it contain mods, resource packs, or other assets that violate the EULA,</string>
+    <string name="versions_export_tip_5">The modpack will be exported to the directory you selected, using the modpack name you provided as the final file name.</string>
+    <string name="versions_export_tip_remote_1">During export, the launcher will attempt to match remote resources on the %s platform and embed links instead of packaging mods, resource packs, and shader packs, which helps reduce the modpack size.</string>
+    <string name="versions_export_tip_remote_2">At the same time, disabled mods will be included as optional components.</string>
 
     <string name="manage_only_show_valid">Available</string>
     <string name="manage_delete_all">Delete All</string>
@@ -949,6 +969,14 @@
     <string name="settings_gamepad_remapping_finished_title">Binding Completed</string>
     <string name="settings_gamepad_remapping_finished_saving">Please wait, the launcher is saving and applying the settings.</string>
     <string name="settings_gamepad_remapping_finished_saved">Gamepad mapping saved successfully. You can now close this dialog!</string>
+    <string name="settings_gamepad_config_title">Gamepad Mapping Configuration</string>
+    <string name="settings_gamepad_config_summary">Select the gamepad mapping configuration to use</string>
+    <string name="settings_gamepad_config_delete">Delete Current Configuration</string>
+    <string name="settings_gamepad_config_delete_message">Are you sure you want to delete this configuration?</string>
+    <string name="settings_gamepad_config_create">Create Gamepad Mapping Configuration</string>
+    <string name="settings_gamepad_config_create_name">Configuration Name</string>
+    <string name="settings_gamepad_config_create_contains">A configuration with the same name already exists</string>
+    <string name="settings_gamepad_config_no_items">No configurations created, unable to switch</string>
     <string name="settings_launcher_color_theme_title">Color Theme</string>
     <string name="settings_launcher_color_theme_summary">Customize launcher colors</string>
     <string name="settings_launcher_dark_mode_title">Dark Mode</string>
@@ -1173,8 +1201,6 @@
     <string name="language_portuguese" translatable="false">Português</string>
     <string name="language_arabic" translatable="false">اَلْعَرَبِيَّةُ</string>
     <string name="language_italian" translatable="false">Italiano</string>
-    <string name="language_german" translatable="false">Deutsch</string>
-    <string name="language_hungarian" translatable="false">magyar</string>
     <string name="language_brazilian_portuguese" translatable="false">Português brasileiro</string>
     <string name="language_uyghur" translatable="false">ۋىغرۇچە</string>
 </resources>

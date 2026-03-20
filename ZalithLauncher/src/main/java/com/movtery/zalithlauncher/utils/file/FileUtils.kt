@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.utils.file
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
@@ -197,7 +198,11 @@ fun InputStream.readString(): String {
     }
 }
 
-fun shareFile(context: Context, file: File) {
+fun shareFile(
+    context: Context,
+    file: File,
+    cantProcess: () -> Unit = {}
+) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -207,7 +212,11 @@ fun shareFile(context: Context, file: File) {
     }
 
     val chooserIntent = Intent.createChooser(shareIntent, file.name)
-    context.startActivity(chooserIntent)
+    try {
+        context.startActivity(chooserIntent)
+    } catch (_: ActivityNotFoundException) {
+        cantProcess()
+    }
 }
 
 fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {

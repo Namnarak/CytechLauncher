@@ -19,10 +19,6 @@
 package com.movtery.zalithlauncher.game.addons.modloader.fabriclike
 
 import com.movtery.zalithlauncher.game.addons.modloader.AddonVersion
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersion
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersion
-import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.quilt.QuiltVersions
 
 abstract class FabricLikeVersion(
     /** Minecraft 版本 */
@@ -36,8 +32,7 @@ abstract class FabricLikeVersion(
 ) : AddonVersion(
     inherit = inherit
 ) {
-    val loaderUrl: String
-        get() = "${getUrl(FabricVersions.officialUrl, QuiltVersions.officialUrl)}/versions/loader"
+    abstract val loaderUrl: String
 
     /**
      * 获取对应版本的版本 Json 下载地址
@@ -52,11 +47,4 @@ abstract class FabricLikeVersion(
     override fun isVersion(versionString: String): Boolean {
         return this.version == versionString
     }
-
-    private fun getUrl(fabric: String, quilt: String): String =
-        when (this) {
-            is FabricVersion -> fabric
-            is QuiltVersion -> quilt
-            else -> error("unknown version ${this.javaClass.simpleName}")
-        }
 }

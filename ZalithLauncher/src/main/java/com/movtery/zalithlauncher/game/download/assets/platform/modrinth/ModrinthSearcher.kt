@@ -72,6 +72,7 @@ class ModrinthSearcher(
                 Parameters.build {
                     append("limit", pageSize.toString())
                     append("offset", offset.toString())
+                    append("include_changelog", "false")
                 }
             } else null
         )

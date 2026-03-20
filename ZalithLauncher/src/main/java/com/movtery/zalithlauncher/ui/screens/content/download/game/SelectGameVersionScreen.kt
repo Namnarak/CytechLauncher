@@ -70,7 +70,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
@@ -86,6 +85,7 @@ import com.movtery.zalithlauncher.ui.components.backgroundLayoutColor
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.classes.Quadruple
@@ -210,9 +210,9 @@ private class VersionsViewModel(): ViewModel() {
 
 @Composable
 fun SelectGameVersionScreen(
-    mainScreenKey: NavKey?,
-    downloadScreenKey: NavKey?,
-    downloadGameScreenKey: NavKey?,
+    mainScreenKey: TitledNavKey?,
+    downloadScreenKey: TitledNavKey?,
+    downloadGameScreenKey: TitledNavKey?,
     eventViewModel: EventViewModel,
     onVersionSelect: (String) -> Unit = {}
 ) {
@@ -302,15 +302,16 @@ fun SelectGameVersionScreen(
 private fun List<MinecraftVersion>.filterVersions(
     versionFilter: VersionFilter
 ) = this.filter { version ->
-    val type = version.isType(
+    version.isType(
         release = versionFilter.release,
         snapshot = versionFilter.snapshot,
         aprilFools = versionFilter.aprilFools,
         old = versionFilter.old
     )
+}.filter { version ->
+    //Fix：单独过滤版本名称
     val versionId = versionFilter.id
-    val id = (versionId.isEmptyOrBlank()) || version.version.id.contains(versionId)
-    (type && id)
+    versionId.isEmptyOrBlank() || version.version.id.contains(versionId)
 }
 
 @Composable
@@ -555,13 +556,14 @@ private fun getVersionComponents(
 ): Quadruple<Painter?, String, String?, String?> {
     val vmVer = version.version
     val summary = version.summary?.let { stringResource(it) }
+    val urlSuffix = version.urlSuffix ?: vmVer.id
 
     return when (version.type) {
         MinecraftVersion.Type.Release -> {
             Quadruple(
                 painterResource(R.drawable.img_minecraft),
                 stringResource(R.string.download_game_type_release),
-                stringResource(R.string.url_wiki_minecraft_game_release, vmVer.id),
+                stringResource(R.string.url_wiki_minecraft_game_release, urlSuffix),
                 summary
             )
         }
@@ -569,7 +571,7 @@ private fun getVersionComponents(
             Quadruple(
                 painterResource(R.drawable.img_command_block),
                 stringResource(R.string.download_game_type_snapshot),
-                stringResource(R.string.url_wiki_minecraft_game_snapshot, vmVer.id),
+                stringResource(R.string.url_wiki_minecraft_game_snapshot, urlSuffix),
                 summary
             )
         }
@@ -577,7 +579,7 @@ private fun getVersionComponents(
             Quadruple(
                 painterResource(R.drawable.img_diamond_block),
                 stringResource(R.string.download_game_type_april_fools),
-                stringResource(R.string.url_wiki_minecraft_game_snapshot, vmVer.id),
+                stringResource(R.string.url_wiki_minecraft_game_snapshot, urlSuffix),
                 summary
             )
         }

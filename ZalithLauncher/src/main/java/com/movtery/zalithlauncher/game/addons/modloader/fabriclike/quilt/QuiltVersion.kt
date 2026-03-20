@@ -33,4 +33,7 @@ class QuiltVersion(
      * 只能通过版本名称是否带有 'beta' 来判断
      */
     stable = version.contains("beta")
-)
+) {
+    override val loaderUrl: String
+        get() = "${QuiltVersions.officialUrl}/versions/loader"
+}

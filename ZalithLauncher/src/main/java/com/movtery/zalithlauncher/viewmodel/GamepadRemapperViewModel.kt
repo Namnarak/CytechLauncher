@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class GamepadRemapperViewModel(): ViewModel() {
+class GamepadRemapperViewModel: ViewModel() {
     private val _events = MutableSharedFlow<Event>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 

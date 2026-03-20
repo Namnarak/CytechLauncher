@@ -43,7 +43,9 @@ class CurseForgeManifest(
         @SerializedName("version")
         val gameVersion: String,
         @SerializedName("modLoaders")
-        val modLoaders: List<ModLoader>
+        val modLoaders: List<ModLoader>,
+        @SerializedName("recommendedRam")
+        val recommendedRam: Int? = null
     ) {
         data class ModLoader(
             @SerializedName("id")

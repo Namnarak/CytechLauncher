@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,9 +32,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.TitleAndSummary
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 
 @Composable
 fun TextInputSettingsCard(
@@ -47,9 +46,13 @@ fun TextInputSettingsCard(
     innerShape: Dp = 4.dp,
     summary: String? = null,
     onValueChange: (String) -> Unit = {},
+    isError: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
+    minLines: Int = 1,
     titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
     summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
@@ -60,7 +63,7 @@ fun TextInputSettingsCard(
         innerShape = innerShape
     ) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -77,20 +80,18 @@ fun TextInputSettingsCard(
                 onSingleLined = onValueChange
             )
 
-            OutlinedTextField(
+            OwnOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = value,
                 textStyle = MaterialTheme.typography.labelMedium,
-                onValueChange = { string ->
-                    if (singleLine) {
-                        onValueChange(string.toSingleLine())
-                    } else {
-                        onValueChange(string)
-                    }
-                },
+                onValueChange = onValueChange,
+                isError = isError,
                 label = label,
                 supportingText = supportingText,
+                prefix = prefix,
+                suffix = suffix,
                 singleLine = singleLine,
+                minLines = minLines,
                 shape = MaterialTheme.shapes.large
             )
         }
@@ -108,8 +109,12 @@ fun TextInputSettingsCard(
     summary: String? = null,
     label: String? = null,
     onValueChange: (String) -> Unit = {},
+    isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
+    prefix: @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
+    minLines: Int = 1,
     titleStyle: TextStyle = MaterialTheme.typography.titleSmall,
     summaryStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
@@ -125,11 +130,15 @@ fun TextInputSettingsCard(
             unit.save(value)
             onValueChange(value)
         },
+        isError = isError,
         label = {
             Text(text = label ?: stringResource(R.string.settings_label_ignore_if_blank))
         },
         supportingText = supportingText,
+        prefix = prefix,
+        suffix = suffix,
         singleLine = singleLine,
+        minLines = minLines,
         titleStyle = titleStyle,
         summaryStyle = summaryStyle
     )

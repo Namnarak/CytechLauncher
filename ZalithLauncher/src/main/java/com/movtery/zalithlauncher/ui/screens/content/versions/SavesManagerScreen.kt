@@ -88,9 +88,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.context.COPY_LABEL_SAVE_SEED
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.game.download.assets.install.unpackSaveZip
 import com.movtery.zalithlauncher.game.version.installed.Version
@@ -115,6 +115,7 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.SortByDropdownMenu
 import com.movtery.zalithlauncher.ui.screens.content.elements.SortByEnum
@@ -256,8 +257,8 @@ private fun rememberSavesManageViewModel(
 
 @Composable
 fun SavesManagerScreen(
-    mainScreenKey: NavKey?,
-    versionsScreenKey: NavKey?,
+    mainScreenKey: TitledNavKey?,
+    versionsScreenKey: TitledNavKey?,
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
     backToMainScreen: () -> Unit,
@@ -683,7 +684,7 @@ private fun SaveItemLayout(
                                 shadowElevation = 3.dp
                             ) {
                                 SaveInfoTooltip(saveData) { seed ->
-                                    copyText(null, seed, context)
+                                    copyText(COPY_LABEL_SAVE_SEED, seed, context)
                                 }
                             }
                         }

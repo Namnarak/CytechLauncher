@@ -39,6 +39,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -55,7 +56,7 @@ class GameLibDownloader(
     private var totalFileSize: AtomicLong = AtomicLong(0)
     private var totalFileCount: AtomicLong = AtomicLong(0)
 
-    private var allDownloadTasks = mutableListOf<DownloadTask>()
+    private var allDownloadTasks = ConcurrentLinkedQueue<DownloadTask>()
     private var downloadFailedTasks = mutableListOf<DownloadTask>()
 
     //判断是否已经开始下载
@@ -86,9 +87,10 @@ class GameLibDownloader(
      */
     suspend fun download(task: Task) {
         isDownloadStarted = true
-        if (allDownloadTasks.isNotEmpty()) {
+        val tasks = allDownloadTasks.toList()
+        if (tasks.isNotEmpty()) {
             //使用线程池进行下载
-            downloadAll(task, allDownloadTasks, R.string.minecraft_download_downloading_game_files)
+            downloadAll(task, tasks, R.string.minecraft_download_downloading_game_files)
             if (downloadFailedTasks.isNotEmpty()) {
                 downloadedFileCount.set(0)
                 totalFileCount.set(downloadFailedTasks.size.toLong())
@@ -150,6 +152,8 @@ class GameLibDownloader(
      */
     fun scheduleDownload(urls: List<String>, sha1: String?, targetFile: File, size: Long, isDownloadable: Boolean = true) {
         if (isDownloadStarted) throw IllegalStateException("The download has already started; adding more download tasks is no longer meaningful.")
+
+        if (allDownloadTasks.any { it.targetFile.absolutePath == targetFile.absolutePath }) return
 
         totalFileCount.incrementAndGet()
         totalFileSize.addAndGet(size)

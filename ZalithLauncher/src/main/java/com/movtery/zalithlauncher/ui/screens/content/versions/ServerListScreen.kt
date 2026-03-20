@@ -19,7 +19,6 @@
 package com.movtery.zalithlauncher.ui.screens.content.versions
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -69,7 +68,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,12 +101,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.context.COPY_LABEL_SERVER_IP
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.multiplayer.AllServers
 import com.movtery.zalithlauncher.game.version.multiplayer.ServerData
@@ -121,6 +119,7 @@ import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.ShimmerBox
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -131,6 +130,7 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.ComponentText
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorText
 import com.movtery.zalithlauncher.ui.screens.content.versions.elements.MinecraftColorTextNormal
@@ -142,7 +142,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.string.stripColorCodes
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -384,12 +383,10 @@ private class ServerListViewModel(
      */
     fun copy(
         context: Context,
-        ip: String,
-        copiedText: String
+        ip: String
     ) {
         viewModelScope.launch(Dispatchers.Main) {
-            copyText(label = null, text = ip, context = context)
-            Toast.makeText(context, copiedText, Toast.LENGTH_SHORT).show()
+            copyText(label = COPY_LABEL_SERVER_IP, text = ip, context = context)
         }
     }
 
@@ -482,8 +479,8 @@ private fun ServerDataOperation(
 
 @Composable
 fun ServerListScreen(
-    mainScreenKey: NavKey?,
-    versionsScreenKey: NavKey?,
+    mainScreenKey: TitledNavKey?,
+    versionsScreenKey: TitledNavKey?,
     launchGameViewModel: LaunchGameViewModel,
     version: Version,
     backToMainScreen: () -> Unit,
@@ -570,7 +567,6 @@ fun ServerListScreen(
                             }
                         )
 
-                        val copiedText = stringResource(R.string.generic_copied)
                         ServerListBody(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -579,7 +575,7 @@ fun ServerListScreen(
                             isSavingServer = viewModel.saving,
                             onLoad = { viewModel.loadServer(it) },
                             onRefresh = { viewModel.loadServer(it, true) },
-                            onCopy = { viewModel.copy(context, it, copiedText) },
+                            onCopy = { viewModel.copy(context, it) },
                             onPlay = { address ->
                                 launchGameViewModel.quickPlayServer(version, address)
                             },
@@ -1193,11 +1189,11 @@ private fun ServerEditDialog(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
                             onValueChange = {
-                                name = it.toSingleLine()
+                                name = it
                             },
                             label = { Text(text = stringResource(R.string.servers_list_add_server_name)) },
                             singleLine = true,
@@ -1211,11 +1207,11 @@ private fun ServerEditDialog(
                             onSingleLined = { ip = it }
                         )
 
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = ip,
                             onValueChange = {
-                                ip = it.toSingleLine()
+                                ip = it
                             },
                             isError = isIpEmpty,
                             label = { Text(text = stringResource(R.string.servers_list_add_server_ip)) },

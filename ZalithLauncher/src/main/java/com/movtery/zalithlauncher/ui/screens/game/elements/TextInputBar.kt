@@ -18,6 +18,8 @@
 
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
+import android.text.InputType
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -42,7 +44,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -74,13 +75,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -92,10 +93,13 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColorOnSurface
+import com.movtery.zalithlauncher.ui.control.input.InputListener
+import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 
 enum class InputBarMode {
     /**
@@ -207,7 +211,6 @@ fun TextInputBar(
     onHandle: (text: String, selection: TextRange) -> Unit,
     onSend: (text: String) -> Unit,
     onClear: () -> Unit,
-//    onSendText: (String) -> Unit,
     onShiftClick: (press: Boolean) -> Unit,
     onCtrlClick: (press: Boolean) -> Unit,
     onTabClick: () -> Unit,
@@ -227,24 +230,14 @@ fun TextInputBar(
             targetOffsetY = { -it }
         ) + fadeOut(),
     ) {
-        when (inputMode) {
-            InputMode.Default -> {
-                val currentOnHandle by rememberUpdatedState(onHandle)
-                LaunchedEffect(textFieldState.text, textFieldState.selection) {
-                    val currentText = textFieldState.text.toString()
-                    val currentSelection = textFieldState.selection
-                    currentOnHandle(currentText, currentSelection)
-                }
-            }
-            InputMode.Simple -> {
-                val currentOnSend by rememberUpdatedState(onSend)
-                LaunchedEffect(textFieldState.text) {
-                    val currentText = textFieldState.text.toString()
-                    currentOnSend(currentText)
-                }
-            }
-            InputMode.Send -> {
-                //发送模式不会自动发送，由用户手动发送
+        //发送模式：不会自动发送，由用户手动发送
+        //简单模式：由TouchCharInput控制发送
+        if (inputMode == InputMode.Default) {
+            val currentOnHandle by rememberUpdatedState(onHandle)
+            LaunchedEffect(textFieldState.text, textFieldState.selection) {
+                val currentText = textFieldState.text.toString()
+                val currentSelection = textFieldState.selection
+                currentOnHandle(currentText, currentSelection)
             }
         }
 
@@ -326,23 +319,38 @@ fun TextInputBar(
             inputFocus: FocusRequester,
             focusManager: FocusManager,
             keyboardController: SoftwareKeyboardController?,
-            modifier: Modifier = Modifier
+            view: TouchCharInput?,
+            onViewReady: (TouchCharInput) -> Unit
         ) {
-            BasicTextField(
-                modifier = modifier.focusRequester(inputFocus),
-                state = textFieldState,
-                cursorBrush = SolidColor(Color.Transparent),
-                decorator = {
-                    //不显示任何内容
-                },
-                lineLimits = TextFieldLineLimits.SingleLine,
+            AndroidView(
+                modifier = Modifier
+                    .alpha(0f)
+                    .size(1.dp)
+                    .focusRequester(inputFocus),
+                factory = { context ->
+                    TouchCharInput(context).apply {
+                        imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN or
+                                EditorInfo.IME_FLAG_NO_EXTRACT_UI or
+                                EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING or
+                                EditorInfo.IME_ACTION_DONE
+
+                        inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
+                                InputType.TYPE_TEXT_VARIATION_FILTER or
+                                InputType.TYPE_TEXT_FLAG_MULTI_LINE
+
+                        setEms(10)
+                    }.also {
+                        onViewReady(it)
+                    }
+                }
             )
 
             //根据show来决定是否显示/隐藏输入法
-            LaunchedEffect(show) {
+            LaunchedEffect(view, show) {
                 if (show) {
                     inputFocus.requestFocus()
                     keyboardController?.show()
+                    view?.enableKeyboard()
                 } else {
                     focusManager.clearFocus(true)
                     keyboardController?.hide()
@@ -357,6 +365,7 @@ fun TextInputBar(
         fun ActionButtonsLayout(
             inputFocus: FocusRequester,
             keyboardController: SoftwareKeyboardController?,
+            onKeyboardClick: () -> Unit = {},
             modifier: Modifier = Modifier
         ) {
             Row(
@@ -410,6 +419,7 @@ fun TextInputBar(
                         onClick = {
                             inputFocus.requestFocus()
                             keyboardController?.show()
+                            onKeyboardClick()
                         },
                         color = itemLayoutColorOnSurface(),
                         contentColor = MaterialTheme.colorScheme.onSurface
@@ -518,12 +528,28 @@ fun TextInputBar(
                 targetState = inputMode == InputMode.Simple
             ) { isSimple ->
                 if (isSimple) {
+                    var view by remember { mutableStateOf<TouchCharInput?>(null) }
+
                     //隐藏的输入法
                     HidableInputLayout(
-                        modifier = Modifier.fillMaxSize(),
                         inputFocus = inputFocus,
                         focusManager = focusManager,
                         keyboardController = keyboardController,
+                        view = view,
+                        onViewReady = { view0 ->
+                            view = view0.also {
+                                it.setListener(
+                                    object : InputListener {
+                                        override fun onEnter() {
+                                            onEnterClick()
+                                        }
+                                        override fun onSend(char: Char) {
+                                            onSend(char.toString())
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     )
 
                     //简单输入模式
@@ -547,7 +573,10 @@ fun TextInputBar(
 
                         ActionButtonsLayout(
                             inputFocus = inputFocus,
-                            keyboardController = keyboardController
+                            keyboardController = keyboardController,
+                            onKeyboardClick = {
+                                view?.switchKeyboardState()
+                            }
                         )
                     }
                 } else {

@@ -69,7 +69,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -129,6 +128,7 @@ import com.movtery.zalithlauncher.path.URL_MINECRAFT_PURCHASE
 import com.movtery.zalithlauncher.ui.components.BaseIconTextButton
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
@@ -138,7 +138,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -704,11 +703,11 @@ fun LocalLoginDialog(
                             onSingleLined = { userName = it }
                         )
 
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = userName,
                             onValueChange = {
-                                userName = it.toSingleLine()
+                                userName = it
                             },
                             isError = isUserNameInvalid,
                             label = { Text(text = stringResource(R.string.account_label_username)) },
@@ -781,11 +780,11 @@ fun LocalLoginDialog(
                                     onSingleLined = { userUUID = it }
                                 )
 
-                                OutlinedTextField(
+                                OwnOutlinedTextField(
                                     modifier = Modifier.fillMaxWidth(),
                                     value = userUUID,
                                     onValueChange = {
-                                        userUUID = it.replace("\n", "")
+                                        userUUID = it
                                         userEditedUUID = true
                                     },
                                     isError = isUserUUIDInvalid,
@@ -913,11 +912,11 @@ fun OtherServerLoginDialog(
                             onSingleLined = { email = it }
                         )
 
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = email,
                             onValueChange = {
-                                email = it.replace("\n", "")
+                                email = it
                             },
                             isError = email.isEmpty(),
                             label = { Text(text = stringResource(R.string.account_label_email)) },
@@ -948,13 +947,13 @@ fun OtherServerLoginDialog(
                             onSingleLined = { password = it }
                         )
 
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(passwordFocus),
                             value = password,
                             onValueChange = {
-                                password = it.replace("\n", "")
+                                password = it
                             },
                             isError = password.isEmpty(),
                             label = { Text(text = stringResource(R.string.account_label_password)) },

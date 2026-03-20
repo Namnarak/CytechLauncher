@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.version.export.platform
 
 import android.content.Context
@@ -18,6 +36,8 @@ import com.movtery.zalithlauncher.game.version.export.AbstractExporter
 import com.movtery.zalithlauncher.game.version.export.ExportInfo
 import com.movtery.zalithlauncher.game.version.export.PackType
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.mod.enabledMod
+import com.movtery.zalithlauncher.game.version.mod.isDisabled
 import com.movtery.zalithlauncher.utils.GSON
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.Dispatchers
@@ -43,14 +63,14 @@ class ModrinthPackExporter: AbstractExporter(
         info: ExportInfo,
         tempPath: File
     ) {
-        if (info.packRemote) {
+        if (info.packModrinth) {
             addTask(
                 id = "ModrinthPackExporter.FetchRemote",
                 title = context.getString(R.string.versions_export_task_fetch_remote),
                 icon = Icons.Default.Search
             ) { task ->
                 //获取远端数据
-                val files0 = packRemote(
+                packRemote(
                     packCurseForge = info.packCurseForge,
                     gamePath = info.gamePath,
                     selectedFiles = info.selectedFiles,
@@ -62,7 +82,6 @@ class ModrinthPackExporter: AbstractExporter(
                         }
                     }
                 )
-                files.addAll(files0)
             }
         }
 
@@ -129,77 +148,77 @@ class ModrinthPackExporter: AbstractExporter(
         gamePath: File,
         selectedFiles: List<File>,
         onProgress: (File?) -> Unit,
-    ): List<ModrinthManifest.ManifestFile> = withContext(Dispatchers.IO) {
-        buildList {
-            for (dir in listOf("resourcepacks", "shaderpacks", "mods")) {
-                val resourceDir = File(gamePath, dir)
-                if (resourceDir.exists()) {
-                    resourceDir.listFiles()?.forEach { file ->
-                        if (file in selectedFiles) {
-                            onProgress(file)
+    ) = withContext(Dispatchers.IO) {
+        for (dir in listOf("resourcepacks", "shaderpacks", "mods")) {
+            val resourceDir = File(gamePath, dir)
+            if (resourceDir.exists()) {
+                resourceDir.listFiles()?.forEach { file ->
+                    if (file in selectedFiles) {
+                        onProgress(file)
 
-                            val inManifest = runCatching {
-                                val path = file.toPath()
+                        val inManifest = runCatching {
+                            val path = file.toPath()
 
-                                val sha1 = DigestUtils.digestToString("SHA-1", path)
-                                val sha512 = DigestUtils.digestToString("SHA-512", path)
+                            val sha1 = DigestUtils.digestToString("SHA-1", path)
+                            val sha512 = DigestUtils.digestToString("SHA-512", path)
 
-                                val modrinthDeferred = async(Dispatchers.IO) {
-                                    val version = runCatching {
-                                        mirroredPlatformSearcher(
-                                            searchers = mirroredModrinthSource()
-                                        ) { searcher ->
-                                            searcher.getVersionByLocalFile(file, sha1)
-                                        }
-                                    }.getOrNull() ?: return@async null
+                            val modrinthDeferred = async(Dispatchers.IO) {
+                                val version = runCatching {
+                                    mirroredPlatformSearcher(
+                                        searchers = mirroredModrinthSource()
+                                    ) { searcher ->
+                                        searcher.getVersionByLocalFile(file, sha1)
+                                    }
+                                }.getOrNull() ?: return@async null
 
-                                    val modrinthFile = version.files.getPrimary() ?: return@async null
-                                    modrinthFile.url
-                                }
-
-                                val curseForgeDeferred = async(Dispatchers.IO) {
-                                    val version = runCatching {
-                                        mirroredPlatformSearcher(
-                                            searchers = mirroredCurseForgeSource()
-                                        ) { searcher ->
-                                            searcher.getVersionByLocalFile(file, sha1)
-                                        }
-                                    }.getOrNull() ?: return@async null
-
-                                    version.fixedFileUrl() ?: return@async null
-                                }
-
-                                val links = listOfNotNull(
-                                    modrinthDeferred,
-                                    curseForgeDeferred.takeIf { packCurseForge }
-                                ).awaitAll().filterNotNull().takeIf {
-                                    it.isNotEmpty()
-                                } ?: return@runCatching false
-
-                                val resourceFile = ModrinthManifest.ManifestFile(
-                                    path = relativePath(
-                                        file = file,
-                                        rootPath = gamePath.absolutePath
-                                    ),
-                                    hashes = ModrinthManifest.ManifestFile.Hashes(sha1, sha512),
-                                    env = ModrinthManifest.ManifestFile.Env(client = "optional"),
-                                    downloads = links.toTypedArray(),
-                                    fileSize = Files.size(path)
-                                )
-
-                                this@buildList.add(resourceFile)
-                                true
-                            }.onFailure {
-                                lWarning("Failed to obtain remote data for ${file.name}!", it)
-                            }.getOrDefault(false)
-
-                            if (inManifest) {
-                                filesInManifest.add(file)
+                                val modrinthFile = version.files.getPrimary() ?: return@async null
+                                modrinthFile.url
                             }
-                        }
 
-                        onProgress(null)
+                            val curseForgeDeferred = async(Dispatchers.IO) {
+                                val version = runCatching {
+                                    mirroredPlatformSearcher(
+                                        searchers = mirroredCurseForgeSource()
+                                    ) { searcher ->
+                                        searcher.getVersionByLocalFile(file, sha1)
+                                    }
+                                }.getOrNull() ?: return@async null
+
+                                version.fixedFileUrl() ?: return@async null
+                            }
+
+                            val links = listOfNotNull(
+                                modrinthDeferred,
+                                curseForgeDeferred.takeIf { packCurseForge }
+                            ).awaitAll().filterNotNull().takeIf {
+                                it.isNotEmpty()
+                            } ?: return@runCatching false
+
+                            val resourceFile = ModrinthManifest.ManifestFile(
+                                path = relativePath(
+                                    file = enabledMod(file),
+                                    rootPath = gamePath.absolutePath
+                                ),
+                                hashes = ModrinthManifest.ManifestFile.Hashes(sha1, sha512),
+                                env = if (file.isDisabled()) {
+                                    ModrinthManifest.ManifestFile.Env(client = "optional")
+                                } else null,
+                                downloads = links.toTypedArray(),
+                                fileSize = Files.size(path)
+                            )
+
+                            files.add(resourceFile)
+                            true
+                        }.onFailure {
+                            lWarning("Failed to obtain remote data for ${file.name}!", it)
+                        }.getOrDefault(false)
+
+                        if (inManifest) {
+                            filesInManifest.add(file)
+                        }
                     }
+
+                    onProgress(null)
                 }
             }
         }

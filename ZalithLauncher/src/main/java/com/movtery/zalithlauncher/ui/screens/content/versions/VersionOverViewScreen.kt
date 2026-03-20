@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.contract.MediaPickerContract
@@ -67,6 +66,7 @@ import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.DeleteVersionDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportFileButton
 import com.movtery.zalithlauncher.ui.screens.content.elements.RenameVersionDialog
@@ -84,8 +84,8 @@ import java.io.File
 
 @Composable
 fun VersionOverViewScreen(
-    mainScreenKey: NavKey?,
-    versionsScreenKey: NavKey?,
+    mainScreenKey: TitledNavKey?,
+    versionsScreenKey: TitledNavKey?,
     backToMainScreen: () -> Unit,
     onExport: () -> Unit,
     version: Version,
@@ -144,9 +144,9 @@ fun VersionOverViewScreen(
                     submitError = submitError,
                     refreshKey = refreshVersionIcon,
                     onIconPicked = {
-                        refreshVersionIcon++
                         iconFileExists = VersionsManager.getVersionIconFile(version).exists()
                         versionsOperation = VersionsOperation.None
+                        refreshVersionIcon++
                     },
                     resetIcon = { versionsOperation = VersionsOperation.ResetIconAlert }
                 )
@@ -166,7 +166,11 @@ fun VersionOverViewScreen(
                 VersionQuickActions(
                     modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
                     accessFolder = { path ->
-                        val folder = File(version.getGameDir(), path)
+                        val folder = if (path.isEmpty()) {
+                            version.getGameDir()
+                        } else {
+                            File(version.getGameDir(), path)
+                        }
                         runCatching {
                             folder.ensureDirectory()
                         }.onFailure { e ->
@@ -178,7 +182,14 @@ fun VersionOverViewScreen(
                             )
                             return@VersionQuickActions
                         }
-                        shareFile(context, folder)
+                        shareFile(context, folder) {
+                            submitError(
+                                ErrorViewModel.ThrowableMessage(
+                                    title = context.getString(R.string.generic_error),
+                                    message = context.getString(R.string.versions_overview_cant_share_folder_message)
+                                )
+                            )
+                        }
                     }
                 )
             }

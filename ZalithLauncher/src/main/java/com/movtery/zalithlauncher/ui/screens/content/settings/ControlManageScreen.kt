@@ -54,7 +54,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,7 +84,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
 import com.movtery.layer_controller.data.lang.createTranslatable
 import com.movtery.layer_controller.layout.ControlLayout
 import com.movtery.layer_controller.layout.EmptyControlLayout
@@ -111,6 +109,7 @@ import com.movtery.zalithlauncher.ui.components.CardTitleLayout
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -121,13 +120,13 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
+import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.ui.screens.content.elements.ImportMultipleFileButton
 import com.movtery.zalithlauncher.ui.screens.main.control_editor.edit_translatable.EditTranslatableTextDialog
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.file.shareFile
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.isEmptyOrBlank
-import com.movtery.zalithlauncher.utils.string.toSingleLine
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -193,8 +192,8 @@ private fun rememberControlViewModel() = viewModel(
 @Composable
 fun ControlManageScreen(
     key: NestedNavKey.Settings,
-    settingsScreenKey: NavKey?,
-    mainScreenKey: NavKey?,
+    settingsScreenKey: TitledNavKey?,
+    mainScreenKey: TitledNavKey?,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 ) {
     val viewModel = rememberControlViewModel()
@@ -944,11 +943,11 @@ private fun CreateNewLayoutDialog(
                         )
 
                         //名称
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = name,
                             onValueChange = {
-                                name = it.toSingleLine()
+                                name = it
                             },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_name))
@@ -977,13 +976,13 @@ private fun CreateNewLayoutDialog(
                         )
 
                         //作者
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(authorFocus),
                             value = author,
                             onValueChange = {
-                                author = it.toSingleLine()
+                                author = it
                             },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_author))
@@ -1012,13 +1011,13 @@ private fun CreateNewLayoutDialog(
                         )
 
                         //版本
-                        OutlinedTextField(
+                        OwnOutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .focusRequester(versionNameFocus),
                             value = versionName,
                             onValueChange = {
-                                versionName = it.toSingleLine()
+                                versionName = it
                             },
                             label = {
                                 Text(text = stringResource(R.string.control_manage_create_new_version_name))

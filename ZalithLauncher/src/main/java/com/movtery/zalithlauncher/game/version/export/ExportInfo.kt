@@ -1,3 +1,21 @@
+/*
+ * Zalith Launcher 2
+ * Copyright (C) 2025 MovTery <movtery228@qq.com> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
+ */
+
 package com.movtery.zalithlauncher.game.version.export
 
 import com.movtery.zalithlauncher.game.addons.modloader.ModLoader
@@ -20,7 +38,7 @@ import java.io.File
  * @param url 整合包官方网站
  * @param forceUpdate 强制更新整合包
  * @param packType 导出整合包的类型
- * @param packRemote 是否打包远程资源
+ * @param packModrinth 是否打包Modrinth的远程资源
  * @param packCurseForge 是否打包CurseForge的远程资源
  */
 data class ExportInfo(
@@ -40,8 +58,8 @@ data class ExportInfo(
     val url: String = "",
     val forceUpdate: Boolean = false,
     val packType: PackType = PackType.Modrinth,
-    val packRemote: Boolean = true,
-    val packCurseForge: Boolean = true
+    val packModrinth: Boolean = false,
+    val packCurseForge: Boolean = false
 ) {
     /**
      * 模组加载器信息
