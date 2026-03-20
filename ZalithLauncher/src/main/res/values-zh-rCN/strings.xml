@@ -669,7 +669,6 @@
     <string name="versions_update_loader_diff_load">载入：%1$s %2$s</string>
     <string name="versions_update_loader_error_message">在安装加载器的过程中出现了异常：</string>
     <string name="versions_update_loader_success_message">已成功变更该游戏的加载器版本！</string>
-
     <string name="versions_export">导出整合包</string>
     <string name="versions_export_type_mcbbs">MCBBS 整合包</string>
     <string name="versions_export_type_mcbbs_summary">可被 %s，HMCL 等启动器导入</string>
@@ -716,7 +715,6 @@
     <string name="versions_export_tip_5">整合包会导出到您选择的目录中，以您填写的整合包名称作为最终文件。</string>
     <string name="versions_export_tip_remote_1">导出过程中，启动器会尝试在 %s 平台上匹配远端资源，嵌入链接以代替打包模组、资源包、光影包，这样可以缩减整合包体积。</string>
     <string name="versions_export_tip_remote_2">同时，启动器会将被禁用的模组作为可选项</string>
-
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部删除</string>
     <string name="manage_delete_all_message">您确定要删除全部选中的资源文件吗？此操作将不可撤销，请谨慎选择。</string>
