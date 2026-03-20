@@ -465,7 +465,7 @@
     <string name="versions_config_support_settings">Pengaturan Dukungan Tambahan</string>
     <string name="versions_config_isolation_title">Isolasi Versi</string>
     <string name="versions_config_isolation_summary">Mengisolasi versi saat ini sehingga datanya tidak mengganggu versi lain</string>
-    <string name="versions_config_renderer">Renderer</string>
+    <string name="versions_config_renderer">Penderer</string>
     <string name="versions_config_vulkan_driver">Driver Vulkan</string>
     <string name="versions_config_control">Layout Kontrol</string>
     <string name="versions_config_java_runtime_summary">Tentukan lingkungan Java yang digunakan oleh versi saat ini</string>
