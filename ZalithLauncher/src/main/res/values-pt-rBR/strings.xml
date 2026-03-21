@@ -261,11 +261,11 @@
     <string name="download_assets_category_combat">Combate</string>
     <string name="download_assets_category_quests">Missões</string>
     <string name="download_assets_category_exploration">Exploração</string>
-    <string name="download_assets_category_mini_game">Mini jogos</string>
+    <string name="download_assets_category_mini_game">Mini Games</string>
     <string name="download_assets_category_sci_fi">Sci-Fi.</string>
     <string name="download_assets_category_skyblock">SkyBlock☁️</string>
-    <string name="download_assets_category_vanilla">Ajustes Do Vanilla</string>
-    <string name="download_assets_category_ftb">Time do FTB</string>
+    <string name="download_assets_category_vanilla">Ajustes no Vanilla</string>
+    <string name="download_assets_category_ftb">FTB</string>
     <string name="download_assets_category_map_based">Baseado em mapa</string>
     <string name="download_assets_category_lightweight">Leve</string>
     <string name="download_assets_category_extra_large">Extra Grande</string>
@@ -1111,7 +1111,7 @@
     <string name="versions_export_pack_jvm_args">Argumentos do jogo</string>
     <string name="versions_export_pack_java_args">Argumentos da Máquina Virtual Java</string>
     <string name="versions_export_pack_website">Site do Modpack</string>
-    <string name="versions_export_pack_min_memory">Memória mínima alocada</string>
+    <string name="versions_export_pack_min_memory">Alocação mínima necessária para uma experiência estável:</string>
     <string name="versions_export_pack_max_memory">Memória Alocada Máxima</string>
     <string name="versions_export_pack_pack_remote">Baixar recursos principais do %s</string>
     <string name="versions_export_pack_also_pack_curseforge">Incluir recursos remotos do CurseForge no pacote</string>

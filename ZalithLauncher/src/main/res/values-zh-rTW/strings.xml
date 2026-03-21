@@ -621,7 +621,6 @@
     <string name="versions_update_loader_diff_load">載入：%1$s %2$s</string>
     <string name="versions_update_loader_error_message">安裝載入器時出現異常：</string>
     <string name="versions_update_loader_success_message">已成功變更該遊戲的載入器版本！</string>
-
     <string name="versions_export">匯出模組包</string>
     <string name="versions_export_type_mcbbs">MCBBS 模組包</string>
     <string name="versions_export_type_mcbbs_summary">可被 %s、HMCL 等啟動器匯入</string>
@@ -668,7 +667,6 @@
     <string name="versions_export_tip_5">整合包將匯出至您所選擇的目錄，並以您填寫的整合包名稱作為最終檔名。</string>
     <string name="versions_export_tip_remote_1">在匯出過程中，啟動器會嘗試在 %s 平台上比對遠端資源，嵌入連結以取代打包模組、資源包與光影包，從而縮減整合包體積。</string>
     <string name="versions_export_tip_remote_2">同時，已停用的模組將作為可選項目包含在內。</string>
-    
     <string name="manage_only_show_valid">可用的</string>
     <string name="manage_delete_all">全部刪除</string>
     <string name="manage_delete_all_message">您確定要刪除所有選取的資源檔案嗎？此操作將無法復原，請謹慎選擇。</string>
