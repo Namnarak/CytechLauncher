@@ -115,6 +115,10 @@ enum class CurseForgeModCategory : CurseForgeCategory, PlatformFilterCode {
         override fun describe(): String = "423"
         override fun getDisplayName(): Int = R.string.download_assets_category_information
     },
+    PERFORMANCE {
+        override fun describe(): String = "6814"
+        override fun getDisplayName(): Int = R.string.download_assets_category_optimization
+    },
     SOCIAL {
         override fun describe(): String = "435"
         override fun getDisplayName(): Int = R.string.download_assets_category_social
@@ -126,6 +130,10 @@ enum class CurseForgeModCategory : CurseForgeCategory, PlatformFilterCode {
     LIBRARY {
         override fun describe(): String = "421"
         override fun getDisplayName(): Int = R.string.download_assets_category_library
+    },
+    MISCELLANEOUS {
+        override fun describe(): String = "6947"
+        override fun getDisplayName(): Int = R.string.download_assets_category_miscellaneous
     };
 
     override fun index(): Int = this.ordinal
