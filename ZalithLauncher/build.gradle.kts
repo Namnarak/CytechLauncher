@@ -248,6 +248,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.material.color.utilities)
     implementation(libs.reorderable)
+    implementation(libs.multiplatform.markdown.renderer)
+    implementation(libs.multiplatform.markdown.renderer.m3)
+    implementation(libs.multiplatform.markdown.renderer.coil3)
+    implementation(libs.multiplatform.markdown.renderer.android)
     //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))

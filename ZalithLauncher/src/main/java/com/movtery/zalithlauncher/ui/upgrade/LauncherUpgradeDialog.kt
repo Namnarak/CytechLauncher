@@ -18,31 +18,33 @@
 
 package com.movtery.zalithlauncher.ui.upgrade
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.mikepenz.markdown.coil3.Coil3ImageTransformerImpl
+import com.mikepenz.markdown.compose.LazyMarkdownSuccess
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.model.rememberMarkdownState
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.ui.components.defaultMDTypography
 import com.movtery.zalithlauncher.upgrade.RemoteData
 import com.movtery.zalithlauncher.upgrade.findCurrentBody
 import com.movtery.zalithlauncher.upgrade.getCurrentCouldDrive
@@ -84,41 +86,43 @@ fun UpgradeDialog(
                     text = stringResource(R.string.upgrade_new)
                 )
 
-                //更新详情
-                Column(
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                //版本号
+                val versionStr = stringResource(R.string.upgrade_version_change, data.version)
+                //更新时间
+                val dateStr = stringResource(
+                    R.string.upgrade_version_create_at,
+                    formatDate(
+                        input = data.createdAt,
+                        pattern = stringResource(R.string.date_format)
+                    )
+                )
+                val markdownBody = "$versionStr  \n$dateStr  \n\n${body.markdown}"
+
+                val state = rememberMarkdownState(
+                    content = markdownBody,
+                )
+                CompositionLocalProvider(
+                    LocalUriHandler provides object : UriHandler {
+                        override fun openUri(uri: String) {
+                            onLinkClick(uri)
+                        }
+                    }
                 ) {
-                    //版本号
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.upgrade_version_change, data.version),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    //更新时间
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(
-                            R.string.upgrade_version_create_at,
-                            formatDate(
-                                input = data.createdAt,
-                                pattern = stringResource(R.string.date_format)
+                    Markdown(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false)
+                            .padding(horizontal = 20.dp),
+                        markdownState = state,
+                        typography = defaultMDTypography(),
+                        imageTransformer = Coil3ImageTransformerImpl,
+                        success = { state, components, modifier ->
+                            LazyMarkdownSuccess(
+                                modifier = modifier,
+                                state = state,
+                                components = components,
                             )
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    //更新日志
-                    Spacer(Modifier.height(8.dp))
-                    BodyUI(
-                        modifier = Modifier.fillMaxWidth(),
-                        body = body,
-                        onLinkClick = onLinkClick
+                        },
                     )
                 }
 
@@ -159,96 +163,6 @@ fun UpgradeDialog(
                         Text(text = stringResource(R.string.upgrade_more))
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BodyUI(
-    body: RemoteData.RemoteBody,
-    onLinkClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        body.chunks.forEach { chunk ->
-            BodyChunk(
-                modifier = Modifier.fillMaxWidth(),
-                chunk = chunk,
-                onLinkClick = onLinkClick
-            )
-        }
-    }
-}
-
-@Composable
-private fun BodyChunk(
-    chunk: RemoteData.RemoteBody.TextChunk,
-    onLinkClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = chunk.title,
-            style = MaterialTheme.typography.titleMedium
-        )
-        chunk.texts.forEach { text ->
-            BodyText(
-                modifier = Modifier.fillMaxWidth(),
-                text = text,
-                onLinkClick = onLinkClick
-            )
-        }
-    }
-}
-
-@Composable
-private fun BodyText(
-    text: RemoteData.RemoteBody.TextChunk.Text,
-    onLinkClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        val indentation = remember {
-            text.indentation.coerceAtLeast(0) * 8
-        }
-
-        //文本缩进
-        Row(
-            modifier = Modifier.padding(start = indentation.dp)
-        ) {
-            Text(text = "•")
-        }
-
-        //真实的文本部分
-        FlowRow(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = text.text,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            text.links.forEach { link ->
-                Text(
-                    modifier = Modifier.clickable {
-                        onLinkClick(link.link)
-                    },
-                    text = link.text,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        textDecoration = TextDecoration.Underline
-                    )
-                )
             }
         }
     }
