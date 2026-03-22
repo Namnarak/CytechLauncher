@@ -378,7 +378,7 @@
     <string name="game_menu_title">Menu do jogo</string>
     <string name="game_menu_option_force_close_text">Forçar o fechamento do jogo em execução pode corromper os dados salvos ou impedir que as configurações sejam salvas. Evite esta ação, a menos que seja necessário.</string>
     <string name="game_menu_option_switch_log">Saída de log</string>
-    <string name="game_menu_option_input_method">Alternar método de entrada</string>
+    <string name="game_menu_option_input_method">Teclado virtual</string>
     <string name="game_menu_option_switch_fps">CONTADOR DE FPS</string>
     <string name="game_menu_option_switch_memory">EXIBIR USO DE MEMORIA RAM</string>
     <string name="game_menu_option_menu_ball_opacity">Opacidade da Engrenagem Flutuante</string>
@@ -651,9 +651,9 @@
     <string name="versions_update_loader_success_message">A versão do carregador do jogo foi atualizada com sucesso!</string>
     <string name="manage_only_show_valid">Disponível</string>
     <string name="manage_delete_all">Apagar tudo</string>
-    <string name="manage_delete_all_message">Tem certeza de que deseja excluir todos os arquivos de recursos selecionados? Esta ação não poderá ser desfeita. Prossiga com cautela.</string>
+    <string name="manage_delete_all_message">Tem certeza de que deseja excluir os arquivos selecionados? Esta ação não poderá ser desfeita. Prossiga com cautela.</string>
     <string name="manage_delete_all_error">Ocorreu um erro ao excluir os recursos</string>
-    <string name="manage_delete_all_success">Arquivos de recursos selecionados excluídos com sucesso!</string>
+    <string name="manage_delete_all_success">Os arquivos selecionados foram excluídos com sucesso!</string>
     <string name="mods_manage">mods</string>
     <string name="mods_manage_info">Informações do Mod</string>
     <string name="mods_manage_authors">Autores do Mod:</string>
