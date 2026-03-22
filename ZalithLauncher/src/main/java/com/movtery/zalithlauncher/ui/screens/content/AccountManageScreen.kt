@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +100,7 @@ import com.movtery.zalithlauncher.utils.copyText
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.viewmodel.AccountManageViewModel
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
+import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
@@ -864,49 +866,51 @@ private fun AccountOperation(
 @Preview(showBackground = true, widthDp = 800, heightDp = 480)
 @Composable
 private fun AccountManageContentPreview() {
-    MaterialTheme {
-        Surface {
-            AccountManageContent(
-                isVisible = true,
-                accounts = emptyList(),
-                currentAccount = null,
-                authServers = emptyList(),
-                microsoftLoginOperation = MicrosoftLoginOperation.None,
-                microsoftChangeSkinOperation = MicrosoftChangeSkinOperation.None,
-                microsoftChangeCapeOperation = MicrosoftChangeCapeOperation.None,
-                localLoginOperation = LocalLoginOperation.None,
-                otherLoginOperation = OtherLoginOperation.None,
-                serverOperation = ServerOperation.None,
-                accountOperation = AccountOperation.None,
-                accountSkinOperationMap = emptyMap(),
-                onUpdateMicrosoftLoginOp = {},
-                onUpdateLocalLoginOp = {},
-                onUpdateOtherLoginOp = {},
-                onUpdateServerOp = {},
-                onUpdateAccountOp = {},
-                onUpdateAccountSkinOp = { _, _ -> },
-                onUpdateMicrosoftSkinOp = {},
-                onUpdateMicrosoftCapeOp = {},
-                onPerformMicrosoftLogin = { _, _, _, _ -> },
-                onImportSkinFile = { _, _, _ -> },
-                onUploadMicrosoftSkin = { _, _, _, _ -> },
-                onFetchMicrosoftCapes = { _, _ -> },
-                onApplyMicrosoftCape = { _, _, _, _, _ -> },
-                onCreateLocalAccount = { _, _ -> },
-                onLoginWithOtherServer = { _, _, _, _ -> },
-                onAddServer = {},
-                onDeleteServer = {},
-                onDeleteAccount = {},
-                onRefreshAccount = { _, _ -> },
-                onSaveLocalSkin = { _, _, _, _ -> },
-                onResetSkin = { _, _ -> },
-                onFormatError = { _, _ -> "" },
-                openLink = {},
-                submitError = {},
-                backToMainScreen = {},
-                navigateToWeb = {},
-                checkIfInWebScreen = { false }
-            )
+    CompositionLocalProvider(LocalBackgroundViewModel provides null) {
+        MaterialTheme {
+            Surface {
+                AccountManageContent(
+                    isVisible = true,
+                    accounts = emptyList(),
+                    currentAccount = null,
+                    authServers = emptyList(),
+                    microsoftLoginOperation = MicrosoftLoginOperation.None,
+                    microsoftChangeSkinOperation = MicrosoftChangeSkinOperation.None,
+                    microsoftChangeCapeOperation = MicrosoftChangeCapeOperation.None,
+                    localLoginOperation = LocalLoginOperation.None,
+                    otherLoginOperation = OtherLoginOperation.None,
+                    serverOperation = ServerOperation.None,
+                    accountOperation = AccountOperation.None,
+                    accountSkinOperationMap = emptyMap(),
+                    onUpdateMicrosoftLoginOp = {},
+                    onUpdateLocalLoginOp = {},
+                    onUpdateOtherLoginOp = {},
+                    onUpdateServerOp = {},
+                    onUpdateAccountOp = {},
+                    onUpdateAccountSkinOp = { _, _ -> },
+                    onUpdateMicrosoftSkinOp = {},
+                    onUpdateMicrosoftCapeOp = {},
+                    onPerformMicrosoftLogin = { _, _, _, _ -> },
+                    onImportSkinFile = { _, _, _ -> },
+                    onUploadMicrosoftSkin = { _, _, _, _ -> },
+                    onFetchMicrosoftCapes = { _, _ -> },
+                    onApplyMicrosoftCape = { _, _, _, _, _ -> },
+                    onCreateLocalAccount = { _, _ -> },
+                    onLoginWithOtherServer = { _, _, _, _ -> },
+                    onAddServer = {},
+                    onDeleteServer = {},
+                    onDeleteAccount = {},
+                    onRefreshAccount = { _, _ -> },
+                    onSaveLocalSkin = { _, _, _, _ -> },
+                    onResetSkin = { _, _ -> },
+                    onFormatError = { _, _ -> "" },
+                    openLink = {},
+                    submitError = {},
+                    backToMainScreen = {},
+                    navigateToWeb = {},
+                    checkIfInWebScreen = { false }
+                )
+            }
         }
     }
 }
