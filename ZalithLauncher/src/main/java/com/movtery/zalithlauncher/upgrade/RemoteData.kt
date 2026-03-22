@@ -100,54 +100,13 @@ data class RemoteData(
     /**
      * 最新版本的启动器的更新日志，按语言区分
      * @param language 语言标识
-     * @param chunks 内容分区，每块包含标题和多行文本
+     * @param markdown Markdown 内容
      */
     @Serializable
     data class RemoteBody(
         @SerialName("language")
         val language: String,
-        @SerialName("chunks")
-        val chunks: List<TextChunk>
-    ) {
-        /**
-         * @param title 这个区块的标题
-         * @param texts 多行描述
-         */
-        @Serializable
-        data class TextChunk(
-            @SerialName("title")
-            val title: String,
-            @SerialName("texts")
-            val texts: List<Text>
-        ) {
-            /**
-             * 更新日志的单行描述
-             * @param text 描述的具体文字内容
-             * @param indentation 缩进次数
-             * @param links 末尾追加的所有链接
-             */
-            @Serializable
-            data class Text(
-                @SerialName("text")
-                val text: String,
-                @SerialName("indentation")
-                val indentation: Int = 0,
-                @SerialName("links")
-                val links: List<Link> = emptyList()
-            ) {
-                /**
-                 * 内嵌链接，用于在单行描述的末尾追加链接
-                 * @param text 链接的可显示文本
-                 * @param link 实际的链接内容
-                 */
-                @Serializable
-                data class Link(
-                    @SerialName("text")
-                    val text: String,
-                    @SerialName("link")
-                    val link: String
-                )
-            }
-        }
-    }
+        @SerialName("markdown")
+        val markdown: String
+    )
 }
