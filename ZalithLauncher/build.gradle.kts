@@ -248,6 +248,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.material.color.utilities)
     implementation(libs.reorderable)
+    implementation(libs.multiplatform.markdown.renderer)
+    implementation(libs.multiplatform.markdown.renderer.m3)
+    implementation(libs.multiplatform.markdown.renderer.coil3)
+    implementation(libs.multiplatform.markdown.renderer.android)
     //Project
     implementation(project(":LayerController"))
     implementation(project(":ColorPicker"))
@@ -274,7 +278,7 @@ dependencies {
     implementation(libs.mmkv)
     implementation(libs.fishnet)
     implementation(libs.process.phoenix)
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     //Safe
     implementation(libs.stringfog.xor)
     implementation(libs.androidx.room.runtime)
