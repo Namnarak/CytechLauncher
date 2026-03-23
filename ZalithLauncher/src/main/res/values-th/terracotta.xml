@@ -1,3 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="terracotta">ผู้เล่นหลายคน</string>
+    <string name="terracotta_metadata_ver">รุ่นสีดินเผา: %s</string>
+    <string name="terracotta_metadata_easytier_ver">เวอร์ชัน EasyTier: %s</string>
+    <string name="terracotta_easytier">เกี่ยวกับ</string>
+    <string name="terracotta_terracotta">เทอร์ราคอตต้า | โหมดผู้เล่นหลายคน</string>
+    <string name="terracotta_back">ออก</string>
+    <string name="terracotta_enable">เปิดใช้งานโหมดผู้เล่นหลายคน</string>
+    <string name="terracotta_difficulty_easiest">เครือข่ายยอดเยี่ยม: เชื่อมต่อได้เกือบสมบูรณ์!</string>
+    <string name="terracotta_difficulty_simple">เครือข่ายดี: การเชื่อมต่ออาจใช้เวลานาน</string>
+    <string name="terracotta_difficulty_medium">เครือข่ายโดยเฉลี่ย: เปิดใช้งานเส้นทางสำรอง แม้ว่าการเชื่อมต่ออาจล้มเหลวก็ตาม</string>
+    <string name="terracotta_difficulty_tough">เครือข่ายไม่เสถียร: เปิดใช้งานเส้นทางสำรอง แม้ว่าการเชื่อมต่ออาจล้มเหลว</string>
+    <string name="terracotta_difficulty_estimate_only">อัตราความสำเร็จเป็นการประมาณการโดยอิงจากประเภท NAT ของโฮสต์และไคลเอ็นต์ เพื่อเป็นข้อมูลอ้างอิงเท่านั้น!</string>
+    <string name="terracotta_log">ดูบันทึก</string>
+    <string name="terracotta_log_exit">ปิดบันทึกและกลับไปยังหน้าคุณสมบัติ</string>
+    <string name="terracotta_export_log">คุณสามารถแชร์บันทึกข้อมูลบนหน้ามัลติเพลเยอร์ของตัวเรียกใช้งาน เพื่อให้ข้อมูลเพิ่มเติมสำหรับการวิเคราะห์ข้อผิดพลาดได้</string>
+    <string name="terracotta_export_log_share">แชร์บันทึก Multiplayer Core</string>
+    <string name="terracotta_export_log_share_null">ไม่พบบันทึกใดๆ</string>
+    <string name="terracotta_status_uninitialized_desc">คุณให้คำมั่นสัญญาตามกฎหมายว่าจะปฏิบัติตามกฎหมายและข้อบังคับทั้งหมดของประเทศหรือภูมิภาคของคุณอย่างเคร่งครัดตลอดกระบวนการเล่นเกมแบบผู้เล่นหลายคน</string>
+    <string name="terracotta_confirm_title">ประกาศสำหรับผู้ใช้</string>
+    <string name="terracotta_confirm_software">Terracotta เป็นซอฟต์แวร์โอเพนซอร์สฟรีจากผู้พัฒนาภายนอก โปรดแจ้งปัญหาที่พบผ่านช่องทางที่เกี่ยวข้องระหว่างการใช้งาน</string>
+    <string name="terracotta_confirm_p2p">Terracotta ใช้เทคโนโลยี P2P หลังจากเชื่อมต่อสำเร็จ ผู้ใช้ในห้องจะเชื่อมต่อถึงกันโดยตรง และไม่มีเซิร์ฟเวอร์ของบุคคลที่สามใด ๆ ที่จะส่งต่อข้อมูลของคุณ ประสบการณ์การเล่นแบบผู้เล่นหลายคนขั้นสุดท้าย...</string>
+    <string name="terracotta_confirm_law">ตลอดกระบวนการเล่นแบบผู้เล่นหลายคน คุณต้องปฏิบัติตามกฎหมายและข้อบังคับทั้งหมดของประเทศและภูมิภาคของคุณอย่างเคร่งครัด</string>
+    <string name="terracotta_menu">เมนูผู้เล่นหลายคน</string>
+    <string name="terracotta_notification_title">เทอร์ราคอตต้ากำลังดำเนินการ</string>
 </resources>
