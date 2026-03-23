@@ -150,8 +150,8 @@
     <string name="game_button_mouse_right">Правая кнопка мыши</string>
     <string name="game_dialog_force_close_message">Вы уверены, что хотите принудительно закрыть игру и вернуться в главное меню?</string>
     <!-- Renderers -->
-    <string name="renderer_version_support">Поддержка версий MC:</string>
-    <string name="renderer_version_unsupported_warning">Текущий визуализатор %s не поддерживает эту версию игры. Продолжение использования может вызвать ошибки рендеринга или сбои! Вы уверены, что хотите продолжить?</string>
+    <string name="renderer_version_support">Поддержка версий Майнкрафт:</string>
+    <string name="renderer_version_unsupported_warning">Текущий визуализатор %s не поддерживает эту версию майна. Продолжение использования может вызвать ошибки рендеринга или сбои! Вы уверены, что хотите продолжить?</string>
     <!-- Accounts -->
     <string name="account_no_account">Нет доступных аккаунтов</string>
     <string name="account_login">Войти</string>
@@ -1089,4 +1089,9 @@
     <string name="servers_list_delete_server_text">Уверены что хотите удалить сервер?</string>
     <string name="servers_list_edit_server">Редактировать сервер</string>
     <string name="servers_list_copy_server_address">Копировать адрес</string>
+    <string name="page_title_version_list">Список версий</string>
+    <string name="unpack_screen_jre25">Необходимая среда Java 25 (для Minecraft 26.1 и выше).</string>
+    <string name="download_install_warning_mobile_data">Вы используете мобильный интернет. Продолжение скачивания может использовать ваш трафик.</string>
+    <string name="version_summary_fools_2_0">Мы не будем их обновлять! Если вы обнаружили ошибку, вам просто не повезло! XD</string>
+    <string name="game_saponsorship_finished_game">Лаунчер успешно запустил игру %s раз! Если вам это полезно, пожалуйста, поддержите разработчика! :)</string>
 </resources>
