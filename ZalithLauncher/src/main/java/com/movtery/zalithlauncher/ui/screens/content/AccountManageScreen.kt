@@ -114,7 +114,8 @@ private data class AccountActions(
     val backToMainScreen: () -> Unit,
     val navigateToWeb: (url: String) -> Unit,
     val checkIfInWebScreen: () -> Boolean,
-    val formatError: (Context, Throwable) -> String
+    val formatError: (Context, Throwable) -> String,
+    val submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 )
 
 @Composable
@@ -147,14 +148,15 @@ fun AccountManageScreen(
         }
     }
 
-    val actions = remember(viewModel, backToMainScreen, openLink, backStackViewModel) {
+    val actions = remember(viewModel, backToMainScreen, openLink, backStackViewModel, submitError) {
         AccountActions(
             onIntent = viewModel::onIntent,
             openLink = openLink,
             backToMainScreen = backToMainScreen,
             navigateToWeb = { url -> backStackViewModel.mainScreen.backStack.navigateToWeb(url) },
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
-            formatError = { ctx, th -> viewModel.formatAccountError(ctx, th) }
+            formatError = { ctx, th -> viewModel.formatAccountError(ctx, th) },
+            submitError = submitError
         )
     }
 
@@ -415,7 +417,12 @@ private fun OtherLoginOperation(
         is OtherLoginOperation.OnFailed -> {
             val message = actions.formatError(context, operation.th)
             actions.onIntent(AccountManageIntent.UpdateOtherLoginOp(OtherLoginOperation.None))
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            actions.submitError(
+                ErrorViewModel.ThrowableMessage(
+                    title = stringResource(R.string.account_logging_in_failed),
+                    message = message
+                )
+            )
         }
         is OtherLoginOperation.SelectRole -> {
             SimpleListDialog(
@@ -457,7 +464,12 @@ private fun ServerTypeOperation(
             )
         }
         is ServerOperation.OnThrowable -> {
-            Toast.makeText(LocalContext.current, operation.throwable.getMessageOrToString(), Toast.LENGTH_LONG).show()
+            actions.submitError(
+                ErrorViewModel.ThrowableMessage(
+                    title = stringResource(R.string.account_other_login_adding_failure),
+                    message = operation.throwable.getMessageOrToString()
+                )
+            )
             actions.onIntent(AccountManageIntent.UpdateServerOp(ServerOperation.None))
         }
         is ServerOperation.None -> {}
@@ -584,7 +596,12 @@ private fun AccountOperation(
         }
         is AccountOperation.OnFailed -> {
             val message = actions.formatError(context, operation.th)
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            actions.submitError(
+                ErrorViewModel.ThrowableMessage(
+                    title = stringResource(R.string.account_logging_in_failed),
+                    message = message
+                )
+            )
             actions.onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.None))
         }
         is AccountOperation.None -> {}
@@ -606,7 +623,8 @@ private fun AccountManageContentPreview() {
                         backToMainScreen = {},
                         navigateToWeb = {},
                         checkIfInWebScreen = { false },
-                        formatError = { _, _ -> "" }
+                        formatError = { _, _ -> "" },
+                        submitError = {}
                     )
                 )
             }

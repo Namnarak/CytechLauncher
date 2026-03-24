@@ -31,6 +31,7 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
 import com.movtery.zalithlauncher.game.account.auth_server.AuthServerHelper
+import com.movtery.zalithlauncher.game.account.auth_server.ResponseException
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.localLogin
 import com.movtery.zalithlauncher.game.account.microsoft.MINECRAFT_SERVICES_URL
@@ -419,6 +420,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
     }
 
     fun formatAccountError(context: Context, th: Throwable): String = when (th) {
+        is ResponseException -> th.responseMessage
         is NotPurchasedMinecraftException -> toLocal(context)
         is MinecraftProfileException -> th.toLocal(context)
         is XboxLoginException -> th.toLocal(context)
