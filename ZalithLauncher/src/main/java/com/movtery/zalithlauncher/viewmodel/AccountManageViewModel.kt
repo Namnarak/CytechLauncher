@@ -86,7 +86,19 @@ import java.util.UUID
 import javax.inject.Inject
 
 /**
- * MVI UI State
+ * 账号管理界面 UI 状态
+ *
+ * @property accounts 账号列表
+ * @property currentAccount 当前选中的账号
+ * @property authServers 自定义验证服务器列表
+ * @property microsoftLoginOperation 微软登录操作状态
+ * @property microsoftChangeSkinOperation 微软更换皮肤操作状态
+ * @property microsoftChangeCapeOperation 微软更换披风操作状态
+ * @property localLoginOperation 离线登录操作状态
+ * @property otherLoginOperation 其他服务器登录操作状态
+ * @property serverOperation 服务器管理操作状态
+ * @property accountOperation 账号管理操作状态
+ * @property accountSkinOperationMap 每个账号对应的皮肤操作状态映射
  */
 data class AccountManageUiState(
     val accounts: List<Account> = emptyList(),
@@ -103,9 +115,10 @@ data class AccountManageUiState(
 )
 
 /**
- * MVI Intent (User Actions)
+ * 账号管理界面用户意图 (MVI Intent)
  */
 sealed class AccountManageIntent {
+    // 状态更新类意图
     data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
         AccountManageIntent()
 
@@ -122,6 +135,7 @@ sealed class AccountManageIntent {
     data class UpdateAccountSkinOp(val accountUuid: String, val operation: AccountSkinOperation) :
         AccountManageIntent()
 
+    // 业务执行类意图
     data class PerformMicrosoftLogin(
         val context: Context,
         val toWeb: (url: String) -> Unit,
@@ -175,17 +189,23 @@ sealed class AccountManageIntent {
 }
 
 /**
- * MVI Effect (One-time events)
+ * 账号管理界面单次副作用 (MVI Effect)
  */
 sealed class AccountManageEffect {
+    /** 显示错误对话框 */
     data class ShowError(val title: String, val message: String) : AccountManageEffect()
     data class ShowToast(val messageRes: Int, val formatArgs: List<Any> = emptyList(), val duration: Int = android.widget.Toast.LENGTH_SHORT) :
         AccountManageEffect()
 }
 
+/**
+ * 账号管理界面 ViewModel
+ * 采用 MVI 架构处理 UI 状态与用户交互
+ */
 @HiltViewModel
 class AccountManageViewModel @Inject constructor() : ViewModel() {
 
+    // 各类操作状态的持久流
     private val _microsoftLoginOp =
         MutableStateFlow<MicrosoftLoginOperation>(MicrosoftLoginOperation.None)
     private val _microsoftSkinOp =
@@ -198,9 +218,11 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
     private val _accountOp = MutableStateFlow<AccountOperation>(AccountOperation.None)
     private val _accountSkinOpMap = MutableStateFlow<Map<String, AccountSkinOperation>>(emptyMap())
 
+    // 用于向 UI 层发送单次事件的通道
     private val _effect = Channel<AccountManageEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
+    // 组合多个状态流为统一的 UI State
     val uiState: StateFlow<AccountManageUiState> = combine(
         AccountsManager.accountsFlow,
         AccountsManager.currentAccountFlow,
@@ -214,6 +236,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         _accountOp,
         _accountSkinOpMap
     ) { args ->
+        @Suppress("UNCHECKED_CAST")
         AccountManageUiState(
             accounts = args[0] as List<Account>,
             currentAccount = args[1] as Account?,
@@ -233,6 +256,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         initialValue = AccountManageUiState()
     )
 
+    /**
+     * 处理用户意图
+     */
     fun onIntent(intent: AccountManageIntent) {
         when (intent) {
             is AccountManageIntent.UpdateMicrosoftLoginOp -> _microsoftLoginOp.value =
@@ -286,6 +312,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
 
     // --- 业务方法 ---
 
+    /**
+     * 执行微软登录流程
+     */
     private fun performMicrosoftLogin(intent: AccountManageIntent.PerformMicrosoftLogin) {
         microsoftLogin(
             intent.context,
@@ -298,6 +327,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.None))
     }
 
+    /**
+     * 导入皮肤文件到缓存
+     */
     private fun importSkinFile(intent: AccountManageIntent.ImportSkinFile) {
         val context = intent.context
         val account = intent.account
@@ -342,6 +374,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * 上传皮肤到微软服务器
+     */
     private fun uploadMicrosoftSkin(intent: AccountManageIntent.UploadMicrosoftSkin) {
         val context = intent.context
         val account = intent.account
@@ -391,6 +426,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * 获取微软账号的所有披风
+     */
     private fun fetchMicrosoftCapes(intent: AccountManageIntent.FetchMicrosoftCapes) {
         val context = intent.context
         val account = intent.account
@@ -432,6 +470,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * 应用选中的披风到微软账号
+     */
     private fun applyMicrosoftCape(intent: AccountManageIntent.ApplyMicrosoftCape) {
         val context = intent.context
         val account = intent.account
@@ -477,11 +518,17 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * 创建离线账号
+     */
     private fun createLocalAccount(userName: String, userUUID: String?) {
         localLogin(userName, userUUID)
         onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
     }
 
+    /**
+     * 登录到其他验证服务器 (Yggdrasil)
+     */
     private fun loginWithOtherServer(intent: AccountManageIntent.LoginWithOtherServer) {
         AuthServerHelper(intent.server, intent.email, intent.pass, onSuccess = { account, task ->
             task.updateMessage(R.string.account_logging_in_saving)
@@ -501,6 +548,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    /**
+     * 添加新的验证服务器
+     */
     private fun addServer(url: String) {
         addOtherServer(url) {
             onIntent(
@@ -524,12 +574,18 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.None))
     }
 
+    /**
+     * 刷新账号信息（令牌等）
+     */
     private fun refreshAccount(context: Context, account: Account) {
         AccountsManager.refreshAccount(context, account) {
             onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.OnFailed(it)))
         }
     }
 
+    /**
+     * 保存本地离线账号的皮肤文件
+     */
     private fun saveLocalSkin(intent: AccountManageIntent.SaveLocalSkin) {
         val context = intent.context
         val account = intent.account
@@ -575,6 +631,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         }))
     }
 
+    /**
+     * 重置账号皮肤为默认
+     */
     private fun resetSkin(account: Account, onRefresh: () -> Unit) {
         TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = {
             account.apply {
@@ -593,6 +652,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         )
     }
 
+    /**
+     * 格式化账号相关的异常为本地化字符串
+     */
     fun formatAccountError(context: Context, th: Throwable): String = when (th) {
         is ResponseException -> th.responseMessage
         is NotPurchasedMinecraftException -> toLocal(context)

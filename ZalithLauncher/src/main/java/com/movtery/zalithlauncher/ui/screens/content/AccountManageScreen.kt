@@ -118,6 +118,10 @@ private data class AccountActions(
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit
 )
 
+/**
+ * 账号管理界面
+ * 提供微软登录、离线登录、第三方服务器登录以及账号信息管理功能
+ */
 @Composable
 fun AccountManageScreen(
     backStackViewModel: ScreenBackStackViewModel,
@@ -129,7 +133,7 @@ fun AccountManageScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Handle MVI Effects
+    // 处理来自 ViewModel 的一次性副作用 (Effect)
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -173,6 +177,9 @@ fun AccountManageScreen(
     }
 }
 
+/**
+ * 账号管理界面内容布局
+ */
 @Composable
 private fun AccountManageContent(
     isVisible: Boolean,
@@ -182,6 +189,7 @@ private fun AccountManageContent(
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
+        // 左侧：登录方式与服务器列表菜单
         ServerTypeMenu(
             isVisible = isVisible,
             modifier = Modifier
@@ -191,6 +199,7 @@ private fun AccountManageContent(
             authServers = uiState.authServers,
             actions = actions
         )
+        // 右侧：已添加的账号列表
         AccountsLayout(
             isVisible = isVisible,
             modifier = Modifier
@@ -205,7 +214,7 @@ private fun AccountManageContent(
         )
     }
 
-    // 操作逻辑组件
+    // 各类业务逻辑的操作处理组件（通常包含 Dialog 或副作用触发）
     MicrosoftLoginOperation(uiState.microsoftLoginOperation, actions)
     MicrosoftChangeSkinOperation(uiState.microsoftChangeSkinOperation, actions)
     MicrosoftChangeCapeOperation(uiState.microsoftChangeCapeOperation, actions)
@@ -214,6 +223,9 @@ private fun AccountManageContent(
     ServerTypeOperation(uiState.serverOperation, actions)
 }
 
+/**
+ * 服务器与登录类型菜单
+ */
 @Composable
 private fun ServerTypeMenu(
     isVisible: Boolean,
@@ -239,6 +251,7 @@ private fun ServerTypeMenu(
                 .verticalScroll(state = rememberScrollState())
                 .padding(all = 12.dp)
         ) {
+            // 微软登录入口
             LoginItem(
                 modifier = Modifier.fillMaxWidth(),
                 serverName = stringResource(R.string.account_type_microsoft),
@@ -251,6 +264,7 @@ private fun ServerTypeMenu(
                     )
                 }
             }
+            // 离线登录入口
             LoginItem(
                 modifier = Modifier.fillMaxWidth(),
                 serverName = stringResource(R.string.account_type_local)
@@ -258,6 +272,7 @@ private fun ServerTypeMenu(
                 actions.onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit))
             }
 
+            // 自定义验证服务器入口
             authServers.forEach { server ->
                 ServerItem(
                     server = server,
@@ -279,6 +294,7 @@ private fun ServerTypeMenu(
             }
         }
 
+        // 添加新服务器按钮
         ScalingActionButton(
             modifier = Modifier
                 .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
@@ -290,6 +306,9 @@ private fun ServerTypeMenu(
     }
 }
 
+/**
+ * 微软登录操作逻辑处理
+ */
 @Composable
 private fun MicrosoftLoginOperation(
     operation: MicrosoftLoginOperation,
@@ -330,6 +349,9 @@ private fun MicrosoftLoginOperation(
     }
 }
 
+/**
+ * 微软皮肤更换操作逻辑处理
+ */
 @Composable
 private fun MicrosoftChangeSkinOperation(
     operation: MicrosoftChangeSkinOperation,
@@ -376,6 +398,9 @@ private fun MicrosoftChangeSkinOperation(
     }
 }
 
+/**
+ * 微软披风更换操作逻辑处理
+ */
 @Composable
 private fun MicrosoftChangeCapeOperation(
     operation: MicrosoftChangeCapeOperation,
@@ -437,6 +462,9 @@ private fun MicrosoftChangeCapeOperation(
     }
 }
 
+/**
+ * 离线登录操作逻辑处理
+ */
 @Composable
 private fun LocalLoginOperation(
     operation: LocalLoginOperation,
@@ -515,6 +543,9 @@ private fun LocalLoginOperation(
     }
 }
 
+/**
+ * 自定义验证服务器登录操作逻辑处理
+ */
 @Composable
 private fun OtherLoginOperation(
     operation: OtherLoginOperation,
@@ -580,6 +611,9 @@ private fun OtherLoginOperation(
     }
 }
 
+/**
+ * 验证服务器管理（添加/删除）操作逻辑处理
+ */
 @Composable
 private fun ServerTypeOperation(
     operation: ServerOperation,
@@ -643,6 +677,9 @@ private fun ServerTypeOperation(
     }
 }
 
+/**
+ * 账号列表显示布局
+ */
 @Composable
 private fun AccountsLayout(
     isVisible: Boolean,
@@ -656,6 +693,7 @@ private fun AccountsLayout(
     val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
     val context = LocalContext.current
 
+    // 账号通用管理操作（如删除、刷新失败提示）
     AccountOperation(accountOperation, actions)
 
     BackgroundCard(
@@ -674,6 +712,7 @@ private fun AccountsLayout(
                     val skinOp =
                         accountSkinOperationMap[account.uniqueUUID] ?: AccountSkinOperation.None
 
+                    // 针对单个账号的皮肤管理操作
                     AccountSkinOperation(
                         account = account,
                         accountSkinOperation = skinOp,
@@ -689,6 +728,7 @@ private fun AccountsLayout(
                         actions = actions
                     )
 
+                    // 皮肤文件选择器
                     val skinPicker =
                         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                             uri?.let {
@@ -706,6 +746,7 @@ private fun AccountsLayout(
                             }
                         }
 
+                    // 单个账号卡片
                     AccountItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -764,6 +805,7 @@ private fun AccountsLayout(
                 }
             }
         } else {
+            // 空列表状态显示
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -774,6 +816,9 @@ private fun AccountsLayout(
     }
 }
 
+/**
+ * 账号皮肤管理操作逻辑处理
+ */
 @Composable
 private fun AccountSkinOperation(
     account: Account,
@@ -830,6 +875,9 @@ private fun AccountSkinOperation(
     }
 }
 
+/**
+ * 通用账号管理操作逻辑处理
+ */
 @Composable
 private fun AccountOperation(
     operation: AccountOperation,
