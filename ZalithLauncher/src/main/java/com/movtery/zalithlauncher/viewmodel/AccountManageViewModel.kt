@@ -74,7 +74,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -320,7 +319,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         val capeId = intent.capeId
         val capeName = intent.capeName
         val isReset = intent.isReset
-        TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = { task ->
+        TaskSystem.submitTask(Task.runTask(id = account.uniqueUUID + "_cape", dispatcher = Dispatchers.IO, task = { task ->
             executeWithAuthorization(block = {
                 task.updateMessage(R.string.account_change_cape_apply)
                 changeCape(MINECRAFT_SERVICES_URL, account.accessToken, capeId)
@@ -424,6 +423,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         is NotPurchasedMinecraftException -> toLocal(context)
         is MinecraftProfileException -> th.toLocal(context)
         is XboxLoginException -> th.toLocal(context)
+        is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
+        is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
+        is ConnectException -> context.getString(R.string.error_connection_failed)
         is io.ktor.client.plugins.ResponseException -> {
             val res = when (th.response.status) {
                 HttpStatusCode.Unauthorized -> R.string.error_unauthorized
@@ -432,9 +434,6 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
             }
             context.getString(res, th.response.status.value)
         }
-        is HttpRequestTimeoutException -> context.getString(R.string.error_timeout)
-        is UnknownHostException, is UnresolvedAddressException -> context.getString(R.string.error_network_unreachable)
-        is ConnectException -> context.getString(R.string.error_connection_failed)
         else -> {
             lError("An unknown exception was caught!", th)
             val errorMessage = th.localizedMessage ?: th.message ?: th::class.qualifiedName ?: "Unknown error"

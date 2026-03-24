@@ -309,7 +309,9 @@ private fun MicrosoftChangeSkinOperation(
     when (operation) {
         is MicrosoftChangeSkinOperation.None -> {}
         is MicrosoftChangeSkinOperation.ImportFile -> {
-            actions.onIntent(AccountManageIntent.ImportSkinFile(context, operation.account, operation.uri))
+            LaunchedEffect(operation) {
+                actions.onIntent(AccountManageIntent.ImportSkinFile(context, operation.account, operation.uri))
+            }
         }
         is MicrosoftChangeSkinOperation.SelectSkinModel -> {
             SelectSkinModelDialog(
@@ -332,7 +334,9 @@ private fun MicrosoftChangeCapeOperation(
     when (operation) {
         is MicrosoftChangeCapeOperation.None -> {}
         is MicrosoftChangeCapeOperation.FetchProfiles -> {
-            actions.onIntent(AccountManageIntent.FetchMicrosoftCapes(context, operation.account))
+            LaunchedEffect(operation) {
+                actions.onIntent(AccountManageIntent.FetchMicrosoftCapes(context, operation.account))
+            }
         }
         is MicrosoftChangeCapeOperation.SelectCape -> {
             val account = operation.account
@@ -346,8 +350,11 @@ private fun MicrosoftChangeCapeOperation(
             )
         }
         is MicrosoftChangeCapeOperation.RunTask -> {
-            val capeId: String? = operation.cape.takeIf { it != EmptyCape }?.id
-            actions.onIntent(AccountManageIntent.ApplyMicrosoftCape(context, operation.account, capeId, operation.cape.capeTranslatedName(), operation.cape == EmptyCape))
+            val capeName = operation.cape.capeTranslatedName()
+            LaunchedEffect(operation) {
+                val capeId: String? = operation.cape.takeIf { it != EmptyCape }?.id
+                actions.onIntent(AccountManageIntent.ApplyMicrosoftCape(context, operation.account, capeId, capeName, operation.cape == EmptyCape))
+            }
         }
     }
 }
@@ -369,7 +376,11 @@ private fun LocalLoginOperation(
                 openLink = actions.openLink
             )
         }
-        is LocalLoginOperation.Create -> actions.onIntent(AccountManageIntent.CreateLocalAccount(operation.userName, operation.userUUID))
+        is LocalLoginOperation.Create -> {
+            LaunchedEffect(operation) {
+                actions.onIntent(AccountManageIntent.CreateLocalAccount(operation.userName, operation.userUUID))
+            }
+        }
         is LocalLoginOperation.Alert -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.account_supporting_username_invalid_title),
@@ -453,7 +464,11 @@ private fun ServerTypeOperation(
                 onConfirm = { if (serverUrl.isNotEmpty()) actions.onIntent(AccountManageIntent.UpdateServerOp(ServerOperation.Add(serverUrl))) }
             )
         }
-        is ServerOperation.Add -> actions.onIntent(AccountManageIntent.AddServer(operation.serverUrl))
+        is ServerOperation.Add -> {
+            LaunchedEffect(operation) {
+                actions.onIntent(AccountManageIntent.AddServer(operation.serverUrl))
+            }
+        }
         is ServerOperation.Delete -> {
             SimpleAlertDialog(
                 title = stringResource(R.string.account_other_login_delete_server_title),
