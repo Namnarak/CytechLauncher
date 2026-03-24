@@ -18,24 +18,18 @@
 
 package com.movtery.zalithlauncher.notification
 
-import android.app.NotificationManager.IMPORTANCE_LOW
-import android.content.Context
-import com.movtery.zalithlauncher.R
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-enum class NotificationChannelData(
-    val channelId: String,
-    val channelName: (Context) -> String,
-    val channelDescription: ((Context) -> String)?,
-    val level: Int,
-    val showBadge: Boolean = true
-) {
-    /**
-     * Jvm 任务服务
-     */
-    JVM_SERVICE_CHANNEL("jvm.service", { it.getString(R.string.notification_data_jvm_service_name) }, null, IMPORTANCE_LOW),
-
-    /**
-     * 陶瓦联机 VPN 状态显示服务
-     */
-    TERRACOTTA_VPN_CHANNEL("terracotta_vpn_channel", { "Terracotta VPN" }, { it.getString(R.string.terracotta_terracotta) }, IMPORTANCE_LOW, false)
-}
+/**
+ * 描述通知内进度条的数据类
+ * @param max 最大值
+ * @param progress 当前值
+ * @param indeterminate 是否为不确定状态
+ */
+@Parcelize
+data class NoticeProgress(
+    val max: Int,
+    val progress: Int,
+    val indeterminate: Boolean = false
+): Parcelable
