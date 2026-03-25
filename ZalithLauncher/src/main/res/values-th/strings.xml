@@ -102,4 +102,5 @@
     <string name="crash_restart">รีสตาร์ท</string>
     <string name="crash_exit">ออก</string>
     <string name="crash_link_share_button">แชร์ลิงค์</string>
+    <string name="url_wiki_minecraft_game_snapshot">https://minecraft.wiki/w/Java_Edition_%s</string>
 </resources>
