@@ -22,7 +22,6 @@ import android.graphics.Rect
 import android.graphics.Region
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -361,9 +360,7 @@ fun Joystick(
     }
 
     Box(
-        modifier = modifier
-            .size(size)
-            .background(Color.Red),
+        modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
         Canvas(
