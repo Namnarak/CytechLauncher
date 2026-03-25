@@ -70,7 +70,6 @@ import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
-import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.BackgroundCard
@@ -450,24 +449,22 @@ private fun MicrosoftChangeCapeOperation(
         is MicrosoftChangeCapeOperation.SelectCape -> {
             val account = operation.account
             val profile = operation.profile
-            val capes = remember(profile.capes) { listOf(EmptyCape) + profile.capes }
-
-            // 预计算翻译名称：因为 capeTranslatedName 是 Composable 函数，不能在 onSelected 回调中直接调用
-            val translations = mutableMapOf<String, String>()
-            capes.forEach { cape ->
-                translations[cape.id] = cape.capeTranslatedName()
+            val capes = remember(operation) {
+                buildList {
+                    add(EmptyCape)
+                    addAll(profile.capes)
+                }
             }
 
             SelectCapeDialog(
                 capes = capes,
-                onSelected = { cape ->
-                    val capeName = translations[cape.id] ?: ""
+                onSelected = { cape, translatedName ->
                     val capeId: String? = cape.takeIf { it != EmptyCape }?.id
                     actions.onIntent(
                         AccountManageIntent.ApplyMicrosoftCape(
                             account,
                             capeId,
-                            capeName,
+                            translatedName,
                             cape == EmptyCape
                         )
                     )

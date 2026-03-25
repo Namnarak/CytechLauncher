@@ -118,7 +118,7 @@ import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isSkinChangeAllowed
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
-import com.movtery.zalithlauncher.game.account.wardrobe.capeTranslatedName
+import com.movtery.zalithlauncher.game.account.wardrobe.capeLocalRes
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.getFile
 import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
@@ -1105,20 +1105,29 @@ fun SelectSkinModelDialog(
 @Composable
 fun SelectCapeDialog(
     capes: List<PlayerProfile.Cape>,
-    onSelected: (PlayerProfile.Cape) -> Unit,
+    onSelected: (PlayerProfile.Cape, translatedName: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val current = remember(capes) {
         capes.find { it.isUsing() }
     }
+    val capeLocals = buildMap {
+        capes.forEach { cape ->
+            val translatedName = cape.capeLocalRes()
+                ?.let { stringResource(it) }
+            put(cape, translatedName)
+        }
+    }
+
     SimpleListDialog(
         title = stringResource(R.string.account_change_cape_select_cape),
         items = capes,
         itemTextProvider = { cape ->
-            cape.capeTranslatedName()
+            capeLocals[cape] ?: cape.alias
         },
         onItemSelected = { cape ->
-            onSelected(cape)
+            val name = capeLocals[cape] ?: cape.alias
+            onSelected(cape, name)
         },
         current = current,
         itemLayout = { cape, isCurrent, text, onClick ->
