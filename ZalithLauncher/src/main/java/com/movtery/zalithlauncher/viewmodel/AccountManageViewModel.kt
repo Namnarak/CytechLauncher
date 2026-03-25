@@ -63,6 +63,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -88,18 +89,6 @@ import javax.inject.Inject
 
 /**
  * 账号管理界面 UI 状态
- *
- * @property accounts 账号列表
- * @property currentAccount 当前选中的账号
- * @property authServers 自定义验证服务器列表
- * @property microsoftLoginOperation 微软登录操作状态
- * @property microsoftChangeSkinOperation 微软更换皮肤操作状态
- * @property microsoftChangeCapeOperation 微软更换披风操作状态
- * @property localLoginOperation 离线登录操作状态
- * @property otherLoginOperation 其他服务器登录操作状态
- * @property serverOperation 服务器管理操作状态
- * @property accountOperation 账号管理操作状态
- * @property accountSkinOperationMap 每个账号对应的皮肤操作状态映射
  */
 data class AccountManageUiState(
     val accounts: List<Account> = emptyList(),
@@ -138,27 +127,24 @@ sealed class AccountManageIntent {
 
     // 业务执行类意图
     data class PerformMicrosoftLogin(
-        val context: Context,
         val toWeb: (url: String) -> Unit,
         val backToMain: () -> Unit,
         val checkIfInWebScreen: () -> Boolean
     ) : AccountManageIntent()
 
-    data class ImportSkinFile(val context: Context, val account: Account, val uri: Uri) :
+    data class ImportSkinFile(val account: Account, val uri: Uri) :
         AccountManageIntent()
 
     data class UploadMicrosoftSkin(
-        val context: Context,
         val account: Account,
         val skinFile: File,
         val skinModel: SkinModelType
     ) : AccountManageIntent()
 
-    data class FetchMicrosoftCapes(val context: Context, val account: Account) :
+    data class FetchMicrosoftCapes(val account: Account) :
         AccountManageIntent()
 
     data class ApplyMicrosoftCape(
-        val context: Context,
         val account: Account,
         val capeId: String?,
         val capeName: String,
@@ -169,7 +155,6 @@ sealed class AccountManageIntent {
         AccountManageIntent()
 
     data class LoginWithOtherServer(
-        val context: Context,
         val server: AuthServer,
         val email: String,
         val pass: String
@@ -178,15 +163,13 @@ sealed class AccountManageIntent {
     data class AddServer(val url: String) : AccountManageIntent()
     data class DeleteServer(val server: AuthServer) : AccountManageIntent()
     data class DeleteAccount(val account: Account) : AccountManageIntent()
-    data class RefreshAccount(val context: Context, val account: Account) : AccountManageIntent()
+    data class RefreshAccount(val account: Account) : AccountManageIntent()
     data class SaveLocalSkin(
-        val context: Context,
         val account: Account,
-        val uri: Uri,
-        val onRefresh: () -> Unit
+        val uri: Uri
     ) : AccountManageIntent()
 
-    data class ResetSkin(val account: Account, val onRefresh: () -> Unit) : AccountManageIntent()
+    data class ResetSkin(val account: Account) : AccountManageIntent()
 }
 
 /**
@@ -202,6 +185,9 @@ sealed class AccountManageEffect {
         val formatArgs: List<Any> = emptyList(),
         val duration: Int = Toast.LENGTH_SHORT
     ) : AccountManageEffect()
+
+    /** 刷新头像 */
+    data class RefreshAvatar(val accountUuid: String) : AccountManageEffect()
 }
 
 /**
@@ -209,7 +195,9 @@ sealed class AccountManageEffect {
  * 采用 MVI 架构处理 UI 状态与用户交互
  */
 @HiltViewModel
-class AccountManageViewModel @Inject constructor() : ViewModel() {
+class AccountManageViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context
+) : ViewModel() {
 
     // 各类操作状态的持久流
     private val _microsoftLoginOp =
@@ -298,9 +286,9 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
             is AccountManageIntent.AddServer -> addServer(intent.url)
             is AccountManageIntent.DeleteServer -> deleteServer(intent.server)
             is AccountManageIntent.DeleteAccount -> deleteAccount(intent.account)
-            is AccountManageIntent.RefreshAccount -> refreshAccount(intent.context, intent.account)
+            is AccountManageIntent.RefreshAccount -> refreshAccount(intent.account)
             is AccountManageIntent.SaveLocalSkin -> saveLocalSkin(intent)
-            is AccountManageIntent.ResetSkin -> resetSkin(intent.account, intent.onRefresh)
+            is AccountManageIntent.ResetSkin -> resetSkin(intent.account)
         }
     }
 
@@ -320,6 +308,12 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private fun emitRefreshAvatar(accountUuid: String) {
+        viewModelScope.launch {
+            _effect.send(AccountManageEffect.RefreshAvatar(accountUuid))
+        }
+    }
+
     // --- 业务方法 ---
 
     /**
@@ -327,7 +321,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      */
     private fun performMicrosoftLogin(intent: AccountManageIntent.PerformMicrosoftLogin) {
         microsoftLogin(
-            intent.context,
+            context,
             intent.toWeb,
             intent.backToMain,
             intent.checkIfInWebScreen,
@@ -341,7 +335,6 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      * 导入皮肤文件到缓存
      */
     private fun importSkinFile(intent: AccountManageIntent.ImportSkinFile) {
-        val context = intent.context
         val account = intent.account
         val uri = intent.uri
         val fileName = context.getFileName(uri) ?: UUID.randomUUID().toString().replace("-", "")
@@ -388,7 +381,6 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      * 上传皮肤到微软服务器
      */
     private fun uploadMicrosoftSkin(intent: AccountManageIntent.UploadMicrosoftSkin) {
-        val context = intent.context
         val account = intent.account
         val skinFile = intent.skinFile
         val skinModel = intent.skinModel
@@ -415,8 +407,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
                         R.string.account_change_skin_update_toast,
                         duration = Toast.LENGTH_LONG
                     )
-                    // State should already be None from the line above, but keeping for clarity if logic changes.
-                    onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
+                    emitRefreshAvatar(account.uniqueUUID)
                 },
                 onError = { th ->
                     val (title, msg) = if (th is io.ktor.client.plugins.ResponseException) {
@@ -445,7 +436,6 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      * 获取微软账号的所有披风
      */
     private fun fetchMicrosoftCapes(intent: AccountManageIntent.FetchMicrosoftCapes) {
-        val context = intent.context
         val account = intent.account
         TaskSystem.submitTask(
             Task.runTask(
@@ -489,7 +479,6 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      * 应用选中的披风到微软账号
      */
     private fun applyMicrosoftCape(intent: AccountManageIntent.ApplyMicrosoftCape) {
-        val context = intent.context
         val account = intent.account
         val capeId = intent.capeId
         val capeName = intent.capeName
@@ -551,7 +540,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
             AccountsManager.suspendSaveAccount(account)
         }, onFailed = {
             onIntent(AccountManageIntent.UpdateOtherLoginOp(OtherLoginOperation.OnFailed(it)))
-        }).createNewAccount(intent.context) { profiles, select ->
+        }).createNewAccount(context) { profiles, select ->
             onIntent(
                 AccountManageIntent.UpdateOtherLoginOp(
                     OtherLoginOperation.SelectRole(
@@ -592,7 +581,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
     /**
      * 刷新账号信息（令牌等）
      */
-    private fun refreshAccount(context: Context, account: Account) {
+    private fun refreshAccount(account: Account) {
         AccountsManager.refreshAccount(context, account) {
             onIntent(AccountManageIntent.UpdateAccountOp(AccountOperation.OnFailed(it)))
         }
@@ -602,10 +591,8 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
      * 保存本地离线账号的皮肤文件
      */
     private fun saveLocalSkin(intent: AccountManageIntent.SaveLocalSkin) {
-        val context = intent.context
         val account = intent.account
         val uri = intent.uri
-        val onRefresh = intent.onRefresh
         val skinFile = account.getSkinFile()
         val cacheFile = File(PathManager.DIR_IMAGE_CACHE, skinFile.name)
         TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = {
@@ -614,7 +601,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
                 cacheFile.copyTo(skinFile, true)
                 FileUtils.deleteQuietly(cacheFile)
                 AccountsManager.suspendSaveAccount(account)
-                onRefresh()
+                emitRefreshAvatar(account.uniqueUUID)
                 onIntent(
                     AccountManageIntent.UpdateAccountSkinOp(
                         account.uniqueUUID,
@@ -636,7 +623,7 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
         }, onError = { th ->
             FileUtils.deleteQuietly(cacheFile)
             emitError(context.getString(R.string.error_import_image), th.getMessageOrToString())
-            onRefresh()
+            emitRefreshAvatar(account.uniqueUUID)
             onIntent(
                 AccountManageIntent.UpdateAccountSkinOp(
                     account.uniqueUUID,
@@ -649,14 +636,14 @@ class AccountManageViewModel @Inject constructor() : ViewModel() {
     /**
      * 重置账号皮肤为默认
      */
-    private fun resetSkin(account: Account, onRefresh: () -> Unit) {
+    private fun resetSkin(account: Account) {
         TaskSystem.submitTask(Task.runTask(dispatcher = Dispatchers.IO, task = {
             account.apply {
                 FileUtils.deleteQuietly(getSkinFile())
                 skinModelType = SkinModelType.NONE
                 profileId = getLocalUUIDWithSkinModel(username, skinModelType)
                 AccountsManager.suspendSaveAccount(this)
-                onRefresh()
+                emitRefreshAvatar(account.uniqueUUID)
             }
         }))
         onIntent(

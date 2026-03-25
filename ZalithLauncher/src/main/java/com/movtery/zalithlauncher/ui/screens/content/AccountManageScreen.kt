@@ -117,7 +117,8 @@ private data class AccountActions(
     val navigateToWeb: (url: String) -> Unit,
     val checkIfInWebScreen: () -> Boolean,
     val formatError: (Context, Throwable) -> String,
-    val submitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+    val refreshAvatarMap: MutableMap<String, Boolean>
 )
 
 /**
@@ -135,6 +136,10 @@ fun AccountManageScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // 用于触发局部头像刷新的状态映射
+    val refreshAvatarMap = remember { mutableMapOf<String, Boolean>() }
+    var refreshKey by remember { mutableStateOf(false) }
+
     // 处理来自 ViewModel 的一次性副作用 (Effect)
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -151,11 +156,16 @@ fun AccountManageScreen(
                     }
                     Toast.makeText(context, message, effect.duration).show()
                 }
+
+                is AccountManageEffect.RefreshAvatar -> {
+                    refreshAvatarMap[effect.accountUuid] = !(refreshAvatarMap[effect.accountUuid] ?: false)
+                    refreshKey = !refreshKey
+                }
             }
         }
     }
 
-    val actions = remember(viewModel, backToMainScreen, openLink, backStackViewModel, submitError) {
+    val actions = remember(viewModel, backToMainScreen, openLink, backStackViewModel, submitError, refreshAvatarMap) {
         AccountActions(
             onIntent = viewModel::onIntent,
             openLink = openLink,
@@ -163,7 +173,8 @@ fun AccountManageScreen(
             navigateToWeb = { url -> backStackViewModel.mainScreen.backStack.navigateToWeb(url) },
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
             formatError = { ctx, th -> viewModel.formatAccountError(ctx, th) },
-            submitError = submitError
+            submitError = submitError,
+            refreshAvatarMap = refreshAvatarMap
         )
     }
 
@@ -174,7 +185,8 @@ fun AccountManageScreen(
         AccountManageContent(
             isVisible = isVisible,
             uiState = uiState,
-            actions = actions
+            actions = actions,
+            refreshKey = refreshKey
         )
     }
 }
@@ -186,7 +198,8 @@ fun AccountManageScreen(
 private fun AccountManageContent(
     isVisible: Boolean,
     uiState: AccountManageUiState,
-    actions: AccountActions
+    actions: AccountActions,
+    refreshKey: Boolean
 ) {
     Row(
         modifier = Modifier.fillMaxSize()
@@ -212,7 +225,8 @@ private fun AccountManageContent(
             currentAccount = uiState.currentAccount,
             accountOperation = uiState.accountOperation,
             accountSkinOperationMap = uiState.accountSkinOperationMap,
-            actions = actions
+            actions = actions,
+            refreshKey = refreshKey
         )
     }
 
@@ -316,7 +330,6 @@ private fun MicrosoftLoginOperation(
     operation: MicrosoftLoginOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
     when (operation) {
         is MicrosoftLoginOperation.None -> {}
         is MicrosoftLoginOperation.Tip -> {
@@ -336,7 +349,6 @@ private fun MicrosoftLoginOperation(
                     )
                     actions.onIntent(
                         AccountManageIntent.PerformMicrosoftLogin(
-                            context = context,
                             toWeb = actions.navigateToWeb,
                             backToMain = actions.backToMainScreen,
                             checkIfInWebScreen = actions.checkIfInWebScreen
@@ -346,8 +358,6 @@ private fun MicrosoftLoginOperation(
                 openLink = actions.openLink
             )
         }
-
-        is MicrosoftLoginOperation.RunTask -> {}
     }
 }
 
@@ -359,14 +369,12 @@ private fun MicrosoftChangeSkinOperation(
     operation: MicrosoftChangeSkinOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
     when (operation) {
         is MicrosoftChangeSkinOperation.None -> {}
         is MicrosoftChangeSkinOperation.ImportFile -> {
             LaunchedEffect(operation) {
                 actions.onIntent(
                     AccountManageIntent.ImportSkinFile(
-                        context,
                         operation.account,
                         operation.uri
                     )
@@ -384,10 +392,8 @@ private fun MicrosoftChangeSkinOperation(
                     )
                 },
                 onSelected = { type ->
-                    actions.onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None)) // Bug 1 fix
                     actions.onIntent(
                         AccountManageIntent.UploadMicrosoftSkin(
-                            context,
                             operation.account,
                             operation.file,
                             type
@@ -396,8 +402,6 @@ private fun MicrosoftChangeSkinOperation(
                 }
             )
         }
-
-        is MicrosoftChangeSkinOperation.RunTask -> {}
     }
 }
 
@@ -409,14 +413,12 @@ private fun MicrosoftChangeCapeOperation(
     operation: MicrosoftChangeCapeOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
     when (operation) {
         is MicrosoftChangeCapeOperation.None -> {}
         is MicrosoftChangeCapeOperation.FetchProfiles -> {
             LaunchedEffect(operation) {
                 actions.onIntent(
                     AccountManageIntent.FetchMicrosoftCapes(
-                        context,
                         operation.account
                     )
                 )
@@ -427,13 +429,24 @@ private fun MicrosoftChangeCapeOperation(
             val account = operation.account
             val profile = operation.profile
             val capes = remember(profile.capes) { listOf(EmptyCape) + profile.capes }
+            
+            // 预先计算翻译名称，避免在回调中调用 Composable 函数
+            val translations = mutableMapOf<String, String>()
+            capes.forEach { cape ->
+                translations[cape.id] = cape.capeTranslatedName()
+            }
 
             SelectCapeDialog(
                 capes = capes,
                 onSelected = { cape ->
+                    val capeName = translations[cape.id] ?: ""
+                    val capeId: String? = cape.takeIf { it != EmptyCape }?.id
                     actions.onIntent(
-                        AccountManageIntent.UpdateMicrosoftCapeOp(
-                            MicrosoftChangeCapeOperation.RunTask(account, cape)
+                        AccountManageIntent.ApplyMicrosoftCape(
+                            account,
+                            capeId,
+                            capeName,
+                            cape == EmptyCape
                         )
                     )
                 },
@@ -445,22 +458,6 @@ private fun MicrosoftChangeCapeOperation(
                     )
                 }
             )
-        }
-
-        is MicrosoftChangeCapeOperation.RunTask -> {
-            val capeName = operation.cape.capeTranslatedName()
-            LaunchedEffect(operation) {
-                val capeId: String? = operation.cape.takeIf { it != EmptyCape }?.id
-                actions.onIntent(
-                    AccountManageIntent.ApplyMicrosoftCape(
-                        context,
-                        operation.account,
-                        capeId,
-                        capeName,
-                        operation.cape == EmptyCape
-                    )
-                )
-            }
         }
     }
 }
@@ -510,7 +507,7 @@ private fun LocalLoginOperation(
             SimpleAlertDialog(
                 title = stringResource(R.string.account_supporting_username_invalid_title),
                 text = {
-
+                    Column {
                         Text(text = stringResource(R.string.account_supporting_username_invalid_local_message_hint1))
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -525,6 +522,7 @@ private fun LocalLoginOperation(
                             text = stringResource(R.string.account_supporting_username_invalid_local_message_hint5),
                             fontWeight = FontWeight.Bold
                         )
+                    }
                 },
                 confirmText = stringResource(R.string.account_supporting_username_invalid_still_use),
                 onConfirm = {
@@ -555,6 +553,8 @@ private fun OtherLoginOperation(
     actions: AccountActions
 ) {
     val context = LocalContext.current
+    val loggingInFailedTitle = stringResource(R.string.account_logging_in_failed)
+    
     when (operation) {
         is OtherLoginOperation.None -> {}
         is OtherLoginOperation.OnLogin -> {
@@ -575,7 +575,6 @@ private fun OtherLoginOperation(
                     actions.onIntent(AccountManageIntent.UpdateOtherLoginOp(OtherLoginOperation.None))
                     actions.onIntent(
                         AccountManageIntent.LoginWithOtherServer(
-                            context,
                             operation.server,
                             email,
                             password
@@ -587,10 +586,10 @@ private fun OtherLoginOperation(
 
         is OtherLoginOperation.OnFailed -> {
             val message = actions.formatError(context, operation.th)
-            LaunchedEffect(operation) { // Bug 2 fix
+            LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = context.getString(R.string.account_logging_in_failed),
+                        title = loggingInFailedTitle,
                         message = message
                     )
                 )
@@ -624,7 +623,8 @@ private fun ServerTypeOperation(
     operation: ServerOperation,
     actions: AccountActions
 ) {
-    val context = LocalContext.current // Context moved outside LaunchedEffect
+    val addingFailureTitle = stringResource(R.string.account_other_login_adding_failure)
+    
     when (operation) {
         is ServerOperation.AddNew -> {
             var serverUrl by rememberSaveable { mutableStateOf("") }
@@ -671,10 +671,10 @@ private fun ServerTypeOperation(
 
         is ServerOperation.OnThrowable -> {
             val message = operation.throwable.getMessageOrToString()
-            LaunchedEffect(operation) { // Bug 2 fix
+            LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = context.getString(R.string.account_other_login_adding_failure),
+                        title = addingFailureTitle,
                         message = message
                     )
                 )
@@ -697,7 +697,8 @@ private fun AccountsLayout(
     currentAccount: Account?,
     accountOperation: AccountOperation,
     accountSkinOperationMap: Map<String, AccountSkinOperation>,
-    actions: AccountActions
+    actions: AccountActions,
+    refreshKey: Boolean
 ) {
     val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
     val context = LocalContext.current
@@ -717,7 +718,6 @@ private fun AccountsLayout(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 items(accounts, key = { it.uniqueUUID }) { account ->
-                    var refreshAvatar by remember { mutableStateOf(false) }
                     val skinOp =
                         accountSkinOperationMap[account.uniqueUUID] ?: AccountSkinOperation.None
 
@@ -733,7 +733,6 @@ private fun AccountsLayout(
                                 )
                             )
                         },
-                        onRefreshAvatar = { refreshAvatar = !refreshAvatar },
                         actions = actions
                     )
 
@@ -762,7 +761,7 @@ private fun AccountsLayout(
                             .padding(vertical = 6.dp),
                         currentAccount = currentAccount,
                         account = account,
-                        refreshKey = refreshAvatar,
+                        refreshKey = actions.refreshAvatarMap[account.uniqueUUID] ?: refreshKey,
                         onSelected = { AccountsManager.setCurrentAccount(it) },
                         onChangeSkin = {
                             if (!account.isAuthServerAccount()) skinPicker.launch(
@@ -787,7 +786,6 @@ private fun AccountsLayout(
                         onRefreshClick = {
                             actions.onIntent(
                                 AccountManageIntent.RefreshAccount(
-                                    context,
                                     account
                                 )
                             )
@@ -833,20 +831,16 @@ private fun AccountSkinOperation(
     account: Account,
     accountSkinOperation: AccountSkinOperation,
     updateOperation: (AccountSkinOperation) -> Unit,
-    onRefreshAvatar: () -> Unit,
     actions: AccountActions
 ) {
-    val context = LocalContext.current
     when (accountSkinOperation) {
         is AccountSkinOperation.None -> {}
         is AccountSkinOperation.SaveSkin -> {
             LaunchedEffect(accountSkinOperation.uri) {
                 actions.onIntent(
                     AccountManageIntent.SaveLocalSkin(
-                        context,
                         account,
-                        accountSkinOperation.uri,
-                        onRefreshAvatar
+                        accountSkinOperation.uri
                     )
                 )
             }
@@ -878,7 +872,7 @@ private fun AccountSkinOperation(
 
         is AccountSkinOperation.ResetSkin -> {
             LaunchedEffect(Unit) {
-                actions.onIntent(AccountManageIntent.ResetSkin(account, onRefreshAvatar))
+                actions.onIntent(AccountManageIntent.ResetSkin(account))
             }
         }
     }
@@ -893,6 +887,8 @@ private fun AccountOperation(
     actions: AccountActions
 ) {
     val context = LocalContext.current
+    val loggingInFailedTitle = stringResource(R.string.account_logging_in_failed)
+    
     when (operation) {
         is AccountOperation.Delete -> {
             SimpleAlertDialog(
@@ -905,10 +901,10 @@ private fun AccountOperation(
 
         is AccountOperation.OnFailed -> {
             val message = actions.formatError(context, operation.th)
-            LaunchedEffect(operation) { // Bug 2 fix
+            LaunchedEffect(operation) {
                 actions.submitError(
                     ErrorViewModel.ThrowableMessage(
-                        title = context.getString(R.string.account_logging_in_failed),
+                        title = loggingInFailedTitle,
                         message = message
                     )
                 )
@@ -936,8 +932,10 @@ private fun AccountManageContentPreview() {
                         navigateToWeb = {},
                         checkIfInWebScreen = { false },
                         formatError = { _, _ -> "" },
-                        submitError = {}
-                    )
+                        submitError = {},
+                        refreshAvatarMap = mutableMapOf()
+                    ),
+                    refreshKey = false
                 )
             }
         }

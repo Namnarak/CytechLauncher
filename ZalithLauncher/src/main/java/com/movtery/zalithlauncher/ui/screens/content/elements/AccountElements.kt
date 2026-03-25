@@ -151,8 +151,6 @@ sealed interface MicrosoftLoginOperation {
     data object None : MicrosoftLoginOperation
     /** 微软账号相关提示Dialog流程 */
     data object Tip : MicrosoftLoginOperation
-    /** 正式开始登陆微软账号流程 */
-    data object RunTask: MicrosoftLoginOperation
 }
 
 /**
@@ -164,8 +162,6 @@ sealed interface MicrosoftChangeSkinOperation {
     data class ImportFile(val account: Account, val uri: Uri): MicrosoftChangeSkinOperation
     /** 选择皮肤模型 */
     data class SelectSkinModel(val account: Account, val file: File): MicrosoftChangeSkinOperation
-    /** 开始上传皮肤 */
-    data class RunTask(val account: Account, val file: File, val skinModel: SkinModelType): MicrosoftChangeSkinOperation
 }
 
 /**
@@ -177,8 +173,6 @@ sealed interface MicrosoftChangeCapeOperation {
     data class FetchProfiles(val account: Account): MicrosoftChangeCapeOperation
     /** 选择更改为什么披风 */
     data class SelectCape(val account: Account, val profile: PlayerProfile): MicrosoftChangeCapeOperation
-    /** 开始更改披风 */
-    data class RunTask(val account: Account, val cape: PlayerProfile.Cape): MicrosoftChangeCapeOperation
 }
 
 /**
