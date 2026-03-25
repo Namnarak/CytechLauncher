@@ -132,8 +132,7 @@ private data class AccountActions(
 
 /**
  * 账号管理主界面
- * 采用 MVI (Model-View-Intent) 架构，将 UI 与业务逻辑解耦
- * 
+ *
  * @param backStackViewModel 屏幕堆栈管理器
  * @param backToMainScreen 返回主屏幕的回调
  * @param openLink 外部链接跳转回调
@@ -154,7 +153,6 @@ fun AccountManageScreen(
     // 头像刷新机制：ViewModel 发送 Effect，UI 层更新 refreshAvatarMap 触发局部重绘
     val refreshAvatarMap = remember { mutableStateMapOf<String, Boolean>() }
 
-    // 处理来自 ViewModel 的单次副作用 (Effect)
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -172,7 +170,6 @@ fun AccountManageScreen(
                 }
 
                 is AccountManageEffect.RefreshAvatar -> {
-                    // 改变对应账号的布尔值以触发 PlayerFace 重绘
                     val current = refreshAvatarMap[effect.accountUuid] ?: false
                     refreshAvatarMap[effect.accountUuid] = !current
                 }
@@ -180,7 +177,6 @@ fun AccountManageScreen(
         }
     }
 
-    // 封装所有回调动作，保持代码整洁
     val actions = remember(
         viewModel,
         backToMainScreen,
@@ -201,7 +197,6 @@ fun AccountManageScreen(
         )
     }
 
-    // 基础屏幕容器
     BaseScreen(
         screenKey = NormalNavKey.AccountManager,
         currentKey = backStackViewModel.mainScreen.currentKey
@@ -226,7 +221,6 @@ private fun AccountManageContent(
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
-        // 左侧：登录方式与服务器管理区域
         ServerTypeMenu(
             isVisible = isVisible,
             modifier = Modifier
@@ -236,7 +230,7 @@ private fun AccountManageContent(
             authServers = uiState.authServers,
             actions = actions
         )
-        // 右侧：已保存的账号列表展示区域
+
         AccountsLayout(
             isVisible = isVisible,
             modifier = Modifier
@@ -251,7 +245,6 @@ private fun AccountManageContent(
         )
     }
 
-    // 处理各类模态对话框与副作用操作（通过 uiState 中的 Operation 状态驱动）
     MicrosoftLoginOperation(uiState.microsoftLoginOperation, actions)
     MicrosoftChangeSkinOperation(uiState.microsoftChangeSkinOperation, actions)
     MicrosoftChangeCapeOperation(uiState.microsoftChangeCapeOperation, actions)
@@ -335,7 +328,6 @@ private fun ServerTypeMenu(
             }
         }
 
-        // 添加新的验证服务器按钮
         ScalingActionButton(
             modifier = Modifier
                 .padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))
@@ -719,7 +711,6 @@ private fun AccountsLayout(
     val yOffset by swapAnimateDpAsState(targetValue = (-40).dp, swapIn = isVisible)
     val context = LocalContext.current
 
-    // 处理账号通用管理对话框
     AccountOperation(accountOperation, actions)
 
     BackgroundCard(
@@ -737,7 +728,6 @@ private fun AccountsLayout(
                     val skinOp =
                         accountSkinOperationMap[account.uniqueUUID] ?: AccountSkinOperation.None
 
-                    // 每个账号卡片的局部皮肤管理操作
                     AccountSkinOperation(
                         account = account,
                         accountSkinOperation = skinOp,
@@ -752,7 +742,6 @@ private fun AccountsLayout(
                         actions = actions
                     )
 
-                    // 皮肤文件选择器的系统 Launcher
                     val skinPicker =
                         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                             uri?.let {
@@ -770,7 +759,6 @@ private fun AccountsLayout(
                             }
                         }
 
-                    // 具体的账号条目 UI
                     AccountItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -828,7 +816,6 @@ private fun AccountsLayout(
                 }
             }
         } else {
-            // 空账号状态提示
             Box(modifier = Modifier.fillMaxSize()) {
                 ScalingLabel(
                     modifier = Modifier.align(Alignment.Center),
@@ -866,7 +853,6 @@ private fun AccountSkinOperation(
             SelectSkinModelDialog(
                 onDismissRequest = { updateOperation(AccountSkinOperation.None) },
                 onSelected = { type ->
-                    // 预先更新账号本地状态（模型与 UUID 关联）
                     account.skinModelType = type
                     account.profileId = getLocalUUIDWithSkinModel(account.username, type)
                     updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri))

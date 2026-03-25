@@ -122,7 +122,6 @@ data class AccountManageUiState(
  * 封装了 UI 层发出的所有操作请求
  */
 sealed class AccountManageIntent {
-    // --- 状态更新意图 (控制 UI 交互流程) ---
     data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
         AccountManageIntent()
 
@@ -139,7 +138,6 @@ sealed class AccountManageIntent {
     data class UpdateAccountSkinOp(val accountUuid: String, val operation: AccountSkinOperation) :
         AccountManageIntent()
 
-    // --- 业务执行意图 (触发实际的后台逻辑) ---
 
     /** 执行微软登录流程 */
     data class PerformMicrosoftLogin(
@@ -230,8 +228,6 @@ sealed class AccountManageEffect {
 class AccountManageViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
-
-    // 各类细分操作状态流，用于组合成完整的 UI 状态
     private val _microsoftLoginOp =
         MutableStateFlow<MicrosoftLoginOperation>(MicrosoftLoginOperation.None)
     private val _microsoftSkinOp =
@@ -244,7 +240,6 @@ class AccountManageViewModel @Inject constructor(
     private val _accountOp = MutableStateFlow<AccountOperation>(AccountOperation.None)
     private val _accountSkinOpMap = MutableStateFlow<Map<String, AccountSkinOperation>>(emptyMap())
 
-    // 用于发送单次副作用的通道
     private val _effect = Channel<AccountManageEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
@@ -290,15 +285,12 @@ class AccountManageViewModel @Inject constructor(
      */
     fun onIntent(intent: AccountManageIntent) {
         when (intent) {
-            // 更新 UI 交互状态
-            is AccountManageIntent.UpdateMicrosoftLoginOp -> _microsoftLoginOp.value =
-                intent.operation
-
-            is AccountManageIntent.UpdateMicrosoftSkinOp -> _microsoftSkinOp.value =
-                intent.operation
-
-            is AccountManageIntent.UpdateMicrosoftCapeOp -> _microsoftCapeOp.value =
-                intent.operation
+            is AccountManageIntent.UpdateMicrosoftLoginOp ->
+                _microsoftLoginOp.value = intent.operation
+            is AccountManageIntent.UpdateMicrosoftSkinOp ->
+                _microsoftSkinOp.value = intent.operation
+            is AccountManageIntent.UpdateMicrosoftCapeOp ->
+                _microsoftCapeOp.value = intent.operation
 
             is AccountManageIntent.UpdateLocalLoginOp -> _localLoginOp.value = intent.operation
             is AccountManageIntent.UpdateOtherLoginOp -> _otherLoginOp.value = intent.operation
@@ -308,7 +300,6 @@ class AccountManageViewModel @Inject constructor(
                 _accountSkinOpMap.update { it + (intent.accountUuid to intent.operation) }
             }
 
-            // 触发业务逻辑
             is AccountManageIntent.PerformMicrosoftLogin -> performMicrosoftLogin(intent)
             is AccountManageIntent.ImportSkinFile -> importSkinFile(intent)
             is AccountManageIntent.UploadMicrosoftSkin -> uploadMicrosoftSkin(intent)
@@ -353,8 +344,6 @@ class AccountManageViewModel @Inject constructor(
             _effect.send(AccountManageEffect.RefreshAvatar(accountUuid))
         }
     }
-
-    // --- 业务逻辑具体实现 ---
 
     /** 执行微软登录流程 */
     private fun performMicrosoftLogin(intent: AccountManageIntent.PerformMicrosoftLogin) {
@@ -419,7 +408,6 @@ class AccountManageViewModel @Inject constructor(
         val skinFile = intent.skinFile
         val skinModel = intent.skinModel
 
-        // 立即重置 UI 状态以关闭对话框
         onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
 
         TaskSystem.submitTask(
@@ -510,7 +498,6 @@ class AccountManageViewModel @Inject constructor(
         val capeName = intent.capeName
         val isReset = intent.isReset
 
-        // 立即重置 UI 状态以关闭对话框
         onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
 
         TaskSystem.submitTask(
