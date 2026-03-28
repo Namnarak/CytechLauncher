@@ -151,11 +151,11 @@ object RendererPluginManager: ApkPluginManager() {
 
                 runCatching {
                     cacheAppIcon(context, info)
-                    ApkPlugin(
+                    object : ApkPlugin(
                         packageName = packageName,
                         appName = appName,
                         appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
-                    )
+                    ) {}
                 }.getOrNull()?.let { loaded(it) }
             }
         }

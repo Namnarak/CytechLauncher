@@ -313,9 +313,7 @@ abstract class Launcher(
         val paths = buildList {
             FFmpegPluginManager.takeIf { it.isAvailable }?.libraryPath?.let { add(it) }
             RendererPluginManager.selectedRendererPlugin?.path?.let { add(it) }
-            NativePluginManager.getPlugins().forEach { plugin ->
-                add(plugin.path)
-            }
+            addAll(NativePluginManager.getPaths())
             add("$runtimeHome$javaLibDir/jli")
             if (runtime.isJDK8) {
                 add("$runtimeHome/jre$javaLibDir$jvmLibDir:$runtimeHome/jre$javaLibDir")

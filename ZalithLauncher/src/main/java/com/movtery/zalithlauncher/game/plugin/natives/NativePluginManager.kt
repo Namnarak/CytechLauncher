@@ -20,19 +20,47 @@ package com.movtery.zalithlauncher.game.plugin.natives
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 import com.movtery.zalithlauncher.game.plugin.ApkPluginManager
 import com.movtery.zalithlauncher.game.plugin.cacheAppIcon
+import com.movtery.zalithlauncher.setting.AllSettings
 
 object NativePluginManager: ApkPluginManager() {
     private val nativePlugins = mutableListOf<NativePlugin>()
 
+    private val disabledPlugins: List<String>
+        get() = AllSettings.disableNativeLibPlugins.getValue()
+
+    /**
+     * 获取全部已加载的原生库插件
+     */
     fun getPlugins(): List<NativePlugin> = nativePlugins.toList()
 
+    /**
+     * 获取所有未禁用的原生库插件
+     */
+    fun getCheckedPlugins(): List<NativePlugin> =
+        nativePlugins.filter { it.packageName !in disabledPlugins }
+
+    /**
+     * 获取所有未禁用的原生库插件的 native lib dir
+     */
+    fun getPaths(): List<String> {
+        return buildList {
+            nativePlugins.forEach { plugin ->
+                if (plugin.packageName in disabledPlugins) return@forEach
+                add(plugin.path)
+            }
+        }
+    }
+
+    /**
+     * 获取所有未禁用的原生库插件的 JVM 环境参数
+     */
     fun getJVMEnv(): List<String> {
         return buildList {
             nativePlugins.forEach { plugin ->
+                if (plugin.packageName in disabledPlugins) return@forEach
                 addAll(plugin.envList)
             }
         }
@@ -56,6 +84,7 @@ object NativePluginManager: ApkPluginManager() {
                 val packageManager = context.packageManager
                 val packageName = info.packageName
                 val appName = info.loadLabel(packageManager).toString()
+                val appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
 
                 val environment = metaData.getString("environment") ?: return
                 val des = metaData.getString("des") ?: ""
@@ -73,8 +102,9 @@ object NativePluginManager: ApkPluginManager() {
 
                 val plugin = NativePlugin(
                     packageName = packageName,
+                    appName = appName,
+                    appVersion = appVersion,
                     displayName = des,
-                    summary = context.getString(R.string.settings_renderer_from_plugins, appName),
                     minMCVer = metaData.getVersionString("minMCVer"),
                     maxMCVer = metaData.getVersionString("maxMCVer"),
                     path = nativeLibraryDir,
@@ -84,12 +114,8 @@ object NativePluginManager: ApkPluginManager() {
 
                 runCatching {
                     cacheAppIcon(context, info)
-                    ApkPlugin(
-                        packageName = packageName,
-                        appName = appName,
-                        appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
-                    )
-                }.getOrNull()?.let { loaded(it) }
+                    loaded(plugin)
+                }
             }
         }
     }

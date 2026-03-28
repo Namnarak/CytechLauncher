@@ -55,6 +55,8 @@ object DriverPluginManager: ApkPluginManager() {
         driverList.add(
             Driver(
                 id = AllSettings.vulkanDriver.defaultValue,
+                appName = "",
+                appVersion = "",
                 name = "Turnip",
                 path = applicationInfo.nativeLibraryDir
             )
@@ -79,24 +81,23 @@ object DriverPluginManager: ApkPluginManager() {
                 val packageManager = context.packageManager
                 val packageName = info.packageName
                 val appName = info.loadLabel(packageManager).toString()
+                val appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
 
-                driverList.add(
-                    Driver(
-                        id = packageName,
-                        name = driver,
-                        summary = context.getString(R.string.settings_renderer_from_plugins, appName),
-                        path = nativeLibraryDir
-                    )
+                val plugin = Driver(
+                    id = packageName,
+                    appName = appName,
+                    appVersion = appVersion,
+                    name = driver,
+                    summary = context.getString(R.string.settings_renderer_from_plugins, appName),
+                    path = nativeLibraryDir
                 )
+
+                driverList.add(plugin)
 
                 runCatching {
                     cacheAppIcon(context, info)
-                    ApkPlugin(
-                        packageName = packageName,
-                        appName = appName,
-                        appVersion = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
-                    )
-                }.getOrNull()?.let { loaded(it) }
+                    loaded(plugin)
+                }
             }
         }
     }

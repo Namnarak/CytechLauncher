@@ -18,12 +18,19 @@
 
 package com.movtery.zalithlauncher.game.plugin.natives
 
-data class NativePlugin(
-    val packageName: String,
+import com.movtery.zalithlauncher.game.plugin.ApkPlugin
+
+class NativePlugin(
+    packageName: String,
+    appName: String,
+    appVersion: String,
     val displayName: String,
-    val summary: String,
     val minMCVer: String? = null,
     val maxMCVer: String? = null,
     val path: String,
     val envList: List<String>
+): ApkPlugin(
+    packageName = packageName,
+    appName = appName,
+    appVersion = appVersion
 )
