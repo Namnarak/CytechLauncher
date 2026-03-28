@@ -141,27 +141,29 @@ fun GameSettingsScreen(
                         NativePluginManager.getPlugins()
                     }
 
-                    StringListSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
-                        unit = AllSettings.disableNativeLibPlugins,
-                        items = nativePlugins,
-                        onItemsChange = { value, item ->
-                            if (value) {
-                                this - item.packageName
-                            } else {
-                                this + item.packageName
-                            }
-                        },
-                        title = stringResource(R.string.settings_game_native_lib_plugin_title),
-                        summary = stringResource(R.string.settings_game_native_lib_plugin_summary),
-                        getItemID = { it.packageName },
-                        getItemText = { it.displayName },
-                        getItemSummary = { plugin ->
-                            NativePluginSummaryLayout(plugin)
-                        },
-                        getItemCheck = { contains -> !contains }
-                    )
+                    if (nativePlugins.isNotEmpty()) {
+                        StringListSettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            unit = AllSettings.disableNativeLibPlugins,
+                            items = nativePlugins,
+                            onItemsChange = { value, item ->
+                                if (value) {
+                                    this - item.packageName
+                                } else {
+                                    this + item.packageName
+                                }
+                            },
+                            title = stringResource(R.string.settings_game_native_lib_plugin_title),
+                            summary = stringResource(R.string.settings_game_native_lib_plugin_summary),
+                            getItemID = { it.packageName },
+                            getItemText = { it.displayName },
+                            getItemSummary = { plugin ->
+                                NativePluginSummaryLayout(plugin)
+                            },
+                            getItemCheck = { contains -> !contains }
+                        )
+                    }
 
                     IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
