@@ -16,19 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.models
+package com.movtery.zalithlauncher.notification
 
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-interface NeoForgeMergeableMaven<E>  {
-    /**
-     * 将自己的版本数据与其他的版本数据进行合并
-     */
-    operator fun plus(maven: E): List<NeoForgeVersion>
-
-    fun isVersionInvalid(versionId: String): Boolean {
-        val cantDownload = versionId == "47.1.82" //这个版本虽然在版本列表中，但不能下载
-        val isAlpha = versionId.contains("-alpha") //Alpha版本不太稳定，避免下载
-        return cantDownload || isAlpha
-    }
-}
+/**
+ * 描述通知内进度条的数据类
+ * @param max 最大值
+ * @param progress 当前值
+ * @param indeterminate 是否为不确定状态
+ */
+@Parcelize
+data class NoticeProgress(
+    val max: Int,
+    val progress: Int,
+    val indeterminate: Boolean = false
+): Parcelable

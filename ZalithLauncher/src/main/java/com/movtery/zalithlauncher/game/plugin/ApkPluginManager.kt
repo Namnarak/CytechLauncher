@@ -16,26 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.notification
+package com.movtery.zalithlauncher.game.plugin
 
-import android.app.NotificationManager.IMPORTANCE_LOW
 import android.content.Context
-import com.movtery.zalithlauncher.R
+import android.content.pm.ApplicationInfo
+import android.os.Bundle
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 
-enum class NotificationChannelData(
-    val channelId: String,
-    val channelName: (Context) -> String,
-    val channelDescription: ((Context) -> String)?,
-    val level: Int,
-    val showBadge: Boolean = true
-) {
-    /**
-     * Jvm 任务服务
-     */
-    JVM_SERVICE_CHANNEL("jvm.service", { it.getString(R.string.notification_data_jvm_service_name) }, null, IMPORTANCE_LOW),
+abstract class ApkPluginManager {
+    abstract fun parseApkPlugin(
+        context: Context,
+        info: ApplicationInfo,
+        loaded: (ApkPlugin) -> Unit = {}
+    )
 
-    /**
-     * 陶瓦联机 VPN 状态显示服务
-     */
-    TERRACOTTA_VPN_CHANNEL("terracotta_vpn_channel", { "Terracotta VPN" }, { it.getString(R.string.terracotta_terracotta) }, IMPORTANCE_LOW, false)
+    protected fun Bundle.getVersionString(key: String): String? {
+        return if (containsKey(key)) {
+            runCatching {
+                when (val o = get(key)) {
+                    is String -> o
+                    is Number -> o.toString()
+                    else -> null
+                }
+            }.getOrNull()?.takeIf { it.isNotEmptyOrBlank() }
+        } else null
+    }
 }

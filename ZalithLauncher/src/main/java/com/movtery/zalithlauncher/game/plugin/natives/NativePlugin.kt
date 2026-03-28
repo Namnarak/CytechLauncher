@@ -16,19 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.models
+package com.movtery.zalithlauncher.game.plugin.natives
 
-import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.NeoForgeVersion
+import com.movtery.zalithlauncher.game.plugin.ApkPlugin
 
-interface NeoForgeMergeableMaven<E>  {
-    /**
-     * 将自己的版本数据与其他的版本数据进行合并
-     */
-    operator fun plus(maven: E): List<NeoForgeVersion>
-
-    fun isVersionInvalid(versionId: String): Boolean {
-        val cantDownload = versionId == "47.1.82" //这个版本虽然在版本列表中，但不能下载
-        val isAlpha = versionId.contains("-alpha") //Alpha版本不太稳定，避免下载
-        return cantDownload || isAlpha
-    }
-}
+class NativePlugin(
+    packageName: String,
+    appName: String,
+    appVersion: String,
+    val displayName: String,
+    val minMCVer: String? = null,
+    val maxMCVer: String? = null,
+    val path: String,
+    val envList: List<String>
+): ApkPlugin(
+    packageName = packageName,
+    appName = appName,
+    appVersion = appVersion
+)
