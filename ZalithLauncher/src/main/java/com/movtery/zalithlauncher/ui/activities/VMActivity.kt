@@ -514,12 +514,14 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     override fun onResume() {
         super.onResume()
         withHandler { onResume() }
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_FOCUSED, 1)
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 1)
     }
 
     override fun onPause() {
         super.onPause()
         withHandler { onPause() }
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_FOCUSED, 0)
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0)
     }
 
@@ -531,6 +533,11 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
     override fun onStop() {
         super.onStop()
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_FOCUSED, if (hasFocus) 0 else 0)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
