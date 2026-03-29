@@ -51,7 +51,6 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -446,7 +445,7 @@ private suspend fun PointerInputScope.simpleDrag(
                 val event = awaitPointerEvent()
 
                 event.changes
-                    .filter { it.changedToDown() && it.type == PointerType.Touch }
+                    .filter { it.changedToDown() }
                     .forEach { change ->
                         val pointerId = change.id
 
@@ -472,7 +471,7 @@ private suspend fun PointerInputScope.simpleDrag(
 
                 //释放
                 event.changes
-                    .filter { it.changedToUpIgnoreConsumed() && it.type == PointerType.Touch }
+                    .filter { it.changedToUpIgnoreConsumed() }
                     .forEach { change ->
                         val pointerId = change.id
 
@@ -482,7 +481,7 @@ private suspend fun PointerInputScope.simpleDrag(
                         }
                     }
 
-                if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                if (!event.changes.any { it.pressed }) {
                     activePointer = null
                 }
             }

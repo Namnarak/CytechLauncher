@@ -64,6 +64,7 @@ import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.LoggerBridge
 import com.movtery.zalithlauncher.bridge.ZLBridge
 import com.movtery.zalithlauncher.bridge.ZLBridgeStates
+import com.movtery.zalithlauncher.coroutine.DataBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.CharacterSenderStrategy
 import com.movtery.zalithlauncher.game.input.GameInputProxy
@@ -98,7 +99,6 @@ import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -133,7 +133,15 @@ class VMViewModel : ViewModel() {
      */
     var keyHandle = true
 
+    val screenSizeBridge = DataBridge<IntSize>()
     var screenSize: IntSize = IntSize.Zero
+
+    private val _onConfigurationChanged = MutableStateFlow(false)
+    val onConfigurationChanged = _onConfigurationChanged.asStateFlow()
+
+    fun onConfigurationChanged(value: Boolean = true) {
+        _onConfigurationChanged.update { value }
+    }
 
     /**
      * 输入代理
@@ -398,7 +406,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             eventViewModel.events.collect { event ->
                 when (event) {
                     is EventViewModel.Event.Game.RefreshSize -> {
-                        refreshWindowSize(mTextureView?.surfaceTexture, vmViewModel.screenSize)
+                        vmViewModel.onConfigurationChanged()
                     }
                     is EventViewModel.Event.Game.SwitchIme -> {
                         vmViewModel.textInputMode = event.mode ?: vmViewModel.textInputMode.switch()
@@ -542,26 +550,13 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        refreshScreenSize()
+        vmViewModel.onConfigurationChanged()
     }
 
-    override fun onPostResume() {
-        super.onPostResume()
-        lifecycleScope.launch {
-            delay(500)
-            refreshScreenSize()
-        }
-    }
-    
-    private fun refreshScreenSize() {
-        val textureView = mTextureView ?: return
-        val surface = textureView.surfaceTexture ?: return
-        lifecycleScope.launch(Dispatchers.Main) {
-            refreshWindowSize(surface, vmViewModel.screenSize)
-        }
-    }
-
-    private fun refreshWindowSize(surface: SurfaceTexture?, screenSize: IntSize): IntSize {
+    private fun refreshWindowSize(
+        surface: SurfaceTexture? = mTextureView?.surfaceTexture,
+        screenSize: IntSize
+    ): IntSize {
         fun getDisplayPixels(pixels: Int): Int {
             return withHandler {
                 when (type) {
@@ -668,10 +663,9 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
         vmViewModel.isRunning = true
 
         withHandler { mIsSurfaceDestroyed = false }
-        val screenSize = IntSize(width, height)
-        vmViewModel.screenSize = screenSize
-        val currentSize = refreshWindowSize(surface, screenSize)
         lifecycleScope.launch(Dispatchers.Default) {
+            val screenSize = vmViewModel.screenSizeBridge.awaitData()
+            val currentSize = refreshWindowSize(surface, screenSize)
             withHandler {
                 execute(
                     surface = Surface(surface),
@@ -715,6 +709,16 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                 .background(Color.Black)
         ) {
             val screenSize = rememberBoxSize()
+
+            val changed by vmViewModel.onConfigurationChanged.collectAsStateWithLifecycle()
+            LaunchedEffect(screenSize, changed) {
+                vmViewModel.screenSize = screenSize
+                vmViewModel.screenSizeBridge.provideData(screenSize)
+                if (changed) {
+                    refreshWindowSize(screenSize = screenSize)
+                    vmViewModel.onConfigurationChanged(false)
+                }
+            }
 
             AndroidView(
                 modifier = Modifier

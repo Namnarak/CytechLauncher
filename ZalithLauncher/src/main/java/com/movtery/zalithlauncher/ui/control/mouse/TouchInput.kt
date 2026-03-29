@@ -130,9 +130,11 @@ fun TouchpadLayout(
                 coroutineScope {
                     /** 所有被占用的指针 */
                     val occupiedPointers = mutableSetOf<PointerId>()
+
                     /** 当前正在被处理的指针 */
                     var activePointer: PointerId? = null
                     val longPressJobs = mutableMapOf<PointerId, Job>()
+
                     /** 每个指针的拖动状态 */
                     val dragStates = mutableMapOf<PointerId, DragState>()
 
@@ -151,7 +153,7 @@ fun TouchpadLayout(
                             val event = awaitPointerEvent()
 
                             event.changes
-                                .filter { it.changedToDown() && it.type == PointerType.Touch }
+                                .filter { it.changedToDown() }
                                 .forEach { change ->
                                     //刚触摸到屏幕时，触发触摸事件回调
                                     currentOnTouch()
@@ -169,16 +171,18 @@ fun TouchpadLayout(
                                     if (activePointer == null) {
                                         activePointer = pointerId
 
-                                        dragStates[pointerId] = DragState(startPosition = change.position)
+                                        dragStates[pointerId] =
+                                            DragState(startPosition = change.position)
 
                                         if (!isMoveOnly && currentControlMode == MouseControlMode.SLIDE && currentEnableMouseClick) {
                                             longPressJobs[pointerId] = launch {
                                                 //只在滑动点击模式下进行长按计时
-                                                val timeout = if (currentLongPressTimeoutMillis > 0) {
-                                                    currentLongPressTimeoutMillis
-                                                } else {
-                                                    viewConfig.longPressTimeoutMillis
-                                                }
+                                                val timeout =
+                                                    if (currentLongPressTimeoutMillis > 0) {
+                                                        currentLongPressTimeoutMillis
+                                                    } else {
+                                                        viewConfig.longPressTimeoutMillis
+                                                    }
                                                 delay(timeout)
 
                                                 //检查是否仍在处理此指针且未开始拖动
@@ -213,12 +217,14 @@ fun TouchpadLayout(
                                             when (currentControlMode) {
                                                 MouseControlMode.SLIDE -> {
                                                     if (currentEnableMouseClick) {
-                                                        val distanceFromStart = (moveChange.position - dragState.startPosition).getDistance()
+                                                        val distanceFromStart =
+                                                            (moveChange.position - dragState.startPosition).getDistance()
 
                                                         if (distanceFromStart > viewConfig.touchSlop && !dragState.isDragging) {
                                                             //超出了滑动检测距离，说明是真的在进行滑动
                                                             dragState.isDragging = true
-                                                            longPressJobs.remove(pointerId)?.cancel() //取消长按计时
+                                                            longPressJobs.remove(pointerId)
+                                                                ?.cancel() //取消长按计时
                                                         }
 
                                                         if (dragState.isDragging || dragState.longPressTriggered) {
@@ -231,6 +237,7 @@ fun TouchpadLayout(
                                                         currentOnPointerMove(delta, false)
                                                     }
                                                 }
+
                                                 MouseControlMode.CLICK -> {
                                                     if (!dragState.longPressTriggered) {
                                                         dragState.longPressTriggered = true
@@ -248,7 +255,7 @@ fun TouchpadLayout(
 
                             //释放
                             event.changes
-                                .filter { it.changedToUpIgnoreConsumed() && it.type == PointerType.Touch }
+                                .filter { it.changedToUpIgnoreConsumed() }
                                 .forEach { change ->
                                     val pointerId = change.id
                                     //是否被父级标记为仅处理滑动
@@ -269,6 +276,7 @@ fun TouchpadLayout(
                                                             currentOnTap(change.position)
                                                         }
                                                     }
+
                                                     MouseControlMode.CLICK -> {
                                                         //未进入长按，算一次点击事件
                                                         currentOnTap(change.position)
@@ -286,7 +294,7 @@ fun TouchpadLayout(
                                     }
                                 }
 
-                            if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                            if (!event.changes.any { it.pressed }) {
                                 resetTouchState()
                             }
                         }
@@ -430,8 +438,11 @@ private fun Modifier.mouseEventModifier(
             val change = event.changes.firstOrNull()
 
             val pointerType = change?.type
-            if (pointerType != PointerType.Mouse) {
-                //过滤掉不是实体鼠标的类型
+            if (
+                //过滤掉不是鼠标或者触控笔的类型
+                //触控笔（Chromebook、三星等）
+                !(pointerType == PointerType.Mouse || pointerType == PointerType.Stylus)
+            ) {
                 continue
             }
 

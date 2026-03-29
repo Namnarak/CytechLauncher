@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -226,10 +225,7 @@ private fun Modifier.mainTouchLogic(
             val event = awaitPointerEvent(PointerEventPass.Initial)
 
             event.changes.forEach { change ->
-                if (
-                    change.type == PointerType.Touch ||
-                    !change.isConsumed
-                ) {
+                if (!change.isConsumed) {
                     val pointerId = change.id
                     if (pointerId !in occupiedPointers) {
                         onOccupiedPointer(pointerId)
