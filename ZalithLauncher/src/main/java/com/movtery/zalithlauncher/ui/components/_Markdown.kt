@@ -47,9 +47,17 @@ fun defaultMDTypography(
     bullet: TextStyle = MaterialTheme.typography.bodyMedium,
     list: TextStyle = MaterialTheme.typography.bodyMedium,
     textLink: TextLinkStyles = TextLinkStyles(
-        style = MaterialTheme.typography.bodyMedium.copy(
-            fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline
-        ).toSpanStyle()
+        style = SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            fontWeight = FontWeight.Bold
+        ),
+        pressedStyle = SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            background = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f),
+            textDecoration = TextDecoration.Underline,
+            fontWeight = FontWeight.Bold
+        )
     ),
     table: TextStyle = text,
 ) = markdownTypography(
