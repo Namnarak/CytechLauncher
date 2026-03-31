@@ -61,26 +61,39 @@ fun FloatingBall(
     shape: Shape = MaterialTheme.shapes.medium,
     content: @Composable () -> Unit
 ) {
+    val viewConfig = LocalViewConfiguration.current
+
+    var ballSize by remember { mutableStateOf(IntSize.Zero) }
+    val currentPosition by rememberUpdatedState(position)
+
+    //在首次启动时，将悬浮球放到屏幕的 TopCenter
+    //确保这个行为只触发一次
+    var isInitialized by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) { isInitialized = true }
+
+    //检查是否是RTL布局，需要做初始位置适配
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     BoxWithConstraints(
         modifier = Modifier
             .alpha(alpha)
             .fillMaxSize()
+            .onSizeChanged { size ->
+                if (isInitialized) {
+                    val maxX = (size.width - ballSize.width).toFloat()
+                    val maxY = (size.height - ballSize.height).toFloat()
+
+                    val newX = currentPosition.x.coerceIn(0f, maxX)
+                    val newY = currentPosition.y.coerceIn(0f, maxY)
+
+                    if (newX != currentPosition.x || newY != currentPosition.y) {
+                        onPositionChanged(Offset(newX, newY))
+                    }
+                }
+            }
     ) {
-        val viewConfig = LocalViewConfiguration.current
+        val parentWidth by rememberUpdatedState(constraints.maxWidth)
+        val parentHeight by rememberUpdatedState(constraints.maxHeight)
 
-        val parentWidth = constraints.maxWidth
-        val parentHeight = constraints.maxHeight
-
-        var ballSize by remember { mutableStateOf(IntSize.Zero) }
-        val currentPosition by rememberUpdatedState(position)
-
-        //在首次启动时，将悬浮球放到屏幕的 TopCenter
-        //确保这个行为只触发一次
-        var isInitialized by rememberSaveable { mutableStateOf(false) }
-        LaunchedEffect(Unit) { isInitialized = true }
-
-        //检查是否是RTL布局，需要做初始位置适配
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Surface(
             modifier = modifier
                 .onSizeChanged { size ->
@@ -115,8 +128,10 @@ fun FloatingBall(
                                 val deltaX = if (isRtl) -delta.x else delta.x
                                 val newX = currentPosition.x + deltaX
                                 val newY = currentPosition.y + delta.y
-                                val positionX = newX.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
-                                val positionY = newY.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
+                                val positionX =
+                                    newX.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
+                                val positionY =
+                                    newY.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
                                 onPositionChanged(Offset(positionX, positionY))
                             }
                             change.consume()
