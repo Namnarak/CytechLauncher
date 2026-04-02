@@ -121,7 +121,6 @@ import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 
 @Composable
 fun MainScreen(
-    isAprilFools: Boolean,
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
@@ -214,7 +213,6 @@ fun MainScreen(
             ) {
                 NavigationUI(
                     modifier = Modifier.fillMaxSize(),
-                    isAprilFools = isAprilFools,
                     screenBackStackModel = screenBackStackModel,
                     toMainScreen = toMainScreen,
                     launchGameViewModel = launchGameViewModel,
@@ -454,7 +452,6 @@ private fun TopBarRailItem(
 @Composable
 private fun NavigationUI(
     modifier: Modifier = Modifier,
-    isAprilFools: Boolean,
     screenBackStackModel: ScreenBackStackViewModel,
     toMainScreen: () -> Unit,
     launchGameViewModel: LaunchGameViewModel,
@@ -497,7 +494,6 @@ private fun NavigationUI(
             entryProvider = entryProvider {
                 entry<NormalNavKey.LauncherMain> {
                     LauncherScreen(
-                        isAprilFools = isAprilFools,
                         backStackViewModel = screenBackStackModel,
                         navigateToVersions = navigateToVersions,
                         launchGameViewModel = launchGameViewModel

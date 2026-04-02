@@ -279,6 +279,7 @@ dependencies {
     implementation(libs.mmkv)
     implementation(libs.fishnet)
     implementation(libs.process.phoenix)
+    implementation(libs.lunarcalendar)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     //Safe
     implementation(libs.stringfog.xor)

@@ -48,7 +48,6 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.LaunchGameOperatio
 import com.movtery.zalithlauncher.ui.screens.main.MainScreen
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.upgrade.TooFrequentOperationException
-import com.movtery.zalithlauncher.utils.checkDate
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.openLink
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
@@ -200,8 +199,6 @@ class MainActivity : BaseAppCompatActivity() {
         val finishedGame = AllSettings.finishedGame
         val showSponsorship = AllSettings.showSponsorship
 
-        val isAprilFools = checkDate(4, 1)
-
         setContent {
             ZalithLauncherTheme(
                 backgroundViewModel = backgroundViewModel
@@ -213,7 +210,6 @@ class MainActivity : BaseAppCompatActivity() {
                     )
 
                     MainScreen(
-                        isAprilFools = isAprilFools,
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,

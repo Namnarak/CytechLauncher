@@ -37,6 +37,7 @@ import com.movtery.zalithlauncher.utils.device.Architecture
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
+import com.xhinliang.lunarcalendar.LunarCalendar
 import java.io.File
 import java.io.PrintStream
 import java.text.DateFormat
@@ -158,11 +159,31 @@ fun getTimeAgo(
 }
 
 /**
- * 检查当前系统时间是否为指定日期
+ * 检查是否为给定的日期
  */
-fun checkDate(month: Int, day: Int): Boolean {
-    val now = LocalDate.now()
-    return now.monthValue == month && now.dayOfMonth == day
+fun LocalDate.checkDate(month: Int, day: Int): Boolean {
+    return monthValue == month && dayOfMonth == day
+}
+
+/**
+ * 检查是否为给定的日期范围
+ */
+fun LocalDate.checkDateRange(month: Int, dayRange: IntRange): Boolean {
+    return monthValue == month && dayOfMonth in dayRange
+}
+
+/**
+ * 检查是否为给定的日期（农历）
+ */
+fun LunarCalendar.checkDate(month: Int, day: Int): Boolean {
+    return lunar.month == month && lunar.day == day
+}
+
+/**
+ * 检查是否为给定的日期范围（农历）
+ */
+fun LunarCalendar.checkDateRange(month: Int, dayRange: IntRange): Boolean {
+    return lunar.month == month && lunar.day in dayRange
 }
 
 fun copyText(label: String?, text: String?, context: Context, showToast: Boolean = true) {

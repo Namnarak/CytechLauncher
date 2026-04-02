@@ -75,8 +75,6 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
 
 @Composable
 fun LauncherScreen(
-    @Suppress("unused")
-    isAprilFools: Boolean,
     backStackViewModel: ScreenBackStackViewModel,
     navigateToVersions: (Version) -> Unit,
     launchGameViewModel: LaunchGameViewModel
