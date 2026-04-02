@@ -1155,4 +1155,8 @@
     <string name="plugin_unsupported_warning">Plugin %s tidak didukung untuk versi game ini. Jika tetap digunakan, game bisa crash! Yakin ingin mengabaikan risiko dan lanjut?</string>
     <string name="settings_game_native_lib_plugin_title">Plugin Native Library</string>
     <string name="settings_game_native_lib_plugin_summary">Menampilkan semua plugin native library yang dimuat. Anda dapat mengaktifkan atau menonaktifkannya di daftar.</string>
+    <string name="version_summary_fools_herd_craft">Berhentilah mengatur inventaris mu—barang dan blok milikmu ingin ikut bepergian bersamamu!</string>
+    <string name="festivals_new_year">Selamat Tahun Baru!</string>
+    <string name="festivals_april_fools">Selamat Hari April Mop!</string>
+    <string name="festivals_christmas">Selamat Natal!</string>
 </resources>
