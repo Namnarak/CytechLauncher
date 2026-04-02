@@ -54,6 +54,10 @@ fun RainEffect(
     count: Int = 80,
     getX: (width: Float) -> Float = { Random.nextFloat() * it },
     getY: (height: Float) -> Float = { Random.nextFloat() * -it * 0.5f },
+    isOutOfScreen: (dropLength: Float, dropX: Float, dropY: Float, width: Float, height: Float) -> Boolean = {
+        _, dropX, dropY, width, height ->
+        dropX !in 0f..width || dropY > height
+    },
     getLength: () -> Float = { Random.nextFloat() * 25f + 15f },
     getSpeed: () -> Float = { Random.nextFloat() * 8f + 30f },
     getAngle: () -> Float = { 0f },
@@ -114,7 +118,9 @@ fun RainEffect(
             drop.x += drop.dx
             drop.y += drop.dy
 
-            if (drop.x !in 0f..width || drop.y > height) {
+            if (
+                isOutOfScreen(drop.length, drop.x, drop.y, width, height)
+            ) {
                 drop.x = getX(width)
                 drop.y = getY(height)
 
