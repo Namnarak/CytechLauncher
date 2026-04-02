@@ -19,12 +19,13 @@
 package com.movtery.zalithlauncher.game.versioninfo
 
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.version.installed.utils.isLegacyReleaseVer
+import org.jackhuang.hmcl.util.versioning.GameVersionNumber
 
 /**
  * 所有支持的资源下载过滤的版本号
  */
 val allGameVersions = listOf(
+    "26.1.1", "26.1",
     "1.21.11", "1.21.10", "1.21.9", "1.21.8", "1.21.7", "1.21.6", "1.21.5", "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
     "1.20.6", "1.20.5", "1.20.4", "1.20.3", "1.20.2", "1.20.1", "1.20",
     "1.19.4", "1.19.3", "1.19.2", "1.19.1", "1.19",
@@ -121,16 +122,8 @@ val allAprilFools = listOf(
 )
 
 /**
- * 旧的 MC 正式版版本规则匹配
- */
-const val LEGACY_RELEASE_REGEX = """^\d+\.\d+\.\d+$|^\d+\.\d+$"""
-
-/**
  * 给出的 MC 版本号是否为正式版
  */
 fun filterRelease(versionString: String): Boolean {
-    //先检查旧的正式版版本规则匹配
-    if (versionString.isLegacyReleaseVer()) return true
-    //开始使用新的版本号规则进行匹配
-    return parseNewVersionFormat(versionString)?.isRelease() ?: false
+    return GameVersionNumber.asGameVersion(versionString).isRelease
 }

@@ -28,6 +28,7 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.context.getFileName
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.coroutine.combine
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
@@ -71,7 +72,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -259,20 +259,19 @@ class AccountManageViewModel @Inject constructor(
         _serverOp,
         _accountOp,
         _accountSkinOpMap
-    ) { args ->
-        @Suppress("UNCHECKED_CAST")
+    ) { accounts, currentAccount, authServers, msLoginOp, msSkinOp, msCapeOp, localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap ->
         AccountManageUiState(
-            accounts = args[0] as List<Account>,
-            currentAccount = args[1] as Account?,
-            authServers = args[2] as List<AuthServer>,
-            microsoftLoginOperation = args[3] as MicrosoftLoginOperation,
-            microsoftChangeSkinOperation = args[4] as MicrosoftChangeSkinOperation,
-            microsoftChangeCapeOperation = args[5] as MicrosoftChangeCapeOperation,
-            localLoginOperation = args[6] as LocalLoginOperation,
-            otherLoginOperation = args[7] as OtherLoginOperation,
-            serverOperation = args[8] as ServerOperation,
-            accountOperation = args[9] as AccountOperation,
-            accountSkinOperationMap = args[10] as Map<String, AccountSkinOperation>
+            accounts = accounts,
+            currentAccount = currentAccount,
+            authServers = authServers,
+            microsoftLoginOperation = msLoginOp,
+            microsoftChangeSkinOperation = msSkinOp,
+            microsoftChangeCapeOperation = msCapeOp,
+            localLoginOperation = localLoginOp,
+            otherLoginOperation = otherLoginOp,
+            serverOperation = serverOp,
+            accountOperation = accountOp,
+            accountSkinOperationMap = accountSkinOpMap
         )
     }.stateIn(
         scope = viewModelScope,

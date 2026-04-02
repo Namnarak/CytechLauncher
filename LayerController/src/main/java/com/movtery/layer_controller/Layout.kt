@@ -39,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -172,8 +171,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                             val isPressed = change.pressed
 
                             if (
-                                //不处理非触摸指针
-                                change.type != PointerType.Touch ||
                                 change.isConsumed ||
                                 //不处理被子级占用的指针
                                 currentCheckOccupiedPointers(pointerId)
@@ -285,7 +282,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                         }
 
                         //未触摸时清除所有状态
-                        if (!event.changes.any { it.pressed && it.type == PointerType.Touch }) {
+                        if (!event.changes.any { it.pressed }) {
                             allActiveWidgets.forEach { (_, widgets) ->
                                 widgets.forEach { widget ->
                                     widget.onReleaseEvent(eventHandler, reversedLayers)

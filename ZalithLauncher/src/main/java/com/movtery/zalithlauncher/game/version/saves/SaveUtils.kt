@@ -20,13 +20,13 @@ package com.movtery.zalithlauncher.game.version.saves
 
 import com.github.steveice10.opennbt.NBTIO
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag
+import com.movtery.zalithlauncher.game.version.installed.utils.isBiggerOrEqualVer
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.nbt.asBooleanNotNull
 import com.movtery.zalithlauncher.utils.nbt.asCompoundTag
 import com.movtery.zalithlauncher.utils.nbt.asInt
 import com.movtery.zalithlauncher.utils.nbt.asLong
 import com.movtery.zalithlauncher.utils.nbt.asString
-import com.movtery.zalithlauncher.utils.string.isBiggerOrEqualTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -36,7 +36,7 @@ import java.io.File
  * @param minecraftVersion 当前 MC 的版本，用于比较版本兼容性
  */
 fun SaveData.isCompatible(minecraftVersion: String) =
-    isValid && levelMCVersion != null && minecraftVersion.isBiggerOrEqualTo(levelMCVersion)
+    isValid && levelMCVersion != null && minecraftVersion.isBiggerOrEqualVer(levelMCVersion)
 
 /**
  * 从 level.dat 文件中解析出必要的信息，构建 SaveData

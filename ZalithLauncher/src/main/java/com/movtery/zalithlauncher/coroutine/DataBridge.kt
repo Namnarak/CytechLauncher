@@ -16,23 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.launch
+package com.movtery.zalithlauncher.coroutine
 
-import com.movtery.zalithlauncher.game.version.installed.utils.isLowerOrEqualVer
-import java.util.Locale
+import kotlinx.coroutines.CompletableDeferred
 
-private fun getLanguage(versionId: String): String {
-    val locate = Locale.getDefault()
-    return if (versionId.isLowerOrEqualVer("1.10.2")) {
-        locate.language + "_" + locate.country.uppercase() // 1.10 -
-    } else {
-        locate.language + "_" + locate.country.lowercase()
+class DataBridge<T> {
+    private val deferred = CompletableDeferred<T>()
+
+    suspend fun awaitData(): T {
+        return deferred.await()
     }
-}
 
-fun MCOptions.loadLanguage(versionId: String) {
-    if (!containsKey("lang")) {
-        val lang = getLanguage(versionId)
-        set("lang", lang)
+    fun provideData(value: T) {
+        if (!deferred.isCompleted) {
+            deferred.complete(value)
+        }
     }
 }

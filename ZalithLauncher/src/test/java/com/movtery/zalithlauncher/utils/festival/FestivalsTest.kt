@@ -16,23 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.launch
+package com.movtery.zalithlauncher.utils.festival
 
-import com.movtery.zalithlauncher.game.version.installed.utils.isLowerOrEqualVer
-import java.util.Locale
+import org.junit.Test
+import java.time.LocalDate
 
-private fun getLanguage(versionId: String): String {
-    val locate = Locale.getDefault()
-    return if (versionId.isLowerOrEqualVer("1.10.2")) {
-        locate.language + "_" + locate.country.uppercase() // 1.10 -
-    } else {
-        locate.language + "_" + locate.country.lowercase()
-    }
-}
+class FestivalsTest {
 
-fun MCOptions.loadLanguage(versionId: String) {
-    if (!containsKey("lang")) {
-        val lang = getLanguage(versionId)
-        set("lang", lang)
+    @Test
+    fun testGetTodayFestivals() {
+        val year = 2026
+        val startDate = LocalDate.of(year, 1, 1)
+        val endDate = LocalDate.of(year, 12, 31)
+
+        var currentDate = startDate
+
+        while (currentDate <= endDate) {
+            val list = getTodayFestivals(date = currentDate, true)
+            if (list.isNotEmpty()) {
+                println("month = ${currentDate.monthValue}, day = ${currentDate.dayOfMonth}, festivals = ${list.joinToString(",", "[", "]")}")
+            }
+
+            currentDate = currentDate.plusDays(1)
+        }
     }
 }
