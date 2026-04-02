@@ -102,7 +102,7 @@
     <string name="notification_request">İzin İste</string>
     <string name="notification_data_jvm_service_message">Sorunsuz bir kurulum sağlamak için başlatıcının yükleyiciyi ön planda çalıştırması gerekir. Kararlılığı sağlamak için ön planda bir hizmet başlatmayı deneyeceğiz, ancak bunun için bildirim izinlerine ihtiyacımız var. Bildirim izinlerini etkinleştirmemize yardımcı olabilir misiniz? Bu, kurulum kesintilerini önlemeye yardımcı olacaktır!</string>
     <string name="notification_data_jvm_service_name">Ön Plan Yükleme Servisi</string>
-    <string name="notification_data_jvm_service_running">Ön planda oyun kuruluyor</string>
+    <string name="notification_data_jvm_service_running">Oyunu ön plan hizmeti aracılığıyla yükleniyor</string>
     <string name="microphone_check_title">Mikrofon</string>
     <string name="microphone_check_volume">Ses: %d</string>
     <string name="microphone_check_no_permissions">Launcher\'e mikrofon izinleri verilmedi (uygulama ayarlarını kontrol edin)</string>
@@ -141,7 +141,7 @@
     <string name="download_game_addon_debug">Hata Ayıkla</string>
     <string name="download_game_addon_recommended">%s Önerilir</string>
     <string name="download_game_addon_not_installable">Otomatik kurulum desteklenmiyor</string>
-    <string name="download_game_install_title">Oyun Kuruluyor</string>
+    <string name="download_game_install_title">Oyun İndiriliyor</string>
     <string name="download_game_install_vanilla">Vanilla %s İndiriliyor</string>
     <string name="download_game_install_base_download_file">%1$s %2$s ana dosya indiriliyor</string>
     <string name="download_game_install_base_download_file2">%s ana dosyasını yükle</string>
@@ -1035,7 +1035,7 @@
     <string name="about_acknowledgements_mcmod">MCMod (mcmod.cn)</string>
     <string name="upgrade_title">Güncelleme</string>
     <string name="upgrade_new">Yeni Sürüm Mevcut</string>
-    <string name="upgrade_more">Daha Fazla Bilgi</string>
+    <string name="upgrade_more">İndir</string>
     <string name="upgrade_files">Dosyalar</string>
     <string name="upgrade_files_arch">Mimari:%s</string>
     <string name="upgrade_version_change">Değişiklikler:%s</string>
@@ -1155,4 +1155,8 @@
     <string name="plugin_unsupported_warning">Bu eklenti (%s) bu oyun sürümü için desteklenmiyor. Kullanmaya devam etmek oyunun çökmesine neden olabilir! Riski göz ardı edip devam etmek istediğinizden emin misiniz?</string>
     <string name="settings_game_native_lib_plugin_title">Yerel Kütüphane Eklentileri</string>
     <string name="settings_game_native_lib_plugin_summary">Yüklenmiş tüm yerel kütüphane eklentilerini listeler. Listede bunları etkinleştirebilir veya devre dışı bırakabilirsiniz.</string>
+    <string name="version_summary_fools_herd_craft">Envanterinizi düzenlemeyi bırakın; eşyalarınız ve bloklarınız sizinle birlikte kontrolden çıkmak istiyor!</string>
+    <string name="festivals_new_year">Mutlu yıllar!</string>
+    <string name="festivals_april_fools">1 Nisan Şaka Günü kutlu olsun!</string>
+    <string name="festivals_christmas">Mutlu Noeller!</string>
 </resources>
