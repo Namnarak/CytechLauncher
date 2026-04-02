@@ -58,6 +58,10 @@ enum class AprilFoolsType(
     val urlSuffix: String? = null
 ) {
     /**
+     * [Wiki](https://zh.minecraft.wiki/w/26w14a)
+     */
+    HerdCraft(R.string.version_summary_fools_herd_craft),
+    /**
      * [Wiki](https://zh.minecraft.wiki/w/25w14craftmine)
      */
     CraftMine(R.string.version_summary_fools_creaft_mine),
@@ -107,6 +111,7 @@ data class AprilFoolsVersion(
  * 可供下载的愚人节版本
  */
 val allAprilFools = listOf(
+    AprilFoolsVersion("26w14a", AprilFoolsType.HerdCraft),
     AprilFoolsVersion("25w14craftmine", AprilFoolsType.CraftMine),
     AprilFoolsVersion("24w14potato", AprilFoolsType.Potato),
     AprilFoolsVersion("23w13a_or_b", AprilFoolsType.AOrB),
