@@ -87,7 +87,7 @@ import com.movtery.zalithlauncher.ui.components.rememberMaxHeight
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.formatNumberByLocale
 import com.movtery.zalithlauncher.utils.getTimeAgo
-import com.movtery.zalithlauncher.utils.string.compareVersion
+import org.jackhuang.hmcl.util.versioning.GameVersionNumber
 
 sealed interface DownloadAssetsState<T> {
     class Getting<T> : DownloadAssetsState<T>
@@ -188,7 +188,7 @@ fun List<PlatformVersion>.mapWithVersions(classes: PlatformClasses): List<Versio
 private fun List<VersionInfoMap>.sortedByVersionAndLoader(): List<VersionInfoMap> {
     return sortedWith { a, b ->
         // 比较版本号
-        val versionCompare = -a.gameVersion.compareVersion(b.gameVersion)
+        val versionCompare = -GameVersionNumber.compare(a.gameVersion, b.gameVersion)
         if (versionCompare != 0) {
             versionCompare
         } else {

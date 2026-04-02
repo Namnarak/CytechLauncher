@@ -18,9 +18,9 @@
 
 package com.movtery.zalithlauncher.game.version.installed
 
-import com.movtery.zalithlauncher.game.versioninfo.parseNewVersionFormat
 import com.movtery.zalithlauncher.utils.string.compareChar
 import com.movtery.zalithlauncher.utils.string.compareVersion
+import org.jackhuang.hmcl.util.versioning.GameVersionNumber
 
 object VersionComparator: Comparator<Version> {
     override fun compare(o1: Version, o2: Version): Int {
@@ -35,30 +35,15 @@ object VersionComparator: Comparator<Version> {
         val ver2 = o2.getVersionInfo()?.minecraftVersion
 
         var sort = if (ver1 != null && ver2 != null) {
-            val newVer1 = parseNewVersionFormat(ver1)
-            val newVer2 = parseNewVersionFormat(ver2)
-            when {
-                newVer1 != null && newVer2 != null -> {
-                    //两个版本都是新版本命名规则
-                    -newVer1.compareTo(newVer2)
-                }
-                newVer1 != null && newVer2 == null -> {
-                    //新命名规则优先
-                    -1
-                }
-                newVer1 == null && newVer2 != null -> {
-                    //newVer2是新命名规则，应该排在前面
-                    1
-                }
-                else -> null
-            }
+            -GameVersionNumber.compare(ver1, ver2)
         } else {
             null
         }
 
         if (sort == null) {
             val thisVer = ver1 ?: o1.getVersionName()
-            sort = -thisVer.compareVersion(ver2 ?: o2.getVersionName())
+            val otherVer = ver2 ?: o2.getVersionName()
+            sort = -thisVer.compareVersion(otherVer)
         }
 
         if (sort == 0) {

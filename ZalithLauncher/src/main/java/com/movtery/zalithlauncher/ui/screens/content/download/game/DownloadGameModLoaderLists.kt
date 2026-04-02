@@ -257,9 +257,9 @@ data class LoaderVerSupports(
 
 @Composable
 fun rememberLoaderVerSupports(mcVer: String) = remember(mcVer) {
-    val fabricLike = mcVer.isBiggerVer("1.13.2", "19w14b")
+    val fabricLike = mcVer.isBiggerVer("1.13.2")
     LoaderVerSupports(
-        isNeoForgeSupports = mcVer.isBiggerVer("1.20", "23w18a"),
+        isNeoForgeSupports = mcVer.isBiggerVer("1.20"),
         isFabricSupports = fabricLike,
         isQuiltSupports = fabricLike,
         isCleanroomSupports = mcVer == "1.12.2",
