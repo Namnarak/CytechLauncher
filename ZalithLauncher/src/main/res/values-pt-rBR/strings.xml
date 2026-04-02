@@ -1155,4 +1155,8 @@
     <string name="plugin_unsupported_warning">O plugin %s não é compatível com esta versão do jogo. Continuar a usá-lo pode causar o crash, bug de renderer ou travamento no jogo! Tem certeza que vai ignorar o risco e prosseguir?</string>
     <string name="settings_game_native_lib_plugin_title">Plugins da Biblioteca Nativa</string>
     <string name="settings_game_native_lib_plugin_summary">Lista todos os plugins de biblioteca nativa carregados.\nVocê pode ativá-los ou desativá-los na lista.</string>
+    <string name="version_summary_fools_herd_craft">Pare de organizar seu inventário - seus itens e blocos querem se espalhar livremente!</string>
+    <string name="festivals_new_year">Feliz Ano Novo!</string>
+    <string name="festivals_april_fools">Feliz Dia da Mentira!</string>
+    <string name="festivals_christmas">Feliz Natal!</string>
 </resources>
