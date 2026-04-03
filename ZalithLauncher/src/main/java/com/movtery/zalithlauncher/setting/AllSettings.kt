@@ -35,7 +35,6 @@ import com.movtery.zalithlauncher.ui.control.gamepad.JoystickMode
 import com.movtery.zalithlauncher.ui.control.mouse.CENTER_HOTSPOT
 import com.movtery.zalithlauncher.ui.control.mouse.CursorHotspot
 import com.movtery.zalithlauncher.ui.control.mouse.LEFT_TOP_HOTSPOT
-import com.movtery.zalithlauncher.ui.screens.game.elements.InputMode
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 
@@ -546,11 +545,6 @@ object AllSettings : SettingsRegistry() {
      * 上次检查更新的时间戳
      */
     val lastUpgradeCheck = longSetting("lastUpgradeCheck", 0L)
-
-    /**
-     * 游戏内文本输入模式，控制输入代理的输入行为
-     */
-    val textInputMode = enumSetting("textInputMode", InputMode.Simple)
 
     /**
      * 玩家结束运行游戏的次数
