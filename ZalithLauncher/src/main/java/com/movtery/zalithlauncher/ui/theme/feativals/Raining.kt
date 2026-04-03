@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.isActive
 import kotlin.math.cos
@@ -52,14 +53,15 @@ private class RainDrop(
 fun RainEffect(
     modifier: Modifier = Modifier,
     count: Int = 80,
+    strokeWidth: Dp = 2.dp,
     getX: (width: Float) -> Float = { Random.nextFloat() * it },
     getY: (height: Float) -> Float = { Random.nextFloat() * -it * 0.5f },
     isOutOfScreen: (dropLength: Float, dropX: Float, dropY: Float, width: Float, height: Float) -> Boolean = {
         _, dropX, dropY, width, height ->
         dropX !in 0f..width || dropY > height
     },
-    getLength: () -> Float = { Random.nextFloat() * 25f + 15f },
-    getSpeed: () -> Float = { Random.nextFloat() * 8f + 30f },
+    getLength: () -> Float = { Random.nextFloat() * 25f + 50f },
+    getSpeed: () -> Float = { Random.nextFloat() * 12f + 50f },
     getAngle: () -> Float = { 0f },
     getAlpha: () -> Float = { Random.nextFloat() * 0.2f + 0.1f }
 ) {
@@ -112,8 +114,6 @@ fun RainEffect(
         //读取 tick 以建立重绘依赖
         tick
 
-        val strokeWidth = 2.dp.toPx()
-
         rainDrops.forEach { drop ->
             drop.x += drop.dx
             drop.y += drop.dy
@@ -142,7 +142,7 @@ fun RainEffect(
                 color = Color.White.copy(alpha = drop.alpha),
                 start = Offset(drop.x, drop.y),
                 end = Offset(endX, endY),
-                strokeWidth = strokeWidth,
+                strokeWidth = strokeWidth.toPx(),
                 cap = StrokeCap.Round
             )
         }

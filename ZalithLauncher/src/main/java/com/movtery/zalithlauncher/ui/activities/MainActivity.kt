@@ -208,7 +208,8 @@ class MainActivity : BaseAppCompatActivity() {
 
         setContent {
             ZalithLauncherTheme(
-                backgroundViewModel = backgroundViewModel
+                backgroundViewModel = backgroundViewModel,
+                festivals = festivals
             ) {
                 Box {
                     Background(
@@ -217,7 +218,6 @@ class MainActivity : BaseAppCompatActivity() {
                     )
 
                     MainScreen(
-                        festivals = festivals,
                         screenBackStackModel = screenBackStackModel,
                         launchGameViewModel = launchGameViewModel,
                         eventViewModel = eventViewModel,

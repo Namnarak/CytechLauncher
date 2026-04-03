@@ -112,7 +112,7 @@ import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.ui.theme.feativals.FestivalTitleText
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.festival.Festival
+import com.movtery.zalithlauncher.utils.festival.LocalFestivals
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -123,7 +123,6 @@ import com.movtery.zalithlauncher.viewmodel.sendKeepScreen
 
 @Composable
 fun MainScreen(
-    festivals: List<Festival>,
     screenBackStackModel: ScreenBackStackViewModel,
     launchGameViewModel: LaunchGameViewModel,
     eventViewModel: EventViewModel,
@@ -179,7 +178,6 @@ fun MainScreen(
                 inLauncherScreen = inLauncherScreen,
                 taskRunning = tasks.isEmpty(),
                 isTasksExpanded = isTaskMenuExpanded,
-                festivals = festivals,
                 color = if (isBackgroundValid) {
                     topBarColor.copy(alpha = launcherBackgroundOpacity)
                 } else {
@@ -247,7 +245,6 @@ private fun <E: TitledNavKey> TopBar(
     inLauncherScreen: Boolean,
     taskRunning: Boolean,
     isTasksExpanded: Boolean,
-    festivals: List<Festival>,
     modifier: Modifier = Modifier,
     color: Color,
     contentColor: Color,
@@ -258,6 +255,8 @@ private fun <E: TitledNavKey> TopBar(
     toMultiplayerScreen: () -> Unit,
     changeExpandedState: () -> Unit,
 ) {
+    val festivals = LocalFestivals.current
+
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings

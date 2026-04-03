@@ -38,6 +38,8 @@ import com.google.android.material.color.utilities.Variant
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.festival.Festival
+import com.movtery.zalithlauncher.utils.festival.LocalFestivals
 import com.movtery.zalithlauncher.viewmodel.BackgroundViewModel
 import com.movtery.zalithlauncher.viewmodel.LocalBackgroundViewModel
 
@@ -763,6 +765,7 @@ fun ZalithLauncherTheme(
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     backgroundViewModel: BackgroundViewModel? = null,
+    festivals: List<Festival> = emptyList(),
     content: @Composable () -> Unit
 ) {
     val colorTheme = AllSettings.launcherColorTheme.state
@@ -805,7 +808,10 @@ fun ZalithLauncherTheme(
 
     val animatedColorScheme = animateColorScheme(targetColorScheme)
 
-    CompositionLocalProvider(LocalBackgroundViewModel provides backgroundViewModel) {
+    CompositionLocalProvider(
+        LocalBackgroundViewModel provides backgroundViewModel,
+        LocalFestivals provides festivals
+    ) {
         MaterialTheme(
             colorScheme = animatedColorScheme,
             typography = AppTypography,

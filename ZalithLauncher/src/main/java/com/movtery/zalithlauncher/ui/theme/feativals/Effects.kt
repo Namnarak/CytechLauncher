@@ -20,6 +20,7 @@ package com.movtery.zalithlauncher.ui.theme.feativals
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.utils.festival.Festival
 import kotlin.random.Random
 
@@ -29,7 +30,16 @@ fun FestivalEffects(
     modifier: Modifier = Modifier,
 ) {
     if (Festival.QING_MING in festivals) {
-        RainEffect(modifier = modifier)
+        RainEffect(
+            modifier = modifier,
+            count = 40,
+            strokeWidth = 1.dp,
+            getX = { Random.nextFloat() * it * 1.5f - it * 0.25f },
+            isOutOfScreen = { dropLength, dropX, dropY, width, height ->
+                dropX + dropLength < -width * 0.3f || dropX > width * 1.3f || dropY > height
+            },
+            getAngle = { Random.nextFloat() * (-8f) - 5f },
+        )
     }
 
     if (Festival.CHRISTMAS in festivals) {
