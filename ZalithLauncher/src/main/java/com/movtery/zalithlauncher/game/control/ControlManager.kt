@@ -208,7 +208,8 @@ object ControlManager {
     suspend fun importControl(
         inputStream: InputStream,
         onSerializationError: (Exception) -> Unit,
-        catchedError: (Exception) -> Unit
+        catchedError: (Exception) -> Unit,
+        onFinished: () -> Unit = {},
     ) = withContext(Dispatchers.IO) {
         val file = getNewRandomFile()
         try {
@@ -217,6 +218,7 @@ object ControlManager {
                 val layout = loadLayoutFromString(jsonString)
                 layout.saveToFile(file)
             }
+            onFinished()
         } catch (e: SerializationException) {
             FileUtils.deleteQuietly(file)
             onSerializationError(e)

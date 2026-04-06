@@ -63,24 +63,29 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
     ) {
-        if (isPressed && !isToggleable) return
-
-        isPressed = if (isToggleable) !isPressed else true
-
         eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
+            val result = if (isPressed && !isToggleable) {
+                false
+            } else {
+                isPressed = if (isToggleable) !isPressed else true
+                true
+            }
+
             eventHandler.onSwitchLayer(
                 clickEvent = event,
                 allLayers = allLayers,
                 switch = { layer ->
-                    layer.hide = if (isToggleable) isPressed else !layer.hide
+                    layer.hide = !layer.hide
                 },
                 show = { layer ->
-                    layer.hide = if (isToggleable) isPressed else false
+                    layer.hide = false
                 },
                 hide = { layer ->
-                    layer.hide = if (isToggleable) isPressed else true
+                    layer.hide = true
                 }
             )
+
+            result
         }
     }
 
@@ -110,6 +115,15 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
 
     override val widgetSize: ButtonSize
         get() = buttonSize
+
+    override fun onCompositionStart(eventHandler: EventHandler?) {
+
+    }
+
+    override fun onCompositionDispose(eventHandler: EventHandler?) {
+        isPressed = false
+        eventHandler?.onKeyPressed(clickEvents, isPressed)
+    }
 
     override fun onCheckVisibilityType(): VisibilityType {
         return visibilityType

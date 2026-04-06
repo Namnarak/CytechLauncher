@@ -595,3 +595,22 @@ fun check7z(file: File): Boolean {
         true
     }.getOrDefault(false)
 }
+
+/**
+ * 检查文件后缀是否符合要求，不符合则抛出异常
+ */
+fun File.checkExtensionOrThrow(extensions: List<String>) {
+    if (extension !in extensions) {
+        throw IOException("File extension {$extension} is not supported")
+    }
+}
+
+/**
+ * 检查文件后缀是否符合要求，不符合则抛出异常
+ */
+fun String.checkExtensionOrThrow(extensions: List<String>) {
+    val extension = substringAfterLast(".")
+    if (extension !in extensions) {
+        throw IOException("File extension {$extension} is not supported")
+    }
+}

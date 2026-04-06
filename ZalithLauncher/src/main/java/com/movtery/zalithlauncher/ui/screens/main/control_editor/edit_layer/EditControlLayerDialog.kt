@@ -27,18 +27,29 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Merge
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -60,7 +71,8 @@ fun EditControlLayerDialog(
     layer: ObservableControlLayer,
     onDismissRequest: () -> Unit,
     onDelete: () -> Unit,
-    onMergeDownward: () -> Unit
+    onMergeDownward: () -> Unit,
+    onCopy: () -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -91,6 +103,17 @@ fun EditControlLayerDialog(
                     )
 
                     val scrollState = rememberScrollState()
+
+                    var scrollToTop by remember { mutableStateOf(true) }
+                    LaunchedEffect(scrollToTop) {
+                        if (scrollToTop) {
+                            runCatching {
+                                scrollState.scrollTo(0)
+                                scrollToTop = false
+                            }
+                        }
+                    }
+
                     Column(
                         modifier = Modifier
                             .fadeEdge(state = scrollState)
@@ -136,38 +159,63 @@ fun EditControlLayerDialog(
                             onValueChange = { layer.editorHide = it }
                         )
 
-                        //在实体鼠标操作时不隐藏
+                        //在实体鼠标操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_mouse),
-                            value = layer.hideWhenMouse.not(),
-                            onValueChange = { layer.hideWhenMouse = it.not() }
+                            value = layer.hideWhenMouse,
+                            onValueChange = { layer.hideWhenMouse = it }
                         )
 
-                        //在手柄操作时不隐藏
+                        //在手柄操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_gamepad),
-                            value = layer.hideWhenGamepad.not(),
-                            onValueChange = { layer.hideWhenGamepad = it.not() }
+                            value = layer.hideWhenGamepad,
+                            onValueChange = { layer.hideWhenGamepad = it }
                         )
 
-                        //在摇杆组件启用时不隐藏
+                        //在摇杆组件启用时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_joystick),
-                            value = layer.hideWhenJoystick.not(),
-                            onValueChange = { layer.hideWhenJoystick = it.not() }
+                            value = layer.hideWhenJoystick,
+                            onValueChange = { layer.hideWhenJoystick = it }
                         )
 
                         //合并控件至下层
                         InfoLayoutTextItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_merge_downward),
-                            showArrow = false,
+                            icon = {
+                                Icon(
+                                    modifier = Modifier
+                                        .rotate(180f)
+                                        .size(20.dp),
+                                    imageVector = Icons.Default.Merge,
+                                    contentDescription = null
+                                )
+                            },
                             onClick = {
                                 onDismissRequest()
                                 onMergeDownward()
+                            }
+                        )
+
+                        //复制
+                        InfoLayoutTextItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = stringResource(R.string.generic_copy),
+                            icon = {
+                                Icon(
+                                    modifier = Modifier.size(20.dp),
+                                    imageVector = Icons.Outlined.ContentCopy,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                onCopy()
+                                scrollToTop = true
                             }
                         )
 

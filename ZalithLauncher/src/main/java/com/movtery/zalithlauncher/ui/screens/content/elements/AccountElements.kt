@@ -18,16 +18,21 @@
 
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.net.Uri
+import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +44,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -59,12 +65,12 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
 import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -92,6 +98,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -102,7 +109,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.createBitmap
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
@@ -129,6 +138,7 @@ import com.movtery.zalithlauncher.ui.components.BaseIconTextButton
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
+import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
@@ -136,9 +146,9 @@ import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
+import com.movtery.zalithlauncher.ui.screens.main.control_editor.InfoLayoutTextItem
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -149,30 +159,9 @@ import kotlin.math.roundToInt
  */
 sealed interface MicrosoftLoginOperation {
     data object None : MicrosoftLoginOperation
+
     /** 微软账号相关提示Dialog流程 */
     data object Tip : MicrosoftLoginOperation
-}
-
-/**
- * 微软账号更改玩家皮肤的操作状态
- */
-sealed interface MicrosoftChangeSkinOperation {
-    data object None : MicrosoftChangeSkinOperation
-    /** 导入缓存皮肤文件 */
-    data class ImportFile(val account: Account, val uri: Uri): MicrosoftChangeSkinOperation
-    /** 选择皮肤模型 */
-    data class SelectSkinModel(val account: Account, val file: File): MicrosoftChangeSkinOperation
-}
-
-/**
- * 微软账号更改玩家披风的操作状态
- */
-sealed interface MicrosoftChangeCapeOperation {
-    data object None : MicrosoftChangeCapeOperation
-    /** 获取玩家配置信息，以得到披风列表 */
-    data class FetchProfiles(val account: Account): MicrosoftChangeCapeOperation
-    /** 选择更改为什么披风 */
-    data class SelectCape(val account: Account, val profile: PlayerProfile): MicrosoftChangeCapeOperation
 }
 
 /**
@@ -180,10 +169,13 @@ sealed interface MicrosoftChangeCapeOperation {
  */
 sealed interface LocalLoginOperation {
     data object None : LocalLoginOperation
+
     /** 编辑用户名流程 */
     data object Edit : LocalLoginOperation
+
     /** 创建账号流程 */
     data class Create(val userName: String, val userUUID: String?) : LocalLoginOperation
+
     /** 警告非法用户名流程 */
     data class Alert(val userName: String, val userUUID: String?) : LocalLoginOperation
 }
@@ -193,10 +185,13 @@ sealed interface LocalLoginOperation {
  */
 sealed interface ServerOperation {
     data object None : ServerOperation
+
     /** 添加认证服务器对话框 */
     data object AddNew : ServerOperation
+
     /** 删除认证服务器对话框 */
     data class Delete(val server: AuthServer) : ServerOperation
+
     /** 添加认证服务器 */
     data class Add(val serverUrl: String) : ServerOperation
     data class OnThrowable(val throwable: Throwable) : ServerOperation
@@ -215,15 +210,9 @@ sealed interface AccountOperation {
  * 更换账号皮肤的状态
  */
 sealed interface AccountSkinOperation {
-    data object None: AccountSkinOperation
-    /** 保存皮肤文件 */
-    data class SaveSkin(val uri: Uri): AccountSkinOperation
-    /** 选择皮肤模型，便于保存皮肤时，顺便将模型类型写入账号文件 */
-    data class SelectSkinModel(val uri: Uri): AccountSkinOperation
-    /** 警告用户是否真的想重置皮肤 */
-    data object PreResetSkin: AccountSkinOperation
-    /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
-    data object ResetSkin: AccountSkinOperation
+    data object None : AccountSkinOperation
+    /** 修改皮肤主对话框 */
+    data object ChangeSkin : AccountSkinOperation
 }
 
 /**
@@ -231,10 +220,13 @@ sealed interface AccountSkinOperation {
  */
 sealed interface OtherLoginOperation {
     data object None : OtherLoginOperation
+
     /** 账号登陆（输入账号密码Dialog）流程 */
     data class OnLogin(val server: AuthServer) : OtherLoginOperation
+
     /** 登陆失败流程 */
     data class OnFailed(val th: Throwable) : OtherLoginOperation
+
     /** 账号存在多角色的情况，多角色处理流程 */
     data class SelectRole(
         val profiles: List<AuthResult.AvailableProfiles>,
@@ -324,9 +316,7 @@ fun AccountItem(
     shadowElevation: Dp = itemLayoutShadowElevation(),
     refreshKey: Any? = null,
     onSelected: (Account) -> Unit = {},
-    onChangeSkin: () -> Unit = {},
-    onChangeCape: () -> Unit = {},
-    onResetSkin: () -> Unit = {},
+    openChangeSkinDialog: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onCopyUUID: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
@@ -379,42 +369,18 @@ fun AccountItem(
                 )
             }
             Row {
-                val isLocalHasSkin = account.isLocalAccount() && account.hasSkinFile
-                val icon = if (isLocalHasSkin) Icons.Default.RestartAlt else Icons.Outlined.Checkroom
-                val description = if (isLocalHasSkin) {
-                    stringResource(R.string.generic_reset)
-                } else {
-                    stringResource(R.string.account_change_skin)
-                }
-
                 //更换皮肤/披风
                 Row {
-                    var showMenu by remember { mutableStateOf(false) }
                     IconButton(
-                        onClick = {
-                            when {
-                                account.isMicrosoftAccount() -> showMenu = true
-                                account.isLocalAccount() -> {
-                                    if (isLocalHasSkin) onResetSkin()
-                                    else onChangeSkin()
-                                }
-                            }
-                        },
+                        onClick = { openChangeSkinDialog() },
                         enabled = account.isSkinChangeAllowed()
                     ) {
                         Icon(
                             modifier = Modifier.size(24.dp),
-                            imageVector = icon,
-                            contentDescription = description
+                            imageVector = Icons.Outlined.Checkroom,
+                            contentDescription = stringResource(R.string.account_change_skin)
                         )
                     }
-                    //衣橱菜单，用户可以选择更换皮肤还是更换披风
-                    WardrobeMenu(
-                        expanded = showMenu,
-                        closeMenu = { showMenu = false },
-                        onChangeSkin = onChangeSkin,
-                        onChangeCape = onChangeCape
-                    )
                 }
 
                 //刷新
@@ -452,38 +418,6 @@ fun AccountItem(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun WardrobeMenu(
-    expanded: Boolean,
-    closeMenu: () -> Unit,
-    onChangeSkin: () -> Unit,
-    onChangeCape: () -> Unit
-) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = closeMenu,
-        shape = MaterialTheme.shapes.large,
-        shadowElevation = 3.dp
-    ) {
-        //更改皮肤
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.account_change_skin)) },
-            onClick = {
-                onChangeSkin()
-                closeMenu()
-            }
-        )
-        //更改披风
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.account_change_cape)) },
-            onClick = {
-                onChangeCape()
-                closeMenu()
-            }
-        )
     }
 }
 
@@ -589,7 +523,12 @@ fun MicrosoftLoginTipDialog(
             Text(
                 text = buildAnnotatedString {
                     append(stringResource(R.string.account_supporting_microsoft_tip_hint_t2))
-                    append(stringResource(R.string.account_supporting_microsoft_tip_hint_t3, InfoDistributor.LAUNCHER_NAME))
+                    append(
+                        stringResource(
+                            R.string.account_supporting_microsoft_tip_hint_t3,
+                            InfoDistributor.LAUNCHER_NAME
+                        )
+                    )
                     append(stringResource(R.string.account_supporting_microsoft_tip_hint_t4))
                     append(stringResource(R.string.account_supporting_microsoft_tip_hint_t5))
                     append(stringResource(R.string.account_supporting_microsoft_tip_hint_t6))
@@ -625,6 +564,7 @@ fun LocalLoginDialog(
 ) {
     /** 用户输入的用户名 */
     var userName by rememberSaveable { mutableStateOf("") }
+
     /** 用户名是否无效 */
     var isUserNameInvalid by rememberSaveable { mutableStateOf(false) }
 
@@ -710,7 +650,9 @@ fun LocalLoginDialog(
                                     userName.isEmpty() -> stringResource(R.string.account_supporting_username_invalid_empty)
                                     userName.length <= 2 -> stringResource(R.string.account_supporting_username_invalid_short)
                                     userName.length > 16 -> stringResource(R.string.account_supporting_username_invalid_long)
-                                    localNamePattern.matcher(userName).find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
+                                    localNamePattern.matcher(userName)
+                                        .find() -> stringResource(R.string.account_supporting_username_invalid_illegal_characters)
+
                                     else -> ""
                                 }.also {
                                     isUserNameInvalid = it.isNotEmpty()
@@ -803,10 +745,22 @@ fun LocalLoginDialog(
                                             .fillMaxWidth()
                                             .padding(all = 8.dp),
                                     ) {
-                                        Text(text = stringResource(R.string.account_local_uuid_tip_1), style = MaterialTheme.typography.labelMedium)
-                                        Text(text = stringResource(R.string.account_local_uuid_tip_2), style = MaterialTheme.typography.labelMedium)
-                                        Text(text = stringResource(R.string.account_local_uuid_tip_3), style = MaterialTheme.typography.labelMedium)
-                                        Text(text = stringResource(R.string.account_local_uuid_tip_4), style = MaterialTheme.typography.labelMedium)
+                                        Text(
+                                            text = stringResource(R.string.account_local_uuid_tip_1),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.account_local_uuid_tip_2),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.account_local_uuid_tip_3),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.account_local_uuid_tip_4),
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
                                     }
                                 }
                             }
@@ -836,7 +790,10 @@ fun LocalLoginDialog(
                                         }
                                     } else {
                                         //如果未填写UUID，则默认使用待定UUID
-                                        onConfirm(isUserNameInvalid, userName, pendingUUID.takeIf { it.isNotEmpty() })
+                                        onConfirm(
+                                            isUserNameInvalid,
+                                            userName,
+                                            pendingUUID.takeIf { it.isNotEmpty() })
                                     }
                                 }
                             }
@@ -1102,20 +1059,361 @@ fun SelectSkinModelDialog(
     }
 }
 
+/**
+ * 更改皮肤流程需要让 uri 与皮肤模型深度绑定
+ * 重置或者确认更改时，能更方便的处理数据
+ */
+private sealed interface ChangeSkin {
+    data class ChangeSkinData(
+        val skinUri: Uri,
+        val skinModel: SkinModelType = SkinModelType.STEVE
+    ) : ChangeSkin
+
+    /**
+     * 重置离线皮肤
+     */
+    data object ResetSkin : ChangeSkin
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+fun ChangeSkinDialog(
+    account: Account,
+    availableCapes: List<PlayerProfile.Cape> = emptyList(),
+    onDismissRequest: () -> Unit = {},
+    onResetSkin: () -> Unit = {},
+    onChangeSkin: (Uri, SkinModelType) -> Unit = { _, _ -> },
+    onChangeCape: (PlayerProfile.Cape, String) -> Unit = { _, _ -> },
+    onFetchCapes: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val playerSkin = remember { PlayerSkin(context) }
+
+    // Temporary states to hold unapplied changes
+    var pendingSkinData by remember { mutableStateOf<ChangeSkin?>(null) }
+    var pendingCape by remember { mutableStateOf<PlayerProfile.Cape?>(null) }
+
+    var showModelSelector by remember { mutableStateOf(false) }
+    var showCapeSelector by remember { mutableStateOf(false) }
+
+    var isFetchingCapes by remember { mutableStateOf(false) }
+
+    var currentCapeToLoad by remember { mutableStateOf(EmptyCape) }
+    var currentUsingCape by remember { mutableStateOf(EmptyCape) }
+
+    LaunchedEffect(availableCapes) {
+        if (account.isMicrosoftAccount()) {
+            if (availableCapes.isNotEmpty()) {
+                isFetchingCapes = false
+                val currentUsingCape0 = availableCapes.find { it.isUsing() } ?: EmptyCape
+                currentUsingCape = currentUsingCape0
+                currentCapeToLoad = currentUsingCape0
+            } else {
+                isFetchingCapes = true
+                onFetchCapes()
+            }
+        }
+    }
+
+    val skinPicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+            uri?.let {
+                pendingSkinData = ChangeSkin.ChangeSkinData(skinUri = it)
+                showModelSelector = true
+            }
+        }
+
+    /**
+     * 初始化账号设置的皮肤
+     */
+    fun loadSkin() {
+        playerSkin.loadSkin(
+            skinId = account.uniqueUUID.takeIf { account.hasSkinFile },
+            model = account.skinModelType
+        )
+    }
+
+    /**
+     * 重置皮肤预览
+     */
+    fun resetSkin() {
+        playerSkin.resetSkin()
+    }
+
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .padding(all = 16.dp)
+                .fillMaxHeight()
+                .fillMaxWidth(0.6f),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .padding(all = 6.dp)
+                    .heightIn(max = maxHeight - 12.dp),
+                shape = MaterialTheme.shapes.extraLarge,
+                shadowElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .clip(MaterialTheme.shapes.large)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            var pageFinished by remember { mutableStateOf(false) }
+
+                            if (!pageFinished) {
+                                //加载皮肤预览中
+                                CircularProgressIndicator()
+                            }
+
+                            AndroidView(
+                                factory = { context ->
+                                    playerSkin.loadWebView(
+                                        context = context,
+                                        onPageFinished = {
+                                            pageFinished = true
+                                        }
+                                    )
+                                },
+                                update = { webView ->
+                                    val skinData = pendingSkinData
+
+                                    if (pageFinished) {
+                                        when (skinData) {
+                                            is ChangeSkin.ChangeSkinData -> {
+                                                runCatching {
+                                                    context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
+                                                        val bytes = inputStream?.readBytes()
+                                                        if (bytes != null) {
+                                                            val base64 = Base64.encodeToString(
+                                                                bytes,
+                                                                Base64.NO_WRAP
+                                                            )
+                                                            val dataUrl = "data:image/png;base64,$base64"
+                                                            val modelString = skinData.skinModel.modelType
+                                                                .takeIf { it.isNotEmpty() } ?: "auto-detect"
+                                                            webView.evaluateJavascript(
+                                                                "loadSkinFromData('$dataUrl', '$modelString')",
+                                                                null
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            is ChangeSkin.ResetSkin -> resetSkin()
+                                            else -> loadSkin()
+                                        }
+                                        if (account.isMicrosoftAccount()) {
+                                            playerSkin.loadCape(currentCapeToLoad)
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            //更换皮肤：选择皮肤图片文件
+                            InfoLayoutTextItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = stringResource(R.string.account_change_skin),
+                                icon = {
+                                    Icon(
+                                        modifier = Modifier.size(22.dp),
+                                        imageVector = Icons.Outlined.FileUpload,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {
+                                    skinPicker.launch(arrayOf("image/png"))
+                                }
+                            )
+
+                            //仅微软账号支持更改披风
+                            if (account.isMicrosoftAccount()) {
+                                InfoLayoutTextItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = if (isFetchingCapes) {
+                                        stringResource(R.string.account_change_cape_fetch_all)
+                                    } else {
+                                        stringResource(R.string.account_change_cape)
+                                    },
+                                    icon = {
+                                        if (isFetchingCapes) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(22.dp),
+                                                strokeWidth = 2.dp
+                                            )
+                                        } else {
+                                            Icon(
+                                                modifier = Modifier.size(22.dp),
+                                                painter = painterResource(R.drawable.ic_styler),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        showCapeSelector = true
+                                    },
+                                    enabled = !isFetchingCapes
+                                )
+                            }
+
+                            //离线账号重置皮肤
+                            if (account.isLocalAccount() && account.hasSkinFile && pendingSkinData != ChangeSkin.ResetSkin) {
+                                InfoLayoutTextItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.generic_reset),
+                                    icon = {
+                                        Icon(
+                                            modifier = Modifier.size(22.dp),
+                                            imageVector = Icons.Default.RestartAlt,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    onClick = {
+                                        pendingSkinData = ChangeSkin.ResetSkin
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FilledTonalButton(
+                            modifier = Modifier.weight(1f),
+                            onClick = onDismissRequest
+                        ) {
+                            Text(text = stringResource(R.string.generic_cancel))
+                        }
+
+                        Button(
+                            modifier = Modifier.weight(1f),
+                            enabled = pendingSkinData != null || pendingCape != null,
+                            onClick = {
+                                //提早拿到委托的值，否则吃不到Kotlin的智能转换
+                                val skinData = pendingSkinData
+                                val cape = pendingCape
+
+                                when (skinData) {
+                                    is ChangeSkin.ChangeSkinData -> {
+                                        onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                    }
+                                    is ChangeSkin.ResetSkin -> {
+                                        if (account.isLocalAccount()) onResetSkin()
+                                    }
+                                    else -> {}
+                                }
+
+                                if (account.isMicrosoftAccount()) {
+                                    //检查并更改披风
+                                    if (cape != null) {
+                                        val name = if (cape == EmptyCape) {
+                                            ""
+                                        } else {
+                                            cape.capeLocalRes()?.let {
+                                                context.getString(it)
+                                            } ?: cape.alias
+                                        }
+                                        onChangeCape(cape, name)
+                                    }
+                                }
+
+                                onDismissRequest()
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.generic_confirm))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showModelSelector) {
+        SelectSkinModelDialog(
+            onDismissRequest = {
+                showModelSelector = false
+                //关闭时，一并重置已选择的皮肤
+                pendingSkinData = null
+                loadSkin()
+            },
+            onSelected = { model ->
+                val data = pendingSkinData as? ChangeSkin.ChangeSkinData
+                pendingSkinData = data?.copy(
+                    skinModel = model
+                )
+                showModelSelector = false
+            }
+        )
+    }
+
+    if (showCapeSelector) {
+        SelectCapeDialog(
+            capes = buildList {
+                add(EmptyCape)
+                addAll(availableCapes)
+            },
+            //若当前未更改披风，则使用使用中的披风
+            selectedCape = pendingCape ?: currentUsingCape,
+            onSelected = { cape, _ ->
+                //检查是否已经为正在使用的披风
+                pendingCape = if (cape != currentUsingCape) cape else null
+                currentCapeToLoad = cape
+                showCapeSelector = false
+            },
+            onDismiss = {
+                showCapeSelector = false
+            }
+        )
+    }
+}
+
 @Composable
 fun SelectCapeDialog(
     capes: List<PlayerProfile.Cape>,
+    selectedCape: PlayerProfile.Cape?,
     onSelected: (PlayerProfile.Cape, translatedName: String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val current = remember(capes) {
-        capes.find { it.isUsing() }
-    }
-    val capeLocals = buildMap {
-        capes.forEach { cape ->
-            val translatedName = cape.capeLocalRes()
-                ?.let { stringResource(it) }
-            put(cape, translatedName)
+    val context = LocalContext.current
+    val capeLocals = remember(capes) {
+        buildMap {
+            capes.forEach { cape ->
+                val translatedName = cape.capeLocalRes()
+                    ?.let { context.getString(it) }
+                if (translatedName != null) {
+                    put(cape, translatedName)
+                }
+            }
         }
     }
 
@@ -1129,7 +1427,7 @@ fun SelectCapeDialog(
             val name = capeLocals[cape] ?: cape.alias
             onSelected(cape, name)
         },
-        current = current,
+        current = selectedCape,
         itemLayout = { cape, isCurrent, text, onClick ->
             val avatar = remember(cape) {
                 if (cape != EmptyCape) {
@@ -1260,7 +1558,15 @@ private fun getSkinAvatar(skin: Bitmap, size: Int): Bitmap {
     val scaleFactor = skin.width / 64.0f
     val faceSize = (8 * scaleFactor).roundToInt()
     val faceBitmap = Bitmap.createBitmap(skin, faceSize, faceSize, faceSize, faceSize, null, false)
-    val hatBitmap = Bitmap.createBitmap(skin, (40 * scaleFactor).roundToInt(), faceSize, faceSize, faceSize, null, false)
+    val hatBitmap = Bitmap.createBitmap(
+        skin,
+        (40 * scaleFactor).roundToInt(),
+        faceSize,
+        faceSize,
+        faceSize,
+        null,
+        false
+    )
     val avatar = createBitmap(size, size)
     val canvas = android.graphics.Canvas(avatar)
     val faceScale = ((size - 2 * faceOffset) / faceSize)

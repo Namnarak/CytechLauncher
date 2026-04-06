@@ -34,6 +34,7 @@ class ObservableButtonStyle(
     val uuid = style.uuid
     var name by mutableStateOf(style.name)
     var animateSwap by mutableStateOf(style.animateSwap)
+    var commonStyle by mutableStateOf(style.commonStyle)
     var lightStyle = ObservableStyleConfig(style.lightStyle)
     var darkStyle = ObservableStyleConfig(style.darkStyle)
 
@@ -42,6 +43,7 @@ class ObservableButtonStyle(
             name = this.name,
             uuid = this.uuid,
             animateSwap = this.animateSwap,
+            commonStyle = this.commonStyle,
             lightStyle = this.lightStyle.pack(),
             darkStyle = this.darkStyle.pack()
         )

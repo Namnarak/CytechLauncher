@@ -342,7 +342,11 @@ internal fun buttonContentColorAsState(
     isDark: Boolean = isSystemInDarkTheme(),
     isPressed: Boolean
 ): State<Color> {
-    val themeStyle = if (isDark) style.darkStyle else style.lightStyle
+    val themeStyle = if (style.commonStyle || !isDark) {
+        style.lightStyle
+    } else {
+        style.darkStyle
+    }
 
     val targetColor = remember(themeStyle, isPressed, themeStyle.pressedContentColor, themeStyle.contentColor) {
         if (isPressed) themeStyle.pressedContentColor else themeStyle.contentColor
@@ -365,7 +369,11 @@ internal fun buttonFontSizeAsState(
     isDark: Boolean = isSystemInDarkTheme(),
     isPressed: Boolean
 ): State<Float> {
-    val themeStyle = if (isDark) style.darkStyle else style.lightStyle
+    val themeStyle = if (style.commonStyle || !isDark) {
+        style.lightStyle
+    } else {
+        style.darkStyle
+    }
     val textStyle = LocalTextStyle.current
 
     val fontSize: Float = remember(themeStyle, textStyle, isPressed, themeStyle.fontSize, themeStyle.pressedFontSize) {
@@ -397,7 +405,11 @@ internal fun Modifier.buttonStyle(
     isDark: Boolean = isSystemInDarkTheme(),
     isPressed: Boolean
 ): Modifier {
-    val themeStyle = if (isDark) style.darkStyle else style.lightStyle
+    val themeStyle = if (style.commonStyle || !isDark) {
+        style.lightStyle
+    } else {
+        style.darkStyle
+    }
 
     val alpha = remember(themeStyle, isPressed, themeStyle.pressedAlpha, themeStyle.alpha) {
         if (isPressed) themeStyle.pressedAlpha else themeStyle.alpha

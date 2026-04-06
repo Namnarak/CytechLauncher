@@ -51,7 +51,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import com.movtery.layer_controller.data.HideLayerWhen
 import com.movtery.layer_controller.data.VisibilityType
 import com.movtery.layer_controller.event.ClickEvent
+import com.movtery.layer_controller.observable.ObservableButtonStyle
 import com.movtery.layer_controller.observable.ObservableControlLayer
 import com.movtery.layer_controller.observable.ObservableNormalData
 import com.movtery.layer_controller.observable.ObservableTranslatableString
@@ -95,12 +100,16 @@ sealed interface EditorOperation {
     data object SelectButton : EditorOperation
     /** 编辑控件层属性 */
     data class EditLayer(val layer: ObservableControlLayer) : EditorOperation
+    /** 删除控件层 */
+    data class DeleteLayer(val layer: ObservableControlLayer) : EditorOperation
     /** 打开控件外观列表 */
     data object OpenStyleList : EditorOperation
     /** 创建控件外观 */
     data object CreateStyle : EditorOperation
     /** 编辑控件外观 */
     data object EditButtonStyle : EditorOperation
+    /** 删除控件外观 */
+    data class DeleteButtonStyle(val style: ObservableButtonStyle) : EditorOperation
     /** 创建摇杆样式独立设定 */
     data object CreateJoystickStyle : EditorOperation
     /** 关于摇杆的提醒 */
@@ -122,6 +131,8 @@ sealed interface EditorWidgetOperation {
     data object None : EditorWidgetOperation
     /** 选择了一个控件, 并询问用户将其复制到哪些控制层 */
     data class CloneButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorWidgetOperation
+    /** 删除一个控件 */
+    data class DeleteButton(val data: ObservableWidget, val layer: ObservableControlLayer) : EditorWidgetOperation
     /** 编辑控件的显示文本 */
     data class EditWidgetText(val string: ObservableTranslatableString) : EditorWidgetOperation
     /** 编辑切换控件层可见性事件 */
@@ -500,6 +511,29 @@ private fun ColumnScope.ControlLayerMenu(
             onReorder(from.index, to.index)
         }
     )
+
+    LaunchedEffect(Unit) {
+        runCatching {
+            val index = layers.indexOfFirst { it == selectedLayer }
+            if (index >= 0 && index < layers.size) {
+                lazyListState.animateScrollToItem(index)
+            }
+        }
+    }
+
+    //检查列表新增情况，自动滚动到顶部
+    var previousSize by remember { mutableIntStateOf(0) }
+    val currentSize = layers.size
+    LaunchedEffect(currentSize) {
+        if (currentSize != previousSize) {
+            if (currentSize - previousSize > 0) {
+                runCatching {
+                    lazyListState.animateScrollToItem(0)
+                }
+            }
+            previousSize = currentSize
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.weight(1f),

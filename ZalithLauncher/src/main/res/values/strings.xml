@@ -456,7 +456,6 @@
     <string name="account_change_skin_select_model_message">Is this skin Steve (wide arms) or Alex (slim arms)?</string>
     <string name="account_change_skin_model_steve">Steve Model</string>
     <string name="account_change_skin_model_alex">Alex Model</string>
-    <string name="account_change_skin_reset_skin_message">Are you sure you want to reset the current account\'s skin?</string>
     <string name="account_change_skin_failed_to_import">Failed to cache the target file</string>
     <string name="account_change_skin_invalid">Invalid skin pixel size, should be 64x32 pixels or 64x64 pixels</string>
     <string name="account_change_skin_uploading">Uploading skin file</string>
@@ -1032,6 +1031,7 @@
     <string name="control_manage_info_description">Layout Description</string>
     <string name="control_manage_info_description_empty">No description</string>
     <string name="control_manage_info_edit">Edit Control Layout</string>
+    <string name="control_manage_import">Import control layout</string>
     <string name="control_manage_import_failed">Failed to import control layout file</string>
     <string name="control_manage_import_failed_to_parse">Control layout format error, the launcher cannot recognize it!</string>
     <string name="control_editor_menu_title">Editor Menu</string>
@@ -1055,17 +1055,19 @@
     <string name="control_editor_menu_save_and_exit">Save and Exit</string>
     <string name="control_editor_layers_title">Control Layers</string>
     <string name="control_editor_layers_create">Create New</string>
+    <string name="control_editor_layers_delete">Are you sure you want to delete control layer %s?</string>
     <string name="control_editor_layers_attribute">Control Layer Attributes</string>
     <string name="control_editor_layers_attribute_name">Control Layer Name</string>
     <string name="control_editor_layers_attribute_hide">Hide Control Layer by Default</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Keep visible when using mouse</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Keep visible when using gamepad</string>
-    <string name="control_editor_layers_attribute_hide_when_joystick">Keep visible when joystick is enabled</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">Hide when using mouse</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">Hide when using gamepad</string>
+    <string name="control_editor_layers_attribute_hide_when_joystick">Hide when joystick is enabled</string>
     <string name="control_editor_layers_merge_downward">Merge Control Downward</string>
     <string name="control_editor_edit_dialog_open_preview">Open Preview</string>
     <string name="control_editor_edit_dialog_close_preview">Close Preview</string>
     <string name="control_editor_edit_dialog_clone_widget">Clone Control</string>
     <string name="control_editor_edit_dialog_clone_widget_title">Clone to Control Layer</string>
+    <string name="control_editor_edit_dialog_delete_widget">Are you sure you want to delete this widget?</string>
     <string name="control_editor_edit_category_info">Information</string>
     <string name="control_editor_edit_category_event">Click Event</string>
     <string name="control_editor_edit_category_style">Control Style</string>
@@ -1126,6 +1128,8 @@
     <string name="control_editor_edit_style_config_empty">No control appearances in the current control layout</string>
     <string name="control_editor_edit_style_config_name">Control Appearance Name</string>
     <string name="control_editor_edit_style_config_animate_swap">Enable Animation Transition</string>
+    <string name="control_editor_edit_style_config_common_style">Do not distinguish dark theme</string>
+    <string name="control_editor_edit_style_config_delete">Are you sure you want to delete the control appearance %s?</string>
     <string name="control_editor_edit_style_config_light">Light Appearance</string>
     <string name="control_editor_edit_style_config_dark">Dark Appearance</string>
     <string name="control_editor_edit_style_config_normal">Normal</string>

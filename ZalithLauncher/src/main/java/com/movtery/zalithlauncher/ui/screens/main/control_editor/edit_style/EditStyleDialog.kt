@@ -38,6 +38,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryTabRow
@@ -57,8 +59,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.movtery.layer_controller.data.ALPHA_RANGE
+import androidx.constraintlayout.compose.Dimension
 import com.movtery.layer_controller.data.BORDER_WIDTH
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.DEFAULT_FONT_SIZE
@@ -116,115 +119,153 @@ fun EditButtonStyleDialog(
             contentAlignment = Alignment.Center
         ) {
             //作为背景层，被点击时关闭Dialog
-            if (visible) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(0f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = onClose
-                        )
-                )
-            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0f)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onClose
+                    )
+            )
 
             if (style != null) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .fillMaxHeight()
-                        .padding(all = 16.dp),
-                    shadowElevation = 3.dp,
-                    shape = MaterialTheme.shapes.extraLarge
+                ConstraintLayout(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(all = 12.dp)
-                                .weight(0.4f),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            RendererBox(
-                                style = style,
-                                isDarkTheme = selectedTabIndex == 1,
-                                modifier = Modifier.weight(1f)
-                            )
+                    val (preview, config) = createRefs()
 
-                            SingleLineTextCheck(
-                                text = style.name,
-                                onSingleLined = { style.name = it }
-                            )
+                    RendererBox(
+                        style = style,
+                        isDarkTheme = !style.commonStyle && selectedTabIndex == 1,
+                        modifier = Modifier.constrainAs(preview) {
+                            end.linkTo(config.start)
 
-                            //控件外观名称
-                            OwnOutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = style.name,
-                                onValueChange = {
-                                    style.name = it
-                                },
-                                singleLine = true,
-                                label = {
-                                    Text(text = stringResource(R.string.control_editor_edit_style_config_name))
-                                },
-                                shape = MaterialTheme.shapes.large
-                            )
-                            //启用动画过渡
-                            InfoLayoutSwitchItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = stringResource(R.string.control_editor_edit_style_config_animate_swap),
-                                value = style.animateSwap,
-                                onValueChange = { style.animateSwap = it }
-                            )
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
                         }
+                    )
 
-                        Column(
-                            modifier = Modifier
-                                .weight(0.6f)
-                                .fillMaxHeight()
+                    Surface(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .constrainAs(config) {
+                                start.linkTo(preview.end)
+                                end.linkTo(parent.end)
+
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+
+                                width = Dimension.percent(0.8f)
+                                height = Dimension.fillToConstraints
+                            },
+                        shadowElevation = 3.dp,
+                        shape = MaterialTheme.shapes.extraLarge
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxHeight()
                         ) {
-                            //顶贴标签栏
-                            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-                                tabs.forEachIndexed { index, item ->
-                                    Tab(
-                                        selected = index == selectedTabIndex,
-                                        onClick = {
-                                            selectedTabIndex = index
-                                        },
-                                        text = {
-                                            MarqueeText(text = stringResource(item.titleRes))
-                                        }
-                                    )
-                                }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(all = 12.dp)
+                                    .weight(0.4f)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                SingleLineTextCheck(
+                                    text = style.name,
+                                    onSingleLined = { style.name = it }
+                                )
+
+                                //控件外观名称
+                                OwnOutlinedTextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    value = style.name,
+                                    onValueChange = {
+                                        style.name = it
+                                    },
+                                    singleLine = true,
+                                    label = {
+                                        Text(text = stringResource(R.string.control_editor_edit_style_config_name))
+                                    },
+                                    shape = MaterialTheme.shapes.large
+                                )
+                                //启用动画过渡
+                                InfoLayoutSwitchItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.control_editor_edit_style_config_animate_swap),
+                                    value = style.animateSwap,
+                                    onValueChange = { style.animateSwap = it }
+                                )
+                                //不区分系统主题
+                                InfoLayoutSwitchItem(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    title = stringResource(R.string.control_editor_edit_style_config_common_style),
+                                    value = style.commonStyle,
+                                    onValueChange = { style.commonStyle = it }
+                                )
                             }
 
-                            HorizontalPager(
-                                state = pagerState,
-                                userScrollEnabled = false,
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                            ) { page ->
-                                when (page) {
-                                    0 -> {
-                                        StyleConfigEditor(
-                                            modifier = Modifier.fillMaxSize(),
-                                            styleConfig = style.lightStyle
-                                        )
+                                    .weight(0.6f)
+                                    .fillMaxHeight()
+                            ) {
+                                if (style.commonStyle) {
+                                    //仅编辑亮色外观（共用）
+                                    StyleConfigEditor(
+                                        modifier = Modifier.fillMaxSize(),
+                                        styleConfig = style.lightStyle
+                                    )
+                                } else {
+                                    //顶贴标签栏
+                                    SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                                        tabs.forEachIndexed { index, item ->
+                                            Tab(
+                                                selected = index == selectedTabIndex,
+                                                onClick = {
+                                                    selectedTabIndex = index
+                                                },
+                                                text = {
+                                                    MarqueeText(text = stringResource(item.titleRes))
+                                                }
+                                            )
+                                        }
                                     }
-                                    1 -> {
-                                        StyleConfigEditor(
-                                            modifier = Modifier.fillMaxSize(),
-                                            styleConfig = style.darkStyle
-                                        )
+
+                                    HorizontalPager(
+                                        state = pagerState,
+                                        userScrollEnabled = false,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f)
+                                    ) { page ->
+                                        when (page) {
+                                            0 -> {
+                                                StyleConfigEditor(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    styleConfig = style.lightStyle
+                                                )
+                                            }
+                                            1 -> {
+                                                StyleConfigEditor(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    styleConfig = style.darkStyle
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
+                    createHorizontalChain(
+                        preview, config,
+                        chainStyle = ChainStyle.Packed
+                    )
                 }
             }
         }
@@ -252,14 +293,13 @@ private fun RendererBox(
         ),
         color = color,
         contentColor = contentColor,
-        shape = shape
+        shape = shape,
+        shadowElevation = 6.dp
     ) {
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 16.dp)
+        Column(
+            modifier = Modifier.padding(22.dp),
+            verticalArrangement = Arrangement.spacedBy(22.dp)
         ) {
-            val (normal, pressed) = createRefs()
             val boxModifier = Modifier.size(50.dp)
 
             //普通状态
@@ -268,12 +308,7 @@ private fun RendererBox(
                 isDark = isDarkTheme,
                 isPressed = false,
                 text = "abc",
-                modifier = boxModifier.constrainAs(normal) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(pressed.start)
-                    bottom.linkTo(parent.bottom)
-                }
+                modifier = boxModifier
             )
 
             //按下状态
@@ -282,12 +317,7 @@ private fun RendererBox(
                 isDark = isDarkTheme,
                 isPressed = true,
                 text = "abc",
-                modifier = boxModifier.constrainAs(pressed) {
-                    top.linkTo(parent.top)
-                    start.linkTo(normal.end)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
+                modifier = boxModifier
             )
         }
     }
@@ -394,9 +424,10 @@ private fun LazyListScope.commonStyleConfig(
         InfoLayoutSliderItem(
             modifier = itemModifier.animateItem(),
             title = stringResource(R.string.control_editor_edit_style_config_alpha),
-            value = alpha,
-            onValueChange = { onAlphaChange(it) },
-            valueRange = ALPHA_RANGE,
+            value = alpha * 100f,
+            onValueChange = { onAlphaChange(it / 100f) },
+            valueRange = 0f..100f,
+            decimalFormat = "#0",
             suffix = "%",
             fineTuningStep = 0.1f
         )

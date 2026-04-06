@@ -233,14 +233,14 @@ private val EDIT_LAYOUT: List<List<KeySpec>> = listOf(
 
 /**
  * 虚拟键盘对话框，展示一个包含主要按键的键盘
- * @param onTouch [isTapMode] 为 `false` 时，触摸按键的回调函数
+ * @param onSwitch [isTapMode] 为 `false` 时，触摸按键的回调函数
  * @param onTap [isTapMode] 为 `true` 时，点击按键的回调函数
  */
 @Composable
 fun Keyboard(
     onDismissRequest: () -> Unit,
     isTapMode: Boolean = false,
-    onTouch: (key: String, pressed: Boolean) -> Unit = { _, _ -> },
+    onSwitch: (key: String, pressed: Boolean) -> Unit = { _, _ -> },
     onTap: (key: String) -> Unit = {}
 ) {
     val tabs = remember {
@@ -260,7 +260,7 @@ fun Keyboard(
                     modifier = Modifier.padding(all = 12.dp),
                     isTapMode = isTapMode,
                     onTap = onTap,
-                    onTouch = onTouch
+                    onSwitch = onSwitch
                 )
             }
             1 -> {
@@ -268,7 +268,7 @@ fun Keyboard(
                     modifier = Modifier.padding(all = 12.dp),
                     isTapMode = isTapMode,
                     onTap = onTap,
-                    onTouch = onTouch
+                    onSwitch = onSwitch
                 )
             }
         }
@@ -320,7 +320,7 @@ fun GamepadBindingKeyboard(
                     onTap = { key ->
                         onKeyTap(key)
                     },
-                    onTouch = { _, _ -> },
+                    onSwitch = { _, _ -> },
                     refreshed = refreshed,
                     isSelected = { key ->
                         currentSelectedKeys.contains(key)
@@ -334,7 +334,7 @@ fun GamepadBindingKeyboard(
                     onTap = { key ->
                         onKeyTap(key)
                     },
-                    onTouch = { _, _ -> },
+                    onSwitch = { _, _ -> },
                     refreshed = refreshed,
                     isSelected = { key ->
                         currentSelectedKeys.contains(key)
@@ -448,6 +448,11 @@ private fun KeyboardNavDialog(
     LaunchedEffect(selectedTabIndex) {
         pagerState.animateScrollToPage(selectedTabIndex)
     }
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        if (!pagerState.isScrollInProgress) {
+            selectedTabIndex = pagerState.currentPage
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -478,7 +483,7 @@ private fun KeyboardNavDialog(
 
                 HorizontalPager(
                     state = pagerState,
-                    userScrollEnabled = false,
+//                    userScrollEnabled = false,
                     modifier = Modifier.fillMaxWidth()
                 ) { page ->
                     pageContent(page)
@@ -493,7 +498,7 @@ private fun MainKeyboardArea(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (String) -> Unit,
-    onTouch: (String, Boolean) -> Unit,
+    onSwitch: (String, Boolean) -> Unit,
     refreshed: Any? = null,
     isSelected: (String) -> Boolean = { false }
 ) {
@@ -506,7 +511,7 @@ private fun MainKeyboardArea(
                 row = row,
                 isTapMode = isTapMode,
                 onTap = onTap,
-                onTouch = onTouch,
+                onSwitch = onSwitch,
                 refreshed = refreshed,
                 isSelected = isSelected
             )
@@ -519,7 +524,7 @@ private fun EditingKeyboardArea(
     modifier: Modifier = Modifier,
     isTapMode: Boolean,
     onTap: (String) -> Unit,
-    onTouch: (String, Boolean) -> Unit,
+    onSwitch: (String, Boolean) -> Unit,
     refreshed: Any? = null,
     isSelected: (String) -> Boolean = { false }
 ) {
@@ -532,7 +537,7 @@ private fun EditingKeyboardArea(
                 row = row,
                 isTapMode = isTapMode,
                 onTap = onTap,
-                onTouch = onTouch,
+                onSwitch = onSwitch,
                 refreshed = refreshed,
                 isSelected = isSelected
             )
@@ -545,7 +550,7 @@ private fun KeyboardRow(
     row: List<KeySpec>,
     isTapMode: Boolean,
     onTap: (String) -> Unit,
-    onTouch: (String, Boolean) -> Unit,
+    onSwitch: (String, Boolean) -> Unit,
     refreshed: Any? = null,
     isSelected: (String) -> Boolean
 ) {
@@ -565,7 +570,7 @@ private fun KeyboardRow(
                     identifier = key.code,
                     isTapMode = isTapMode,
                     onTap = onTap,
-                    onTouch = onTouch,
+                    onSwitch = onSwitch,
                     refreshed = refreshed,
                     isSelected = isSelected,
                     aspectRatio = key.aspect
@@ -582,7 +587,7 @@ private fun KeyButton(
     identifier: String,
     isTapMode: Boolean,
     onTap: (identifier: String) -> Unit,
-    onTouch: (identifier: String, pressed: Boolean) -> Unit,
+    onSwitch: (identifier: String, pressed: Boolean) -> Unit,
     refreshed: Any? = null,
     isSelected: (String) -> Boolean,
     color: Color = itemLayoutColorOnSurface(3.dp),
@@ -599,7 +604,7 @@ private fun KeyButton(
     val isSelected = remember(refreshed) { isSelected(identifier) }
     var pressed by remember { mutableStateOf(false) }
     val currentOnTap by rememberUpdatedState(onTap)
-    val currentOnTouch by rememberUpdatedState(onTouch)
+    val currentOnSwitch by rememberUpdatedState(onSwitch)
 
     val borderWidth by animateDpAsState(
         if (pressed || isSelected) 2.dp
@@ -611,19 +616,13 @@ private fun KeyButton(
             .aspectRatio(aspectRatio)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onPress = {
-                        pressed = true
-                        //点击模式不处理触摸事件
-                        if (!isTapMode) currentOnTouch(identifier, true)
-
-                        //等待松开
-                        tryAwaitRelease()
-
-                        pressed = false
-                        if (!isTapMode) currentOnTouch(identifier, false)
-                    },
                     onTap = {
-                        if (isTapMode) currentOnTap(identifier)
+                        if (isTapMode) {
+                            currentOnTap(identifier)
+                        } else {
+                            pressed = !pressed
+                            currentOnSwitch(identifier, pressed)
+                        }
                     }
                 )
             }

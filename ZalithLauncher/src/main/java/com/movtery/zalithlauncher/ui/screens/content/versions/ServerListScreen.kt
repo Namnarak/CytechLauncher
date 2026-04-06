@@ -1052,7 +1052,7 @@ private fun ServerIcon(
     val density = LocalDensity.current
     val pxSize = with(density) { size.roundToPx() }
 
-    val imageRequest = remember(server.refreshUI, pxSize) {
+    val imageRequest = remember(server, server.refreshUI, pxSize) {
         ImageRequest.Builder(context)
             .data(server.icon)
             .size(pxSize) //固定大小

@@ -74,6 +74,16 @@ abstract class ObservableWidget {
     open fun canTouch(): Boolean = true
 
     /**
+     * Compose 树开始布局时
+     */
+    abstract fun onCompositionStart(eventHandler: EventHandler?)
+
+    /**
+     * Compose 树结束布局时
+     */
+    abstract fun onCompositionDispose(eventHandler: EventHandler?)
+
+    /**
      * 获取该组件可见类型
      */
     abstract fun onCheckVisibilityType(): VisibilityType

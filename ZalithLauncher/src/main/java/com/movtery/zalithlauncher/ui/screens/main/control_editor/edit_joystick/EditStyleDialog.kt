@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.movtery.layer_controller.data.ALPHA_RANGE
 import com.movtery.layer_controller.data.BORDER_RADIO_RANGE
 import com.movtery.layer_controller.data.SHAPE_PERCENT_RANGE
 import com.movtery.layer_controller.data.SIZE_PERCENT_RANGE
@@ -248,11 +247,12 @@ private fun StyleConfigEditor(
             InfoLayoutSliderItem(
                 modifier = itemModifier.animateItem(),
                 title = stringResource(R.string.control_editor_edit_style_config_alpha),
-                value = config.alpha,
+                value = config.alpha * 100f,
                 onValueChange = {
-                    config.alpha = it
+                    config.alpha = it / 100f
                 },
-                valueRange = ALPHA_RANGE,
+                valueRange = 0f..100f,
+                decimalFormat = "#0",
                 suffix = "%",
                 fineTuningStep = 0.1f
             )
