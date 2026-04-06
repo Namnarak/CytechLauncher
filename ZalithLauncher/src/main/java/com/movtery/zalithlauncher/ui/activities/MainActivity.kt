@@ -363,6 +363,7 @@ class MainActivity : BaseAppCompatActivity() {
             Task.runTask(
                 dispatcher = Dispatchers.IO,
                 task = {
+                    var done = false
                     uris.forEach { uri ->
                         val inputStream = contentResolver.openInputStream(uri) ?: run {
                             showError(message = getString(R.string.multirt_runtime_import_failed_input_stream))
@@ -378,10 +379,22 @@ class MainActivity : BaseAppCompatActivity() {
                             },
                             catchedError =  {
                                 showError(message = it.getMessageOrToString())
+                            },
+                            onFinished = {
+                                done = true
                             }
                         )
                     }
                     ControlManager.refresh()
+                    if (done) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                getString(R.string.generic_done),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 }
             )
         )
@@ -398,6 +411,7 @@ class MainActivity : BaseAppCompatActivity() {
 
         val importing = when (type) {
             IMPORT_TYPE_MODPACK -> handleModpackImport(intent)
+            IMPORT_TYPE_CONTROLS -> handleControlsImport(intent)
             else -> false
         }
 
@@ -425,6 +439,17 @@ class MainActivity : BaseAppCompatActivity() {
                     }
                 }
             )
+        }
+        return uri != null
+    }
+
+    /**
+     * @return 是否已经触发了控制布局导入程序
+     */
+    private fun handleControlsImport(intent: Intent): Boolean {
+        val uri: Uri? = intent.getParcelableExtra(EXTRA_IMPORT_URI)
+        if (uri != null) {
+            importControlFiles(listOf(uri))
         }
         return uri != null
     }

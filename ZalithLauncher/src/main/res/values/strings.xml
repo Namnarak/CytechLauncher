@@ -1031,6 +1031,7 @@
     <string name="control_manage_info_description">Layout Description</string>
     <string name="control_manage_info_description_empty">No description</string>
     <string name="control_manage_info_edit">Edit Control Layout</string>
+    <string name="control_manage_import">Import control layout</string>
     <string name="control_manage_import_failed">Failed to import control layout file</string>
     <string name="control_manage_import_failed_to_parse">Control layout format error, the launcher cannot recognize it!</string>
     <string name="control_editor_menu_title">Editor Menu</string>
