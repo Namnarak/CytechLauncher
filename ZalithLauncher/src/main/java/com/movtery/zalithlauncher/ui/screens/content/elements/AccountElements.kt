@@ -55,7 +55,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -1101,6 +1100,15 @@ fun SelectSkinModelDialog(
     }
 }
 
+/**
+ * 更改皮肤流程需要让 uri 与皮肤模型深度绑定
+ * 重置或者确认更改时，能更方便的处理数据
+ */
+private data class ChangeSkinData(
+    val skinUri: Uri,
+    val skinModel: SkinModelType = SkinModelType.STEVE
+)
+
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ChangeSkinDialog(
@@ -1128,8 +1136,7 @@ fun ChangeSkinDialog(
     }
 
     // Temporary states to hold unapplied changes
-    var pendingSkinUri by remember { mutableStateOf<Uri?>(null) }
-    var pendingModel by remember { mutableStateOf<SkinModelType?>(null) }
+    var pendingSkinData by remember { mutableStateOf<ChangeSkinData?>(null) }
     val initialPendingCape = remember(availableCapes) {
         availableCapes.find { it.isUsing() } ?: EmptyCape.takeIf { availableCapes.isNotEmpty() }
     }
@@ -1166,36 +1173,11 @@ fun ChangeSkinDialog(
     val skinPicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
-                pendingSkinUri = it
+                pendingSkinData = ChangeSkinData(skinUri = it)
                 isResetPending = false
                 showModelSelector = true
             }
         }
-
-    if (showModelSelector) {
-        SelectSkinModelDialog(
-            onDismissRequest = { showModelSelector = false },
-            onSelected = {
-                pendingModel = it
-                showModelSelector = false
-            }
-        )
-    }
-
-    if (showCapeSelector) {
-        SelectCapeDialog(
-            capes = buildList {
-                add(EmptyCape)
-                addAll(availableCapes)
-            },
-            selectedCape = pendingCape ?: availableCapes.find { it.isUsing() } ?: EmptyCape,
-            onSelected = { cape, _ ->
-                pendingCape = cape
-                showCapeSelector = false
-            },
-            onDismiss = { showCapeSelector = false }
-        )
-    }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -1231,7 +1213,6 @@ fun ChangeSkinDialog(
                         modifier = Modifier.weight(1f),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Left side: Skin Preview (WebView)
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
@@ -1292,34 +1273,29 @@ fun ChangeSkinDialog(
                                     }
                                 },
                                 update = { webView ->
+                                    val skinData = pendingSkinData
                                     when {
                                         isResetPending -> {
                                             webView.evaluateJavascript("resetSkin()", null)
                                         }
-
-                                        pendingSkinUri != null && (!account.isLocalAccount() || pendingModel != null) -> {
+                                        skinData != null -> {
                                             runCatching {
-                                                context.contentResolver.openInputStream(
-                                                    pendingSkinUri!!
-                                                )
-                                                    .use { inputStream ->
-                                                        val bytes = inputStream?.readBytes()
-                                                        if (bytes != null) {
-                                                            val base64 = Base64.encodeToString(
-                                                                bytes,
-                                                                Base64.NO_WRAP
-                                                            )
-                                                            val dataUrl =
-                                                                "data:image/png;base64,$base64"
-                                                            val modelString =
-                                                                pendingModel?.modelType
-                                                                    ?: "auto-detect"
-                                                            webView.evaluateJavascript(
-                                                                "loadSkinFromData('$dataUrl', '$modelString')",
-                                                                null
-                                                            )
-                                                        }
+                                                context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
+                                                    val bytes = inputStream?.readBytes()
+                                                    if (bytes != null) {
+                                                        val base64 = Base64.encodeToString(
+                                                            bytes,
+                                                            Base64.NO_WRAP
+                                                        )
+                                                        val dataUrl = "data:image/png;base64,$base64"
+                                                        val modelString = skinData.skinModel.modelType
+                                                            .takeIf { it.isNotEmpty() } ?: "auto-detect"
+                                                        webView.evaluateJavascript(
+                                                            "loadSkinFromData('$dataUrl', '$modelString')",
+                                                            null
+                                                        )
                                                     }
+                                                }
                                             }
                                         }
                                     }
@@ -1333,40 +1309,26 @@ fun ChangeSkinDialog(
                             )
                         }
 
-                        // Right side: Options
                         Column(
                             modifier = Modifier
-                                .width(192.dp)
+                                .fillMaxWidth(0.4f)
                                 .fillMaxHeight(),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            // Select Skin Button
+                            //更换皮肤：选择皮肤图片文件
                             Button(
                                 modifier = Modifier.fillMaxWidth(),
-                                onClick = { skinPicker.launch(arrayOf("image/png")) }
+                                onClick = {
+                                    skinPicker.launch(arrayOf("image/png"))
+                                }
                             ) {
                                 Icon(Icons.Outlined.FileUpload, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(text = stringResource(R.string.account_change_skin))
                             }
 
-                            // Reset Skin Button
-                            if (account.isLocalAccount())
-                                FilledTonalButton(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = {
-                                        isResetPending = true
-                                        pendingSkinUri = null
-                                        pendingModel = null
-                                    }
-                                ) {
-                                    Icon(Icons.Default.RestartAlt, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = stringResource(R.string.generic_reset))
-                                }
-
+                            //仅微软账号支持更改披风
                             if (account.isMicrosoftAccount()) {
-                                Spacer(modifier = Modifier.weight(1f))
                                 Button(
                                     modifier = Modifier.fillMaxWidth(),
                                     onClick = {
@@ -1395,10 +1357,25 @@ fun ChangeSkinDialog(
                                     )
                                 }
                             }
+
+                            if (pendingSkinData != null) {
+                                FilledTonalButton(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = {
+                                        if (account.isLocalAccount()) {
+                                            isResetPending = true
+                                        }
+                                        pendingSkinData = null
+                                    }
+                                ) {
+                                    Icon(Icons.Default.RestartAlt, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(text = stringResource(R.string.generic_reset))
+                                }
+                            }
                         }
                     }
 
-                    // Bottom Buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1409,14 +1386,16 @@ fun ChangeSkinDialog(
                         ) {
                             Text(text = stringResource(R.string.generic_cancel))
                         }
+
                         Button(
                             modifier = Modifier.weight(1f),
                             onClick = {
                                 if (isResetPending) {
                                     onResetSkin()
                                 } else {
-                                    if (pendingSkinUri != null) {
-                                        onChangeSkin(pendingSkinUri!!, pendingModel)
+                                    val skinData = pendingSkinData
+                                    if (skinData != null) {
+                                        onChangeSkin(skinData.skinUri, skinData.skinModel)
                                     }
                                     if (account.isMicrosoftAccount() && pendingCape != null) {
                                         val currentCape =
@@ -1437,6 +1416,36 @@ fun ChangeSkinDialog(
                 }
             }
         }
+    }
+
+    if (showModelSelector) {
+        SelectSkinModelDialog(
+            onDismissRequest = {
+                showModelSelector = false
+                pendingSkinData = null
+            },
+            onSelected = { model ->
+                pendingSkinData = pendingSkinData?.copy(
+                    skinModel = model
+                )
+                showModelSelector = false
+            }
+        )
+    }
+
+    if (showCapeSelector) {
+        SelectCapeDialog(
+            capes = buildList {
+                add(EmptyCape)
+                addAll(availableCapes)
+            },
+            selectedCape = pendingCape ?: availableCapes.find { it.isUsing() } ?: EmptyCape,
+            onSelected = { cape, _ ->
+                pendingCape = cape
+                showCapeSelector = false
+            },
+            onDismiss = { showCapeSelector = false }
+        )
     }
 }
 
