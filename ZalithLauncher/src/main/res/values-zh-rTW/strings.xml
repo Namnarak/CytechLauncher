@@ -407,7 +407,6 @@
     <string name="account_change_skin_select_model_message">此皮膚是 Steve 模型（粗手臂）還是 Alex 模型（細手臂）？</string>
     <string name="account_change_skin_model_steve">Steve 模型</string>
     <string name="account_change_skin_model_alex">Alex 模型</string>
-    <string name="account_change_skin_reset_skin_message">您確定要重設目前帳號的皮膚嗎？</string>
     <string name="account_change_skin_failed_to_import">無法快取目標檔案</string>
     <string name="account_change_skin_invalid">皮膚像素尺寸無效，應為 64x32 像素或 64x64 像素</string>
     <string name="account_change_skin_uploading">上傳皮膚檔案中</string>

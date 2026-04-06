@@ -28,7 +28,6 @@ import com.movtery.zalithlauncher.context.copyLocalFile
 import com.movtery.zalithlauncher.context.getFileName
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
-import com.movtery.zalithlauncher.coroutine.combine
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.addOtherServer
@@ -46,6 +45,7 @@ import com.movtery.zalithlauncher.game.account.refreshMicrosoft
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.game.account.wardrobe.validateSkinFile
+import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.cacheAllCapes
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
@@ -55,8 +55,6 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftChangeCapeOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftChangeSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
@@ -87,6 +85,7 @@ import java.nio.channels.UnresolvedAddressException
 import java.util.UUID
 import javax.inject.Inject
 import io.ktor.client.plugins.ResponseException as KtorResponseException
+import kotlinx.coroutines.flow.combine as kotlinxCombine
 
 /**
  * 账号管理界面 UI 状态
@@ -95,8 +94,6 @@ import io.ktor.client.plugins.ResponseException as KtorResponseException
  * @property currentAccount 当前选中的账号
  * @property authServers 已添加的验证服务器列表
  * @property microsoftLoginOperation 微软登录操作的中间状态
- * @property microsoftChangeSkinOperation 微软皮肤更换操作的中间状态
- * @property microsoftChangeCapeOperation 微软披风更换操作的中间状态
  * @property localLoginOperation 离线登录操作的中间状态
  * @property otherLoginOperation 第三方验证服务器登录操作的中间状态
  * @property serverOperation 验证服务器管理操作的中间状态
@@ -108,8 +105,7 @@ data class AccountManageUiState(
     val currentAccount: Account? = null,
     val authServers: List<AuthServer> = emptyList(),
     val microsoftLoginOperation: MicrosoftLoginOperation = MicrosoftLoginOperation.None,
-    val microsoftChangeSkinOperation: MicrosoftChangeSkinOperation = MicrosoftChangeSkinOperation.None,
-    val microsoftChangeCapeOperation: MicrosoftChangeCapeOperation = MicrosoftChangeCapeOperation.None,
+    val microsoftCapes: Map<String, List<PlayerProfile.Cape>> = emptyMap(),
     val localLoginOperation: LocalLoginOperation = LocalLoginOperation.None,
     val otherLoginOperation: OtherLoginOperation = OtherLoginOperation.None,
     val serverOperation: ServerOperation = ServerOperation.None,
@@ -123,12 +119,6 @@ data class AccountManageUiState(
  */
 sealed class AccountManageIntent {
     data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
-        AccountManageIntent()
-
-    data class UpdateMicrosoftSkinOp(val operation: MicrosoftChangeSkinOperation) :
-        AccountManageIntent()
-
-    data class UpdateMicrosoftCapeOp(val operation: MicrosoftChangeCapeOperation) :
         AccountManageIntent()
 
     data class UpdateLocalLoginOp(val operation: LocalLoginOperation) : AccountManageIntent()
@@ -147,7 +137,7 @@ sealed class AccountManageIntent {
     ) : AccountManageIntent()
 
     /** 导入选中的皮肤文件到缓存目录 */
-    data class ImportSkinFile(val account: Account, val uri: Uri) : AccountManageIntent()
+    data class ImportSkinFile(val account: Account, val uri: Uri, val model: SkinModelType) : AccountManageIntent()
 
     /** 上传皮肤到微软服务器 */
     data class UploadMicrosoftSkin(
@@ -230,10 +220,8 @@ class AccountManageViewModel @Inject constructor(
 ) : ViewModel() {
     private val _microsoftLoginOp =
         MutableStateFlow<MicrosoftLoginOperation>(MicrosoftLoginOperation.None)
-    private val _microsoftSkinOp =
-        MutableStateFlow<MicrosoftChangeSkinOperation>(MicrosoftChangeSkinOperation.None)
-    private val _microsoftCapeOp =
-        MutableStateFlow<MicrosoftChangeCapeOperation>(MicrosoftChangeCapeOperation.None)
+    private val _microsoftCapes =
+        MutableStateFlow<Map<String, List<PlayerProfile.Cape>>>(emptyMap())
     private val _localLoginOp = MutableStateFlow<LocalLoginOperation>(LocalLoginOperation.None)
     private val _otherLoginOp = MutableStateFlow<OtherLoginOperation>(OtherLoginOperation.None)
     private val _serverOp = MutableStateFlow<ServerOperation>(ServerOperation.None)
@@ -247,36 +235,59 @@ class AccountManageViewModel @Inject constructor(
      * 统一的 UI 状态流
      * 使用 combine 组合了来自持久层 (AccountsManager) 的数据流与 View 层内部的交互状态流
      */
-    val uiState: StateFlow<AccountManageUiState> = combine(
-        AccountsManager.accountsFlow,
-        AccountsManager.currentAccountFlow,
-        AccountsManager.authServersFlow,
-        _microsoftLoginOp,
-        _microsoftSkinOp,
-        _microsoftCapeOp,
-        _localLoginOp,
-        _otherLoginOp,
-        _serverOp,
-        _accountOp,
-        _accountSkinOpMap
-    ) { accounts, currentAccount, authServers, msLoginOp, msSkinOp, msCapeOp, localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap ->
+    val uiState: StateFlow<AccountManageUiState> = kotlinxCombine(
+        kotlinxCombine(
+            AccountsManager.accountsFlow,
+            AccountsManager.currentAccountFlow,
+            AccountsManager.authServersFlow
+        ) { accounts, currentAccount, authServers ->
+            Triple(accounts, currentAccount, authServers)
+        },
+        kotlinxCombine(
+            _microsoftLoginOp,
+            _microsoftCapes
+        ) { msLoginOp, msCapes ->
+            MicrosoftOps(msLoginOp, msCapes)
+        },
+        kotlinxCombine(
+            _localLoginOp,
+            _otherLoginOp,
+            _serverOp,
+            _accountOp,
+            _accountSkinOpMap
+        ) { localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap ->
+            OtherOps(localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap)
+        }
+    ) { (accounts, currentAccount, authServers), msOps, otherOps ->
         AccountManageUiState(
             accounts = accounts,
             currentAccount = currentAccount,
             authServers = authServers,
-            microsoftLoginOperation = msLoginOp,
-            microsoftChangeSkinOperation = msSkinOp,
-            microsoftChangeCapeOperation = msCapeOp,
-            localLoginOperation = localLoginOp,
-            otherLoginOperation = otherLoginOp,
-            serverOperation = serverOp,
-            accountOperation = accountOp,
-            accountSkinOperationMap = accountSkinOpMap
+            microsoftLoginOperation = msOps.msLoginOp,
+            microsoftCapes = msOps.msCapes,
+            localLoginOperation = otherOps.localLoginOp,
+            otherLoginOperation = otherOps.otherLoginOp,
+            serverOperation = otherOps.serverOp,
+            accountOperation = otherOps.accountOp,
+            accountSkinOperationMap = otherOps.accountSkinOpMap
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = AccountManageUiState()
+    )
+
+    private data class MicrosoftOps(
+        val msLoginOp: MicrosoftLoginOperation,
+        val msCapes: Map<String, List<PlayerProfile.Cape>>
+    )
+
+    private data class OtherOps(
+        val localLoginOp: LocalLoginOperation,
+        val otherLoginOp: OtherLoginOperation,
+        val serverOp: ServerOperation,
+        val accountOp: AccountOperation,
+        val accountSkinOpMap: Map<String, AccountSkinOperation>
     )
 
     /**
@@ -286,10 +297,6 @@ class AccountManageViewModel @Inject constructor(
         when (intent) {
             is AccountManageIntent.UpdateMicrosoftLoginOp ->
                 _microsoftLoginOp.value = intent.operation
-            is AccountManageIntent.UpdateMicrosoftSkinOp ->
-                _microsoftSkinOp.value = intent.operation
-            is AccountManageIntent.UpdateMicrosoftCapeOp ->
-                _microsoftCapeOp.value = intent.operation
 
             is AccountManageIntent.UpdateLocalLoginOp -> _localLoginOp.value = intent.operation
             is AccountManageIntent.UpdateOtherLoginOp -> _otherLoginOp.value = intent.operation
@@ -361,6 +368,7 @@ class AccountManageViewModel @Inject constructor(
     private fun importSkinFile(intent: AccountManageIntent.ImportSkinFile) {
         val account = intent.account
         val uri = intent.uri
+        val model = intent.model
         val fileName = context.getFileName(uri) ?: UUID.randomUUID().toString().replace("-", "")
         val cacheFile = File(PathManager.DIR_IMAGE_CACHE, fileName)
 
@@ -372,19 +380,16 @@ class AccountManageViewModel @Inject constructor(
                     context.copyLocalFile(uri, cacheFile)
                     if (validateSkinFile(cacheFile)) {
                         onIntent(
-                            AccountManageIntent.UpdateMicrosoftSkinOp(
-                                MicrosoftChangeSkinOperation.SelectSkinModel(account, cacheFile)
+                            AccountManageIntent.UploadMicrosoftSkin(
+                                account,
+                                cacheFile,
+                                model
                             )
                         )
                     } else {
                         emitError(
                             context.getString(R.string.generic_warning),
                             context.getString(R.string.account_change_skin_invalid)
-                        )
-                        onIntent(
-                            AccountManageIntent.UpdateMicrosoftSkinOp(
-                                MicrosoftChangeSkinOperation.None
-                            )
                         )
                     }
                 },
@@ -393,11 +398,8 @@ class AccountManageViewModel @Inject constructor(
                         context.getString(R.string.generic_error),
                         context.getString(R.string.account_change_skin_failed_to_import) + "\r\n" + th.getMessageOrToString()
                     )
-                    onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
-                },
-                onCancel = {
-                    onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
-                })
+                }
+            )
         )
     }
 
@@ -406,8 +408,6 @@ class AccountManageViewModel @Inject constructor(
         val account = intent.account
         val skinFile = intent.skinFile
         val skinModel = intent.skinModel
-
-        onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
 
         TaskSystem.submitTask(
             Task.runTask(
@@ -446,11 +446,8 @@ class AccountManageViewModel @Inject constructor(
                         context.getString(R.string.generic_error) to formatAccountError(th)
                     }
                     emitError(title, msg)
-                    onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
-                },
-                onCancel = {
-                    onIntent(AccountManageIntent.UpdateMicrosoftSkinOp(MicrosoftChangeSkinOperation.None))
-                })
+                }
+            )
         )
     }
 
@@ -467,11 +464,7 @@ class AccountManageViewModel @Inject constructor(
                         val profile = getPlayerProfile(MINECRAFT_SERVICES_URL, account.accessToken)
                         task.updateProgress(-1f, R.string.account_change_cape_cache_all)
                         cacheAllCapes(profile)
-                        onIntent(
-                            AccountManageIntent.UpdateMicrosoftCapeOp(
-                                MicrosoftChangeCapeOperation.SelectCape(account, profile)
-                            )
-                        )
+                        _microsoftCapes.update { it + (account.uniqueUUID to profile.capes) }
                     }, onRefreshRequest = {
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
                         AccountsManager.suspendSaveAccount(account)
@@ -482,11 +475,8 @@ class AccountManageViewModel @Inject constructor(
                         context.getString(R.string.generic_error),
                         context.getString(R.string.account_change_cape_fetch_all_failed) + "\r\n" + th.getMessageOrToString()
                     )
-                    onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
-                },
-                onCancel = {
-                    onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
-                })
+                }
+            )
         )
     }
 
@@ -496,8 +486,6 @@ class AccountManageViewModel @Inject constructor(
         val capeId = intent.capeId
         val capeName = intent.capeName
         val isReset = intent.isReset
-
-        onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
 
         TaskSystem.submitTask(
             Task.runTask(
@@ -512,10 +500,26 @@ class AccountManageViewModel @Inject constructor(
                         AccountsManager.suspendSaveAccount(account)
                     })
 
+                    _microsoftCapes.update { capesMap ->
+                        if (!capesMap.containsKey(account.uniqueUUID)) return@update capesMap
+                        buildMap {
+                            capesMap.forEach { (accountId, capes) ->
+                                if (accountId == account.uniqueUUID) {
+                                    val newList = capes.map { cape ->
+                                        when {
+                                            cape.id == capeId -> cape.copy(state = "ACTIVE")
+                                            cape.state == "ACTIVE" -> cape.copy(state = "INACTIVE")
+                                            else -> cape
+                                        }
+                                    }
+                                    put(accountId, newList)
+                                } else put(accountId, capes)
+                            }
+                        }
+                    }
+
                     if (isReset) emitToast(R.string.account_change_cape_apply_reset)
                     else emitToast(R.string.account_change_cape_apply_success, capeName)
-
-                    onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
                 },
                 onError = { th ->
                     val (title, msg) = if (th is KtorResponseException) {
@@ -529,11 +533,8 @@ class AccountManageViewModel @Inject constructor(
                         context.getString(R.string.generic_error) to formatAccountError(th)
                     }
                     emitError(title, msg)
-                    onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
-                },
-                onCancel = {
-                    onIntent(AccountManageIntent.UpdateMicrosoftCapeOp(MicrosoftChangeCapeOperation.None))
-                })
+                }
+            )
         )
     }
 

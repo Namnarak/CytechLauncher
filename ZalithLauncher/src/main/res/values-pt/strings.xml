@@ -381,7 +381,6 @@
     <string name="account_logging_xbox_restricted">Sua conta foi restrita. O guardião/responsável não autoriza jogos online.</string>
     <string name="account_logging_xbox_unregistered">Sua conta não criou um perfil Xbox. Por favor, acesse https://signup.live.com/signup para registrar.</string>
     <string name="account_change_skin_select_model_message">Essa é uma skin Steve (braços grandes) ou Alex (braços pequenos)?</string>
-    <string name="account_change_skin_reset_skin_message">Tem certeza que deseja redefinir a skin da conta atual?</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Nomes de usuário válidos apenas aceitam letras (sem distinção de maiúsculas), números, sublinhado, e possuem tamanho de 3 a 16 caracteres.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Caso contrário, o jogo pode não iniciar adequadamente.</string>
     <string name="account_supporting_username_invalid_local_message_hint3">Nomes de usuário válidos: Name, Name_, Name123</string>

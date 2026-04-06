@@ -438,7 +438,6 @@
     <string name="account_change_skin_select_model_message">Esta skin é do Steve (braços largos) ou da Alex (braços finos)?</string>
     <string name="account_change_skin_model_steve">Modelo do Steve</string>
     <string name="account_change_skin_model_alex">Modelo da Alex</string>
-    <string name="account_change_skin_reset_skin_message">Tem certeza de que deseja redefinir a skin da conta atual?</string>
     <string name="account_change_skin_failed_to_import">Falha ao armazenar em cache o arquivo de destino</string>
     <string name="account_change_skin_invalid">Tamanho de pixel da pele inválido, deve ser 64x32 pixels ou 64x64 pixels</string>
     <string name="account_change_skin_uploading">Enviando arquivo de skin</string>

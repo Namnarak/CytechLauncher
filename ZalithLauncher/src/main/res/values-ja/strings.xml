@@ -707,7 +707,6 @@
     <string name="versions_manage_invalid">無効なバージョンです</string>
     <string name="versions_manage_copy_version_all">全てのファイルをコピー</string>
     <string name="versions_manage_delete_version">バージョンを削除</string>
-    <string name="account_change_skin_reset_skin_message">現在のアカウントのスキンをリセットしますか？</string>
     <string name="account_change_skin_update_toast">スキンのアップロードに成功しました。もし変更されてなかったら、しばらくしてからアカウントを更新してください</string>
     <string name="account_supporting_microsoft_tip_hint_t3">2. ポップアップウェブページに %s から提供されたコードを入力してアクセスを許可をクリックします;\n</string>
     <string name="account_supporting_microsoft_tip_hint_t4">3. ウェブページの指示に従ってサインインプロセスを完了してください;\n</string>
