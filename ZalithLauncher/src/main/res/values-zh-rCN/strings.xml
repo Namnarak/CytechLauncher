@@ -1123,6 +1123,7 @@
     <string name="control_editor_edit_style_config_empty">当前控制布局还没有控件外观</string>
     <string name="control_editor_edit_style_config_name">控件外观名称</string>
     <string name="control_editor_edit_style_config_animate_swap">启用动画过渡</string>
+    <string name="control_editor_edit_style_config_common_style">不区分暗色主题</string>
     <string name="control_editor_edit_style_config_light">亮色外观</string>
     <string name="control_editor_edit_style_config_dark">暗色外观</string>
     <string name="control_editor_edit_style_config_normal">正常</string>

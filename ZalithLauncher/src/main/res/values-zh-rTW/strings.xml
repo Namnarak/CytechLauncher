@@ -1157,6 +1157,7 @@
     <string name="control_editor_edit_style_config_empty">目前控制佈局還沒有控制項外觀</string>
     <string name="control_editor_edit_style_config_name">控制項外觀名稱</string>
     <string name="control_editor_edit_style_config_animate_swap">啟用動畫過渡</string>
+    <string name="control_editor_edit_style_config_common_style">不區分深色主題</string>
     <string name="control_editor_edit_style_config_light">亮色外觀</string>
     <string name="control_editor_edit_style_config_dark">暗色外觀</string>
     <string name="control_editor_edit_style_config_normal">正常</string>

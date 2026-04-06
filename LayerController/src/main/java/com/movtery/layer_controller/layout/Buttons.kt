@@ -97,7 +97,11 @@ internal fun TextButton(
         Box(
             modifier = Modifier
                 .buttonSize(data, screenSize)
-                .buttonStyle(style = style, isPressed = isPressed)
+                .buttonStyle(
+                    style = style,
+                    isDark = isDark,
+                    isPressed = isPressed
+                )
                 .editMode(
                     isEditMode = isEditMode,
                     data = data,
@@ -180,7 +184,11 @@ fun RendererStyleBox(
     isPressed: Boolean
 ) {
     Box(
-        modifier = modifier.buttonStyle(style = style, isDark = isDark, isPressed = isPressed),
+        modifier = modifier.buttonStyle(
+            style = style,
+            isDark = isDark,
+            isPressed = isPressed
+        ),
         contentAlignment = Alignment.Center
     ) {
         val color by buttonContentColorAsState(style = style, isDark = isDark, isPressed = isPressed)

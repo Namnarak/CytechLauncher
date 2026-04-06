@@ -50,6 +50,7 @@ val BORDER_WIDTH: ClosedFloatingPointRange<Float> = 0.0f..50.0f
 /**
  * @param name 样式显示名称
  * @param animateSwap 在切换状态时，是否启用动画过渡
+ * @param commonStyle 共用亮色主题
  * @param lightStyle 亮色模式样式
  * @param darkStyle 暗色模式样式
  */
@@ -61,6 +62,8 @@ data class ButtonStyle(
     val uuid: String,
     @SerialName("animateSwap")
     val animateSwap: Boolean,
+    @SerialName("commonStyle")
+    val commonStyle: Boolean = true,
     @SerialName("lightStyle")
     val lightStyle: StyleConfig,
     @SerialName("darkStyle")
@@ -146,6 +149,7 @@ data class ButtonStyle(
         return this.name != other.name ||
                 this.uuid != other.uuid ||
                 this.animateSwap != other.animateSwap ||
+                this.commonStyle != other.commonStyle ||
                 this.lightStyle.isModified(other.lightStyle) ||
                 this.darkStyle.isModified(other.darkStyle)
     }
@@ -172,6 +176,7 @@ val DefaultButtonStyle = ButtonStyle(
     name = "Default",
     uuid = randomUUID(),
     animateSwap = false,
+    commonStyle = true,
     lightStyle = DefaultButtonStyleConfig,
     darkStyle = DefaultButtonStyleConfig
 )
@@ -185,6 +190,7 @@ fun ButtonStyle.cloneNew(): ButtonStyle = this.copy(
     name = name,
     uuid = randomUUID(),
     animateSwap = animateSwap,
+    commonStyle = commonStyle,
     lightStyle = lightStyle,
     darkStyle = darkStyle
 )

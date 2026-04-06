@@ -1125,6 +1125,7 @@
     <string name="control_editor_edit_style_config_empty">No control appearances in the current control layout</string>
     <string name="control_editor_edit_style_config_name">Control Appearance Name</string>
     <string name="control_editor_edit_style_config_animate_swap">Enable Animation Transition</string>
+    <string name="control_editor_edit_style_config_common_style">Do not distinguish dark theme</string>
     <string name="control_editor_edit_style_config_light">Light Appearance</string>
     <string name="control_editor_edit_style_config_dark">Dark Appearance</string>
     <string name="control_editor_edit_style_config_normal">Normal</string>
