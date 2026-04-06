@@ -80,9 +80,6 @@ class GamepadViewModel : ViewModel() {
     /** 右摇杆状态 */
     private val rightJoystick = Joystick(JoystickType.Right)
 
-    private val dpadStates = mutableMapOf<DpadDirection, Boolean>()
-    private val buttonStates = mutableMapOf<Int, Boolean>()
-
     /**
      * 手柄活动状态控制
      */
@@ -104,8 +101,6 @@ class GamepadViewModel : ViewModel() {
         val now = System.nanoTime()
 
         if (
-            dpadStates.containsValue(true) ||
-            buttonStates.containsValue(true) ||
             leftJoystick.isUsing() ||
             rightJoystick.isUsing()
         ) {
@@ -263,9 +258,7 @@ class GamepadViewModel : ViewModel() {
 
     fun updateButton(code: Int, pressed: Boolean) {
         onActive()
-        if (updateState(buttonStates, code, pressed)) {
-            sendEvent(Event.Button(code, pressed))
-        }
+        sendEvent(Event.Button(code, pressed))
     }
 
     fun updateMotion(axisCode: Int, value: Float) {
@@ -297,17 +290,8 @@ class GamepadViewModel : ViewModel() {
     }
 
     private fun updateDpad(direction: DpadDirection, pressed: Boolean) {
-        if (updateState(dpadStates, direction, pressed)) {
-            sendEvent(Event.Dpad(direction, pressed))
-        }
-    }
-
-    private fun <K> updateState(map: MutableMap<K, Boolean>, key: K, new: Boolean): Boolean {
-        val old = map[key]
-        return if (old != new) {
-            map[key] = new
-            true
-        } else false
+        onActive()
+        sendEvent(Event.Dpad(direction, pressed))
     }
 
     /**
