@@ -109,8 +109,8 @@ class PlayerSkin(
         webview?.evaluateJavascript("loadSkin('$jsUrl', '$modelString')", null)
     }
 
-    fun loadCape(cape: PlayerProfile.Cape) {
-        val path = cape.takeIf { it != EmptyCape }?.id?.let { id ->
+    fun loadCape(cape: PlayerProfile.Cape?) {
+        val path = cape?.takeIf { it != EmptyCape }?.id?.let { id ->
             AssetsUrlBuilder()
                 .append("capes")
                 .append("$id.png")
@@ -124,7 +124,8 @@ class PlayerSkin(
     }
 
     fun resetSkin() {
-        webview?.evaluateJavascript("resetSkin()", null)
+        loadSkin(null, SkinModelType.NONE)
+        loadCape(null)
     }
 }
 

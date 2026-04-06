@@ -61,7 +61,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
@@ -212,10 +211,6 @@ sealed interface AccountSkinOperation {
     data object None : AccountSkinOperation
     /** 修改皮肤主对话框 */
     data object ChangeSkin : AccountSkinOperation
-    /** 警告用户是否真的想重置皮肤 */
-    data object PreResetSkin: AccountSkinOperation
-    /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
-    data object ResetSkin : AccountSkinOperation
 }
 
 /**
@@ -1066,10 +1061,17 @@ fun SelectSkinModelDialog(
  * 更改皮肤流程需要让 uri 与皮肤模型深度绑定
  * 重置或者确认更改时，能更方便的处理数据
  */
-private data class ChangeSkinData(
-    val skinUri: Uri,
-    val skinModel: SkinModelType = SkinModelType.STEVE
-)
+private sealed interface ChangeSkin {
+    data class ChangeSkinData(
+        val skinUri: Uri,
+        val skinModel: SkinModelType = SkinModelType.STEVE
+    ) : ChangeSkin
+
+    /**
+     * 重置离线皮肤
+     */
+    data object ResetSkin : ChangeSkin
+}
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -1086,7 +1088,7 @@ fun ChangeSkinDialog(
     val playerSkin = remember { PlayerSkin(context) }
 
     // Temporary states to hold unapplied changes
-    var pendingSkinData by remember { mutableStateOf<ChangeSkinData?>(null) }
+    var pendingSkinData by remember { mutableStateOf<ChangeSkin?>(null) }
     var pendingCape by remember { mutableStateOf<PlayerProfile.Cape?>(null) }
 
     var showModelSelector by remember { mutableStateOf(false) }
@@ -1114,13 +1116,13 @@ fun ChangeSkinDialog(
     val skinPicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
-                pendingSkinData = ChangeSkinData(skinUri = it)
+                pendingSkinData = ChangeSkin.ChangeSkinData(skinUri = it)
                 showModelSelector = true
             }
         }
 
     /**
-     * 初始化/重置为 账号设置的皮肤
+     * 初始化账号设置的皮肤
      */
     fun loadSkin() {
         playerSkin.loadSkin(
@@ -1130,12 +1132,10 @@ fun ChangeSkinDialog(
     }
 
     /**
-     * 初始化/重置为 账号设置的披风
+     * 重置皮肤预览
      */
-    fun loadCape() {
-        if (account.isMicrosoftAccount()) {
-            playerSkin.loadCape(currentUsingCape)
-        }
+    fun resetSkin() {
+        playerSkin.resetSkin()
     }
 
     Dialog(
@@ -1200,27 +1200,29 @@ fun ChangeSkinDialog(
                                     val skinData = pendingSkinData
 
                                     if (pageFinished) {
-                                        if (skinData != null) {
-                                            runCatching {
-                                                context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
-                                                    val bytes = inputStream?.readBytes()
-                                                    if (bytes != null) {
-                                                        val base64 = Base64.encodeToString(
-                                                            bytes,
-                                                            Base64.NO_WRAP
-                                                        )
-                                                        val dataUrl = "data:image/png;base64,$base64"
-                                                        val modelString = skinData.skinModel.modelType
-                                                            .takeIf { it.isNotEmpty() } ?: "auto-detect"
-                                                        webView.evaluateJavascript(
-                                                            "loadSkinFromData('$dataUrl', '$modelString')",
-                                                            null
-                                                        )
+                                        when (skinData) {
+                                            is ChangeSkin.ChangeSkinData -> {
+                                                runCatching {
+                                                    context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
+                                                        val bytes = inputStream?.readBytes()
+                                                        if (bytes != null) {
+                                                            val base64 = Base64.encodeToString(
+                                                                bytes,
+                                                                Base64.NO_WRAP
+                                                            )
+                                                            val dataUrl = "data:image/png;base64,$base64"
+                                                            val modelString = skinData.skinModel.modelType
+                                                                .takeIf { it.isNotEmpty() } ?: "auto-detect"
+                                                            webView.evaluateJavascript(
+                                                                "loadSkinFromData('$dataUrl', '$modelString')",
+                                                                null
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
-                                        } else {
-                                            loadSkin()
+                                            is ChangeSkin.ResetSkin -> resetSkin()
+                                            else -> loadSkin()
                                         }
                                         if (account.isMicrosoftAccount()) {
                                             playerSkin.loadCape(currentCapeToLoad)
@@ -1274,31 +1276,17 @@ fun ChangeSkinDialog(
                                 }
                             }
 
-                            if (pendingSkinData != null || pendingCape != null) {
+                            //离线账号重置皮肤
+                            if (account.isLocalAccount() && account.hasSkinFile && pendingSkinData != ChangeSkin.ResetSkin) {
                                 FilledTonalButton(
                                     modifier = Modifier.fillMaxWidth(),
                                     onClick = {
-                                        pendingSkinData = null
-                                        pendingCape = null
-                                        loadSkin()
-                                        loadCape()
+                                        pendingSkinData = ChangeSkin.ResetSkin
                                     }
                                 ) {
                                     Icon(Icons.Default.RestartAlt, contentDescription = null)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(text = stringResource(R.string.generic_reset))
-                                }
-                            }
-
-                            //离线账号删除皮肤
-                            if (account.isLocalAccount() && account.hasSkinFile && pendingSkinData == null) {
-                                FilledTonalButton(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = onResetSkin
-                                ) {
-                                    Icon(Icons.Default.DeleteOutline, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = stringResource(R.string.generic_delete))
                                 }
                             }
                         }
@@ -1323,8 +1311,14 @@ fun ChangeSkinDialog(
                                 val skinData = pendingSkinData
                                 val cape = pendingCape
 
-                                if (skinData != null) {
-                                    onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                when (skinData) {
+                                    is ChangeSkin.ChangeSkinData -> {
+                                        onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                    }
+                                    is ChangeSkin.ResetSkin -> {
+                                        if (account.isLocalAccount()) onResetSkin()
+                                    }
+                                    else -> {}
                                 }
 
                                 if (account.isMicrosoftAccount()) {
@@ -1361,7 +1355,8 @@ fun ChangeSkinDialog(
                 loadSkin()
             },
             onSelected = { model ->
-                pendingSkinData = pendingSkinData?.copy(
+                val data = pendingSkinData as? ChangeSkin.ChangeSkinData
+                pendingSkinData = data?.copy(
                     skinModel = model
                 )
                 showModelSelector = false

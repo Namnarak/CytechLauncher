@@ -720,12 +720,9 @@ private fun AccountSkinOperation(
                 availableCapes = availableCapes,
                 onDismissRequest = { updateOperation(AccountSkinOperation.None) },
                 onResetSkin = {
-                    actions.onIntent(
-                        AccountManageIntent.UpdateAccountSkinOp(
-                            account.uniqueUUID,
-                            AccountSkinOperation.PreResetSkin
-                        )
-                    )
+                    if (account.isLocalAccount()) {
+                        actions.onIntent(AccountManageIntent.ResetSkin(account))
+                    }
                 },
                 onFetchCapes = {
                     if (account.isMicrosoftAccount()) {
@@ -761,21 +758,6 @@ private fun AccountSkinOperation(
                     }
                 }
             )
-        }
-
-        is AccountSkinOperation.PreResetSkin -> {
-            SimpleAlertDialog(
-                title = stringResource(R.string.generic_reset),
-                text = stringResource(R.string.account_change_skin_reset_skin_message),
-                onDismiss = { updateOperation(AccountSkinOperation.None) },
-                onConfirm = { updateOperation(AccountSkinOperation.ResetSkin) }
-            )
-        }
-
-        is AccountSkinOperation.ResetSkin -> {
-            LaunchedEffect(Unit) {
-                actions.onIntent(AccountManageIntent.ResetSkin(account))
-            }
         }
     }
 }

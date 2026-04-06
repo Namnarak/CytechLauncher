@@ -331,7 +331,6 @@
     <string name="account_change_skin_select_model_message">Apakah Ini Skin Steve (lengan besar) atau Alex (lengan kecil)?</string>
     <string name="account_change_skin_model_steve">Model Steve</string>
     <string name="account_change_skin_model_alex">Model Alex</string>
-    <string name="account_change_skin_reset_skin_message">Apakah Anda yakin ingin mereset skin akun saat ini?</string>
     <string name="account_supporting_username_invalid_title">Nama Pengguna Tidak Valid</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Nama pengguna yang valid hanya mendukung huruf (besar/kecil), angka, dan garis bawah, dengan panjang antara 3 dan 16 karakter.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">Jika tidak, gamenya mungkin tidak berjalan dengan benar.</string>

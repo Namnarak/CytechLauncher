@@ -51,8 +51,3 @@ function loadSkinFromData(base64Data, model = "auto-detect") {
 function loadCape(capeUrl) {
     skinViewer.loadCape(capeUrl);
 }
-
-function resetSkin() {
-    skinViewer.loadSkin("steve.png");
-    skinViewer.loadCape(null);
-}

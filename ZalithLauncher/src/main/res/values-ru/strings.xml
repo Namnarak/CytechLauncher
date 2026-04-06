@@ -174,7 +174,6 @@
     <string name="account_change_skin_select_model_message">Это скин Стива (широкие руки) или Алекса (тонкие руки)?</string>
     <string name="account_change_skin_model_steve">Модель Стива</string>
     <string name="account_change_skin_model_alex">Модель Алекса</string>
-    <string name="account_change_skin_reset_skin_message">Вы уверены, что хотите сбросить скин текущего аккаунта?</string>
     <string name="account_supporting_username_invalid_title">Недопустимое имя пользователя</string>
     <string name="account_supporting_username_invalid_local_message_hint1">Допустимые имена пользователей содержат только буквы (без учёта регистра), цифры и подчёркивания, с длиной от 3 до 16 символов.</string>
     <string name="account_supporting_username_invalid_local_message_hint2">В противном случае игра может работать некорректно.</string>
