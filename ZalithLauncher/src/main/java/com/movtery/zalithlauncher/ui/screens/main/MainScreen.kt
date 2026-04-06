@@ -110,7 +110,9 @@ import com.movtery.zalithlauncher.ui.screens.content.navigateToDownload
 import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
+import com.movtery.zalithlauncher.ui.theme.feativals.FestivalTitleText
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.festival.LocalFestivals
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
 import com.movtery.zalithlauncher.viewmodel.LaunchGameViewModel
@@ -253,6 +255,8 @@ private fun <E: TitledNavKey> TopBar(
     toMultiplayerScreen: () -> Unit,
     changeExpandedState: () -> Unit,
 ) {
+    val festivals = LocalFestivals.current
+
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
@@ -328,17 +332,36 @@ private fun <E: TitledNavKey> TopBar(
                 },
                 targetState = parentRes to childRes
             ) { (parent, child) ->
+                val style = MaterialTheme.typography.titleMedium
+                val softWarp = false
+                val maxLines = 1
 
-                val parentText = parent?.let { stringResource(it) }
-                    ?: InfoDistributor.LAUNCHER_IDENTIFIER
-                val childText = child?.let { stringResource(it) }
+                if (parent == null) {
+                    if (festivals.isEmpty()) {
+                        Text(
+                            text = InfoDistributor.LAUNCHER_IDENTIFIER,
+                            style = style,
+                            softWrap = softWarp,
+                            maxLines = maxLines
+                        )
+                    } else {
+                        FestivalTitleText(
+                            festivals = festivals,
+                            style = style,
+                            maxLines = maxLines
+                        )
+                    }
+                } else {
+                    val parentText = stringResource(parent)
+                    val childText = child?.let { stringResource(it) }
 
-                Text(
-                    text = if (childText != null) "$parentText - $childText" else parentText,
-                    style = MaterialTheme.typography.titleMedium,
-                    softWrap = false,
-                    maxLines = 1
-                )
+                    Text(
+                        text = if (childText != null) "$parentText - $childText" else parentText,
+                        style = style,
+                        softWrap = softWarp,
+                        maxLines = maxLines
+                    )
+                }
             }
 
             Row(

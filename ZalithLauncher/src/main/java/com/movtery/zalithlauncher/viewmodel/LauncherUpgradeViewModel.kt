@@ -75,13 +75,18 @@ class LauncherUpgradeViewModel: ViewModel() {
      * 检查是否在限频时间内
      * @param time 限频时间（毫秒）
      * @param lastCheckTime 上次检查的时间戳
-     * @return true 如果已经超过限频时间，可以进行检查；false 如果还在限频时间内
      */
     private fun isWithinRateLimit(
         time: Long,
         lastCheckTime: Long
     ): Boolean {
         val currentTime = System.currentTimeMillis()
+        println("ABCD: currentTime = $currentTime, lastCheckTime = $lastCheckTime")
+        if (lastCheckTime > currentTime) {
+            //用户调整到了未来的时间，无法正常判断
+            //直接允许进行检查
+            return false
+        }
         return currentTime - lastCheckTime < time
     }
 

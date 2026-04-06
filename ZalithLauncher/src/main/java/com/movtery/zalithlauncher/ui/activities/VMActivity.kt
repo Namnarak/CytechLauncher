@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,7 +47,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.viewinterop.AndroidView
@@ -67,7 +65,6 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.coroutine.DataBridge
 import com.movtery.zalithlauncher.game.input.AWTCharSender
 import com.movtery.zalithlauncher.game.input.CharacterSenderStrategy
-import com.movtery.zalithlauncher.game.input.GameInputProxy
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
@@ -85,12 +82,10 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.base.BaseAppCompatActivity
 import com.movtery.zalithlauncher.ui.base.WindowMode
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
+import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
-import com.movtery.zalithlauncher.ui.screens.game.elements.InputMode
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderLayer
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderOperation
-import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBar
-import com.movtery.zalithlauncher.ui.screens.game.elements.TextInputBarArea
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
 import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
@@ -143,11 +138,8 @@ class VMViewModel : ViewModel() {
         _onConfigurationChanged.update { value }
     }
 
-    /**
-     * 输入代理
-     */
-    val inputProxy = GameInputProxy(LWJGLCharSender)
-    val inputTextFieldState = TextFieldState()
+    var sender: CharacterSenderStrategy = LWJGLCharSender
+        private set
 
     private val _openFolderOperation = MutableStateFlow<OpenFolderOperation>(OpenFolderOperation.None)
     /** 启动器内浏览目录（将文件导入该目录） */
@@ -198,7 +190,7 @@ class VMViewModel : ViewModel() {
                     }
                 )
 
-                inputProxy.sender = LWJGLCharSender
+                sender = LWJGLCharSender
 
                 LaunchSession(
                     launcher = launcher,
@@ -230,7 +222,7 @@ class VMViewModel : ViewModel() {
                     }
                 )
 
-                inputProxy.sender = AWTCharSender
+                sender = AWTCharSender
 
                 LaunchSession(
                     launcher = launcher,
@@ -257,79 +249,58 @@ class VMViewModel : ViewModel() {
         if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
     }
 
-    private val _enabledInputActionBar = MutableStateFlow(false)
-    val enabledInputActionBar = _enabledInputActionBar.asStateFlow()
-
-    fun updateInputActionBar(enabled: Boolean) {
-        _enabledInputActionBar.update { enabled }
-    }
-
-    private var lastInputText = ""
-    private var lastInputSelection = TextRange.Zero
-
-    private var isInputCleaning = false
-
     private val inputMutex = Mutex()
 
-    fun handleInputText(text: String, selection: TextRange) {
-        viewModelScope.launch {
-            inputMutex.withLock {
-                if (!isInputCleaning && (text != lastInputText || selection != lastInputSelection)) {
-                    withContext(Dispatchers.Main) {
-                        inputProxy.handleTextChange(
-                            oldText = lastInputText,
-                            newText = text,
-                            oldSelection = lastInputSelection,
-                            newSelection = selection
-                        )
-                    }
-
-                    lastInputText = text
-                    lastInputSelection = selection
-                }
-            }
+    /**
+     * 直接发送文本到游戏
+     */
+    private fun String.sendText() {
+        forEach { char ->
+            sender.sendChar(char)
         }
     }
 
     fun sendInputText(text: String) {
         viewModelScope.launch {
             inputMutex.withLock {
-                if (!isInputCleaning) {
-                    withContext(Dispatchers.Main) {
-                        with(inputProxy) {
-                            text.sendText()
-                        }
-
-                        clearInputSuspend()
-                    }
+                withContext(Dispatchers.Main) {
+                    text.sendText()
                 }
             }
         }
     }
 
-    private suspend fun clearInputSuspend() {
-        withContext(Dispatchers.Main) {
-            inputTextFieldState.edit {
-                replace(0, inputTextFieldState.text.length, "")
-                selection = TextRange.Zero
-            }
-        }
+    /**
+     * 仅处理特殊按键
+     */
+    fun handleSpecialKey(keyEvent: KeyEvent) {
+        when (keyEvent.keyCode) {
+            KeyEvent.KEYCODE_DEL -> sender.sendBackspace()
 
-        lastInputText = ""
-        lastInputSelection = TextRange.Zero
+            KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
+            KeyEvent.KEYCODE_DPAD_RIGHT -> sender.sendRight()
+            KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
+            KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
+
+//            KeyEvent.KEYCODE_ENTER -> sender.sendEnter()
+            KeyEvent.KEYCODE_TAB -> sender.sendTab()
+
+            else -> sender.sendOther(keyEvent)
+        }
     }
 
     /**
-     * 清空输入栏的状态
+     * 返回这个按键事件是否允许被处理
      */
-    fun clearInput() {
-        viewModelScope.launch {
-            inputMutex.withLock {
-                isInputCleaning = true
-                clearInputSuspend()
-                isInputCleaning = false
-            }
-        }
+    fun keyCanHandle(keyEvent: KeyEvent): Boolean {
+        val keyCode = keyEvent.keyCode
+        //因为输入法选区时会发出Shift键的事件，但同步为游戏内的文本进行选区会比较复杂
+        //比如选区时没法拿到当前输入框选择了哪些文本，极容易导致输入框与游戏内的文本出现状态差异
+        //这类比较打破预期的情况应该尽量避免，所以应该忽略Shift
+        val isShift = keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT
+        //避免处理Ctrl，大部分输入法不支持处理这个，而在游戏内可能会影响到指针位置
+        val isCtrl = keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT
+        return !isShift && !isCtrl
     }
 }
 
@@ -439,63 +410,18 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                         ComposableLayout(vmViewModel.textInputMode)
                     }
 
-                    //输入栏控制区域
-                    TextInputBarArea {innerModifier, mode ->
-                        val enabledActionBar by vmViewModel.enabledInputActionBar.collectAsStateWithLifecycle()
-
-                        TextInputBar(
-                            modifier = innerModifier,
-                            mode = mode,
-                            inputMode = AllSettings.textInputMode.state,
-                            onInputModeChange = { AllSettings.textInputMode.save(it) },
-                            textFieldState = vmViewModel.inputTextFieldState,
-                            show = vmViewModel.textInputMode == TextInputMode.ENABLE,
-                            enabledActionBar = enabledActionBar,
-                            onChangeActionBar = { vmViewModel.updateInputActionBar(it) },
-                            onClose = { vmViewModel.disableInputMode() },
-                            onHandle = { text, selection ->
-                                vmViewModel.handleInputText(text, selection)
+                    if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
+                        //输入栏控制区域
+                        HidableInputLayout(
+                            onEnterClick = {
+                                vmViewModel.sender.sendEnter()
                             },
                             onSend = { text ->
                                 vmViewModel.sendInputText(text)
                             },
-                            onClear = {
-                                vmViewModel.clearInput()
-                            },
-//                            onSendText = { text ->
-//                                vmViewModel.runIfHandlerInitialized {
-//                                    text.forEach { char ->
-//                                        it.sender.sendChar(char)
-//                                    }
-//                                }
-//                            },
-                            onShiftClick = { press ->
-                                vmViewModel.inputProxy.sender.sendModifierShift(press)
-                            },
-                            onCtrlClick = { press ->
-                                vmViewModel.inputProxy.sender.sendModifierCtrl(press)
-                            },
-                            onTabClick = {
-                                vmViewModel.inputProxy.sender.sendTab()
-                            },
-                            onEnterClick = {
-                                vmViewModel.inputProxy.sender.sendEnter()
-                            },
-                            onUpClick = {
-                                vmViewModel.inputProxy.sender.sendUp()
-                            },
-                            onDownClick = {
-                                vmViewModel.inputProxy.sender.sendDown()
-                            },
-                            onLeftClick = {
-                                vmViewModel.inputProxy.sender.sendLeft()
-                            },
-                            onRightClick = {
-                                vmViewModel.inputProxy.sender.sendRight()
-                            },
-                            onBackspaceClick = {
-                                vmViewModel.inputProxy.sender.sendBackspace()
-                            },
+                            onClose = {
+                                vmViewModel.textInputMode = TextInputMode.DISABLE
+                            }
                         )
                     }
 
@@ -594,36 +520,12 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
             return true
         }
         if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
-            if (isPressed && !vmViewModel.inputProxy.keyCanHandle(event)) {
+            if (isPressed && !vmViewModel.keyCanHandle(event)) {
                 return super.dispatchKeyEvent(event)
             }
 
-            //代理输入时同时允许处理事件
-            when (AllSettings.textInputMode.getValue()) {
-                InputMode.Default -> {
-                    if (
-                        isPressed &&
-                        //光是检测文本的变化来判断是否退格或者方向移动是不够的
-                        //如果文本为空，此处应该特殊处理，仍然对游戏发出退格按键
-                        !vmViewModel.inputProxy.handleSpecialKey(event, vmViewModel.inputTextFieldState.text)
-                    ) {
-                        //无特殊处理的情况
-                        vmViewModel.inputProxy.handleSpecialKey(event) {
-                            vmViewModel.clearInput()
-                        }
-                    }
-                }
-                InputMode.Simple -> {
-                    if (isPressed) {
-                        vmViewModel.inputProxy.handleSpecialKey(event)
-                    }
-                }
-                InputMode.Send -> {
-                    if (isPressed) {
-                        //发送模式需要在文本为空时，仍然对游戏发出退格按键事件
-                        vmViewModel.inputProxy.handleSpecialKey(event, vmViewModel.inputTextFieldState.text)
-                    }
-                }
+            if (isPressed) {
+                vmViewModel.handleSpecialKey(event)
             }
 
             if (event.keyCode == KeyEvent.KEYCODE_TAB) {

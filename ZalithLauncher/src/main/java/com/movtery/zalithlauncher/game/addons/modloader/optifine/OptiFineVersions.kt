@@ -29,7 +29,6 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsText
-import com.movtery.zalithlauncher.utils.string.compareVersion
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -69,20 +68,7 @@ object OptiFineVersions {
             }
         )?.filter {
             it.inherit == gameVersion
-        }?.sortOptiFineVersions()
-    }
-
-    /**
-     * 对OptiFine版本进行排序，正式版优先，预览版其次
-     */
-    private fun List<OptiFineVersion>.sortOptiFineVersions(): List<OptiFineVersion> {
-        val comparator = Comparator<OptiFineVersion> { o1, o2 ->
-            o2.realVersion.compareVersion(o1.realVersion)
         }
-        //拆分预览版和正式版
-        val (previews, releases) = this.partition { it.isPreview }
-        //两个集合单独进行排序，合并时正式版优先，预览版其次
-        return releases.sortedWith(comparator) + previews.sortedWith(comparator)
     }
 
     /**

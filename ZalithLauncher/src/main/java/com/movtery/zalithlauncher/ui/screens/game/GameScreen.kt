@@ -94,7 +94,6 @@ import com.movtery.zalithlauncher.ui.components.BackgroundCard
 import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.MinecraftHotbar
-import com.movtery.zalithlauncher.ui.control.event.KeyEventHandler
 import com.movtery.zalithlauncher.ui.control.event.launcherEvent
 import com.movtery.zalithlauncher.ui.control.event.lwjglEvent
 import com.movtery.zalithlauncher.ui.control.gamepad.GamepadKeyListener
@@ -233,25 +232,6 @@ private class GameViewModel(
     /** 游戏内消息发送器 */
     val gameTextSender = GameTextSender(viewModelScope)
 
-    /** 所有已按下的按键 */
-    val pressedKeyEvents = KeyEventHandler { key, pressed ->
-        lwjglEvent(eventKey = key, isMouse = key.startsWith("GLFW_MOUSE_", false), isPressed = pressed)
-    }
-    /** 所有已按下的启动器事件 */
-    val pressedLauncherEvents = KeyEventHandler { key, pressed ->
-        launcherEvent(
-            eventKey = key,
-            isPressed = pressed,
-            onSwitchIME = { onChangeTextInputMode(null) },
-            onSwitchMenu = { switchMenu() },
-            onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
-            onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
-            onLongScrollUp = { mouseScrollUpEvent.scrollLongPress() },
-            onLongScrollUpCancel = { mouseScrollUpEvent.cancel() },
-            onLongScrollDown = { mouseScrollDownEvent.scrollLongPress() },
-            onLongScrollDownCancel = { mouseScrollDownEvent.cancel() }
-        )
-    }
     /** 控制布局控件点击事件处理器 */
     val eventHandler = EventHandler { event, pressed ->
         onKeyEvent(event, pressed)
@@ -259,9 +239,29 @@ private class GameViewModel(
 
     /** 处理控制布局类点击事件 */
     fun onKeyEvent(event: ClickEvent, pressed: Boolean) {
-        val events = when (event.type) {
-            ClickEvent.Type.Key -> pressedKeyEvents
-            ClickEvent.Type.LauncherEvent -> pressedLauncherEvents
+        val key = event.key
+        when (event.type) {
+            ClickEvent.Type.Key -> {
+                lwjglEvent(
+                    eventKey = key,
+                    isMouse = key.startsWith("GLFW_MOUSE_", false),
+                    isPressed = pressed
+                )
+            }
+            ClickEvent.Type.LauncherEvent -> {
+                launcherEvent(
+                    eventKey = key,
+                    isPressed = pressed,
+                    onSwitchIME = { onChangeTextInputMode(null) },
+                    onSwitchMenu = { switchMenu() },
+                    onSingleScrollUp = { mouseScrollUpEvent.scrollSingle() },
+                    onSingleScrollDown = { mouseScrollDownEvent.scrollSingle() },
+                    onLongScrollUp = { mouseScrollUpEvent.scrollLongPress() },
+                    onLongScrollUpCancel = { mouseScrollUpEvent.cancel() },
+                    onLongScrollDown = { mouseScrollDownEvent.scrollLongPress() },
+                    onLongScrollDownCancel = { mouseScrollDownEvent.cancel() }
+                )
+            }
             ClickEvent.Type.SendText -> {
                 //游戏内文本发送事件
                 if (pressed) {
@@ -272,11 +272,6 @@ private class GameViewModel(
                 return
             }
             else -> return
-        }
-        if (pressed) {
-            events.pressKey(event.key)
-        } else {
-            events.releaseKey(event.key)
         }
     }
 
@@ -351,8 +346,6 @@ private class GameViewModel(
         mouseScrollUpEvent.cancel()
         mouseScrollDownEvent.cancel()
         gameTextSender.cancel()
-        pressedKeyEvents.clearEvent()
-        pressedLauncherEvents.clearEvent()
         onChangeTextInputMode(TextInputMode.DISABLE)
     }
 
@@ -821,11 +814,13 @@ fun GameScreen(
                             viewModel.switchMenu()
                         } else {
                             //按下返回键
-                            val events = viewModel.pressedKeyEvents
-                            val escape = ControlEventKeycode.GLFW_KEY_ESCAPE
-                            events.pressKey(escape)
+                            val event = ClickEvent(
+                                type = ClickEvent.Type.Key,
+                                key = ControlEventKeycode.GLFW_KEY_ESCAPE
+                            )
+                            viewModel.onKeyEvent(event, true)
                             delay(10)
-                            events.releaseKey(escape)
+                            viewModel.onKeyEvent(event, false)
                         }
                     }
                     is EventViewModel.Event.Game.OnResume -> {
