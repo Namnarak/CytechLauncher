@@ -422,7 +422,7 @@ class AccountManageViewModel @Inject constructor(
                     })
 
                     task.updateMessage(R.string.account_change_skin_update_local)
-                    runCatching { account.downloadSkin() }.onFailure { th ->
+                    runCatching { account.downloadYggdrasil() }.onFailure { th ->
                         emitError(
                             context.getString(R.string.account_logging_in_failed),
                             formatAccountError(th)
@@ -548,7 +548,7 @@ class AccountManageViewModel @Inject constructor(
     private fun loginWithOtherServer(intent: AccountManageIntent.LoginWithOtherServer) {
         AuthServerHelper(intent.server, intent.email, intent.pass, onSuccess = { account, task ->
             task.updateMessage(R.string.account_logging_in_saving)
-            account.downloadSkin()
+            account.downloadYggdrasil()
             AccountsManager.suspendSaveAccount(account)
         }, onFailed = {
             onIntent(AccountManageIntent.UpdateOtherLoginOp(OtherLoginOperation.OnFailed(it)))

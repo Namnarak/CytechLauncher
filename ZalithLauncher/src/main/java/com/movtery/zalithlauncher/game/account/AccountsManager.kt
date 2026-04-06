@@ -173,7 +173,7 @@ object AccountsManager {
                 account = account,
                 onSuccess = { account, task ->
                     task.updateMessage(R.string.account_logging_in_saving)
-                    account.downloadSkin()
+                    account.downloadYggdrasil()
                     suspendSaveAccount(account)
                 },
                 onFailed = onFailed

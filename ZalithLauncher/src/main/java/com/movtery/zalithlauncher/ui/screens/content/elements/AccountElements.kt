@@ -129,8 +129,8 @@ import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.capeLocalRes
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
+import com.movtery.zalithlauncher.game.account.yggdrasil.findUsing
 import com.movtery.zalithlauncher.game.account.yggdrasil.getFile
-import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_MINECRAFT_PURCHASE
@@ -1105,7 +1105,7 @@ fun ChangeSkinDialog(
         if (account.isMicrosoftAccount()) {
             if (availableCapes.isNotEmpty()) {
                 isFetchingCapes = false
-                val currentUsingCape0 = availableCapes.find { it.isUsing() } ?: EmptyCape
+                val currentUsingCape0 = availableCapes.findUsing() ?: EmptyCape
                 currentUsingCape = currentUsingCape0
                 currentCapeToLoad = currentUsingCape0
             } else {
