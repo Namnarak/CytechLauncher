@@ -30,11 +30,11 @@ import com.movtery.layer_controller.updateLayoutToNew
 import com.movtery.layer_controller.utils.layoutJson
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
-import java.io.IOException
 
 /**
  * 描述一个控制布局结构
@@ -134,7 +134,7 @@ fun loadLayoutFromFile(file: File): ControlLayout {
 
 fun loadLayoutFromString(jsonString: String): ControlLayout {
     val jsonObject = layoutJson.decodeFromString<JsonObject>(jsonString)
-    if (jsonObject["editorVersion"] == null) throw IOException("The file does not contain the key \"editorVersion\".")
+    if (jsonObject["editorVersion"] == null) throw SerializationException("The file does not contain the key \"editorVersion\".")
     val version = jsonObject["editorVersion"]!!.jsonPrimitive.int
     if (version <= EDITOR_VERSION) {
         var layout = layoutJson.decodeFromString<ControlLayout>(jsonString)
