@@ -275,8 +275,9 @@ fun ColorPickerDialog(
             onDismissRequest = { editHex = false },
             onConfirm = {
                 if (newColor != null) {
-                    //主题色不允许设置透明度，需要重置透明度为255
-                    colorController.setColor(newColor.copy(alpha = 1f))
+                    colorController.setColor(
+                        if (showAlpha) newColor else newColor.copy(alpha = 1f)
+                    )
                     editHex = false
                 }
             }
@@ -304,18 +305,19 @@ fun Color.toHex(): String {
 fun String.toColorOrNull(): Color? {
     val hex = this.removePrefix("#")
     return try {
+        val value = hex.toLong(16)
         when (hex.length) {
             6 -> {
-                val r = hex.substring(0, 2).toInt(16) / 255f
-                val g = hex.substring(2, 4).toInt(16) / 255f
-                val b = hex.substring(4, 6).toInt(16) / 255f
-                Color(r, g, b)
+                val r = ((value shr 16) and 0xFF) / 255f
+                val g = ((value shr 8) and 0xFF) / 255f
+                val b = (value and 0xFF) / 255f
+                Color(r, g, b, 1f)
             }
             8 -> {
-                val a = hex.substring(0, 2).toInt(16) / 255f
-                val r = hex.substring(2, 4).toInt(16) / 255f
-                val g = hex.substring(4, 6).toInt(16) / 255f
-                val b = hex.substring(6, 8).toInt(16) / 255f
+                val a = ((value shr 24) and 0xFF) / 255f
+                val r = ((value shr 16) and 0xFF) / 255f
+                val g = ((value shr 8) and 0xFF) / 255f
+                val b = (value and 0xFF) / 255f
                 Color(r, g, b, a)
             }
             else -> null
