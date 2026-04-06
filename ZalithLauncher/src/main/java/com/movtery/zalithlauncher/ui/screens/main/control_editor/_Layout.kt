@@ -24,13 +24,16 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -65,6 +68,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.movtery.colorpicker.components.TransparentChecker
 import com.movtery.colorpicker.rememberColorPickerController
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.components.ColorPickerDialog
@@ -431,6 +435,31 @@ fun InfoLayoutColorItem(
     InfoLayoutTextItem(
         modifier = modifier,
         title = title,
+        icon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(modifier = Modifier.size(28.dp)) {
+                    TransparentChecker(
+                        modifier = Modifier.fillMaxSize(),
+                        gridSize = 18f
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = color)
+                    )
+                }
+
+                Icon(
+                    modifier = Modifier
+                        .size(28.dp),
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowRight,
+                    contentDescription = null
+                )
+            }
+        },
         onClick = {
             showColorDialog = true
         }
