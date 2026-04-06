@@ -19,6 +19,9 @@
 package com.movtery.zalithlauncher.ui.screens.game.elements
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import com.movtery.zalithlauncher.ui.control.Keyboard
 import com.movtery.zalithlauncher.ui.control.event.lwjglEvent
 import kotlinx.coroutines.CoroutineScope
@@ -38,16 +41,27 @@ fun SendKeycodeOperation(
     when (operation) {
         is SendKeycodeState.None -> {}
         is SendKeycodeState.ShowDialog -> {
+            val pressedEvents = remember { mutableStateListOf<String>() }
             Keyboard(
                 onDismissRequest = {
                     onChange(SendKeycodeState.None)
                 },
-                onTouch = { keyString, pressed ->
+                onSwitch = { keyString, pressed ->
                     lifecycleScope.launch {
+                        if (pressed) pressedEvents.add(keyString)
+                        else pressedEvents.remove(keyString)
                         lwjglEvent(keyString, isMouse = false, isPressed = pressed)
                     }
                 }
             )
+            DisposableEffect(Unit) {
+                onDispose {
+                    //停止所有的按键事件
+                    pressedEvents.forEach { keyString ->
+                        lwjglEvent(keyString, isMouse = false, isPressed = false)
+                    }
+                }
+            }
         }
     }
 }
