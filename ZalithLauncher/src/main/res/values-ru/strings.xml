@@ -965,8 +965,6 @@
     <string name="control_editor_menu_preview_mode_in_menu">В меню</string>
     <string name="control_editor_menu_preview_is_mouse">Использовать физическую мышь</string>
     <string name="control_editor_menu_preview_is_gamepad">Использовать геймпад</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Не скрывать при использовании мыши</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Не скрывать при использовании геймпада</string>
     <string name="settings_launcher_background_title">Задний фон</string>
     <string name="settings_launcher_background_summary">Выберите изображение или видео для фона лаунчера</string>
     <string name="settings_launcher_background_importing">Импорт файла фона</string>
@@ -1079,7 +1077,6 @@
     <string name="settings_launcher_language">Язык</string>
     <string name="settings_launcher_mirror_assets_search_title">Источник поиска платформы ресурсов</string>
     <string name="settings_launcher_mirror_assets_download_title">Источник загрузки платформы ресурсов</string>
-    <string name="control_editor_layers_attribute_hide_when_joystick">Отображать при включенном джойстике</string>
     <string name="about_acknowledgements_mcim_text">использует зеркальный источник MCIM</string>
     <string name="servers_list_add_server_name">Имя сервера</string>
     <string name="servers_list_add_server_default_name">Майнкрафт сервер</string>

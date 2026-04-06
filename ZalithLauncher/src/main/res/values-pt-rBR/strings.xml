@@ -955,9 +955,6 @@
     <string name="control_editor_layers_attribute">Atributos da camada de controle</string>
     <string name="control_editor_layers_attribute_name">Nome da camada de controle</string>
     <string name="control_editor_layers_attribute_hide">Ocultar camada de controle por padrão</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Manter visível ao usar o mouse</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Manter visível ao usar controle (físico)</string>
-    <string name="control_editor_layers_attribute_hide_when_joystick">Manter visível quando o joystick estiver ativado</string>
     <string name="control_editor_layers_merge_downward">Controle de mesclagem para baixo</string>
     <string name="control_editor_edit_dialog_open_preview">Abrir Pré-visualização</string>
     <string name="control_editor_edit_dialog_close_preview">Fechar Pré-visualização</string>

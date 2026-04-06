@@ -915,8 +915,6 @@
     <string name="control_editor_layers_attribute">Atributos de la capa de control</string>
     <string name="control_editor_layers_attribute_name">Nombre de la capa de control</string>
     <string name="control_editor_layers_attribute_hide">Ocultar capa de control por defecto</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Mantener visible al usar ratón</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Mantener visible al usar gamepad</string>
     <string name="control_editor_layers_merge_downward">Fusionar control hacia abajo</string>
     <string name="control_editor_edit_dialog_open_preview">Abrir vista previa</string>
     <string name="control_editor_edit_dialog_close_preview">Cerrar vista previa</string>

@@ -585,8 +585,6 @@
     <string name="control_editor_layers_attribute">Kontrol katmanı nitelikleri</string>
     <string name="control_editor_layers_attribute_name">Kontrol katmanı adı</string>
     <string name="control_editor_layers_attribute_hide">Kontrol katmanını varsayılan olarak gizle</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Fare kullanırken açık kalsın</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Kontrolcü kullanırken görünür kalsın</string>
     <string name="control_editor_layers_merge_downward">Kontrolü aşagı dogru birleştir</string>
     <string name="control_editor_edit_dialog_open_preview">Ön izlemeyi aç</string>
     <string name="control_editor_edit_dialog_close_preview">Ön izlemeyi kapat</string>
@@ -1123,7 +1121,6 @@
     <string name="servers_list_edit_server">Sunucuyu Düzenle</string>
     <string name="servers_list_copy_server_address">Adresi Kopyala</string>
     <string name="settings_launcher_language">Dil</string>
-    <string name="control_editor_layers_attribute_hide_when_joystick">Joystick etkinleştirildiğinde görünür kalsın</string>
     <string name="page_title_version_list">Sürüm Listesi</string>
     <string name="page_title_version_manage">Sürümleri Düzenle</string>
     <string name="page_title_account_list">Hesap Listesi</string>

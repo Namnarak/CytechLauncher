@@ -950,8 +950,6 @@
     <string name="control_editor_menu_preview_mode_in_menu">Trong menu</string>
     <string name="control_editor_menu_preview_is_mouse">Sử dụng chuột vật lý</string>
     <string name="control_editor_menu_preview_is_gamepad">Sử dụng tay cầm</string>
-    <string name="control_editor_layers_attribute_hide_when_mouse">Giữ hiển thị khi sử dụng chuột</string>
-    <string name="control_editor_layers_attribute_hide_when_gamepad">Giữ hiển thị khi sử dụng gamepad</string>
     <string name="control_editor_edit_text_alignment">Căn chỉnh văn bản</string>
     <string name="control_editor_edit_text_bold">Bật chữ đậm</string>
     <string name="control_editor_edit_text_italic">Bật chữ nghiêng</string>

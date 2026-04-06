@@ -136,28 +136,28 @@ fun EditControlLayerDialog(
                             onValueChange = { layer.editorHide = it }
                         )
 
-                        //在实体鼠标操作时不隐藏
+                        //在实体鼠标操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_mouse),
-                            value = layer.hideWhenMouse.not(),
-                            onValueChange = { layer.hideWhenMouse = it.not() }
+                            value = layer.hideWhenMouse,
+                            onValueChange = { layer.hideWhenMouse = it }
                         )
 
-                        //在手柄操作时不隐藏
+                        //在手柄操作时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_gamepad),
-                            value = layer.hideWhenGamepad.not(),
-                            onValueChange = { layer.hideWhenGamepad = it.not() }
+                            value = layer.hideWhenGamepad,
+                            onValueChange = { layer.hideWhenGamepad = it }
                         )
 
-                        //在摇杆组件启用时不隐藏
+                        //在摇杆组件启用时隐藏
                         InfoLayoutSwitchItem(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide_when_joystick),
-                            value = layer.hideWhenJoystick.not(),
-                            onValueChange = { layer.hideWhenJoystick = it.not() }
+                            value = layer.hideWhenJoystick,
+                            onValueChange = { layer.hideWhenJoystick = it }
                         )
 
                         //合并控件至下层
