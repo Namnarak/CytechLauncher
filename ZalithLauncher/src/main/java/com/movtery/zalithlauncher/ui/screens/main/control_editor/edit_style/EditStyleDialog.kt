@@ -58,7 +58,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.movtery.layer_controller.data.ALPHA_RANGE
 import com.movtery.layer_controller.data.BORDER_WIDTH
 import com.movtery.layer_controller.data.ButtonShape
 import com.movtery.layer_controller.data.DEFAULT_FONT_SIZE
@@ -116,18 +115,16 @@ fun EditButtonStyleDialog(
             contentAlignment = Alignment.Center
         ) {
             //作为背景层，被点击时关闭Dialog
-            if (visible) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .alpha(0f)
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = onClose
-                        )
-                )
-            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0f)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onClose
+                    )
+            )
 
             if (style != null) {
                 Surface(
@@ -394,9 +391,10 @@ private fun LazyListScope.commonStyleConfig(
         InfoLayoutSliderItem(
             modifier = itemModifier.animateItem(),
             title = stringResource(R.string.control_editor_edit_style_config_alpha),
-            value = alpha,
-            onValueChange = { onAlphaChange(it) },
-            valueRange = ALPHA_RANGE,
+            value = alpha * 100f,
+            onValueChange = { onAlphaChange(it / 100f) },
+            valueRange = 0f..100f,
+            decimalFormat = "#0",
             suffix = "%",
             fineTuningStep = 0.1f
         )
