@@ -283,6 +283,23 @@ fun BoxWithConstraintsScope.ControlEditor(
         onMergeDownward = { layer ->
             viewModel.observableLayout.mergeDownward(layer)
         },
+        onCopy = { layer ->
+            val baseLayer = layer.pack()
+            val newLayer = viewModel.observableLayout.addLayer(
+                layer = createNewLayer(
+                    defaultLayerName = defaultLayerName
+                ).copy(
+                    hide = baseLayer.hide,
+                    hideWhenMouse = baseLayer.hideWhenMouse,
+                    hideWhenGamepad = baseLayer.hideWhenGamepad,
+                    hideWhenJoystick = baseLayer.hideWhenJoystick,
+                    visibilityType = baseLayer.visibilityType,
+                    normalButtons = baseLayer.normalButtons,
+                    textBoxes = baseLayer.textBoxes
+                )
+            )
+            viewModel.editorOperation = EditorOperation.EditLayer(newLayer)
+        },
         onEditStyle = { style ->
             viewModel.selectedStyle = style
             viewModel.editorOperation = EditorOperation.EditButtonStyle
@@ -328,6 +345,7 @@ private fun EditorOperation(
     changeOperation: (EditorOperation) -> Unit,
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onMergeDownward: (ObservableControlLayer) -> Unit,
+    onCopy: (ObservableControlLayer) -> Unit,
     onEditStyle: (ObservableButtonStyle) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
@@ -355,7 +373,10 @@ private fun EditorOperation(
                 },
                 onMergeDownward = {
                     onMergeDownward(layer)
-                }
+                },
+                onCopy = {
+                    onCopy(layer)
+                },
             )
         }
         is EditorOperation.OpenStyleList -> {

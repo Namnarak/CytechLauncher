@@ -53,7 +53,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -514,13 +514,17 @@ private fun ColumnScope.ControlLayerMenu(
         }
     }
 
-    var createdNew by remember { mutableStateOf(false) }
-    LaunchedEffect(createdNew) {
-        if (createdNew) {
-            runCatching {
-                lazyListState.animateScrollToItem(0)
-                createdNew = false
+    //检查列表新增情况，自动滚动到顶部
+    var previousSize by remember { mutableIntStateOf(0) }
+    val currentSize = layers.size
+    LaunchedEffect(currentSize) {
+        if (currentSize != previousSize) {
+            if (currentSize - previousSize > 0) {
+                runCatching {
+                    lazyListState.animateScrollToItem(0)
+                }
             }
+            previousSize = currentSize
         }
     }
 
@@ -563,10 +567,7 @@ private fun ColumnScope.ControlLayerMenu(
             .padding(horizontal = 8.dp)
             .padding(bottom = 4.dp)
             .fillMaxWidth(),
-        onClick = {
-            createLayer()
-            createdNew = true
-        }
+        onClick = createLayer
     ) {
         MarqueeText(text = stringResource(R.string.control_editor_layers_create))
     }
