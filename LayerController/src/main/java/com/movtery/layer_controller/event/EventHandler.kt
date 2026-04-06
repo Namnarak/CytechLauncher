@@ -29,15 +29,15 @@ class EventHandler(
 ) {
     /**
      * 普通的按钮按下事件
+     * @param handle 决定是否处理该事件
      */
     internal fun onKeyPressed(
         clickEvents: List<ClickEvent>,
         isPressed: Boolean,
-        handle: (ClickEvent) -> Unit = {}
+        handle: (ClickEvent) -> Boolean = { true }
     ) {
         for (event in clickEvents) {
-            handle(event)
-            handle(event, isPressed)
+            if (handle(event)) handle(event, isPressed)
         }
     }
 
