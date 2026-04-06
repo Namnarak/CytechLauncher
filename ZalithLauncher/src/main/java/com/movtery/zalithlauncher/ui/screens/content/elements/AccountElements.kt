@@ -26,10 +26,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.net.Uri
 import android.util.Base64
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -65,6 +61,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.outlined.Checkroom
@@ -100,7 +97,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -117,7 +113,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.createBitmap
-import androidx.webkit.WebViewAssetLoader
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountType
@@ -143,6 +138,7 @@ import com.movtery.zalithlauncher.ui.components.BaseIconTextButton
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
+import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListDialog
 import com.movtery.zalithlauncher.ui.components.SimpleListItem
@@ -1121,52 +1117,31 @@ fun ChangeSkinDialog(
     onFetchCapes: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val assetLoader = remember {
-        WebViewAssetLoader.Builder()
-            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
-            .addPathHandler(
-                "/skins/",
-                WebViewAssetLoader.InternalStoragePathHandler(context, PathManager.DIR_ACCOUNT_SKIN)
-            )
-            .addPathHandler(
-                "/capes/",
-                WebViewAssetLoader.InternalStoragePathHandler(context, PathManager.DIR_ACCOUNT_CAPE)
-            )
-            .build()
-    }
+    val playerSkin = remember { PlayerSkin(context) }
 
     // Temporary states to hold unapplied changes
     var pendingSkinData by remember { mutableStateOf<ChangeSkinData?>(null) }
-    val initialPendingCape = remember(availableCapes) {
-        availableCapes.find { it.isUsing() } ?: EmptyCape.takeIf { availableCapes.isNotEmpty() }
-    }
-    var pendingCape by remember { mutableStateOf(initialPendingCape) }
-    var isResetPending by remember { mutableStateOf(false) }
+    var pendingCape by remember { mutableStateOf<PlayerProfile.Cape?>(null) }
 
     var showModelSelector by remember { mutableStateOf(false) }
     var showCapeSelector by remember { mutableStateOf(false) }
 
     var isFetchingCapes by remember { mutableStateOf(false) }
-    var isPageFinished by remember { mutableStateOf(false) }
 
-    val currentCapeToLoad = remember(pendingCape, availableCapes) {
-        pendingCape ?: availableCapes.find { it.isUsing() } ?: EmptyCape
-    }
+    var currentCapeToLoad by remember { mutableStateOf(EmptyCape) }
+    var currentUsingCape by remember { mutableStateOf(EmptyCape) }
 
     LaunchedEffect(availableCapes) {
-        if (isFetchingCapes && availableCapes.isNotEmpty()) {
-            isFetchingCapes = false
-            showCapeSelector = true
-        }
-        val currentUsingCape = availableCapes.find { it.isUsing() } ?: EmptyCape
-        if (availableCapes.isNotEmpty() && pendingCape != currentUsingCape) {
-            pendingCape = currentUsingCape
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (account.isMicrosoftAccount() && availableCapes.isEmpty()) {
-            onFetchCapes()
+        if (account.isMicrosoftAccount()) {
+            if (availableCapes.isNotEmpty()) {
+                isFetchingCapes = false
+                val currentUsingCape0 = availableCapes.find { it.isUsing() } ?: EmptyCape
+                currentUsingCape = currentUsingCape0
+                currentCapeToLoad = currentUsingCape0
+            } else {
+                isFetchingCapes = true
+                onFetchCapes()
+            }
         }
     }
 
@@ -1174,10 +1149,19 @@ fun ChangeSkinDialog(
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
                 pendingSkinData = ChangeSkinData(skinUri = it)
-                isResetPending = false
                 showModelSelector = true
             }
         }
+
+    /**
+     * 初始化/重置为 账号设置的皮肤
+     */
+    fun loadSkin() {
+        playerSkin.loadSkin(
+            skinId = account.uniqueUUID.takeIf { account.hasSkinFile },
+            model = account.skinModelType
+        )
+    }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -1221,63 +1205,20 @@ fun ChangeSkinDialog(
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                         ) {
                             AndroidView(
-                                factory = { ctx ->
-                                    WebView(ctx).apply {
-                                        settings.apply {
-                                            javaScriptEnabled = true
-                                            domStorageEnabled = true
-                                            allowFileAccess = true
-                                            allowContentAccess = true
-                                            loadWithOverviewMode = true
-                                            useWideViewPort = true
-                                        }
-                                        setBackgroundColor(Transparent.toArgb())
-                                        overScrollMode = WebView.OVER_SCROLL_NEVER
-                                        isVerticalScrollBarEnabled = false
-                                        isHorizontalScrollBarEnabled = false
-                                        webViewClient = object : WebViewClient() {
-                                            override fun shouldInterceptRequest(
-                                                view: WebView?,
-                                                request: WebResourceRequest
-                                            ): WebResourceResponse? {
-                                                return assetLoader.shouldInterceptRequest(request.url)
-                                            }
-
-                                            override fun onPageFinished(
-                                                view: WebView?,
-                                                url: String?
-                                            ) {
-                                                super.onPageFinished(view, url)
-                                                isPageFinished = true
-                                                val skinUrl = if (account.hasSkinFile) {
-                                                    "https://appassets.androidplatform.net/skins/${account.uniqueUUID}.png"
-                                                } else {
-                                                    "https://appassets.androidplatform.net/assets/steve.png"
-                                                }
-                                                val currentModel = account.skinModelType.modelType
-                                                view?.evaluateJavascript(
-                                                    "loadSkin('$skinUrl', '$currentModel')",
-                                                    null
-                                                )
-                                                if (account.isMicrosoftAccount()) {
-                                                    val capeUrl = if (currentCapeToLoad == EmptyCape) "null" else "'https://appassets.androidplatform.net/capes/${currentCapeToLoad.id}.png'"
-                                                    view?.evaluateJavascript(
-                                                        "loadCape($capeUrl)",
-                                                        null
-                                                    )
-                                                }
+                                factory = { context ->
+                                    playerSkin.loadWebView(
+                                        context = context,
+                                        onPageFinished = {
+                                            loadSkin()
+                                            if (account.isMicrosoftAccount()) {
+                                                playerSkin.loadCape(currentCapeToLoad)
                                             }
                                         }
-
-                                        loadUrl("https://appassets.androidplatform.net/assets/skinview.html")
-                                    }
+                                    )
                                 },
                                 update = { webView ->
                                     val skinData = pendingSkinData
                                     when {
-                                        isResetPending -> {
-                                            webView.evaluateJavascript("resetSkin()", null)
-                                        }
                                         skinData != null -> {
                                             runCatching {
                                                 context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
@@ -1300,9 +1241,8 @@ fun ChangeSkinDialog(
                                         }
                                     }
 
-                                    if (account.isMicrosoftAccount() && isPageFinished) {
-                                        val capeUrl = if (currentCapeToLoad == EmptyCape) "null" else "'https://appassets.androidplatform.net/capes/${currentCapeToLoad.id}.png'"
-                                        webView.evaluateJavascript("loadCape($capeUrl)", null)
+                                    if (account.isMicrosoftAccount()) {
+                                        playerSkin.loadCape(currentCapeToLoad)
                                     }
                                 },
                                 modifier = Modifier.fillMaxSize()
@@ -1332,12 +1272,7 @@ fun ChangeSkinDialog(
                                 Button(
                                     modifier = Modifier.fillMaxWidth(),
                                     onClick = {
-                                        if (availableCapes.isEmpty()) {
-                                            isFetchingCapes = true
-                                            onFetchCapes()
-                                        } else {
-                                            showCapeSelector = true
-                                        }
+                                        showCapeSelector = true
                                     },
                                     enabled = !isFetchingCapes
                                 ) {
@@ -1362,15 +1297,28 @@ fun ChangeSkinDialog(
                                 FilledTonalButton(
                                     modifier = Modifier.fillMaxWidth(),
                                     onClick = {
-                                        if (account.isLocalAccount()) {
-                                            isResetPending = true
-                                        }
                                         pendingSkinData = null
+                                        loadSkin()
                                     }
                                 ) {
                                     Icon(Icons.Default.RestartAlt, contentDescription = null)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(text = stringResource(R.string.generic_reset))
+                                }
+                            }
+
+                            //离线账号删除皮肤
+                            if (account.isLocalAccount() && account.hasSkinFile && pendingSkinData == null) {
+                                FilledTonalButton(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = {
+                                        onResetSkin()
+                                        onDismissRequest()
+                                    }
+                                ) {
+                                    Icon(Icons.Default.DeleteOutline, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(text = stringResource(R.string.generic_delete))
                                 }
                             }
                         }
@@ -1389,25 +1337,33 @@ fun ChangeSkinDialog(
 
                         Button(
                             modifier = Modifier.weight(1f),
+                            enabled = pendingSkinData != null || pendingCape != null,
                             onClick = {
-                                if (isResetPending) {
-                                    onResetSkin()
-                                } else {
-                                    val skinData = pendingSkinData
-                                    if (skinData != null) {
-                                        onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                val skinData = pendingSkinData
+                                when {
+                                    account.isLocalAccount() -> {
+                                        if (skinData != null) {
+                                            onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                        }
                                     }
-                                    if (account.isMicrosoftAccount() && pendingCape != null) {
-                                        val currentCape =
-                                            availableCapes.find { it.isUsing() } ?: EmptyCape
-                                        if (pendingCape != currentCape) {
-                                            val name = if (pendingCape == EmptyCape) ""
-                                            else (pendingCape!!.capeLocalRes()?.let { context.getString(it) } ?: pendingCape!!.alias)
+                                    account.isMicrosoftAccount() -> {
+                                        if (skinData != null) {
+                                            onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                        }
+                                        //检查并更改披风
+                                        if (pendingCape != null) {
+                                            val name = if (pendingCape == EmptyCape) {
+                                                ""
+                                            } else {
+                                                pendingCape!!.capeLocalRes()?.let {
+                                                    context.getString(it)
+                                                } ?: pendingCape!!.alias
+                                            }
                                             onChangeCape(pendingCape!!, name)
                                         }
                                     }
-                                    onDismissRequest()
                                 }
+                                onDismissRequest()
                             }
                         ) {
                             Text(text = stringResource(R.string.generic_confirm))
@@ -1422,7 +1378,9 @@ fun ChangeSkinDialog(
         SelectSkinModelDialog(
             onDismissRequest = {
                 showModelSelector = false
+                //关闭时，一并重置已选择的皮肤
                 pendingSkinData = null
+                loadSkin()
             },
             onSelected = { model ->
                 pendingSkinData = pendingSkinData?.copy(
@@ -1439,12 +1397,17 @@ fun ChangeSkinDialog(
                 add(EmptyCape)
                 addAll(availableCapes)
             },
-            selectedCape = pendingCape ?: availableCapes.find { it.isUsing() } ?: EmptyCape,
+            //若当前未更改披风，则使用使用中的披风
+            selectedCape = pendingCape ?: currentUsingCape,
             onSelected = { cape, _ ->
-                pendingCape = cape
+                //检查是否已经为正在使用的披风
+                pendingCape = if (cape != currentUsingCape) cape else null
+                currentCapeToLoad = cape
                 showCapeSelector = false
             },
-            onDismiss = { showCapeSelector = false }
+            onDismiss = {
+                showCapeSelector = false
+            }
         )
     }
 }
