@@ -68,7 +68,6 @@ import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
-import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -87,14 +86,10 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkinDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginItem
-import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftChangeCapeOperation
-import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftChangeSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginTipDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherServerLoginDialog
-import com.movtery.zalithlauncher.ui.screens.content.elements.SelectCapeDialog
-import com.movtery.zalithlauncher.ui.screens.content.elements.SelectSkinModelDialog
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerItem
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
@@ -248,8 +243,6 @@ private fun AccountManageContent(
     }
 
     MicrosoftLoginOperation(uiState.microsoftLoginOperation, actions)
-    MicrosoftChangeSkinOperation(uiState.microsoftChangeSkinOperation, actions)
-    MicrosoftChangeCapeOperation(uiState.microsoftChangeCapeOperation, actions)
     LocalLoginOperation(uiState.localLoginOperation, actions)
     OtherLoginOperation(uiState.otherLoginOperation, actions)
     ServerTypeOperation(uiState.serverOperation, actions)
@@ -375,102 +368,6 @@ private fun MicrosoftLoginOperation(
                     )
                 },
                 openLink = actions.openLink
-            )
-        }
-    }
-}
-
-/**
- * 微软皮肤更换逻辑处理
- */
-@Composable
-private fun MicrosoftChangeSkinOperation(
-    operation: MicrosoftChangeSkinOperation,
-    actions: AccountActions
-) {
-    when (operation) {
-        is MicrosoftChangeSkinOperation.None -> {}
-        is MicrosoftChangeSkinOperation.ImportFile -> {
-            LaunchedEffect(operation) {
-                actions.onIntent(
-                    AccountManageIntent.ImportSkinFile(
-                        operation.account,
-                        operation.uri
-                    )
-                )
-            }
-        }
-
-        is MicrosoftChangeSkinOperation.SelectSkinModel -> {
-            SelectSkinModelDialog(
-                onDismissRequest = {
-                    actions.onIntent(
-                        AccountManageIntent.UpdateMicrosoftSkinOp(
-                            MicrosoftChangeSkinOperation.None
-                        )
-                    )
-                },
-                onSelected = { type ->
-                    actions.onIntent(
-                        AccountManageIntent.UploadMicrosoftSkin(
-                            operation.account,
-                            operation.file,
-                            type
-                        )
-                    )
-                }
-            )
-        }
-    }
-}
-
-/**
- * 微软披风更换逻辑处理
- */
-@Composable
-private fun MicrosoftChangeCapeOperation(
-    operation: MicrosoftChangeCapeOperation,
-    actions: AccountActions
-) {
-    when (operation) {
-        is MicrosoftChangeCapeOperation.None -> {}
-        is MicrosoftChangeCapeOperation.FetchProfiles -> {
-            LaunchedEffect(operation) {
-                actions.onIntent(AccountManageIntent.FetchMicrosoftCapes(operation.account))
-            }
-        }
-
-        is MicrosoftChangeCapeOperation.SelectCape -> {
-            val account = operation.account
-            val profile = operation.profile
-            val capes = remember(operation) {
-                buildList {
-                    add(EmptyCape)
-                    addAll(profile.capes)
-                }
-            }
-
-            SelectCapeDialog(
-                capes = capes,
-                selectedCape = profile.capes.find { it.isUsing() } ?: EmptyCape,
-                onSelected = { cape, translatedName ->
-                    val capeId: String? = cape.takeIf { it != EmptyCape }?.id
-                    actions.onIntent(
-                        AccountManageIntent.ApplyMicrosoftCape(
-                            account,
-                            capeId,
-                            translatedName,
-                            cape == EmptyCape
-                        )
-                    )
-                },
-                onDismiss = {
-                    actions.onIntent(
-                        AccountManageIntent.UpdateMicrosoftCapeOp(
-                            MicrosoftChangeCapeOperation.None
-                        )
-                    )
-                }
             )
         }
     }
@@ -840,7 +737,9 @@ private fun AccountSkinOperation(
                         account.isLocalAccount() -> {
                             account.skinModelType = model
                             account.profileId = getLocalUUIDWithSkinModel(account.username, model)
-                            updateOperation(AccountSkinOperation.SaveSkin(uri, model))
+                            actions.onIntent(
+                                AccountManageIntent.SaveLocalSkin(account, uri)
+                            )
                         }
                         account.isMicrosoftAccount() -> {
                             actions.onIntent(
@@ -860,27 +759,6 @@ private fun AccountSkinOperation(
                             )
                         )
                     }
-                }
-            )
-        }
-        is AccountSkinOperation.SaveSkin -> {
-            LaunchedEffect(accountSkinOperation.uri) {
-                actions.onIntent(
-                    AccountManageIntent.SaveLocalSkin(
-                        account,
-                        accountSkinOperation.uri
-                    )
-                )
-            }
-        }
-
-        is AccountSkinOperation.SelectSkinModel -> {
-            SelectSkinModelDialog(
-                onDismissRequest = { updateOperation(AccountSkinOperation.None) },
-                onSelected = { type ->
-                    account.skinModelType = type
-                    account.profileId = getLocalUUIDWithSkinModel(account.username, type)
-                    updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri, type))
                 }
             )
         }
