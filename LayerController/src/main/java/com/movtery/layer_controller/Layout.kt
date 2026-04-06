@@ -302,6 +302,7 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
             layers = reversedLayers,
             styles = styles,
             screenSize = screenSize,
+            eventHandler = eventHandler,
             isUsingJoystick = isUsingJoystick,
             isCursorGrabbing = currentIsCursorGrabbing,
             hideLayerWhen = currentHideLayerWhen
@@ -316,6 +317,7 @@ private fun ControlsRendererLayer(
     layers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
     screenSize: IntSize,
+    eventHandler: EventHandler,
     isUsingJoystick: Boolean,
     isCursorGrabbing: Boolean,
     hideLayerWhen: HideLayerWhen
@@ -345,6 +347,7 @@ private fun ControlsRendererLayer(
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
+                        eventHandler = eventHandler,
                         isPressed = false //文本框不需要按压状态
                     )
                 }
@@ -359,6 +362,7 @@ private fun ControlsRendererLayer(
                         visible = layerVisibility && checkVisibility(isCursorGrabbing, data.visibilityType),
                         getOtherWidgets = { emptyList() }, //不需要计算吸附
                         snapThresholdValue = 4.dp,
+                        eventHandler = eventHandler,
                         isPressed = data.isPressed
                     )
                 }

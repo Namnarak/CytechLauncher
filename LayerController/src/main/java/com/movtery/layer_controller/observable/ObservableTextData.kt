@@ -59,6 +59,14 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
 
     override fun canTouch(): Boolean = false //不处理触摸事件
 
+    override fun onCompositionStart(eventHandler: EventHandler?) {
+
+    }
+
+    override fun onCompositionDispose(eventHandler: EventHandler?) {
+
+    }
+
     override fun onCheckVisibilityType(): VisibilityType {
         return visibilityType
     }

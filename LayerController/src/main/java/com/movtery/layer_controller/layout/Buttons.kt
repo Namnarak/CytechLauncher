@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.movtery.layer_controller.data.TextAlignment
+import com.movtery.layer_controller.event.EventHandler
 import com.movtery.layer_controller.observable.*
 import com.movtery.layer_controller.utils.buttonContentColorAsState
 import com.movtery.layer_controller.utils.buttonFontSizeAsState
@@ -60,6 +62,7 @@ private data class ButtonTextStyle(
  * @param localSnapRange 局部吸附范围（仅在Local模式下有效）
  * @param getOtherWidgets 获取其他控件的信息，在编辑模式下，用于计算吸附位置
  * @param snapThresholdValue 吸附距离阈值
+ * @param eventHandler 事件处理器
  * @param drawLine 绘制吸附参考线
  * @param onLineCancel 取消吸附参考线
  */
@@ -76,6 +79,7 @@ internal fun TextButton(
     localSnapRange: Dp = 50.dp,
     getOtherWidgets: () -> List<ObservableWidget>,
     snapThresholdValue: Dp,
+    eventHandler: EventHandler? = null,
     drawLine: (ObservableWidget, List<GuideLine>) -> Unit = { _, _ -> },
     onLineCancel: (ObservableWidget) -> Unit = {},
     isPressed: Boolean,
@@ -148,6 +152,13 @@ internal fun TextButton(
                     lineHeight = (fontSize * 1.1).sp
                 )
             )
+
+            DisposableEffect(Unit) {
+                data.onCompositionStart(eventHandler)
+                onDispose {
+                    data.onCompositionDispose(eventHandler)
+                }
+            }
         }
     } else {
         //虚假的控件，使用一个空的组件，只是让Layout有东西能测

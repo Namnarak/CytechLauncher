@@ -111,6 +111,15 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     override val widgetSize: ButtonSize
         get() = buttonSize
 
+    override fun onCompositionStart(eventHandler: EventHandler?) {
+
+    }
+
+    override fun onCompositionDispose(eventHandler: EventHandler?) {
+        isPressed = false
+        eventHandler?.onKeyPressed(clickEvents, isPressed)
+    }
+
     override fun onCheckVisibilityType(): VisibilityType {
         return visibilityType
     }
