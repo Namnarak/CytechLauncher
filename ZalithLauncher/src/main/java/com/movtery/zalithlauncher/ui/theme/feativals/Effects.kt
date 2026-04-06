@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.isLauncherInDarkTheme
 import com.movtery.zalithlauncher.utils.festival.Festival
 import kotlin.random.Random
@@ -32,8 +33,9 @@ fun FestivalEffects(
     modifier: Modifier = Modifier,
 ) {
     val isDark = isLauncherInDarkTheme()
+    val enableEffects = AllSettings.launcherFestivalEffects.state
 
-    if (Festival.QING_MING in festivals) {
+    if (enableEffects && Festival.QING_MING in festivals) {
         val color = if (isDark) Color.White else Color(0xFF707070)
         RainEffect(
             modifier = modifier,
@@ -48,7 +50,7 @@ fun FestivalEffects(
         )
     }
 
-    if (Festival.CHRISTMAS in festivals) {
+    if (enableEffects && Festival.CHRISTMAS in festivals) {
         val color = if (isDark) Color.White else Color(0xFFDFF6FF)
         RainEffect(
             modifier = modifier,

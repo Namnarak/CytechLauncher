@@ -1011,6 +1011,8 @@
     <string name="settings_launcher_background_opacity_summary">Adjust the opacity of background elements for better visuals and to avoid conflicts with the background</string>
     <string name="settings_launcher_background_video_volume_title">Background Video Volume</string>
     <string name="settings_launcher_background_video_volume_summary">When the background is a video, you can adjust the volume using this option.</string>
+    <string name="settings_launcher_festivals_effects_title">Persistent Festival Easter Egg Effects</string>
+    <string name="settings_launcher_festivals_effects_summary">Display persistent easter egg effects during specific time periods</string>
     <!--  Control  -->
     <string name="control_keyboard_bind_title">Bind Key</string>
     <string name="control_keyboard_bind_summary">Press the key you want to bind on your keyboard</string>

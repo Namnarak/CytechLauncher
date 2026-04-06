@@ -344,6 +344,11 @@ object AllSettings : SettingsRegistry() {
     val launcherFullScreen = boolSetting("launcherFullScreen", true)
 
     /**
+     * 持续型节日彩蛋效果
+     */
+    val launcherFestivalEffects = boolSetting("launcherFestivalEffects", true)
+
+    /**
      * 动画倍速
      */
     val launcherAnimateSpeed = intSetting("launcherAnimateSpeed", 5, 0..10)
