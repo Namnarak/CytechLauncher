@@ -148,7 +148,6 @@ import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
-import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -162,33 +161,6 @@ sealed interface MicrosoftLoginOperation {
 
     /** 微软账号相关提示Dialog流程 */
     data object Tip : MicrosoftLoginOperation
-}
-
-/**
- * 微软账号更改玩家皮肤的操作状态
- */
-sealed interface MicrosoftChangeSkinOperation {
-    data object None : MicrosoftChangeSkinOperation
-
-    /** 导入缓存皮肤文件 */
-    data class ImportFile(val account: Account, val uri: Uri, val model: SkinModelType? = null) : MicrosoftChangeSkinOperation
-
-    /** 选择皮肤模型 */
-    data class SelectSkinModel(val account: Account, val file: File) : MicrosoftChangeSkinOperation
-}
-
-/**
- * 微软账号更改玩家披风的操作状态
- */
-sealed interface MicrosoftChangeCapeOperation {
-    data object None : MicrosoftChangeCapeOperation
-
-    /** 获取玩家配置信息，以得到披风列表 */
-    data class FetchProfiles(val account: Account) : MicrosoftChangeCapeOperation
-
-    /** 选择更改为什么披风 */
-    data class SelectCape(val account: Account, val profile: PlayerProfile) :
-        MicrosoftChangeCapeOperation
 }
 
 /**
@@ -240,10 +212,6 @@ sealed interface AccountSkinOperation {
     data object None : AccountSkinOperation
     /** 修改皮肤主对话框 */
     data object ChangeSkin : AccountSkinOperation
-    /** 保存皮肤文件 */
-    data class SaveSkin(val uri: Uri, val model: SkinModelType? = null) : AccountSkinOperation
-    /** 选择皮肤模型，便于保存皮肤时，顺便将模型类型写入账号文件 */
-    data class SelectSkinModel(val uri: Uri) : AccountSkinOperation
     /** 警告用户是否真的想重置皮肤 */
     data object PreResetSkin: AccountSkinOperation
     /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
@@ -1355,34 +1323,25 @@ fun ChangeSkinDialog(
                                 val skinData = pendingSkinData
                                 val cape = pendingCape
 
-                                when {
-                                    account.isLocalAccount() -> {
-                                        if (skinData != null) {
-                                            onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                if (skinData != null) {
+                                    onChangeSkin(skinData.skinUri, skinData.skinModel)
+                                }
+
+                                if (account.isMicrosoftAccount()) {
+                                    //检查并更改披风
+                                    if (cape != null) {
+                                        val name = if (cape == EmptyCape) {
+                                            ""
+                                        } else {
+                                            cape.capeLocalRes()?.let {
+                                                context.getString(it)
+                                            } ?: cape.alias
                                         }
-                                    }
-                                    account.isMicrosoftAccount() -> {
-                                        if (skinData != null) {
-                                            onChangeSkin(skinData.skinUri, skinData.skinModel)
-                                        }
-                                        //检查并更改披风
-                                        if (cape != null) {
-                                            val name = if (cape == EmptyCape) {
-                                                ""
-                                            } else {
-                                                cape.capeLocalRes()?.let {
-                                                    context.getString(it)
-                                                } ?: cape.alias
-                                            }
-                                            onChangeCape(cape, name)
-                                        }
-                                    }
-                                    else -> {
-                                        //无操作时，才可以关闭Dialog
-                                        //否则可能导致更改任务不运行
-                                        onDismissRequest()
+                                        onChangeCape(cape, name)
                                     }
                                 }
+
+                                onDismissRequest()
                             }
                         ) {
                             Text(text = stringResource(R.string.generic_confirm))
