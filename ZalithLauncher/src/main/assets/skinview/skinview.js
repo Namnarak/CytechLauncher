@@ -30,14 +30,12 @@ if (skinViewer.controls) {
     skinViewer.camera.lookAt(0, 16, 0);
 }
 
-// ------------------- 新增：双击回正视角功能 -------------------
-
-// 1. 保存初始的摄像机位置和控制器目标点（克隆以避免被修改）
+// 保存初始的摄像机位置和控制器目标点（克隆以避免被修改）
 const defaultCameraPos = skinViewer.camera.position.clone();
 const defaultControlsTarget = skinViewer.controls.target.clone();
 let resetAnimationId = null;
 
-// 2. 监听容器的双击事件
+// 监听容器的双击事件
 container.addEventListener("dblclick", () => {
     // 如果已经在回正动画中，先取消之前的动画
     if (resetAnimationId) {
@@ -45,46 +43,67 @@ container.addEventListener("dblclick", () => {
     }
 
     const animateReset = () => {
-        // --- 核心优化：分离 Target 插值与摄像机轨道插值 ---
+        // Target lerp（直接操作 xyz）
+        const t = skinViewer.controls.target;
+        const dt = defaultControlsTarget;
+        t.x += (dt.x - t.x) * 0.1;
+        t.y += (dt.y - t.y) * 0.1;
+        t.z += (dt.z - t.z) * 0.1;
 
-        // 1. Target（聚焦点）依然可以使用直线插值，因为它通常在中心
-        skinViewer.controls.target.lerp(defaultControlsTarget, 0.1);
+        // 当前相机相对 target 的偏移
+        const cam = skinViewer.camera.position;
+        const ox = cam.x - t.x;
+        const oy = cam.y - t.y;
+        const oz = cam.z - t.z;
 
-        // 2. 计算当前摄像机相对于 Target 的偏移量
-        const currentOffset = skinViewer.camera.position.clone().sub(skinViewer.controls.target);
-        const defaultOffset = defaultCameraPos.clone().sub(defaultControlsTarget);
+        const dx = defaultCameraPos.x - dt.x;
+        const dy = defaultCameraPos.y - dt.y;
+        const dz = defaultCameraPos.z - dt.z;
 
-        // 3. 分别计算当前距离和目标距离（轨道半径）
-        const currentRadius = currentOffset.length();
-        const defaultRadius = defaultOffset.length();
-        
-        // 使用简单的缓动公式计算下一帧的半径
-        const nextRadius = currentRadius + (defaultRadius - currentRadius) * 0.1;
+        // 转球坐标
+        const curR   = Math.sqrt(ox*ox + oy*oy + oz*oz);
+        const defR   = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        const curPhi = Math.asin(Math.max(-1, Math.min(1, oy / curR)));
+        const defPhi = Math.asin(Math.max(-1, Math.min(1, dy / defR)));
+        const curTheta = Math.atan2(oz, ox);
+        const defTheta = Math.atan2(dz, dx);
 
-        // 4. 分离出方向向量并进行插值，然后重新归一化（模拟球面插值）
-        const currentDir = currentOffset.normalize();
-        const defaultDir = defaultOffset.normalize();
-        const nextDir = currentDir.lerp(defaultDir, 0.1).normalize();
+        // 方位角走最短路径
+        let dTheta = defTheta - curTheta;
+        if (dTheta >  Math.PI) dTheta -= 2 * Math.PI;
+        if (dTheta < -Math.PI) dTheta += 2 * Math.PI;
 
-        // 5. 用新的 Target 位置 + 新的方向 * 新的半径，得出最终的摄像机位置
-        const nextPos = skinViewer.controls.target.clone().add(nextDir.multiplyScalar(nextRadius));
-        skinViewer.camera.position.copy(nextPos);
+        // 插值
+        const nextR     = curR   + (defR   - curR)   * 0.1;
+        const nextPhi   = curPhi + (defPhi - curPhi)  * 0.1;
+        const nextTheta = curTheta + dTheta * 0.1;
+
+        // 转回笛卡尔坐标
+        const cosPhi = Math.cos(nextPhi);
+        cam.x = t.x + nextR * cosPhi * Math.cos(nextTheta);
+        cam.y = t.y + nextR * Math.sin(nextPhi);
+        cam.z = t.z + nextR * cosPhi * Math.sin(nextTheta);
 
         skinViewer.controls.update();
 
-        // ------------------------------------------------
+        // 终止判断
+        const dpx = cam.x - defaultCameraPos.x;
+        const dpy = cam.y - defaultCameraPos.y;
+        const dpz = cam.z - defaultCameraPos.z;
+        const distPos = Math.sqrt(dpx*dpx + dpy*dpy + dpz*dpz);
 
-        // 计算当前位置与目标位置的距离，用于判断动画是否结束
-        const distPos = skinViewer.camera.position.distanceTo(defaultCameraPos);
-        const distTarget = skinViewer.controls.target.distanceTo(defaultControlsTarget);
+        const ttx = t.x - dt.x;
+        const tty = t.y - dt.y;
+        const ttz = t.z - dt.z;
+        const distTarget = Math.sqrt(ttx*ttx + tty*tty + ttz*ttz);
 
-        // 判断阈值缩小到 0.05，让动画结尾更顺滑
         if (distPos > 0.05 || distTarget > 0.05) {
             resetAnimationId = requestAnimationFrame(animateReset);
         } else {
-            // 彻底贴合
-            skinViewer.camera.position.copy(defaultCameraPos);
-            skinViewer.controls.target.copy(defaultControlsTarget);
+            cam.x = defaultCameraPos.x;
+            cam.y = defaultCameraPos.y;
+            cam.z = defaultCameraPos.z;
+            t.x = dt.x; t.y = dt.y; t.z = dt.z;
             skinViewer.controls.update();
             resetAnimationId = null;
         }
@@ -94,7 +113,7 @@ container.addEventListener("dblclick", () => {
     animateReset();
 });
 
-// 可选：如果用户在回正动画播放时主动拖拽了模型，打断回正动画
+// 如果用户在回正动画播放时主动拖拽了模型，打断回正动画
 if (skinViewer.controls) {
     skinViewer.controls.addEventListener("start", () => {
         if (resetAnimationId) {
@@ -103,7 +122,6 @@ if (skinViewer.controls) {
         }
     });
 }
-// -----------------------------------------------------------
 
 function resize() {
     const w = getWidth();
