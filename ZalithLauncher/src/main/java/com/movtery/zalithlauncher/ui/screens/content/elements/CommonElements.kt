@@ -93,6 +93,7 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
+import com.movtery.zalithlauncher.utils.file.checkExtensionOrThrow
 import com.movtery.zalithlauncher.utils.platform.bytesToMB
 import com.movtery.zalithlauncher.utils.platform.getTotalMemory
 import com.movtery.zalithlauncher.utils.platform.getUsedMemory
@@ -204,6 +205,7 @@ fun SortByDropdownMenu(
 
 /**
  * 多 Uri 导入文件任务构建器
+ * @param checkExtension 检查被选中的文件后缀是否符合要求
  */
 @Composable
 fun rememberMultipleUriImportTaskBuilder(
@@ -211,6 +213,7 @@ fun rememberMultipleUriImportTaskBuilder(
     targetDir: File,
     errorTitle: String = stringResource(R.string.generic_error),
     errorMessage: String? = stringResource(R.string.error_import_file),
+    checkExtension: List<String>? = null,
     submitError: (ErrorViewModel.ThrowableMessage) -> Unit = {},
     onFileCopied: suspend (Task, File) -> Unit = { _, _ -> },
     onImported: () -> Unit = {}
@@ -235,6 +238,9 @@ fun rememberMultipleUriImportTaskBuilder(
                                 val fileName = context.getFileName(uri) ?: throw IOException("Failed to get file name")
                                 task.updateProgress(-1f, R.string.empty_holder, fileName)
                                 val outputFile = File(targetDir, fileName)
+                                if (checkExtension != null) {
+                                    outputFile.checkExtensionOrThrow(checkExtension)
+                                }
                                 context.copyLocalFile(uri, outputFile)
                                 //成功复制，如调用者有额外操作，可使用回调运行
                                 cOnFileCopied(task, outputFile)

@@ -527,6 +527,7 @@ private fun ResourcePackHeader(
                     val taskBuilder = rememberMultipleUriImportTaskBuilder(
                         id = "ContentManager.ResourcePacks.Import",
                         targetDir = resourcePackDir,
+                        checkExtension = listOf("zip"),
                         submitError = submitError,
                         onImported = onRefresh
                     )

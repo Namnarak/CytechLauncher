@@ -505,6 +505,7 @@ private fun ShadersActionsHeader(
                     val taskBuilder = rememberMultipleUriImportTaskBuilder(
                         id = "ContentManager.Shaders.Import",
                         targetDir = shadersDir,
+                        checkExtension = listOf("zip"),
                         submitError = submitError,
                         onImported = refresh
                     )

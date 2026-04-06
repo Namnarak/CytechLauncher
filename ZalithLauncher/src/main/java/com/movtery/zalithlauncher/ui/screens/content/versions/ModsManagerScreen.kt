@@ -936,6 +936,7 @@ private fun ModsActionsHeader(
                     val taskBuilder = rememberMultipleUriImportTaskBuilder(
                         id = "ContentManager.Mods.Import",
                         targetDir = modsDir,
+                        checkExtension = listOf("jar"),
                         submitError = submitError,
                         onImported = refresh
                     )

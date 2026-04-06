@@ -475,6 +475,7 @@ private fun SavesActionsHeader(
                     val taskBuilder = rememberMultipleUriImportTaskBuilder(
                         id = "ContentManager.Saves.Import",
                         targetDir = savesDir,
+                        checkExtension = listOf("zip"),
                         errorMessage = stringResource(R.string.saves_manage_import_failed),
                         submitError = submitError,
                         onImported = refreshSaves,

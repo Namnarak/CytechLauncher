@@ -83,6 +83,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SettingsCa
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.device.Architecture
+import com.movtery.zalithlauncher.utils.file.checkExtensionOrThrow
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
 import com.movtery.zalithlauncher.utils.string.throwableToString
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -268,6 +269,8 @@ private fun progressRuntimeUri(
             id = name,
             dispatcher = Dispatchers.IO,
             task = { task ->
+                name.checkExtensionOrThrow(listOf("xz"))
+
                 val inputStream = context.contentResolver.openInputStream(uri) ?: run {
                     showError(message = context.getString(R.string.multirt_runtime_import_failed_input_stream))
                     return@runTask
