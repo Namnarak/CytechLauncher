@@ -1200,24 +1200,30 @@ fun ChangeSkinDialog(
                                 .fillMaxHeight()
                                 .weight(1f)
                                 .clip(MaterialTheme.shapes.large)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
                         ) {
+                            var pageFinished by remember { mutableStateOf(false) }
+
+                            if (!pageFinished) {
+                                //加载皮肤预览中
+                                CircularProgressIndicator()
+                            }
+
                             AndroidView(
                                 factory = { context ->
                                     playerSkin.loadWebView(
                                         context = context,
                                         onPageFinished = {
-                                            loadSkin()
-                                            if (account.isMicrosoftAccount()) {
-                                                playerSkin.loadCape(currentCapeToLoad)
-                                            }
+                                            pageFinished = true
                                         }
                                     )
                                 },
                                 update = { webView ->
                                     val skinData = pendingSkinData
-                                    when {
-                                        skinData != null -> {
+
+                                    if (pageFinished) {
+                                        if (skinData != null) {
                                             runCatching {
                                                 context.contentResolver.openInputStream(skinData.skinUri).use { inputStream ->
                                                     val bytes = inputStream?.readBytes()
@@ -1236,11 +1242,12 @@ fun ChangeSkinDialog(
                                                     }
                                                 }
                                             }
+                                        } else {
+                                            loadSkin()
                                         }
-                                    }
-
-                                    if (account.isMicrosoftAccount()) {
-                                        playerSkin.loadCape(currentCapeToLoad)
+                                        if (account.isMicrosoftAccount()) {
+                                            playerSkin.loadCape(currentCapeToLoad)
+                                        }
                                     }
                                 },
                                 modifier = Modifier.fillMaxSize()
