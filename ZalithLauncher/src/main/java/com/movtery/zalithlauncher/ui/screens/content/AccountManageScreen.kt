@@ -69,7 +69,6 @@ import com.movtery.zalithlauncher.game.account.isMicrosoftAccount
 import com.movtery.zalithlauncher.game.account.isMicrosoftLogging
 import com.movtery.zalithlauncher.game.account.wardrobe.EmptyCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.isUsing
-import com.movtery.zalithlauncher.game.account.wardrobe.SkinModelType
 import com.movtery.zalithlauncher.game.account.wardrobe.getLocalUUIDWithSkinModel
 import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -823,27 +822,31 @@ private fun AccountSkinOperation(
                 account = account,
                 availableCapes = availableCapes,
                 onDismissRequest = { updateOperation(AccountSkinOperation.None) },
-                onResetSkin = { updateOperation(AccountSkinOperation.ResetSkin) },
+                onResetSkin = {
+                    actions.onIntent(
+                        AccountManageIntent.UpdateAccountSkinOp(
+                            account.uniqueUUID,
+                            AccountSkinOperation.PreResetSkin
+                        )
+                    )
+                },
                 onFetchCapes = {
                     if (account.isMicrosoftAccount()) {
                         actions.onIntent(AccountManageIntent.FetchMicrosoftCapes(account))
                     }
                 },
                 onChangeSkin = { uri, model ->
-                    if (account.isLocalAccount()) {
-                        if (model != null) {
+                    when {
+                        account.isLocalAccount() -> {
                             account.skinModelType = model
                             account.profileId = getLocalUUIDWithSkinModel(account.username, model)
+                            updateOperation(AccountSkinOperation.SaveSkin(uri, model))
                         }
-                        updateOperation(AccountSkinOperation.SaveSkin(uri, model))
-                    } else if (account.isMicrosoftAccount()) {
-                        actions.onIntent(
-                            AccountManageIntent.ImportSkinFile(
-                                account,
-                                uri,
-                                model ?: SkinModelType.STEVE
+                        account.isMicrosoftAccount() -> {
+                            actions.onIntent(
+                                AccountManageIntent.ImportSkinFile(account, uri, model)
                             )
-                        )
+                        }
                     }
                 },
                 onChangeCape = { cape, name ->
@@ -879,6 +882,15 @@ private fun AccountSkinOperation(
                     account.profileId = getLocalUUIDWithSkinModel(account.username, type)
                     updateOperation(AccountSkinOperation.SaveSkin(accountSkinOperation.uri, type))
                 }
+            )
+        }
+
+        is AccountSkinOperation.PreResetSkin -> {
+            SimpleAlertDialog(
+                title = stringResource(R.string.generic_reset),
+                text = stringResource(R.string.account_change_skin_reset_skin_message),
+                onDismiss = { updateOperation(AccountSkinOperation.None) },
+                onConfirm = { updateOperation(AccountSkinOperation.ResetSkin) }
             )
         }
 

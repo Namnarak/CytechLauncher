@@ -238,16 +238,14 @@ sealed interface AccountOperation {
  */
 sealed interface AccountSkinOperation {
     data object None : AccountSkinOperation
-
     /** 修改皮肤主对话框 */
     data object ChangeSkin : AccountSkinOperation
-
     /** 保存皮肤文件 */
     data class SaveSkin(val uri: Uri, val model: SkinModelType? = null) : AccountSkinOperation
-
     /** 选择皮肤模型，便于保存皮肤时，顺便将模型类型写入账号文件 */
     data class SelectSkinModel(val uri: Uri) : AccountSkinOperation
-
+    /** 警告用户是否真的想重置皮肤 */
+    data object PreResetSkin: AccountSkinOperation
     /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
     data object ResetSkin : AccountSkinOperation
 }
@@ -1112,7 +1110,7 @@ fun ChangeSkinDialog(
     availableCapes: List<PlayerProfile.Cape> = emptyList(),
     onDismissRequest: () -> Unit = {},
     onResetSkin: () -> Unit = {},
-    onChangeSkin: (Uri, SkinModelType?) -> Unit = { _, _ -> },
+    onChangeSkin: (Uri, SkinModelType) -> Unit = { _, _ -> },
     onChangeCape: (PlayerProfile.Cape, String) -> Unit = { _, _ -> },
     onFetchCapes: () -> Unit = {}
 ) {
@@ -1311,10 +1309,7 @@ fun ChangeSkinDialog(
                             if (account.isLocalAccount() && account.hasSkinFile && pendingSkinData == null) {
                                 FilledTonalButton(
                                     modifier = Modifier.fillMaxWidth(),
-                                    onClick = {
-                                        onResetSkin()
-                                        onDismissRequest()
-                                    }
+                                    onClick = onResetSkin
                                 ) {
                                     Icon(Icons.Default.DeleteOutline, contentDescription = null)
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -1339,7 +1334,10 @@ fun ChangeSkinDialog(
                             modifier = Modifier.weight(1f),
                             enabled = pendingSkinData != null || pendingCape != null,
                             onClick = {
+                                //提早拿到委托的值，否则吃不到Kotlin的智能转换
                                 val skinData = pendingSkinData
+                                val cape = pendingCape
+
                                 when {
                                     account.isLocalAccount() -> {
                                         if (skinData != null) {
@@ -1351,19 +1349,23 @@ fun ChangeSkinDialog(
                                             onChangeSkin(skinData.skinUri, skinData.skinModel)
                                         }
                                         //检查并更改披风
-                                        if (pendingCape != null) {
-                                            val name = if (pendingCape == EmptyCape) {
+                                        if (cape != null) {
+                                            val name = if (cape == EmptyCape) {
                                                 ""
                                             } else {
-                                                pendingCape!!.capeLocalRes()?.let {
+                                                cape.capeLocalRes()?.let {
                                                     context.getString(it)
-                                                } ?: pendingCape!!.alias
+                                                } ?: cape.alias
                                             }
-                                            onChangeCape(pendingCape!!, name)
+                                            onChangeCape(cape, name)
                                         }
                                     }
+                                    else -> {
+                                        //无操作时，才可以关闭Dialog
+                                        //否则可能导致更改任务不运行
+                                        onDismissRequest()
+                                    }
                                 }
-                                onDismissRequest()
                             }
                         ) {
                             Text(text = stringResource(R.string.generic_confirm))
