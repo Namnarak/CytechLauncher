@@ -1203,13 +1203,16 @@ fun ChangeSkinDialog(
             usePlatformDefaultWidth = false
         )
     ) {
-        Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(0.8f),
+            contentAlignment = Alignment.Center
+        ) {
             Surface(
                 modifier = Modifier
-                    .heightIn(max = 512.dp)
-                    .fillMaxHeight(0.9f)
-                    .widthIn(max = 640.dp)
-                    .fillMaxWidth(0.8f),
+                    .padding(all = 6.dp)
+                    .heightIn(max = maxHeight - 12.dp),
                 shape = MaterialTheme.shapes.extraLarge,
                 shadowElevation = 6.dp
             ) {
