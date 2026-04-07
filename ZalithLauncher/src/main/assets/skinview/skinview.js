@@ -75,7 +75,7 @@ class IdleAnimation extends skinview3d.PlayerAnimation {
 
 function startAnim(name, speed) {
     if (typeof name !== 'string' || name.trim() === '') {
-        console.warn('动画名称必须是非空字符串');
+        console.warn('The animation name must be a non-empty string');
         return;
     }
 
@@ -242,11 +242,6 @@ setTimeout(resize, 500);
 
 function loadSkin(skinUrl, model = "auto-detect") {
     skinViewer.loadSkin(skinUrl, { model: model });
-}
-
-function loadSkinFromData(base64Data, model = "auto-detect") {
-    // base64Data should be a data URL: "data:image/png;base64,..."
-    skinViewer.loadSkin(base64Data, { model: model });
 }
 
 function loadCape(capeUrl) {

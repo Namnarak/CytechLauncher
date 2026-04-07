@@ -57,9 +57,6 @@ data class Account(
     val hasSkinFile: Boolean
         get() = getSkinFile().exists()
 
-    val hasCapeFile: Boolean
-        get() = getCapeFile().exists()
-
     fun getSkinFile() = File(PathManager.DIR_ACCOUNT_SKIN, "$uniqueUUID.png")
 
     fun getCapeFile() = File(PathManager.DIR_ACCOUNT_CAPE, "$uniqueUUID.png")
@@ -97,8 +94,7 @@ data class Account(
         }.onFailure { e ->
             lError("Could not update skin", e)
         }
-        //刷新头像
-        AccountsManager.refreshAccountsAvatar()
+        AccountsManager.refreshWardrobe()
     }
 
     private suspend fun updateCape(url: String) {
@@ -111,5 +107,6 @@ data class Account(
         }.onFailure { e ->
             lError("Could not update cape", e)
         }
+        AccountsManager.refreshWardrobe()
     }
 }

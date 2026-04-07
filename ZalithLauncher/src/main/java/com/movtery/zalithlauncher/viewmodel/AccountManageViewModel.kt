@@ -55,6 +55,7 @@ import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
+import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.OtherLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.ServerOperation
@@ -88,45 +89,22 @@ import io.ktor.client.plugins.ResponseException as KtorResponseException
 import kotlinx.coroutines.flow.combine as kotlinxCombine
 
 /**
- * 账号管理界面 UI 状态
- * 
- * @property accounts 已加载的账号列表
- * @property currentAccount 当前选中的账号
- * @property authServers 已添加的验证服务器列表
- * @property microsoftLoginOperation 微软登录操作的中间状态
- * @property localLoginOperation 离线登录操作的中间状态
- * @property otherLoginOperation 第三方验证服务器登录操作的中间状态
- * @property serverOperation 验证服务器管理操作的中间状态
- * @property accountOperation 账号通用管理操作状态
- * @property accountSkinOperationMap 维护每个账号对应的皮肤操作状态（用于 UI 局部更新）
- */
-data class AccountManageUiState(
-    val accounts: List<Account> = emptyList(),
-    val currentAccount: Account? = null,
-    val authServers: List<AuthServer> = emptyList(),
-    val microsoftLoginOperation: MicrosoftLoginOperation = MicrosoftLoginOperation.None,
-    val microsoftCapes: Map<String, List<PlayerProfile.Cape>> = emptyMap(),
-    val localLoginOperation: LocalLoginOperation = LocalLoginOperation.None,
-    val otherLoginOperation: OtherLoginOperation = OtherLoginOperation.None,
-    val serverOperation: ServerOperation = ServerOperation.None,
-    val accountOperation: AccountOperation = AccountOperation.None,
-    val accountSkinOperationMap: Map<String, AccountSkinOperation> = emptyMap()
-)
-
-/**
  * 账号管理界面用户意图 (MVI Intent)
  * 封装了 UI 层发出的所有操作请求
  */
-sealed class AccountManageIntent {
-    data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
-        AccountManageIntent()
+sealed interface AccountManageIntent {
+    /** 呼出账号登录菜单 */
+    data class UpdateLoginMenuOp(val operation: LoginMenuOperation) : AccountManageIntent
 
-    data class UpdateLocalLoginOp(val operation: LocalLoginOperation) : AccountManageIntent()
-    data class UpdateOtherLoginOp(val operation: OtherLoginOperation) : AccountManageIntent()
-    data class UpdateServerOp(val operation: ServerOperation) : AccountManageIntent()
-    data class UpdateAccountOp(val operation: AccountOperation) : AccountManageIntent()
+    data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
+        AccountManageIntent
+
+    data class UpdateLocalLoginOp(val operation: LocalLoginOperation) : AccountManageIntent
+    data class UpdateOtherLoginOp(val operation: OtherLoginOperation) : AccountManageIntent
+    data class UpdateServerOp(val operation: ServerOperation) : AccountManageIntent
+    data class UpdateAccountOp(val operation: AccountOperation) : AccountManageIntent
     data class UpdateAccountSkinOp(val accountUuid: String, val operation: AccountSkinOperation) :
-        AccountManageIntent()
+        AccountManageIntent
 
 
     /** 执行微软登录流程 */
@@ -134,20 +112,20 @@ sealed class AccountManageIntent {
         val toWeb: (url: String) -> Unit,
         val backToMain: () -> Unit,
         val checkIfInWebScreen: () -> Boolean
-    ) : AccountManageIntent()
+    ) : AccountManageIntent
 
     /** 导入选中的皮肤文件到缓存目录 */
-    data class ImportSkinFile(val account: Account, val uri: Uri, val model: SkinModelType) : AccountManageIntent()
+    data class ImportSkinFile(val account: Account, val uri: Uri, val model: SkinModelType) : AccountManageIntent
 
     /** 上传皮肤到微软服务器 */
     data class UploadMicrosoftSkin(
         val account: Account,
         val skinFile: File,
         val skinModel: SkinModelType
-    ) : AccountManageIntent()
+    ) : AccountManageIntent
 
     /** 抓取该账号可用的微软披风列表 */
-    data class FetchMicrosoftCapes(val account: Account) : AccountManageIntent()
+    data class FetchMicrosoftCapes(val account: Account) : AccountManageIntent
 
     /** 应用选中的微软披风 */
     data class ApplyMicrosoftCape(
@@ -155,36 +133,36 @@ sealed class AccountManageIntent {
         val capeId: String?,
         val capeName: String,
         val isReset: Boolean
-    ) : AccountManageIntent()
+    ) : AccountManageIntent
 
     /** 创建新的离线账号 */
     data class CreateLocalAccount(val userName: String, val userUUID: String?) :
-        AccountManageIntent()
+        AccountManageIntent
 
     /** 使用第三方验证服务器进行登录 */
     data class LoginWithOtherServer(
         val server: AuthServer,
         val email: String,
         val pass: String
-    ) : AccountManageIntent()
+    ) : AccountManageIntent
 
     /** 添加新的 Yggdrasil 验证服务器 */
-    data class AddServer(val url: String) : AccountManageIntent()
+    data class AddServer(val url: String) : AccountManageIntent
 
     /** 删除指定的验证服务器 */
-    data class DeleteServer(val server: AuthServer) : AccountManageIntent()
+    data class DeleteServer(val server: AuthServer) : AccountManageIntent
 
     /** 删除账号及其相关数据 */
-    data class DeleteAccount(val account: Account) : AccountManageIntent()
+    data class DeleteAccount(val account: Account) : AccountManageIntent
 
     /** 刷新账号的登录凭据（Token） */
-    data class RefreshAccount(val account: Account) : AccountManageIntent()
+    data class RefreshAccount(val account: Account) : AccountManageIntent
 
     /** 保存离线账号的皮肤文件 */
-    data class SaveLocalSkin(val account: Account, val uri: Uri) : AccountManageIntent()
+    data class SaveLocalSkin(val account: Account, val uri: Uri) : AccountManageIntent
 
     /** 将账号皮肤重置为默认状态 */
-    data class ResetSkin(val account: Account) : AccountManageIntent()
+    data class ResetSkin(val account: Account) : AccountManageIntent
 }
 
 /**
@@ -218,76 +196,96 @@ sealed class AccountManageEffect {
 class AccountManageViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
+    private val _loginMenuOp = MutableStateFlow<LoginMenuOperation>(LoginMenuOperation.None)
+
     private val _microsoftLoginOp =
         MutableStateFlow<MicrosoftLoginOperation>(MicrosoftLoginOperation.None)
-    private val _microsoftCapes =
-        MutableStateFlow<Map<String, List<PlayerProfile.Cape>>>(emptyMap())
     private val _localLoginOp = MutableStateFlow<LocalLoginOperation>(LocalLoginOperation.None)
     private val _otherLoginOp = MutableStateFlow<OtherLoginOperation>(OtherLoginOperation.None)
     private val _serverOp = MutableStateFlow<ServerOperation>(ServerOperation.None)
     private val _accountOp = MutableStateFlow<AccountOperation>(AccountOperation.None)
+    private val _accountCapeOpMap = MutableStateFlow<Map<String, List<PlayerProfile.Cape>>>(emptyMap())
     private val _accountSkinOpMap = MutableStateFlow<Map<String, AccountSkinOperation>>(emptyMap())
 
     private val _effect = Channel<AccountManageEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     /**
-     * 统一的 UI 状态流
-     * 使用 combine 组合了来自持久层 (AccountsManager) 的数据流与 View 层内部的交互状态流
+     * 登录相关操作状态流统一管理
      */
-    val uiState: StateFlow<AccountManageUiState> = kotlinxCombine(
-        kotlinxCombine(
-            AccountsManager.accountsFlow,
-            AccountsManager.currentAccountFlow,
-            AccountsManager.authServersFlow
-        ) { accounts, currentAccount, authServers ->
-            Triple(accounts, currentAccount, authServers)
-        },
-        kotlinxCombine(
-            _microsoftLoginOp,
-            _microsoftCapes
-        ) { msLoginOp, msCapes ->
-            MicrosoftOps(msLoginOp, msCapes)
-        },
-        kotlinxCombine(
-            _localLoginOp,
-            _otherLoginOp,
-            _serverOp,
-            _accountOp,
-            _accountSkinOpMap
-        ) { localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap ->
-            OtherOps(localLoginOp, otherLoginOp, serverOp, accountOp, accountSkinOpMap)
-        }
-    ) { (accounts, currentAccount, authServers), msOps, otherOps ->
-        AccountManageUiState(
-            accounts = accounts,
-            currentAccount = currentAccount,
-            authServers = authServers,
-            microsoftLoginOperation = msOps.msLoginOp,
-            microsoftCapes = msOps.msCapes,
-            localLoginOperation = otherOps.localLoginOp,
-            otherLoginOperation = otherOps.otherLoginOp,
-            serverOperation = otherOps.serverOp,
-            accountOperation = otherOps.accountOp,
-            accountSkinOperationMap = otherOps.accountSkinOpMap
+    val loginUiState: StateFlow<LoginUiState> = kotlinxCombine(
+        _loginMenuOp,
+        _microsoftLoginOp,
+        _localLoginOp,
+        _otherLoginOp
+    ) { loginMenuOp, microsoftLoginOp, localLoginOp, otherLoginOp ->
+        LoginUiState(
+            menuOp = loginMenuOp,
+            microsoftOp = microsoftLoginOp,
+            localOp = localLoginOp,
+            otherOp = otherLoginOp
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = AccountManageUiState()
+        initialValue = LoginUiState()
     )
 
-    private data class MicrosoftOps(
-        val msLoginOp: MicrosoftLoginOperation,
-        val msCapes: Map<String, List<PlayerProfile.Cape>>
+    data class LoginUiState(
+        val menuOp: LoginMenuOperation = LoginMenuOperation.None,
+        val microsoftOp: MicrosoftLoginOperation = MicrosoftLoginOperation.None,
+        val localOp: LocalLoginOperation = LocalLoginOperation.None,
+        val otherOp: OtherLoginOperation = OtherLoginOperation.None
     )
 
-    private data class OtherOps(
-        val localLoginOp: LocalLoginOperation,
-        val otherLoginOp: OtherLoginOperation,
-        val serverOp: ServerOperation,
-        val accountOp: AccountOperation,
-        val accountSkinOpMap: Map<String, AccountSkinOperation>
+    /**
+     * 账号数据状态流统一管理
+     */
+    val profileUiState: StateFlow<ProfileUiState> = kotlinxCombine(
+        AccountsManager.accountsFlow,
+        AccountsManager.currentAccountFlow,
+        AccountsManager.authServersFlow,
+        _accountCapeOpMap,
+        _accountSkinOpMap
+    ) { accountsFlow, currentAccountFlow, authServersFlow, accountCapeOpMap, accountSkinOpMap ->
+        ProfileUiState(
+            accounts = accountsFlow,
+            currentAccount = currentAccountFlow,
+            authServers = authServersFlow,
+            accountCapeOpMap = accountCapeOpMap,
+            accountSkinOpMap = accountSkinOpMap
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ProfileUiState()
+    )
+
+    data class ProfileUiState(
+        val accounts: List<Account> = emptyList(),
+        val currentAccount: Account? = null,
+        val authServers: List<AuthServer> = emptyList(),
+        val accountCapeOpMap: Map<String, List<PlayerProfile.Cape>> = emptyMap(),
+        val accountSkinOpMap: Map<String, AccountSkinOperation> = emptyMap()
+    )
+
+    /**
+     * 数据相关操作状态流统一管理
+     */
+    val operationUiState: StateFlow<OperationUiState> = kotlinxCombine(
+        _serverOp,
+        _accountOp
+    ) { serverOp, accountOp ->
+        OperationUiState(serverOp, accountOp)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = OperationUiState()
+    )
+
+    data class OperationUiState(
+        val serverOp: ServerOperation = ServerOperation.None,
+        val accountOp: AccountOperation = AccountOperation.None
     )
 
     /**
@@ -295,6 +293,9 @@ class AccountManageViewModel @Inject constructor(
      */
     fun onIntent(intent: AccountManageIntent) {
         when (intent) {
+            is AccountManageIntent.UpdateLoginMenuOp ->
+                _loginMenuOp.value = intent.operation
+
             is AccountManageIntent.UpdateMicrosoftLoginOp ->
                 _microsoftLoginOp.value = intent.operation
 
@@ -464,7 +465,9 @@ class AccountManageViewModel @Inject constructor(
                         val profile = getPlayerProfile(MINECRAFT_SERVICES_URL, account.accessToken)
                         task.updateProgress(-1f, R.string.account_change_cape_cache_all)
                         cacheAllCapes(profile)
-                        _microsoftCapes.update { it + (account.uniqueUUID to profile.capes) }
+                        //同时更新本地的皮肤/披风
+                        account.downloadYggdrasil()
+                        _accountCapeOpMap.update { it + (account.uniqueUUID to profile.capes) }
                     }, onRefreshRequest = {
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
                         AccountsManager.suspendSaveAccount(account)
@@ -500,7 +503,7 @@ class AccountManageViewModel @Inject constructor(
                         AccountsManager.suspendSaveAccount(account)
                     })
 
-                    _microsoftCapes.update { capesMap ->
+                    _accountCapeOpMap.update { capesMap ->
                         if (!capesMap.containsKey(account.uniqueUUID)) return@update capesMap
                         buildMap {
                             capesMap.forEach { (accountId, capes) ->
