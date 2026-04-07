@@ -1277,7 +1277,7 @@ fun ChangeSkinDialog(
         BoxWithConstraints(
             modifier = Modifier
                 .padding(all = 16.dp)
-                .fillMaxHeight()
+                .fillMaxHeight(0.85f)
                 .fillMaxWidth(0.6f),
             contentAlignment = Alignment.Center
         ) {
@@ -1320,6 +1320,7 @@ fun ChangeSkinDialog(
                                         onPageFinished = {
                                             pageFinished = true
                                             playerSkin.startAnim(ModelAnimation.Walking, 0.8f)
+                                            playerSkin.setAzimuthAndPitch(0, 10, 50)
                                         }
                                     )
                                 },
