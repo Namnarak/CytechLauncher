@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.game.account.yggdrasil.PlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.cacheAllCapes
 import com.movtery.zalithlauncher.game.account.yggdrasil.changeCape
 import com.movtery.zalithlauncher.game.account.yggdrasil.executeWithAuthorization
+import com.movtery.zalithlauncher.game.account.yggdrasil.getFile
 import com.movtery.zalithlauncher.game.account.yggdrasil.getPlayerProfile
 import com.movtery.zalithlauncher.game.account.yggdrasil.uploadSkin
 import com.movtery.zalithlauncher.path.PathManager
@@ -130,7 +131,7 @@ sealed interface AccountManageIntent {
     /** 应用选中的微软披风 */
     data class ApplyMicrosoftCape(
         val account: Account,
-        val capeId: String?,
+        val cape: PlayerProfile.Cape?,
         val capeName: String,
         val isReset: Boolean
     ) : AccountManageIntent
@@ -179,9 +180,6 @@ sealed class AccountManageEffect {
         val formatArgs: List<Any> = emptyList(),
         val duration: Int = Toast.LENGTH_SHORT
     ) : AccountManageEffect()
-
-    /** 通知 UI 层对应账号的头像数据已更新，需要重新加载显示 */
-    data class RefreshAvatar(val accountUuid: String) : AccountManageEffect()
 }
 
 /**
@@ -345,13 +343,6 @@ class AccountManageViewModel @Inject constructor(
         }
     }
 
-    /** 内部方法：触发头像重载副作用 */
-    private fun emitRefreshAvatar(accountUuid: String) {
-        viewModelScope.launch {
-            _effect.send(AccountManageEffect.RefreshAvatar(accountUuid))
-        }
-    }
-
     /** 执行微软登录流程 */
     private fun performMicrosoftLogin(intent: AccountManageIntent.PerformMicrosoftLogin) {
         microsoftLogin(
@@ -486,7 +477,8 @@ class AccountManageViewModel @Inject constructor(
     /** 更改微软账号披风 */
     private fun applyMicrosoftCape(intent: AccountManageIntent.ApplyMicrosoftCape) {
         val account = intent.account
-        val capeId = intent.capeId
+        val cape = intent.cape
+        val capeId = cape?.id
         val capeName = intent.capeName
         val isReset = intent.isReset
 
@@ -502,6 +494,18 @@ class AccountManageViewModel @Inject constructor(
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
                         AccountsManager.suspendSaveAccount(account)
                     })
+
+                    val capeFile = cape?.getFile(PathManager.DIR_ACCOUNT_CAPE)
+                    val targetCape = account.getCapeFile()
+                    if (capeFile?.exists() == true) {
+                        runCatching {
+                            FileUtils.deleteQuietly(targetCape)
+                            capeFile.copyTo(targetCape)
+                        }
+                    } else {
+                        FileUtils.deleteQuietly(targetCape)
+                    }
+                    AccountsManager.refreshWardrobe()
 
                     _accountCapeOpMap.update { capesMap ->
                         if (!capesMap.containsKey(account.uniqueUUID)) return@update capesMap
@@ -602,7 +606,7 @@ class AccountManageViewModel @Inject constructor(
                 cacheFile.copyTo(skinFile, true)
                 FileUtils.deleteQuietly(cacheFile)
                 AccountsManager.suspendSaveAccount(account)
-                emitRefreshAvatar(account.uniqueUUID)
+                AccountsManager.refreshWardrobe()
                 onIntent(
                     AccountManageIntent.UpdateAccountSkinOp(
                         account.uniqueUUID,
@@ -624,7 +628,7 @@ class AccountManageViewModel @Inject constructor(
         }, onError = { th ->
             FileUtils.deleteQuietly(cacheFile)
             emitError(context.getString(R.string.error_import_image), th.getMessageOrToString())
-            emitRefreshAvatar(account.uniqueUUID)
+            AccountsManager.refreshWardrobe()
             onIntent(
                 AccountManageIntent.UpdateAccountSkinOp(
                     account.uniqueUUID,
@@ -642,7 +646,7 @@ class AccountManageViewModel @Inject constructor(
                 skinModelType = SkinModelType.NONE
                 profileId = getLocalUUIDWithSkinModel(username, skinModelType)
                 AccountsManager.suspendSaveAccount(this)
-                emitRefreshAvatar(account.uniqueUUID)
+                AccountsManager.refreshWardrobe()
             }
         }))
         onIntent(

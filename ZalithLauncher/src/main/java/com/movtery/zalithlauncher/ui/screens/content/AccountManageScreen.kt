@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -113,7 +113,6 @@ import com.movtery.zalithlauncher.viewmodel.ScreenBackStackViewModel
  * @property checkIfInWebScreen 检查当前是否在浏览器界面中（用于微软登录逻辑判断）
  * @property formatError 格式化异常为本地化字符串
  * @property submitError 提交错误到全局错误展示系统
- * @property refreshAvatarMap 维护各个账号头像是否需要刷新的状态映射
  */
 private data class AccountActions(
     val onIntent: (AccountManageIntent) -> Unit,
@@ -123,7 +122,6 @@ private data class AccountActions(
     val checkIfInWebScreen: () -> Boolean,
     val formatError: (Context, Throwable) -> String,
     val submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
-    val refreshAvatarMap: MutableMap<String, Boolean>
 )
 
 /**
@@ -148,9 +146,6 @@ fun AccountManageScreen(
     val profileUiState by viewModel.profileUiState.collectAsStateWithLifecycle()
     val operationUiState by viewModel.operationUiState.collectAsStateWithLifecycle()
 
-    // 头像刷新机制：ViewModel 发送 Effect，UI 层更新 refreshAvatarMap 触发局部重绘
-    val refreshAvatarMap = remember { mutableStateMapOf<String, Boolean>() }
-
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -166,11 +161,6 @@ fun AccountManageScreen(
                     }
                     Toast.makeText(context, message, effect.duration).show()
                 }
-
-                is AccountManageEffect.RefreshAvatar -> {
-                    val current = refreshAvatarMap[effect.accountUuid] ?: false
-                    refreshAvatarMap[effect.accountUuid] = !current
-                }
             }
         }
     }
@@ -180,8 +170,7 @@ fun AccountManageScreen(
         backToMainScreen,
         openLink,
         backStackViewModel,
-        submitError,
-        refreshAvatarMap
+        submitError
     ) {
         AccountActions(
             onIntent = viewModel::onIntent,
@@ -191,7 +180,6 @@ fun AccountManageScreen(
             checkIfInWebScreen = { backStackViewModel.mainScreen.currentKey is NormalNavKey.WebScreen },
             formatError = { _, th -> viewModel.formatAccountError(th) },
             submitError = submitError,
-            refreshAvatarMap = refreshAvatarMap
         )
     }
 
@@ -289,35 +277,42 @@ private fun ActionsLayout(
             PlayerSkin(context)
         }
         var pageFinished by remember { mutableStateOf(false) }
-        AndroidView(
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            factory = { context ->
-                playerSkin.loadWebView(
-                    context = context,
-                    onPageFinished = {
-                        pageFinished = true
-                        playerSkin.startAnim(ModelAnimation.NewIdle)
-                    }
-                )
-            },
-            update = {
-                val account = currentAccount
-                if (account != null && pageFinished) {
-                    runCatching {
-                        accountSkin?.inputStream().use { inputStream ->
-                            playerSkin.loadSkin(inputStream, account.skinModelType)
+            contentAlignment = Alignment.Center
+        ) {
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { context ->
+                    playerSkin.loadWebView(
+                        context = context,
+                        onPageFinished = {
+                            pageFinished = true
+                            playerSkin.startAnim(ModelAnimation.NewIdle)
                         }
-                    }
-                    runCatching {
-                        accountCape?.inputStream().use { inputStream ->
-                            playerSkin.loadCape(inputStream)
+                    )
+                },
+                update = {
+                    if (currentAccount != null && pageFinished) {
+                        runCatching {
+                            accountSkin?.inputStream().use { inputStream ->
+                                playerSkin.loadSkin(inputStream, currentAccount.skinModelType)
+                            }
+                        }
+                        runCatching {
+                            accountCape?.inputStream().use { inputStream ->
+                                playerSkin.loadCape(inputStream)
+                            }
                         }
                     }
                 }
+            )
+            if (!pageFinished) {
+                CircularProgressIndicator()
             }
-        )
+        }
 
         //添加账号
         ScalingActionButton(
@@ -697,7 +692,6 @@ private fun AccountsLayout(
                             .padding(vertical = 6.dp),
                         currentAccount = currentAccount,
                         account = account,
-                        refreshKey = actions.refreshAvatarMap[account.uniqueUUID] ?: false,
                         onSelected = { AccountsManager.setCurrentAccount(it) },
                         openChangeSkinDialog = {
                             if (!account.isAuthServerAccount()) {
@@ -797,7 +791,7 @@ private fun AccountSkinOperation(
                         actions.onIntent(
                             AccountManageIntent.ApplyMicrosoftCape(
                                 account,
-                                cape.id.takeIf { cape != EmptyCape },
+                                cape.takeIf { cape != EmptyCape },
                                 name,
                                 cape == EmptyCape
                             )
@@ -866,7 +860,6 @@ private fun AccountManageContentPreview() {
                         checkIfInWebScreen = { false },
                         formatError = { _, _ -> "" },
                         submitError = {},
-                        refreshAvatarMap = mutableMapOf()
                     )
                 )
             }
