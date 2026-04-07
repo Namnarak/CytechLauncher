@@ -137,6 +137,7 @@ import com.movtery.zalithlauncher.path.URL_MINECRAFT_PURCHASE
 import com.movtery.zalithlauncher.ui.components.BaseIconTextButton
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
+import com.movtery.zalithlauncher.ui.components.ModelAnimation
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
 import com.movtery.zalithlauncher.ui.components.PlayerSkin
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
@@ -1191,6 +1192,7 @@ fun ChangeSkinDialog(
                                         context = context,
                                         onPageFinished = {
                                             pageFinished = true
+                                            playerSkin.startAnim(ModelAnimation.Walking, 0.8f)
                                         }
                                     )
                                 },

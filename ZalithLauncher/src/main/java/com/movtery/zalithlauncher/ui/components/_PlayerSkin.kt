@@ -20,6 +20,10 @@ package com.movtery.zalithlauncher.ui.components
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
+import android.webkit.ConsoleMessage
+import android.webkit.JsResult
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -91,6 +95,21 @@ class PlayerSkin(
                     onPageFinished()
                 }
             }
+            webChromeClient = object : WebChromeClient() {
+                override fun onConsoleMessage(consoleMessage: ConsoleMessage): Boolean {
+                    Log.d(
+                        "WebViewConsole", (consoleMessage.message()
+                                + " (line " + consoleMessage.lineNumber() + ")")
+                    )
+                    return true
+                }
+
+                override fun onJsAlert(view: WebView?, url: String?, message: String, result: JsResult): Boolean {
+                    Log.d("WebViewAlert", message)
+                    result.confirm()
+                    return true
+                }
+            }
 
             loadUrl(skinView)
         }
@@ -127,6 +146,27 @@ class PlayerSkin(
         loadSkin(null, SkinModelType.NONE)
         loadCape(null)
     }
+
+    fun startAnim(
+        animation: ModelAnimation,
+        speed: Float? = null
+    ) {
+        webview?.evaluateJavascript(
+            "startAnim('${animation.name}', $speed)",
+            null
+        )
+    }
+}
+
+enum class ModelAnimation {
+    DefaultIdle,
+    NewIdle,
+    Walking,
+    Running,
+    Flying,
+    Wave,
+    Crouch,
+    Hit
 }
 
 private class AssetsUrlBuilder {

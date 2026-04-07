@@ -6,15 +6,119 @@ const getHeight = () => container.clientHeight || window.innerHeight || 400;
 const skinViewer = new skinview3d.SkinViewer({
     canvas: document.createElement("canvas"),
     width: getWidth(),
-    height: getHeight(),
-    skin: "steve.png"
+    height: getHeight()
 });
 
 container.appendChild(skinViewer.canvas);
 
-// Default Walking Animation
-skinViewer.animation = new skinview3d.WalkingAnimation();
-skinViewer.animation.speed = 0.8;
+//参考 Modrinth 启动器默认的 idle 动画
+//https://github.com/modrinth/code/blob/e71a8c10fac3eda05ff9bc34381178f3d11c41de/packages/assets/models/slim-player.gltf#L1653-L1755
+class IdleAnimation extends skinview3d.PlayerAnimation {
+    constructor() {
+        super();
+        this.elapsed = 0;
+        this.maxDelta = 0.05;
+    }
+
+    getCapeRotation(t) {
+        const wave1 = Math.sin(t * Math.PI * 2 * 0.3);
+        const wave2 = Math.sin(t * Math.PI * 2 * 0.25) * 0.3;
+
+        let normalized = (wave1 + wave2 + 1.3) / 2.6;
+        normalized = Math.max(0, Math.min(1, normalized));
+
+        const angleX = 0.15 + normalized * 0.15;
+
+        const waveZ = Math.sin(t * Math.PI * 2 * 0.35);
+        const angleZ = 0.03 + (waveZ + 1) / 2 * 0.03;
+
+        return { x: angleX, z: angleZ };
+    }
+
+    animate(player, delta) {
+        const dt = Math.min(delta, this.maxDelta);
+        this.elapsed += dt;
+
+        const t = this.elapsed;
+
+        const breathe = Math.sin(t * 1.2) * 0.04;
+
+        player.position.y = breathe;
+
+        player.skin.body.rotation.x = Math.sin(t * 1.1) * 0.03;
+        player.skin.body.rotation.z = Math.sin(t * 1.7) * 0.01;
+
+        player.skin.head.rotation.y = Math.sin(t * 0.9) * 0.1;
+        player.skin.head.rotation.x = Math.sin(t * 1.6) * 0.04;
+        player.skin.head.rotation.z = Math.sin(t * 1.3) * 0.03;
+
+        const armX = Math.sin(t * 1.8) * 0.12;
+        const armZ = Math.sin(t * 1.4) * 0.03;
+
+        player.skin.rightArm.rotation.x = armX;
+        player.skin.leftArm.rotation.x = armX;
+
+        player.skin.rightArm.rotation.z = armZ;
+        player.skin.leftArm.rotation.z = -armZ;
+
+        if (player.cape) {
+            const capeRot = this.getCapeRotation(t);
+            player.cape.rotation.x = capeRot.x;
+            player.cape.rotation.z = capeRot.z;
+        }
+    }
+
+    reset() {
+        this.elapsed = 0;
+    }
+}
+
+function startAnim(name, speed) {
+    if (typeof name !== 'string' || name.trim() === '') {
+        console.warn('动画名称必须是非空字符串');
+        return;
+    }
+
+    let speed0 = null;
+    if (typeof speed === 'number' && !isNaN(speed) && speed > 0) {
+        speed0 = speed;
+    }
+
+    let anim;
+    switch (name) {
+        case "DefaultIdle":
+            anim = new skinview3d.IdleAnimation();
+            break;
+        case "NewIdle":
+            anim = new IdleAnimation();
+            break;
+        case "Walking":
+            anim = new skinview3d.WalkingAnimation();
+            break;
+        case "Running":
+            anim = new skinview3d.RunningAnimation();
+            break;
+        case "Flying":
+            anim = new skinview3d.FlyingAnimation();
+            break;
+        case "Wave":
+            anim = new skinview3d.WaveAnimation();
+            break;
+        case "Crouch":
+            anim = new skinview3d.CrouchAnimation();
+            break;
+        case "Hit":
+            anim = new skinview3d.HitAnimation();
+            break;
+        default:
+            return;
+    }
+
+    skinViewer.animation = anim;
+    if (speed0 !== null && skinViewer.animation) {
+        skinViewer.animation.speed = speed0;
+    }
+}
 
 skinViewer.controls.enableRotate = true;
 skinViewer.controls.enableZoom = false;
