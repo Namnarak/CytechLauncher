@@ -178,5 +178,5 @@ class Version(
 
     fun getTouchVibrateDuration(): Int? = versionConfig.touchVibrateDuration.takeIf { it >= 80 }
 
-    fun getTouchVibrateKind(): VibrationHandler.VibrateKind = versionConfig.touchVibrateKind
+    fun getTouchVibrateKind(): VibrationHandler.VibrateKind = versionConfig.touchVibrateKind ?: VibrationHandler.VibrateKind.default
 }

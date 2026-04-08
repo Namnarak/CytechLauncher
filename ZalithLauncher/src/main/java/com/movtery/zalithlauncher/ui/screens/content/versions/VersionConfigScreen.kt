@@ -424,11 +424,12 @@ private fun SupportConfigs(
 
         val vibrator = remember(context) { context.getSystemService<Vibrator>() }
         var touchVibrateKind by remember { mutableStateOf(config.touchVibrateKind) }
+        val effectiveVibrateKind = touchVibrateKind ?: VibrationHandler.VibrateKind.default
         var touchVibrateDuration by remember { mutableIntStateOf(config.touchVibrateDuration) }
         EnumSettingsCard(
             modifier = Modifier.fillMaxWidth(),
             position = CardPosition.Middle,
-            value = touchVibrateKind,
+            value = effectiveVibrateKind,
             title = stringResource(R.string.versions_config_vibrate_kind_title),
             summary = stringResource(R.string.versions_config_vibrate_kind_summary),
             entries = VibrationHandler.VibrateKind.entries,
@@ -465,7 +466,7 @@ private fun SupportConfigs(
             }
         )
 
-        AnimatedVisibility(touchVibrateKind == VibrationHandler.VibrateKind.ONE_SHOT) {
+        AnimatedVisibility(effectiveVibrateKind == VibrationHandler.VibrateKind.ONE_SHOT) {
             IntSliderSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 position = CardPosition.Middle,

@@ -99,7 +99,7 @@ class VersionConfig(
     @SerializedName("touchVibrateDuration")
     var touchVibrateDuration: Int = 100
     @SerializedName("touchVibrateKind")
-    var touchVibrateKind: VibrationHandler.VibrateKind = VibrationHandler.VibrateKind.ONE_SHOT
+    var touchVibrateKind: VibrationHandler.VibrateKind? = null
 
     constructor(
         filePath: File,
@@ -117,7 +117,7 @@ class VersionConfig(
         ramAllocation: Int = -1,
         enableTouchProxy: Boolean = false,
         touchVibrateDuration: Int = 100,
-        touchVibrateKind: VibrationHandler.VibrateKind = VibrationHandler.VibrateKind.ONE_SHOT,
+        touchVibrateKind: VibrationHandler.VibrateKind? = null,
     ) : this(filePath) {
         this.isolationType = isolationType
         this.skipGameIntegrityCheck = skipGameIntegrityCheck
@@ -211,7 +211,7 @@ class VersionConfig(
             writeInt(ramAllocation)
             writeInt(enableTouchProxy.getInt())
             writeInt(touchVibrateDuration)
-            writeInt(touchVibrateKind.ordinal)
+            writeInt(touchVibrateKind?.ordinal ?: -1)
         }
     }
 
@@ -233,7 +233,6 @@ class VersionConfig(
             val enableTouchProxy = parcel.readInt().toBoolean()
             val touchVibrateDuration = parcel.readInt()
             val touchVibrateKind = VibrationHandler.VibrateKind.entries.getOrNull(parcel.readInt())
-                ?: VibrationHandler.VibrateKind.ONE_SHOT
 
             return VersionConfig(
                 versionPath,

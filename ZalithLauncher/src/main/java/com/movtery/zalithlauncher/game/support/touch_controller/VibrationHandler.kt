@@ -36,7 +36,11 @@ class VibrationHandler(
         CLICK,
         DOUBLE_CLICK,
         HEAVY_CLICK,
-        TICK,
+        TICK;
+
+        companion object {
+            val default = ONE_SHOT
+        }
     }
 
     companion object {
