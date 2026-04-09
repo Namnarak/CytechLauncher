@@ -1158,4 +1158,11 @@
     <string name="control_editor_edit_dialog_delete_widget">Tem certeza de que deseja excluir este widget?</string>
     <string name="control_editor_edit_style_config_common_style">Não diferenciar o tema escuro</string>
     <string name="control_editor_edit_style_config_delete">Mano, ocê tem certeza que deseja excluir a aparência do HUD %s?</string>
+    <string name="versions_config_vibrate_kind_title">Tipo de vibração</string>
+    <string name="versions_config_vibrate_kind_summary">Defina o tipo de vibração quando o mod TouchController aciona a vibração</string>
+    <string name="vibrate_kind_one_shot">Constante</string>
+    <string name="vibrate_kind_click">Clique</string>
+    <string name="vibrate_kind_double_click">Clique Duplo</string>
+    <string name="vibrate_kind_heavy_click">Clique Potente</string>
+    <string name="vibrate_kind_tick">Tick</string>
 </resources>
