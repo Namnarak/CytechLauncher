@@ -41,6 +41,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchResult
+import com.movtery.zalithlauncher.game.download.assets.platform.navigatePage
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
@@ -238,6 +239,20 @@ fun SearchAssetsScreen(
                         onSearch = { newIndex ->
                             viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
                             viewModel.search() //搜索下一页
+                        }
+                    )
+                },
+                onNavigatePage = { pageNumber ->
+                    navigatePage(
+                        pageNumber = pageNumber,
+                        pages = viewModel.pages,
+                        limit = viewModel.searchFilter.limit,
+                        onSuccess = { nextPage ->
+                            viewModel.searchResult = SearchAssetsState.Success(nextPage)
+                        },
+                        onSearch = { newIndex ->
+                            viewModel.searchFilter = viewModel.searchFilter.copy(index = newIndex)
+                            viewModel.search() //搜索目标页
                         }
                     )
                 }
