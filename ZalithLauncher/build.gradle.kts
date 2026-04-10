@@ -270,6 +270,7 @@ dependencies {
     implementation(libs.commons.codec)
     implementation(libs.commons.compress)
     implementation(libs.xz)
+    implementation(libs.okio)
     implementation(libs.okhttp)
     implementation(libs.ktor.http)
     implementation(libs.ktor.client.core)
