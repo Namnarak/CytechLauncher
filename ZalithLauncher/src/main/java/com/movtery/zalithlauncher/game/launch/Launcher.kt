@@ -323,6 +323,7 @@ abstract class Launcher(
             add("/system/$libName")
             add("/vendor/$libName")
             add("/vendor/$libName/hw")
+            add("/system_ext/$libName")
             add(LibPath.JNA.absolutePath)
             PathManager.DIR_RUNTIME_MOD?.absolutePath?.let { add(it) }
             add(PathManager.DIR_NATIVE_LIB)
@@ -336,6 +337,7 @@ abstract class Launcher(
             "/system/$libDirName",
             "/vendor/$libDirName",
             "/vendor/$libDirName/hw",
+            "/system_ext/$libDirName",
             RendererPluginManager.selectedRendererPlugin?.path,
             PathManager.DIR_RUNTIME_MOD?.absolutePath,
             PathManager.DIR_NATIVE_LIB

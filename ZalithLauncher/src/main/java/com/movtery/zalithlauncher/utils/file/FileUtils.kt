@@ -29,6 +29,10 @@ import com.movtery.zalithlauncher.utils.string.compareChar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import okio.BufferedSource
+import okio.buffer
+import okio.sink
+import okio.source
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
@@ -219,29 +223,35 @@ fun shareFile(
     }
 }
 
-fun zipDirRecursive(baseDir: File, current: File, zipOut: ZipOutputStream) {
-    current.listFiles()?.forEach { file ->
-        val entryName = file.relativeTo(baseDir).invariantSeparatorsPath
-        if (file.isDirectory) {
-            zipOut.putNextEntry(ZipEntry("$entryName/"))
-            zipOut.closeEntry()
-            zipDirRecursive(baseDir, file, zipOut)
-        } else {
-            zipOut.putNextEntry(ZipEntry(entryName))
-            file.inputStream().copyTo(zipOut)
-            zipOut.closeEntry()
-        }
+/**
+ * 读取压缩包内文件的文本内容
+ * @param readSource 使用指定方式读取文本，比如使用 UTF-8 读取
+ */
+fun ZipFile.readText(
+    entryPath: String,
+    readSource: BufferedSource.() -> String = {
+        readUtf8()
     }
-}
+): String = getEntry(entryPath)
+    .readText(zip = this, readSource = readSource)
 
-fun ZipFile.readText(entryPath: String): String = getEntry(entryPath).readText(this)
-
-fun ZipEntry.readText(zip: ZipFile): String =
-    zip.getInputStream(this)
-        .bufferedReader()
-        .use {
-            it.readText()
+/**
+ * 读取压缩包内文件的文本内容
+ * @param readSource 使用指定方式读取文本，比如使用 UTF-8 读取
+ */
+fun ZipEntry.readText(
+    zip: ZipFile,
+    readSource: BufferedSource.() -> String = {
+        readUtf8()
+    }
+): String {
+    return zip.getInputStream(this)
+        .source()
+        .buffer()
+        .use { bufferedSource ->
+            bufferedSource.readSource()
         }
+}
 
 /**
  * 从ZIP文件中提取指定内部路径下的所有条目到输出目录，保持相对路径结构
@@ -311,7 +321,6 @@ private suspend fun <T : ZipEntryBase> extractZipEntries(
 
     val rootPath = outputDir.absoluteFile.toPath().normalize()
 
-    val buffer = ByteArray(32 * 1024)
     val createdDirs = HashSet<String>()
 
     withContext(Dispatchers.IO) {
@@ -354,10 +363,12 @@ private suspend fun <T : ZipEntryBase> extractZipEntries(
             }
 
             inputStreamProvider(entry).use { input ->
-                FileOutputStream(targetFile).use { out ->
-                    var read: Int
-                    while (input.read(buffer).also { read = it } >= 0) {
-                        out.write(buffer, 0, read)
+                targetFile.outputStream().use { output ->
+                    input.source().buffer().use { source ->
+                        output.sink().buffer().use { sink ->
+                            sink.writeAll(source)
+                            sink.flush()
+                        }
                     }
                 }
             }
@@ -386,14 +397,17 @@ fun ZipFile.extractEntryToFile(entryPath: String, outputFile: File) {
 fun ZipFile.extractEntryToFile(entry: ZipEntry, outputFile: File) {
     require(!entry.isDirectory) { "Cannot extract directory to file: ${entry.name}" }
 
-    val outputCanonical = outputFile.canonicalFile
-    if (outputCanonical.isDirectory) {
-        throw IllegalArgumentException("The output path cannot be a directory: $outputFile")
-    }
+    outputFile.ensureParentDirectory()
 
     getInputStream(entry).use { input ->
-        outputCanonical.ensureParentDirectory()
-        input.copyTo(outputCanonical.outputStream())
+        outputFile.outputStream().use { output ->
+            input.source().buffer().use { source ->
+                output.sink().buffer().use { sink ->
+                    sink.writeAll(source)
+                    sink.flush()
+                }
+            }
+        }
     }
 }
 
