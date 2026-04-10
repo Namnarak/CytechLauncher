@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
@@ -45,6 +46,8 @@ import com.movtery.zalithlauncher.game.download.assets.platform.navigatePage
 import com.movtery.zalithlauncher.game.download.assets.platform.nextPage
 import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
+import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
+import com.movtery.zalithlauncher.game.download.assets.utils.searchMcMods
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -54,8 +57,14 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Se
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchFilter
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * 资源搜索屏幕的 view model
@@ -72,13 +81,33 @@ private class SearchScreenViewModel(
     var searchPlatform by mutableStateOf(initialPlatform)
     var searchFilter by mutableStateOf(PlatformSearchFilter())
 
+    private val _searchedMcMods = MutableStateFlow<List<ModTranslations.McMod>>(emptyList())
+    /** 搜索得到的所有 MCMOD 项目 */
+    val searchedMcMods = _searchedMcMods.asStateFlow()
+
     var currentSearchJob: Job? = null
+    var currentSearchMCMODSJob: Job? = null
 
     /**
      * 仅更新搜索名称
      */
     fun updateFilter(searchName: String) {
         searchFilter = searchFilter.copy(searchName = searchName)
+        currentSearchMCMODSJob?.cancel()
+        currentSearchMCMODSJob = viewModelScope.launch {
+            val result = try {
+                searchName.searchMcMods(classes = platformClasses) ?: emptyList()
+            } catch (_: CancellationException) {
+                emptyList()
+            }
+            withContext(Dispatchers.Main) {
+                _searchedMcMods.update {
+                    //仅展示20个搜索结果
+                    result.take(20)
+                }
+            }
+            currentSearchMCMODSJob = null
+        }
     }
 
     /**
@@ -144,6 +173,7 @@ private class SearchScreenViewModel(
 
     override fun onCleared() {
         currentSearchJob?.cancel()
+        currentSearchMCMODSJob?.cancel()
     }
 }
 
@@ -279,6 +309,7 @@ fun SearchAssetsScreen(
                 swapIn = isVisible,
                 isHorizontal = true
             )
+            val searchedMcMods by viewModel.searchedMcMods.collectAsStateWithLifecycle()
             SearchFilter(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -300,6 +331,7 @@ fun SearchAssetsScreen(
                 onSearch = {
                     viewModel.resetSearch()
                 },
+                searchedMcMods = searchedMcMods,
                 gameVersion = viewModel.searchFilter.gameVersion,
                 onGameVersionChange = {
                     viewModel.researchWithFilter(
