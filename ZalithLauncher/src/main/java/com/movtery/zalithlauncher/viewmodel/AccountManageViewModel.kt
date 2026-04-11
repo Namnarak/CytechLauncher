@@ -587,7 +587,11 @@ class AccountManageViewModel @Inject constructor(
                 task = { task ->
                     executeWithAuthorization(block = {
                         task.updateMessage(R.string.account_change_cape_apply)
-                        changeCape(MINECRAFT_SERVICES_URL, account.accessToken, capeId)
+                        changeCape(
+                            MINECRAFT_SERVICES_URL,
+                            account.accessToken,
+                            if (!isReset) capeId else null
+                        )
                     }, onRefreshRequest = {
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
                         AccountsManager.suspendSaveAccount(account)
