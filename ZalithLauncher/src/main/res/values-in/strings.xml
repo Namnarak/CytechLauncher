@@ -1142,4 +1142,18 @@
     <string name="plugin_unsupported_warning">Plugin %s tidak didukung untuk versi game ini. Jika tetap digunakan, game bisa crash! Yakin ingin mengabaikan risiko dan lanjut?</string>
     <string name="settings_game_native_lib_plugin_title">Plugin Native Library</string>
     <string name="settings_game_native_lib_plugin_summary">Menampilkan semua plugin native library yang dimuat. Anda dapat mengaktifkan atau menonaktifkannya di daftar.</string>
+    <string name="version_summary_fools_herd_craft">Berhentilah mengatur inventaris mu—barang dan blok milikmu ingin ikut bepergian bersamamu!</string>
+    <string name="festivals_new_year">Selamat Tahun Baru!</string>
+    <string name="festivals_april_fools">Selamat Hari April Mop!</string>
+    <string name="festivals_christmas">Selamat Natal!</string>
+    <string name="settings_launcher_festivals_effects_title">Efek Easter Egg Festival tetap aktif</string>
+    <string name="settings_launcher_festivals_effects_summary">Tampilkan efek Easter Egg yang tetap aktif pada periode waktu tertentu</string>
+    <string name="control_manage_import">Impor layout kontrol</string>
+    <string name="control_editor_layers_delete">Apakah Anda yakin ingin menghapus layer kontrol %s?</string>
+    <string name="control_editor_layers_attribute_hide_when_mouse">Sembunyikan saat menggunakan mouse</string>
+    <string name="control_editor_layers_attribute_hide_when_gamepad">Sembunyikan saat menggunakan gamepad</string>
+    <string name="control_editor_layers_attribute_hide_when_joystick">Sembunyikan saat joystick diaktifkan</string>
+    <string name="control_editor_edit_dialog_delete_widget">Apakah Anda yakin ingin menghapus widget ini?</string>
+    <string name="control_editor_edit_style_config_common_style">Jangan bedakan tema gelap</string>
+    <string name="control_editor_edit_style_config_delete">Apakah Anda yakin ingin menghapus tampilan kontrol %s?</string>
 </resources>
