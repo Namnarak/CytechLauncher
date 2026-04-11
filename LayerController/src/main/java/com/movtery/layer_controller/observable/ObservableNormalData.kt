@@ -120,8 +120,11 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     }
 
     override fun onCompositionDispose(eventHandler: EventHandler?) {
-        isPressed = false
-        eventHandler?.onKeyPressed(clickEvents, isPressed)
+        if (isPressed) {
+            //fix: 若本身未按下，不应该输出抬起事件
+            isPressed = false
+            eventHandler?.onKeyPressed(clickEvents, isPressed)
+        }
     }
 
     override fun onCheckVisibilityType(): VisibilityType {
