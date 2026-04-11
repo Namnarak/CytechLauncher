@@ -77,11 +77,11 @@
     <string name="terracotta_tutorial_step_vpn_permission">- If prompted to grant VPN permission, allow it; otherwise it will not function properly</string>
     <string name="terracotta_tutorial_step_offline_account_support">- This software supports offline accounts</string>
     <string name="terracotta_tutorial_step_interoperability">- This software supports interoperability with software such as FCL, HMCL, and PCL CE (Terracotta) that support the Scaffolding protocol</string>
-    <string name="terracotta_tutorial_host_step_become_host">- Tap “I want to be the host” and scan the game port</string>
-    <string name="terracotta_tutorial_host_step_open_lan">- Enter your world and enable “Open to LAN” in the pause menu</string>
+    <string name="terracotta_tutorial_host_step_become_host">- Tap "I want to host a session" and scan the game port</string>
+    <string name="terracotta_tutorial_host_step_open_lan">- Enter your world and enable "Open to LAN" in the pause menu</string>
     <string name="terracotta_tutorial_host_step_copy_invite">- Wait a moment for the invite code to be copied automatically; if not, you can copy it from the multiplayer menu</string>
     <string name="terracotta_tutorial_host_step_send_invite">- Send the invite code to your friends</string>
-    <string name="terracotta_tutorial_guest_step_become_guest">- Tap “I want to be a guest”, enter the invite code provided by the host, and wait patiently</string>
+    <string name="terracotta_tutorial_guest_step_become_guest">- Tap "I want to join a session", enter the invite code provided by the host, and wait patiently</string>
     <string name="terracotta_tutorial_guest_step_join_room">- After joining the room, go to Multiplayer in the main menu, refresh, and double-click to enter the Terracotta lobby</string>
     <string name="terracotta_tutorial_guest_step_alternate_server">- Offline accounts are not supported when joining via alternate server addresses; resolve this yourself</string>
     <string name="terracotta_tutorial_note_title">Notes:</string>
