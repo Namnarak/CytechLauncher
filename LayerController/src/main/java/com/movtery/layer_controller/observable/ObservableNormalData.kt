@@ -63,11 +63,10 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
     ) {
-        val result = if (isPressed && !isToggleable) {
-            false
+        if (isToggleable) {
+            isPressed = !isPressed
         } else {
-            isPressed = if (isToggleable) !isPressed else true
-            true
+            isPressed = true
         }
         eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
             eventHandler.onSwitchLayer(
@@ -83,8 +82,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
                     layer.hide = true
                 }
             )
-
-            result
+            true
         }
     }
 
@@ -94,11 +92,8 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     private fun pressEnd(
         eventHandler: EventHandler
     ) {
-        if (!isPressed && !isToggleable) return
-
-        //非可开关按钮在松开时复位
-        if (!isToggleable) isPressed = false
-
+        if (isToggleable) return
+        isPressed = false
         eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
