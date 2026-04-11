@@ -88,18 +88,18 @@ suspend fun uploadSkin(
 
 /**
  * 使用 Yggdrasil 更改玩家披风
- * @param capeId 披风的uuid，为null则表示重置披风
+ * @param capeId 披风的uuid，为空字符串时则表示重置披风
  */
 suspend fun changeCape(
     apiUrl: String,
     accessToken: String,
-    capeId: String? = null,
+    capeId: String = "",
     maxRetries: Int = 1
 ) {
     val url = "$apiUrl/minecraft/profile/capes/active"
     val logTag = "YggdrasilApi.changeCape"
 
-    if (capeId == null) {
+    if (capeId.isBlank()) {
         //重置玩家选择的披风
         lInfo("$logTag: reset cape")
         withRetry(logTag = logTag, maxRetries = maxRetries) {

@@ -590,7 +590,7 @@ class AccountManageViewModel @Inject constructor(
                         changeCape(
                             MINECRAFT_SERVICES_URL,
                             account.accessToken,
-                            if (!isReset) capeId else null
+                            capeId
                         )
                     }, onRefreshRequest = {
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
