@@ -230,6 +230,32 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                             val activeWidgets = allActiveWidgets[pointerId] ?: emptyList()
 
                             if (isPressed) {
+                                //检查是否移出边界
+                                if (activeWidgets.isNotEmpty()) {
+                                    val backInBounds = mutableListOf<ObservableWidget>()
+                                    for (widget in activeWidgets) {
+                                        //检查组件是否可以响应移除边界即松开
+                                        if (!widget.isReleaseOnOutOfBounds()) continue
+
+                                        val size = widget.internalRenderSize
+                                        val offset = getWidgetPosition(widget, size, screenSize)
+                                        val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
+                                                position.y !in offset.y..(offset.y + size.height)
+
+                                        if (isOutOfBounds) {
+                                            widget.onReleaseEvent(eventHandler, reversedLayers)
+                                        } else {
+                                            backInBounds.add(widget)
+                                        }
+                                    }
+                                    //fix: 应该在抬起事件全部处理完成后再处理 #941
+                                    if (backInBounds.isNotEmpty()) {
+                                        for (widget in backInBounds) {
+                                            widget.onPointerBackInBounds(eventHandler, reversedLayers)
+                                        }
+                                    }
+                                }
+
                                 when {
                                     targetWidgets.isEmpty() -> {}
                                     else -> {
@@ -243,7 +269,9 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                                 allLayers = reversedLayers,
                                                 change = change,
                                                 activeWidgets = activeWidgets,
-                                                setActiveWidgets = { allActiveWidgets[pointerId] = it },
+                                                addThis = {
+                                                    allActiveWidgets[pointerId] = activeWidgets + listOf(targetWidget)
+                                                },
                                                 consumeEvent = { value ->
                                                     if (value) {
                                                         change.consume()
@@ -255,23 +283,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                                 }
                                             )
                                         }
-                                    }
-                                }
-
-                                //检查是否移出边界
-                                for (widget in activeWidgets) {
-                                    //检查组件是否可以响应移除边界即松开
-                                    if (!widget.isReleaseOnOutOfBounds()) continue
-
-                                    val size = widget.internalRenderSize
-                                    val offset = getWidgetPosition(widget, size, screenSize)
-                                    val isOutOfBounds = position.x !in offset.x..(offset.x + size.width) ||
-                                            position.y !in offset.y..(offset.y + size.height)
-
-                                    if (isOutOfBounds) {
-                                        widget.onReleaseEvent(eventHandler, reversedLayers)
-                                    } else {
-                                        widget.onPointerBackInBounds(eventHandler, reversedLayers)
                                     }
                                 }
                             } else {
