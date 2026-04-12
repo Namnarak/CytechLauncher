@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.movtery.layer_controller.data.POSITION_RANGE
 import com.movtery.layer_controller.utils.snap.SnapMode
 import com.movtery.zalithlauncher.game.path.GamePathManager
+import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.setting.enums.AppLanguage
 import com.movtery.zalithlauncher.setting.enums.DarkMode
@@ -49,6 +50,11 @@ object AllSettings : SettingsRegistry() {
      * Vulkan 驱动器
      */
     val vulkanDriver = stringSetting("vulkanDriver", "default turnip")
+
+    /**
+     * 图形 API（Minecraft 26.2+）
+     */
+    val graphicsApi = enumSetting("graphicsApi", GraphicsApi.DEFAULT)
 
     /**
      * 分辨率

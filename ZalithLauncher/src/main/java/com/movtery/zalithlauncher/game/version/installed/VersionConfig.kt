@@ -75,6 +75,8 @@ class VersionConfig(
     @SerializedName("driver")
     var driver: String = ""
         get() = getStringNotNull(field)
+    @SerializedName("graphicsApi")
+    var graphicsApi: GraphicsApi? = null
     @SerializedName("control")
     var control: String = ""
         get() = getStringNotNull(field)
@@ -105,6 +107,7 @@ class VersionConfig(
         jvmArgs: String = "",
         renderer: String = "",
         driver: String = "",
+        graphicsApi: GraphicsApi? = null,
         control: String = "",
         customPath: String = "",
         customInfo: String = "",
@@ -120,6 +123,7 @@ class VersionConfig(
         this.jvmArgs = jvmArgs
         this.renderer = renderer
         this.driver = driver
+        this.graphicsApi = graphicsApi
         this.control = control
         this.customPath = customPath
         this.customInfo = customInfo
@@ -138,6 +142,7 @@ class VersionConfig(
         getStringNotNull(jvmArgs),
         getStringNotNull(renderer),
         getStringNotNull(driver),
+        graphicsApi,
         getStringNotNull(control),
         getStringNotNull(customPath),
         getStringNotNull(customInfo),
@@ -196,6 +201,7 @@ class VersionConfig(
             writeString(getStringNotNull(jvmArgs))
             writeString(getStringNotNull(renderer))
             writeString(getStringNotNull(driver))
+            writeInt(graphicsApi?.ordinal ?: -1)
             writeString(getStringNotNull(control))
             writeString(getStringNotNull(customPath))
             writeString(getStringNotNull(customInfo))
@@ -216,6 +222,7 @@ class VersionConfig(
             val jvmArgs = parcel.readString().orEmpty()
             val renderer = parcel.readString().orEmpty()
             val driver = parcel.readString().orEmpty()
+            val graphicsApi = GraphicsApi.entries.getOrNull(parcel.readInt())
             val control = parcel.readString().orEmpty()
             val customPath = parcel.readString().orEmpty()
             val customInfo = parcel.readString().orEmpty()
@@ -233,6 +240,7 @@ class VersionConfig(
                 jvmArgs,
                 renderer,
                 driver,
+                graphicsApi,
                 control,
                 customPath,
                 customInfo,
@@ -285,6 +293,15 @@ enum class SettingState(val textRes: Int) {
     FOLLOW_GLOBAL(R.string.generic_follow_global),
     ENABLE(R.string.generic_enable),
     DISABLE(R.string.generic_disable)
+}
+
+enum class GraphicsApi(
+    val displayName: String,
+    val option: String
+) {
+    DEFAULT("", "\"default\""),
+    OPENGL("OpenGL", "\"opengl\""),
+    VULKAN("Vulkan", "\"vulkan\"")
 }
 
 private fun getSettingStateNotNull(type: SettingState?) = type ?: SettingState.FOLLOW_GLOBAL

@@ -36,6 +36,7 @@ import com.movtery.zalithlauncher.game.keycodes.LwjglGlfwKeycode
 import com.movtery.zalithlauncher.game.launch.GameLauncher
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
+import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.Terracotta
@@ -96,6 +97,17 @@ class GameHandler(
 
             set("overrideWidth", screenSize.width.toString())
             set("overrideHeight", screenSize.height.toString())
+
+            val graphicsApi = version.getGraphicsApi()
+            val graphicsOption = "preferredGraphicsBackend"
+            if (graphicsApi == GraphicsApi.DEFAULT) {
+                if (!containsKey(graphicsOption)) {
+                    set(graphicsOption, graphicsApi.option)
+                }
+            } else {
+                set(graphicsOption, graphicsApi.option)
+            }
+
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)
             save()
         }

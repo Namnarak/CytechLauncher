@@ -160,6 +160,8 @@ class Version(
 
     fun getDriver(): String = versionConfig.driver.getValueOrDefault(AllSettings.vulkanDriver.getValue())
 
+    fun getGraphicsApi(): GraphicsApi = versionConfig.graphicsApi ?: AllSettings.graphicsApi.getValue()
+
     fun getControlPath(): File? = versionConfig.control
         .getValueOrDefault(AllSettings.controlLayout.getValue())
         .takeIf { it.isNotEmpty() }
