@@ -66,6 +66,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         if (isToggleable) {
             isPressed = !isPressed
         } else {
+            if (isPressed) return
             isPressed = true
         }
         eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
@@ -84,17 +85,6 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
             )
             true
         }
-    }
-
-    /**
-     * 松开事件处理
-     */
-    private fun pressEnd(
-        eventHandler: EventHandler
-    ) {
-        if (isToggleable) return
-        isPressed = false
-        eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
     override val internalRenderPosition: ButtonPosition
@@ -142,12 +132,12 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         allLayers: List<ObservableControlLayer>,
         change: PointerInputChange,
         activeWidgets: List<ObservableWidget>,
-        setActiveWidgets: (List<ObservableWidget>) -> Unit,
+        addThis: () -> Unit,
         consumeEvent: (Boolean) -> Unit
     ) {
         if (activeWidgets.isEmpty()) {
             //新的按下事件
-            setActiveWidgets(activeWidgets + listOf(this))
+            addThis()
             if (!isPenetrable) {
                 consumeEvent(true)
             } else {
@@ -161,7 +151,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
                     it is ObservableNormalData && it.isSwipple
                 } && isSwipple
             ) {
-                setActiveWidgets(activeWidgets + listOf(this))
+                addThis()
                 pressStart(eventHandler, allLayers)
             }
         }
@@ -184,7 +174,9 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
     ) {
-        pressEnd(eventHandler)
+        if (isToggleable || !isPressed) return
+        isPressed = false
+        eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
     fun addEvent(event: ClickEvent) {

@@ -84,7 +84,7 @@ open class ObservableTextData(data: TextData) : ObservableWidget() {
         allLayers: List<ObservableControlLayer>,
         change: PointerInputChange,
         activeWidgets: List<ObservableWidget>,
-        setActiveWidgets: (List<ObservableWidget>) -> Unit,
+        addThis: () -> Unit,
         consumeEvent: (Boolean) -> Unit
     ) {
         //不处理触摸事件
