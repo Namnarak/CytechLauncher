@@ -56,7 +56,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewModelScope
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.LoggerBridge
@@ -84,6 +83,7 @@ import com.movtery.zalithlauncher.ui.base.WindowMode
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
+import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderLayer
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderOperation
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -99,8 +99,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.lwjgl.glfw.CallbackBridge
 import java.io.File
@@ -250,7 +248,7 @@ class VMViewModel : ViewModel() {
         if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
     }
 
-    private val inputMutex = Mutex()
+    var touchInputView by mutableStateOf<TouchCharInput?>(null)
 
     /**
      * 直接发送文本到游戏
@@ -262,13 +260,11 @@ class VMViewModel : ViewModel() {
     }
 
     fun sendInputText(text: String) {
-        viewModelScope.launch {
-            inputMutex.withLock {
-                withContext(Dispatchers.Main) {
-                    text.sendText()
-                }
-            }
-        }
+        text.sendText()
+    }
+
+    fun sendBackspace() {
+        sender.sendBackspace()
     }
 
     /**
@@ -276,14 +272,19 @@ class VMViewModel : ViewModel() {
      */
     fun handleSpecialKey(keyEvent: KeyEvent) {
         when (keyEvent.keyCode) {
-            KeyEvent.KEYCODE_DEL -> sender.sendBackspace()
+            KeyEvent.KEYCODE_DEL -> {
+                //忽略掉删除事件，避免状态不同步
+            }
 
             KeyEvent.KEYCODE_DPAD_LEFT -> sender.sendLeft()
             KeyEvent.KEYCODE_DPAD_RIGHT -> sender.sendRight()
             KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
             KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
 
-//            KeyEvent.KEYCODE_ENTER -> sender.sendEnter()
+            KeyEvent.KEYCODE_ENTER -> {
+                touchInputView?.clear()
+                sender.sendEnter()
+            }
             KeyEvent.KEYCODE_TAB -> sender.sendTab()
 
             else -> sender.sendOther(keyEvent)
@@ -423,14 +424,18 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                     if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
                         //输入栏控制区域
                         HidableInputLayout(
-                            onEnterClick = {
-                                vmViewModel.sender.sendEnter()
-                            },
+                            view = vmViewModel.touchInputView,
                             onSend = { text ->
                                 vmViewModel.sendInputText(text)
                             },
+                            onBackspace = {
+                                vmViewModel.sendBackspace()
+                            },
                             onClose = {
                                 vmViewModel.textInputMode = TextInputMode.DISABLE
+                            },
+                            onViewChanged = {
+                                vmViewModel.touchInputView = it
                             }
                         )
                     }

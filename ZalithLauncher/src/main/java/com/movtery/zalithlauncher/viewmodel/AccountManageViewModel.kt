@@ -587,7 +587,11 @@ class AccountManageViewModel @Inject constructor(
                 task = { task ->
                     executeWithAuthorization(block = {
                         task.updateMessage(R.string.account_change_cape_apply)
-                        changeCape(MINECRAFT_SERVICES_URL, account.accessToken, capeId)
+                        changeCape(
+                            MINECRAFT_SERVICES_URL,
+                            account.accessToken,
+                            capeId
+                        )
                     }, onRefreshRequest = {
                         account.refreshMicrosoft(task = task, coroutineContext = coroutineContext)
                         AccountsManager.suspendSaveAccount(account)
@@ -595,14 +599,13 @@ class AccountManageViewModel @Inject constructor(
 
                     val capeFile = cape.getFile(PathManager.DIR_ACCOUNT_CAPE)
                     val targetCape = account.getCapeFile()
-                    if (isReset || capeFile.exists()) {
+                    FileUtils.deleteQuietly(targetCape)
+                    if (!isReset && capeFile.exists()) {
                         runCatching {
-                            FileUtils.deleteQuietly(targetCape)
                             capeFile.copyTo(targetCape)
                         }
-                    } else {
-                        FileUtils.deleteQuietly(targetCape)
                     }
+
                     AccountsManager.refreshWardrobe()
 
                     _accountCapeOpMap.update { capesMap ->

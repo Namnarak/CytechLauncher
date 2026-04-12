@@ -63,11 +63,11 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
     ) {
-        val result = if (isPressed && !isToggleable) {
-            false
+        if (isToggleable) {
+            isPressed = !isPressed
         } else {
-            isPressed = if (isToggleable) !isPressed else true
-            true
+            if (isPressed) return
+            isPressed = true
         }
         eventHandler.onKeyPressed(clickEvents, isPressed) { event ->
             eventHandler.onSwitchLayer(
@@ -83,23 +83,8 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
                     layer.hide = true
                 }
             )
-
-            result
+            true
         }
-    }
-
-    /**
-     * 松开事件处理
-     */
-    private fun pressEnd(
-        eventHandler: EventHandler
-    ) {
-        if (!isPressed && !isToggleable) return
-
-        //非可开关按钮在松开时复位
-        if (!isToggleable) isPressed = false
-
-        eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
     override val internalRenderPosition: ButtonPosition
@@ -120,8 +105,11 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
     }
 
     override fun onCompositionDispose(eventHandler: EventHandler?) {
-        isPressed = false
-        eventHandler?.onKeyPressed(clickEvents, isPressed)
+        if (isPressed) {
+            //fix: 若本身未按下，不应该输出抬起事件
+            isPressed = false
+            eventHandler?.onKeyPressed(clickEvents, isPressed)
+        }
     }
 
     override fun onCheckVisibilityType(): VisibilityType {
@@ -144,12 +132,12 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         allLayers: List<ObservableControlLayer>,
         change: PointerInputChange,
         activeWidgets: List<ObservableWidget>,
-        setActiveWidgets: (List<ObservableWidget>) -> Unit,
+        addThis: () -> Unit,
         consumeEvent: (Boolean) -> Unit
     ) {
         if (activeWidgets.isEmpty()) {
             //新的按下事件
-            setActiveWidgets(activeWidgets + listOf(this))
+            addThis()
             if (!isPenetrable) {
                 consumeEvent(true)
             } else {
@@ -163,7 +151,7 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
                     it is ObservableNormalData && it.isSwipple
                 } && isSwipple
             ) {
-                setActiveWidgets(activeWidgets + listOf(this))
+                addThis()
                 pressStart(eventHandler, allLayers)
             }
         }
@@ -186,7 +174,9 @@ class ObservableNormalData(data: NormalData) : ObservableWidget() {
         eventHandler: EventHandler,
         allLayers: List<ObservableControlLayer>
     ) {
-        pressEnd(eventHandler)
+        if (isToggleable || !isPressed) return
+        isPressed = false
+        eventHandler.onKeyPressed(clickEvents, isPressed)
     }
 
     fun addEvent(event: ClickEvent) {

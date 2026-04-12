@@ -48,6 +48,7 @@ import com.movtery.zalithlauncher.game.multirt.RuntimesManager
 import com.movtery.zalithlauncher.game.plugin.driver.DriverPluginManager
 import com.movtery.zalithlauncher.game.renderer.Renderers
 import com.movtery.zalithlauncher.game.support.touch_controller.VibrationHandler
+import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionConfig
 import com.movtery.zalithlauncher.setting.AllSettings
@@ -229,6 +230,31 @@ private fun VersionConfigs(
             onValueChange = { item ->
                 if (config.driver != item.id) {
                     config.driver = item.id
+                    config.saveOrShowError(context, submitError)
+                }
+            }
+        )
+
+        val graphicsApis = GraphicsApi.entries
+        val defaultGraphicsTitle = stringResource(R.string.settings_game_graphics_api_default)
+        val graphicsApisList = getIDList(graphicsApis) {
+            val title = if (it == GraphicsApi.DEFAULT) defaultGraphicsTitle
+            else it.displayName
+            IDItem(it.name, title)
+        }
+        ListSettingsCard(
+            modifier = Modifier.fillMaxWidth(),
+            position = CardPosition.Middle,
+            items = graphicsApisList,
+            currentId = config.graphicsApi?.name ?: "",
+            defaultId = "",
+            title = stringResource(R.string.settings_game_graphics_api_title),
+            summary = stringResource(R.string.settings_game_graphics_api_summary),
+            getItemText = { it.title },
+            getItemId = { it.id },
+            onValueChange = { item ->
+                if (config.graphicsApi?.name != item.id) {
+                    config.graphicsApi = GraphicsApi.entries.find { it.name == item.id }
                     config.saveOrShowError(context, submitError)
                 }
             }
