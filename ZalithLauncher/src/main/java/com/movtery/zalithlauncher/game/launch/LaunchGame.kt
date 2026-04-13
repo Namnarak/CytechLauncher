@@ -20,9 +20,12 @@ package com.movtery.zalithlauncher.game.launch
 
 import android.content.Context
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
+import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.AccountsManager
 import com.movtery.zalithlauncher.game.account.auth_server.ResponseException
+import com.movtery.zalithlauncher.game.account.isLocalAccount
 import com.movtery.zalithlauncher.game.account.microsoft.MinecraftProfileException
 import com.movtery.zalithlauncher.game.account.microsoft.NotPurchasedMinecraftException
 import com.movtery.zalithlauncher.game.account.microsoft.XboxLoginException
@@ -53,28 +56,57 @@ object LaunchGame {
         submitError: (ErrorViewModel.ThrowableMessage) -> Unit
     ) {
         if (isLaunching) return
-
         val account = AccountsManager.getCurrentAccount() ?: return
-
         isLaunching = true
 
-        val downloadTask = MinecraftDownloader(
+        //检查是否联网，根据这个条件决定是否登录账号
+        //以及，没有联网时，让微软账号、外置账号作为离线账号登录
+        val hasNetwork = isNetworkAvailable(context)
+
+        val downloadTask = createDownloadTask(
+            context = context,
+            version = version,
+            exitActivity = exitActivity,
+            submitError = submitError
+        )
+        fun startDownloadTask() {
+            TaskSystem.submitTask(downloadTask) { isLaunching = false }
+        }
+
+        val loginTask = createLoginTask(
+            context = context,
+            hasNetwork = hasNetwork,
+            account = account,
+            submitError = submitError
+        ) {
+            startDownloadTask()
+        }
+
+        if (loginTask != null) {
+            TaskSystem.submitTask(loginTask)
+        } else {
+            if (!hasNetwork && !account.isLocalAccount()) {
+                //没联网时作为离线账号登录
+                version.offlineAccountLogin = true
+            }
+            startDownloadTask()
+        }
+    }
+
+    private fun createDownloadTask(
+        context: Context,
+        version: Version,
+        exitActivity: () -> Unit,
+        submitError: (ErrorViewModel.ThrowableMessage) -> Unit
+    ): Task {
+        return MinecraftDownloader(
             context = context,
             version = version.getVersionInfo()?.minecraftVersion ?: version.getVersionName(),
             customName = version.getVersionName(),
             verifyIntegrity = !version.skipGameIntegrityCheck(),
             mode = DownloadMode.VERIFY_AND_REPAIR,
             onCompletion = {
-                val modsDir = VersionFolders.MOD.getDir(version.getGameDir())
-                val reader = AllModReader(modsDir)
-                for (mod in reader.readAllLocals()) {
-                    if (mod.id == "touchcontroller") {
-                        //安装TouchController后，自动开启代理
-                        version.enableTouchProxy = true
-                        break
-                    }
-                }
-
+                checkEnableTouchProxy(version)
                 runGame(context, version)
                 exitActivity()
             },
@@ -87,15 +119,32 @@ object LaunchGame {
                 )
             }
         ).getDownloadTask()
+    }
 
-        fun runDownloadTask() {
-            TaskSystem.submitTask(downloadTask) { isLaunching = false }
+    /**
+     * 检查是否安装了 TouchController，安装后开启控制代理
+     */
+    private suspend fun checkEnableTouchProxy(version: Version) {
+        val modsDir = VersionFolders.MOD.getDir(version.getGameDir())
+        val reader = AllModReader(modsDir)
+        for (mod in reader.readAllLocals()) {
+            if (mod.id == "touchcontroller") {
+                version.enableTouchProxy = true
+                break
+            }
         }
+    }
 
-        val hasNetwork = isNetworkAvailable(context)
-        //刷新条件：已联网且令牌过期
-        //认证服务器账号的expiresAt为0，能够保证每次都刷新账号
-        val loginTask = if (hasNetwork && System.currentTimeMillis() > account.expiresAt - 5 * 60 * 1000) {
+    private fun createLoginTask(
+        context: Context,
+        hasNetwork: Boolean,
+        account: Account,
+        submitError: (ErrorViewModel.ThrowableMessage) -> Unit,
+        onFinally: () -> Unit
+    ): Task? {
+        val needsRefresh = hasNetwork && System.currentTimeMillis() > account.expiresAt - 5 * 60 * 1000
+
+        return if (needsRefresh) {
             AccountsManager.performLoginTask(
                 context = context,
                 account = account,
@@ -134,20 +183,10 @@ object LaunchGame {
                         )
                     )
                 },
-                onFinally = { runDownloadTask() }
+                onFinally = onFinally
             )
         } else {
             null
-        }
-
-        loginTask?.let { task ->
-            TaskSystem.submitTask(task)
-        } ?: run {
-            if (!hasNetwork) {
-                //没联网时使用离线账号
-                version.offlineAccountLogin = true
-            }
-            runDownloadTask()
         }
     }
 }
