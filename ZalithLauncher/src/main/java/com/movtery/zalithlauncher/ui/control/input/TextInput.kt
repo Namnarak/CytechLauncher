@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.ui.control.input
 
 import android.text.InputType
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -51,6 +52,8 @@ fun HidableInputLayout(
             .focusRequester(inputFocus),
         factory = { context ->
             TouchCharInput(context).apply {
+                id = View.generateViewId()
+
                 imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN or
                         EditorInfo.IME_FLAG_NO_EXTRACT_UI or
                         EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING or
@@ -60,6 +63,12 @@ fun HidableInputLayout(
                         InputType.TYPE_TEXT_FLAG_MULTI_LINE
 
                 setEms(10)
+
+                isFocusableInTouchMode = true
+                nextFocusDownId = id
+                nextFocusUpId = id
+                nextFocusLeftId = id
+                nextFocusRightId = id
             }.also { view0 ->
                 val view = view0.also {
                     it.setListener(
