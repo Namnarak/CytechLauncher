@@ -21,4 +21,5 @@ package com.movtery.zalithlauncher.ui.control.input
 interface InputListener {
     fun onSend(char: Char)
     fun onBackspace()
+    fun onEnter()
 }

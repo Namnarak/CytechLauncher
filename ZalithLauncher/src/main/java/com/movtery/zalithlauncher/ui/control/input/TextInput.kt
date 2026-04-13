@@ -25,7 +25,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
@@ -37,14 +40,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
 fun HidableInputLayout(
-    view: TouchCharInput?,
     onSend: (String) -> Unit,
     onBackspace: () -> Unit,
+    onEnter: () -> Unit,
     onClose: () -> Unit,
-    onViewChanged: (TouchCharInput?) -> Unit,
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     inputFocus: FocusRequester = remember { FocusRequester() },
 ) {
+    var view by remember { mutableStateOf<TouchCharInput?>(null) }
+
     AndroidView(
         modifier = Modifier
             .alpha(0f)
@@ -70,7 +74,7 @@ fun HidableInputLayout(
                 nextFocusLeftId = id
                 nextFocusRightId = id
             }.also { view0 ->
-                val view = view0.also {
+                view = view0.also {
                     it.setListener(
                         object : InputListener {
                             override fun onSend(char: Char) {
@@ -79,10 +83,13 @@ fun HidableInputLayout(
                             override fun onBackspace() {
                                 onBackspace()
                             }
+                            override fun onEnter() {
+                                onEnter()
+                                onClose()
+                            }
                         }
                     )
                 }
-                onViewChanged(view)
             }
         }
     )
@@ -91,13 +98,13 @@ fun HidableInputLayout(
         if (view == null) return@LaunchedEffect
         inputFocus.requestFocus()
         keyboardController?.show()
-        view.enableKeyboard()
+        view?.enableKeyboard()
     }
 
     DisposableEffect(Unit) {
         onDispose {
             keyboardController?.hide()
-            onViewChanged(null)
+            view = null
         }
     }
 

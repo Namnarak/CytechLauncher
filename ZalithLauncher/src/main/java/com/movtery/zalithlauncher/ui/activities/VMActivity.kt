@@ -83,7 +83,6 @@ import com.movtery.zalithlauncher.ui.base.WindowMode
 import com.movtery.zalithlauncher.ui.components.rememberBoxSize
 import com.movtery.zalithlauncher.ui.control.input.HidableInputLayout
 import com.movtery.zalithlauncher.ui.control.input.TextInputMode
-import com.movtery.zalithlauncher.ui.control.input.TouchCharInput
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderLayer
 import com.movtery.zalithlauncher.ui.screens.game.elements.OpenFolderOperation
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
@@ -248,7 +247,6 @@ class VMViewModel : ViewModel() {
         if (textInputMode == TextInputMode.ENABLE) textInputMode = TextInputMode.DISABLE
     }
 
-    var touchInputView by mutableStateOf<TouchCharInput?>(null)
 
     /**
      * 直接发送文本到游戏
@@ -267,12 +265,16 @@ class VMViewModel : ViewModel() {
         sender.sendBackspace()
     }
 
+    fun sendEnder() {
+        sender.sendEnter()
+    }
+
     /**
      * 仅处理特殊按键
      */
     fun handleSpecialKey(keyEvent: KeyEvent) {
         when (keyEvent.keyCode) {
-            KeyEvent.KEYCODE_DEL -> {
+            KeyEvent.KEYCODE_DEL, KeyEvent.KEYCODE_ENTER -> {
                 //忽略掉删除事件，避免状态不同步
             }
 
@@ -281,10 +283,6 @@ class VMViewModel : ViewModel() {
             KeyEvent.KEYCODE_DPAD_UP -> sender.sendUp()
             KeyEvent.KEYCODE_DPAD_DOWN -> sender.sendDown()
 
-            KeyEvent.KEYCODE_ENTER -> {
-                touchInputView?.clear()
-                sender.sendEnter()
-            }
             KeyEvent.KEYCODE_TAB -> sender.sendTab()
 
             else -> sender.sendOther(keyEvent)
@@ -424,18 +422,17 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener {
                     if (vmViewModel.textInputMode == TextInputMode.ENABLE) {
                         //输入栏控制区域
                         HidableInputLayout(
-                            view = vmViewModel.touchInputView,
                             onSend = { text ->
                                 vmViewModel.sendInputText(text)
                             },
                             onBackspace = {
                                 vmViewModel.sendBackspace()
                             },
+                            onEnter = {
+                                vmViewModel.sendEnder()
+                            },
                             onClose = {
                                 vmViewModel.textInputMode = TextInputMode.DISABLE
-                            },
-                            onViewChanged = {
-                                vmViewModel.touchInputView = it
                             }
                         )
                     }
