@@ -104,8 +104,8 @@ class GameInstaller(
      * versions/<client-name>/...
      */
     private var targetClientDir: File? = null
-    private var overrideClientJar: File = File(PathManager.DIR_CACHE, "overrideClientJar")
-    private var overrideClientJson: File = File(PathManager.DIR_CACHE, "overrideClientJson")
+    private val overrideClientJar: File get() = File(PathManager.DIR_CACHE, "override_${info.customVersionName}_jar")
+    private val overrideClientJson: File get() = File(PathManager.DIR_CACHE, "override_${info.customVersionName}_json")
 
     /**
      * 目标游戏目录
@@ -142,9 +142,17 @@ class GameInstaller(
                 taskExecutor.addPhases(tasks)
             },
             onComplete = {
+                if (info.overwrite) {
+                    clearBackupFiles()
+                }
                 onInstalled(info.customVersionName)
             },
-            onError = onError
+            onError = {
+                if (info.overwrite) {
+                    revertClientDir()
+                }
+                onError(it)
+            }
         )
     }
 
@@ -170,8 +178,18 @@ class GameInstaller(
                 val tasks = getUpdateLoaderTaskPhase()
                 taskExecutor.addPhases(tasks)
             },
-            onComplete = onInstalled,
-            onError = onError
+            onComplete = {
+                if (info.overwrite) {
+                    clearBackupFiles()
+                }
+                onInstalled()
+            },
+            onError = {
+                if (info.overwrite) {
+                    revertClientDir()
+                }
+                onError(it)
+            }
         )
     }
 
@@ -694,6 +712,13 @@ class GameInstaller(
                 FileUtils.deleteQuietly(it)
                 lInfo("Successfully deleted version directory: ${it.name} at path: ${it.absolutePath}")
             }
+        }
+    }
+
+    private fun clearBackupFiles() {
+        CoroutineScope(Dispatchers.IO).launch {
+            FileUtils.deleteQuietly(overrideClientJson)
+            FileUtils.deleteQuietly(overrideClientJar)
         }
     }
 
