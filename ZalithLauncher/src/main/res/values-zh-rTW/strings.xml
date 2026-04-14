@@ -155,6 +155,9 @@
     <string name="download_game_type_old_alpha">Alpha 版</string>
     <string name="download_game_type_old_beta">Beta 版</string>
     <string name="download_game_version_name">版本名稱</string>
+    <string name="download_game_version_overwrite">將會覆蓋安裝到已存在版本：%s</string>
+    <string name="download_game_version_overwrite_select">覆蓋的版本</string>
+    <string name="download_game_version_overwrite_select_subtitle">選擇要覆蓋的版本，您可以使用這個功能升級/降級目標版本</string>
     <string name="download_game_addon_list_load_error">列表載入錯誤：%s</string>
     <string name="download_game_addon_available">可選擇</string>
     <string name="download_game_addon_unavailable">不可用</string>

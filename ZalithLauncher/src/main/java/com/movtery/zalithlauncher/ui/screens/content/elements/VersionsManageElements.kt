@@ -461,7 +461,7 @@ fun RenameVersionDialog(
 
     val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
         errorMessage = message
-    } || VersionsManager.validateVersionName(name, version.getVersionInfo()) { message ->
+    } || VersionsManager.validateVersionName(name) { message ->
         errorMessage = message
     }
 
@@ -499,7 +499,7 @@ fun CopyVersionDialog(
 
     val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
         errorMessage = message
-    } || VersionsManager.validateVersionName(name, version.getVersionInfo()) { message ->
+    } || VersionsManager.validateVersionName(name) { message ->
         errorMessage = message
     }
 

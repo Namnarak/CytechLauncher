@@ -273,19 +273,11 @@ object VersionsManager {
     @Composable
     fun validateVersionName(
         newName: String,
-        versionInfo: VersionInfo?,
         onError: (message: String) -> Unit
     ): Boolean {
         return when {
             isVersionExists(newName, true) -> {
                 onError(stringResource(R.string.versions_manage_install_exists))
-                true
-            }
-            versionInfo?.loaderInfo?.let {
-                //如果这个版本是有ModLoader加载器信息的，则不允许修改为与原版名称一致的名称，防止冲突
-                newName == versionInfo.minecraftVersion
-            } ?: false -> {
-                onError(stringResource(R.string.versions_manage_install_cannot_use_mc_name))
                 true
             }
             else -> false
