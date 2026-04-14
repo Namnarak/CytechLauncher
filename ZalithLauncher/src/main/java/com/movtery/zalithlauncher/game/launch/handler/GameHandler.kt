@@ -141,8 +141,6 @@ class GameHandler(
 
     @Suppress("DEPRECATION")
     override fun shouldIgnoreKeyEvent(event: KeyEvent): Boolean {
-        //避免长按触发的重复事件
-        if (event.repeatCount != 0) return false
         if (event.action == KeyEvent.ACTION_UP && (event.flags and KeyEvent.FLAG_CANCELED) != 0) return false
 
         if (event.isGamepadKeyEvent()) {
