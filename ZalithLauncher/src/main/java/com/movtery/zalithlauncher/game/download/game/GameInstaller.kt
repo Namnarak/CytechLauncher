@@ -63,7 +63,9 @@ import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.utils.file.copyDirectoryContents
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.downloadFromMirrorListSuspend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +104,8 @@ class GameInstaller(
      * versions/<client-name>/...
      */
     private var targetClientDir: File? = null
+    private val overrideClientJar: File get() = File(PathManager.DIR_CACHE, "override_${info.customVersionName}_jar")
+    private val overrideClientJson: File get() = File(PathManager.DIR_CACHE, "override_${info.customVersionName}_json")
 
     /**
      * 目标游戏目录
@@ -129,18 +133,25 @@ class GameInstaller(
 
         taskExecutor.executePhasesAsync(
             onStart = {
-                val tasks = getTaskPhase()
+                val tasks = try {
+                    getTaskPhase()
+                } catch (_: GameAlreadyInstalledException) {
+                    onGameAlreadyInstalled()
+                    return@executePhasesAsync
+                }
                 taskExecutor.addPhases(tasks)
             },
             onComplete = {
+                if (info.overwrite) {
+                    clearBackupFiles()
+                }
                 onInstalled(info.customVersionName)
             },
-            onError = { th ->
-                if (th is GameAlreadyInstalledException) {
-                    onGameAlreadyInstalled()
-                } else {
-                    onError(th)
+            onError = {
+                if (info.overwrite) {
+                    revertClientDir()
                 }
+                onError(it)
             }
         )
     }
@@ -167,8 +178,18 @@ class GameInstaller(
                 val tasks = getUpdateLoaderTaskPhase()
                 taskExecutor.addPhases(tasks)
             },
-            onComplete = onInstalled,
-            onError = onError
+            onComplete = {
+                if (info.overwrite) {
+                    clearBackupFiles()
+                }
+                onInstalled()
+            },
+            onError = {
+                if (info.overwrite) {
+                    revertClientDir()
+                }
+                onError(it)
+            }
         )
     }
 
@@ -199,12 +220,33 @@ class GameInstaller(
         val targetClientDir1 = VersionsManager.getVersionPath(info.customVersionName)
         targetClientDir = targetClientDir1
         val targetVersionJson = File(targetClientDir1, "${info.customVersionName}.json")
-//        val targetVersionJar = File(targetClientDir1, "${info.customVersionName}.jar")
+        val targetVersionJar = File(targetClientDir1, "${info.customVersionName}.jar")
 
-        //目标版本已经安装的情况
-        if (checkTargetVersion && targetVersionJson.exists()) {
+        //目标版本已经安装的情况，非覆盖模式将退出
+        if (!info.overwrite && checkTargetVersion && targetVersionJson.exists()) {
             lDebug("The game has already been installed!")
             throw GameAlreadyInstalledException()
+        }
+
+        //如果是覆盖安装，将清除目标版本Json和Jar
+        if (info.overwrite) {
+            runCatching {
+                targetVersionJson.takeIf { it.exists() }?.let {
+                    overrideClientJson.delete()
+                    it.copyTo(overrideClientJson)
+                    it.delete()
+                }
+                targetVersionJar.takeIf { it.exists() }?.let {
+                    overrideClientJar.delete()
+                    it.copyTo(overrideClientJar)
+                    it.delete()
+                }
+            }.onFailure {
+                //无法正常备份，只能硬着头皮干！
+                FileUtils.deleteQuietly(overrideClientJson)
+                FileUtils.deleteQuietly(overrideClientJar)
+                lWarning("Backup failed, will proceed with overwrite installation directly!", it)
+            }
         }
 
         val tempGameDir = PathManager.DIR_CACHE_GAME_DOWNLOADER
@@ -630,8 +672,12 @@ class GameInstaller(
     ) {
         taskExecutor.cancel()
 
-        if (clearTarget) {
+        if (clearTarget && !info.overwrite) {
             clearTargetClient()
+        }
+
+        if (info.overwrite) {
+            revertClientDir()
         }
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -665,6 +711,35 @@ class GameInstaller(
                 //直接清除上一次安装的目标目录
                 FileUtils.deleteQuietly(it)
                 lInfo("Successfully deleted version directory: ${it.name} at path: ${it.absolutePath}")
+            }
+        }
+    }
+
+    private fun clearBackupFiles() {
+        CoroutineScope(Dispatchers.IO).launch {
+            FileUtils.deleteQuietly(overrideClientJson)
+            FileUtils.deleteQuietly(overrideClientJar)
+        }
+    }
+
+    private fun revertClientDir() {
+        val targetDir = targetClientDir ?: return
+
+        val targetJson = File(targetDir, "${info.customVersionName}.json")
+        val targetJar = File(targetDir, "${info.customVersionName}.jar")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching {
+                if (overrideClientJson.exists()) {
+                    FileUtils.deleteQuietly(targetJson)
+                    FileUtils.moveFile(overrideClientJson, targetJson)
+                }
+                if (overrideClientJar.exists()) {
+                    FileUtils.deleteQuietly(targetJar)
+                    FileUtils.moveFile(overrideClientJar, targetJar)
+                }
+            }.onFailure { e ->
+                lError("Failed to revert client files: ${e.message}", e)
             }
         }
     }
@@ -925,7 +1000,12 @@ class GameInstaller(
             tempModsDir.listFiles()?.let {
                 val targetModsDir = VersionFolders.MOD.getDir(targetClientDir)
                 it.forEach { modFile ->
-                    modFile.copyTo(File(targetModsDir, modFile.name))
+                    val targetMod = File(targetModsDir, modFile.name)
+                    if (!targetMod.exists()) {
+                        //如果已经安装了，那就不覆盖
+                        //用户可能是覆盖安装，所以检查这个很有必要
+                        modFile.copyTo(targetMod)
+                    }
                 }
                 if (createIsolation) {
                     //开启版本隔离

@@ -495,7 +495,7 @@ fun ModpackVersionNameDialog(
 
     val isError = name.isEmpty() || isFilenameInvalid(name) { message ->
         errorMessage = message
-    } || VersionsManager.validateVersionName(name, null) { message ->
+    } || VersionsManager.validateVersionName(name) { message ->
         errorMessage = message
     }
 
