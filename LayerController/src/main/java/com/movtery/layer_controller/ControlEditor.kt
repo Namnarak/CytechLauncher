@@ -19,7 +19,6 @@
 package com.movtery.layer_controller
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,14 +27,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +41,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -291,28 +290,40 @@ fun ControlEditorLayer(
                     fun ResizeHandle(
                         isTopLeft: Boolean,
                         currentPos: Offset,
-                        size: Dp = 20.dp
+                        touchSize: Dp = 30.dp,
+                        visualSize: Dp = 12.dp
                     ) {
-                        val sizePx = with(density) { size.toPx() }
+                        var activeHandleCount by remember { mutableIntStateOf(0) }
+                        val touchSizePx = with(density) { touchSize.toPx() }
+                        val visualSizePx = with(density) { visualSize.toPx() }
 
                         Box(
                             modifier = Modifier
                                 .offset {
                                     IntOffset(
-                                        (currentPos.x - sizePx / 2).roundToInt(),
-                                        (currentPos.y - sizePx / 2).roundToInt()
+                                        (currentPos.x - touchSizePx / 2).roundToInt(),
+                                        (currentPos.y - touchSizePx / 2).roundToInt()
                                     )
                                 }
-                                .size(size)
+                                .size(touchSize)
+                                .drawBehind {
+                                    drawCircle(
+                                        color = primaryColor,
+                                        radius = visualSizePx / 2,
+                                        center = center
+                                    )
+                                }
                                 .pointerInput(widget, screenSize) {
                                     detectDragGestures(
                                         onDragStart = {
-                                            val currentWidgetSize = widget.internalRenderSize
-                                            val pos = getWidgetPosition(widget, currentWidgetSize, screenSize)
-                                            dragTL = pos
-                                            dragBR = Offset(pos.x + currentWidgetSize.width, pos.y + currentWidgetSize.height)
+                                            if (activeHandleCount == 0) {
+                                                val currentWidgetSize = widget.internalRenderSize
+                                                val pos = getWidgetPosition(widget, currentWidgetSize, screenSize)
+                                                dragTL = pos
+                                                dragBR = Offset(pos.x + currentWidgetSize.width, pos.y + currentWidgetSize.height)
+                                            }
+                                            activeHandleCount++
                                             resizingWidget = widget
-
                                             widget.movingOffset = dragTL
                                             widget.isEditingPos = true
                                         },
@@ -346,24 +357,24 @@ fun ControlEditorLayer(
                                             }
                                         },
                                         onDragEnd = {
-                                            resizingWidget = null
-                                            widget.isEditingPos = false
+                                            activeHandleCount--
+                                            if (activeHandleCount <= 0) {
+                                                resizingWidget = null
+                                                widget.isEditingPos = false
+                                                activeHandleCount = 0
+                                            }
                                         },
                                         onDragCancel = {
-                                            resizingWidget = null
-                                            widget.isEditingPos = false
+                                            activeHandleCount--
+                                            if (activeHandleCount <= 0) {
+                                                resizingWidget = null
+                                                widget.isEditingPos = false
+                                                activeHandleCount = 0
+                                            }
                                         }
                                     )
                                 }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(all = 2.dp)
-//                                    .clip(CircleShape)
-                                    .background(primaryColor, shape = CircleShape)
-                            )
-                        }
+                        )
                     }
 
                     //左上角手柄
