@@ -25,6 +25,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -39,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
@@ -49,6 +52,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -77,6 +81,7 @@ import kotlin.math.roundToInt
 /**
  * 控制布局编辑器渲染层
  * @param selectedWidget 当前选中的控件，编辑器将会标注它
+ * @param floatingButtons 选中控件后，在控件下方悬浮的按钮栏
  * @param enableSnap 是否开启吸附
  * @param snapInAllLayers 是否在全控制层范围内吸附
  * @param snapMode 吸附模式
@@ -90,6 +95,7 @@ fun ControlEditorLayer(
     selectedWidget: ObservableWidget?,
     onButtonTap: (data: ObservableWidget, layer: ObservableControlLayer) -> Unit,
     onBackgroundClick: () -> Unit,
+    floatingButtons: @Composable RowScope.() -> Unit,
     enableSnap: Boolean,
     snapInAllLayers: Boolean,
     snapMode: SnapMode,
@@ -291,7 +297,7 @@ fun ControlEditorLayer(
                         isTopLeft: Boolean,
                         currentPos: Offset,
                         touchSize: Dp = 30.dp,
-                        visualSize: Dp = 12.dp
+                        visualSize: Dp = 14.dp
                     ) {
                         var activeHandleCount by remember { mutableIntStateOf(0) }
                         val touchSizePx = with(density) { touchSize.toPx() }
@@ -381,6 +387,34 @@ fun ControlEditorLayer(
                     ResizeHandle(isTopLeft = true, currentPos = drawTL)
                     //右下角手柄
                     ResizeHandle(isTopLeft = false, currentPos = drawBR)
+                }
+            }
+
+            //悬浮功能按钮栏
+            selectedWidget?.let {
+                selectedWidgetBounds?.let { (drawTL, drawBR) ->
+                    var barSize by remember { mutableStateOf(IntSize.Zero) }
+
+                    val centerX = (drawTL.x + drawBR.x) / 2
+                    val targetY = drawBR.y + with(density) { 8.dp.toPx() }
+
+                    //居中显示，但不能超出屏幕左右边界
+                    val xPos = (centerX - barSize.width / 2)
+                        .coerceIn(0f, maxOf(0f, screenSize.width.toFloat() - barSize.width))
+                    val yPos = targetY
+                        .coerceAtMost(maxOf(0f, screenSize.height.toFloat() - barSize.height))
+
+                    Row(
+                        modifier = Modifier
+                            .onSizeChanged { barSize = it }
+                            //加载好位置之后再显示，否则有点影响体验
+                            .alpha(if (barSize != IntSize.Zero) 1f else 0f)
+                            .offset {
+                                IntOffset(xPos.roundToInt(), yPos.roundToInt())
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = floatingButtons
+                    )
                 }
             }
         }
