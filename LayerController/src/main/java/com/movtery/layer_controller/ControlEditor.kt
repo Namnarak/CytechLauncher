@@ -320,7 +320,7 @@ fun ControlEditorLayer(
                                         center = center
                                     )
                                 }
-                                .pointerInput(widget, screenSize) {
+                                .pointerInput(widget, screenSize, minWidth, maxWidth, minHeight, maxHeight) {
                                     detectDragGestures(
                                         onDragStart = {
                                             if (activeHandleCount == 0) {
@@ -364,19 +364,17 @@ fun ControlEditorLayer(
                                             }
                                         },
                                         onDragEnd = {
-                                            activeHandleCount--
-                                            if (activeHandleCount <= 0) {
+                                            activeHandleCount = (activeHandleCount - 1).coerceAtLeast(0)
+                                            if (activeHandleCount == 0) {
                                                 resizingWidget = null
                                                 widget.isEditingPos = false
-                                                activeHandleCount = 0
                                             }
                                         },
                                         onDragCancel = {
-                                            activeHandleCount--
-                                            if (activeHandleCount <= 0) {
+                                            activeHandleCount = (activeHandleCount - 1).coerceAtLeast(0)
+                                            if (activeHandleCount == 0) {
                                                 resizingWidget = null
                                                 widget.isEditingPos = false
-                                                activeHandleCount = 0
                                             }
                                         }
                                     )
