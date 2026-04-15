@@ -202,6 +202,12 @@ fun BoxWithConstraintsScope.ControlEditor(
         onAttribute = { layer ->
             viewModel.editorOperation = EditorOperation.EditLayer(layer)
         },
+        onHideSwitch = { layer ->
+            layer.editorHide = layer.editorHide.not()
+            if (layer.editorHide && viewModel.selectedWidget?.layer == layer) {
+                viewModel.selectedWidget = null
+            }
+        },
         addNewButton = {
             viewModel.addWidget(layers) { layer ->
                 layer.addNormalButton(
@@ -367,6 +373,11 @@ fun BoxWithConstraintsScope.ControlEditor(
             )
             viewModel.editorOperation = EditorOperation.EditLayer(newLayer)
         },
+        onHideChange = { hide, layer ->
+            if (hide && viewModel.selectedWidget?.layer == layer) {
+                viewModel.selectedWidget = null
+            }
+        },
         onEditStyle = { style ->
             viewModel.selectedStyle = style
             viewModel.editorOperation = EditorOperation.EditButtonStyle
@@ -451,6 +462,7 @@ private fun EditorOperation(
     onDeleteLayer: (ObservableControlLayer) -> Unit,
     onMergeDownward: (ObservableControlLayer) -> Unit,
     onCopy: (ObservableControlLayer) -> Unit,
+    onHideChange: (Boolean, ObservableControlLayer) -> Unit,
     onEditStyle: (ObservableButtonStyle) -> Unit,
     onCreateStyle: (name: String) -> Unit,
     onCloneStyle: (ObservableButtonStyle) -> Unit,
@@ -480,6 +492,9 @@ private fun EditorOperation(
                 },
                 onCopy = {
                     onCopy(layer)
+                },
+                onHideChange = { value ->
+                    onHideChange(value, layer)
                 },
             )
         }
