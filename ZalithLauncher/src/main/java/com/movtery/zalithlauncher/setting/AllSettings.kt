@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.setting
 
 import android.os.Build
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.movtery.layer_controller.data.POSITION_RANGE
@@ -450,6 +451,11 @@ object AllSettings : SettingsRegistry() {
      * 在游戏画面上展示菜单悬浮窗
      */
     val showMenuBall = boolSetting("showMenuBall", true)
+
+    /**
+     * 游戏菜单悬浮窗位置
+     */
+    val menuBallPos = offsetSetting("menuBallPos", Offset.Zero)
 
     /**
      * 游戏菜单悬浮窗不透明度

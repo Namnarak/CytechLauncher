@@ -54,6 +54,7 @@ fun FloatingBall(
     position: Offset,
     onPositionChanged: (Offset) -> Unit,
     modifier: Modifier = Modifier,
+    onSavePos: () -> Unit = {},
     onClick: () -> Unit = {},
     alpha: Float = 1f,
     color: Color = Color.Black.copy(alpha = 0.25f),
@@ -65,6 +66,8 @@ fun FloatingBall(
 
     var ballSize by remember { mutableStateOf(IntSize.Zero) }
     val currentPosition by rememberUpdatedState(position)
+    val currentOnClick by rememberUpdatedState(onClick)
+    val currentOnSavePos by rememberUpdatedState(onSavePos)
 
     //在首次启动时，将悬浮球放到屏幕的 TopCenter
     //确保这个行为只触发一次
@@ -78,9 +81,9 @@ fun FloatingBall(
             .alpha(alpha)
             .fillMaxSize()
             .onSizeChanged { size ->
-                if (isInitialized) {
-                    val maxX = (size.width - ballSize.width).toFloat()
-                    val maxY = (size.height - ballSize.height).toFloat()
+                if (isInitialized && currentPosition != Offset.Zero) {
+                    val maxX = (size.width - ballSize.width).toFloat().coerceAtLeast(0f)
+                    val maxY = (size.height - ballSize.height).toFloat().coerceAtLeast(0f)
 
                     val newX = currentPosition.x.coerceIn(0f, maxX)
                     val newY = currentPosition.y.coerceIn(0f, maxY)
@@ -98,7 +101,7 @@ fun FloatingBall(
             modifier = modifier
                 .onSizeChanged { size ->
                     ballSize = size
-                    if (isInitialized) return@onSizeChanged
+                    if (isInitialized || currentPosition != Offset.Zero) return@onSizeChanged
                     val x = ((parentWidth - ballSize.width) / 2f) //默认位置 TopCenter
                     val positionX = x.coerceIn(0f, (parentWidth - ballSize.width).toFloat())
                     val positionY = 0f.coerceIn(0f, (parentHeight - ballSize.height).toFloat())
@@ -137,9 +140,11 @@ fun FloatingBall(
                             change.consume()
                         }
 
-                        if (!isDragging) {
+                        if (isDragging) {
+                            currentOnSavePos()
+                        } else {
                             //非拖动事件，判定为一次点击
-                            onClick()
+                            currentOnClick()
                         }
                     }
                 },

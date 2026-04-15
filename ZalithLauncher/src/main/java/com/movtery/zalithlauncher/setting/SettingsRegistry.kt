@@ -19,6 +19,7 @@
 package com.movtery.zalithlauncher.setting
 
 import android.os.Parcelable
+import androidx.compose.ui.geometry.Offset
 import com.movtery.zalithlauncher.setting.unit.AbstractSettingUnit
 import com.movtery.zalithlauncher.setting.unit.BooleanSettingUnit
 import com.movtery.zalithlauncher.setting.unit.DEFAULT_FLOAT_RANGE
@@ -28,6 +29,7 @@ import com.movtery.zalithlauncher.setting.unit.FloatSettingUnit
 import com.movtery.zalithlauncher.setting.unit.IntSettingUnit
 import com.movtery.zalithlauncher.setting.unit.LongSettingUnit
 import com.movtery.zalithlauncher.setting.unit.NullableIntSettingUnit
+import com.movtery.zalithlauncher.setting.unit.OffsetSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringListSettingUnit
 import com.movtery.zalithlauncher.setting.unit.StringSettingUnit
 import com.movtery.zalithlauncher.setting.unit.enumSettingUnit
@@ -64,6 +66,9 @@ abstract class SettingsRegistry {
 
     protected fun longSetting(key: String, def: Long, min: Long = Long.MIN_VALUE, max: Long = Long.MAX_VALUE) =
         LongSettingUnit(key, def, min..max).also { refreshableList.add(it) }
+
+    protected fun offsetSetting(key: String, def: Offset) =
+        OffsetSettingUnit(key, def).also { refreshableList.add(it) }
 
     protected fun stringSetting(key: String, def: String) =
         StringSettingUnit(key, def).also { refreshableList.add(it) }

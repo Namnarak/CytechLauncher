@@ -148,8 +148,6 @@ private class GameViewModel(
 ) : ViewModel() {
     /** 游戏菜单操作状态 */
     var gameMenuState by mutableStateOf(MenuState.NONE)
-    /** 游戏菜单悬浮球当前的位置 */
-    var gameBallPosition by mutableStateOf(Offset.Zero)
     /** 游戏菜单-控制设置区域Tab选择的索引 */
     var controlMenuTabIndex by mutableIntStateOf(0)
     /** 强制关闭弹窗操作状态 */
@@ -758,8 +756,13 @@ fun GameScreen(
                 }
 
                 DraggableGameBall(
-                    position = viewModel.gameBallPosition,
-                    onPositionChanged = { viewModel.gameBallPosition = it },
+                    position = AllSettings.menuBallPos.state,
+                    onPositionChanged = {
+                        AllSettings.menuBallPos.updateState(it)
+                    },
+                    onSavePos = {
+                        AllSettings.menuBallPos.save()
+                    },
                     gameFps = gameFps,
                     showMemory = AllSettings.showMemory.state,
                     alpha = AllSettings.menuBallOpacity.state / 100f,
