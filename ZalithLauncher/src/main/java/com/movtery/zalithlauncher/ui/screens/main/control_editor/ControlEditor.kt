@@ -18,18 +18,32 @@
 
 package com.movtery.zalithlauncher.ui.screens.main.control_editor
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.ControlEditorLayer
 import com.movtery.layer_controller.data.ButtonSize
@@ -118,6 +132,37 @@ fun BoxWithConstraintsScope.ControlEditor(
             onBackgroundClick = {
                 //点击背景层时清除选中的控件
                 viewModel.selectedWidget = null
+            },
+            floatingButtons = {
+                val selectedWidget = viewModel.selectedWidget != null
+                Surface(
+                    modifier = Modifier.semantics { role = Role.Button },
+                    shape = ButtonDefaults.shape,
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    onClick = {
+                        if (selectedWidget) {
+                            viewModel.editorOperation = EditorOperation.SelectButton
+                        }
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(all = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(18.dp),
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.generic_setting)
+                        )
+                        Text(
+                            modifier = Modifier.padding(end = 4.dp),
+                            text = stringResource(R.string.generic_setting),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
             },
             enableSnap = AllSettings.editorEnableWidgetSnap.state,
             snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
