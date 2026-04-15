@@ -210,6 +210,7 @@ fun EditorMenu(
     onLayerSelected: (ObservableControlLayer?) -> Unit,
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
+    onHideSwitch: (ObservableControlLayer) -> Unit,
     addNewButton: () -> Unit,
     addNewText: () -> Unit,
     openStyleList: () -> Unit,
@@ -486,6 +487,7 @@ fun EditorMenu(
                 onLayerSelected = onLayerSelected,
                 createLayer = createLayer,
                 onAttribute = onAttribute,
+                onHideSwitch = onHideSwitch,
                 influencedByBackground = false,
                 enabled = isPreviewMode.not()
             )
@@ -501,6 +503,7 @@ private fun ColumnScope.ControlLayerMenu(
     onLayerSelected: (ObservableControlLayer?) -> Unit,
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
+    onHideSwitch: (ObservableControlLayer) -> Unit,
     influencedByBackground: Boolean = false,
     enabled: Boolean = true
 ) {
@@ -563,6 +566,9 @@ private fun ColumnScope.ControlLayerMenu(
                     onAttribute = {
                         onAttribute(layer)
                     },
+                    onHideSwitch = {
+                        onHideSwitch(layer)
+                    },
                     influencedByBackground = influencedByBackground,
                     enabled = enabled
                 )
@@ -589,6 +595,7 @@ private fun ControlLayerItem(
     onSelected: () -> Unit,
     onUnSelected: () -> Unit,
     onAttribute: () -> Unit,
+    onHideSwitch: () -> Unit,
     influencedByBackground: Boolean = false,
     color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -626,9 +633,7 @@ private fun ControlLayerItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = {
-                    layer.editorHide = layer.editorHide.not()
-                },
+                onClick = onHideSwitch,
                 enabled = enabled
             ) {
                 Crossfade(
