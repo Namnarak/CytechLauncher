@@ -82,6 +82,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1169,6 +1170,12 @@ fun ChangeSkinDialog(
 ) {
     val context = LocalContext.current
     val playerSkin = remember { PlayerSkin(context) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            playerSkin.destroy()
+        }
+    }
 
     var showCapeSelector by remember { mutableStateOf(false) }
 

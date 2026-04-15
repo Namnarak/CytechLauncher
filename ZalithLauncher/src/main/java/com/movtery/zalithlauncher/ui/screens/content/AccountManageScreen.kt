@@ -39,6 +39,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -274,6 +275,13 @@ private fun ActionsLayout(
             PlayerSkin(context)
         }
         var pageFinished by remember { mutableStateOf(false) }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                playerSkin.destroy()
+            }
+        }
+
         Box(
             modifier = Modifier
                 .weight(1f)

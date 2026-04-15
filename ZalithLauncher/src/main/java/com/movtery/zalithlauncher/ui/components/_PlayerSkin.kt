@@ -180,6 +180,21 @@ class PlayerSkin(
         )
     }
 
+    /**
+     * 销毁 WebView 并释放资源
+     * 应在包含该组件的 Composable 离开组合树时调用
+     */
+    fun destroy() {
+        webview?.apply {
+            stopLoading()
+            loadUrl("about:blank")
+            clearHistory()
+            removeAllViews()
+            destroy()
+        }
+        webview = null
+    }
+
     private fun InputStream.asBase64Image(): String {
         return readBytes().let { bytes ->
             val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
