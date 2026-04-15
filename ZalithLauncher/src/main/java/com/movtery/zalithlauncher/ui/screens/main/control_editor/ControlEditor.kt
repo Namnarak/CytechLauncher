@@ -439,15 +439,17 @@ private fun ActionButton(
         Row(
             modifier = Modifier.padding(all = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Icon(
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier
+                    .padding(start = 6.dp)
+                    .size(20.dp),
                 imageVector = icon,
                 contentDescription = text
             )
             Text(
-                modifier = Modifier.padding(end = 4.dp),
+                modifier = Modifier.padding(end = 6.dp),
                 text = text,
                 style = MaterialTheme.typography.labelLarge
             )
