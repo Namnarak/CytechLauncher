@@ -19,9 +19,11 @@
 package com.movtery.layer_controller
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,9 +32,12 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -54,6 +59,7 @@ import com.movtery.layer_controller.utils.snap.SnapMode
 
 /**
  * 控制布局编辑器渲染层
+ * @param selectedWidget 当前选中的控件，编辑器将会标注它
  * @param enableSnap 是否开启吸附
  * @param snapInAllLayers 是否在全控制层范围内吸附
  * @param snapMode 吸附模式
@@ -64,7 +70,9 @@ import com.movtery.layer_controller.utils.snap.SnapMode
 @Composable
 fun ControlEditorLayer(
     observedLayout: ObservableControlLayout,
+    selectedWidget: ObservableWidget?,
     onButtonTap: (data: ObservableWidget, layer: ObservableControlLayer) -> Unit,
+    onBackgroundClick: () -> Unit,
     enableSnap: Boolean,
     snapInAllLayers: Boolean,
     snapMode: SnapMode,
@@ -92,7 +100,30 @@ fun ControlEditorLayer(
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
+            //空白可点击层，点击背景清除选中的按钮
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0f)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onBackgroundClick
+                    )
+            )
+
+            val density = LocalDensity.current
+            val screenSize = remember(maxWidth, maxHeight) {
+                with(density) {
+                    IntSize(
+                        width = maxWidth.roundToPx(),
+                        height = maxHeight.roundToPx()
+                    )
+                }
+            }
+
             ControlWidgetRenderer(
+                screenSize = screenSize,
                 isDark = isDark,
                 renderingLayers = renderingLayers,
                 styles = styles,
@@ -109,12 +140,35 @@ fun ControlEditorLayer(
                     guideLines.remove(data)
                 }
             )
-            //绘制参考线
+            //绘制参考线与选中框
             Canvas(modifier = Modifier.fillMaxSize()) {
                 guideLines.values.forEach { guidelines ->
                     guidelines.forEach { guideline ->
                         drawLine(
                             guideline = guideline
+                        )
+                    }
+                }
+
+                //绘制选中控件的红色方框
+                selectedWidget?.let { widget ->
+                    val widgetSize = widget.internalRenderSize
+                    if (widgetSize != IntSize.Zero) {
+                        val position = getWidgetPosition(
+                            data = widget,
+                            widgetSize = widgetSize,
+                            screenSize = screenSize
+                        )
+                        //稍微留出点空隙
+                        val padding = 4.dp.toPx()
+                        drawRect(
+                            color = Color.Red,
+                            topLeft = Offset(position.x - padding, position.y - padding),
+                            size = Size(
+                                widgetSize.width.toFloat() + padding * 2,
+                                widgetSize.height.toFloat() + padding * 2
+                            ),
+                            style = Stroke(width = 1.dp.toPx())
                         )
                     }
                 }
@@ -161,7 +215,8 @@ private fun DrawScope.drawLine(
  * @param onLineCancel 取消吸附参考线
  */
 @Composable
-private fun BoxWithConstraintsScope.ControlWidgetRenderer(
+private fun ControlWidgetRenderer(
+    screenSize: IntSize,
     isDark: Boolean,
     renderingLayers: List<ObservableControlLayer>,
     styles: List<ObservableButtonStyle>,
@@ -174,16 +229,6 @@ private fun BoxWithConstraintsScope.ControlWidgetRenderer(
     drawLine: (ObservableWidget, List<GuideLine>) -> Unit,
     onLineCancel: (ObservableWidget) -> Unit
 ) {
-    val density = LocalDensity.current
-    val screenSize = remember(maxWidth, maxHeight) {
-        with(density) {
-            IntSize(
-                width = maxWidth.roundToPx(),
-                height = maxHeight.roundToPx()
-            )
-        }
-    }
-
     val allWidgetsMap = remember { mutableStateMapOf<ObservableControlLayer, List<ObservableWidget>>() }
     val snapInAllLayers1 by rememberUpdatedState(snapInAllLayers)
 

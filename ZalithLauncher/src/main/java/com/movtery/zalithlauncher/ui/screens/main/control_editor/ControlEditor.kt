@@ -106,9 +106,18 @@ fun BoxWithConstraintsScope.ControlEditor(
     } else {
         ControlEditorLayer(
             observedLayout = viewModel.observableLayout,
+            selectedWidget = viewModel.selectedWidget?.data,
             onButtonTap = { data, layer ->
+                val current = viewModel.selectedWidget?.data
                 viewModel.selectedWidget = SelectedWidgetData(data, layer)
-                viewModel.editorOperation = EditorOperation.SelectButton
+                if (current == data) {
+                    //选中后再点击一次，打开编辑菜单
+                    viewModel.editorOperation = EditorOperation.SelectButton
+                }
+            },
+            onBackgroundClick = {
+                //点击背景层时清除选中的控件
+                viewModel.selectedWidget = null
             },
             enableSnap = AllSettings.editorEnableWidgetSnap.state,
             snapInAllLayers = AllSettings.editorSnapInAllLayers.state,
