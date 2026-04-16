@@ -48,6 +48,9 @@ import com.movtery.zalithlauncher.game.download.assets.platform.previousPage
 import com.movtery.zalithlauncher.game.download.assets.platform.searchAssets
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.searchMcMods
+import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
+import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
+import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -57,6 +60,7 @@ import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.Se
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchFilter
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,14 +88,18 @@ private class SearchScreenViewModel(
     private val _searchedMcMods = MutableStateFlow<List<ModTranslations.McMod>>(emptyList())
     /** 搜索得到的所有 MCMOD 项目 */
     val searchedMcMods = _searchedMcMods.asStateFlow()
+    private val _searchedVersions = MutableStateFlow<List<String>>(emptyList())
+    /** 搜索得到的所有Minecraft版本 */
+    val searchedVersions = _searchedVersions.asStateFlow()
 
     var currentSearchJob: Job? = null
     var currentSearchMCMODSJob: Job? = null
+    var currentSearchVersionJob: Job? = null
 
     /**
      * 仅更新搜索名称
      */
-    fun updateFilter(searchName: String) {
+    fun updateNameFilter(searchName: String) {
         searchFilter = searchFilter.copy(searchName = searchName)
         currentSearchMCMODSJob?.cancel()
         currentSearchMCMODSJob = viewModelScope.launch {
@@ -99,14 +107,40 @@ private class SearchScreenViewModel(
                 searchName.searchMcMods(classes = platformClasses) ?: emptyList()
             } catch (_: CancellationException) {
                 emptyList()
-            }
+            }.take(20) //仅展示20个搜索结果
             withContext(Dispatchers.Main) {
-                _searchedMcMods.update {
-                    //仅展示20个搜索结果
-                    result.take(20)
-                }
+                _searchedMcMods.update { result }
             }
             currentSearchMCMODSJob = null
+        }
+    }
+
+    /**
+     * 仅更新版本名称
+     */
+    fun updateVersionFilter(version: String) {
+        searchFilter = searchFilter.copy(gameVersion = version)
+        currentSearchVersionJob?.cancel()
+        currentSearchVersionJob = viewModelScope.launch {
+            val result = runCatching {
+                MinecraftVersions.refreshVersions(force = false)
+                val allVersions = MinecraftVersions.allVersions.value
+                allVersions.filter {
+                    it.version.id.contains(version) &&
+                            //CurseForge只能使用正式版进行过滤
+                            (searchPlatform != Platform.CURSEFORGE || it.type == MinecraftVersion.Type.Release)
+                }.map { it.version.id }
+            }.onFailure {
+                lWarning("Failed to refresh Minecraft versions")
+            }.getOrElse {
+                allGameVersions.filter { ver ->
+                    ver.contains(version)
+                }
+            }.take(20) //仅展示20个搜索结果
+            withContext(Dispatchers.Main) {
+                _searchedVersions.update { result }
+            }
+            currentSearchVersionJob = null
         }
     }
 
@@ -310,6 +344,7 @@ fun SearchAssetsScreen(
                 isHorizontal = true
             )
             val searchedMcMods by viewModel.searchedMcMods.collectAsStateWithLifecycle()
+            val searchedVersions by viewModel.searchedVersions.collectAsStateWithLifecycle()
             SearchFilter(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -326,17 +361,16 @@ fun SearchAssetsScreen(
                 },
                 searchName = viewModel.searchFilter.searchName,
                 onSearchNameChange = {
-                    viewModel.updateFilter(it)
+                    viewModel.updateNameFilter(it)
                 },
                 onSearch = {
                     viewModel.resetSearch()
                 },
                 searchedMcMods = searchedMcMods,
+                searchedVersions = searchedVersions,
                 gameVersion = viewModel.searchFilter.gameVersion,
                 onGameVersionChange = {
-                    viewModel.researchWithFilter(
-                        viewModel.searchFilter.copy(gameVersion = it)
-                    )
+                    viewModel.updateVersionFilter(it)
                 },
                 sortField = viewModel.searchFilter.sortField,
                 onSortFieldChange = {

@@ -20,7 +20,7 @@ package com.movtery.zalithlauncher.game.download.assets.platform
 
 data class PlatformSearchFilter(
     val searchName: String = "",
-    val gameVersion: String? = null,
+    val gameVersion: String = "",
     val sortField: PlatformSortField = PlatformSortField.RELEVANCE,
     val categories: List<PlatformFilterCode> = emptyList(),
     val modloader: PlatformDisplayLabel? = null,

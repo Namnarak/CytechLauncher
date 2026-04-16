@@ -74,7 +74,6 @@ import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
 import com.movtery.zalithlauncher.game.versioninfo.models.isType
-import com.movtery.zalithlauncher.game.versioninfo.models.mapVersion
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CheckChip
 import com.movtery.zalithlauncher.ui.components.EdgeDirection
@@ -149,7 +148,7 @@ private data class VersionFilter(
     val id: String = ""
 )
 
-private class VersionsViewModel(): ViewModel() {
+private class VersionsViewModel: ViewModel() {
     var versionState by mutableStateOf<VersionState>(VersionState.Loading)
         private set
 
@@ -157,12 +156,13 @@ private class VersionsViewModel(): ViewModel() {
     var versionFilter by mutableStateOf(VersionFilter())
         private set
 
-    private var allVersions by mutableStateOf<List<MinecraftVersion>>(emptyList())
-
     fun filterWith(filter: VersionFilter) {
         versionFilter = filter
         viewModelScope.launch {
-            versionState = VersionState.None(allVersions.filterVersions(versionFilter))
+            val allVersions = MinecraftVersions.allVersions.value
+            versionState = VersionState.None(
+                versions = allVersions.filterVersions(versionFilter)
+            )
         }
     }
 
@@ -170,7 +170,8 @@ private class VersionsViewModel(): ViewModel() {
         viewModelScope.launch {
             versionState = VersionState.Loading
             versionState = runCatching {
-                allVersions = MinecraftVersions.getVersionManifest(forceReload).versions.mapVersion()
+                MinecraftVersions.refreshVersions(forceReload)
+                val allVersions = MinecraftVersions.allVersions.value
                 VersionState.None(allVersions.filterVersions(versionFilter))
             }.getOrElse { e ->
                 lWarning("Failed to get version manifest!", e)

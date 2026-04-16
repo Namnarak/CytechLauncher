@@ -22,6 +22,7 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformClasses
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSearchFilter
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeCategory
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.models.CurseForgeModLoader
+import com.movtery.zalithlauncher.utils.string.isNotEmptyOrBlank
 
 /**
  * CurseForge 平台的 API 链接
@@ -49,7 +50,7 @@ fun PlatformSearchFilter.toCurseForgeRequest(
             *curseforgeCategories
         ),
         searchFilter = query,
-        gameVersion = gameVersion,
+        gameVersion = gameVersion.takeIf { it.isNotEmptyOrBlank() }?.trim(),
         sortField = sortField,
         modLoader = modloader as? CurseForgeModLoader,
         index = index,
