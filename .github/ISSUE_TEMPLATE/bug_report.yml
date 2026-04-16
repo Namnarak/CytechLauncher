@@ -33,9 +33,11 @@ body:
         The crash page of the launcher will have a "Share Logs" button. Please upload the log provided by the launcher here.  
         If your issue is related to a "Launcher Crash", you can find the "Share Launcher Logs" option in the launcher settings. Please upload the log archive provided by the launcher here.  
         If your issue is related to a "Game Crash", you can use a file manager to navigate to ZL2's public directory and locate the "latest_game.log" file.  
+        **Please do not upload the game's own logs here, as the information they record is not comprehensive!**  
         启动器的崩溃页面会有“分享日志”按钮，请将启动器给出的日志上传在这里；  
         如果您的问题属于“启动器崩溃”，您可以在启动器设置内找到“分享启动器日志”选项，请将启动器给出的日志压缩包上传在这里；  
-        如果您的问题属于“游戏运行崩溃”，您可以在文件管理器软件内进入 ZL2 的公有目录，找到 “latest_game.log” 文件。
+        如果您的问题属于“游戏运行崩溃”，您可以在文件管理器软件内进入 ZL2 的公有目录，找到 “latest_game.log” 文件。  
+        **请不要在此处上传游戏自己的日志，它记录的信息并不全面！**
     validations:
       required: true
 
@@ -90,8 +92,10 @@ body:
       label: Launcher Version / 启动器版本
       description: |
         Provide the version number of the launcher. This can be found on the launcher’s About page. If you are using a test build from Actions, please indicate this.  
-        提供启动器的版本号，可以在启动器的关于页面找到，如果使用的是来自 Actions 的测试构建版本，请说明。
-      placeholder: 2.0.0_beta-20251206a (actions)
+        提供启动器的版本号，可以在启动器的关于页面找到，如果使用的是来自 Actions 的测试构建版本，请说明。  
+        **Please provide the specific version number instead of vague terms like "latest version."**  
+        **请提供具体的版本号，而不是“最新版”之类的模糊说辞。**
+      placeholder: 2.3.3
     validations:
       required: true
 
