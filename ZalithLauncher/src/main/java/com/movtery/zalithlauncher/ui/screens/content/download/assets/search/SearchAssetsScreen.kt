@@ -50,7 +50,7 @@ import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
 import com.movtery.zalithlauncher.game.download.assets.utils.searchMcMods
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersion
 import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
-import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
+import com.movtery.zalithlauncher.game.versioninfo.popularVersions
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
@@ -120,23 +120,26 @@ private class SearchScreenViewModel(
      */
     fun updateVersionFilter(version: String) {
         searchFilter = searchFilter.copy(gameVersion = version)
+        refreshVerSuggestions(version)
+    }
+
+    private fun refreshVerSuggestions(
+        version: String
+    ) {
         currentSearchVersionJob?.cancel()
         currentSearchVersionJob = viewModelScope.launch {
-            val result = runCatching {
-                MinecraftVersions.refreshVersions(force = false)
-                val allVersions = MinecraftVersions.allVersions.value
-                allVersions.filter {
+            val allVersions = MinecraftVersions.allVersions.value
+            val result: List<String> = when {
+                version.isEmpty() -> popularVersions
+                allVersions.isEmpty() -> popularVersions.filter { ver ->
+                    ver.contains(version)
+                }.take(20) //仅展示20个搜索结果
+                else -> allVersions.filter {
                     it.version.id.contains(version) &&
                             //CurseForge只能使用正式版进行过滤
                             (searchPlatform != Platform.CURSEFORGE || it.type == MinecraftVersion.Type.Release)
-                }.map { it.version.id }
-            }.onFailure {
-                lWarning("Failed to refresh Minecraft versions")
-            }.getOrElse {
-                allGameVersions.filter { ver ->
-                    ver.contains(version)
-                }
-            }.take(20) //仅展示20个搜索结果
+                }.map { it.version.id }.take(20) //仅展示20个搜索结果
+            }
             withContext(Dispatchers.Main) {
                 _searchedVersions.update { result }
             }
@@ -203,6 +206,14 @@ private class SearchScreenViewModel(
     init {
         //初始化后，执行一次搜索
         search()
+        refreshVerSuggestions("")
+        viewModelScope.launch {
+            runCatching {
+                MinecraftVersions.refreshVersions(force = false)
+            }.onFailure {
+                lWarning("Failed to refresh Minecraft versions")
+            }
+        }
     }
 
     override fun onCleared() {
