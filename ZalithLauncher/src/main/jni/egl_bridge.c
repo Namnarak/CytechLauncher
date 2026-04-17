@@ -205,15 +205,6 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
 EXTERNAL_API void pojavSwapBuffers() {
     calculateFPS();
 
-    if (!pojav_environ->hasGraphicOutput && pojav_environ->dalvikJavaVMPtr && pojav_environ->bridgeClazz && pojav_environ->method_onGraphicOutput) {
-        pojav_environ->hasGraphicOutput = true;
-
-        JNIEnv *dalvikEnv;
-        (*pojav_environ->dalvikJavaVMPtr)->AttachCurrentThread(pojav_environ->dalvikJavaVMPtr, &dalvikEnv, NULL);
-        (*dalvikEnv)->CallStaticVoidMethod(dalvikEnv, pojav_environ->bridgeClazz, pojav_environ->method_onGraphicOutput);
-        (*pojav_environ->dalvikJavaVMPtr)->DetachCurrentThread(pojav_environ->dalvikJavaVMPtr);
-    }
-
     if (pojav_environ->config_renderer == RENDERER_VK_ZINK
      || pojav_environ->config_renderer == RENDERER_GL4ES)
     {
@@ -272,6 +263,20 @@ void calculateFPS() {
         fps = frameCount;
         frameCount = 0;
     }
+
+    if (!pojav_environ->hasGraphicOutput && pojav_environ->dalvikJavaVMPtr && pojav_environ->bridgeClazz && pojav_environ->method_onGraphicOutput) {
+        pojav_environ->hasGraphicOutput = true;
+
+        JNIEnv *dalvikEnv;
+        (*pojav_environ->dalvikJavaVMPtr)->AttachCurrentThread(pojav_environ->dalvikJavaVMPtr, &dalvikEnv, NULL);
+        (*dalvikEnv)->CallStaticVoidMethod(dalvikEnv, pojav_environ->bridgeClazz, pojav_environ->method_onGraphicOutput);
+        (*pojav_environ->dalvikJavaVMPtr)->DetachCurrentThread(pojav_environ->dalvikJavaVMPtr);
+    }
+}
+
+EXTERNAL_API JNIEXPORT void JNICALL
+Java_org_lwjgl_vulkan_VK_onVKFrame(ABI_COMPAT JNIEnv *env, ABI_COMPAT jclass thiz) {
+    calculateFPS();
 }
 
 EXTERNAL_API JNIEXPORT jint JNICALL
