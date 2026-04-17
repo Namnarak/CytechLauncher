@@ -163,7 +163,7 @@ abstract class Launcher(
             put("jna.boot.library.path", PathManager.DIR_NATIVE_LIB)
             put("user.home", userHome ?: GamePathManager.getUserHome())
             if (useLocalLanguage) {
-                put("user.language", System.getProperty("user.language"))
+                put("user.language", System.getProperty("user.language") ?: "en")
                 put("user.country", Locale.getDefault().country)
             }
             put("user.timezone", TimeZone.getDefault().id)

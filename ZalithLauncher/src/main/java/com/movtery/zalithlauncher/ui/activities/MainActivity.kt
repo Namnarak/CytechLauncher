@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.ui.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -423,7 +424,12 @@ class MainActivity : BaseAppCompatActivity() {
      * @return 是否已经触发了整合包导入程序
      */
     private fun handleModpackImport(intent: Intent): Boolean {
-        val uri: Uri? = intent.getParcelableExtra(EXTRA_IMPORT_URI)
+        val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(EXTRA_IMPORT_URI, Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_IMPORT_URI)
+        }
         if (uri != null) {
             modpackImportViewModel.import(
                 context = this@MainActivity,
@@ -447,7 +453,12 @@ class MainActivity : BaseAppCompatActivity() {
      * @return 是否已经触发了控制布局导入程序
      */
     private fun handleControlsImport(intent: Intent): Boolean {
-        val uri: Uri? = intent.getParcelableExtra(EXTRA_IMPORT_URI)
+        val uri: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(EXTRA_IMPORT_URI, Uri::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_IMPORT_URI)
+        }
         if (uri != null) {
             importControlFiles(listOf(uri))
         }
