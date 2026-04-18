@@ -21,6 +21,7 @@ package com.movtery.zalithlauncher.game.download.jvm_server
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.compose.ui.unit.IntSize
 import androidx.core.app.NotificationCompat
@@ -57,7 +58,12 @@ class JvmService : Service() {
         val jreName = intent.extras?.getString(SERVICE_JRE_NAME)
         val userHome = intent.extras?.getString(SERVICE_USER_HOME)
         val postSummary = intent.extras?.getString(SERVICE_POST_SUMMARY)
-        val postProgress = intent.extras?.getParcelable<NoticeProgress?>(SERVICE_POST_PROGRESS)
+        val postProgress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.extras?.getParcelable(SERVICE_POST_PROGRESS, NoticeProgress::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.extras?.getParcelable(SERVICE_POST_PROGRESS)
+        }
 
         postNotification(
             postSummary = postSummary,

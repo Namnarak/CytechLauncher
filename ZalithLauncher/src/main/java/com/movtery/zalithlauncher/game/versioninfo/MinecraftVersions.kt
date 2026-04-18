@@ -21,7 +21,7 @@ package com.movtery.zalithlauncher.game.versioninfo
 import com.google.gson.reflect.TypeToken
 import com.movtery.zalithlauncher.game.addons.mirror.mapBMCLMirrorUrls
 import com.movtery.zalithlauncher.game.versioninfo.models.VersionManifest
-import com.movtery.zalithlauncher.game.versioninfo.models.filterType
+import com.movtery.zalithlauncher.game.versioninfo.models.mapVersion
 import com.movtery.zalithlauncher.path.PathManager
 import com.movtery.zalithlauncher.path.URL_MINECRAFT_VERSION_REPOS
 import com.movtery.zalithlauncher.utils.GSON
@@ -40,23 +40,24 @@ import java.util.concurrent.TimeUnit
 object MinecraftVersions {
     private var manifest: VersionManifest? = null
 
-    private val _releasesFlow = MutableStateFlow<List<String>?>(null)
-    val releasesFlow = _releasesFlow.asStateFlow()
+    private val _allVersions = MutableStateFlow<List<MinecraftVersion>>(emptyList())
+    val allVersions = _allVersions.asStateFlow()
 
     /**
-     * 刷新Minecraft正式版本的版本号列表
+     * 刷新Minecraft版本的版本号列表
      * @param force 强制下载更新版本列表
      */
     @Throws(IllegalStateException::class)
-    suspend fun refreshReleaseVersions(force: Boolean = false) {
-        if (!force && _releasesFlow.value != null) return
+    suspend fun refreshVersions(force: Boolean = false) {
+        if (!force && _allVersions.value.isNotEmpty()) return
 
         val vm = if (force) {
             getVersionManifest(force = true)
         } else {
             manifest ?: getVersionManifest(force = false)
         }
-        refreshReleaseVersions(vm)
+        val versions = vm.versions.mapVersion()
+        _allVersions.update { versions }
     }
 
     /**
@@ -90,20 +91,6 @@ object MinecraftVersions {
             mergeUnlistVersions(newManifest0) ?: newManifest0
         }.also { newManifest ->
             manifest = newManifest
-        }
-    }
-
-    /**
-     * 根据版本清单刷新当前的正式版本列表
-     */
-    private fun refreshReleaseVersions(vm: VersionManifest) {
-        val releases = vm.versions.filterType(
-            release = true,
-            snapshot = false,
-            old = false
-        )
-        _releasesFlow.update {
-            releases.map { version -> version.id }
         }
     }
 

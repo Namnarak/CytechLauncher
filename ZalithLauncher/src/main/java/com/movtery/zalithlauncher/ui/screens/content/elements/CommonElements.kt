@@ -23,7 +23,6 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +32,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -92,7 +90,6 @@ import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
-import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.file.checkExtensionOrThrow
 import com.movtery.zalithlauncher.utils.platform.bytesToMB
 import com.movtery.zalithlauncher.utils.platform.getTotalMemory
@@ -370,13 +367,13 @@ fun TitleTaskFlowDialog(
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.size(16.dp))
 
                     val scrollState = rememberLazyListState()
                     LazyColumn(
@@ -396,7 +393,6 @@ fun TitleTaskFlowDialog(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.size(16.dp))
 
                     Button(
                         modifier = Modifier.fillMaxWidth(),
@@ -432,20 +428,16 @@ private fun InstallingTaskItem(
             contentDescription = null
         )
 
-        Column(
-            modifier = modifier
-                .weight(1f)
-                .animateContentSize(animationSpec = getAnimateTween())
-        ) {
+        Column(modifier = modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge
             )
             if (task.taskState == TaskState.RUNNING) {
-                Spacer(modifier = Modifier.height(4.dp))
                 task.currentMessageRes?.let { messageRes ->
                     val args = task.currentMessageArgs
                     Text(
+                        modifier = Modifier.padding(top = 4.dp),
                         text = if (args != null) {
                             stringResource(messageRes, *args)
                         } else {
@@ -459,14 +451,16 @@ private fun InstallingTaskItem(
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         LinearProgressIndicator(
                             progress = { task.currentProgress },
                             modifier = Modifier
                                 .weight(1f)
                                 .align(Alignment.CenterVertically)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "${(task.currentProgress * 100).toInt()}%",
                             modifier = Modifier.align(Alignment.CenterVertically),

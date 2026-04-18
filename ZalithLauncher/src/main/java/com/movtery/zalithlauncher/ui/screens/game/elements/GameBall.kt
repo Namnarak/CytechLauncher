@@ -53,6 +53,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.MemoryPreview
 fun DraggableGameBall(
     position: Offset,
     onPositionChanged: (Offset) -> Unit,
+    onSavePos: () -> Unit,
     gameFps: Int?,
     showMemory: Boolean,
     alpha: Float = 1f,
@@ -64,6 +65,7 @@ fun DraggableGameBall(
         },
         position = position,
         onPositionChanged = onPositionChanged,
+        onSavePos = onSavePos,
         onClick = onClick,
         alpha = alpha
     ) {

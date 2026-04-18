@@ -73,6 +73,7 @@ fun EditControlLayerDialog(
     onDelete: () -> Unit,
     onMergeDownward: () -> Unit,
     onCopy: () -> Unit,
+    onHideChange: (Boolean) -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -156,7 +157,10 @@ fun EditControlLayerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             title = stringResource(R.string.control_editor_layers_attribute_hide),
                             value = layer.editorHide,
-                            onValueChange = { layer.editorHide = it }
+                            onValueChange = {
+                                layer.editorHide = it
+                                onHideChange(it)
+                            }
                         )
 
                         //在实体鼠标操作时隐藏

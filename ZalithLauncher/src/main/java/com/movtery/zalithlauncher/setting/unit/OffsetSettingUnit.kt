@@ -16,14 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/gpl-3.0.txt>.
  */
 
-package com.movtery.zalithlauncher.game.download.assets.platform
+package com.movtery.zalithlauncher.setting.unit
 
-data class PlatformSearchFilter(
-    val searchName: String = "",
-    val gameVersion: String = "",
-    val sortField: PlatformSortField = PlatformSortField.RELEVANCE,
-    val categories: List<PlatformFilterCode> = emptyList(),
-    val modloader: PlatformDisplayLabel? = null,
-    val index: Int = 0,
-    val limit: Int = 20
-)
+import androidx.compose.ui.geometry.Offset
+import com.movtery.zalithlauncher.setting.launcherMMKV
+
+class OffsetSettingUnit(
+    key: String,
+    defaultValue: Offset
+) : AbstractSettingUnit<Offset>(key, defaultValue) {
+    override fun getValue(): Offset {
+        val long = launcherMMKV().getLong(key, defaultValue.packedValue)
+        return Offset(long).also { state = it }
+    }
+
+    override fun saveValue(v: Offset): Offset {
+        launcherMMKV().putLong(key, v.packedValue).apply()
+        return v
+    }
+}

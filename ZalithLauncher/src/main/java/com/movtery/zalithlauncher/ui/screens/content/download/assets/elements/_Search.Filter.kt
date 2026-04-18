@@ -59,7 +59,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +76,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.layer_controller.utils.animateShapeAsState
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.game.download.assets.platform.Platform
@@ -85,14 +83,10 @@ import com.movtery.zalithlauncher.game.download.assets.platform.PlatformDisplayL
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformFilterCode
 import com.movtery.zalithlauncher.game.download.assets.platform.PlatformSortField
 import com.movtery.zalithlauncher.game.download.assets.utils.ModTranslations
-import com.movtery.zalithlauncher.game.versioninfo.MinecraftVersions
-import com.movtery.zalithlauncher.game.versioninfo.allGameVersions
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.OwnOutlinedTextField
-import com.movtery.zalithlauncher.ui.components.SingleLineTextCheck
 import com.movtery.zalithlauncher.ui.components.backgroundLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 
 /**
  * 搜索资源过滤器UI
@@ -100,6 +94,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
  * @param searchPlatform 目标平台
  * @param searchName 搜索名称
  * @param searchedMcMods 搜索得到的 MCMOD 项目
+ * @param searchedVersions 搜索得到的Minecraft版本号
  * @param gameVersion 游戏版本
  * @param sortField 排序方式
  * @param allCategories 可用资源类别列表
@@ -122,8 +117,9 @@ fun SearchFilter(
     onSearchNameChange: (String) -> Unit = {},
     onSearch: () -> Unit,
     searchedMcMods: List<ModTranslations.McMod>,
-    gameVersion: String?,
-    onGameVersionChange: (String?) -> Unit = {},
+    searchedVersions: List<String>,
+    gameVersion: String,
+    onGameVersionChange: (String) -> Unit = {},
     sortField: PlatformSortField,
     onSortFieldChange: (PlatformSortField) -> Unit = {},
     allCategories: List<PlatformFilterCode>,
@@ -141,103 +137,54 @@ fun SearchFilter(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            SingleLineTextCheck(
-                text = searchName,
-                onSingleLined = onSearchNameChange
-            )
-
-            val focusManager = LocalFocusManager.current
-            val interactionSource = remember { MutableInteractionSource() }
-            val isFocused = interactionSource.collectIsFocusedAsState().value
-            val showSuggestions = isFocused && searchedMcMods.isNotEmpty()
-            ExposedDropdownMenuBox(
-                expanded = showSuggestions,
-                onExpandedChange = {
-                    focusManager.clearFocus(false)
-                }
-            ) {
-                val fieldShape by animateShapeAsState(
-                    if (showSuggestions) RoundedCornerShape(
-                        topStart = 16.0.dp, topEnd = 16.0.dp,
-                        bottomStart = 0.dp, bottomEnd = 0.dp
+            SuggestionsText(
+                value = searchName,
+                onValueChange = onSearchNameChange,
+                label = stringResource(R.string.download_assets_filter_search_name),
+                onSearch = onSearch,
+                suggestions = searchedMcMods,
+                suggestionLabel = { item ->
+                    Text(
+                        item.name,
+                        style = MaterialTheme.typography.labelMedium
                     )
-                    else RoundedCornerShape(16.0.dp)
-                )
-                OwnOutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
-                    value = searchName,
-                    onValueChange = onSearchNameChange,
-                    shape = fieldShape,
-                    label = {
-                        Text(text = stringResource(R.string.download_assets_filter_search_name))
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = onSearch
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = stringResource(R.string.generic_search)
-                            )
-                        }
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Search
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            onSearch()
-                        }
-                    ),
-                    interactionSource = interactionSource
-                )
-
-                ExposedDropdownMenu(
-                    expanded = showSuggestions,
-                    onDismissRequest = {
-                        focusManager.clearFocus(false)
-                    },
-                    shape = RoundedCornerShape(
-                        topStart = 0.dp, topEnd = 0.dp,
-                        bottomStart = 16.0.dp, bottomEnd = 16.0.dp,
-                    )
-                ) {
-                    searchedMcMods.forEach { item ->
-                        DropdownMenuItem(
-                            text = {
-                                FlowRow(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        item.name,
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                    //英文名/次要名称
-                                    if (item.subname.isNotBlank()) {
-                                        Text(
-                                            modifier = Modifier.alpha(0.7f),
-                                            text = item.subname,
-                                            style = MaterialTheme.typography.labelSmall
-                                        )
-                                    }
-                                }
-                            },
-                            onClick = {
-                                onSearchNameChange(
-                                    item.subname.ifEmpty { item.abbr }
-                                )
-                                onSearch()
-                                focusManager.clearFocus(false)
-                            }
+                    //英文名/次要名称
+                    if (item.subname.isNotBlank()) {
+                        Text(
+                            modifier = Modifier.alpha(0.7f),
+                            text = item.subname,
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
+                },
+                onSuggestionClick = { item ->
+                    onSearchNameChange(
+                        item.subname.ifEmpty { item.abbr }
+                    )
+                    onSearch()
+                    onSearch()
                 }
-            }
+            )
+        }
+
+        item {
+            SuggestionsText(
+                value = gameVersion,
+                onValueChange = onGameVersionChange,
+                label = stringResource(R.string.download_assets_filter_game_version),
+                onSearch = onSearch,
+                suggestions = searchedVersions,
+                suggestionLabel = { item ->
+                    Text(
+                        text = item,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                onSuggestionClick = { item ->
+                    onGameVersionChange(item)
+                    onSearch()
+                }
+            )
         }
 
         extraFilter?.invoke(this@LazyColumn)
@@ -283,31 +230,6 @@ fun SearchFilter(
                     cancelable = false
                 )
             }
-        }
-
-        item {
-            val versions by MinecraftVersions.releasesFlow.collectAsStateWithLifecycle()
-            //刷新真实的版本列表
-            LaunchedEffect(Unit) {
-                runCatching {
-                    MinecraftVersions.refreshReleaseVersions(force = false)
-                }.onFailure {
-                    lWarning("Failed to refresh Minecraft versions")
-                }
-            }
-
-            FilterListLayout(
-                modifier = Modifier.fillMaxWidth(),
-                items = versions ?: allGameVersions,
-                selectionMode = FilterSelectionMode.Single,
-                selectedItems = listOfNotNull(gameVersion),
-                onSelectionChange = { new ->
-                    val value = new.firstOrNull()
-                    if (value != gameVersion) onGameVersionChange(value)
-                },
-                getItemLabel = { it },
-                title = stringResource(R.string.download_assets_filter_game_version)
-            )
         }
 
         item {
@@ -380,6 +302,98 @@ enum class FilterSelectionMode {
      * 支持选择更多项
      */
     Multiple
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun <E> SuggestionsText(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    onSearch: () -> Unit,
+    suggestions: List<E>,
+    suggestionLabel: @Composable FlowRowScope.(E) -> Unit,
+    onSuggestionClick: (E) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val focusManager = LocalFocusManager.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+    val showSuggestions = isFocused && suggestions.isNotEmpty()
+    ExposedDropdownMenuBox(
+        expanded = showSuggestions,
+        onExpandedChange = {
+            focusManager.clearFocus(false)
+        }
+    ) {
+        val fieldShape by animateShapeAsState(
+            if (showSuggestions) RoundedCornerShape(
+                topStart = 16.0.dp, topEnd = 16.0.dp,
+                bottomStart = 0.dp, bottomEnd = 0.dp
+            )
+            else RoundedCornerShape(16.0.dp)
+        )
+        OwnOutlinedTextField(
+            modifier = modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+            value = value,
+            onValueChange = onValueChange,
+            shape = fieldShape,
+            label = {
+                Text(text = label)
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = onSearch
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(R.string.generic_search)
+                    )
+                }
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearch()
+                }
+            ),
+            interactionSource = interactionSource
+        )
+
+        ExposedDropdownMenu(
+            expanded = showSuggestions,
+            onDismissRequest = {
+                focusManager.clearFocus(false)
+            },
+            shape = RoundedCornerShape(
+                topStart = 0.dp, topEnd = 0.dp,
+                bottomStart = 16.0.dp, bottomEnd = 16.0.dp,
+            )
+        ) {
+            suggestions.forEach { item ->
+                DropdownMenuItem(
+                    text = {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            suggestionLabel(item)
+                        }
+                    },
+                    onClick = {
+                        onSuggestionClick(item)
+                        focusManager.clearFocus(false)
+                    }
+                )
+            }
+        }
+    }
 }
 
 /**
