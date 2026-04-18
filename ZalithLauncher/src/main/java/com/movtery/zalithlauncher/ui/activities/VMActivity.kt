@@ -58,6 +58,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.jakewharton.processphoenix.ProcessPhoenix
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.bridge.CURSOR_DISABLED
 import com.movtery.zalithlauncher.bridge.LoggerBridge
@@ -346,7 +347,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     showExitMessage(this, exitCode, isSignal)
                 } else {
                     //重启启动器
-                    startActivity(Intent(this@VMActivity, MainActivity::class.java))
+                    ProcessPhoenix.triggerRebirth(this@VMActivity)
                 }
             }
         )
