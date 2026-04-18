@@ -1174,4 +1174,6 @@
     <string name="download_game_version_overwrite">Isso irá sobrescrever a versão existente: %s</string>
     <string name="download_game_version_overwrite_select">Versão para sobrescrever</string>
     <string name="download_game_version_overwrite_select_subtitle">Selecione a versão para sobrescrever. Você pode usar este recurso para atualizar/rebaixar a versão selecionada.</string>
+    <string name="plugin_download_title">Baixar Plugin</string>
+    <string name="plugin_download_summary">Baixe o plugin e instale-o como um aplicativo. Basta reabrir o launcher e ele será carregado automaticamente!</string>
 </resources>
