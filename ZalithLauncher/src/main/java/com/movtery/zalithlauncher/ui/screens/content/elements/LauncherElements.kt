@@ -283,10 +283,11 @@ fun LaunchGameOperation(
 @Composable
 fun Background(
     viewModel: BackgroundViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    allowVideo: Boolean = true
 ) {
     when {
-        viewModel.isVideo -> {
+        viewModel.isVideo && allowVideo -> {
             VideoPlayer(
                 videoUri = Uri.fromFile(viewModel.backgroundFile),
                 modifier = modifier,
