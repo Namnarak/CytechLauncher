@@ -169,13 +169,27 @@ container.addEventListener("dblclick", () => {
         cancelAnimationFrame(resetAnimationId);
     }
 
-    const animateReset = () => {
+    // 指数衰减速率（与帧率无关）
+    // 物理含义：每秒缩短至剩余距离的 e^(-DECAY)，DECAY=8 时约 0.03%
+    const DECAY = 6;
+
+    let lastTime = performance.now();
+
+    const animateReset = (now) => {
+        // 计算真实帧间隔（秒），并钳制防止页面切换后跳帧
+        const rawDt = (now - lastTime) / 1000;
+        const dt = Math.min(rawDt, 0.1);
+        lastTime = now;
+
+        // 时间驱动的指数衰减系数，与帧率无关
+        const alpha = 1 - Math.exp(-DECAY * dt);
+
         // Target lerp（直接操作 xyz）
         const t = skinViewer.controls.target;
-        const dt = defaultControlsTarget;
-        t.x += (dt.x - t.x) * 0.1;
-        t.y += (dt.y - t.y) * 0.1;
-        t.z += (dt.z - t.z) * 0.1;
+        const dst = defaultControlsTarget;
+        t.x += (dst.x - t.x) * alpha;
+        t.y += (dst.y - t.y) * alpha;
+        t.z += (dst.z - t.z) * alpha;
 
         // 当前相机相对 target 的偏移
         const cam = skinViewer.camera.position;
@@ -183,9 +197,9 @@ container.addEventListener("dblclick", () => {
         const oy = cam.y - t.y;
         const oz = cam.z - t.z;
 
-        const dx = defaultCameraPos.x - dt.x;
-        const dy = defaultCameraPos.y - dt.y;
-        const dz = defaultCameraPos.z - dt.z;
+        const dx = defaultCameraPos.x - dst.x;
+        const dy = defaultCameraPos.y - dst.y;
+        const dz = defaultCameraPos.z - dst.z;
 
         // 转球坐标
         const curR   = Math.sqrt(ox*ox + oy*oy + oz*oz);
@@ -201,9 +215,9 @@ container.addEventListener("dblclick", () => {
         if (dTheta < -Math.PI) dTheta += 2 * Math.PI;
 
         // 插值
-        const nextR     = curR   + (defR   - curR)   * 0.1;
-        const nextPhi   = curPhi + (defPhi - curPhi)  * 0.1;
-        const nextTheta = curTheta + dTheta * 0.1;
+        const nextR     = curR   + (defR   - curR)   * alpha;
+        const nextPhi   = curPhi + (defPhi - curPhi)  * alpha;
+        const nextTheta = curTheta + dTheta * alpha;
 
         // 转回笛卡尔坐标
         const cosPhi = Math.cos(nextPhi);
@@ -219,9 +233,9 @@ container.addEventListener("dblclick", () => {
         const dpz = cam.z - defaultCameraPos.z;
         const distPos = Math.sqrt(dpx*dpx + dpy*dpy + dpz*dpz);
 
-        const ttx = t.x - dt.x;
-        const tty = t.y - dt.y;
-        const ttz = t.z - dt.z;
+        const ttx = t.x - dst.x;
+        const tty = t.y - dst.y;
+        const ttz = t.z - dst.z;
         const distTarget = Math.sqrt(ttx*ttx + tty*tty + ttz*ttz);
 
         if (distPos > 0.05 || distTarget > 0.05) {
@@ -230,14 +244,14 @@ container.addEventListener("dblclick", () => {
             cam.x = defaultCameraPos.x;
             cam.y = defaultCameraPos.y;
             cam.z = defaultCameraPos.z;
-            t.x = dt.x; t.y = dt.y; t.z = dt.z;
+            t.x = dst.x; t.y = dst.y; t.z = dst.z;
             skinViewer.controls.update();
             resetAnimationId = null;
         }
     };
 
-    // 启动动画
-    animateReset();
+    // 启动动画（rAF 传入的时间戳与 performance.now() 同源）
+    resetAnimationId = requestAnimationFrame(animateReset);
 });
 
 // 如果用户在回正动画播放时主动拖拽了模型，打断回正动画
