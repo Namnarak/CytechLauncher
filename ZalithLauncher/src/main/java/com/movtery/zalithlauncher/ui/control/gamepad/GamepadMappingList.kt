@@ -67,7 +67,7 @@ class GamepadMappingList(
      * 重置手柄与键盘按键映射绑定
      */
     fun resetMapping(gamepadMap: GamepadMap, inGame: Boolean) =
-        applyMapping(gamepadMap, inGame, useDefault = true)
+        applyMapping(gamepadMap, inGame)
 
     /**
      * 为指定手柄映射设置目标键盘映射
@@ -79,24 +79,23 @@ class GamepadMappingList(
      * 保存或重置手柄与键盘按键映射绑定
      * @param gamepadMap 手柄映射对象
      * @param inGame 是否为游戏内映射（true 为游戏内，false 为菜单内）
-     * @param customTargets 自定义目标键
-     * @param useDefault 是否使用默认按键
+     * @param customTargets 自定义目标键，为空则重置
      */
     private fun applyMapping(
         gamepadMap: GamepadMap,
         inGame: Boolean,
         customTargets: Set<String>? = null,
-        useDefault: Boolean = false
     ) {
         val dpad = gamepadMap.dpadDirection
         val isDpad = dpad != null
         val existing = if (isDpad) allDpadMappings[dpad] else allKeyMappings[gamepadMap.gamepad]
 
         val (targetsInGame, targetsInMenu) = if (inGame) {
-            val newTargets = customTargets ?: if (useDefault) gamepadMap.defaultKeysInGame else emptySet()
+            val newTargets = customTargets ?: gamepadMap.defaultKeysInGame
             newTargets to (existing?.inMenu ?: emptySet())
         } else {
-            (existing?.inGame ?: emptySet()) to (customTargets ?: if (useDefault) gamepadMap.defaultKeysInMenu else emptySet())
+            val newTargets = customTargets ?: gamepadMap.defaultKeysInMenu
+            (existing?.inGame ?: emptySet()) to newTargets
         }
 
         val mapping = GamepadMapping(
@@ -106,18 +105,14 @@ class GamepadMappingList(
             targetsInMenu = targetsInMenu
         )
         addInMappingsMap(mapping)
-        if (
-            list.removeIf { mapping0 ->
-                //FIX: 未正确判断是否为方向按键的映射 #812
-                if (isDpad) {
-                    mapping0.dpadDirection == mapping.dpadDirection
-                } else {
-                    mapping0.key == mapping.key
-                }
+        list.removeIf { mapping0 ->
+            if (isDpad) {
+                mapping0.dpadDirection == mapping.dpadDirection
+            } else {
+                mapping0.dpadDirection == null && mapping0.key == mapping.key
             }
-        ) {
-            list.add(mapping)
         }
+        list.add(mapping)
         save()
     }
 
