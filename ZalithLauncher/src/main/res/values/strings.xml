@@ -869,6 +869,7 @@
     <string name="settings_game_graphics_api_title">Graphics API</string>
     <string name="settings_game_graphics_api_summary">Set the graphics API used by Minecraft 26.2+</string>
     <string name="settings_game_graphics_api_default">Follow game settings</string>
+    <string name="settings_game_graphics_api_default_opengl">Set to OpenGL only on first launch</string>
     <string name="settings_game_jvm_args_title">JVM Arguments</string>
     <string name="settings_game_jvm_args_summary">Additional JVM arguments added when starting the JVM. Modifying these without proper knowledge is not recommended, as it may cause crashes</string>
     <string name="settings_game_show_log_automatic_title">Automatically Show Logs</string>

@@ -867,6 +867,7 @@
     <string name="settings_game_graphics_api_title">图形 API</string>
     <string name="settings_game_graphics_api_summary">设置 Minecraft 26.2+ 将使用的图形 API</string>
     <string name="settings_game_graphics_api_default">跟随游戏设置</string>
+    <string name="settings_game_graphics_api_default_opengl">仅首次启动时设置为 OpenGL</string>
     <string name="settings_game_jvm_args_title">JVM 启动参数</string>
     <string name="settings_game_jvm_args_summary">启动 JVM 时，额外添加的 JVM 参数，不建议在没有把握的情况下进行修改，因为这很有可能导致崩溃</string>
     <string name="settings_game_show_log_automatic_title">自动显示日志</string>

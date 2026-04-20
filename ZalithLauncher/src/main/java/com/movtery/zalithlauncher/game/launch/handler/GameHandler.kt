@@ -108,12 +108,13 @@ class GameHandler(
 
             val graphicsApi = version.getGraphicsApi()
             val graphicsOption = "preferredGraphicsBackend"
-            if (graphicsApi == GraphicsApi.DEFAULT) {
-                if (!containsKey(graphicsOption)) {
-                    set(graphicsOption, graphicsApi.option)
+            when (graphicsApi) {
+                GraphicsApi.DEFAULT, GraphicsApi.DEFAULT_OPENGL -> {
+                    if (!containsKey(graphicsOption)) {
+                        set(graphicsOption, graphicsApi.option)
+                    }
                 }
-            } else {
-                set(graphicsOption, graphicsApi.option)
+                else -> set(graphicsOption, graphicsApi.option)
             }
 
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)

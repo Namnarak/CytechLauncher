@@ -176,6 +176,7 @@ fun RendererSettingsScreen(
                         getItemText = {
                             when (it) {
                                 GraphicsApi.DEFAULT -> stringResource(R.string.settings_game_graphics_api_default)
+                                GraphicsApi.DEFAULT_OPENGL -> stringResource(R.string.settings_game_graphics_api_default_opengl)
                                 else -> it.displayName
                             }
                         }

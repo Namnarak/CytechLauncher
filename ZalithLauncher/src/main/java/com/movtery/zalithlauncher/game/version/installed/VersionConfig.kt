@@ -299,8 +299,13 @@ enum class GraphicsApi(
     val displayName: String,
     val option: String
 ) {
+    /** 默认使用游戏设定 */
     DEFAULT("", "\"default\""),
+    /** 强制切换到OpenGL，覆盖游戏原有设定 */
     OPENGL("OpenGL", "\"opengl\""),
+    /** 默认切换到OpenGL，如果游戏有设定过则不覆盖 */
+    DEFAULT_OPENGL(OPENGL.displayName, OPENGL.option),
+    /** 强制切换到Vulkan，覆盖游戏原有设定 */
     VULKAN("Vulkan", "\"vulkan\"")
 }
 
