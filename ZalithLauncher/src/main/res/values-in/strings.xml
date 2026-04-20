@@ -323,7 +323,6 @@
     <string name="account_add_new_server_button">Tambahkan autentikasi</string>
     <string name="account_add_new_account">Tambahkan Akun</string>
     <string name="account_label_username">Nama Pengguna</string>
-    <string name="account_label_server_url">URL API Yggdrasil</string>
     <string name="account_label_email">Email atau Nama Pengguna</string>
     <string name="account_label_password">Kata Sandi</string>
     <string name="account_change_skin">Ganti Skin</string>

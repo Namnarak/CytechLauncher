@@ -600,19 +600,11 @@ private fun ServerTypeOperation(
                     )
                 },
                 onConfirm = {
-                    if (serverUrl.isNotEmpty()) actions.onIntent(
-                        AccountManageIntent.UpdateServerOp(
-                            ServerOperation.Add(serverUrl)
-                        )
-                    )
+                    if (serverUrl.isNotEmpty()) {
+                        actions.onIntent(AccountManageIntent.AddServer(serverUrl))
+                    }
                 }
             )
-        }
-
-        is ServerOperation.Add -> {
-            LaunchedEffect(operation) {
-                actions.onIntent(AccountManageIntent.AddServer(operation.serverUrl))
-            }
         }
 
         is ServerOperation.Delete -> {

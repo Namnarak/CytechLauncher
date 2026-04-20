@@ -401,7 +401,7 @@
     <string name="account_add_new_server_button">新增驗證伺服器</string>
     <string name="account_add_new_account">新增帳號</string>
     <string name="account_label_username">填寫使用者名稱</string>
-    <string name="account_label_server_url">填寫 Yggdrasil API 伺服器網址</string>
+    <string name="account_label_server_url">填寫伺服器位址</string>
     <string name="account_label_email">填寫電子郵件或使用者名稱</string>
     <string name="account_label_password">填寫密碼</string>
     <string name="account_change_skin">更換皮膚</string>

@@ -391,7 +391,6 @@
     <string name="account_add_new_server_button">認証を追加</string>
     <string name="account_add_new_account">アカウントを追加</string>
     <string name="account_label_username">ユーザー名</string>
-    <string name="account_label_server_url">Yggdrasil APIのURL</string>
     <string name="account_logging_xbox_not_accepted_service">あなたのアカウントはXboxの利用規約に同意していません。</string>
     <string name="game_menu_option_input_method">入力方法の切り替え</string>
     <string name="download_assets_features_environment">環境</string>

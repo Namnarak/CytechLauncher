@@ -334,7 +334,6 @@
     <string name="account_add_new_server_button">Kimlik Ekle</string>
     <string name="account_add_new_account">Hesap Ekle</string>
     <string name="account_label_username">Kullanıcı Adı</string>
-    <string name="account_label_server_url">Yggdrasil API Adresi</string>
     <string name="account_label_email">E-posta veya Kullanıcı Adı</string>
     <string name="account_label_password">Şifre</string>
     <string name="account_change_skin">Skin Değiştir</string>

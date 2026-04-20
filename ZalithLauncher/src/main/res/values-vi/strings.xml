@@ -328,7 +328,6 @@
     <string name="account_add_new_server_button">Thêm Auth</string>
     <string name="account_add_new_account">Thêm tài khoản</string>
     <string name="account_label_username">Tên người dùng</string>
-    <string name="account_label_server_url">Yggdrasil URL API</string>
     <string name="account_label_email">Email hoặc tên tài khoản</string>
     <string name="account_label_password">Mật khẩu</string>
     <string name="account_change_skin">Đổi skin</string>

@@ -49,6 +49,7 @@ import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.network.httpPostJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.submitForm
+import com.movtery.zalithlauncher.utils.string.toUuidStr
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
@@ -70,7 +71,6 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
 private val SCOPES = listOf("XboxLive.signin", "offline_access", "openid", "profile", "email")
@@ -354,7 +354,7 @@ private suspend fun createAccount(
         this.accessToken = authResponse.accessToken
         this.expiresAt = System.currentTimeMillis() + authResponse.expiresIn * 1000
         this.accountType = AccountType.MICROSOFT.tag
-        this.clientToken = UUID.randomUUID().toString().replace("-", "")
+        this.clientToken = InfoDistributor.LAUNCHER_NAME.toUuidStr().replace("-", "")
         this.profileId = profileId
         this.refreshToken = refreshToken.ifEmpty { "None" }
         this.xUid = uhs

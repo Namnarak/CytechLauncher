@@ -166,7 +166,6 @@
     <string name="account_add_new_server_button">Добавить сервер</string>
     <string name="account_add_new_account">Добавить аккаунт</string>
     <string name="account_label_username">Имя пользователя</string>
-    <string name="account_label_server_url">URL API Yggdrasil</string>
     <string name="account_label_email">Электронная почта или имя пользователя</string>
     <string name="account_label_password">Пароль</string>
     <string name="account_change_skin">Сменить скин</string>

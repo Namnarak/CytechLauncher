@@ -185,8 +185,8 @@ class LaunchArgs(
                 argsList.add("-Dnide8auth.client=true")
             } else {
                 argsList.add("-javaagent:${LibPath.AUTHLIB_INJECTOR.absolutePath}=${account.otherBaseUrl}")
+                argsList.add("-Dauthlibinjector.side=client")
             }
-            argsList.add("-Dauthlibinjector.side=client")
         }
 
         argsList.addAll(getCacioJavaArgs(runtime.javaVersion == 8))

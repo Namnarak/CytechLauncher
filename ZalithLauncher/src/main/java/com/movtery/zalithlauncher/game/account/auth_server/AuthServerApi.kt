@@ -25,12 +25,14 @@ import com.movtery.zalithlauncher.game.account.Account
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthRequest
 import com.movtery.zalithlauncher.game.account.auth_server.models.AuthResult
 import com.movtery.zalithlauncher.game.account.auth_server.models.Refresh
+import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
 import com.movtery.zalithlauncher.utils.network.safeBodyAsText
 import com.movtery.zalithlauncher.utils.string.decodeUnicode
+import com.movtery.zalithlauncher.utils.string.toUuidStr
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -46,7 +48,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.util.Objects
-import java.util.UUID
 
 class AuthServerApi(private var baseUrl: String) {
     fun formatUrl(baseUrl: String): String {
@@ -84,7 +85,7 @@ class AuthServerApi(private var baseUrl: String) {
             password = password,
             agent = agent,
             requestUser = true,
-            clientToken = UUID.randomUUID().toString().replace("-", "")
+            clientToken = InfoDistributor.LAUNCHER_NAME.toUuidStr().replace("-", "")
         )
 
         val data = Gson().toJson(authRequest)

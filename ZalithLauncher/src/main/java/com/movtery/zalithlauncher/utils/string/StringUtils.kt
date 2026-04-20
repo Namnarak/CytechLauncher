@@ -21,7 +21,9 @@ package com.movtery.zalithlauncher.utils.string
 import android.util.Base64
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import java.util.regex.Pattern
 
 fun shiftString(input: String, direction: ShiftDirection, shiftCount: Int): String {
@@ -68,6 +70,14 @@ fun decodeUnicode(input: String): String {
         result = result.replace(match.value, char.toString())
     }
     return result
+}
+
+fun String.toUuid(charset: Charset = Charsets.UTF_8): UUID {
+    return UUID.nameUUIDFromBytes(this.toByteArray(charset))
+}
+
+fun String.toUuidStr(charset: Charset = Charsets.UTF_8): String {
+    return toUuid(charset).toString()
 }
 
 /**

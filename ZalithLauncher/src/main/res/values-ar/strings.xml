@@ -400,7 +400,6 @@
     <string name="account_add_new_server_button">إضافة مصادقة</string>
     <string name="account_add_new_account">إضافة حساب</string>
     <string name="account_label_username">اسم المستخدم</string>
-    <string name="account_label_server_url">رابط API الخاص بـ Yggdrasil</string>
     <string name="account_label_email">البريد الإلكتروني أو اسم المستخدم</string>
     <string name="account_label_password">كلمة المرور</string>
     <string name="account_change_skin">تغيير المظهر</string>

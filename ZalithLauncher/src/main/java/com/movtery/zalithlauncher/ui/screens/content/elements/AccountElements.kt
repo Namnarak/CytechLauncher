@@ -202,15 +202,10 @@ sealed interface LocalLoginOperation {
  */
 sealed interface ServerOperation {
     data object None : ServerOperation
-
     /** 添加认证服务器对话框 */
     data object AddNew : ServerOperation
-
     /** 删除认证服务器对话框 */
     data class Delete(val server: AuthServer) : ServerOperation
-
-    /** 添加认证服务器 */
-    data class Add(val serverUrl: String) : ServerOperation
     data class OnThrowable(val throwable: Throwable) : ServerOperation
 }
 
@@ -365,9 +360,10 @@ fun AccountItem(
             RadioButton(
                 selected = selected,
                 onClick = {
-                    if (selected) return@RadioButton
+                    if (selected || !enabled) return@RadioButton
                     onSelected(account)
-                }
+                },
+                enabled = enabled
             )
             PlayerFace(
                 modifier = Modifier.align(Alignment.CenterVertically),

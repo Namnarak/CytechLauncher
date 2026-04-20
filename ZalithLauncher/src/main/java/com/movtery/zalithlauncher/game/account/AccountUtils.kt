@@ -317,7 +317,13 @@ fun addOtherServer(
     val task = Task.runTask(
         task = { task ->
             task.updateProgress(-1f, R.string.account_other_login_getting_full_url)
-            val fullServerUrl = tryGetFullServerUrl(serverUrl)
+            val isNide8 = isValidPassportId(serverUrl)
+            val fullServerUrl = if (isNide8) {
+                //可能是一个统一通行证服务器ID
+                "https://auth.mc-user.com:233/$serverUrl"
+            } else {
+                tryGetFullServerUrl(serverUrl)
+            }
             ensureActive()
             task.updateProgress(0.5f, R.string.account_other_login_getting_server_info)
             runCatching {
@@ -334,7 +340,9 @@ fun addOtherServer(
                     val server = AuthServer(
                         serverName = meta.optString("serverName"),
                         baseUrl = fullServerUrl,
-                        register = meta.optJSONObject("links")?.optString("register") ?: ""
+                        register = if (!isNide8) {
+                            meta.optJSONObject("links")?.optString("register") ?: ""
+                        } else "https://login.mc-user.com:233/$serverUrl"
                     )
                     task.updateProgress(0.8f, R.string.account_other_login_saving_server)
                     AccountsManager.saveAuthServer(server)
@@ -414,4 +422,13 @@ private fun addHttpsIfMissing(baseUrl: String): String {
     return if (!baseUrl.startsWith("http://", true) && !baseUrl.startsWith("https://")) {
         "https://$baseUrl".lowercase(Locale.ROOT)
     } else baseUrl.lowercase(Locale.ROOT)
+}
+
+/**
+ * 检查是否为32位16进制字符串，这可能是一个
+ * 统一通行证的服务器ID
+ */
+private fun isValidPassportId(id: String): Boolean {
+    val pattern = Regex("^[0-9a-f]{32}$", RegexOption.IGNORE_CASE)
+    return pattern.matches(id)
 }

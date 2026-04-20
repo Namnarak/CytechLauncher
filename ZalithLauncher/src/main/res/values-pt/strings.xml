@@ -360,7 +360,6 @@
     <string name="account_logging_frequent">Tentativas de login muito frequentes. Por favor, tente mais tarde.</string>
     <string name="account_logging_profile_not_exists">Por favor, crie um perfil antes de logar!</string>
     <string name="account_logging_not_purchased_minecraft">Propriedade do jogo não verificada. Compre o Minecraft através do site oficial.</string>
-    <string name="account_label_server_url">URL API Yggdrasil</string>
     <string name="about_launcher_title">Sobre o launcher</string>
     <string name="about_launcher_version">Versão do launcher: %s</string>
     <string name="about_launcher_author_movtery_title">MovTery</string>

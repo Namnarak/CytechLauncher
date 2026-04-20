@@ -418,7 +418,6 @@
     <string name="account_add_new_server_button">Añadir autenticación</string>
     <string name="account_add_new_account">Añadir cuenta</string>
     <string name="account_label_username">Nombre de usuario</string>
-    <string name="account_label_server_url">URL de la API de Yggdrasil</string>
     <string name="account_label_email">Correo electrónico o nombre de usuario</string>
     <string name="account_label_password">Contraseña</string>
     <string name="account_change_skin">Cambiar skin</string>
