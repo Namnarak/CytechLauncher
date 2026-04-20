@@ -291,16 +291,6 @@ private fun BoxWithConstraintsScope.BaseControlBoxLayout(
                                 }
                             }
                         }
-
-                        //未触摸时清除所有状态
-                        if (!event.changes.any { it.pressed }) {
-                            allActiveWidgets.forEach { (_, widgets) ->
-                                widgets.forEach { widget ->
-                                    widget.onReleaseEvent(eventHandler, reversedLayers)
-                                }
-                            }
-                            allActiveWidgets.clear()
-                        }
                     }
                 }
             }

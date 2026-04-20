@@ -480,10 +480,6 @@ private suspend fun PointerInputScope.simpleDrag(
                             activePointer = null
                         }
                     }
-
-                if (!event.changes.any { it.pressed }) {
-                    activePointer = null
-                }
             }
         }
     }
