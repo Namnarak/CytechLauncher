@@ -182,6 +182,7 @@ private fun DownloadDialog(
         val optionals = remember(dependencyProjects) {
             dependencyProjects.filter { it.first.type == PlatformDependencyType.OPTIONAL }
         }
+        val hasDeps = dependencies.isNotEmpty() || optionals.isNotEmpty()
 
         Dialog(
             onDismissRequest = onDismiss,
@@ -192,11 +193,7 @@ private fun DownloadDialog(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth(
-                        if (dependencyProjects.isNotEmpty()) {
-                            0.8f
-                        } else {
-                            0.5f
-                        }
+                        fraction = if (hasDeps) 0.8f else 0.5f
                     )
                     .fillMaxHeight(),
                 contentAlignment = Alignment.Center
@@ -220,7 +217,7 @@ private fun DownloadDialog(
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            if (dependencyProjects.isNotEmpty()) {
+                            if (hasDeps) {
                                 val listState = rememberLazyListState()
 
                                 LazyColumn(
@@ -253,19 +250,15 @@ private fun DownloadDialog(
                             Column(
                                 modifier = Modifier.weight(1f)
                             ) {
-                                if (dependencyProjects.isNotEmpty()) {
-                                    MarqueeText(
-                                        modifier = Modifier.padding(top = 8.dp),
-                                        text = stringResource(R.string.download_assets_install_assets_for_versions),
-                                        style = MaterialTheme.typography.labelLarge
-                                    )
-                                } else {
-                                    MarqueeText(
-                                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                                        text = stringResource(R.string.download_assets_install_assets_for_versions),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
+                                MarqueeText(
+                                    modifier = if (hasDeps) {
+                                        Modifier.padding(top = 8.dp)
+                                    } else {
+                                        Modifier.align(Alignment.CenterHorizontally)
+                                    },
+                                    text = stringResource(R.string.download_assets_install_assets_for_versions),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
 
                                 val listState = rememberLazyListState()
 

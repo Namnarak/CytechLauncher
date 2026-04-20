@@ -107,6 +107,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
@@ -1070,7 +1071,8 @@ fun OtherServerLoginDialog(
                                 }
                             },
                             keyboardOptions = KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Done
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Password
                             ),
                             keyboardActions = KeyboardActions(
                                 onDone = {

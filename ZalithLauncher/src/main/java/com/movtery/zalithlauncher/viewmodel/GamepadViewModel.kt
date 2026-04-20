@@ -18,11 +18,13 @@
 
 package com.movtery.zalithlauncher.viewmodel
 
+import android.util.SparseBooleanArray
 import android.view.KeyEvent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.core.util.set
 import androidx.lifecycle.ViewModel
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.ui.control.gamepad.DpadDirection
@@ -39,6 +41,9 @@ import io.ktor.util.collections.ConcurrentSet
 
 private const val BUTTON_PRESS_THRESHOLD = 0.85f
 const val GAMEPAD_CONFIG_NAME_LENGTH = 16
+
+private const val AXIS_ACTIVATION_THRESHOLD = 0.6f
+private const val AXIS_RESET_THRESHOLD = 0.4f
 
 class GamepadViewModel : ViewModel() {
     private val keyListeners = mutableListOf<(KeyEvent) -> Unit>()
@@ -274,8 +279,14 @@ class GamepadViewModel : ViewModel() {
         when (axisCode) {
             //更新左右触发器状态
             GamepadRemap.MotionLeftTrigger.code,
-            GamepadRemap.MotionRightTrigger.code
-                -> updateButton(axisCode, value > BUTTON_PRESS_THRESHOLD)
+            GamepadRemap.MotionRightTrigger.code -> {
+                checkAxisPress(
+                    axisCode, value,
+                    onEvent = { isPressed ->
+                        updateButton(axisCode, isPressed)
+                    }
+                )
+            }
 
             //更新方向键状态
             GamepadRemap.MotionHatX.code -> {
@@ -286,6 +297,27 @@ class GamepadViewModel : ViewModel() {
                 updateDpad(DpadDirection.Up, value < -BUTTON_PRESS_THRESHOLD)
                 updateDpad(DpadDirection.Down, value > BUTTON_PRESS_THRESHOLD)
             }
+        }
+    }
+
+    private val axisStates = SparseBooleanArray()
+    private fun checkAxisPress(
+        axisCode: Int, value: Float,
+        onEvent: (isPressed: Boolean) -> Unit,
+        activation: Float = AXIS_ACTIVATION_THRESHOLD,
+        reset: Float = AXIS_RESET_THRESHOLD
+    ) {
+        val isPressed = axisStates[axisCode]
+
+        val press = if (isPressed) {
+            value >= reset
+        } else {
+            value >= activation
+        }
+        axisStates[axisCode] = press
+
+        if (isPressed != press) {
+            onEvent(press)
         }
     }
 

@@ -85,7 +85,8 @@ class ControlEditorActivity : BaseAppCompatActivity() {
                     ) {
                         Background(
                             modifier = Modifier.fillMaxSize(),
-                            viewModel = backgroundViewModel
+                            viewModel = backgroundViewModel,
+                            allowVideo = false
                         )
 
                         ControlEditor(

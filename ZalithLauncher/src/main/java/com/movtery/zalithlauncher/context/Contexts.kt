@@ -28,7 +28,6 @@ import com.movtery.zalithlauncher.utils.file.ensureParentDirectory
 import com.movtery.zalithlauncher.utils.file.readString
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -78,11 +77,12 @@ fun Context.copyAssetFile(
     overwrite: Boolean
 ) {
     val destinationFile = output.ensureParentDirectory()
-    if (!destinationFile.exists() || overwrite) {
-        assets.open(fileName).use { inputStream ->
-            FileOutputStream(destinationFile).use { outputStream ->
-                IOUtils.copy(inputStream, outputStream)
-            }
+    if (destinationFile.exists() && !overwrite) return
+    assets.open(fileName).use { input ->
+        FileOutputStream(output).use { out ->
+            input.copyTo(out)
+            out.flush()
+            out.fd.sync()
         }
     }
 }

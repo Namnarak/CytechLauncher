@@ -237,9 +237,13 @@ private fun VersionConfigs(
 
         val graphicsApis = GraphicsApi.entries
         val defaultGraphicsTitle = stringResource(R.string.settings_game_graphics_api_default)
+        val defaultOpenGLTitle = stringResource(R.string.settings_game_graphics_api_default_opengl)
         val graphicsApisList = getIDList(graphicsApis) {
-            val title = if (it == GraphicsApi.DEFAULT) defaultGraphicsTitle
-            else it.displayName
+            val title = when (it) {
+                GraphicsApi.DEFAULT -> defaultGraphicsTitle
+                GraphicsApi.DEFAULT_OPENGL -> defaultOpenGLTitle
+                else -> it.displayName
+            }
             IDItem(it.name, title)
         }
         ListSettingsCard(
