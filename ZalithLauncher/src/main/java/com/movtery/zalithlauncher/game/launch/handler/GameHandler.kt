@@ -38,6 +38,7 @@ import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.game.version.installed.Version
+import com.movtery.zalithlauncher.game.version.installed.utils.isLowerVer
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.terracotta.Terracotta
 import com.movtery.zalithlauncher.ui.control.gamepad.isGamepadKeyEvent
@@ -96,12 +97,14 @@ class GameHandler(
             set("options.narrator", "0")
             set("narrator", "0")
 
-            //fix: 牢版本按键事件
-            //shift + w -> 87 错误的触发了F11，切换全屏
-            set("key_key.fullscreen", "0")
-            //输入字符@ -> 64 错误的触发了F6，触发“开始/停止直播”
-            set("key_key.streamStartStop", "0")
-            set("key_key.streamPauseUnpause", "0")
+            if (version.getVersionInfo()!!.minecraftVersion.isLowerVer("1.13")) {
+                //fix: 牢版本按键事件
+                //shift + w -> 87 错误的触发了F11，切换全屏
+                set("key_key.fullscreen", "0")
+                //输入字符@ -> 64 错误的触发了F6，触发“开始/停止直播”
+                set("key_key.streamStartStop", "0")
+                set("key_key.streamPauseUnpause", "0")
+            }
 
             set("overrideWidth", screenSize.width.toString())
             set("overrideHeight", screenSize.height.toString())
