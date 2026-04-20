@@ -1176,4 +1176,5 @@
     <string name="download_game_version_overwrite_select_subtitle">Pilih versi yang ingin diganti. Fitur ini bisa digunakan untuk memperbarui atau menurunkan versi yang dipilih</string>
     <string name="plugin_download_title">Unduh Plugin</string>
     <string name="plugin_download_summary">Unduh plugin dan instal sebagai aplikasi. Cukup buka kembali launcher, dan plugin akan dimuat otomatis!</string>
+    <string name="settings_game_graphics_api_default_opengl">Hanya gunakan OpenGL saat pertama kali dijalankan</string>
 </resources>
