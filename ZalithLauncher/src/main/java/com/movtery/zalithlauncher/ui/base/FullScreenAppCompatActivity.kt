@@ -66,16 +66,35 @@ abstract class FullScreenAppCompatActivity : AbstractAppCompatActivity() {
     private fun applyFullscreen(mode: WindowMode) {
         if (window != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val params = window.attributes.apply {
-                    this.layoutInDisplayCutoutMode = when (mode) {
-                        WindowMode.DEFAULT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
-                        WindowMode.FULL_IMMERSIVE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    }
+                val params = window.attributes
+                val newParams = when (mode) {
+                    WindowMode.DEFAULT -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER
+                    WindowMode.FULL_IMMERSIVE -> WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
                 }
-                window.attributes = params
+                if (params.layoutInDisplayCutoutMode != newParams) {
+                    params.layoutInDisplayCutoutMode = newParams
+                    window.attributes = params
+                }
             }
-            window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
-            window.decorView.systemUiVisibility = systemUIVisibility
+
+            when (mode) {
+                WindowMode.DEFAULT -> {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
+                    window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN) //隐藏状态栏
+                    window.decorView.systemUiVisibility = (
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            )
+                }
+                WindowMode.FULL_IMMERSIVE -> {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
+                    window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                    window.decorView.systemUiVisibility = systemUIVisibility
+                }
+            }
         }
     }
 
