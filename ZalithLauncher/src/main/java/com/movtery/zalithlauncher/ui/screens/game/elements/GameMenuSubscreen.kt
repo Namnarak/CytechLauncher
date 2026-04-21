@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -64,7 +65,9 @@ import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.control.HotbarRule
 import com.movtery.zalithlauncher.ui.control.gyroscope.isGyroscopeAvailable
+import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.cardTitleColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.viewmodel.GamepadViewModel
 
 private sealed interface IconTab {
@@ -103,9 +106,6 @@ fun GameMenuSubscreen(
     onManageJoystick: () -> Unit,
     onEditLayout: () -> Unit
 ) {
-    //检查陀螺仪是否可用
-    val context = LocalContext.current
-
     DualMenuSubscreen(
         state = state,
         closeScreen = closeScreen,
@@ -190,129 +190,171 @@ fun GameMenuSubscreen(
             )
         },
         rightMenuContent = {
-            LazyColumn(
+            GameActionContent(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(all = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                //强制关闭
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_button_force_close),
-                        onClick = onForceClose
-                    )
-                }
-                //日志输出
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_menu_option_switch_log),
-                        onClick = onSwitchLog
-                    )
-                }
-
-                //如果开启多人联机，则展示这个按钮
-                if (enableTerracotta) {
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    //打开联机菜单
-                    item {
-                        MenuTextButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(R.string.terracotta_menu),
-                            onClick = onOpenTerracottaMenu
-                        )
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                //开启菜单悬浮窗
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_menu_option_show_menu),
-                        switch = AllSettings.showMenuBall.state,
-                        onSwitch = { value ->
-                            AllSettings.showMenuBall.save(value)
-                            if (!value) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.game_menu_option_show_menu_hided),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        }
-                    )
-                }
-                //菜单悬浮窗不透明度
-                item {
-                    MenuSliderLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.game_menu_option_menu_ball_opacity),
-                        value = AllSettings.menuBallOpacity.state,
-                        valueRange = AllSettings.menuBallOpacity.floatRange,
-                        onValueChange = { value ->
-                            AllSettings.menuBallOpacity.updateState(value)
-                        },
-                        onValueChangeFinished = { value ->
-                            AllSettings.menuBallOpacity.save(value)
-                        },
-                        suffix = "%",
-                        enabled = AllSettings.showMenuBall.state
-                    )
-                }
-                //帧率显示
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_menu_option_switch_fps),
-                        switch = AllSettings.showFPS.state,
-                        onSwitch = { AllSettings.showFPS.save(it) },
-                        enabled = AllSettings.showMenuBall.state
-                    )
-                }
-                //内存显示
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_menu_option_switch_memory),
-                        switch = AllSettings.showMemory.state,
-                        onSwitch = { AllSettings.showMemory.save(it) },
-                        enabled = AllSettings.showMenuBall.state
-                    )
-                }
-                //游戏窗口分辨率
-                item {
-                    MenuSliderLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.settings_renderer_resolution_scale_title),
-                        value = AllSettings.resolutionRatio.state,
-                        valueRange = AllSettings.resolutionRatio.floatRange,
-                        onValueChange = { value ->
-                            AllSettings.resolutionRatio.updateState(value)
-//                        onRefreshWindowSize()
-                        },
-                        onValueChangeFinished = { value ->
-                            AllSettings.resolutionRatio.save(value)
-                            onRefreshWindowSize()
-                        },
-                        suffix = "%",
-                    )
-                }
-            }
+                onForceClose = onForceClose,
+                onSwitchLog = onSwitchLog,
+                enableTerracotta = enableTerracotta,
+                onOpenTerracottaMenu = onOpenTerracottaMenu,
+                onRefreshWindowSize = onRefreshWindowSize
+            )
         }
     )
 }
 
 @Composable
+private fun GameActionContent(
+    onForceClose: () -> Unit,
+    onSwitchLog: () -> Unit,
+    enableTerracotta: Boolean,
+    onOpenTerracottaMenu: () -> Unit,
+    onRefreshWindowSize: () -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
+) {
+    //检查陀螺仪是否可用
+    val context = LocalContext.current
+
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        //强制关闭
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_button_force_close),
+                onClick = onForceClose,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+        //日志输出
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_switch_log),
+                onClick = onSwitchLog,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //如果开启多人联机，则展示这个按钮
+        if (enableTerracotta) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            //打开联机菜单
+            item {
+                MenuTextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.terracotta_menu),
+                    onClick = onOpenTerracottaMenu,
+                    color = color,
+                    contentColor = contentColor,
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        //开启菜单悬浮窗
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_show_menu),
+                switch = AllSettings.showMenuBall.state,
+                onSwitch = { value ->
+                    AllSettings.showMenuBall.save(value)
+                    if (!value) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.game_menu_option_show_menu_hided),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+        //菜单悬浮窗不透明度
+        item {
+            MenuSliderLayout(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.game_menu_option_menu_ball_opacity),
+                value = AllSettings.menuBallOpacity.state,
+                valueRange = AllSettings.menuBallOpacity.floatRange,
+                onValueChange = { value ->
+                    AllSettings.menuBallOpacity.updateState(value)
+                },
+                onValueChangeFinished = { value ->
+                    AllSettings.menuBallOpacity.save(value)
+                },
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
+                enabled = AllSettings.showMenuBall.state
+            )
+        }
+        //帧率显示
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_switch_fps),
+                switch = AllSettings.showFPS.state,
+                onSwitch = { AllSettings.showFPS.save(it) },
+                color = color,
+                contentColor = contentColor,
+                enabled = AllSettings.showMenuBall.state
+            )
+        }
+        //内存显示
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_menu_option_switch_memory),
+                switch = AllSettings.showMemory.state,
+                onSwitch = { AllSettings.showMemory.save(it) },
+                color = color,
+                contentColor = contentColor,
+                enabled = AllSettings.showMenuBall.state
+            )
+        }
+        //游戏窗口分辨率
+        item {
+            MenuSliderLayout(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.settings_renderer_resolution_scale_title),
+                value = AllSettings.resolutionRatio.state,
+                valueRange = AllSettings.resolutionRatio.floatRange,
+                onValueChange = { value ->
+                    AllSettings.resolutionRatio.updateState(value)
+//                        onRefreshWindowSize()
+                },
+                onValueChangeFinished = { value ->
+                    AllSettings.resolutionRatio.save(value)
+                    onRefreshWindowSize()
+                },
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+    }
+}
+
+@Composable
 private fun ControlOverview(
     modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
     closeScreen: () -> Unit,
     onInputMethod: () -> Unit,
     onSendKeycode: () -> Unit,
@@ -333,7 +375,9 @@ private fun ControlOverview(
                 onClick = {
                     onInputMethod()
                     closeScreen()
-                }
+                },
+                color = color,
+                contentColor = contentColor,
             )
         }
         //发送键值
@@ -344,7 +388,9 @@ private fun ControlOverview(
                 onClick = {
                     onSendKeycode()
                     closeScreen()
-                }
+                },
+                color = color,
+                contentColor = contentColor,
             )
         }
         //更换控制布局
@@ -355,7 +401,9 @@ private fun ControlOverview(
                 onClick = {
                     onReplacementControl()
                     closeScreen()
-                }
+                },
+                color = color,
+                contentColor = contentColor,
             )
         }
         //编辑布局
@@ -366,7 +414,9 @@ private fun ControlOverview(
                 onClick = {
                     onEditLayout()
                     closeScreen()
-                }
+                },
+                color = color,
+                contentColor = contentColor,
             )
         }
         //控制布局不透明度
@@ -378,7 +428,9 @@ private fun ControlOverview(
                 valueRange = AllSettings.controlsOpacity.floatRange,
                 onValueChange = { AllSettings.controlsOpacity.updateState(it) },
                 onValueChangeFinished = { AllSettings.controlsOpacity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -390,7 +442,9 @@ private fun ControlOverview(
                 onClick = {
                     onManageJoystick()
                     closeScreen()
-                }
+                },
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -406,7 +460,9 @@ private fun ControlOverview(
                 items = HotbarRule.entries,
                 currentItem = AllSettings.hotbarRule.state,
                 onItemChange = { AllSettings.hotbarRule.save(it) },
-                getItemText = { stringResource(it.nameRes) }
+                getItemText = { stringResource(it.nameRes) },
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -425,6 +481,8 @@ private fun ControlOverview(
                     AllSettings.hotbarWidth.save((value * 10f).toInt())
                 },
                 suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -443,6 +501,8 @@ private fun ControlOverview(
                     AllSettings.hotbarHeight.save((value * 10f).toInt())
                 },
                 suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
     }
@@ -450,7 +510,9 @@ private fun ControlOverview(
 
 @Composable
 private fun ControlMouse(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
 ) {
     LazyColumn(
         modifier = modifier,
@@ -464,6 +526,8 @@ private fun ControlMouse(
                 text = stringResource(R.string.settings_control_mouse_hide_title),
                 switch = AllSettings.hideMouse.state,
                 onSwitch = { AllSettings.hideMouse.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = AllSettings.mouseControlMode.state == MouseControlMode.CLICK
             )
         }
@@ -474,6 +538,8 @@ private fun ControlMouse(
                 text = stringResource(R.string.settings_control_mouse_enable_click_title),
                 switch = AllSettings.enableMouseClick.state,
                 onSwitch = { AllSettings.enableMouseClick.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = AllSettings.mouseControlMode.state == MouseControlMode.SLIDE
             )
         }
@@ -485,7 +551,9 @@ private fun ControlMouse(
                 items = MouseControlMode.entries,
                 currentItem = AllSettings.mouseControlMode.state,
                 onItemChange = { AllSettings.mouseControlMode.save(it) },
-                getItemText = { stringResource(it.nameRes) }
+                getItemText = { stringResource(it.nameRes) },
+                color = color,
+                contentColor = contentColor,
             )
         }
         //虚拟鼠标大小
@@ -497,7 +565,9 @@ private fun ControlMouse(
                 valueRange = AllSettings.mouseSize.floatRange,
                 onValueChange = { AllSettings.mouseSize.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseSize.save(it) },
-                suffix = "Dp"
+                suffix = "Dp",
+                color = color,
+                contentColor = contentColor,
             )
         }
         //虚拟鼠标灵敏度
@@ -509,7 +579,9 @@ private fun ControlMouse(
                 valueRange = AllSettings.cursorSensitivity.floatRange,
                 onValueChange = { AllSettings.cursorSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.cursorSensitivity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
         //抓获鼠标滑动灵敏度
@@ -521,7 +593,9 @@ private fun ControlMouse(
                 valueRange = AllSettings.mouseCaptureSensitivity.floatRange,
                 onValueChange = { AllSettings.mouseCaptureSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseCaptureSensitivity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
         //虚拟鼠标长按触发的延迟
@@ -533,7 +607,9 @@ private fun ControlMouse(
                 valueRange = AllSettings.mouseLongPressDelay.floatRange,
                 onValueChange = { AllSettings.mouseLongPressDelay.updateState(it) },
                 onValueChangeFinished = { AllSettings.mouseLongPressDelay.save(it) },
-                suffix = "ms"
+                suffix = "ms",
+                color = color,
+                contentColor = contentColor,
             )
         }
     }
@@ -543,6 +619,8 @@ private fun ControlMouse(
 private fun ControlGamepad(
     gamepadViewModel: GamepadViewModel,
     modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
 ) {
     LazyColumn(
         modifier = modifier,
@@ -555,7 +633,9 @@ private fun ControlGamepad(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_gamepad_title),
                 switch = AllSettings.gamepadControl.state,
-                onSwitch = { AllSettings.gamepadControl.save(it) }
+                onSwitch = { AllSettings.gamepadControl.save(it) },
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -569,7 +649,9 @@ private fun ControlGamepad(
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadDeadZoneScale.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadDeadZoneScale.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -583,7 +665,9 @@ private fun ControlGamepad(
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCursorSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCursorSensitivity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -597,7 +681,9 @@ private fun ControlGamepad(
                 enabled = AllSettings.gamepadControl.state,
                 onValueChange = { AllSettings.gamepadCameraSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gamepadCameraSensitivity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -618,6 +704,8 @@ private fun ControlGamepad(
                         gamepadViewModel.reloadAllMappings()
                     },
                     getItemText = { it },
+                    color = color,
+                    contentColor = contentColor,
                     enabled = AllSettings.gamepadControl.state,
                 )
             } else {
@@ -625,6 +713,8 @@ private fun ControlGamepad(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.settings_gamepad_config_no_items),
                     onClick = {},
+                    color = color,
+                    contentColor = contentColor,
                     enabled = false
                 )
             }
@@ -634,7 +724,9 @@ private fun ControlGamepad(
 
 @Composable
 private fun ControlGesture(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
 ) {
     LazyColumn(
         modifier = modifier,
@@ -647,7 +739,9 @@ private fun ControlGesture(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.settings_control_gesture_control_title),
                 switch = AllSettings.gestureControl.state,
-                onSwitch = { AllSettings.gestureControl.save(it) }
+                onSwitch = { AllSettings.gestureControl.save(it) },
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -660,6 +754,8 @@ private fun ControlGesture(
                 currentItem = AllSettings.gestureTapMouseAction.state,
                 onItemChange = { AllSettings.gestureTapMouseAction.save(it) },
                 getItemText = { stringResource(it.nameRes) },
+                color = color,
+                contentColor = contentColor,
                 enabled = AllSettings.gestureControl.state
             )
         }
@@ -673,6 +769,8 @@ private fun ControlGesture(
                 currentItem = AllSettings.gestureLongPressMouseAction.state,
                 onItemChange = { AllSettings.gestureLongPressMouseAction.save(it) },
                 getItemText = { stringResource(it.nameRes) },
+                color = color,
+                contentColor = contentColor,
                 enabled = AllSettings.gestureControl.state
             )
         }
@@ -687,7 +785,9 @@ private fun ControlGesture(
                 enabled = AllSettings.gestureControl.state,
                 onValueChange = { AllSettings.gestureLongPressDelay.updateState(it) },
                 onValueChangeFinished = { AllSettings.gestureLongPressDelay.save(it) },
-                suffix = "ms"
+                suffix = "ms",
+                color = color,
+                contentColor = contentColor,
             )
         }
     }
@@ -695,7 +795,9 @@ private fun ControlGesture(
 
 @Composable
 private fun ControlGyroscope(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
 ) {
     val context = LocalContext.current
     val isGyroscopeAvailable = remember(context) {
@@ -714,6 +816,8 @@ private fun ControlGyroscope(
                 text = stringResource(R.string.settings_control_gyroscope_title),
                 switch = AllSettings.gyroscopeControl.state,
                 onSwitch = { AllSettings.gyroscopeControl.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = isGyroscopeAvailable
             )
         }
@@ -728,7 +832,9 @@ private fun ControlGyroscope(
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
                 onValueChange = { AllSettings.gyroscopeSensitivity.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSensitivity.save(it) },
-                suffix = "%"
+                suffix = "%",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -742,7 +848,9 @@ private fun ControlGyroscope(
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state,
                 onValueChange = { AllSettings.gyroscopeSampleRate.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSampleRate.save(it) },
-                suffix = "ms"
+                suffix = "ms",
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -753,6 +861,8 @@ private fun ControlGyroscope(
                 text = stringResource(R.string.settings_control_gyroscope_smoothing_title),
                 switch = AllSettings.gyroscopeSmoothing.state,
                 onSwitch = { AllSettings.gyroscopeSmoothing.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
             )
         }
@@ -767,6 +877,8 @@ private fun ControlGyroscope(
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state && AllSettings.gyroscopeSmoothing.state,
                 onValueChange = { AllSettings.gyroscopeSmoothingWindow.updateState(it) },
                 onValueChangeFinished = { AllSettings.gyroscopeSmoothingWindow.save(it) },
+                color = color,
+                contentColor = contentColor,
             )
         }
 
@@ -777,6 +889,8 @@ private fun ControlGyroscope(
                 text = stringResource(R.string.settings_control_gyroscope_invert_x_title),
                 switch = AllSettings.gyroscopeInvertX.state,
                 onSwitch = { AllSettings.gyroscopeInvertX.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
             )
         }
@@ -788,6 +902,8 @@ private fun ControlGyroscope(
                 text = stringResource(R.string.settings_control_gyroscope_invert_y_title),
                 switch = AllSettings.gyroscopeInvertY.state,
                 onSwitch = { AllSettings.gyroscopeInvertY.save(it) },
+                color = color,
+                contentColor = contentColor,
                 enabled = isGyroscopeAvailable && AllSettings.gyroscopeControl.state
             )
         }

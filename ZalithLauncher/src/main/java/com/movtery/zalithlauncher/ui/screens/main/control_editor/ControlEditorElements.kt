@@ -86,8 +86,8 @@ import com.movtery.zalithlauncher.ui.components.MenuState
 import com.movtery.zalithlauncher.ui.components.MenuSwitchButton
 import com.movtery.zalithlauncher.ui.components.MenuTextButton
 import com.movtery.zalithlauncher.ui.components.ScalingActionButton
-import com.movtery.zalithlauncher.ui.theme.itemColor
-import com.movtery.zalithlauncher.ui.theme.onItemColor
+import com.movtery.zalithlauncher.ui.theme.cardColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -241,219 +241,26 @@ fun EditorMenu(
             )
         },
         leftMenuContent = {
-            LazyColumn(
+            EditorMenuContent(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(all = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                //添加按钮
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = isPreviewMode.not(),
-                        text = stringResource(R.string.control_editor_menu_new_widget_button),
-                        onClick = addNewButton
-                    )
-                }
-
-                //添加文本框
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = isPreviewMode.not(),
-                        text = stringResource(R.string.control_editor_menu_new_widget_text),
-                        onClick = addNewText
-                    )
-                }
-
-                //控件外观列表
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_edit_style_config),
-                        enabled = isPreviewMode.not(),
-                        onClick = {
-                            openStyleList()
-                            closeScreen()
-                        }
-                    )
-                }
-
-                //摇杆样式
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_special_joystick_style),
-                        enabled = isPreviewMode.not(),
-                        appendLayout = {
-                            //摇杆提示弹窗
-                            IconButton(
-                                onClick = {
-                                    onJoystickTip()
-                                    closeScreen()
-                                },
-                                enabled = isPreviewMode.not()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                                    contentDescription = stringResource(R.string.generic_tip)
-                                )
-                            }
-                        },
-                        onClick = {
-                            onEditJoystickStyle()
-                            closeScreen()
-                        }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                //预览控制布局
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_preview_mode),
-                        switch = isPreviewMode,
-                        onSwitch = { onPreviewChanged(it) }
-                    )
-                }
-
-                //预览场景
-                item {
-                    MenuListLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.control_editor_menu_preview_mode_scenario),
-                        items = PreviewScenario.entries,
-                        currentItem = previewScenario,
-                        onItemChange = onPreviewScenarioChanged,
-                        getItemText = { scenario ->
-                            stringResource(scenario.textRes)
-                        },
-                        enabled = isPreviewMode
-                    )
-                }
-
-                //正在使用实体鼠标
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_preview_is_mouse),
-                        switch = previewHideLayerWhen == HideLayerWhen.WhenMouse,
-                        onSwitch = { value ->
-                            onPreviewHideLayerChanged(
-                                if (value) HideLayerWhen.WhenMouse
-                                else HideLayerWhen.None
-                            )
-                        },
-                        enabled = isPreviewMode
-                    )
-                }
-
-                //正在使用手柄
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_preview_is_gamepad),
-                        switch = previewHideLayerWhen == HideLayerWhen.WhenGamepad,
-                        onSwitch = { value ->
-                            onPreviewHideLayerChanged(
-                                if (value) HideLayerWhen.WhenGamepad
-                                else HideLayerWhen.None
-                            )
-                        },
-                        enabled = isPreviewMode
-                    )
-                }
-
-                //启用摇杆
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.game_styles_joystick_enable),
-                        switch = enableJoystick,
-                        onSwitch = { value ->
-                            onJoystickSwitch(value)
-                        },
-                        enabled = isPreviewMode
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                //控件吸附
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_widget_snap),
-                        switch = AllSettings.editorEnableWidgetSnap.state,
-                        onSwitch = { AllSettings.editorEnableWidgetSnap.save(it) }
-                    )
-                }
-
-                //所有控制层范围吸附
-                item {
-                    MenuSwitchButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_widget_snap_all_layers),
-                        switch = AllSettings.editorSnapInAllLayers.state,
-                        onSwitch = { AllSettings.editorSnapInAllLayers.save(it) }
-                    )
-                }
-
-                //控件吸附模式
-                item {
-                    MenuListLayout(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = stringResource(R.string.control_editor_menu_widget_snap_mode),
-                        items = SnapMode.entries,
-                        currentItem = AllSettings.editorWidgetSnapMode.state,
-                        onItemChange = { AllSettings.editorWidgetSnapMode.save(it) },
-                        getItemText = { mode ->
-                            val textRes = when (mode) {
-                                SnapMode.FullScreen -> R.string.control_editor_menu_widget_snap_mode_fullscreen
-                                SnapMode.Local -> R.string.control_editor_menu_widget_snap_mode_local
-                            }
-                            stringResource(textRes)
-                        }
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                //保存
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.generic_save),
-                        onClick = onSave
-                    )
-                }
-
-                //保存并退出
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_menu_save_and_exit),
-                        onClick = saveAndExit
-                    )
-                }
-
-                //直接退出
-                item {
-                    MenuTextButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.control_editor_exit_confirm),
-                        onClick = onExit
-                    )
-                }
-            }
+                closeScreen = closeScreen,
+                addNewButton = addNewButton,
+                addNewText = addNewText,
+                openStyleList = openStyleList,
+                onEditJoystickStyle = onEditJoystickStyle,
+                isPreviewMode = isPreviewMode,
+                onPreviewChanged = onPreviewChanged,
+                previewScenario = previewScenario,
+                onPreviewScenarioChanged = onPreviewScenarioChanged,
+                previewHideLayerWhen = previewHideLayerWhen,
+                onPreviewHideLayerChanged = onPreviewHideLayerChanged,
+                enableJoystick = enableJoystick,
+                onJoystickSwitch = onJoystickSwitch,
+                onJoystickTip = onJoystickTip,
+                onSave = onSave,
+                saveAndExit = saveAndExit,
+                onExit = onExit
+            )
         },
         rightMenuTitle = {
             Text(
@@ -495,6 +302,274 @@ fun EditorMenu(
 }
 
 @Composable
+private fun EditorMenuContent(
+    closeScreen: () -> Unit,
+    addNewButton: () -> Unit,
+    addNewText: () -> Unit,
+    openStyleList: () -> Unit,
+    onEditJoystickStyle: () -> Unit,
+    isPreviewMode: Boolean,
+    onPreviewChanged: (Boolean) -> Unit,
+    previewScenario: PreviewScenario,
+    onPreviewScenarioChanged: (PreviewScenario) -> Unit,
+    previewHideLayerWhen: HideLayerWhen,
+    onPreviewHideLayerChanged: (HideLayerWhen) -> Unit,
+    enableJoystick: Boolean,
+    onJoystickSwitch: (Boolean) -> Unit,
+    onJoystickTip: () -> Unit,
+    onSave: () -> Unit,
+    saveAndExit: () -> Unit,
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor()
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        //添加按钮
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isPreviewMode.not(),
+                text = stringResource(R.string.control_editor_menu_new_widget_button),
+                onClick = addNewButton,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //添加文本框
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isPreviewMode.not(),
+                text = stringResource(R.string.control_editor_menu_new_widget_text),
+                onClick = addNewText,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //控件外观列表
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_edit_style_config),
+                enabled = isPreviewMode.not(),
+                onClick = {
+                    openStyleList()
+                    closeScreen()
+                },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //摇杆样式
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_special_joystick_style),
+                enabled = isPreviewMode.not(),
+                appendLayout = {
+                    //摇杆提示弹窗
+                    IconButton(
+                        onClick = {
+                            onJoystickTip()
+                            closeScreen()
+                        },
+                        enabled = isPreviewMode.not()
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                            contentDescription = stringResource(R.string.generic_tip)
+                        )
+                    }
+                },
+                onClick = {
+                    onEditJoystickStyle()
+                    closeScreen()
+                },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        //预览控制布局
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_preview_mode),
+                switch = isPreviewMode,
+                onSwitch = { onPreviewChanged(it) },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //预览场景
+        item {
+            MenuListLayout(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_menu_preview_mode_scenario),
+                items = PreviewScenario.entries,
+                currentItem = previewScenario,
+                onItemChange = onPreviewScenarioChanged,
+                getItemText = { scenario ->
+                    stringResource(scenario.textRes)
+                },
+                color = color,
+                contentColor = contentColor,
+                enabled = isPreviewMode
+            )
+        }
+
+        //正在使用实体鼠标
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_preview_is_mouse),
+                switch = previewHideLayerWhen == HideLayerWhen.WhenMouse,
+                onSwitch = { value ->
+                    onPreviewHideLayerChanged(
+                        if (value) HideLayerWhen.WhenMouse
+                        else HideLayerWhen.None
+                    )
+                },
+                color = color,
+                contentColor = contentColor,
+                enabled = isPreviewMode
+            )
+        }
+
+        //正在使用手柄
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_preview_is_gamepad),
+                switch = previewHideLayerWhen == HideLayerWhen.WhenGamepad,
+                onSwitch = { value ->
+                    onPreviewHideLayerChanged(
+                        if (value) HideLayerWhen.WhenGamepad
+                        else HideLayerWhen.None
+                    )
+                },
+                color = color,
+                contentColor = contentColor,
+                enabled = isPreviewMode
+            )
+        }
+
+        //启用摇杆
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.game_styles_joystick_enable),
+                switch = enableJoystick,
+                onSwitch = { value ->
+                    onJoystickSwitch(value)
+                },
+                color = color,
+                contentColor = contentColor,
+                enabled = isPreviewMode
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        //控件吸附
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_widget_snap),
+                switch = AllSettings.editorEnableWidgetSnap.state,
+                onSwitch = { AllSettings.editorEnableWidgetSnap.save(it) },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //所有控制层范围吸附
+        item {
+            MenuSwitchButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_widget_snap_all_layers),
+                switch = AllSettings.editorSnapInAllLayers.state,
+                onSwitch = { AllSettings.editorSnapInAllLayers.save(it) },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //控件吸附模式
+        item {
+            MenuListLayout(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.control_editor_menu_widget_snap_mode),
+                items = SnapMode.entries,
+                currentItem = AllSettings.editorWidgetSnapMode.state,
+                onItemChange = { AllSettings.editorWidgetSnapMode.save(it) },
+                getItemText = { mode ->
+                    val textRes = when (mode) {
+                        SnapMode.FullScreen -> R.string.control_editor_menu_widget_snap_mode_fullscreen
+                        SnapMode.Local -> R.string.control_editor_menu_widget_snap_mode_local
+                    }
+                    stringResource(textRes)
+                },
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        //保存
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.generic_save),
+                onClick = onSave,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //保存并退出
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_menu_save_and_exit),
+                onClick = saveAndExit,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+
+        //直接退出
+        item {
+            MenuTextButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.control_editor_exit_confirm),
+                onClick = onExit,
+                color = color,
+                contentColor = contentColor,
+            )
+        }
+    }
+}
+
+@Composable
 private fun ColumnScope.ControlLayerMenu(
     layers: List<ObservableControlLayer>,
     onReorder: (from: Int, to: Int) -> Unit,
@@ -503,6 +578,8 @@ private fun ColumnScope.ControlLayerMenu(
     createLayer: () -> Unit,
     onAttribute: (ObservableControlLayer) -> Unit,
     onHideSwitch: (ObservableControlLayer) -> Unit,
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
     enabled: Boolean = true
 ) {
     val lazyListState = rememberLazyListState()
@@ -567,6 +644,8 @@ private fun ColumnScope.ControlLayerMenu(
                     onHideSwitch = {
                         onHideSwitch(layer)
                     },
+                    color = color,
+                    contentColor = contentColor,
                     enabled = enabled
                 )
             }
@@ -593,8 +672,8 @@ private fun ControlLayerItem(
     onUnSelected: () -> Unit,
     onAttribute: () -> Unit,
     onHideSwitch: () -> Unit,
-    color: Color = itemColor(),
-    contentColor: Color = onItemColor(),
+    color: Color,
+    contentColor: Color,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = MaterialTheme.shapes.large,
     shadowElevation: Dp = 0.dp,

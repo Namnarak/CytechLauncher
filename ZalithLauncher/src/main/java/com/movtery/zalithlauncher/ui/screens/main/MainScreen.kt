@@ -109,10 +109,10 @@ import com.movtery.zalithlauncher.ui.screens.navigateTo
 import com.movtery.zalithlauncher.ui.screens.onBack
 import com.movtery.zalithlauncher.ui.screens.rememberTransitionSpec
 import com.movtery.zalithlauncher.ui.theme.backgroundColor
+import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.feativals.FestivalTitleText
-import com.movtery.zalithlauncher.ui.theme.itemColor
 import com.movtery.zalithlauncher.ui.theme.onBackgroundColor
-import com.movtery.zalithlauncher.ui.theme.onItemColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.festival.LocalFestivals
 import com.movtery.zalithlauncher.viewmodel.ErrorViewModel
@@ -631,6 +631,10 @@ private fun TaskMenu(
                 .padding(all = 6.dp),
             influencedByBackground = false,
             shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(
+                containerColor = backgroundColor(),
+                contentColor = onBackgroundColor()
+            ),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
         ) {
             Column {
@@ -687,15 +691,14 @@ private fun TaskMenu(
 }
 
 @Composable
-fun TaskItem(
+private fun TaskItem(
     taskProgress: Float,
     taskMessageRes: Int?,
     taskMessageArgs: Array<out Any>?,
     modifier: Modifier = Modifier,
-    influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemColor(influencedByBackground),
-    contentColor: Color = onItemColor(),
+    color: Color = cardColor(false),
+    contentColor: Color = onCardColor(),
     onCancelClick: () -> Unit = {}
 ) {
     Surface(
