@@ -26,7 +26,6 @@ import android.opengl.EGLConfig
 import android.opengl.GLES20
 import android.os.Build
 import android.os.Process
-import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
@@ -49,7 +48,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
@@ -423,30 +421,23 @@ fun isChineseLocale(locale: Locale): Boolean {
     )
 }
 
-fun isChinaMainland(context: Context): Boolean {
-    if (ZoneId.systemDefault().id == "Asia/Shanghai") {
-        return true
-    }
+fun isInGreaterChina(): Boolean {
+    return isChinaTimeZone() || Locale.getDefault().language == "zh"
+}
 
-    if (ZonedDateTime.now().offset.totalSeconds == Duration.ofHours(8).seconds.toInt()) {
-        if (Locale.getDefault().country == "CN") {
-            return true
-        }
+/**
+ * 判断当前时区是否属于中国
+ */
+private fun isChinaTimeZone(): Boolean {
+    return when (TimeZone.getDefault().id) {
+        "Asia/Shanghai",
+        "Asia/Chongqing",//历史遗留
+        "Asia/Hong_Kong",
+        "Asia/Macao",
+        "Asia/Taipei",
+        "Asia/Urumqi" -> true
+        else -> false
     }
-
-    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-    if (telephonyManager != null) {
-        val simCountry = telephonyManager.simCountryIso
-        if (simCountry?.equals("CN", ignoreCase = true) == true) {
-            return true
-        }
-        val networkCountry = telephonyManager.networkCountryIso
-        if (networkCountry?.equals("CN", ignoreCase = true) == true) {
-            return true
-        }
-    }
-
-    return false
 }
 
 /**

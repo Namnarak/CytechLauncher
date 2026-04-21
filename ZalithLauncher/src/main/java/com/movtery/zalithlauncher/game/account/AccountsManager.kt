@@ -20,14 +20,13 @@ package com.movtery.zalithlauncher.game.account
 
 import android.content.Context
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.context.GlobalContext
 import com.movtery.zalithlauncher.coroutine.Task
 import com.movtery.zalithlauncher.coroutine.TaskSystem
 import com.movtery.zalithlauncher.database.AppDatabase
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServer
 import com.movtery.zalithlauncher.game.account.auth_server.data.AuthServerDao
 import com.movtery.zalithlauncher.setting.AllSettings
-import com.movtery.zalithlauncher.utils.isChinaMainland
+import com.movtery.zalithlauncher.utils.isInGreaterChina
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.network.isNetworkAvailable
@@ -206,7 +205,7 @@ object AccountsManager {
      */
     private fun refreshCurrentAccountState() {
         val currentAccount = getCurrentAccount()
-        val isOffline = !isChinaMainland(GlobalContext) && !hasMicrosoftAccount()
+        val isOffline = !isInGreaterChina() && !hasMicrosoftAccount()
         _currentAccountFlow.update {
             //若处于非正版状态，不允许使用账号
             if (isOffline) null else currentAccount
