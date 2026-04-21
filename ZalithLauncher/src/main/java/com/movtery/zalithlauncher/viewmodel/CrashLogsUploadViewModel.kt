@@ -29,7 +29,7 @@ import com.movtery.zalithlauncher.crashlogs.MCLogsResponse
 import com.movtery.zalithlauncher.crashlogs.platform.MCLogsAPI
 import com.movtery.zalithlauncher.crashlogs.platform.MirroredAPI
 import com.movtery.zalithlauncher.ui.screens.main.crashlogs.ShareLinkOperation
-import com.movtery.zalithlauncher.utils.isChinese
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.network.isInterruptedIOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -126,7 +126,7 @@ class CrashLogsUploadViewModel: ViewModel() {
             //读取内容并尝试上传
             val content = logFile.readText()
 
-            val apiList = if (isChinese()) {
+            val apiList = if (isChinaMainland()) {
                 listOf(MirroredAPI, MCLogsAPI)
             } else {
                 listOf(MCLogsAPI)

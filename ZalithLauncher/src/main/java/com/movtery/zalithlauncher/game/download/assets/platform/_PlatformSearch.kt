@@ -18,6 +18,7 @@
 
 package com.movtery.zalithlauncher.game.download.assets.platform
 
+import android.util.Log
 import com.movtery.zalithlauncher.game.download.assets.mapExceptionToMessage
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.CurseForgeSearcher
 import com.movtery.zalithlauncher.game.download.assets.platform.curseforge.MCIM_CURSEFORGE_API
@@ -28,7 +29,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.DownloadAssetsState
 import com.movtery.zalithlauncher.ui.screens.content.download.assets.elements.SearchAssetsState
-import com.movtery.zalithlauncher.utils.isChinese
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
@@ -76,6 +77,7 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
             }
             return block(searcher)
         } catch (e: Exception) {
+            Log.w("PlatformSearcher", "Failed to perform the operation on source: {${searcher.source}}", e)
             lastException = e
 
             if (e.isInterruptedIOException()) {
@@ -106,7 +108,7 @@ suspend fun <E: AbstractPlatformSearcher, T> mirroredPlatformSearcher(
  * 镜像源只能在中国地区使用
  */
 fun mirroredCurseForgeSource(
-    enabledMirror: Boolean = isChinese()
+    enabledMirror: Boolean = isChinaMainland()
 ): List<CurseForgeSearcher> {
     val source = AllSettings.assetSearchSource.getValue()
     val mirrorSource = mirrorCurseForgeSearcher.takeIf { enabledMirror }
@@ -122,7 +124,7 @@ fun mirroredCurseForgeSource(
  * 镜像源只能在中国地区使用
  */
 fun mirroredModrinthSource(
-    enabledMirror: Boolean = isChinese()
+    enabledMirror: Boolean = isChinaMainland()
 ): List<ModrinthSearcher> {
     val source = AllSettings.assetSearchSource.getValue()
     val mirrorSource = mirrorModrinthSearcher.takeIf { enabledMirror }
