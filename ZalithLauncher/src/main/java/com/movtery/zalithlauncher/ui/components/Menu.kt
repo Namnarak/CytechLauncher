@@ -50,6 +50,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,8 +80,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
+import com.movtery.zalithlauncher.ui.theme.backgroundColor
 import com.movtery.zalithlauncher.ui.theme.cardTitleColor
 import com.movtery.zalithlauncher.ui.theme.itemColor
+import com.movtery.zalithlauncher.ui.theme.onBackgroundColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 import com.movtery.zalithlauncher.ui.theme.onItemColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
@@ -232,6 +235,10 @@ fun DualMenuSubscreen(
                     shape = shape,
                     influencedByBackground = false,
                     modifier = Modifier.fillMaxSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = backgroundColor(),
+                        contentColor = onBackgroundColor()
+                    ),
                     content = {
                         leftMenuTitle?.let { titleLayout ->
                             MenuTitleLayout(titleLayout, titleHeight)
@@ -265,6 +272,10 @@ fun DualMenuSubscreen(
                     shape = shape,
                     influencedByBackground = false,
                     modifier = Modifier.fillMaxSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = backgroundColor(),
+                        contentColor = onBackgroundColor()
+                    ),
                     content = {
                         rightMenuTitle?.let { titleLayout ->
                             MenuTitleLayout(titleLayout, titleHeight)
