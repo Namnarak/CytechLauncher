@@ -30,7 +30,7 @@ import com.movtery.zalithlauncher.ui.components.influencedByBackgroundColor
 @Composable
 fun backgroundColor(): Color = MaterialTheme.colorScheme.surfaceContainer
 @Composable
-fun onBackgroundColor(): Color = MaterialTheme.colorScheme.onSurface
+fun onBackgroundColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
 /**
  * 卡片背景颜色

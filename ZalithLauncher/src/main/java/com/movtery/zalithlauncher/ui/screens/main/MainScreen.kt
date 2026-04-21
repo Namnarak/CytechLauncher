@@ -399,7 +399,6 @@ private fun <E: TitledNavKey> TopBar(
                     onClick = {
                         if (!inMultiplayerScreen) toMultiplayerScreen()
                     },
-                    color = contentColor
                 )
 
                 TopBarRailItem(
@@ -409,7 +408,6 @@ private fun <E: TitledNavKey> TopBar(
                     onClick = {
                         if (!inDownloadScreen) toDownloadScreen()
                     },
-                    color = contentColor
                 )
 
                 TopBarRailItem(
@@ -419,7 +417,6 @@ private fun <E: TitledNavKey> TopBar(
                     onClick = {
                         if (!inSettingsScreen) toSettingsScreen()
                     },
-                    color = contentColor
                 )
             }
         }
@@ -433,7 +430,6 @@ private fun TopBarRailItem(
     text: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    color: Color = MaterialTheme.colorScheme.onSurface,
     textStyle: TextStyle = MaterialTheme.typography.labelMedium
 ) {
     TextRailItem(
@@ -459,7 +455,6 @@ private fun TopBarRailItem(
         selected = selected,
         selectedPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
         unSelectedPadding = PaddingValues(all = 8.dp),
-        unselectedContentColor = color
     )
 }
 
