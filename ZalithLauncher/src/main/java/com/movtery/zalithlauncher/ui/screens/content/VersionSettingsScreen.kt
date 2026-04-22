@@ -41,7 +41,6 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Dns
 import androidx.compose.material.icons.outlined.Extension
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material3.AlertDialog
@@ -278,7 +277,7 @@ private val settingItems = listOf(
     CategoryItem(NormalNavKey.Versions.UpdateLoader, { CategoryIcon(Icons.Default.Update, R.string.versions_update_loader) }, R.string.versions_update_loader),
     CategoryItem(NormalNavKey.Versions.ModsManager, { CategoryIcon(Icons.Outlined.Extension, R.string.mods_manage) }, R.string.mods_manage, division = true),
     CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage),
-    CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(Icons.Outlined.Image, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
+    CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(R.drawable.ic_format_paint, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
     CategoryItem(NormalNavKey.Versions.ShadersManager, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.shader_pack_manage) }, R.string.shader_pack_manage),
     CategoryItem(NormalNavKey.Versions.ServerList, { CategoryIcon(Icons.Outlined.Dns, R.string.servers_list) }, R.string.servers_list, division = true),
 )
