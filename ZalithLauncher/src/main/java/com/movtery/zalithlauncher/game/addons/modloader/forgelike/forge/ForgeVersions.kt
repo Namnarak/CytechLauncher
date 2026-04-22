@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.path.URL_USER_AGENT
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
@@ -55,12 +56,22 @@ object ForgeVersions {
      * 获取 Forge 版本列表
      */
     suspend fun fetchForgeList(mcVersion: String): List<ForgeVersion>? = withContext(Dispatchers.Default) {
-        runMirrorable(
-            when (AllSettings.fetchModLoaderSource.getValue()) {
-                MirrorSourceType.OFFICIAL_FIRST -> listOf(fetchListWithOfficial(mcVersion, 5), fetchListWithBMCLAPI(mcVersion, 5 + 30))
-                MirrorSourceType.MIRROR_FIRST -> listOf(fetchListWithBMCLAPI(mcVersion, 30), fetchListWithOfficial(mcVersion, 30 + 60))
-            }
-        )?.sortedWith { o1, o2 ->
+        if (isChinaMainland()) {
+            runMirrorable(
+                when (AllSettings.fetchModLoaderSource.getValue()) {
+                    MirrorSourceType.OFFICIAL_FIRST -> listOf(
+                        fetchListWithOfficial(mcVersion, 5),
+                        fetchListWithBMCLAPI(mcVersion, 5 + 30)
+                    )
+                    MirrorSourceType.MIRROR_FIRST -> listOf(
+                        fetchListWithBMCLAPI(mcVersion, 30),
+                        fetchListWithOfficial(mcVersion, 30 + 60)
+                    )
+                }
+            )
+        } else {
+            fetchListWithOfficial(mcVersion)
+        }?.sortedWith { o1, o2 ->
             o2.forgeBuildVersion.compareTo(o1.forgeBuildVersion)
         }
     }
@@ -72,6 +83,10 @@ object ForgeVersions {
         delayMillis = delayMillis,
         type = SourceType.OFFICIAL
     ) {
+        fetchListWithOfficial(mcVersion)
+    }
+
+    private suspend fun fetchListWithOfficial(mcVersion: String) = withContext(Dispatchers.IO) {
         val url = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/index_${
             mcVersion.replace("-", "_")
         }.html"

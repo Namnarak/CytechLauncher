@@ -26,6 +26,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.models.Fabric
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
@@ -50,7 +51,7 @@ abstract class FabricLikeVersions(
         tag: String,
         mcVersion: String
     ): List<FabricLikeLoader>? = withContext(Dispatchers.Default) {
-        mirrorUrl?.let {
+        mirrorUrl?.takeIf { isChinaMainland() }?.let {
             runMirrorable(
                 when (AllSettings.fetchModLoaderSource.getValue()) {
                     MirrorSourceType.OFFICIAL_FIRST -> listOf(

@@ -77,7 +77,7 @@ import com.movtery.zalithlauncher.ui.screens.content.settings.layouts.SwitchSett
 import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 import com.movtery.zalithlauncher.utils.animation.TransitionAnimationType
 import com.movtery.zalithlauncher.utils.file.shareFile
-import com.movtery.zalithlauncher.utils.isChinese
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger
 import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.getMessageOrToString
@@ -292,29 +292,29 @@ fun LauncherSettingsScreen(
                         .fillMaxWidth()
                         .offset { IntOffset(x = 0, y = yOffset.roundToPx()) }
                 ) {
-                    ListSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Top,
-                        unit = AllSettings.fetchModLoaderSource,
-                        items = MirrorSourceType.entries,
-                        title = stringResource(R.string.settings_launcher_mirror_modloader_title),
-                        getItemText = { stringResource(it.textRes) }
-                    )
+                    //这些镜像源都是为了改善中国大陆内陆的网络环境而存在的
+                    //境外不需要这些镜像源，反而可能拖慢境外的下载速度
+                    //所以不应该向中国境外开放这些选项
+                    val isChinaMainland = remember { isChinaMainland() }
+                    if (isChinaMainland) {
+                        ListSettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Top,
+                            unit = AllSettings.fetchModLoaderSource,
+                            items = MirrorSourceType.entries,
+                            title = stringResource(R.string.settings_launcher_mirror_modloader_title),
+                            getItemText = { stringResource(it.textRes) }
+                        )
 
-                    ListSettingsCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
-                        unit = AllSettings.fileDownloadSource,
-                        items = MirrorSourceType.entries,
-                        title = stringResource(R.string.settings_launcher_mirror_file_download_title),
-                        getItemText = { stringResource(it.textRes) }
-                    )
+                        ListSettingsCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            position = CardPosition.Middle,
+                            unit = AllSettings.fileDownloadSource,
+                            items = MirrorSourceType.entries,
+                            title = stringResource(R.string.settings_launcher_mirror_file_download_title),
+                            getItemText = { stringResource(it.textRes) }
+                        )
 
-                    val isChinese = remember {
-                        isChinese(context = context)
-                    }
-
-                    if (isChinese) {
                         ListSettingsCard(
                             modifier = Modifier.fillMaxWidth(),
                             position = CardPosition.Middle,
@@ -336,7 +336,11 @@ fun LauncherSettingsScreen(
 
                     IntSliderSettingsCard(
                         modifier = Modifier.fillMaxWidth(),
-                        position = CardPosition.Middle,
+                        position = if (isChinaMainland) {
+                            CardPosition.Middle
+                        } else {
+                            CardPosition.Top
+                        },
                         unit = AllSettings.launcherLogRetentionDays,
                         title = stringResource(R.string.settings_launcher_log_retention_days_title),
                         summary = stringResource(R.string.settings_launcher_log_retention_days_summary),

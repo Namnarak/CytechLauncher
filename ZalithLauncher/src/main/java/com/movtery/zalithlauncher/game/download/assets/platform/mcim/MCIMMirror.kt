@@ -20,7 +20,7 @@ package com.movtery.zalithlauncher.game.download.assets.platform.mcim
 
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
-import com.movtery.zalithlauncher.utils.isChinese
+import com.movtery.zalithlauncher.utils.isChinaMainland
 
 private const val ROOT = "https://mod.mcimirror.top"
 
@@ -35,7 +35,7 @@ private val REPLACE_MIRROR_HOLDERS = listOf(
  * 根据是否为中国地区决定，是否启用 MCIM 镜像源，若启用，则会根据优先级，生成链接集合
  */
 fun String.mapMCIMMirrorUrls(): List<String> {
-    return if (isChinese()) {
+    return if (isChinaMainland()) {
         val mirroredUrl = REPLACE_MIRROR_HOLDERS.find { key ->
             this.startsWith(key)
         }?.let { origin ->
@@ -61,7 +61,7 @@ fun String.mapMCIMMirrorUrls(): List<String> {
  * 将检查数组内是否有可以被替换的链接，如果有，则生成镜像链接，根据优先级，穿插到列表前/后
  */
 fun Array<String>.mapMCIMMirrorUrls(): List<String> {
-    if (isChinese()) {
+    if (isChinaMainland()) {
         val sources = mapNotNull { url ->
             REPLACE_MIRROR_HOLDERS.find { key ->
                 url.startsWith(key)

@@ -21,7 +21,6 @@ package com.movtery.zalithlauncher.terracotta
 import com.google.gson.JsonParseException
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.utils.isChinaMainland
-import com.movtery.zalithlauncher.utils.isChinese
 import com.movtery.zalithlauncher.utils.logging.Logger.lInfo
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
@@ -123,7 +122,6 @@ private fun shouldUseNode(
     region: String?
 ): Boolean {
     if (region.isNullOrBlank()) return true
-    if (!isChinese()) return false
 
     //仅限中国大陆地区使用
     val isMainLand = isChinaMainland()
