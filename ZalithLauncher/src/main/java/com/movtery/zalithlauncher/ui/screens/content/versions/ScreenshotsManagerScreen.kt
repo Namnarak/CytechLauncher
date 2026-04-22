@@ -29,6 +29,8 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -38,7 +40,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,9 +47,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Deselect
@@ -98,9 +101,11 @@ import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.CardTitleLayout
+import com.movtery.zalithlauncher.ui.components.EdgeDirection
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
+import com.movtery.zalithlauncher.ui.components.fadeEdge
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.itemLayoutShadowElevation
 import com.movtery.zalithlauncher.ui.screens.NestedNavKey
@@ -296,11 +301,17 @@ fun ScreenshotsManagerScreen(
                                 put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
                                 put(MediaStore.Images.Media.MIME_TYPE, "image/png")
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/ZalithLauncher")
+                                    put(
+                                        MediaStore.Images.Media.RELATIVE_PATH,
+                                        Environment.DIRECTORY_PICTURES + "/ZalithLauncher"
+                                    )
                                     put(MediaStore.Images.Media.IS_PENDING, 1)
                                 }
                             }
-                            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                            val uri = resolver.insert(
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                contentValues
+                            )
                             if (uri != null) {
                                 resolver.openOutputStream(uri)?.use { out ->
                                     file.inputStream().use { input ->
@@ -314,15 +325,19 @@ fun ScreenshotsManagerScreen(
                                 }
                             }
                         }
-                        
+
                         // 完成后删除源文件
                         if (deleteAfter) {
                             files.forEach { FileUtils.deleteQuietly(it) }
                         }
-                        
+
                         // 切回主线程进行成功提示和刷新
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, context.getString(R.string.screenshots_manage_export_success), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.screenshots_manage_export_success),
+                                Toast.LENGTH_SHORT
+                            ).show()
                             viewModel.refresh()
                         }
                     } catch (e: Exception) {
@@ -367,7 +382,8 @@ fun ScreenshotsManagerScreen(
                                 onToggleSortOrder = { viewModel.updateSortOrder() },
                                 onDeleteAll = {
                                     if (viewModel.deleteAllOperation == DeleteAllOperation.None && viewModel.selectedFiles.isNotEmpty()) {
-                                        viewModel.deleteAllOperation = DeleteAllOperation.Warning(viewModel.selectedFiles)
+                                        viewModel.deleteAllOperation =
+                                            DeleteAllOperation.Warning(viewModel.selectedFiles)
                                     }
                                 },
                                 isFilesSelected = viewModel.selectedFiles.isNotEmpty(),
@@ -398,7 +414,8 @@ fun ScreenshotsManagerScreen(
                                         viewModel.selectedFiles.toList()
                                     }
                                     if (targets.isNotEmpty()) {
-                                        viewModel.exportOperation = ExportOperation.Ask(targets, isAll)
+                                        viewModel.exportOperation =
+                                            ExportOperation.Ask(targets, isAll)
                                     }
                                 },
                                 modifier = Modifier
@@ -415,6 +432,7 @@ fun ScreenshotsManagerScreen(
                         }
                     }
                 }
+
                 is LoadingState.Loading -> {
                     Box(Modifier.fillMaxSize()) {
                         CircularProgressIndicator(Modifier.align(Alignment.Center))
@@ -445,7 +463,10 @@ private fun ExportDialogHandler(
                             text = if (operation.isAll) {
                                 stringResource(R.string.screenshots_manage_export_all_message)
                             } else {
-                                stringResource(R.string.screenshots_manage_export_selected_message, operation.files.size)
+                                stringResource(
+                                    R.string.screenshots_manage_export_selected_message,
+                                    operation.files.size
+                                )
                             }
                         )
 
@@ -460,7 +481,7 @@ private fun ExportDialogHandler(
                         ) {
                             Checkbox(
                                 checked = deleteAfter,
-                                onCheckedChange = null 
+                                onCheckedChange = null
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
@@ -543,11 +564,22 @@ private fun ScreenshotHeader(
                     singleLine = true
                 )
 
+                val scrollState = rememberScrollState()
                 AnimatedVisibility(
                     modifier = Modifier.height(IntrinsicSize.Min),
                     visible = isFilesSelected
                 ) {
-                    Row {
+                    Row(
+                        modifier = Modifier
+                            .fadeEdge(
+                                state = scrollState,
+                                length = 32.dp,
+                                direction = EdgeDirection.Horizontal
+                            )
+                            .widthIn(max = this@BoxWithConstraints.maxWidth / 2)
+                            .horizontalScroll(scrollState),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         IconButton(onClick = onDeleteAll) {
                             Icon(Icons.Outlined.Delete, contentDescription = null)
                         }
