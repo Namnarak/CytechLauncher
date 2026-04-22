@@ -322,7 +322,7 @@ fun ScreenshotsManagerScreen(
                         
                         // 切回主线程进行成功提示和刷新
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "导出完成", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.screenshots_manage_export_success), Toast.LENGTH_SHORT).show()
                             viewModel.refresh()
                         }
                     } catch (e: Exception) {
@@ -330,7 +330,7 @@ fun ScreenshotsManagerScreen(
                         withContext(Dispatchers.Main) {
                             submitError(
                                 ErrorViewModel.ThrowableMessage(
-                                    title = "导出出错",
+                                    title = context.getString(R.string.screenshots_manage_export_failed),
                                     message = e.getMessageOrToString()
                                 )
                             )
@@ -409,7 +409,7 @@ fun ScreenshotsManagerScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Archive,
-                                    contentDescription = "导出图片"
+                                    contentDescription = stringResource(R.string.screenshots_manage_export)
                                 )
                             }
                         }
@@ -438,14 +438,14 @@ private fun ExportDialogHandler(
             var deleteAfter by remember { mutableStateOf(false) }
 
             SimpleAlertDialog(
-                title = "导出图片",
+                title = stringResource(R.string.screenshots_manage_export_title),
                 text = {
                     Column {
                         Text(
                             text = if (operation.isAll) {
-                                "是否导出所有图片到系统相册？"
+                                stringResource(R.string.screenshots_manage_export_all_message)
                             } else {
-                                "是否导出选中的 ${operation.files.size} 张图片到系统相册？"
+                                stringResource(R.string.screenshots_manage_export_selected_message, operation.files.size)
                             }
                         )
 
@@ -464,14 +464,14 @@ private fun ExportDialogHandler(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "完成后删除",
+                                text = stringResource(R.string.screenshots_manage_export_delete_after),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
                 },
-                confirmText = "导出",
-                dismissText = "取消",
+                confirmText = stringResource(R.string.screenshots_manage_export),
+                dismissText = stringResource(R.string.generic_cancel),
                 onConfirm = { onExport(operation.files, deleteAfter) },
                 onCancel = { updateOperation(ExportOperation.None) },
                 onDismissRequest = { updateOperation(ExportOperation.None) }
@@ -623,7 +623,7 @@ private fun ScreenshotGrid(
         Box(modifier = Modifier.fillMaxSize()) {
             ScalingLabel(
                 modifier = Modifier.align(Alignment.Center),
-                text = "暂无截屏"
+                text = stringResource(R.string.screenshots_manage_no_screenshots)
             )
         }
     }

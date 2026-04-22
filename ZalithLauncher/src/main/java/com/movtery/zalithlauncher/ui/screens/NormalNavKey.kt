@@ -131,7 +131,7 @@ sealed interface NormalNavKey : TitledNavKey {
         }
         /** 截屏管理屏幕 */
         @Serializable data object ScreenshotsManager : Versions {
-            override var title: Int = R.string.screenshot_manage
+            override var title: Int = R.string.screenshots_manage
         }
         /** 服务器列表屏幕 */
         @Serializable data object ServerList : Versions {

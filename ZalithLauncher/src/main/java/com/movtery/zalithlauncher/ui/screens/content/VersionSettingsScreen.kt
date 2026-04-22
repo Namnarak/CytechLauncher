@@ -281,7 +281,7 @@ private val settingItems = listOf(
     CategoryItem(NormalNavKey.Versions.SavesManager, { CategoryIcon(Icons.Outlined.Public, R.string.saves_manage) }, R.string.saves_manage),
     CategoryItem(NormalNavKey.Versions.ResourcePackManager, { CategoryIcon(R.drawable.ic_format_paint, R.string.resource_pack_manage) }, R.string.resource_pack_manage),
     CategoryItem(NormalNavKey.Versions.ShadersManager, { CategoryIcon(Icons.Outlined.Lightbulb, R.string.shader_pack_manage) }, R.string.shader_pack_manage),
-    CategoryItem(NormalNavKey.Versions.ScreenshotsManager, { CategoryIcon(Icons.Outlined.PhotoLibrary, R.string.screenshot_manage) }, R.string.screenshot_manage),
+    CategoryItem(NormalNavKey.Versions.ScreenshotsManager, { CategoryIcon(Icons.Outlined.PhotoLibrary, R.string.screenshots_manage) }, R.string.screenshots_manage),
     CategoryItem(NormalNavKey.Versions.ServerList, { CategoryIcon(Icons.Outlined.Dns, R.string.servers_list) }, R.string.servers_list, division = true),
 )
 
