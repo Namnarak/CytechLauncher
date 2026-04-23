@@ -170,8 +170,15 @@ private class ScreenshotsManageViewModel(
     var exportOperation by mutableStateOf<ExportOperation>(ExportOperation.None)
 
     fun selectAllFiles() {
-        selectedShots.clear()
-        selectedShots.addAll(allScreenshots)
+        filteredScreenshots?.forEach { shot ->
+            if (!selectedShots.contains(shot)) selectedShots.add(shot)
+        }
+    }
+
+    fun clearSelected() {
+        filteredScreenshots?.let {
+            selectedShots.removeAll(it)
+        }
     }
 
     private var refreshJob: Job? = null
@@ -469,7 +476,7 @@ fun ScreenshotsManagerScreen(
                                 },
                                 isFilesSelected = viewModel.selectedShots.isNotEmpty(),
                                 onSelectAll = { viewModel.selectAllFiles() },
-                                onClearFilesSelected = { viewModel.selectedShots.clear() },
+                                onClearFilesSelected = { viewModel.clearSelected() },
                                 onRefresh = { viewModel.refresh() }
                             )
 
