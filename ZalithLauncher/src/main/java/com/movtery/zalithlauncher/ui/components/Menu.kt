@@ -50,6 +50,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +80,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.screens.content.elements.DisabledAlpha
+import com.movtery.zalithlauncher.ui.theme.backgroundColor
+import com.movtery.zalithlauncher.ui.theme.cardTitleColor
+import com.movtery.zalithlauncher.ui.theme.itemColor
+import com.movtery.zalithlauncher.ui.theme.onBackgroundColor
+import com.movtery.zalithlauncher.ui.theme.onCardColor
+import com.movtery.zalithlauncher.ui.theme.onItemColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.getAnimateTweenJellyBounce
 import java.text.DecimalFormat
@@ -228,6 +235,10 @@ fun DualMenuSubscreen(
                     shape = shape,
                     influencedByBackground = false,
                     modifier = Modifier.fillMaxSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = backgroundColor(),
+                        contentColor = onBackgroundColor()
+                    ),
                     content = {
                         leftMenuTitle?.let { titleLayout ->
                             MenuTitleLayout(titleLayout, titleHeight)
@@ -261,6 +272,10 @@ fun DualMenuSubscreen(
                     shape = shape,
                     influencedByBackground = false,
                     modifier = Modifier.fillMaxSize(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = backgroundColor(),
+                        contentColor = onBackgroundColor()
+                    ),
                     content = {
                         rightMenuTitle?.let { titleLayout ->
                             MenuTitleLayout(titleLayout, titleHeight)
@@ -282,8 +297,8 @@ private fun MenuTitleLayout(
         modifier = Modifier
             .height(height)
             .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface
+        color = cardTitleColor(),
+        contentColor = onCardColor()
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -301,9 +316,8 @@ fun MenuTextButton(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
     appendLayout: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
@@ -312,7 +326,6 @@ fun MenuTextButton(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         enabled = enabled,
         onClick = onClick,
         horizontalArrangement = Arrangement.Center,
@@ -340,16 +353,14 @@ fun MenuSwitchButton(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
 ) {
     MenuButtonLayout(
         modifier = modifier,
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         enabled = enabled,
         onClick = { onSwitch(!switch) }
     ) {
@@ -394,9 +405,8 @@ fun <E> MenuListLayout(
     maxListHeight: Dp = 200.dp,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -405,7 +415,6 @@ fun <E> MenuListLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         enabled = enabled,
         onClick = {}
     ) {
@@ -556,9 +565,8 @@ fun MenuSliderLayout(
     influencedByBackground: Boolean = false,
     colors: SliderColors = SliderDefaults.colors(),
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showInputDialog by remember { mutableStateOf(false) }
@@ -569,7 +577,6 @@ fun MenuSliderLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         onClick = {
             showInputDialog = true
         }
@@ -638,9 +645,8 @@ fun MenuSliderLayout(
     influencedByBackground: Boolean = false,
     colors: SliderColors = SliderDefaults.colors(),
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground)
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
 ) {
     val formatter = DecimalFormat(decimalFormat)
     fun getTextString(value: Float) = formatter.format(value) + (suffix ?: "")
@@ -654,7 +660,6 @@ fun MenuSliderLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         onClick = {
             showInputDialog = true
         }
@@ -714,9 +719,8 @@ fun MenuButtonLayout(
     enabled: Boolean = true,
     influencedByBackground: Boolean = false,
     shape: Shape = MaterialTheme.shapes.large,
-    color: Color = itemLayoutColor(influencedByBackground = influencedByBackground),
-    contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = itemLayoutShadowElevation(influencedByBackground = influencedByBackground),
+    color: Color = itemColor(influencedByBackground),
+    contentColor: Color = onItemColor(),
     onClick: () -> Unit = {},
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
@@ -732,7 +736,6 @@ fun MenuButtonLayout(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        shadowElevation = shadowElevation,
         enabled = enabled,
         onClick = onClick
     ) {
