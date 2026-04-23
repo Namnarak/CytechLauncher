@@ -210,6 +210,7 @@ class GameHandler(
             version = version,
             gameHandler = this,
             showGameInfo = showGameInfo,
+            onInfoBoxClose = { showGameInfo = false },
             logState = logState,
             onLogStateChange = { logState = it },
             textInputMode = textInputMode,

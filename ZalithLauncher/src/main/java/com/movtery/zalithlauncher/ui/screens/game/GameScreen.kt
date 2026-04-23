@@ -30,7 +30,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -500,6 +506,7 @@ fun GameScreen(
     version: Version,
     gameHandler: GameHandler,
     showGameInfo: Boolean,
+    onInfoBoxClose: () -> Unit,
     logState: LogState,
     onLogStateChange: (LogState) -> Unit,
     textInputMode: TextInputMode,
@@ -565,14 +572,6 @@ fun GameScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         val screenSize = rememberBoxSize()
-
-        GameInfoBox(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(all = 16.dp),
-            version = version,
-            visible = showGameInfo
-        )
 
         if (!viewModel.isEditingLayout) {
             if (AllSettings.gamepadControl.state && gamepadViewModel.gamepadEngaged) {
@@ -691,6 +690,16 @@ fun GameScreen(
             )
         }
 
+        GameInfoBox(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(all = 16.dp),
+            versionName = version.getVersionName(),
+            versionInfo = version.getVersionInfo()?.getInfoString(),
+            visible = showGameInfo,
+            onClose = onInfoBoxClose
+        )
+
         LogBox(
             enableLog = !viewModel.isEditingLayout && logState.value,
             modifier = Modifier.fillMaxSize()
@@ -778,6 +787,8 @@ fun GameScreen(
 
     //摇杆管理状态操作
     //包含覆盖全屏类UI组件，只能放到顶部
+    val saveStyleFailed = stringResource(R.string.game_styles_save_failed)
+    val savedStyle = stringResource(R.string.generic_saved)
     JoystickManageOperation(
         operation = joystickMovementViewModel.operation,
         onChanged = { joystickMovementViewModel.operation = it },
@@ -787,14 +798,14 @@ fun GameScreen(
                 onFailed = { th ->
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = context.getString(R.string.game_styles_save_failed),
+                            title = saveStyleFailed,
                             message = th.getMessageOrToString()
                         )
                     )
                 },
                 onSuccess = {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, context.getString(R.string.generic_saved), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, savedStyle, Toast.LENGTH_SHORT).show()
                     }
                 }
             )
@@ -839,9 +850,11 @@ fun GameScreen(
 
 @Composable
 private fun GameInfoBox(
+    versionName: String,
+    versionInfo: String?,
+    visible: Boolean,
+    onClose: () -> Unit,
     modifier: Modifier = Modifier,
-    version: Version,
-    visible: Boolean
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -854,36 +867,65 @@ private fun GameInfoBox(
             influencedByBackground = false,
             shape = MaterialTheme.shapes.extraLarge
         ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-
-                //提示信息
-                Column(
-                    modifier = Modifier.weight(1f, fill = false),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+            Row {
+                Row(
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .padding(vertical = 16.dp)
+                        .padding(start = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.game_loading),
-                        style = MaterialTheme.typography.bodyLarge
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
-                    Text(
-                        text = stringResource(R.string.game_loading_version_name, version.getVersionName()),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    version.getVersionInfo()?.let { info ->
+
+                    //提示信息
+                    Column(
+                        modifier = Modifier.weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         Text(
-                            text = stringResource(R.string.game_loading_version_info, info.getInfoString()),
+                            text = stringResource(R.string.game_loading),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = stringResource(R.string.game_loading_version_name, versionName),
                             style = MaterialTheme.typography.labelLarge
                         )
+                        versionInfo?.let { info ->
+                            Text(
+                                text = stringResource(R.string.game_loading_version_info, info),
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
                     }
+                }
+
+                IconButton(
+                    modifier = Modifier.padding(top = 4.dp, end = 4.dp),
+                    onClick = onClose
+                ) {
+                    Icon(
+                        modifier = Modifier.size(18.dp),
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.generic_close)
+                    )
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+private fun PreviewGameInfoBox() {
+    MaterialTheme {
+        GameInfoBox(
+            versionName = "1.21.11",
+            versionInfo = "1.21.11",
+            visible = true,
+            onClose = {}
+        )
     }
 }
 
