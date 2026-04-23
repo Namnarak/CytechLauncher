@@ -25,6 +25,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.ResponseTooShortExceptio
 import com.movtery.zalithlauncher.path.GLOBAL_CLIENT
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.safeBodyAsJson
@@ -55,18 +56,22 @@ object OptiFineVersions {
         force: Boolean = false,
         gameVersion: String
     ): List<OptiFineVersion>? = withContext(Dispatchers.IO) {
-        runMirrorable(
-            when (AllSettings.fetchModLoaderSource.getValue()) {
-                MirrorSourceType.OFFICIAL_FIRST -> listOf(
-                    fetchListWithOfficial(force, 5),
-                    fetchListWithBMCLAPI(force, 5 + 30)
-                )
-                MirrorSourceType.MIRROR_FIRST -> listOf(
-                    fetchListWithBMCLAPI(force, 30),
-                    fetchListWithOfficial(force, 30 + 60)
-                )
-            }
-        )?.filter {
+        if (isChinaMainland()) {
+            runMirrorable(
+                when (AllSettings.fetchModLoaderSource.getValue()) {
+                    MirrorSourceType.OFFICIAL_FIRST -> listOf(
+                        fetchListWithOfficial(force, 5),
+                        fetchListWithBMCLAPI(force, 5 + 30)
+                    )
+                    MirrorSourceType.MIRROR_FIRST -> listOf(
+                        fetchListWithBMCLAPI(force, 30),
+                        fetchListWithOfficial(force, 30 + 60)
+                    )
+                }
+            )
+        } else {
+            fetchListWithOfficial(force)
+        }?.filter {
             it.inherit == gameVersion
         }
     }
@@ -81,91 +86,93 @@ object OptiFineVersions {
         delayMillis = delayMillis,
         type = SourceType.OFFICIAL
     ) {
-        withContext(Dispatchers.Default) {
-            if (!force) cacheResult?.let { return@withContext it }
+        fetchListWithOfficial(force)
+    }
 
-            try {
-                val response: HttpResponse = withContext(Dispatchers.IO) {
-                    GLOBAL_CLIENT.get(OPTIFINE_DOWNLOAD_URL)
-                }
+    private suspend fun fetchListWithOfficial(force: Boolean) = withContext(Dispatchers.Default) {
+        if (!force) cacheResult?.let { return@withContext it }
 
-                val html = response.safeBodyAsText()
-                if (html.length < 100) {
-                    throw ResponseTooShortException("Response too short")
-                }
-                val namePattern = Regex("<td class=['\"]colFile['\"]>([^<]+)</td>")
-                val datePattern = Regex("<td class=['\"]colDate['\"]>([^<]+)</td>")
-                val forgePattern = Regex("<td class=['\"]colForge['\"]>([^<]+)</td>")
-                val jarPattern = Regex("adfoc\\.us[^>]+f=([^&]+\\.jar)")
-
-                //提取所有匹配项
-                val names = namePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
-                val dates = datePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
-                val forges = forgePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
-                val jars  = jarPattern.findAll(html).map { it.groupValues[1].trim() }.toList()
-
-                if (names.size != dates.size || names.size != forges.size || names.size != jars.size) {
-                    lWarning("The number of parsed fields is inconsistent.")
-                    return@withContext emptyList()
-                }
-
-                val versions = mutableListOf<OptiFineVersion>()
-                for (i in names.indices) {
-                    ensureActive()
-
-                    val rawName = jars[i].removeSuffix(".jar").removePrefix("preview_")
-                    val rawNameSpaced = rawName.replace("_", " ")
-
-                    val isPreview = jars[i].startsWith("preview_")
-
-                    val displayName = rawNameSpaced
-                        .replace("OptiFine ", "")
-                        .replace("HD U ", "")
-                        .replace(".0 ", " ")
-
-                    val inherit = displayName.split(" ")[0]
-                    val fileName = (if (isPreview) "preview_" else "") + "$rawName.jar"
-
-                    val versionName = if (rawName.contains("$inherit.0_")) {
-                        //OptiFine_1.9.0_HD_U_E7 -> 1.9-OptiFine_HD_U_E7
-                        "${inherit}-${rawName.replace("$inherit.0_", "")}"
-                    } else {
-                        //OptiFine_1.10.2_HD_U_C1 -> 1.10.2-OptiFine_HD_U_C1
-                        "${inherit}-${rawName.replace("${inherit}_", "")}"
-                    }
-
-                    val rawDate = dates[i]
-                    val parts = rawDate.split('.')
-                    val formattedDate = if (parts.size == 3) "${parts[2]}/${parts[1]}/${parts[0]}" else rawDate
-
-                    //提取Forge版本
-                    val forgeVersion = forges[i]
-                        .takeIf { !it.contains("N/A") }
-                        ?.removePrefix("Forge ")
-                        ?.replace("#", "")
-                        ?.trim()
-
-                    versions.add(
-                        OptiFineVersion(
-                            displayName = displayName,
-                            fileName = fileName,
-                            version = versionName,
-                            inherit = inherit,
-                            releaseDate = formattedDate,
-                            forgeVersion = forgeVersion,
-                            isPreview = isPreview
-                        )
-                    )
-                }
-                cacheResult = versions
-                versions
-            } catch(_: CancellationException) {
-                lDebug("Client cancelled.")
-                null
-            } catch (e: Exception) {
-                lWarning("Failed to fetch OptiFine list!", e)
-                throw e
+        try {
+            val response: HttpResponse = withContext(Dispatchers.IO) {
+                GLOBAL_CLIENT.get(OPTIFINE_DOWNLOAD_URL)
             }
+
+            val html = response.safeBodyAsText()
+            if (html.length < 100) {
+                throw ResponseTooShortException("Response too short")
+            }
+            val namePattern = Regex("<td class=['\"]colFile['\"]>([^<]+)</td>")
+            val datePattern = Regex("<td class=['\"]colDate['\"]>([^<]+)</td>")
+            val forgePattern = Regex("<td class=['\"]colForge['\"]>([^<]+)</td>")
+            val jarPattern = Regex("adfoc\\.us[^>]+f=([^&]+\\.jar)")
+
+            //提取所有匹配项
+            val names = namePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
+            val dates = datePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
+            val forges = forgePattern.findAll(html).map { it.groupValues[1].trim() }.toList()
+            val jars  = jarPattern.findAll(html).map { it.groupValues[1].trim() }.toList()
+
+            if (names.size != dates.size || names.size != forges.size || names.size != jars.size) {
+                lWarning("The number of parsed fields is inconsistent.")
+                return@withContext emptyList()
+            }
+
+            val versions = mutableListOf<OptiFineVersion>()
+            for (i in names.indices) {
+                ensureActive()
+
+                val rawName = jars[i].removeSuffix(".jar").removePrefix("preview_")
+                val rawNameSpaced = rawName.replace("_", " ")
+
+                val isPreview = jars[i].startsWith("preview_")
+
+                val displayName = rawNameSpaced
+                    .replace("OptiFine ", "")
+                    .replace("HD U ", "")
+                    .replace(".0 ", " ")
+
+                val inherit = displayName.split(" ")[0]
+                val fileName = (if (isPreview) "preview_" else "") + "$rawName.jar"
+
+                val versionName = if (rawName.contains("$inherit.0_")) {
+                    //OptiFine_1.9.0_HD_U_E7 -> 1.9-OptiFine_HD_U_E7
+                    "${inherit}-${rawName.replace("$inherit.0_", "")}"
+                } else {
+                    //OptiFine_1.10.2_HD_U_C1 -> 1.10.2-OptiFine_HD_U_C1
+                    "${inherit}-${rawName.replace("${inherit}_", "")}"
+                }
+
+                val rawDate = dates[i]
+                val parts = rawDate.split('.')
+                val formattedDate = if (parts.size == 3) "${parts[2]}/${parts[1]}/${parts[0]}" else rawDate
+
+                //提取Forge版本
+                val forgeVersion = forges[i]
+                    .takeIf { !it.contains("N/A") }
+                    ?.removePrefix("Forge ")
+                    ?.replace("#", "")
+                    ?.trim()
+
+                versions.add(
+                    OptiFineVersion(
+                        displayName = displayName,
+                        fileName = fileName,
+                        version = versionName,
+                        inherit = inherit,
+                        releaseDate = formattedDate,
+                        forgeVersion = forgeVersion,
+                        isPreview = isPreview
+                    )
+                )
+            }
+            cacheResult = versions
+            versions
+        } catch(_: CancellationException) {
+            lDebug("Client cancelled.")
+            null
+        } catch (e: Exception) {
+            lWarning("Failed to fetch OptiFine list!", e)
+            throw e
         }
     }
 

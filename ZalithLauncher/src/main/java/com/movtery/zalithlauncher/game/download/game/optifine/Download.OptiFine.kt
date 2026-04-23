@@ -28,8 +28,10 @@ import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersion
 import com.movtery.zalithlauncher.game.addons.modloader.optifine.OptiFineVersions
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.network.downloadFileSuspend
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 const val OPTIFINE_DOWNLOAD_ID = "Download.OptiFine"
@@ -86,19 +88,22 @@ fun getOptiFineModsDownloadTask(
 private suspend fun getOFUrlMirrorable(
     optifine: OptiFineVersion
 ): String {
-    val type = AllSettings.fileDownloadSource.getValue()
-    return runMirrorable(
-        when (type) {
-            MirrorSourceType.OFFICIAL_FIRST -> listOf(
-                fetchOptiFineDownloadUrl(optifine, 5),
-                getDownloadUrlWithBMCLAPI(optifine, 5 + 30)
-            )
-            MirrorSourceType.MIRROR_FIRST -> listOf(
-                getDownloadUrlWithBMCLAPI(optifine, 30),
-                fetchOptiFineDownloadUrl(optifine, 30 + 60)
-            )
-        }
-    )!!
+    return if (isChinaMainland()) {
+        runMirrorable(
+            when (AllSettings.fileDownloadSource.getValue()) {
+                MirrorSourceType.OFFICIAL_FIRST -> listOf(
+                    fetchOptiFineDownloadUrl(optifine, 5),
+                    getDownloadUrlWithBMCLAPI(optifine, 5 + 30)
+                )
+                MirrorSourceType.MIRROR_FIRST -> listOf(
+                    getDownloadUrlWithBMCLAPI(optifine, 30),
+                    fetchOptiFineDownloadUrl(optifine, 30 + 60)
+                )
+            }
+        )!!
+    } else {
+        fetchOptiFineDownloadUrl(optifine)
+    }
 }
 
 /**
@@ -111,6 +116,12 @@ private fun fetchOptiFineDownloadUrl(
     delayMillis = delayMillis,
     type = SourceType.OFFICIAL
 ) {
+    fetchOptiFineDownloadUrl(optifine)
+}
+
+private suspend fun fetchOptiFineDownloadUrl(
+    optifine: OptiFineVersion
+) = withContext(Dispatchers.IO) {
     OptiFineVersions.fetchOptiFineDownloadUrl(optifine.fileName) ?: throw CantFetchingOptiFineUrlException()
 }
 

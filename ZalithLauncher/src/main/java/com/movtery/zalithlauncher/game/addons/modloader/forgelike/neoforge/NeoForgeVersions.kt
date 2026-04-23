@@ -25,6 +25,7 @@ import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.model
 import com.movtery.zalithlauncher.game.addons.modloader.forgelike.neoforge.models.NeoForgedMaven
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.enums.MirrorSourceType
+import com.movtery.zalithlauncher.utils.isChinaMainland
 import com.movtery.zalithlauncher.utils.logging.Logger.lDebug
 import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.httpGetJson
@@ -49,12 +50,22 @@ object NeoForgeVersions {
             return@withContext it.outputVersionList(gameVersion)
         }
 
-        runMirrorable(
-            when (AllSettings.fetchModLoaderSource.getValue()) {
-                MirrorSourceType.OFFICIAL_FIRST -> listOf(fetchListWithOfficial(5), fetchListWithBMCLAPI(5 + 30))
-                MirrorSourceType.MIRROR_FIRST -> listOf(fetchListWithBMCLAPI(30), fetchListWithOfficial(30 + 60))
-            }
-        )?.also {
+        if (isChinaMainland()) {
+            runMirrorable(
+                when (AllSettings.fetchModLoaderSource.getValue()) {
+                    MirrorSourceType.OFFICIAL_FIRST -> listOf(
+                        fetchListWithOfficial(5),
+                        fetchListWithBMCLAPI(5 + 30)
+                    )
+                    MirrorSourceType.MIRROR_FIRST -> listOf(
+                        fetchListWithBMCLAPI(30),
+                        fetchListWithOfficial(30 + 60)
+                    )
+                }
+            )
+        } else {
+            fetchListWithOfficial()
+        }?.also {
             cacheResult = it
         }?.outputVersionList(gameVersion)
     }
@@ -76,6 +87,10 @@ object NeoForgeVersions {
         delayMillis = delayMillis,
         type = SourceType.OFFICIAL
     ) {
+        fetchListWithOfficial()
+    }
+
+    private suspend fun fetchListWithOfficial() = withContext(Dispatchers.IO) {
         processVersionList {
             val neoforge = withRetry(TAG, maxRetries = 2) {
                 httpGetJson<NeoForgedMaven>(url = "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge")
