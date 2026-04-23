@@ -787,6 +787,8 @@ fun GameScreen(
 
     //摇杆管理状态操作
     //包含覆盖全屏类UI组件，只能放到顶部
+    val saveStyleFailed = stringResource(R.string.game_styles_save_failed)
+    val savedStyle = stringResource(R.string.generic_saved)
     JoystickManageOperation(
         operation = joystickMovementViewModel.operation,
         onChanged = { joystickMovementViewModel.operation = it },
@@ -796,14 +798,14 @@ fun GameScreen(
                 onFailed = { th ->
                     submitError(
                         ErrorViewModel.ThrowableMessage(
-                            title = context.getString(R.string.game_styles_save_failed),
+                            title = saveStyleFailed,
                             message = th.getMessageOrToString()
                         )
                     )
                 },
                 onSuccess = {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, context.getString(R.string.generic_saved), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, savedStyle, Toast.LENGTH_SHORT).show()
                     }
                 }
             )
