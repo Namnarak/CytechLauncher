@@ -675,8 +675,8 @@ private fun ScreenshotGrid(
                 columns = GridCells.Adaptive(minSize = 160.dp),
                 modifier = modifier,
                 contentPadding = PaddingValues(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(items) { info ->
                     ScreenshotItemLayout(
