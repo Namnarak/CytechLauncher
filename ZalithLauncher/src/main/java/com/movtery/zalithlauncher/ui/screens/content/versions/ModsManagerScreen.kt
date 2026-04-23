@@ -311,10 +311,16 @@ private class ModsManageViewModel(
     }
 
     fun selectAllMods() {
-        allMods.forEach { mod ->
+        filteredMods?.forEach { mod ->
             if (!selectedMods.contains(mod)) {
                 selectedMods.add(mod)
             }
+        }
+    }
+
+    fun clearSelected() {
+        filteredMods?.let {
+            selectedMods.removeAll(it)
         }
     }
 
@@ -671,7 +677,9 @@ fun ModsManagerScreen(
                             onSelectAll = {
                                 viewModel.selectAllMods()
                             },
-                            onClearModsSelected = { viewModel.selectedMods.clear() },
+                            onClearModsSelected = {
+                                viewModel.clearSelected()
+                            },
                             swapToDownload = swapToDownload,
                             refresh = { viewModel.refresh(context) },
                             submitError = submitError
