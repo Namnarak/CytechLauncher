@@ -38,11 +38,17 @@ class UnpackJreTask(
     private var isCheckFailed: Boolean = false
 
     init {
-        runCatching {
+        val assetVersion = runCatching {
             assetManager = context.assets
-            launcherRuntimeVersion = assetManager.open(jre.jrePath + "/version").readString()
-        }.onFailure { e ->
-            lWarning("Failed to init jre version. assetsPath=${jre.jrePath}/version", e)
+            assetManager.open(jre.jrePath + "/version").readString()
+        }.getOrNull()
+        
+        if (assetVersion != null) {
+            launcherRuntimeVersion = assetVersion
+        } else if (jre.downloadUrl != null) {
+            launcherRuntimeVersion = "remote" // หรือจะใช้ version จาก api ก็ได้
+        } else {
+            lWarning("Failed to init jre version and no download URL. assetsPath=${jre.jrePath}/version")
             isCheckFailed = true
         }
     }
@@ -70,20 +76,34 @@ class UnpackJreTask(
 
     override suspend fun run() {
         runCatching {
-            RuntimesManager.installRuntimeBinPack(
-                universalFileInputStream = assetManager.open(jre.jrePath + "/universal.tar.xz"),
-                platformBinsInputStream = assetManager.open(
-                    jre.jrePath + "/bin-" + Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE) + ".tar.xz"
-                ),
-                name = jre.jreName,
-                binPackVersion = launcherRuntimeVersion,
-                updateProgress = { textRes, textArgs ->
-                    updateMessage(context.getString(textRes, *textArgs))
-                }
-            )
+            val hasAssets = runCatching { assetManager.open(jre.jrePath + "/version") }.isSuccess
+            
+            if (hasAssets) {
+                RuntimesManager.installRuntimeBinPack(
+                    universalFileInputStream = assetManager.open(jre.jrePath + "/universal.tar.xz"),
+                    platformBinsInputStream = assetManager.open(
+                        jre.jrePath + "/bin-" + Architecture.archAsString(ZLApplication.DEVICE_ARCHITECTURE) + ".tar.xz"
+                    ),
+                    name = jre.jreName,
+                    binPackVersion = launcherRuntimeVersion,
+                    updateProgress = { textRes, textArgs ->
+                        updateMessage(context.getString(textRes, *textArgs))
+                    }
+                )
+            } else if (jre.downloadUrl != null) {
+                RuntimesManager.downloadAndInstallRuntime(
+                    url = jre.downloadUrl,
+                    name = jre.jreName,
+                    updateProgress = { textRes, textArgs ->
+                        updateMessage(context.getString(textRes, *textArgs))
+                    }
+                )
+            } else {
+                throw Exception("No JRE source found for ${jre.jreName}")
+            }
             RuntimesManager.postPrepare(jre.jreName)
         }.onFailure {
-            lError("Internal JRE unpack failed", it)
+            lError("JRE installation failed", it)
         }.getOrThrow()
     }
 }
