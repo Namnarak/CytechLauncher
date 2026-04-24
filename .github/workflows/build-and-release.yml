@@ -1,0 +1,43 @@
+name: Build and Release Cytech Launcher
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger when you push a tag like v1.0.0
+  workflow_dispatch: # Allow manual trigger from the Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug # Build Debug APK for now
+
+      - name: Rename APK
+        run: mv ZalithLauncher/build/outputs/apk/debug/ZalithLauncher-debug.apk CytechLauncher-v${{ github.ref_name }}-debug.apk
+        continue-on-error: true
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: CytechLauncher-*.apk
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
