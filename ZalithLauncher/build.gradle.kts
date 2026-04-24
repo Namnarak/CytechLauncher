@@ -50,7 +50,7 @@ configure<com.github.megatronking.stringfog.plugin.StringFogExtension> {
 
 android {
     namespace = zalithPackageName
-    compileSdk = 35
+    compileSdk = 36
 
     signingConfigs {
         create("releaseBuild") {
