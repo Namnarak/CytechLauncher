@@ -101,6 +101,11 @@ fun UnpackScreen(
     }
 }
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+
 @Composable
 private fun ActionMenu(
     isVisible: Boolean,
@@ -117,7 +122,19 @@ private fun ActionMenu(
 
     Column(
         modifier = modifier.offset { IntOffset(x = xOffset.roundToPx(), y = 0) },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Logo Display
+        Image(
+            painter = painterResource(id = R.drawable.app_logo),
+            contentDescription = "Cytech Launcher Logo",
+            modifier = Modifier
+                .size(120.dp)
+                .clip(MaterialTheme.shapes.extraLarge),
+            contentScale = ContentScale.Fit
+        )
+
         Column(
             modifier = Modifier
                 .verticalScroll(state = rememberScrollState())

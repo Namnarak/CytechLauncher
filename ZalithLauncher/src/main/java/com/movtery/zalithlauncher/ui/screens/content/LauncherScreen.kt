@@ -187,68 +187,52 @@ private fun RightMenuContent(
     val version by VersionsManager.currentVersion.collectAsStateWithLifecycle()
     val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
 
-    ConstraintLayout(
-        modifier = modifier
+    Column(
+        modifier = modifier.padding(vertical = 24.dp, horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        val (accountAvatar, versionManagerLayout, launchButton) = createRefs()
-
+        // Account Section - Centered and clean
         AccountAvatar(
-            modifier = Modifier
-                .constrainAs(accountAvatar) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(launchButton.top, margin = 32.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
+            modifier = Modifier.size(80.dp),
             account = account,
             onClick = toAccountManageScreen
         )
 
-        Row(
-            modifier = Modifier.constrainAs(versionManagerLayout) {
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                bottom.linkTo(launchButton.top)
-            },
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Version Selection Area
             VersionManagerLayout(
                 isRefreshing = isRefreshing,
                 version = version,
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
                 swapToVersionManage = toVersionManageScreen
             )
-            version?.takeIf { !isRefreshing && it.isValid() }?.let {
-                IconButton(
-                    modifier = Modifier.padding(end = 8.dp),
-                    onClick = toVersionSettingsScreen
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = stringResource(R.string.versions_manage_settings)
+
+            // Minimalist Launch Button
+            launchButton(
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                {
+                    launchGameViewModel.tryLaunch(
+                        VersionsManager.currentVersion.value
+                    )
+                },
+                {
+                    Text(
+                        text = stringResource(R.string.main_launch_game).uppercase(),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.basicMarquee()
                     )
                 }
-            }
+            )
         }
-
-        launchButton(
-            Modifier
-                .fillMaxWidth()
-                .constrainAs(launchButton) {
-                    bottom.linkTo(parent.bottom, margin = 8.dp)
-                }
-                .padding(PaddingValues(horizontal = 12.dp)),
-            {
-                launchGameViewModel.tryLaunch(
-                    VersionsManager.currentVersion.value
-                )
-            },
-            {
-                MarqueeText(text = stringResource(R.string.main_launch_game))
-            }
-        )
     }
 }
 

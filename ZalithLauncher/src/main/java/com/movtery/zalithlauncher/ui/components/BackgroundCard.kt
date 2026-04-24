@@ -37,6 +37,9 @@ import com.movtery.zalithlauncher.ui.theme.cardColor
 import com.movtery.zalithlauncher.ui.theme.cardTitleColor
 import com.movtery.zalithlauncher.ui.theme.onCardColor
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.dp
+
 /**
  * 背景卡片组件，
  * 使用方式与原本的[Card]无异，但[BackgroundCard]配置了更舒适的背景颜色
@@ -45,13 +48,13 @@ import com.movtery.zalithlauncher.ui.theme.onCardColor
 fun BackgroundCard(
     modifier: Modifier = Modifier,
     influencedByBackground: Boolean = true,
-    shape: Shape = CardDefaults.shape,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
     colors: CardColors = CardDefaults.cardColors(
         containerColor = cardColor(influencedByBackground),
         contentColor = onCardColor()
     ),
-    elevation: CardElevation = CardDefaults.cardElevation(),
-    border: BorderStroke? = null,
+    elevation: CardElevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    border: BorderStroke? = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -66,20 +69,20 @@ fun BackgroundCard(
 
 /**
  * 背景卡片组件，
- * 使用方式与原本的[Card]无异，但[BackgroundCard]配置了更舒适的背景颜色
+ * 使用方式与原本的[Card]无异，แต่[BackgroundCard]配置了更舒适的背景颜色
  */
 @Composable
 fun BackgroundCard(
     modifier: Modifier = Modifier,
     influencedByBackground: Boolean = true,
-    shape: Shape = CardDefaults.shape,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
     colors: CardColors = CardDefaults.cardColors(
         containerColor = cardColor(influencedByBackground),
         contentColor = onCardColor(),
         disabledContainerColor = cardColor(influencedByBackground)
     ),
-    elevation: CardElevation = CardDefaults.cardElevation(),
-    border: BorderStroke? = null,
+    elevation: CardElevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    border: BorderStroke? = BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
     onClick: () -> Unit,
     enabled: Boolean = true,
     content: @Composable @UiComposable ColumnScope.() -> Unit
