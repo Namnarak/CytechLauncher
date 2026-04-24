@@ -84,6 +84,7 @@
     <string name="launcher_version_debug_warning_cant_close">This warning cannot be dismissed</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Dynamic (Android 12+)</string>
+    <string name="theme_color_cytech">Cytech Luxury</string>
     <string name="theme_color_embermire">Embermire</string>
     <string name="theme_color_velvet_rose">Velvet Rose</string>
     <string name="theme_color_mistwave">Mistwave</string>

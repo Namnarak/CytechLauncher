@@ -318,30 +318,25 @@ private fun <E: TitledNavKey> TopBar(
 
             Crossfade(
                 modifier = Modifier.constrainAs(title) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(backCenter.end, margin = 16.dp)
+                    centerTo(parent)
                 },
                 targetState = parentRes to childRes
             ) { (parent, child) ->
-                val style = MaterialTheme.typography.titleMedium
+                val style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    letterSpacing = androidx.compose.ui.unit.sp(2)
+                )
                 val softWarp = false
                 val maxLines = 1
 
                 if (parent == null) {
-                    if (festivals.isEmpty()) {
-                        Text(
-                            text = InfoDistributor.LAUNCHER_IDENTIFIER,
-                            style = style,
-                            softWrap = softWarp,
-                            maxLines = maxLines
-                        )
-                    } else {
-                        FestivalTitleText(
-                            festivals = festivals,
-                            style = style,
-                            maxLines = maxLines
-                        )
-                    }
+                    Text(
+                        text = "CYTECH LAUNCHER",
+                        style = style,
+                        color = MaterialTheme.colorScheme.primary,
+                        softWrap = softWarp,
+                        maxLines = maxLines
+                    )
                 } else {
                     val parentText = stringResource(parent)
                     val childText = child?.let { stringResource(it) }
