@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Terminal
@@ -141,6 +142,23 @@ fun JavaManageScreen(
                         contentDescription = stringResource(R.string.generic_refresh),
                         text = stringResource(R.string.generic_refresh),
                     )
+                    
+                    var showDownloadDialog by remember { mutableStateOf(false) }
+                    IconTextButton(
+                        onClick = { showDownloadDialog = true },
+                        imageVector = Icons.Outlined.Download,
+                        contentDescription = "Download Java",
+                        text = "Download",
+                    )
+                    
+                    if (showDownloadDialog) {
+                        SimpleAlertDialog(
+                            title = "Download Java",
+                            text = "Select a Java version to download and install.",
+                            onConfirm = { /* จะให้เลือก version ในลำดับถัดไป */ },
+                            onDismiss = { showDownloadDialog = false }
+                        )
+                    }
                     ImportMultipleFileButton(
                         extension = "xz",
                         progressUris = { uris ->

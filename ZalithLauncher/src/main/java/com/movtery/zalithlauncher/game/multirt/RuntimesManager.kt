@@ -37,6 +37,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -281,6 +284,31 @@ object RuntimesManager {
     ) = withContext(Dispatchers.IO) {
         uncompressTarXZ(inputStream, dest, updateProgress)
         inputStream.close()
+    }
+
+    @Throws(IOException::class)
+    suspend fun downloadAndInstallRuntime(
+        url: String,
+        name: String,
+        updateProgress: (Int, Array<Any>) -> Unit = { _, _ -> }
+    ) = withContext(Dispatchers.IO) {
+        val dest = RUNTIME_FOLDER.child(name)
+        try {
+            if (dest.exists()) FileUtils.deleteDirectory(dest)
+            
+            updateProgress(R.string.generic_downloading, arrayOf(name))
+            val response = com.movtery.zalithlauncher.path.GLOBAL_CLIENT.get(url)
+            val inputStream = response.bodyAsChannel().toInputStream()
+            
+            uncompressTarXZ(inputStream, dest, updateProgress)
+            unpack200(PathManager.DIR_NATIVE_LIB, dest.absolutePath)
+            loadRuntime(name).also { runtime ->
+                postPrepare(runtime)
+            }
+        } catch (e: Exception) {
+            FileUtils.deleteDirectory(dest)
+            throw e
+        }
     }
 
     @Throws(IOException::class)
