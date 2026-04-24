@@ -3,8 +3,11 @@ name: Build and Release Cytech Launcher
 on:
   push:
     tags:
-      - 'v*' # Trigger when you push a tag like v1.0.0
-  workflow_dispatch: # Allow manual trigger from the Actions tab
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -12,8 +15,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          submodules: recursive # Just in case, though we don't have them in the current clone
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -26,7 +27,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew :ZalithLauncher:assembleDebug -Darch=all
+        run: ./gradlew :ZalithLauncher:assembleDebug -Darch=all --no-daemon --stacktrace
 
       - name: List files for debugging
         run: find ZalithLauncher/build/outputs/apk/ -name "*.apk"
@@ -48,12 +49,6 @@ jobs:
             ## Cytech Launcher Release ${{ github.ref_name }}
             
             Luxury Minecraft: Java Edition Launcher for Android.
-            
-            **Changes:**
-            - Initial Release of Cytech Launcher
-            - Rebranded from Zalith Launcher 2
-            - New Luxury Theme (Gold & Black)
-            - New 3D Minecraft Logo
           draft: false
           prerelease: false
         env:
