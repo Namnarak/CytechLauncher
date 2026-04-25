@@ -2,7 +2,7 @@
 ![Luxury Branding](https://img.shields.io/badge/Style-Luxury-D4AF37?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Premium_Modified-Black?style=for-the-badge)
 
-**Cytech Launcher** is a sophisticated Minecraft: Java Edition launcher for Android, rebranded and enhanced from the high-quality **Zalith Launcher 2** project. We focus on luxury design, high performance, and a premium user experience.
+**Cytech Launcher** is a sophisticated Minecraft: Java Edition launcher for Android, rebranded and enhanced from the high-quality **Cytech Launcher** project. We focus on luxury design, high performance, and a premium user experience.
 
 > [!NOTE]
 > **Cytech Launcher** is an **unofficial modified version**. This project focuses on refining the UI and adding specialized features while maintaining the robust core of the original work.
@@ -24,7 +24,7 @@
 
 ### Build Steps
 ```bash
-git clone https://github.com/ZalithLauncher/ZalithLauncher2.git
+git clone https://github.com/CytechLauncher/CytechLauncher2.git
 # Apply Cytech modifications and build via Android Studio
 ```
 
@@ -42,7 +42,7 @@ This project is licensed under the **[GPL-3.0 license](LICENSE)**.
 
 ## 🙏 Credits & Appreciation
 Special thanks to the **Zalith Launcher 2** team and all contributors for providing such a fantastic base project:
-- **Cytech Team** (Main Developer of Cytech Launcher)
+- **MovTery** (Main Developer of Zalith Launcher 2)
 - **PojavLauncher Team** (Engine Core)
 - Global translators and community contributors.
 

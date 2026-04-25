@@ -1,16 +1,16 @@
-# Zalith Launcher 2
-![Downloads](https://img.shields.io/github/downloads/ZalithLauncher/ZalithLauncher2/total)
+# Cytech Launcher
+![Downloads](https://img.shields.io/github/downloads/CytechLauncher/CytechLauncher2/total)
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
 
 [English](README.md) | [繁體中文](README_ZH_TW.md)
 
 
 > [!IMPORTANT]
-> 该项目与 [ZalithLauncher](https://github.com/ZalithLauncher/ZalithLauncher) 属于两个完全不同的项目  
+> 该项目与 [CytechLauncher](https://github.com/CytechLauncher/CytechLauncher) 属于两个完全不同的项目  
 
-**Zalith Launcher 2** 是一个全新设计、面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。项目使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作为启动核心，采用 **Jetpack Compose** 与 **Material Design 3** 构建现代化 UI 体验。  
-我们目前正在搭建自己的官方网站 [zalithlauncher.cn](https://zalithlauncher.cn)  
-此外，我们已注意到有第三方使用“Zalith Launcher”名称搭建了一个看似官方的网站。请注意：**该网站并非我们创建**，其通过冒用名义并植入广告牟利。我们对此类行为**不参与、不认可、不信任**。  
+**Cytech Launcher** 是一个全新设计、面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。项目使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作为启动核心，采用 **Jetpack Compose** 与 **Material Design 3** 构建现代化 UI 体验。  
+我们目前正在搭建自己的官方网站 [cytechlauncher.cn](https://cytechlauncher.cn)  
+此外，我们已注意到有第三方使用“Cytech Launcher”名称搭建了一个看似官方的网站。请注意：**该网站并非我们创建**，其通过冒用名义并植入广告牟利。我们对此类行为**不参与、不认可、不信任**。  
 请务必提高警惕，**谨防个人隐私信息泄露**！  
 
 [Discord 服务器停止运营公告](.github/notice/DiscordStatus_ZH_CN.md)  
@@ -18,8 +18,8 @@
 
 ## 🌐 语言与翻译支持
 
-我们正在使用 Weblate 平台翻译 Zalith Launcher 2，欢迎您前往我们的 [Weblate 项目](https://hosted.weblate.org/projects/zalithlauncher2) 参与翻译！  
-感谢每一位语言贡献者的支持，让 Zalith Launcher 2 更加多语、更加全球化！
+我们正在使用 Weblate 平台翻译 Cytech Launcher，欢迎您前往我们的 [Weblate 项目](https://hosted.weblate.org/projects/cytechlauncher2) 参与翻译！  
+感谢每一位语言贡献者的支持，让 Cytech Launcher 更加多语、更加全球化！
 
 
 
@@ -39,7 +39,7 @@
 ### 构建步骤
 
 ```bash
-git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
+git clone git@github.com:CytechLauncher/CytechLauncher2.git
 # 使用 Android Studio 打开项目并进行构建
 ```
 
@@ -52,12 +52,12 @@ git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 
 ### 附加条款 (依据 GPLv3 开源协议第七条)  
 
-1. 当你分发该程序的修改版本时，你必须以合理方式修改该程序的名称或版本号，以示其与原始版本不同。(依据 [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374))
-   - 修改版本 **不得在名称中包含原程序名称 “ZalithLauncher” 或其缩写 “ZL”，也不得使用与官方名称相近、可能导致混淆的名称**。
+1. 当你分发该程序的修改版本时，你必须以合理方式修改该程序的名称或版本号，以示其与原始版本不同。(依据 [GPLv3, 7(c)](https://github.com/CytechLauncher/CytechLauncher2/blob/969827b/LICENSE#L372-L374))
+   - 修改版本 **不得在名称中包含原程序名称 “CytechLauncher” 或其缩写 “ZL”，也不得使用与官方名称相近、可能导致混淆的名称**。
    - 所有修改版本 **必须在程序启动页面或主界面中以明显方式标注其为“非官方修改版”**。
-   - 该程序的应用名称可在 [gradle.properties](./ZalithLauncher/gradle.properties) 中修改。
+   - 该程序的应用名称可在 [gradle.properties](./CytechLauncher/gradle.properties) 中修改。
 
-2. 你不得移除该程序所显示的版权声明。(依据 [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
+2. 你不得移除该程序所显示的版权声明。(依据 [GPLv3, 7(b)](https://github.com/CytechLauncher/CytechLauncher2/blob/969827b/LICENSE#L368-L370))
 
 ## 引用开源项目
 

@@ -21,7 +21,7 @@ import static org.lwjgl.system.JNI.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-import com.movtery.zalithlauncher.CursorRegistry;
+import com.movtery.cytechlauncher.CursorRegistry;
 
 import java.util.*;
 
