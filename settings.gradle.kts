@@ -24,8 +24,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ZalithLauncher"
-include(":ZalithLauncher")
+rootProject.name = "CytechLauncher"
+include(":CytechLauncher")
 include(":LWJGL")
 include(":LayerController")
 include(":ColorPicker")
