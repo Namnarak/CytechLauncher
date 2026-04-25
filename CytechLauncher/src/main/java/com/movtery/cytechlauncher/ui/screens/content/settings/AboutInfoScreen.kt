@@ -125,7 +125,7 @@ fun AboutInfoScreen(
 
                         ButtonIconItem(
                             icon = painterResource(R.drawable.img_launcher),
-                            title = "Cytech Team",
+                            title = "Cytech Team (operator Namnarak)",
                             text = "Main Developer of Cytech Launcher",
                             button = {
                                 OutlinedButton(
