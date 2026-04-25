@@ -4,7 +4,11 @@ plugins {
 
 group = "org.lwjgl.glfw"
 
-configurations.getByName("default").isCanBeResolved = true
+val bundle: Configuration by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    extendsFrom(configurations.getByName("implementation"))
+}
 
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -16,7 +20,7 @@ tasks.jar {
         versionFile.writeText(System.currentTimeMillis().toString())
     }
     from({
-        configurations.getByName("default").map {
+        bundle.map {
             println(it.name)
             if (it.isDirectory) it else zipTree(it)
         }
