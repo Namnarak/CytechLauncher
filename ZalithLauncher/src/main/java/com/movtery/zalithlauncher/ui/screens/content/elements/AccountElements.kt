@@ -99,6 +99,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -180,6 +181,16 @@ sealed interface MicrosoftLoginOperation {
 
     /** 微软账号相关提示Dialog流程 */
     data object Tip : MicrosoftLoginOperation
+}
+
+/**
+ * Cytech 登录的操作状态
+ */
+sealed interface CytechLoginOperation {
+    data object None : CytechLoginOperation
+
+    /** Cytech 账号相关提示 */
+    data object Tip : CytechLoginOperation
 }
 
 /**
@@ -441,12 +452,22 @@ fun AccountItem(
 fun LoginMenuDialog(
     onDismissRequest: () -> Unit,
     onMicrosoftLogin: () -> Unit,
+    onCytechLogin: () -> Unit,
     onLocalLogin: () -> Unit,
+    onImportLocalAccount: () -> Unit,
     authServers: List<AuthServer>,
     onAuthServerLogin: (server: AuthServer) -> Unit,
     onAddAuthServer: () -> Unit,
     onDeleteAuthServer: (server: AuthServer) -> Unit,
 ) {
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            onImportLocalAccount() // Placeholder
+            // In real impl, we would pass URI to ViewModel: actions.onIntent(AccountManageIntent.ImportLocalAccount(uri))
+        }
+        onDismissRequest()
+    }
+
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -484,7 +505,27 @@ fun LoginMenuDialog(
                                 .padding(start = 12.dp, end = 6.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            //微软登录
+                            // Cytech 登录
+                            LoginItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = "Cytech Login",
+                                icon = {
+                                    Image(
+                                        modifier = Modifier
+                                            .size(22.dp)
+                                            .padding(2.dp),
+                                        painter = painterResource(R.drawable.app_logo),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Fit
+                                    )
+                                },
+
+                                onClick = {
+                                    onCytechLogin()
+                                    onDismissRequest()
+                                }
+                            )
+                            // 微软登录
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.account_type_microsoft),
@@ -493,13 +534,28 @@ fun LoginMenuDialog(
                                     onDismissRequest()
                                 }
                             )
-                            //离线登录
+                            // 离线登录
                             LoginItem(
                                 modifier = Modifier.fillMaxWidth(),
                                 title = stringResource(R.string.account_type_local),
                                 onClick = {
                                     onLocalLogin()
                                     onDismissRequest()
+                                }
+                            )
+                            // 导入账号
+                            LoginItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = "Import Account",
+                                icon = {
+                                    Icon(
+                                        modifier = Modifier.size(22.dp),
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null
+                                    )
+                                },
+                                onClick = {
+                                    importLauncher.launch(arrayOf("*/*"))
                                 }
                             )
                         }
@@ -574,7 +630,9 @@ private fun PreviewLoginMenuDialog() {
         LoginMenuDialog(
             onDismissRequest = {},
             onMicrosoftLogin = {},
+            onCytechLogin = {},
             onLocalLogin = {},
+            onImportLocalAccount = {},
             authServers = emptyList(),
             onAuthServerLogin = {},
             onAddAuthServer = {},
@@ -691,6 +749,18 @@ fun MicrosoftLoginTipDialog(
         onConfirm = onConfirm,
         onCancel = onDismissRequest,
         onDismissRequest = onDismissRequest
+    )
+}
+
+@Composable
+fun CytechLoginTipDialog(
+    onDismissRequest: () -> Unit = {}
+) {
+    SimpleAlertDialog(
+        title = "Cytech Account",
+        text = "Cytech account system is currently under development. Stay tuned for future updates!",
+        confirmText = stringResource(R.string.generic_confirm),
+        onDismiss = onDismissRequest
     )
 }
 

@@ -61,7 +61,7 @@ import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 
 fun Account.isAuthServerAccount(): Boolean {
-    return !isLocalAccount() && !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
+    return !isLocalAccount() && !isMicrosoftAccount() && !isCytechAccount() && !Objects.isNull(otherBaseUrl) && otherBaseUrl != "0"
 }
 
 fun Account.isMicrosoftAccount(): Boolean {
@@ -72,19 +72,24 @@ fun Account.isLocalAccount(): Boolean {
     return accountType == AccountType.LOCAL.tag
 }
 
+fun Account.isCytechAccount(): Boolean {
+    return accountType == AccountType.CYTECH.tag
+}
+
 fun Account?.isNoLoginRequired(): Boolean {
     return this == null || isLocalAccount()
 }
 
 fun Account.isSkinChangeAllowed(): Boolean {
-    return isMicrosoftAccount() || isLocalAccount()
+    return isMicrosoftAccount() || isLocalAccount() || isCytechAccount()
 }
 
 fun Account.accountTypePriority(): Int {
     return when (this.accountType) {
         AccountType.MICROSOFT.tag -> 0 //微软账号优先
+        AccountType.CYTECH.tag -> 1 //Cytech 账号其次
         null -> Int.MAX_VALUE
-        else -> 1
+        else -> 2
     }
 }
 
@@ -366,6 +371,8 @@ fun addOtherServer(
 fun getAccountTypeName(account: Account): String {
     return if (account.isMicrosoftAccount()) {
         stringResource(R.string.account_type_microsoft)
+    } else if (account.isCytechAccount()) {
+        "Cytech"
     } else if (account.isAuthServerAccount()) {
         account.accountType ?: "Unknown"
     } else {

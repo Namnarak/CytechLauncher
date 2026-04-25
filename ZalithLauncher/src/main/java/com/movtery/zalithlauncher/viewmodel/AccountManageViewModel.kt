@@ -61,6 +61,7 @@ import com.movtery.zalithlauncher.ui.screens.content.elements.AccountOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.AccountSkinOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeCape
 import com.movtery.zalithlauncher.ui.screens.content.elements.ChangeSkin
+import com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LocalLoginOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.LoginMenuOperation
 import com.movtery.zalithlauncher.ui.screens.content.elements.MicrosoftLoginOperation
@@ -104,6 +105,9 @@ sealed interface AccountManageIntent {
     data class UpdateLoginMenuOp(val operation: LoginMenuOperation) : AccountManageIntent
 
     data class UpdateMicrosoftLoginOp(val operation: MicrosoftLoginOperation) :
+        AccountManageIntent
+
+    data class UpdateCytechLoginOp(val operation: CytechLoginOperation) :
         AccountManageIntent
 
     data class UpdateLocalLoginOp(val operation: LocalLoginOperation) : AccountManageIntent
@@ -151,6 +155,12 @@ sealed interface AccountManageIntent {
     /** 创建新的离线账号 */
     data class CreateLocalAccount(val userName: String, val userUUID: String?) :
         AccountManageIntent
+
+    /** 导入外部离线账号 */
+    data class ImportLocalAccount(val uri: Uri) : AccountManageIntent
+
+    /** Cytech 登录 (当前仅显示提示) */
+    data object LoginWithCytech : AccountManageIntent
 
     /** 使用第三方验证服务器进行登录 */
     data class LoginWithOtherServer(
@@ -207,6 +217,8 @@ class AccountManageViewModel @Inject constructor(
 
     private val _microsoftLoginOp =
         MutableStateFlow<MicrosoftLoginOperation>(MicrosoftLoginOperation.None)
+    private val _cytechLoginOp =
+        MutableStateFlow<CytechLoginOperation>(CytechLoginOperation.None)
     private val _localLoginOp = MutableStateFlow<LocalLoginOperation>(LocalLoginOperation.None)
     private val _otherLoginOp = MutableStateFlow<OtherLoginOperation>(OtherLoginOperation.None)
     private val _serverOp = MutableStateFlow<ServerOperation>(ServerOperation.None)
@@ -224,12 +236,18 @@ class AccountManageViewModel @Inject constructor(
     val loginUiState: StateFlow<LoginUiState> = kotlinxCombine(
         _loginMenuOp,
         _microsoftLoginOp,
+        _cytechLoginOp,
         _localLoginOp,
         _otherLoginOp
-    ) { loginMenuOp, microsoftLoginOp, localLoginOp, otherLoginOp ->
+    ) { loginMenuOp: LoginMenuOperation, 
+        microsoftLoginOp: MicrosoftLoginOperation, 
+        cytechLoginOp: CytechLoginOperation, 
+        localLoginOp: LocalLoginOperation, 
+        otherLoginOp: OtherLoginOperation ->
         LoginUiState(
             menuOp = loginMenuOp,
             microsoftOp = microsoftLoginOp,
+            cytechOp = cytechLoginOp,
             localOp = localLoginOp,
             otherOp = otherLoginOp
         )
@@ -242,6 +260,7 @@ class AccountManageViewModel @Inject constructor(
     data class LoginUiState(
         val menuOp: LoginMenuOperation = LoginMenuOperation.None,
         val microsoftOp: MicrosoftLoginOperation = MicrosoftLoginOperation.None,
+        val cytechOp: CytechLoginOperation = CytechLoginOperation.None,
         val localOp: LocalLoginOperation = LocalLoginOperation.None,
         val otherOp: OtherLoginOperation = OtherLoginOperation.None
     )
@@ -255,7 +274,11 @@ class AccountManageViewModel @Inject constructor(
         AccountsManager.authServersFlow,
         _accountCapeOpMap,
         AccountsManager.isOffline
-    ) { accounts, currentAccount, authServers, accountCapeOpMap, isOffline ->
+    ) { accounts: List<Account>, 
+        currentAccount: Account?, 
+        authServers: List<AuthServer>, 
+        accountCapeOpMap: Map<String, List<PlayerProfile.Cape>>, 
+        isOffline: Boolean ->
         ProfileUiState(
             accounts = accounts,
             currentAccount = currentAccount,
@@ -323,6 +346,9 @@ class AccountManageViewModel @Inject constructor(
             is AccountManageIntent.UpdateMicrosoftLoginOp ->
                 _microsoftLoginOp.value = intent.operation
 
+            is AccountManageIntent.UpdateCytechLoginOp ->
+                _cytechLoginOp.value = intent.operation
+
             is AccountManageIntent.UpdateLocalLoginOp -> _localLoginOp.value = intent.operation
             is AccountManageIntent.UpdateOtherLoginOp -> _otherLoginOp.value = intent.operation
             is AccountManageIntent.UpdateServerOp -> _serverOp.value = intent.operation
@@ -363,6 +389,10 @@ class AccountManageViewModel @Inject constructor(
                 intent.userName,
                 intent.userUUID
             )
+
+            is AccountManageIntent.ImportLocalAccount -> importLocalAccount(intent.uri)
+
+            is AccountManageIntent.LoginWithCytech -> loginWithCytech()
 
             is AccountManageIntent.LoginWithOtherServer -> loginWithOtherServer(intent)
             is AccountManageIntent.AddServer -> addServer(intent.url)
@@ -658,6 +688,19 @@ class AccountManageViewModel @Inject constructor(
     private fun createLocalAccount(userName: String, userUUID: String?) {
         localLogin(userName, userUUID)
         onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.None))
+    }
+
+    /** 导入外部离线账号 */
+    private fun importLocalAccount(uri: Uri) {
+        // TODO: 完善从外部（如 PojavLauncher）导入账号的逻辑
+        // 目前仅作为功能入口展示
+        emitError("Not Implemented", "Importing accounts from other systems is coming soon!")
+    }
+
+    /** Cytech 登录 */
+    private fun loginWithCytech() {
+        // Cytech Launcher 登录现在指向微软登录
+        onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
     }
 
     /** 第三方 Yggdrasil 服务器登录 */
