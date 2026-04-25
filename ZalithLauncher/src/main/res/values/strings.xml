@@ -1179,8 +1179,10 @@
     <!-- About -->
     <string name="about_launcher_title">About Launcher</string>
     <string name="about_launcher_version">Launcher Version: %s</string>
-    <string name="about_launcher_author_movtery_title">MovTery</string>
-    <string name="about_launcher_author_movtery_text">Author of %s</string>
+    <string name="about_launcher_author_movtery_title">Cytech Team</string>
+    <string name="about_launcher_author_movtery_text">Main Developer of Cytech Launcher</string>
+    <string name="about_launcher_original_author_text">Original project based on Zalith Launcher 2 by MovTery</string>
+
     <string name="about_launcher_project_link">Project Link</string>
     <string name="about_sponsor">Sponsorship Support</string>
     <string name="about_acknowledgements_title">Acknowledgements</string>

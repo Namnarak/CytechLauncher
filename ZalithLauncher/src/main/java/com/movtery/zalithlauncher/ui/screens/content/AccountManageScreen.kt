@@ -259,6 +259,7 @@ private fun AccountManageContent(
 
     LoginMenuOperation(loginUiState.menuOp, actions, profileUiState.authServers)
     MicrosoftLoginOperation(loginUiState.microsoftOp, actions)
+    CytechLoginOperation(loginUiState.cytechOp, actions)
     LocalLoginOperation(loginUiState.localOp, actions)
     OtherLoginOperation(loginUiState.otherOp, actions)
     ServerTypeOperation(operationUiState.serverOp, actions)
@@ -349,12 +350,7 @@ private fun ActionsLayout(
             modifier = Modifier
                 .fillMaxWidth(),
             onClick = {
-                if (isOffline) {
-                    //非正版状态下，只允许创建微软账号
-                    actions.onIntent(AccountManageIntent.UpdateMicrosoftLoginOp(MicrosoftLoginOperation.Tip))
-                } else {
-                    actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
-                }
+                actions.onIntent(AccountManageIntent.UpdateLoginMenuOp(LoginMenuOperation.Login))
             }
         ) {
             MarqueeText(text = stringResource(R.string.account_add_new_account))
@@ -378,6 +374,9 @@ private fun LoginMenuOperation(
                     )
                 },
                 authServers = authServers,
+                onCytechLogin = {
+                    actions.onIntent(AccountManageIntent.LoginWithCytech)
+                },
                 onMicrosoftLogin = {
                     if (!isMicrosoftLogging()) {
                         actions.onIntent(
@@ -389,6 +388,10 @@ private fun LoginMenuOperation(
                 },
                 onLocalLogin = {
                     actions.onIntent(AccountManageIntent.UpdateLocalLoginOp(LocalLoginOperation.Edit))
+                },
+                onImportLocalAccount = {
+                    // This is currently a placeholder triggered via LoginMenuDialog internal launcher
+                    actions.onIntent(AccountManageIntent.ImportLocalAccount(android.net.Uri.EMPTY))
                 },
                 onAuthServerLogin = { server ->
                     actions.onIntent(
@@ -404,6 +407,30 @@ private fun LoginMenuOperation(
                     actions.onIntent(
                         AccountManageIntent.UpdateServerOp(
                             ServerOperation.Delete(server)
+                        )
+                    )
+                }
+            )
+        }
+    }
+}
+
+/**
+ * Cytech 登录相关逻辑处理
+ */
+@Composable
+private fun CytechLoginOperation(
+    operation: com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginOperation,
+    actions: AccountActions
+) {
+    when (operation) {
+        is com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginOperation.None -> {}
+        is com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginOperation.Tip -> {
+            com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginTipDialog(
+                onDismissRequest = {
+                    actions.onIntent(
+                        AccountManageIntent.UpdateCytechLoginOp(
+                            com.movtery.zalithlauncher.ui.screens.content.elements.CytechLoginOperation.None
                         )
                     )
                 }

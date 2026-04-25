@@ -124,14 +124,27 @@ fun AboutInfoScreen(
                         )
 
                         ButtonIconItem(
-                            icon = painterResource(R.drawable.img_movtery),
-                            title = stringResource(R.string.about_launcher_author_movtery_title),
-                            text = stringResource(R.string.about_launcher_author_movtery_text, InfoDistributor.LAUNCHER_NAME),
+                            icon = painterResource(R.drawable.img_launcher),
+                            title = "Cytech Team",
+                            text = "Main Developer of Cytech Launcher",
                             button = {
                                 OutlinedButton(
-                                    onClick = { openLink(URL_SUPPORT) }
+                                    onClick = { openLink("https://github.com/Namnarak") }
                                 ) {
-                                    Text(text = stringResource(R.string.about_sponsor))
+                                    Text(text = stringResource(R.string.about_launcher_project_link))
+                                }
+                            }
+                        )
+
+                        ButtonIconItem(
+                            icon = painterResource(R.drawable.img_movtery),
+                            title = "MovTery",
+                            text = stringResource(R.string.about_launcher_original_author_text),
+                            button = {
+                                OutlinedButton(
+                                    onClick = { openLink("https://github.com/MovTery") }
+                                ) {
+                                    Text(text = stringResource(R.string.about_launcher_project_link))
                                 }
                             }
                         )

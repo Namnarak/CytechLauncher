@@ -42,7 +42,7 @@ This project is licensed under the **[GPL-3.0 license](LICENSE)**.
 
 ## 🙏 Credits & Appreciation
 Special thanks to the **Zalith Launcher 2** team and all contributors for providing such a fantastic base project:
-- **MovTery** (Main Developer of Zalith Launcher 2)
+- **Cytech Team** (Main Developer of Cytech Launcher)
 - **PojavLauncher Team** (Engine Core)
 - Global translators and community contributors.
 
