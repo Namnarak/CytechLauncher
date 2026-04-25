@@ -56,13 +56,13 @@ android {
         create("releaseBuild") {
             storeFile = file("cytech_launcher.jks")
             storePassword = getKeyFromLocal("STORE_PASSWORD", ".store_password.txt")
-            keyAlias = "movtery_cytech"
+            keyAlias = "movtery_zalith"
             keyPassword = getKeyFromLocal("KEY_PASSWORD", ".key_password.txt")
         }
         create("debugBuild") {
             storeFile = file("cytech_launcher_debug.jks")
             storePassword = defaultStorePassword
-            keyAlias = "movtery_cytech_debug"
+            keyAlias = "movtery_zalith_debug"
             keyPassword = defaultKeyPassword
         }
     }

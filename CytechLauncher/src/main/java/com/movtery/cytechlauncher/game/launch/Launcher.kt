@@ -26,8 +26,8 @@ import android.util.ArrayMap
 import androidx.annotation.CallSuper
 import androidx.compose.ui.unit.IntSize
 import com.movtery.cytechlauncher.bridge.LoggerBridge
-import com.movtery.cytechlauncher.bridge.ZLBridge
-import com.movtery.cytechlauncher.bridge.ZLNativeInvoker
+import com.movtery.cytechlauncher.bridge.CytechBridge
+import com.movtery.cytechlauncher.bridge.CytechNativeInvoker
 import com.movtery.cytechlauncher.game.multirt.Runtime
 import com.movtery.cytechlauncher.game.multirt.RuntimesManager
 import com.movtery.cytechlauncher.game.path.GamePathManager
@@ -79,9 +79,9 @@ abstract class Launcher(
         screenSize: IntSize,
         useLocalLanguage: Boolean = true
     ): Int {
-        ZLNativeInvoker.staticLauncher = this
+        CytechNativeInvoker.staticLauncher = this
 
-        ZLBridge.setLdLibraryPath(getRuntimeLibraryPath())
+        CytechBridge.setLdLibraryPath(getRuntimeLibraryPath())
 
         LoggerBridge.appendTitle("Env Map")
         setEnv(screenSize)
@@ -134,9 +134,9 @@ abstract class Launcher(
             LoggerBridge.append("JVMArgs: $arg")
         }
 
-        ZLBridge.setupExitMethod(context.applicationContext)
-        ZLBridge.initializeGameExitHook()
-        ZLBridge.chdir(chdir())
+        CytechBridge.setupExitMethod(context.applicationContext)
+        CytechBridge.initializeGameExitHook()
+        CytechBridge.chdir(chdir())
 
         val exitCode = VMLauncher.launchJVM(args.toTypedArray())
         LoggerBridge.append("Java Exit code: $exitCode")
@@ -428,24 +428,24 @@ abstract class Launcher(
             javaLibDir = "$runtimeHome/jre${getJavaLibDir()}"
         }
         val jvmLibDir = "$javaLibDir${getJvmLibDir()}"
-        ZLBridge.dlopen("$jliLibDir/libjli.so")
-        ZLBridge.dlopen("$jvmLibDir/libjvm.so")
-        ZLBridge.dlopen("$javaLibDir/libfreetype.so")
-        ZLBridge.dlopen("$javaLibDir/libverify.so")
-        ZLBridge.dlopen("$javaLibDir/libjava.so")
-        ZLBridge.dlopen("$javaLibDir/libnet.so")
-        ZLBridge.dlopen("$javaLibDir/libnio.so")
-        ZLBridge.dlopen("$javaLibDir/libawt.so")
-        ZLBridge.dlopen("$javaLibDir/libawt_headless.so")
-        ZLBridge.dlopen("$javaLibDir/libfontmanager.so")
+        CytechBridge.dlopen("$jliLibDir/libjli.so")
+        CytechBridge.dlopen("$jvmLibDir/libjvm.so")
+        CytechBridge.dlopen("$javaLibDir/libfreetype.so")
+        CytechBridge.dlopen("$javaLibDir/libverify.so")
+        CytechBridge.dlopen("$javaLibDir/libjava.so")
+        CytechBridge.dlopen("$javaLibDir/libnet.so")
+        CytechBridge.dlopen("$javaLibDir/libnio.so")
+        CytechBridge.dlopen("$javaLibDir/libawt.so")
+        CytechBridge.dlopen("$javaLibDir/libawt_headless.so")
+        CytechBridge.dlopen("$javaLibDir/libfontmanager.so")
         locateLibs(File(runtimeHome)).forEach { file ->
-            ZLBridge.dlopen(file.absolutePath)
+            CytechBridge.dlopen(file.absolutePath)
         }
     }
 
     @CallSuper
     protected open fun dlopenEngine() {
-        ZLBridge.dlopen("${PathManager.DIR_NATIVE_LIB}/libopenal.so")
+        CytechBridge.dlopen("${PathManager.DIR_NATIVE_LIB}/libopenal.so")
     }
 }
 

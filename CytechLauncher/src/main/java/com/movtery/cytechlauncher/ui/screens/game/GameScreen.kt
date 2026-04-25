@@ -78,8 +78,8 @@ import com.movtery.layer_controller.observable.ObservableSpecial
 import com.movtery.layer_controller.utils.widgetPosition
 import com.movtery.cytechlauncher.R
 import com.movtery.cytechlauncher.bridge.CURSOR_DISABLED
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates
-import com.movtery.cytechlauncher.bridge.ZLNativeInvoker
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates
+import com.movtery.cytechlauncher.bridge.CytechNativeInvoker
 import com.movtery.cytechlauncher.game.input.LWJGLCharSender
 import com.movtery.cytechlauncher.game.keycodes.ControlEventKeycode
 import com.movtery.cytechlauncher.game.keycodes.LwjglGlfwKeycode
@@ -272,7 +272,7 @@ private class GameViewModel(
                 //游戏内文本发送事件
                 if (pressed) {
                     val text = event.key
-                    val inGame = ZLBridgeStates.cursorMode.value == CURSOR_DISABLED
+                    val inGame = CytechBridgeStates.cursorMode.value == CURSOR_DISABLED
                     gameTextSender.send(GameTextSender.Data(text, inGame))
                 }
                 return
@@ -522,7 +522,7 @@ fun GameScreen(
         eventViewModel.sendEvent(EventViewModel.Event.Game.SwitchIme(mode))
     }
     val editorViewModel = rememberEditorViewModel("ControlEditor_Times=${viewModel.editorRefresh}")
-    val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
+    val cursorMode by CytechBridgeStates.cursorMode.collectAsStateWithLifecycle()
     val isGrabbing = remember(cursorMode) {
         cursorMode == CURSOR_DISABLED
     }
@@ -552,7 +552,7 @@ fun GameScreen(
         onForceClose = {
             Terracotta.setWaiting(true)
             terracottaViewModel.forceStopVPN()
-            ZLNativeInvoker.jvmExit(0, false)
+            CytechNativeInvoker.jvmExit(0, false)
         },
         text = stringResource(R.string.game_menu_option_force_close_text)
     )

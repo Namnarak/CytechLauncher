@@ -27,7 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
-import com.movtery.cytechlauncher.bridge.ZLBridge
+import com.movtery.cytechlauncher.bridge.CytechBridge
 import com.movtery.cytechlauncher.game.account.AccountsManager
 import com.movtery.cytechlauncher.game.control.ControlManager
 import com.movtery.cytechlauncher.game.input.EfficientAndroidLWJGLKeycode
@@ -85,7 +85,7 @@ class GameHandler(
         screenSize: IntSize,
         scope: CoroutineScope
     ) {
-        ZLBridge.setupBridgeWindow(surface)
+        CytechBridge.setupBridgeWindow(surface)
 
         MCOptions.setup(activity, version)
 

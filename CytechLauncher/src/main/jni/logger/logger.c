@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-void zl_log(const char *level, const char *fmt, ...) {
+void cytech_log(const char *level, const char *fmt, ...) {
     va_list args;
     char buffer[1024];
     va_start(args, fmt);

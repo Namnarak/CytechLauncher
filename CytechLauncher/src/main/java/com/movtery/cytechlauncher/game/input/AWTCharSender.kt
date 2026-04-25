@@ -20,39 +20,39 @@ package com.movtery.cytechlauncher.game.input
 
 import android.view.KeyEvent
 import android.view.MotionEvent
-import com.movtery.cytechlauncher.bridge.ZLBridge
+import com.movtery.cytechlauncher.bridge.CytechBridge
 
 object AWTCharSender : CharacterSenderStrategy {
     override fun sendChar(character: Char) {
-        ZLBridge.sendChar(character)
+        CytechBridge.sendChar(character)
     }
 
     override fun sendBackspace() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_BACK_SPACE)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_BACK_SPACE)
     }
 
     override fun sendLeft() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_LEFT)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_LEFT)
     }
 
     override fun sendRight() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_RIGHT)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_RIGHT)
     }
 
     override fun sendUp() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_UP)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_UP)
     }
 
     override fun sendDown() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_DOWN)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_DOWN)
     }
 
     override fun sendEnter() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_ENTER)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_ENTER)
     }
 
     override fun sendTab() {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_TAB)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_TAB)
     }
 
     override fun sendOther(key: KeyEvent) {
@@ -61,34 +61,34 @@ object AWTCharSender : CharacterSenderStrategy {
 
     override fun sendCopy() {
         sendModifierCtrl(true)
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_C)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_C)
         sendModifierCtrl(false)
     }
 
     override fun sendCut() {
         sendModifierCtrl(true)
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_X)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_X)
         sendModifierCtrl(false)
     }
 
     override fun sendPaste() {
         sendModifierCtrl(true)
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_V)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_V)
         sendModifierCtrl(false)
     }
 
     override fun sendSelectAll() {
         sendModifierCtrl(true)
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_A)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_A)
         sendModifierCtrl(false)
     }
 
     override fun sendModifierShift(press: Boolean) {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_SHIFT, if (press) 1 else 0)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_SHIFT, if (press) 1 else 0)
     }
 
     override fun sendModifierCtrl(press: Boolean) {
-        ZLBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, if (press) 1 else 0)
+        CytechBridge.sendKey(' ', AWTInputEvent.VK_CONTROL, if (press) 1 else 0)
     }
 
     /**

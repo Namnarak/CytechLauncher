@@ -1,7 +1,7 @@
 package org.lwjgl.glfw;
 
-import static com.movtery.cytechlauncher.bridge.ZLBridgeStatesKt.CURSOR_DISABLED;
-import static com.movtery.cytechlauncher.bridge.ZLBridgeStatesKt.CURSOR_ENABLED;
+import static com.movtery.cytechlauncher.bridge.CytechBridgeStatesKt.CURSOR_DISABLED;
+import static com.movtery.cytechlauncher.bridge.CytechBridgeStatesKt.CURSOR_ENABLED;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -14,8 +14,8 @@ import androidx.annotation.Nullable;
 
 import com.movtery.cytechlauncher.bridge.CursorShape;
 import com.movtery.cytechlauncher.bridge.NativeLibraryLoader;
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates;
-import com.movtery.cytechlauncher.bridge.ZLNativeInvoker;
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates;
+import com.movtery.cytechlauncher.bridge.CytechNativeInvoker;
 import com.movtery.cytechlauncher.context.ContextsKt;
 import com.movtery.cytechlauncher.game.keycodes.LwjglGlfwKeycode;
 import com.movtery.cytechlauncher.info.InfoDistributor;
@@ -38,10 +38,10 @@ public class CallbackBridge {
     public static final Choreographer sChoreographer = Choreographer.getInstance();
     private static boolean isGrabbing = false;
     private static final Consumer<Boolean> grabListener = isGrabbing ->
-            ZLBridgeStates.changeCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
+            CytechBridgeStates.changeCursorMode(isGrabbing ? CURSOR_DISABLED : CURSOR_ENABLED);
 
     private static int cursorShape = GLFW_ARROW_CURSOR;
-    private static final Consumer<CursorShape> cursorShapeListener = ZLBridgeStates::changeCursorShape;
+    private static final Consumer<CursorShape> cursorShapeListener = CytechBridgeStates::changeCursorShape;
     
     public static final int CLIPBOARD_COPY = 2000;
     public static final int CLIPBOARD_PASTE = 2001;
@@ -153,7 +153,7 @@ public class CallbackBridge {
                     return "";
                 }
             case CLIPBOARD_OPEN:
-                ZLNativeInvoker.openLink(copy);
+                CytechNativeInvoker.openLink(copy);
             default:
                 return null;
         }

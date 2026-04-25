@@ -62,8 +62,8 @@ import com.jakewharton.processphoenix.ProcessPhoenix
 import com.movtery.cytechlauncher.R
 import com.movtery.cytechlauncher.bridge.CURSOR_DISABLED
 import com.movtery.cytechlauncher.bridge.LoggerBridge
-import com.movtery.cytechlauncher.bridge.ZLBridge
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates
+import com.movtery.cytechlauncher.bridge.CytechBridge
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates
 import com.movtery.cytechlauncher.coroutine.DataBridge
 import com.movtery.cytechlauncher.game.input.AWTCharSender
 import com.movtery.cytechlauncher.game.input.CharacterSenderStrategy
@@ -447,7 +447,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
                     }
 
                     //鼠标变更为抓获模式时，应该关闭输入框
-                    val cursorMode by ZLBridgeStates.cursorMode.collectAsStateWithLifecycle()
+                    val cursorMode by CytechBridgeStates.cursorMode.collectAsStateWithLifecycle()
                     LaunchedEffect(cursorMode) {
                         if (cursorMode == CURSOR_DISABLED) vmViewModel.disableInputMode()
                     }
@@ -527,7 +527,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
         val windowWidth = getDisplayPixels(screenSize.width)
         val windowHeight = getDisplayPixels(screenSize.height)
         applySizeToSurface?.invoke(windowWidth, windowHeight)
-        ZLBridgeStates.onWindowChange()
+        CytechBridgeStates.onWindowChange()
         CallbackBridge.sendUpdateWindowSize(windowWidth, windowHeight)
 
         return IntSize(windowWidth, windowHeight)
@@ -591,7 +591,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         if (vmViewModel.isRunning) {
-            ZLBridge.setupBridgeWindow(Surface(surface))
+            CytechBridge.setupBridgeWindow(Surface(surface))
             return
         }
         vmViewModel.isRunning = true
@@ -627,7 +627,7 @@ class VMActivity : BaseAppCompatActivity(), SurfaceTextureListener, SurfaceHolde
     override fun surfaceCreated(holder: SurfaceHolder) {
         val surface = holder.surface
         if (vmViewModel.isRunning) {
-            ZLBridge.setupBridgeWindow(surface)
+            CytechBridge.setupBridgeWindow(surface)
             return
         }
         vmViewModel.isRunning = true

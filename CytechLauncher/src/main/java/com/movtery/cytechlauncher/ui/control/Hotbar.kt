@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.cytechlauncher.R
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates
 import com.movtery.cytechlauncher.game.keycodes.HOTBAR_1
 import com.movtery.cytechlauncher.game.keycodes.HOTBAR_1_VALUE
 import com.movtery.cytechlauncher.game.keycodes.HOTBAR_2
@@ -139,7 +139,7 @@ fun BoxScope.MinecraftHotbar(
     when (rule) {
         HotbarRule.Auto -> {
             val optionsChangeKey by MCOptions.refreshKey.collectAsStateWithLifecycle()
-            val windowChangeKey by ZLBridgeStates.windowChangeKey.collectAsStateWithLifecycle()
+            val windowChangeKey by CytechBridgeStates.windowChangeKey.collectAsStateWithLifecycle()
             LaunchedEffect(
                 isGrabbing, optionsChangeKey, screenSize, density,
                 resolutionRatio, windowChangeKey
