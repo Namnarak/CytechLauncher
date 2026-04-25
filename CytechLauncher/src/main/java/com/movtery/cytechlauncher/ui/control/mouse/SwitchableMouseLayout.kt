@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.movtery.cytechlauncher.bridge.CURSOR_DISABLED
 import com.movtery.cytechlauncher.bridge.CURSOR_ENABLED
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates
 import com.movtery.cytechlauncher.setting.AllSettings
 import com.movtery.cytechlauncher.setting.enums.MouseControlMode
 import com.movtery.cytechlauncher.ui.control.gamepad.GamepadStickCameraListener
@@ -212,7 +212,7 @@ fun SwitchableMouseLayout(
     }
 
     Box(modifier = modifier) {
-        val cursorShape by ZLBridgeStates.cursorShape.collectAsStateWithLifecycle()
+        val cursorShape by CytechBridgeStates.cursorShape.collectAsStateWithLifecycle()
 
         if (showMousePointer) {
             MousePointer(

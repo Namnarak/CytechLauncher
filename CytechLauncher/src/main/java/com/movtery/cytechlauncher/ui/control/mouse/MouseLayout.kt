@@ -46,7 +46,7 @@ import coil3.gif.GifDecoder
 import coil3.request.crossfade
 import com.movtery.cytechlauncher.R
 import com.movtery.cytechlauncher.bridge.CursorShape
-import com.movtery.cytechlauncher.bridge.ZLBridgeStates
+import com.movtery.cytechlauncher.bridge.CytechBridgeStates
 import com.movtery.cytechlauncher.path.PathManager
 import com.movtery.cytechlauncher.setting.AllSettings
 import com.movtery.cytechlauncher.setting.enums.MouseControlMode
@@ -175,7 +175,7 @@ fun VirtualPointerLayout(
     }
 
     Box(modifier = modifier) {
-        val cursorShape by ZLBridgeStates.cursorShape.collectAsStateWithLifecycle()
+        val cursorShape by CytechBridgeStates.cursorShape.collectAsStateWithLifecycle()
 
         if (showMousePointer) {
             MousePointer(

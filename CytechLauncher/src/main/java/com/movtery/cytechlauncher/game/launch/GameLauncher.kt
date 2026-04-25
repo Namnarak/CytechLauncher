@@ -27,7 +27,7 @@ import com.movtery.cytechlauncher.R
 import com.movtery.cytechlauncher.CytechApplication
 import com.movtery.cytechlauncher.bridge.LoggerBridge.append
 import com.movtery.cytechlauncher.bridge.LoggerBridge.appendTitle
-import com.movtery.cytechlauncher.bridge.ZLBridge
+import com.movtery.cytechlauncher.bridge.CytechBridge
 import com.movtery.cytechlauncher.context.readAssetFile
 import com.movtery.cytechlauncher.game.account.Account
 import com.movtery.cytechlauncher.game.account.AccountType
@@ -162,11 +162,11 @@ class GameLauncher(
 
         //声音引擎加载后，dlopen渲染器的库
         RendererPluginManager.selectedRendererPlugin?.let { renderer ->
-            renderer.dlopen.forEach { lib -> ZLBridge.dlopen("${renderer.path}/$lib") }
+            renderer.dlopen.forEach { lib -> CytechBridge.dlopen("${renderer.path}/$lib") }
         }
 
         val rendererLib = loadGraphicsLibrary() ?: return
-        if (!ZLBridge.dlopen(rendererLib) && !ZLBridge.dlopen(findInLdLibPath(rendererLib))) {
+        if (!CytechBridge.dlopen(rendererLib) && !CytechBridge.dlopen(findInLdLibPath(rendererLib))) {
             lError("Failed to load renderer $rendererLib")
         }
     }

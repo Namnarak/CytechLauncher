@@ -29,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntSize
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.withSave
-import com.movtery.cytechlauncher.bridge.ZLBridge
+import com.movtery.cytechlauncher.bridge.CytechBridge
 import com.movtery.cytechlauncher.game.input.AWTInputEvent
 import com.movtery.cytechlauncher.game.launch.JvmLauncher
 import com.movtery.cytechlauncher.ui.control.input.TextInputMode
@@ -77,7 +77,7 @@ class JVMHandler(
                     canvas = surface.lockCanvas(null)
                     canvas?.drawRGB(0, 0, 0)
 
-                    ZLBridge.renderAWTScreenFrame()?.let { rgbArray ->
+                    CytechBridge.renderAWTScreenFrame()?.let { rgbArray ->
                         canvas?.withSave {
                             rgbArrayBitmap.setPixels(
                                 rgbArray,
@@ -121,7 +121,7 @@ class JVMHandler(
     }
 
     override fun sendMouseRight(isPressed: Boolean) {
-        ZLBridge.sendMousePress(AWTInputEvent.BUTTON3_DOWN_MASK, isPressed)
+        CytechBridge.sendMousePress(AWTInputEvent.BUTTON3_DOWN_MASK, isPressed)
     }
 
     @Composable
