@@ -248,6 +248,8 @@ suspend fun Account.refreshMicrosoft(
         this.username = newAcc.username
         this.refreshToken = newAcc.refreshToken
         this.xUid = newAcc.xUid
+        this.expiresAt = newAcc.expiresAt
+        this.skinModelType = newAcc.skinModelType
     }
 }
 
