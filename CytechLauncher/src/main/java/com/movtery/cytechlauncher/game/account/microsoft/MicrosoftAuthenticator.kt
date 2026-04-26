@@ -74,7 +74,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlin.coroutines.CoroutineContext
 
 private val SCOPES = listOf("XboxLive.signin", "offline_access", "openid", "profile", "email")
-private const val TENANT = "/consumers"
+private const val TENANT = "common"
 
 const val MICROSOFT_AUTH_URL = "https://login.microsoftonline.com"
 const val LIVE_AUTH_URL = "https://login.live.com"
@@ -122,12 +122,11 @@ suspend fun getTokenResponse(
 
         try {
             val response: JsonObject = submitForm(
-                "$MICROSOFT_AUTH_URL$TENANT/oauth2/v2.0/token",
+                "$MICROSOFT_AUTH_URL/$TENANT/oauth2/v2.0/token",
                 parameters = Parameters.build {
                     append("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
                     append("device_code", codeResponse.deviceCode)
                     append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
-                    append("tenant", TENANT)
                 },
                 context = context
             )
@@ -218,6 +217,7 @@ private suspend fun refreshAccessToken(
                 append("client_id", InfoDistributor.OAUTH_CLIENT_ID)
                 append("refresh_token", refreshToken)
                 append("grant_type", "refresh_token")
+                append("scope", SCOPES.joinToString(" "))
             },
             context = context
         )
