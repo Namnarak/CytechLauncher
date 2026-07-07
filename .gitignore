@@ -13,3 +13,11 @@ local.properties
 .store_password.txt
 .key_password.txt
 .curseforge_api.txt
+
+# Keystore files — do not commit
+*.jks
+*.jks.bk
+
+# Archives
+*.zip
+*.tar.gz
